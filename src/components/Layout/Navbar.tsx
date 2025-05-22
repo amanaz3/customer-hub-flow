@@ -34,7 +34,7 @@ const Navbar: React.FC = () => {
       <div className="h-14 px-4 flex items-center justify-between">
         <div className="flex-1">
           <h2 className="text-xl font-semibold text-gray-800">
-            {user?.role === 'admin' ? 'Admin Portal' : 'User Portal'}
+            {user?.role === 'admin' ? 'Amana Banking - Admin Portal' : 'Amana Banking - User Portal'}
           </h2>
         </div>
         

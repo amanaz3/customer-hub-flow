@@ -62,7 +62,10 @@ const CustomerNew = () => {
     if (!user) return;
 
     const newCustomer = {
-      ...data,
+      name: data.name,  // Ensure name is explicitly provided
+      mobile: data.mobile, // Ensure mobile is explicitly provided
+      company: data.company, // Ensure company is explicitly provided
+      email: data.email, // Ensure email is explicitly provided
       leadSource: data.leadSource as LeadSource,
       amount: parseFloat(data.amount),
       status: 'Pending' as const,
