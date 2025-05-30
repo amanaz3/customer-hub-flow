@@ -114,6 +114,10 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
     return ['Returned', 'Rejected', 'Need More Info'].includes(targetStatus);
   };
 
+  const handleStatusChange = (value: string) => {
+    setSelectedStatus(value as Status);
+  };
+
   return (
     <div className="flex flex-wrap gap-2">
       {/* Quick action buttons for common transitions */}
@@ -186,7 +190,7 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
                 Manually change the application status. This action will be logged.
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+            <Select value={selectedStatus} onValueChange={handleStatusChange}>
               <SelectTrigger className="my-2">
                 <SelectValue placeholder="Select new status" />
               </SelectTrigger>

@@ -25,7 +25,7 @@ const CustomerNew = () => {
       email: data.email,
       leadSource: data.leadSource,
       amount: parseFloat(data.amount),
-      status: 'Pending' as const,
+      status: 'Submitted' as const,
       userId: user.id,
       documents: [],
       comments: []
