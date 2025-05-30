@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState } from 'react';
 
-export type Status = 'Pending' | 'Returned' | 'Submitted to Bank' | 'Completed';
+export type Status = 'Submitted' | 'Returned' | 'Sent to Bank' | 'Complete' | 'Rejected' | 'Need More Info' | 'Paid';
 export type LeadSource = 'Website' | 'Referral' | 'Social Media' | 'Other';
 
 export interface Document {
@@ -10,6 +10,16 @@ export interface Document {
   filePath: string | null;
   isMandatory: boolean;
   isUploaded: boolean;
+}
+
+export interface StatusChange {
+  id: string;
+  previousStatus: Status;
+  newStatus: Status;
+  comment: string;
+  changedBy: string;
+  changedByRole: 'admin' | 'user';
+  timestamp: Date;
 }
 
 export interface Customer {
@@ -24,18 +34,22 @@ export interface Customer {
   documents: Document[];
   userId: string;
   comments: string[];
+  statusHistory: StatusChange[];
   createdAt: Date;
+  paymentReceived?: boolean;
+  paymentDate?: Date;
 }
 
 interface CustomerContextType {
   customers: Customer[];
-  addCustomer: (customer: Omit<Customer, 'id' | 'createdAt'>) => void;
+  addCustomer: (customer: Omit<Customer, 'id' | 'createdAt' | 'statusHistory'>) => void;
   updateCustomer: (id: string, updates: Partial<Omit<Customer, 'id'>>) => void;
   getCustomerById: (id: string) => Customer | undefined;
   getCustomersByUserId: (userId: string) => Customer[];
   getCustomersByStatus: (status: Status) => Customer[];
-  updateCustomerStatus: (id: string, status: Status, comment?: string) => void;
+  updateCustomerStatus: (id: string, status: Status, comment: string, changedBy: string, changedByRole: 'admin' | 'user') => void;
   uploadDocument: (customerId: string, documentId: string, filePath: string) => void;
+  markPaymentReceived: (id: string, changedBy: string) => void;
 }
 
 const CustomerContext = createContext<CustomerContextType | undefined>(undefined);
@@ -63,12 +77,24 @@ const mockCustomers: Customer[] = [
     company: 'ABC Corp',
     email: 'john@example.com',
     leadSource: 'Website',
-    status: 'Pending',
+    status: 'Submitted',
     amount: 25000,
     documents: [...defaultDocuments],
     userId: '2',
     comments: [],
-    createdAt: new Date('2023-01-15')
+    statusHistory: [
+      {
+        id: 'sh1',
+        previousStatus: 'Submitted',
+        newStatus: 'Submitted',
+        comment: 'Initial submission',
+        changedBy: 'Regular User',
+        changedByRole: 'user',
+        timestamp: new Date('2023-01-15')
+      }
+    ],
+    createdAt: new Date('2023-01-15'),
+    paymentReceived: false
   },
   {
     id: 'c2',
@@ -77,12 +103,24 @@ const mockCustomers: Customer[] = [
     company: 'XYZ Inc',
     email: 'jane@example.com',
     leadSource: 'Referral',
-    status: 'Submitted to Bank',
+    status: 'Sent to Bank',
     amount: 50000,
     documents: [...defaultDocuments],
     userId: '2',
     comments: ['All documents verified'],
-    createdAt: new Date('2023-02-20')
+    statusHistory: [
+      {
+        id: 'sh2',
+        previousStatus: 'Submitted',
+        newStatus: 'Sent to Bank',
+        comment: 'All documents verified',
+        changedBy: 'Admin User',
+        changedByRole: 'admin',
+        timestamp: new Date('2023-02-20')
+      }
+    ],
+    createdAt: new Date('2023-02-20'),
+    paymentReceived: false
   },
   {
     id: 'c3',
@@ -91,24 +129,58 @@ const mockCustomers: Customer[] = [
     company: 'Johnson LLC',
     email: 'alice@example.com',
     leadSource: 'Social Media',
-    status: 'Completed',
+    status: 'Paid',
     amount: 75000,
     documents: [...defaultDocuments],
     userId: '2',
     comments: ['Approved by bank', 'Payment processed'],
-    createdAt: new Date('2023-03-05')
+    statusHistory: [
+      {
+        id: 'sh3a',
+        previousStatus: 'Sent to Bank',
+        newStatus: 'Complete',
+        comment: 'Approved by bank',
+        changedBy: 'Admin User',
+        changedByRole: 'admin',
+        timestamp: new Date('2023-03-05')
+      },
+      {
+        id: 'sh3b',
+        previousStatus: 'Complete',
+        newStatus: 'Paid',
+        comment: 'Payment processed',
+        changedBy: 'Admin User',
+        changedByRole: 'admin',
+        timestamp: new Date('2023-03-10')
+      }
+    ],
+    createdAt: new Date('2023-03-05'),
+    paymentReceived: true,
+    paymentDate: new Date('2023-03-10')
   }
 ];
 
 export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
 
-  const addCustomer = (customer: Omit<Customer, 'id' | 'createdAt'>) => {
+  const addCustomer = (customer: Omit<Customer, 'id' | 'createdAt' | 'statusHistory'>) => {
     const newCustomer: Customer = {
       ...customer,
       id: `c${customers.length + 1}`,
       createdAt: new Date(),
-      documents: [...defaultDocuments]
+      documents: [...defaultDocuments],
+      statusHistory: [
+        {
+          id: `sh${Date.now()}`,
+          previousStatus: 'Submitted',
+          newStatus: 'Submitted',
+          comment: 'Initial submission',
+          changedBy: customer.userId === '1' ? 'Admin User' : 'Regular User',
+          changedByRole: customer.userId === '1' ? 'admin' : 'user',
+          timestamp: new Date()
+        }
+      ],
+      paymentReceived: false
     };
     setCustomers([...customers, newCustomer]);
   };
@@ -131,14 +203,56 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     return customers.filter(customer => customer.status === status);
   };
 
-  const updateCustomerStatus = (id: string, status: Status, comment?: string) => {
+  const updateCustomerStatus = (id: string, status: Status, comment: string, changedBy: string, changedByRole: 'admin' | 'user') => {
     setCustomers(customers.map(customer => {
       if (customer.id === id) {
-        const updatedCustomer = { ...customer, status };
+        const statusChange: StatusChange = {
+          id: `sh${Date.now()}`,
+          previousStatus: customer.status,
+          newStatus: status,
+          comment,
+          changedBy,
+          changedByRole,
+          timestamp: new Date()
+        };
+
+        const updatedCustomer = { 
+          ...customer, 
+          status,
+          statusHistory: [...customer.statusHistory, statusChange]
+        };
+
         if (comment) {
           updatedCustomer.comments = [...customer.comments, comment];
         }
+
         return updatedCustomer;
+      }
+      return customer;
+    }));
+  };
+
+  const markPaymentReceived = (id: string, changedBy: string) => {
+    setCustomers(customers.map(customer => {
+      if (customer.id === id) {
+        const statusChange: StatusChange = {
+          id: `sh${Date.now()}`,
+          previousStatus: customer.status,
+          newStatus: 'Paid',
+          comment: 'Payment received',
+          changedBy,
+          changedByRole: 'admin',
+          timestamp: new Date()
+        };
+
+        return {
+          ...customer,
+          status: 'Paid' as Status,
+          paymentReceived: true,
+          paymentDate: new Date(),
+          statusHistory: [...customer.statusHistory, statusChange],
+          comments: [...customer.comments, 'Payment received']
+        };
       }
       return customer;
     }));
@@ -167,6 +281,7 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     getCustomersByStatus,
     updateCustomerStatus,
     uploadDocument,
+    markPaymentReceived,
   };
 
   return (

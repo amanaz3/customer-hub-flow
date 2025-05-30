@@ -22,11 +22,14 @@ const CustomerTable: React.FC<CustomerTableProps> = ({ customers }) => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Pending': return 'bg-status-pending';
-      case 'Returned': return 'bg-status-returned';
-      case 'Submitted to Bank': return 'bg-status-submitted';
-      case 'Completed': return 'bg-status-completed';
-      default: return 'bg-gray-500';
+      case 'Submitted': return 'bg-blue-500 text-white';
+      case 'Returned': return 'bg-orange-500 text-white';
+      case 'Sent to Bank': return 'bg-purple-500 text-white';
+      case 'Complete': return 'bg-green-500 text-white';
+      case 'Rejected': return 'bg-red-500 text-white';
+      case 'Need More Info': return 'bg-yellow-500 text-white';
+      case 'Paid': return 'bg-emerald-500 text-white';
+      default: return 'bg-gray-500 text-white';
     }
   };
 
@@ -62,7 +65,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({ customers }) => {
                 <TableCell>{customer.email}</TableCell>
                 <TableCell>{customer.leadSource}</TableCell>
                 <TableCell>
-                  <Badge className={`${getStatusColor(customer.status)} text-white`}>
+                  <Badge className={getStatusColor(customer.status)}>
                     {customer.status}
                   </Badge>
                 </TableCell>

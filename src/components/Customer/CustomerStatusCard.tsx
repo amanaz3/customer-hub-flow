@@ -2,36 +2,51 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Badge } from '@/components/ui/badge';
 import { Status } from '@/contexts/CustomerContext';
-import { formatCurrency } from '@/lib/utils';
+import { formatCurrency, formatDate } from '@/lib/utils';
 
 interface CustomerStatusCardProps {
   status: Status;
   amount: number;
   comments: string[];
+  paymentReceived?: boolean;
+  paymentDate?: Date;
 }
 
 const CustomerStatusCard: React.FC<CustomerStatusCardProps> = ({
   status,
   amount,
   comments,
+  paymentReceived,
+  paymentDate,
 }) => {
+  const getStatusColor = (status: Status) => {
+    switch (status) {
+      case 'Submitted': return 'bg-blue-500 text-white';
+      case 'Returned': return 'bg-orange-500 text-white';
+      case 'Sent to Bank': return 'bg-purple-500 text-white';
+      case 'Complete': return 'bg-green-500 text-white';
+      case 'Rejected': return 'bg-red-500 text-white';
+      case 'Need More Info': return 'bg-yellow-500 text-white';
+      case 'Paid': return 'bg-emerald-500 text-white';
+      default: return 'bg-gray-500 text-white';
+    }
+  };
+
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Case Status</CardTitle>
+        <CardTitle>Application Status</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
           <div>
             <Label>Current Status</Label>
-            <div className={`text-lg font-semibold mt-1 ${
-              status === 'Pending' ? 'text-status-pending' :
-              status === 'Returned' ? 'text-status-returned' :
-              status === 'Submitted to Bank' ? 'text-status-submitted' :
-              'text-status-completed'
-            }`}>
-              {status}
+            <div className="mt-1">
+              <Badge className={getStatusColor(status)}>
+                {status}
+              </Badge>
             </div>
           </div>
           
@@ -42,16 +57,35 @@ const CustomerStatusCard: React.FC<CustomerStatusCardProps> = ({
             </div>
           </div>
           
+          {paymentReceived && paymentDate && (
+            <div>
+              <Label>Payment Status</Label>
+              <div className="mt-1 space-y-1">
+                <Badge className="bg-emerald-500 text-white">
+                  Payment Received
+                </Badge>
+                <div className="text-sm text-muted-foreground">
+                  Paid on {formatDate(paymentDate)}
+                </div>
+              </div>
+            </div>
+          )}
+          
           {comments.length > 0 && (
             <div>
-              <Label>Comments</Label>
-              <ul className="mt-2 space-y-2">
-                {comments.map((comment, index) => (
+              <Label>Recent Comments</Label>
+              <ul className="mt-2 space-y-2 max-h-32 overflow-y-auto">
+                {comments.slice(-3).map((comment, index) => (
                   <li key={index} className="p-2 bg-gray-50 rounded-md text-sm">
                     {comment}
                   </li>
                 ))}
               </ul>
+              {comments.length > 3 && (
+                <p className="text-xs text-muted-foreground mt-1">
+                  Showing last 3 comments
+                </p>
+              )}
             </div>
           )}
         </div>

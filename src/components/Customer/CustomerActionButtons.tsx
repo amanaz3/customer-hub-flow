@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Status } from '@/contexts/CustomerContext';
+import { useAuth } from '@/contexts/AuthContext';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,6 +15,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface CustomerActionButtonsProps {
   status: Status;
@@ -21,6 +29,7 @@ interface CustomerActionButtonsProps {
   isUserOwner: boolean;
   mandatoryDocumentsUploaded: boolean;
   onStatusChange: (status: Status, comment: string) => void;
+  onPaymentReceived?: () => void;
 }
 
 const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
@@ -29,124 +38,192 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
   isUserOwner,
   mandatoryDocumentsUploaded,
   onStatusChange,
+  onPaymentReceived,
 }) => {
   const [comment, setComment] = useState('');
+  const [selectedStatus, setSelectedStatus] = useState<Status | ''>('');
+  const { user } = useAuth();
+
+  const getAvailableStatuses = (): Status[] => {
+    if (!isAdmin) {
+      // Users can only resubmit when returned
+      if (status === 'Returned') return ['Submitted'];
+      return [];
+    }
+
+    // Admin available statuses based on current status
+    switch (status) {
+      case 'Submitted':
+        return ['Returned', 'Sent to Bank'];
+      case 'Returned':
+        return ['Sent to Bank'];
+      case 'Sent to Bank':
+        return ['Complete', 'Rejected', 'Need More Info'];
+      case 'Need More Info':
+        return ['Sent to Bank', 'Returned'];
+      case 'Complete':
+        return ['Paid'];
+      case 'Rejected':
+        return ['Sent to Bank']; // Allow re-submission
+      case 'Paid':
+        return []; // Final status
+      default:
+        return [];
+    }
+  };
+
+  const availableStatuses = getAvailableStatuses();
+
+  const getStatusButtonText = (targetStatus: Status): string => {
+    switch (targetStatus) {
+      case 'Returned': return 'Return to User';
+      case 'Sent to Bank': return 'Send to Bank';
+      case 'Complete': return 'Mark as Complete';
+      case 'Rejected': return 'Mark as Rejected';
+      case 'Need More Info': return 'Request More Info';
+      case 'Submitted': return 'Resubmit';
+      case 'Paid': return 'Mark as Paid';
+      default: return `Update to ${targetStatus}`;
+    }
+  };
+
+  const getStatusButtonVariant = (targetStatus: Status) => {
+    switch (targetStatus) {
+      case 'Returned':
+      case 'Rejected':
+        return 'destructive' as const;
+      case 'Complete':
+      case 'Paid':
+        return 'default' as const;
+      default:
+        return 'outline' as const;
+    }
+  };
+
+  const isActionDisabled = (targetStatus: Status): boolean => {
+    if (targetStatus === 'Sent to Bank' && !mandatoryDocumentsUploaded) {
+      return true;
+    }
+    if (!isAdmin && targetStatus === 'Submitted' && !mandatoryDocumentsUploaded) {
+      return true;
+    }
+    return false;
+  };
+
+  const requiresComment = (targetStatus: Status): boolean => {
+    return ['Returned', 'Rejected', 'Need More Info'].includes(targetStatus);
+  };
 
   return (
-    <div className="space-x-2">
-      {isAdmin && status !== 'Completed' && (
-        <>
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button variant="outline">Return to User</Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Return Case to User</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Please provide a comment explaining what needs to be corrected.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <Textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Enter your comments..."
-                className="my-4"
-              />
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction 
-                  onClick={() => onStatusChange('Returned', comment)}
-                  disabled={!comment.trim()}
-                >
-                  Return to User
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-          
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button 
-                variant="default" 
-                disabled={!mandatoryDocumentsUploaded}
-              >
-                Submit to Bank
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Submit Case to Bank</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Are you sure you want to submit this case to the bank?
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <Textarea
-                value={comment}
-                onChange={(e) => setComment(e.target.value)}
-                placeholder="Optional comments..."
-                className="my-4"
-              />
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction onClick={() => onStatusChange('Submitted to Bank', comment)}>
-                  Submit to Bank
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </>
-      )}
-      
-      {isAdmin && status === 'Submitted to Bank' && (
-        <AlertDialog>
+    <div className="flex flex-wrap gap-2">
+      {/* Quick action buttons for common transitions */}
+      {availableStatuses.map((targetStatus) => (
+        <AlertDialog key={targetStatus}>
           <AlertDialogTrigger asChild>
-            <Button variant="default">Mark as Completed</Button>
+            <Button 
+              variant={getStatusButtonVariant(targetStatus)}
+              disabled={isActionDisabled(targetStatus)}
+              size="sm"
+            >
+              {getStatusButtonText(targetStatus)}
+            </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Mark Case as Completed</AlertDialogTitle>
+              <AlertDialogTitle>{getStatusButtonText(targetStatus)}</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to mark this case as completed? This action cannot be undone.
+                {targetStatus === 'Returned' && 'Please provide feedback on what needs to be corrected.'}
+                {targetStatus === 'Sent to Bank' && 'Are you sure you want to send this application to the bank?'}
+                {targetStatus === 'Complete' && 'Mark this application as approved and complete.'}
+                {targetStatus === 'Rejected' && 'Please provide a reason for rejection.'}
+                {targetStatus === 'Need More Info' && 'Specify what additional information is required.'}
+                {targetStatus === 'Submitted' && 'Are you sure you want to resubmit this application?'}
+                {targetStatus === 'Paid' && 'Confirm that payment has been received for this application.'}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <Textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Optional comments..."
+              placeholder={
+                requiresComment(targetStatus) 
+                  ? "Comment is required..." 
+                  : "Optional comments..."
+              }
               className="my-4"
             />
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => onStatusChange('Completed', comment)}>
-                Mark as Completed
+              <AlertDialogCancel onClick={() => setComment('')}>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={() => {
+                  if (targetStatus === 'Paid' && onPaymentReceived) {
+                    onPaymentReceived();
+                  } else {
+                    onStatusChange(targetStatus, comment);
+                  }
+                  setComment('');
+                }}
+                disabled={requiresComment(targetStatus) && !comment.trim()}
+              >
+                {getStatusButtonText(targetStatus)}
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-      )}
-      
-      {!isAdmin && status === 'Returned' && (
+      ))}
+
+      {/* Admin manual status override */}
+      {isAdmin && availableStatuses.length > 2 && (
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button 
-              variant="default" 
-              disabled={!mandatoryDocumentsUploaded}
-            >
-              Resubmit
+            <Button variant="ghost" size="sm">
+              Manual Override
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Resubmit Case</AlertDialogTitle>
+              <AlertDialogTitle>Manual Status Override</AlertDialogTitle>
               <AlertDialogDescription>
-                Are you sure you want to resubmit this case? Make sure you've addressed all the feedback.
+                Manually change the application status. This action will be logged.
               </AlertDialogDescription>
             </AlertDialogHeader>
+            <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+              <SelectTrigger className="my-2">
+                <SelectValue placeholder="Select new status" />
+              </SelectTrigger>
+              <SelectContent>
+                {availableStatuses.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {status}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Textarea
+              value={comment}
+              onChange={(e) => setComment(e.target.value)}
+              placeholder="Reason for manual override (required)..."
+              className="my-4"
+            />
             <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => onStatusChange('Pending', '')}>
-                Resubmit Case
+              <AlertDialogCancel onClick={() => {
+                setComment('');
+                setSelectedStatus('');
+              }}>Cancel</AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={() => {
+                  if (selectedStatus) {
+                    if (selectedStatus === 'Paid' && onPaymentReceived) {
+                      onPaymentReceived();
+                    } else {
+                      onStatusChange(selectedStatus as Status, comment || `Manual override by ${user?.name}`);
+                    }
+                    setComment('');
+                    setSelectedStatus('');
+                  }
+                }}
+                disabled={!selectedStatus || !comment.trim()}
+              >
+                Update Status
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>

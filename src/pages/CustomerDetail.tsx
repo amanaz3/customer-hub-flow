@@ -6,6 +6,7 @@ import DocumentUpload from '@/components/Customer/DocumentUpload';
 import CustomerStatusCard from '@/components/Customer/CustomerStatusCard';
 import CustomerDetailsForm from '@/components/Customer/CustomerDetailsForm';
 import CustomerActionButtons from '@/components/Customer/CustomerActionButtons';
+import StatusHistoryCard from '@/components/Customer/StatusHistoryCard';
 import { useCustomers, Status } from '@/contexts/CustomerContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -23,11 +24,11 @@ const CustomerDetail = () => {
     getCustomerById, 
     updateCustomer, 
     uploadDocument, 
-    updateCustomerStatus 
+    updateCustomerStatus,
+    markPaymentReceived
   } = useCustomers();
   
   const customer = getCustomerById(id || '');
-  const [comment, setComment] = useState('');
   
   if (!customer) {
     return (
@@ -76,20 +77,37 @@ const CustomerDetail = () => {
   };
 
   const handleStatusChange = (status: Status, commentText: string) => {
-    if (!customer) return;
+    if (!customer || !user) return;
     
-    updateCustomerStatus(customer.id, status, commentText);
+    updateCustomerStatus(
+      customer.id, 
+      status, 
+      commentText, 
+      user.name, 
+      user.role
+    );
     
     toast({
       title: "Status Updated",
-      description: `Case status changed to ${status}`,
+      description: `Application status changed to ${status}`,
     });
     
-    setComment('');
-    
-    if (status === 'Completed') {
+    if (status === 'Paid') {
       navigate('/completed');
     }
+  };
+
+  const handlePaymentReceived = () => {
+    if (!customer || !user) return;
+    
+    markPaymentReceived(customer.id, user.name);
+    
+    toast({
+      title: "Payment Confirmed",
+      description: "Application marked as paid",
+    });
+    
+    navigate('/completed');
   };
 
   // Check if all mandatory documents are uploaded
@@ -97,7 +115,7 @@ const CustomerDetail = () => {
     .filter(doc => doc.isMandatory)
     .every(doc => doc.isUploaded);
 
-  const isEditable = customer.status !== 'Completed';
+  const isEditable = !['Paid', 'Complete'].includes(customer.status);
   const isUserOwner = customer.userId === user?.id;
 
   return (
@@ -117,23 +135,28 @@ const CustomerDetail = () => {
               isUserOwner={isUserOwner}
               mandatoryDocumentsUploaded={mandatoryDocumentsUploaded}
               onStatusChange={handleStatusChange}
+              onPaymentReceived={handlePaymentReceived}
             />
           </div>
         </div>
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div className="col-span-1 md:col-span-1">
+          <div className="col-span-1 md:col-span-1 space-y-4">
             <CustomerStatusCard 
               status={customer.status} 
               amount={customer.amount} 
-              comments={customer.comments} 
+              comments={customer.comments}
+              paymentReceived={customer.paymentReceived}
+              paymentDate={customer.paymentDate}
             />
+            
+            <StatusHistoryCard statusHistory={customer.statusHistory} />
           </div>
           
           <div className="col-span-1 md:col-span-2">
             <Tabs defaultValue="details">
               <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="details">Customer Details</TabsTrigger>
+                <TabsTrigger value="details">Application Details</TabsTrigger>
                 <TabsTrigger value="documents">Documents</TabsTrigger>
               </TabsList>
               
@@ -156,7 +179,7 @@ const CustomerDetail = () => {
                 {!mandatoryDocumentsUploaded && (
                   <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                     <p className="text-yellow-800 text-sm">
-                      ⚠️ All mandatory documents must be uploaded before the case can be submitted to the bank.
+                      ⚠️ All mandatory documents must be uploaded before the application can be processed.
                     </p>
                   </div>
                 )}
