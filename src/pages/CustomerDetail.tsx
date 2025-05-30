@@ -14,6 +14,7 @@ import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { formatDate } from '@/lib/utils';
+import { Send } from 'lucide-react';
 
 const CustomerDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -25,7 +26,8 @@ const CustomerDetail = () => {
     updateCustomer, 
     uploadDocument, 
     updateCustomerStatus,
-    markPaymentReceived
+    markPaymentReceived,
+    submitToAdmin
   } = useCustomers();
   
   const customer = getCustomerById(id || '');
@@ -110,6 +112,17 @@ const CustomerDetail = () => {
     navigate('/completed');
   };
 
+  const handleSubmitToAdmin = () => {
+    if (!customer || !user) return;
+    
+    submitToAdmin(customer.id, user.id, user.name);
+    
+    toast({
+      title: "Submitted Successfully",
+      description: "Application submitted to admin for review",
+    });
+  };
+
   // Check if all mandatory documents are uploaded
   const mandatoryDocumentsUploaded = customer.documents
     .filter(doc => doc.isMandatory)
@@ -117,6 +130,7 @@ const CustomerDetail = () => {
 
   const isEditable = !['Paid', 'Complete'].includes(customer.status);
   const isUserOwner = customer.userId === user?.id;
+  const canSubmitToAdmin = (customer.status === 'Draft' || customer.status === 'Returned') && isUserOwner;
 
   return (
     <MainLayout>
@@ -128,15 +142,27 @@ const CustomerDetail = () => {
               Created on {formatDate(customer.createdAt)}
             </p>
           </div>
-          <div className="mt-4 md:mt-0">
-            <CustomerActionButtons 
-              status={customer.status}
-              isAdmin={isAdmin}
-              isUserOwner={isUserOwner}
-              mandatoryDocumentsUploaded={mandatoryDocumentsUploaded}
-              onStatusChange={handleStatusChange}
-              onPaymentReceived={handlePaymentReceived}
-            />
+          <div className="mt-4 md:mt-0 flex gap-2">
+            {canSubmitToAdmin && (
+              <Button 
+                onClick={handleSubmitToAdmin}
+                className="bg-blue-600 hover:bg-blue-700"
+              >
+                <Send className="w-4 h-4 mr-2" />
+                Submit to Admin
+              </Button>
+            )}
+            
+            {isAdmin && (
+              <CustomerActionButtons 
+                status={customer.status}
+                isAdmin={isAdmin}
+                isUserOwner={isUserOwner}
+                mandatoryDocumentsUploaded={mandatoryDocumentsUploaded}
+                onStatusChange={handleStatusChange}
+                onPaymentReceived={handlePaymentReceived}
+              />
+            )}
           </div>
         </div>
         

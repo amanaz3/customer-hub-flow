@@ -1,7 +1,6 @@
-
 import React, { createContext, useContext, useState } from 'react';
 
-export type Status = 'Submitted' | 'Returned' | 'Sent to Bank' | 'Complete' | 'Rejected' | 'Need More Info' | 'Paid';
+export type Status = 'Draft' | 'Submitted' | 'Returned' | 'Sent to Bank' | 'Complete' | 'Rejected' | 'Need More Info' | 'Paid';
 export type LeadSource = 'Website' | 'Referral' | 'Social Media' | 'Other';
 
 export interface Document {
@@ -50,6 +49,7 @@ interface CustomerContextType {
   updateCustomerStatus: (id: string, status: Status, comment: string, changedBy: string, changedByRole: 'admin' | 'user') => void;
   uploadDocument: (customerId: string, documentId: string, filePath: string) => void;
   markPaymentReceived: (id: string, changedBy: string) => void;
+  submitToAdmin: (id: string, userId: string, userName: string) => void;
 }
 
 const CustomerContext = createContext<CustomerContextType | undefined>(undefined);
@@ -85,7 +85,7 @@ const mockCustomers: Customer[] = [
     statusHistory: [
       {
         id: 'sh1',
-        previousStatus: 'Submitted',
+        previousStatus: 'Draft',
         newStatus: 'Submitted',
         comment: 'Initial submission',
         changedBy: 'Regular User',
@@ -169,12 +169,13 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       id: `c${customers.length + 1}`,
       createdAt: new Date(),
       documents: [...defaultDocuments],
+      status: 'Draft', // Start with Draft status
       statusHistory: [
         {
           id: `sh${Date.now()}`,
-          previousStatus: 'Submitted',
-          newStatus: 'Submitted',
-          comment: 'Initial submission',
+          previousStatus: 'Draft',
+          newStatus: 'Draft',
+          comment: 'Application created',
           changedBy: customer.userId === '1' ? 'Admin User' : 'Regular User',
           changedByRole: customer.userId === '1' ? 'admin' : 'user',
           timestamp: new Date()
@@ -272,6 +273,30 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }));
   };
 
+  const submitToAdmin = (id: string, userId: string, userName: string) => {
+    setCustomers(customers.map(customer => {
+      if (customer.id === id && (customer.status === 'Draft' || customer.status === 'Returned')) {
+        const statusChange: StatusChange = {
+          id: `sh${Date.now()}`,
+          previousStatus: customer.status,
+          newStatus: 'Submitted',
+          comment: 'Submitted to admin for review',
+          changedBy: userName,
+          changedByRole: 'user',
+          timestamp: new Date()
+        };
+
+        return {
+          ...customer,
+          status: 'Submitted' as Status,
+          statusHistory: [...customer.statusHistory, statusChange],
+          comments: [...customer.comments, 'Submitted to admin for review']
+        };
+      }
+      return customer;
+    }));
+  };
+
   const value = {
     customers,
     addCustomer,
@@ -282,6 +307,7 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     updateCustomerStatus,
     uploadDocument,
     markPaymentReceived,
+    submitToAdmin,
   };
 
   return (

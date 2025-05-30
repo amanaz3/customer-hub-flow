@@ -25,7 +25,7 @@ const CustomerNew = () => {
       email: data.email,
       leadSource: data.leadSource,
       amount: parseFloat(data.amount),
-      status: 'Submitted' as const,
+      status: 'Draft' as const,
       userId: user.id,
       documents: [],
       comments: []
@@ -35,7 +35,7 @@ const CustomerNew = () => {
     
     toast({
       title: "Success",
-      description: "Customer added successfully",
+      description: "Customer application created as draft",
     });
     
     navigate('/customers');
@@ -46,7 +46,7 @@ const CustomerNew = () => {
       <div className="space-y-6">
         <CustomerNewHeader 
           title="Add New Customer" 
-          description="Create a new customer entry" 
+          description="Create a new customer application" 
         />
         
         <Card>
