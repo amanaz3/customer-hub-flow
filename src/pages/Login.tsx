@@ -38,7 +38,7 @@ const Login = () => {
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
       <Card className="w-[350px]">
         <CardHeader className="space-y-1">
-          <CardTitle className="text-2xl font-bold text-center">Workflow App</CardTitle>
+          <CardTitle className="text-2xl font-bold text-center">Amana Corporate</CardTitle>
           <CardDescription className="text-center">
             Enter your email to log in to your account
           </CardDescription>

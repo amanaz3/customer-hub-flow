@@ -72,7 +72,7 @@ const Sidebar: React.FC = () => {
     >
       <div className="flex items-center justify-between h-14 px-4 border-b border-gray-200">
         {!collapsed && (
-          <h1 className="text-lg font-semibold text-gray-800">Amana Banking</h1>
+          <h1 className="text-lg font-semibold text-gray-800">Amana Corporate</h1>
         )}
         <Button 
           variant="ghost"
