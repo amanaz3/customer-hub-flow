@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
-import DocumentUpload from '@/components/Customer/DocumentUpload';
+import CategorizedDocumentUpload from '@/components/Customer/CategorizedDocumentUpload';
 import CustomerStatusCard from '@/components/Customer/CustomerStatusCard';
 import CustomerDetailsForm from '@/components/Customer/CustomerDetailsForm';
 import CustomerActionButtons from '@/components/Customer/CustomerActionButtons';
@@ -54,6 +54,7 @@ const CustomerDetail = () => {
     company: string;
     email: string;
     leadSource: string;
+    licenseType: string;
     amount: string;
   }) => {
     if (!customer) return;
@@ -64,6 +65,7 @@ const CustomerDetail = () => {
       company: formData.company,
       email: formData.email,
       leadSource: formData.leadSource as any,
+      licenseType: formData.licenseType as any,
       amount: parseFloat(formData.amount),
     });
     
@@ -125,7 +127,13 @@ const CustomerDetail = () => {
 
   // Check if all mandatory documents are uploaded
   const mandatoryDocumentsUploaded = customer.documents
-    .filter(doc => doc.isMandatory)
+    .filter(doc => {
+      // For Freezone documents, only check if customer has Freezone license
+      if (doc.category === 'freezone' && customer.licenseType !== 'Freezone') {
+        return false;
+      }
+      return doc.isMandatory;
+    })
     .every(doc => doc.isUploaded);
 
   const isEditable = !['Paid', 'Complete'].includes(customer.status);
@@ -139,7 +147,7 @@ const CustomerDetail = () => {
           <div>
             <h1 className="text-3xl font-bold">{customer.name}</h1>
             <p className="text-muted-foreground">
-              Created on {formatDate(customer.createdAt)}
+              {customer.company} • {customer.licenseType} License • Created on {formatDate(customer.createdAt)}
             </p>
           </div>
           <div className="mt-4 md:mt-0 flex gap-2">
@@ -196,16 +204,17 @@ const CustomerDetail = () => {
               </TabsContent>
               
               <TabsContent value="documents">
-                <DocumentUpload 
+                <CategorizedDocumentUpload 
                   documents={customer.documents}
                   customerId={customer.id}
+                  customerLicenseType={customer.licenseType}
                   onUpload={handleDocumentUpload}
                 />
                 
                 {!mandatoryDocumentsUploaded && (
                   <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                     <p className="text-yellow-800 text-sm">
-                      ⚠️ All mandatory documents must be uploaded before the application can be processed.
+                      ⚠️ All mandatory documents must be uploaded before the application can be submitted to admin.
                     </p>
                   </div>
                 )}

@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useCustomers, LeadSource } from '@/contexts/CustomerContext';
+import { useCustomers, LeadSource, LicenseType } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,6 +30,7 @@ const formSchema = z.object({
   company: z.string().min(1, "Company name is required"),
   email: z.string().email("Enter a valid email address"),
   leadSource: z.enum(['Website', 'Referral', 'Social Media', 'Other']),
+  licenseType: z.enum(['Mainland', 'Freezone', 'Offshore']),
   amount: z.string().refine((val) => !isNaN(Number(val)) && Number(val) > 0, {
     message: "Amount must be a positive number",
   }),
@@ -53,6 +53,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ onSubmit }) => {
       company: '',
       email: '',
       leadSource: 'Website',
+      licenseType: 'Mainland',
       amount: '',
     },
   });
@@ -112,6 +113,32 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ onSubmit }) => {
                 <FormControl>
                   <Input placeholder="john@example.com" type="email" {...field} />
                 </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="licenseType"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>License Type</FormLabel>
+                <Select 
+                  onValueChange={field.onChange} 
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select license type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Mainland">Mainland</SelectItem>
+                    <SelectItem value="Freezone">Freezone</SelectItem>
+                    <SelectItem value="Offshore">Offshore</SelectItem>
+                  </SelectContent>
+                </Select>
                 <FormMessage />
               </FormItem>
             )}

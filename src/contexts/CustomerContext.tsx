@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState } from 'react';
 
 export type Status = 'Draft' | 'Submitted' | 'Returned' | 'Sent to Bank' | 'Complete' | 'Rejected' | 'Need More Info' | 'Paid';
 export type LeadSource = 'Website' | 'Referral' | 'Social Media' | 'Other';
+export type LicenseType = 'Mainland' | 'Freezone' | 'Offshore';
 
 export interface Document {
   id: string;
@@ -9,6 +10,8 @@ export interface Document {
   filePath: string | null;
   isMandatory: boolean;
   isUploaded: boolean;
+  category: 'mandatory' | 'freezone' | 'supporting' | 'signatory';
+  requiresLicenseType?: LicenseType;
 }
 
 export interface StatusChange {
@@ -28,6 +31,7 @@ export interface Customer {
   company: string;
   email: string;
   leadSource: LeadSource;
+  licenseType: LicenseType;
   status: Status;
   amount: number;
   documents: Document[];
@@ -54,19 +58,34 @@ interface CustomerContextType {
 
 const CustomerContext = createContext<CustomerContextType | undefined>(undefined);
 
-// Default document types
-const defaultDocuments: Document[] = [
-  { id: 'd1', name: 'ID Proof', filePath: null, isMandatory: true, isUploaded: false },
-  { id: 'd2', name: 'Address Proof', filePath: null, isMandatory: true, isUploaded: false },
-  { id: 'd3', name: 'Income Proof', filePath: null, isMandatory: true, isUploaded: false },
-  { id: 'd4', name: 'Bank Statements', filePath: null, isMandatory: true, isUploaded: false },
-  { id: 'd5', name: 'Property Documents', filePath: null, isMandatory: true, isUploaded: false },
-  { id: 'd6', name: 'Tax Returns', filePath: null, isMandatory: false, isUploaded: false },
-  { id: 'd7', name: 'Employment Verification', filePath: null, isMandatory: false, isUploaded: false },
-  { id: 'd8', name: 'Credit Report', filePath: null, isMandatory: false, isUploaded: false },
-  { id: 'd9', name: 'Application Form', filePath: null, isMandatory: true, isUploaded: false },
-  { id: 'd10', name: 'Other Documents', filePath: null, isMandatory: false, isUploaded: false },
-];
+// Updated document types with proper categorization
+const getDefaultDocuments = (licenseType: LicenseType = 'Mainland'): Document[] => {
+  const baseDocuments: Document[] = [
+    // Mandatory Documents (All Applications)
+    { id: 'd1', name: 'Trade Licence', filePath: null, isMandatory: true, isUploaded: false, category: 'mandatory' },
+    { id: 'd2', name: 'Full MOA / POA', filePath: null, isMandatory: true, isUploaded: false, category: 'mandatory' },
+    { id: 'd3', name: 'Office Lease Agreement / Ejari', filePath: null, isMandatory: true, isUploaded: false, category: 'mandatory' },
+    { id: 'd4', name: 'Passport Copy of All Partners', filePath: null, isMandatory: true, isUploaded: false, category: 'mandatory' },
+    { id: 'd5', name: 'Proof of Residency of All Partners', filePath: null, isMandatory: true, isUploaded: false, category: 'mandatory' },
+    
+    // Required for Freezone Only
+    { id: 'd6', name: 'Share Certificate', filePath: null, isMandatory: licenseType === 'Freezone', isUploaded: false, category: 'freezone', requiresLicenseType: 'Freezone' },
+    { id: 'd7', name: 'Certificate of Incorporation', filePath: null, isMandatory: licenseType === 'Freezone', isUploaded: false, category: 'freezone', requiresLicenseType: 'Freezone' },
+    
+    // Supporting Documents (Optional but Recommended)
+    { id: 'd8', name: 'Three Months Bank Statements of the Company', filePath: null, isMandatory: false, isUploaded: false, category: 'supporting' },
+    { id: 'd9', name: 'Company Profile', filePath: null, isMandatory: false, isUploaded: false, category: 'supporting' },
+    { id: 'd10', name: 'Other Documents (if any)', filePath: null, isMandatory: false, isUploaded: false, category: 'supporting' },
+    
+    // Signatory Documents (For Authorized Signatory Only)
+    { id: 'd11', name: 'Emirates ID', filePath: null, isMandatory: true, isUploaded: false, category: 'signatory' },
+    { id: 'd12', name: 'Proof of Residency', filePath: null, isMandatory: true, isUploaded: false, category: 'signatory' },
+    { id: 'd13', name: 'CV (Curriculum Vitae)', filePath: null, isMandatory: true, isUploaded: false, category: 'signatory' },
+    { id: 'd14', name: 'Three Months Personal Bank Statement', filePath: null, isMandatory: true, isUploaded: false, category: 'signatory' },
+  ];
+  
+  return baseDocuments;
+};
 
 // Mock initial data
 const mockCustomers: Customer[] = [
@@ -77,9 +96,10 @@ const mockCustomers: Customer[] = [
     company: 'ABC Corp',
     email: 'john@example.com',
     leadSource: 'Website',
+    licenseType: 'Mainland',
     status: 'Submitted',
     amount: 25000,
-    documents: [...defaultDocuments],
+    documents: getDefaultDocuments('Mainland'),
     userId: '2',
     comments: [],
     statusHistory: [
@@ -103,9 +123,10 @@ const mockCustomers: Customer[] = [
     company: 'XYZ Inc',
     email: 'jane@example.com',
     leadSource: 'Referral',
+    licenseType: 'Freezone',
     status: 'Sent to Bank',
     amount: 50000,
-    documents: [...defaultDocuments],
+    documents: getDefaultDocuments('Freezone'),
     userId: '2',
     comments: ['All documents verified'],
     statusHistory: [
@@ -129,9 +150,10 @@ const mockCustomers: Customer[] = [
     company: 'Johnson LLC',
     email: 'alice@example.com',
     leadSource: 'Social Media',
+    licenseType: 'Offshore',
     status: 'Paid',
     amount: 75000,
-    documents: [...defaultDocuments],
+    documents: getDefaultDocuments('Offshore'),
     userId: '2',
     comments: ['Approved by bank', 'Payment processed'],
     statusHistory: [
@@ -168,7 +190,7 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       ...customer,
       id: `c${customers.length + 1}`,
       createdAt: new Date(),
-      documents: [...defaultDocuments],
+      documents: getDefaultDocuments(customer.licenseType),
       status: 'Draft', // Start with Draft status
       statusHistory: [
         {

@@ -24,6 +24,7 @@ const CustomerNew = () => {
       company: data.company,
       email: data.email,
       leadSource: data.leadSource,
+      licenseType: data.licenseType,
       amount: parseFloat(data.amount),
       status: 'Draft' as const,
       userId: user.id,
