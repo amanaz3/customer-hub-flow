@@ -16,6 +16,7 @@ import CustomerDetail from "./pages/CustomerDetail";
 import CompletedCases from "./pages/CompletedCases";
 import UserManagement from "./pages/UserManagement";
 import Settings from "./pages/Settings";
+import AuthCallback from "./pages/AuthCallback";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -31,6 +32,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Navigate to="/dashboard" replace />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/auth/callback" element={<AuthCallback />} />
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/customers" element={<CustomerList />} />
               <Route path="/customers/new" element={<CustomerNew />} />

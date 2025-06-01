@@ -25,7 +25,6 @@ const Settings = () => {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [googleDriveConnected, setGoogleDriveConnected] = useState(false);
   
   const handlePasswordChange = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,24 +55,6 @@ const Settings = () => {
     
     setPassword('');
     setConfirmPassword('');
-  };
-  
-  const handleConnectGoogleDrive = () => {
-    // In a real app, this would open OAuth flow
-    setGoogleDriveConnected(true);
-    toast({
-      title: "Connected",
-      description: "Google Drive has been connected successfully",
-    });
-  };
-  
-  const handleDisconnectGoogleDrive = () => {
-    // In a real app, this would revoke access
-    setGoogleDriveConnected(false);
-    toast({
-      title: "Disconnected",
-      description: "Google Drive has been disconnected",
-    });
   };
   
   const handleSaveNotificationSettings = () => {
@@ -165,48 +146,31 @@ const Settings = () => {
           
           <Card>
             <CardHeader>
-              <CardTitle>Google Drive Integration</CardTitle>
+              <CardTitle>Document Storage</CardTitle>
               <CardDescription>
-                Connect your Google Drive for document storage
+                Google Drive integration for document management
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-medium">Google Drive</p>
+                  <p className="font-medium">Google Drive Integration</p>
                   <p className="text-sm text-muted-foreground">
-                    {googleDriveConnected
-                      ? "Your account is connected"
-                      : "Connect your Google Drive account"}
+                    Documents are automatically stored in Google Drive
                   </p>
                 </div>
-                {googleDriveConnected ? (
-                  <Button 
-                    variant="outline" 
-                    onClick={handleDisconnectGoogleDrive}
-                  >
-                    Disconnect
-                  </Button>
-                ) : (
-                  <Button onClick={handleConnectGoogleDrive}>
-                    Connect
-                  </Button>
-                )}
+                <div className="flex items-center gap-2 text-green-600">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span className="text-sm font-medium">Active</span>
+                </div>
               </div>
               
-              {googleDriveConnected && (
-                <div>
-                  <Label htmlFor="folder-path">Default Folder Path</Label>
-                  <Input
-                    id="folder-path"
-                    defaultValue="/Workflow App Documents/"
-                    className="mt-1"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Documents will be saved to this folder in your Google Drive
-                  </p>
-                </div>
-              )}
+              <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+                <p className="text-sm text-blue-800">
+                  <strong>Note:</strong> All document uploads are automatically saved to Google Drive. 
+                  Files are organized by customer and can be accessed directly from the application.
+                </p>
+              </div>
             </CardContent>
           </Card>
           
