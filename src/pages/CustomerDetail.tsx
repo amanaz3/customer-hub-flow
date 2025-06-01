@@ -179,13 +179,13 @@ const CustomerDetail = () => {
               amount={customer.amount} 
               comments={customer.comments}
               paymentReceived={customer.paymentReceived}
-              paymentDate={customer.paymentDate}
+              paymentDate={customer.paymentDate ? new Date(customer.paymentDate) : undefined}
             />
             
             <StatusHistoryCard statusHistory={customer.statusHistory} />
           </div>
           
-          <div className="col-span-1 md:col-cols-2">
+          <div className="col-span-1 md:col-span-2">
             <Tabs defaultValue="details">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="details">Application Details</TabsTrigger>
