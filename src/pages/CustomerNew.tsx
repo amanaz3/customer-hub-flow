@@ -24,11 +24,11 @@ const CustomerNew = () => {
         mobile: data.mobile,
         company: data.company,
         email: data.email,
-        lead_source: data.leadSource as any,
-        license_type: data.licenseType as any,
+        leadSource: data.leadSource as any,
+        licenseType: data.licenseType as any,
         amount: parseFloat(data.amount),
         status: 'Draft' as const,
-        user_id: user.id,
+        userId: user.id,
       });
       
       toast({
