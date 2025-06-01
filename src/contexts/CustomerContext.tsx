@@ -1,27 +1,32 @@
-import React, { createContext, useContext, useState } from 'react';
 
-export type Status = 'Draft' | 'Submitted' | 'Returned' | 'Sent to Bank' | 'Complete' | 'Rejected' | 'Need More Info' | 'Paid';
-export type LeadSource = 'Website' | 'Referral' | 'Social Media' | 'Other';
-export type LicenseType = 'Mainland' | 'Freezone' | 'Offshore';
+import React, { createContext, useContext, useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from './AuthContext';
+import { Database } from '@/integrations/supabase/types';
+
+export type Status = Database['public']['Enums']['customer_status'];
+export type LeadSource = Database['public']['Enums']['lead_source'];
+export type LicenseType = Database['public']['Enums']['license_type'];
+export type DocumentCategory = Database['public']['Enums']['document_category'];
 
 export interface Document {
   id: string;
   name: string;
-  filePath: string | null;
-  isMandatory: boolean;
-  isUploaded: boolean;
-  category: 'mandatory' | 'freezone' | 'supporting' | 'signatory';
-  requiresLicenseType?: LicenseType;
+  file_path: string | null;
+  is_mandatory: boolean;
+  is_uploaded: boolean;
+  category: DocumentCategory;
+  requires_license_type?: LicenseType;
 }
 
 export interface StatusChange {
   id: string;
-  previousStatus: Status;
-  newStatus: Status;
-  comment: string;
-  changedBy: string;
-  changedByRole: 'admin' | 'user';
-  timestamp: Date;
+  previous_status: Status;
+  new_status: Status;
+  comment: string | null;
+  changed_by: string;
+  changed_by_role: 'admin' | 'user';
+  created_at: string;
 }
 
 export interface Customer {
@@ -30,188 +35,225 @@ export interface Customer {
   mobile: string;
   company: string;
   email: string;
-  leadSource: LeadSource;
-  licenseType: LicenseType;
+  lead_source: LeadSource;
+  license_type: LicenseType;
   status: Status;
   amount: number;
   documents: Document[];
-  userId: string;
+  user_id: string;
   comments: string[];
-  statusHistory: StatusChange[];
-  createdAt: Date;
-  paymentReceived?: boolean;
-  paymentDate?: Date;
+  status_history: StatusChange[];
+  created_at: string;
+  payment_received?: boolean;
+  payment_date?: string;
 }
 
 interface CustomerContextType {
   customers: Customer[];
-  addCustomer: (customer: Omit<Customer, 'id' | 'createdAt' | 'statusHistory'>) => void;
-  updateCustomer: (id: string, updates: Partial<Omit<Customer, 'id'>>) => void;
+  loading: boolean;
+  addCustomer: (customer: Omit<Customer, 'id' | 'created_at' | 'status_history' | 'documents' | 'comments'>) => Promise<void>;
+  updateCustomer: (id: string, updates: Partial<Omit<Customer, 'id'>>) => Promise<void>;
   getCustomerById: (id: string) => Customer | undefined;
   getCustomersByUserId: (userId: string) => Customer[];
   getCustomersByStatus: (status: Status) => Customer[];
-  updateCustomerStatus: (id: string, status: Status, comment: string, changedBy: string, changedByRole: 'admin' | 'user') => void;
-  uploadDocument: (customerId: string, documentId: string, filePath: string) => void;
-  markPaymentReceived: (id: string, changedBy: string) => void;
-  submitToAdmin: (id: string, userId: string, userName: string) => void;
+  updateCustomerStatus: (id: string, status: Status, comment: string, changedBy: string, changedByRole: 'admin' | 'user') => Promise<void>;
+  uploadDocument: (customerId: string, documentId: string, filePath: string) => Promise<void>;
+  markPaymentReceived: (id: string, changedBy: string) => Promise<void>;
+  submitToAdmin: (id: string, userId: string, userName: string) => Promise<void>;
+  refreshCustomers: () => Promise<void>;
 }
 
 const CustomerContext = createContext<CustomerContextType | undefined>(undefined);
 
-// Updated document types with proper categorization
-const getDefaultDocuments = (licenseType: LicenseType = 'Mainland'): Document[] => {
-  const baseDocuments: Document[] = [
-    // Mandatory Documents (All Applications)
-    { id: 'd1', name: 'Trade Licence', filePath: null, isMandatory: true, isUploaded: false, category: 'mandatory' },
-    { id: 'd2', name: 'Full MOA / POA', filePath: null, isMandatory: true, isUploaded: false, category: 'mandatory' },
-    { id: 'd3', name: 'Office Lease Agreement / Ejari', filePath: null, isMandatory: true, isUploaded: false, category: 'mandatory' },
-    { id: 'd4', name: 'Passport Copy of All Partners', filePath: null, isMandatory: true, isUploaded: false, category: 'mandatory' },
-    { id: 'd5', name: 'Proof of Residency of All Partners', filePath: null, isMandatory: true, isUploaded: false, category: 'mandatory' },
-    
-    // Required for Freezone Only
-    { id: 'd6', name: 'Share Certificate', filePath: null, isMandatory: licenseType === 'Freezone', isUploaded: false, category: 'freezone', requiresLicenseType: 'Freezone' },
-    { id: 'd7', name: 'Certificate of Incorporation', filePath: null, isMandatory: licenseType === 'Freezone', isUploaded: false, category: 'freezone', requiresLicenseType: 'Freezone' },
-    
-    // Supporting Documents (Optional but Recommended)
-    { id: 'd8', name: 'Three Months Bank Statements of the Company', filePath: null, isMandatory: false, isUploaded: false, category: 'supporting' },
-    { id: 'd9', name: 'Company Profile', filePath: null, isMandatory: false, isUploaded: false, category: 'supporting' },
-    { id: 'd10', name: 'Other Documents (if any)', filePath: null, isMandatory: false, isUploaded: false, category: 'supporting' },
-    
-    // Signatory Documents (For Authorized Signatory Only)
-    { id: 'd11', name: 'Emirates ID', filePath: null, isMandatory: true, isUploaded: false, category: 'signatory' },
-    { id: 'd12', name: 'Proof of Residency', filePath: null, isMandatory: true, isUploaded: false, category: 'signatory' },
-    { id: 'd13', name: 'CV (Curriculum Vitae)', filePath: null, isMandatory: true, isUploaded: false, category: 'signatory' },
-    { id: 'd14', name: 'Three Months Personal Bank Statement', filePath: null, isMandatory: true, isUploaded: false, category: 'signatory' },
-  ];
-  
-  return baseDocuments;
-};
-
-// Mock initial data
-const mockCustomers: Customer[] = [
-  {
-    id: 'c1',
-    name: 'John Doe',
-    mobile: '+1 234 567 8901',
-    company: 'ABC Corp',
-    email: 'john@example.com',
-    leadSource: 'Website',
-    licenseType: 'Mainland',
-    status: 'Submitted',
-    amount: 25000,
-    documents: getDefaultDocuments('Mainland'),
-    userId: '2',
-    comments: [],
-    statusHistory: [
-      {
-        id: 'sh1',
-        previousStatus: 'Draft',
-        newStatus: 'Submitted',
-        comment: 'Initial submission',
-        changedBy: 'Regular User',
-        changedByRole: 'user',
-        timestamp: new Date('2023-01-15')
-      }
-    ],
-    createdAt: new Date('2023-01-15'),
-    paymentReceived: false
-  },
-  {
-    id: 'c2',
-    name: 'Jane Smith',
-    mobile: '+1 987 654 3210',
-    company: 'XYZ Inc',
-    email: 'jane@example.com',
-    leadSource: 'Referral',
-    licenseType: 'Freezone',
-    status: 'Sent to Bank',
-    amount: 50000,
-    documents: getDefaultDocuments('Freezone'),
-    userId: '2',
-    comments: ['All documents verified'],
-    statusHistory: [
-      {
-        id: 'sh2',
-        previousStatus: 'Submitted',
-        newStatus: 'Sent to Bank',
-        comment: 'All documents verified',
-        changedBy: 'Admin User',
-        changedByRole: 'admin',
-        timestamp: new Date('2023-02-20')
-      }
-    ],
-    createdAt: new Date('2023-02-20'),
-    paymentReceived: false
-  },
-  {
-    id: 'c3',
-    name: 'Alice Johnson',
-    mobile: '+1 555 123 4567',
-    company: 'Johnson LLC',
-    email: 'alice@example.com',
-    leadSource: 'Social Media',
-    licenseType: 'Offshore',
-    status: 'Paid',
-    amount: 75000,
-    documents: getDefaultDocuments('Offshore'),
-    userId: '2',
-    comments: ['Approved by bank', 'Payment processed'],
-    statusHistory: [
-      {
-        id: 'sh3a',
-        previousStatus: 'Sent to Bank',
-        newStatus: 'Complete',
-        comment: 'Approved by bank',
-        changedBy: 'Admin User',
-        changedByRole: 'admin',
-        timestamp: new Date('2023-03-05')
-      },
-      {
-        id: 'sh3b',
-        previousStatus: 'Complete',
-        newStatus: 'Paid',
-        comment: 'Payment processed',
-        changedBy: 'Admin User',
-        changedByRole: 'admin',
-        timestamp: new Date('2023-03-10')
-      }
-    ],
-    createdAt: new Date('2023-03-05'),
-    paymentReceived: true,
-    paymentDate: new Date('2023-03-10')
-  }
-];
-
 export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
+  const [customers, setCustomers] = useState<Customer[]>([]);
+  const [loading, setLoading] = useState(true);
+  const { user, isAuthenticated } = useAuth();
 
-  const addCustomer = (customer: Omit<Customer, 'id' | 'createdAt' | 'statusHistory'>) => {
-    const newCustomer: Customer = {
-      ...customer,
-      id: `c${customers.length + 1}`,
-      createdAt: new Date(),
-      documents: getDefaultDocuments(customer.licenseType),
-      status: 'Draft', // Start with Draft status
-      statusHistory: [
-        {
-          id: `sh${Date.now()}`,
-          previousStatus: 'Draft',
-          newStatus: 'Draft',
-          comment: 'Application created',
-          changedBy: customer.userId === '1' ? 'Admin User' : 'Regular User',
-          changedByRole: customer.userId === '1' ? 'admin' : 'user',
-          timestamp: new Date()
-        }
-      ],
-      paymentReceived: false
-    };
-    setCustomers([...customers, newCustomer]);
+  const fetchCustomers = async () => {
+    if (!isAuthenticated || !user) {
+      setCustomers([]);
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      // Fetch customers with documents
+      const { data: customersData, error: customersError } = await supabase
+        .from('customers')
+        .select(`
+          *,
+          documents (*)
+        `);
+
+      if (customersError) {
+        console.error('Error fetching customers:', customersError);
+        return;
+      }
+
+      // Fetch status changes and comments for each customer
+      const customersWithHistory = await Promise.all(
+        (customersData || []).map(async (customer) => {
+          // Fetch status changes
+          const { data: statusData } = await supabase
+            .from('status_changes')
+            .select('*')
+            .eq('customer_id', customer.id)
+            .order('created_at', { ascending: true });
+
+          // Fetch comments
+          const { data: commentsData } = await supabase
+            .from('comments')
+            .select('*')
+            .eq('customer_id', customer.id)
+            .order('created_at', { ascending: true });
+
+          return {
+            ...customer,
+            documents: customer.documents || [],
+            status_history: statusData || [],
+            comments: (commentsData || []).map(c => c.comment)
+          };
+        })
+      );
+
+      setCustomers(customersWithHistory);
+    } catch (error) {
+      console.error('Error in fetchCustomers:', error);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const updateCustomer = (id: string, updates: Partial<Omit<Customer, 'id'>>) => {
-    setCustomers(customers.map(customer => 
-      customer.id === id ? { ...customer, ...updates } : customer
-    ));
+  useEffect(() => {
+    fetchCustomers();
+  }, [isAuthenticated, user]);
+
+  const addCustomer = async (customerData: Omit<Customer, 'id' | 'created_at' | 'status_history' | 'documents' | 'comments'>) => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('customers')
+      .insert([{
+        name: customerData.name,
+        mobile: customerData.mobile,
+        company: customerData.company,
+        email: customerData.email,
+        lead_source: customerData.lead_source,
+        license_type: customerData.license_type,
+        amount: customerData.amount,
+        user_id: user.id,
+        status: 'Draft' as Status
+      }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error adding customer:', error);
+      throw error;
+    }
+
+    await fetchCustomers();
+  };
+
+  const updateCustomer = async (id: string, updates: Partial<Omit<Customer, 'id'>>) => {
+    const { error } = await supabase
+      .from('customers')
+      .update(updates)
+      .eq('id', id);
+
+    if (error) {
+      console.error('Error updating customer:', error);
+      throw error;
+    }
+
+    await fetchCustomers();
+  };
+
+  const updateCustomerStatus = async (id: string, status: Status, comment: string, changedBy: string, changedByRole: 'admin' | 'user') => {
+    const customer = customers.find(c => c.id === id);
+    if (!customer || !user) return;
+
+    // Update customer status
+    const { error: updateError } = await supabase
+      .from('customers')
+      .update({ status })
+      .eq('id', id);
+
+    if (updateError) {
+      console.error('Error updating status:', updateError);
+      throw updateError;
+    }
+
+    // Add status change record
+    const { error: statusError } = await supabase
+      .from('status_changes')
+      .insert([{
+        customer_id: id,
+        previous_status: customer.status,
+        new_status: status,
+        comment,
+        changed_by: user.id,
+        changed_by_role: changedByRole
+      }]);
+
+    if (statusError) {
+      console.error('Error adding status change:', statusError);
+      throw statusError;
+    }
+
+    // Add comment if provided
+    if (comment) {
+      const { error: commentError } = await supabase
+        .from('comments')
+        .insert([{
+          customer_id: id,
+          comment,
+          created_by: user.id
+        }]);
+
+      if (commentError) {
+        console.error('Error adding comment:', commentError);
+        throw commentError;
+      }
+    }
+
+    await fetchCustomers();
+  };
+
+  const markPaymentReceived = async (id: string, changedBy: string) => {
+    await updateCustomerStatus(id, 'Paid', 'Payment received', changedBy, 'admin');
+    
+    await supabase
+      .from('customers')
+      .update({ 
+        payment_received: true, 
+        payment_date: new Date().toISOString() 
+      })
+      .eq('id', id);
+  };
+
+  const uploadDocument = async (customerId: string, documentId: string, filePath: string) => {
+    const { error } = await supabase
+      .from('documents')
+      .update({ 
+        file_path: filePath, 
+        is_uploaded: true 
+      })
+      .eq('id', documentId);
+
+    if (error) {
+      console.error('Error uploading document:', error);
+      throw error;
+    }
+
+    await fetchCustomers();
+  };
+
+  const submitToAdmin = async (id: string, userId: string, userName: string) => {
+    await updateCustomerStatus(id, 'Submitted', 'Submitted to admin for review', userName, 'user');
   };
 
   const getCustomerById = (id: string) => {
@@ -219,108 +261,20 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const getCustomersByUserId = (userId: string) => {
-    return customers.filter(customer => customer.userId === userId);
+    return customers.filter(customer => customer.user_id === userId);
   };
 
   const getCustomersByStatus = (status: Status) => {
     return customers.filter(customer => customer.status === status);
   };
 
-  const updateCustomerStatus = (id: string, status: Status, comment: string, changedBy: string, changedByRole: 'admin' | 'user') => {
-    setCustomers(customers.map(customer => {
-      if (customer.id === id) {
-        const statusChange: StatusChange = {
-          id: `sh${Date.now()}`,
-          previousStatus: customer.status,
-          newStatus: status,
-          comment,
-          changedBy,
-          changedByRole,
-          timestamp: new Date()
-        };
-
-        const updatedCustomer = { 
-          ...customer, 
-          status,
-          statusHistory: [...customer.statusHistory, statusChange]
-        };
-
-        if (comment) {
-          updatedCustomer.comments = [...customer.comments, comment];
-        }
-
-        return updatedCustomer;
-      }
-      return customer;
-    }));
-  };
-
-  const markPaymentReceived = (id: string, changedBy: string) => {
-    setCustomers(customers.map(customer => {
-      if (customer.id === id) {
-        const statusChange: StatusChange = {
-          id: `sh${Date.now()}`,
-          previousStatus: customer.status,
-          newStatus: 'Paid',
-          comment: 'Payment received',
-          changedBy,
-          changedByRole: 'admin',
-          timestamp: new Date()
-        };
-
-        return {
-          ...customer,
-          status: 'Paid' as Status,
-          paymentReceived: true,
-          paymentDate: new Date(),
-          statusHistory: [...customer.statusHistory, statusChange],
-          comments: [...customer.comments, 'Payment received']
-        };
-      }
-      return customer;
-    }));
-  };
-
-  const uploadDocument = (customerId: string, documentId: string, filePath: string) => {
-    setCustomers(customers.map(customer => {
-      if (customer.id === customerId) {
-        const updatedDocuments = customer.documents.map(doc => 
-          doc.id === documentId 
-            ? { ...doc, filePath, isUploaded: true } 
-            : doc
-        );
-        return { ...customer, documents: updatedDocuments };
-      }
-      return customer;
-    }));
-  };
-
-  const submitToAdmin = (id: string, userId: string, userName: string) => {
-    setCustomers(customers.map(customer => {
-      if (customer.id === id && (customer.status === 'Draft' || customer.status === 'Returned')) {
-        const statusChange: StatusChange = {
-          id: `sh${Date.now()}`,
-          previousStatus: customer.status,
-          newStatus: 'Submitted',
-          comment: 'Submitted to admin for review',
-          changedBy: userName,
-          changedByRole: 'user',
-          timestamp: new Date()
-        };
-
-        return {
-          ...customer,
-          status: 'Submitted' as Status,
-          statusHistory: [...customer.statusHistory, statusChange],
-          comments: [...customer.comments, 'Submitted to admin for review']
-        };
-      }
-      return customer;
-    }));
+  const refreshCustomers = async () => {
+    await fetchCustomers();
   };
 
   const value = {
     customers,
+    loading,
     addCustomer,
     updateCustomer,
     getCustomerById,
@@ -330,6 +284,7 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     uploadDocument,
     markPaymentReceived,
     submitToAdmin,
+    refreshCustomers
   };
 
   return (

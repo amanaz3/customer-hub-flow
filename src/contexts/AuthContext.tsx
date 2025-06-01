@@ -1,9 +1,11 @@
 
 import React, { createContext, useState, useContext, useEffect } from 'react';
+import { User, Session } from '@supabase/supabase-js';
+import { supabase } from '@/integrations/supabase/client';
 
 type UserRole = 'admin' | 'user';
 
-export interface User {
+export interface UserProfile {
   id: string;
   name: string;
   email: string;
@@ -11,63 +13,122 @@ export interface User {
 }
 
 interface AuthContextType {
-  user: User | null;
+  user: UserProfile | null;
+  session: Session | null;
   isAuthenticated: boolean;
   isAdmin: boolean;
+  loading: boolean;
   login: (email: string, password: string) => Promise<void>;
-  logout: () => void;
+  signup: (email: string, password: string, name: string) => Promise<void>;
+  logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demo
-const MOCK_USERS: User[] = [
-  {
-    id: '1',
-    name: 'Admin User',
-    email: 'admin@example.com',
-    role: 'admin'
-  },
-  {
-    id: '2',
-    name: 'Regular User',
-    email: 'user@example.com',
-    role: 'user'
-  }
-];
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const isAuthenticated = !!user;
+  const [user, setUser] = useState<UserProfile | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const isAuthenticated = !!session && !!user;
   const isAdmin = user?.role === 'admin';
 
-  // Check for saved session on load
   useEffect(() => {
-    const savedUser = localStorage.getItem('workflowUser');
-    if (savedUser) {
-      setUser(JSON.parse(savedUser));
-    }
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        console.log('Auth state change:', event, session?.user?.email);
+        setSession(session);
+        
+        if (session?.user) {
+          // Fetch user profile from profiles table
+          const { data: profile, error } = await supabase
+            .from('profiles')
+            .select('*')
+            .eq('id', session.user.id)
+            .single();
+          
+          if (profile && !error) {
+            setUser({
+              id: profile.id,
+              name: profile.name,
+              email: profile.email,
+              role: profile.role as UserRole
+            });
+          } else {
+            console.error('Error fetching profile:', error);
+            setUser(null);
+          }
+        } else {
+          setUser(null);
+        }
+        setLoading(false);
+      }
+    );
+
+    // Get initial session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) {
+        // This will trigger the auth state change listener above
+        console.log('Initial session found:', session.user?.email);
+      } else {
+        setLoading(false);
+      }
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
   const login = async (email: string, password: string) => {
-    // In a real app, this would be an API call
-    const user = MOCK_USERS.find(u => u.email === email);
-    
-    if (user) {
-      setUser(user);
-      localStorage.setItem('workflowUser', JSON.stringify(user));
-    } else {
-      throw new Error('Invalid credentials');
+    const { data, error } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  };
+
+  const signup = async (email: string, password: string, name: string) => {
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        data: {
+          name: name,
+        },
+        emailRedirectTo: `${window.location.origin}/dashboard`
+      }
+    });
+
+    if (error) {
+      throw error;
+    }
+
+    return data;
+  };
+
+  const logout = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      throw error;
     }
   };
 
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('workflowUser');
-  };
-
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, isAdmin, login, logout }}>
+    <AuthContext.Provider value={{ 
+      user, 
+      session, 
+      isAuthenticated, 
+      isAdmin, 
+      loading, 
+      login, 
+      signup, 
+      logout 
+    }}>
       {children}
     </AuthContext.Provider>
   );

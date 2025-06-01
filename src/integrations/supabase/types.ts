@@ -9,16 +9,259 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      comments: {
+        Row: {
+          comment: string
+          created_at: string | null
+          created_by: string
+          customer_id: string
+          id: string
+        }
+        Insert: {
+          comment: string
+          created_at?: string | null
+          created_by: string
+          customer_id: string
+          id?: string
+        }
+        Update: {
+          comment?: string
+          created_at?: string | null
+          created_by?: string
+          customer_id?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "comments_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          amount: number
+          company: string
+          created_at: string | null
+          email: string
+          id: string
+          lead_source: Database["public"]["Enums"]["lead_source"]
+          license_type: Database["public"]["Enums"]["license_type"]
+          mobile: string
+          name: string
+          payment_date: string | null
+          payment_received: boolean | null
+          status: Database["public"]["Enums"]["customer_status"]
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          company: string
+          created_at?: string | null
+          email: string
+          id?: string
+          lead_source: Database["public"]["Enums"]["lead_source"]
+          license_type: Database["public"]["Enums"]["license_type"]
+          mobile: string
+          name: string
+          payment_date?: string | null
+          payment_received?: boolean | null
+          status?: Database["public"]["Enums"]["customer_status"]
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          company?: string
+          created_at?: string | null
+          email?: string
+          id?: string
+          lead_source?: Database["public"]["Enums"]["lead_source"]
+          license_type?: Database["public"]["Enums"]["license_type"]
+          mobile?: string
+          name?: string
+          payment_date?: string | null
+          payment_received?: boolean | null
+          status?: Database["public"]["Enums"]["customer_status"]
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customers_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      documents: {
+        Row: {
+          category: Database["public"]["Enums"]["document_category"]
+          created_at: string | null
+          customer_id: string
+          file_path: string | null
+          id: string
+          is_mandatory: boolean
+          is_uploaded: boolean
+          name: string
+          requires_license_type:
+            | Database["public"]["Enums"]["license_type"]
+            | null
+          updated_at: string | null
+        }
+        Insert: {
+          category: Database["public"]["Enums"]["document_category"]
+          created_at?: string | null
+          customer_id: string
+          file_path?: string | null
+          id?: string
+          is_mandatory?: boolean
+          is_uploaded?: boolean
+          name: string
+          requires_license_type?:
+            | Database["public"]["Enums"]["license_type"]
+            | null
+          updated_at?: string | null
+        }
+        Update: {
+          category?: Database["public"]["Enums"]["document_category"]
+          created_at?: string | null
+          customer_id?: string
+          file_path?: string | null
+          id?: string
+          is_mandatory?: boolean
+          is_uploaded?: boolean
+          name?: string
+          requires_license_type?:
+            | Database["public"]["Enums"]["license_type"]
+            | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "documents_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          name: string
+          role: Database["public"]["Enums"]["app_role"]
+          updated_at: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          name: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          name?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      status_changes: {
+        Row: {
+          changed_by: string
+          changed_by_role: Database["public"]["Enums"]["app_role"]
+          comment: string | null
+          created_at: string | null
+          customer_id: string
+          id: string
+          new_status: Database["public"]["Enums"]["customer_status"]
+          previous_status: Database["public"]["Enums"]["customer_status"]
+        }
+        Insert: {
+          changed_by: string
+          changed_by_role: Database["public"]["Enums"]["app_role"]
+          comment?: string | null
+          created_at?: string | null
+          customer_id: string
+          id?: string
+          new_status: Database["public"]["Enums"]["customer_status"]
+          previous_status: Database["public"]["Enums"]["customer_status"]
+        }
+        Update: {
+          changed_by?: string
+          changed_by_role?: Database["public"]["Enums"]["app_role"]
+          comment?: string | null
+          created_at?: string | null
+          customer_id?: string
+          id?: string
+          new_status?: Database["public"]["Enums"]["customer_status"]
+          previous_status?: Database["public"]["Enums"]["customer_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "status_changes_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "status_changes_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _user_id: string
+          _role: Database["public"]["Enums"]["app_role"]
+        }
+        Returns: boolean
+      }
     }
     Enums: {
-      [_ in never]: never
+      app_role: "admin" | "user"
+      customer_status:
+        | "Draft"
+        | "Submitted"
+        | "Returned"
+        | "Sent to Bank"
+        | "Complete"
+        | "Rejected"
+        | "Need More Info"
+        | "Paid"
+      document_category: "mandatory" | "freezone" | "supporting" | "signatory"
+      lead_source: "Website" | "Referral" | "Social Media" | "Other"
+      license_type: "Mainland" | "Freezone" | "Offshore"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -133,6 +376,21 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      app_role: ["admin", "user"],
+      customer_status: [
+        "Draft",
+        "Submitted",
+        "Returned",
+        "Sent to Bank",
+        "Complete",
+        "Rejected",
+        "Need More Info",
+        "Paid",
+      ],
+      document_category: ["mandatory", "freezone", "supporting", "signatory"],
+      lead_source: ["Website", "Referral", "Social Media", "Other"],
+      license_type: ["Mainland", "Freezone", "Offshore"],
+    },
   },
 } as const

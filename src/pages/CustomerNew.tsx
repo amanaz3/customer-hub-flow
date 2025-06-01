@@ -15,31 +15,35 @@ const CustomerNew = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = (data: CustomerFormValues) => {
+  const handleSubmit = async (data: CustomerFormValues) => {
     if (!user) return;
 
-    const newCustomer = {
-      name: data.name,
-      mobile: data.mobile,
-      company: data.company,
-      email: data.email,
-      leadSource: data.leadSource,
-      licenseType: data.licenseType,
-      amount: parseFloat(data.amount),
-      status: 'Draft' as const,
-      userId: user.id,
-      documents: [],
-      comments: []
-    };
-    
-    addCustomer(newCustomer);
-    
-    toast({
-      title: "Success",
-      description: "Customer application created as draft",
-    });
-    
-    navigate('/customers');
+    try {
+      await addCustomer({
+        name: data.name,
+        mobile: data.mobile,
+        company: data.company,
+        email: data.email,
+        lead_source: data.leadSource as any,
+        license_type: data.licenseType as any,
+        amount: parseFloat(data.amount),
+        status: 'Draft' as const,
+        user_id: user.id,
+      });
+      
+      toast({
+        title: "Success",
+        description: "Customer application created as draft",
+      });
+      
+      navigate('/customers');
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message || "Failed to create customer",
+        variant: "destructive",
+      });
+    }
   };
 
   return (
