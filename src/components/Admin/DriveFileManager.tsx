@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Download, Eye, Trash2, Folder, File, RefreshCw } from 'lucide-react';
+import { Download, Eye, Trash2, Folder, File, RefreshCw, Settings } from 'lucide-react';
 import { formatDate } from '@/lib/utils';
 
 interface DriveFile {
@@ -30,19 +30,55 @@ const DriveFileManager: React.FC = () => {
   const [folderFiles, setFolderFiles] = useState<DriveFile[]>([]);
   const [loading, setLoading] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
+  const [authStatus, setAuthStatus] = useState<boolean>(false);
 
   useEffect(() => {
-    loadCustomerFolders();
+    checkAuthAndLoadFolders();
   }, []);
+
+  const checkAuthAndLoadFolders = async () => {
+    try {
+      const isAuth = googleDriveService.isAuthenticated();
+      setAuthStatus(isAuth);
+      
+      if (isAuth) {
+        await loadCustomerFolders();
+      }
+    } catch (error) {
+      console.error('Error checking auth status:', error);
+      setAuthStatus(false);
+    }
+  };
+
+  const handleAuthenticate = async () => {
+    setLoading(true);
+    try {
+      await googleDriveService.initializeAuth();
+      setAuthStatus(true);
+      await loadCustomerFolders();
+      toast({
+        title: "Success",
+        description: "Google Drive authenticated successfully",
+      });
+    } catch (error) {
+      console.error('Authentication failed:', error);
+      setAuthStatus(false);
+      toast({
+        title: "Authentication Failed",
+        description: error instanceof Error ? error.message : "Failed to authenticate with Google Drive",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const loadCustomerFolders = async () => {
     setLoading(true);
     try {
-      if (!googleDriveService.isAuthenticated()) {
-        await googleDriveService.initializeAuth();
-      }
       const folders = await googleDriveService.getAllCustomerFolders();
       setCustomerFolders(folders);
+      console.log('Loaded customer folders:', folders.length);
     } catch (error) {
       console.error('Failed to load customer folders:', error);
       toast({
@@ -61,6 +97,7 @@ const DriveFileManager: React.FC = () => {
       const files = await googleDriveService.listCustomerFiles(customerId);
       setFolderFiles(files);
       setSelectedFolder(customerId);
+      console.log('Loaded files for customer:', customerId, files.length);
     } catch (error) {
       console.error('Failed to load folder files:', error);
       toast({
@@ -129,7 +166,7 @@ const DriveFileManager: React.FC = () => {
 
   const handleRefresh = async () => {
     setRefreshing(true);
-    await loadCustomerFolders();
+    await checkAuthAndLoadFolders();
     if (selectedFolder) {
       const customerId = selectedFolder.replace('Customer_', '');
       await loadFolderFiles(customerId);
@@ -152,10 +189,45 @@ const DriveFileManager: React.FC = () => {
     return '📎';
   };
 
+  if (!authStatus) {
+    return (
+      <div className="space-y-6">
+        <div className="text-center py-8">
+          <Settings className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+          <h3 className="text-lg font-medium text-gray-900 mb-2">Google Drive Authentication Required</h3>
+          <p className="text-gray-600 mb-6">
+            You need to authenticate with Google Drive to access file management features.
+          </p>
+          <Button onClick={handleAuthenticate} disabled={loading}>
+            {loading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-current mr-2" />
+                Authenticating...
+              </>
+            ) : (
+              <>
+                <Settings className="w-4 h-4 mr-2" />
+                Authenticate Google Drive
+              </>
+            )}
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold">Google Drive File Manager</h2>
+        <div>
+          <h2 className="text-2xl font-bold">Google Drive File Manager</h2>
+          <div className="flex items-center gap-2 mt-1">
+            <Badge variant="outline" className="text-green-600 border-green-600">
+              Authenticated
+            </Badge>
+            <span className="text-sm text-gray-500">Connected to Google Drive</span>
+          </div>
+        </div>
         <Button onClick={handleRefresh} disabled={refreshing}>
           <RefreshCw className={`w-4 h-4 mr-2 ${refreshing ? 'animate-spin' : ''}`} />
           Refresh
@@ -168,20 +240,23 @@ const DriveFileManager: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Folder className="w-5 h-5" />
-              Customer Folders
+              Customer Folders ({customerFolders.length})
             </CardTitle>
           </CardHeader>
           <CardContent>
             {loading && !selectedFolder ? (
-              <div className="text-center py-4">Loading folders...</div>
+              <div className="text-center py-4">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-current mx-auto mb-2" />
+                Loading folders...
+              </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-2 max-h-96 overflow-y-auto">
                 {customerFolders.map((folder) => {
                   const customerId = folder.name.replace('Customer_', '');
                   return (
                     <div
                       key={folder.id}
-                      className={`p-3 border rounded-md cursor-pointer hover:bg-gray-50 ${
+                      className={`p-3 border rounded-md cursor-pointer hover:bg-gray-50 transition-colors ${
                         selectedFolder === customerId ? 'bg-blue-50 border-blue-200' : ''
                       }`}
                       onClick={() => loadFolderFiles(customerId)}
@@ -208,25 +283,29 @@ const DriveFileManager: React.FC = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <File className="w-5 h-5" />
-              Files {selectedFolder && `in Customer_${selectedFolder}`}
+              Files {selectedFolder && `in Customer_${selectedFolder} (${folderFiles.length})`}
             </CardTitle>
           </CardHeader>
           <CardContent>
             {!selectedFolder ? (
               <div className="text-center py-8 text-gray-500">
+                <File className="w-12 h-12 mx-auto mb-2 opacity-50" />
                 Select a customer folder to view files
               </div>
             ) : loading ? (
-              <div className="text-center py-8">Loading files...</div>
+              <div className="text-center py-8">
+                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-current mx-auto mb-2" />
+                Loading files...
+              </div>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-3 max-h-96 overflow-y-auto">
                 {folderFiles.map((file) => (
                   <div
                     key={file.id}
-                    className="p-4 border rounded-md flex items-center justify-between"
+                    className="p-4 border rounded-md flex items-center justify-between hover:bg-gray-50 transition-colors"
                   >
-                    <div className="flex items-center gap-3 flex-1">
-                      <span className="text-2xl">{getFileIcon(file.mimeType)}</span>
+                    <div className="flex items-center gap-3 flex-1 min-w-0">
+                      <span className="text-2xl flex-shrink-0">{getFileIcon(file.mimeType)}</span>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium truncate">{file.name}</div>
                         <div className="text-xs text-gray-500 flex gap-4">
@@ -236,11 +315,12 @@ const DriveFileManager: React.FC = () => {
                       </div>
                     </div>
                     
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-center gap-2 flex-shrink-0">
                       <Button
                         variant="outline"
                         size="sm"
                         onClick={() => window.open(file.webViewLink, '_blank')}
+                        title="View in Google Drive"
                       >
                         <Eye className="w-3 h-3" />
                       </Button>
@@ -248,6 +328,7 @@ const DriveFileManager: React.FC = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => handleDownload(file.id, file.name)}
+                        title="Download file"
                       >
                         <Download className="w-3 h-3" />
                       </Button>
@@ -256,6 +337,7 @@ const DriveFileManager: React.FC = () => {
                         size="sm"
                         onClick={() => handleDelete(file.id, file.name)}
                         className="text-red-600 hover:text-red-700"
+                        title="Delete file"
                       >
                         <Trash2 className="w-3 h-3" />
                       </Button>
@@ -264,6 +346,7 @@ const DriveFileManager: React.FC = () => {
                 ))}
                 {folderFiles.length === 0 && (
                   <div className="text-center py-8 text-gray-500">
+                    <File className="w-12 h-12 mx-auto mb-2 opacity-50" />
                     No files found in this folder
                   </div>
                 )}

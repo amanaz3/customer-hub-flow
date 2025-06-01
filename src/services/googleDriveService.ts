@@ -32,7 +32,12 @@ class GoogleDriveService {
       if (Date.now() < expiry) {
         this.accessToken = storedToken;
         this.tokenExpiry = expiry;
+        console.log('Using stored Google Drive token');
         return;
+      } else {
+        console.log('Stored token expired, requesting new auth');
+        localStorage.removeItem('google_drive_token');
+        localStorage.removeItem('google_drive_token_expiry');
       }
     }
     
@@ -48,6 +53,9 @@ class GoogleDriveService {
     authUrl.searchParams.set('scope', SCOPES.join(' '));
     authUrl.searchParams.set('response_type', 'code');
     authUrl.searchParams.set('access_type', 'offline');
+    authUrl.searchParams.set('prompt', 'consent');
+    
+    console.log('Opening Google auth window with URL:', authUrl.toString());
     
     const authWindow = window.open(
       authUrl.toString(),
@@ -59,55 +67,78 @@ class GoogleDriveService {
       const checkClosed = setInterval(() => {
         if (authWindow?.closed) {
           clearInterval(checkClosed);
-          reject(new Error('Authentication cancelled'));
+          reject(new Error('Authentication cancelled by user'));
         }
       }, 1000);
 
-      window.addEventListener('message', async (event) => {
+      const messageHandler = async (event: MessageEvent) => {
         if (event.origin !== window.location.origin) return;
         
         if (event.data.type === 'GOOGLE_AUTH_SUCCESS') {
           clearInterval(checkClosed);
           authWindow?.close();
+          window.removeEventListener('message', messageHandler);
           
           try {
+            console.log('Received auth code, exchanging for token...');
             await this.exchangeCodeForToken(event.data.code);
             resolve();
           } catch (error) {
+            console.error('Token exchange failed:', error);
             reject(error);
           }
+        } else if (event.data.type === 'GOOGLE_AUTH_ERROR') {
+          clearInterval(checkClosed);
+          authWindow?.close();
+          window.removeEventListener('message', messageHandler);
+          reject(new Error(event.data.error || 'Authentication failed'));
         }
-      });
+      };
+
+      window.addEventListener('message', messageHandler);
     });
   }
 
   private async exchangeCodeForToken(code: string): Promise<void> {
     const redirectUri = `${window.location.origin}/auth/callback`;
     
-    const response = await fetch(DRIVE_CONFIG.token_uri, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded',
-      },
-      body: new URLSearchParams({
-        client_id: DRIVE_CONFIG.client_id,
-        client_secret: DRIVE_CONFIG.client_secret,
-        code: code,
-        grant_type: 'authorization_code',
-        redirect_uri: redirectUri,
-      }),
-    });
+    try {
+      const response = await fetch(DRIVE_CONFIG.token_uri, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          client_id: DRIVE_CONFIG.client_id,
+          client_secret: DRIVE_CONFIG.client_secret,
+          code: code,
+          grant_type: 'authorization_code',
+          redirect_uri: redirectUri,
+        }),
+      });
 
-    const data = await response.json();
-    
-    if (data.access_token) {
-      this.accessToken = data.access_token;
-      this.tokenExpiry = Date.now() + (data.expires_in * 1000);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Token exchange failed: ${response.status} ${errorText}`);
+      }
+
+      const data = await response.json();
+      console.log('Token exchange response:', data);
       
-      localStorage.setItem('google_drive_token', this.accessToken);
-      localStorage.setItem('google_drive_token_expiry', this.tokenExpiry.toString());
-    } else {
-      throw new Error('Failed to obtain access token');
+      if (data.access_token) {
+        this.accessToken = data.access_token;
+        this.tokenExpiry = Date.now() + (data.expires_in * 1000);
+        
+        localStorage.setItem('google_drive_token', this.accessToken);
+        localStorage.setItem('google_drive_token_expiry', this.tokenExpiry.toString());
+        
+        console.log('Google Drive token stored successfully');
+      } else {
+        throw new Error('No access token received from Google');
+      }
+    } catch (error) {
+      console.error('Token exchange error:', error);
+      throw error;
     }
   }
 
@@ -120,26 +151,37 @@ class GoogleDriveService {
       await this.initializeAuth();
     }
 
-    // Search for existing main folder
-    const searchResponse = await fetch(
-      `https://www.googleapis.com/drive/v3/files?q=name='Amana Finance Documents' and mimeType='application/vnd.google-apps.folder'`,
-      {
-        headers: {
-          'Authorization': `Bearer ${this.accessToken}`,
-        },
+    try {
+      // Search for existing main folder
+      const searchResponse = await fetch(
+        `https://www.googleapis.com/drive/v3/files?q=name='Amana Finance Documents' and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+        {
+          headers: {
+            'Authorization': `Bearer ${this.accessToken}`,
+          },
+        }
+      );
+
+      if (!searchResponse.ok) {
+        throw new Error(`Failed to search for main folder: ${searchResponse.statusText}`);
       }
-    );
 
-    const searchResult = await searchResponse.json();
-    
-    if (searchResult.files && searchResult.files.length > 0) {
-      this.mainFolderId = searchResult.files[0].id;
-    } else {
-      // Create main folder
-      this.mainFolderId = await this.createFolder('Amana Finance Documents');
+      const searchResult = await searchResponse.json();
+      
+      if (searchResult.files && searchResult.files.length > 0) {
+        this.mainFolderId = searchResult.files[0].id;
+        console.log('Found existing main folder:', this.mainFolderId);
+      } else {
+        // Create main folder
+        this.mainFolderId = await this.createFolder('Amana Finance Documents');
+        console.log('Created new main folder:', this.mainFolderId);
+      }
+
+      return this.mainFolderId;
+    } catch (error) {
+      console.error('Error ensuring main folder:', error);
+      throw error;
     }
-
-    return this.mainFolderId;
   }
 
   async uploadFile(file: File, fileName: string, parentFolderId?: string): Promise<string> {
@@ -156,20 +198,27 @@ class GoogleDriveService {
     form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
     form.append('file', file);
 
-    const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.accessToken}`,
-      },
-      body: form,
-    });
+    try {
+      const response = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`,
+        },
+        body: form,
+      });
 
-    if (!response.ok) {
-      throw new Error(`Upload failed: ${response.statusText}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Upload failed: ${response.status} ${errorText}`);
+      }
+
+      const result = await response.json();
+      console.log('File uploaded successfully:', result.id);
+      return result.id;
+    } catch (error) {
+      console.error('File upload error:', error);
+      throw error;
     }
-
-    const result = await response.json();
-    return result.id;
   }
 
   async createFolder(name: string, parentFolderId?: string): Promise<string> {
@@ -183,45 +232,64 @@ class GoogleDriveService {
       parents: parentFolderId ? [parentFolderId] : undefined,
     };
 
-    const response = await fetch('https://www.googleapis.com/drive/v3/files', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(metadata),
-    });
+    try {
+      const response = await fetch('https://www.googleapis.com/drive/v3/files', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(metadata),
+      });
 
-    if (!response.ok) {
-      throw new Error(`Folder creation failed: ${response.statusText}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        throw new Error(`Folder creation failed: ${response.status} ${errorText}`);
+      }
+
+      const result = await response.json();
+      console.log('Folder created successfully:', result.id);
+      return result.id;
+    } catch (error) {
+      console.error('Folder creation error:', error);
+      throw error;
     }
-
-    const result = await response.json();
-    return result.id;
   }
 
   async getOrCreateCustomerFolder(customerId: string): Promise<string> {
-    const mainFolderId = await this.ensureMainFolder();
-    const customerFolderName = `Customer_${customerId}`;
+    try {
+      const mainFolderId = await this.ensureMainFolder();
+      const customerFolderName = `Customer_${customerId}`;
 
-    // Search for existing customer folder
-    const searchResponse = await fetch(
-      `https://www.googleapis.com/drive/v3/files?q=name='${customerFolderName}' and '${mainFolderId}' in parents and mimeType='application/vnd.google-apps.folder'`,
-      {
-        headers: {
-          'Authorization': `Bearer ${this.accessToken}`,
-        },
+      // Search for existing customer folder
+      const searchResponse = await fetch(
+        `https://www.googleapis.com/drive/v3/files?q=name='${customerFolderName}' and '${mainFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false`,
+        {
+          headers: {
+            'Authorization': `Bearer ${this.accessToken}`,
+          },
+        }
+      );
+
+      if (!searchResponse.ok) {
+        throw new Error(`Failed to search for customer folder: ${searchResponse.statusText}`);
       }
-    );
 
-    const searchResult = await searchResponse.json();
-    
-    if (searchResult.files && searchResult.files.length > 0) {
-      return searchResult.files[0].id;
+      const searchResult = await searchResponse.json();
+      
+      if (searchResult.files && searchResult.files.length > 0) {
+        console.log('Found existing customer folder:', searchResult.files[0].id);
+        return searchResult.files[0].id;
+      }
+
+      // Create customer folder
+      const folderId = await this.createFolder(customerFolderName, mainFolderId);
+      console.log('Created new customer folder:', folderId);
+      return folderId;
+    } catch (error) {
+      console.error('Error getting/creating customer folder:', error);
+      throw error;
     }
-
-    // Create customer folder
-    return await this.createFolder(customerFolderName, mainFolderId);
   }
 
   async getFileLink(fileId: string): Promise<string> {
@@ -229,60 +297,78 @@ class GoogleDriveService {
       await this.initializeAuth();
     }
 
-    // Make file publicly viewable
-    await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/permissions`, {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${this.accessToken}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        role: 'reader',
-        type: 'anyone',
-      }),
-    });
+    try {
+      // Make file publicly viewable
+      await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}/permissions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          role: 'reader',
+          type: 'anyone',
+        }),
+      });
 
-    return `https://drive.google.com/file/d/${fileId}/view`;
+      return `https://drive.google.com/file/d/${fileId}/view`;
+    } catch (error) {
+      console.error('Error setting file permissions:', error);
+      // Return view link even if permission setting fails
+      return `https://drive.google.com/file/d/${fileId}/view`;
+    }
   }
 
   async listCustomerFiles(customerId: string): Promise<any[]> {
-    const customerFolderId = await this.getOrCreateCustomerFolder(customerId);
-    
-    const response = await fetch(
-      `https://www.googleapis.com/drive/v3/files?q='${customerFolderId}' in parents&fields=files(id,name,mimeType,createdTime,size,webViewLink)`,
-      {
-        headers: {
-          'Authorization': `Bearer ${this.accessToken}`,
-        },
+    try {
+      const customerFolderId = await this.getOrCreateCustomerFolder(customerId);
+      
+      const response = await fetch(
+        `https://www.googleapis.com/drive/v3/files?q='${customerFolderId}' in parents and trashed=false&fields=files(id,name,mimeType,createdTime,size,webViewLink)`,
+        {
+          headers: {
+            'Authorization': `Bearer ${this.accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to list files: ${response.statusText}`);
       }
-    );
 
-    if (!response.ok) {
-      throw new Error(`Failed to list files: ${response.statusText}`);
+      const result = await response.json();
+      console.log('Customer files retrieved:', result.files?.length || 0);
+      return result.files || [];
+    } catch (error) {
+      console.error('Error listing customer files:', error);
+      throw error;
     }
-
-    const result = await response.json();
-    return result.files || [];
   }
 
   async getAllCustomerFolders(): Promise<any[]> {
-    const mainFolderId = await this.ensureMainFolder();
-    
-    const response = await fetch(
-      `https://www.googleapis.com/drive/v3/files?q='${mainFolderId}' in parents and mimeType='application/vnd.google-apps.folder'&fields=files(id,name,createdTime)`,
-      {
-        headers: {
-          'Authorization': `Bearer ${this.accessToken}`,
-        },
+    try {
+      const mainFolderId = await this.ensureMainFolder();
+      
+      const response = await fetch(
+        `https://www.googleapis.com/drive/v3/files?q='${mainFolderId}' in parents and mimeType='application/vnd.google-apps.folder' and trashed=false&fields=files(id,name,createdTime)`,
+        {
+          headers: {
+            'Authorization': `Bearer ${this.accessToken}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Failed to list customer folders: ${response.statusText}`);
       }
-    );
 
-    if (!response.ok) {
-      throw new Error(`Failed to list customer folders: ${response.statusText}`);
+      const result = await response.json();
+      console.log('Customer folders retrieved:', result.files?.length || 0);
+      return result.files || [];
+    } catch (error) {
+      console.error('Error listing customer folders:', error);
+      throw error;
     }
-
-    const result = await response.json();
-    return result.files || [];
   }
 
   async downloadFile(fileId: string): Promise<Blob> {
@@ -290,17 +376,22 @@ class GoogleDriveService {
       await this.initializeAuth();
     }
 
-    const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
-      headers: {
-        'Authorization': `Bearer ${this.accessToken}`,
-      },
-    });
+    try {
+      const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`,
+        },
+      });
 
-    if (!response.ok) {
-      throw new Error(`Download failed: ${response.statusText}`);
+      if (!response.ok) {
+        throw new Error(`Download failed: ${response.statusText}`);
+      }
+
+      return response.blob();
+    } catch (error) {
+      console.error('Error downloading file:', error);
+      throw error;
     }
-
-    return response.blob();
   }
 
   async deleteFile(fileId: string): Promise<void> {
@@ -308,20 +399,38 @@ class GoogleDriveService {
       await this.initializeAuth();
     }
 
-    const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
-      method: 'DELETE',
-      headers: {
-        'Authorization': `Bearer ${this.accessToken}`,
-      },
-    });
+    try {
+      const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`,
+        },
+      });
 
-    if (!response.ok) {
-      throw new Error(`Delete failed: ${response.statusText}`);
+      if (!response.ok) {
+        throw new Error(`Delete failed: ${response.statusText}`);
+      }
+
+      console.log('File deleted successfully:', fileId);
+    } catch (error) {
+      console.error('Error deleting file:', error);
+      throw error;
     }
   }
 
   isAuthenticated(): boolean {
-    return !!this.accessToken && !!this.tokenExpiry && Date.now() < this.tokenExpiry;
+    const isAuth = !!this.accessToken && !!this.tokenExpiry && Date.now() < this.tokenExpiry;
+    console.log('Drive authentication status:', isAuth);
+    return isAuth;
+  }
+
+  clearAuth(): void {
+    this.accessToken = null;
+    this.tokenExpiry = null;
+    this.mainFolderId = null;
+    localStorage.removeItem('google_drive_token');
+    localStorage.removeItem('google_drive_token_expiry');
+    console.log('Google Drive authentication cleared');
   }
 }
 

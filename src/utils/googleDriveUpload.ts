@@ -7,24 +7,53 @@ export const uploadToGoogleDrive = async (
   documentId: string
 ): Promise<string> => {
   try {
+    console.log(`Starting Google Drive upload for customer ${customerId}, document ${documentId}`);
+    
     // Ensure authentication
     if (!googleDriveService.isAuthenticated()) {
+      console.log('Not authenticated, initializing auth...');
       await googleDriveService.initializeAuth();
     }
 
     // Get or create customer folder in organized structure
     const customerFolderId = await googleDriveService.getOrCreateCustomerFolder(customerId);
+    console.log('Customer folder ID:', customerFolderId);
 
     // Upload file with proper naming
     const fileName = `${documentId}_${file.name}`;
     const fileId = await googleDriveService.uploadFile(file, fileName, customerFolderId);
+    console.log('File uploaded with ID:', fileId);
     
     // Get shareable link
     const fileLink = await googleDriveService.getFileLink(fileId);
+    console.log('File link generated:', fileLink);
     
     return fileLink;
   } catch (error) {
     console.error('Google Drive upload failed:', error);
+    
+    // If it's an auth error, clear stored tokens and retry once
+    if (error instanceof Error && (
+      error.message.includes('401') || 
+      error.message.includes('invalid_token') ||
+      error.message.includes('unauthorized')
+    )) {
+      console.log('Auth error detected, clearing tokens and retrying...');
+      googleDriveService.clearAuth();
+      
+      try {
+        await googleDriveService.initializeAuth();
+        const customerFolderId = await googleDriveService.getOrCreateCustomerFolder(customerId);
+        const fileName = `${documentId}_${file.name}`;
+        const fileId = await googleDriveService.uploadFile(file, fileName, customerFolderId);
+        const fileLink = await googleDriveService.getFileLink(fileId);
+        return fileLink;
+      } catch (retryError) {
+        console.error('Retry upload also failed:', retryError);
+        throw new Error(`Failed to upload to Google Drive after retry: ${retryError instanceof Error ? retryError.message : 'Unknown error'}`);
+      }
+    }
+    
     throw new Error(`Failed to upload to Google Drive: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 };
