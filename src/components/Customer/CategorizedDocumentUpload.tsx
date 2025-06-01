@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Document } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
@@ -9,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { validateFile, uploadToGoogleDrive, SUPPORTED_FILE_TYPES, MAX_FILE_SIZE } from '@/utils/googleDriveUpload';
+import { validateFile, uploadFile, SUPPORTED_FILE_TYPES, MAX_FILE_SIZE } from '@/utils/fileUpload';
 import { Upload, CheckCircle, Eye, AlertCircle, FileText, Building, Users, Shield } from 'lucide-react';
 
 interface CategorizedDocumentUploadProps {
@@ -33,7 +34,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
     const file = event.target.files?.[0];
     if (!file) return;
 
-    console.log(`Starting Google Drive upload for document ${documentId}:`, file.name);
+    console.log(`Starting upload for document ${documentId}:`, file.name);
 
     const validation = validateFile(file);
     if (!validation.isValid) {
@@ -59,7 +60,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
         });
       }, 200);
 
-      const filePath = await uploadToGoogleDrive(file, customerId, documentId);
+      const filePath = await uploadFile(file, customerId, documentId);
       
       clearInterval(progressInterval);
       setUploadProgress({ ...uploadProgress, [documentId]: 100 });
@@ -69,13 +70,13 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
       
       toast({
         title: "Document uploaded successfully",
-        description: `${file.name} has been uploaded to Google Drive.`,
+        description: `${file.name} has been uploaded and saved.`,
       });
 
-      console.log(`Google Drive upload completed for document ${documentId}`);
+      console.log(`Upload completed for document ${documentId}`);
       
     } catch (error) {
-      console.error(`Google Drive upload failed for document ${documentId}:`, error);
+      console.error(`Upload failed for document ${documentId}:`, error);
       setUploading(null);
       setUploadProgress({ ...uploadProgress, [documentId]: 0 });
       
@@ -164,12 +165,12 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-green-600">
             <CheckCircle className="w-4 h-4" />
-            <span className="text-xs">Uploaded to Google Drive</span>
+            <span className="text-xs">Uploaded</span>
           </div>
           <Button 
             variant="outline" 
             size="sm"
-            onClick={() => window.open(doc.filePath, '_blank')}
+            onClick={() => window.open(`https://drive.google.com${doc.filePath}`, '_blank')}
             className="flex items-center gap-1"
           >
             <Eye className="w-3 h-3" />
@@ -181,7 +182,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
           {uploading === doc.id && (
             <div className="space-y-1">
               <div className="flex justify-between text-xs">
-                <span>Uploading to Google Drive...</span>
+                <span>Uploading...</span>
                 <span>{uploadProgress[doc.id] || 0}%</span>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-2">
@@ -222,7 +223,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
                   ) : (
                     <>
                       <Upload className="w-3 h-3" />
-                      Upload to Drive
+                      Upload
                     </>
                   )}
                 </span>
@@ -240,7 +241,6 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
         <p>Supported formats: {getSupportedTypesText()}</p>
         <p>Maximum file size: {formatFileSize(MAX_FILE_SIZE)}</p>
         <p className="text-red-600 font-medium">* Indicates mandatory documents</p>
-        <p className="text-blue-600 font-medium">Documents will be uploaded directly to Google Drive</p>
       </div>
 
       {categoryOrder.map(category => {
@@ -275,9 +275,8 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
             <ul className="mt-1 space-y-1 text-xs">
               <li>• Ensure documents are clear and readable</li>
               <li>• All mandatory documents (*) must be uploaded before submission</li>
-              <li>• Files will be automatically uploaded to Google Drive and validated</li>
+              <li>• Files will be automatically validated for type and size</li>
               <li>• You can save your progress as draft and continue later</li>
-              <li>• Documents are securely stored in your Google Drive account</li>
             </ul>
           </div>
         </div>

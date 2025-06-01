@@ -14,15 +14,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   children, 
   requiredRole = 'any'
 }) => {
-  const { isAuthenticated, isAdmin, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-lg">Loading...</div>
-      </div>
-    );
-  }
+  const { isAuthenticated, isAdmin, user } = useAuth();
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;
@@ -31,6 +23,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   // Role-based access control
   if (requiredRole === 'admin' && !isAdmin) {
     return <Navigate to="/dashboard" replace />;
+  }
+
+  if (requiredRole === 'user' && isAdmin) {
+    // Allow admin to access user pages
+    // If you want to restrict admin from user pages, uncomment:
+    // return <Navigate to="/admin/dashboard" replace />;
   }
 
   return (

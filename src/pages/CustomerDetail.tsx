@@ -54,6 +54,7 @@ const CustomerDetail = () => {
     company: string;
     email: string;
     leadSource: string;
+    licenseType: string;
     amount: string;
   }) => {
     if (!customer) return;
@@ -64,6 +65,7 @@ const CustomerDetail = () => {
       company: formData.company,
       email: formData.email,
       leadSource: formData.leadSource as any,
+      licenseType: formData.licenseType as any,
       amount: parseFloat(formData.amount),
     });
     
@@ -179,7 +181,7 @@ const CustomerDetail = () => {
               amount={customer.amount} 
               comments={customer.comments}
               paymentReceived={customer.paymentReceived}
-              paymentDate={customer.paymentDate ? new Date(customer.paymentDate) : undefined}
+              paymentDate={customer.paymentDate}
             />
             
             <StatusHistoryCard statusHistory={customer.statusHistory} />

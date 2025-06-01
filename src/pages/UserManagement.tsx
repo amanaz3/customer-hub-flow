@@ -32,10 +32,10 @@ import { Label } from "@/components/ui/label";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { UserProfile } from '@/contexts/AuthContext';
+import { User } from '@/contexts/AuthContext';
 
 // In a real app, this would come from the backend
-const mockUsers: UserProfile[] = [
+const mockUsers: User[] = [
   {
     id: '1',
     name: 'Admin User',
@@ -71,7 +71,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const UserManagement = () => {
-  const [users, setUsers] = useState<UserProfile[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>(mockUsers);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   
@@ -85,7 +85,7 @@ const UserManagement = () => {
   });
 
   const addUser = (data: FormValues) => {
-    const newUser: UserProfile = {
+    const newUser: User = {
       id: `${users.length + 1}`,
       name: data.name,
       email: data.email,
