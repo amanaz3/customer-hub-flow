@@ -9,24 +9,30 @@ export type LeadSource = Database['public']['Enums']['lead_source'];
 export type LicenseType = Database['public']['Enums']['license_type'];
 export type DocumentCategory = Database['public']['Enums']['document_category'];
 
+// Database row types
+type DbDocument = Database['public']['Tables']['documents']['Row'];
+type DbCustomer = Database['public']['Tables']['customers']['Row'];
+type DbStatusChange = Database['public']['Tables']['status_changes']['Row'];
+
+// Frontend interface types (camelCase)
 export interface Document {
   id: string;
   name: string;
-  file_path: string | null;
-  is_mandatory: boolean;
-  is_uploaded: boolean;
+  filePath: string | null;
+  isMandatory: boolean;
+  isUploaded: boolean;
   category: DocumentCategory;
-  requires_license_type?: LicenseType;
+  requiresLicenseType?: LicenseType;
 }
 
 export interface StatusChange {
   id: string;
-  previous_status: Status;
-  new_status: Status;
+  previousStatus: Status;
+  newStatus: Status;
   comment: string | null;
-  changed_by: string;
-  changed_by_role: 'admin' | 'user';
-  created_at: string;
+  changedBy: string;
+  changedByRole: 'admin' | 'user';
+  timestamp: string;
 }
 
 export interface Customer {
@@ -35,23 +41,63 @@ export interface Customer {
   mobile: string;
   company: string;
   email: string;
-  lead_source: LeadSource;
-  license_type: LicenseType;
+  leadSource: LeadSource;
+  licenseType: LicenseType;
   status: Status;
   amount: number;
   documents: Document[];
-  user_id: string;
+  userId: string;
   comments: string[];
-  status_history: StatusChange[];
-  created_at: string;
-  payment_received?: boolean;
-  payment_date?: string;
+  statusHistory: StatusChange[];
+  createdAt: string;
+  paymentReceived?: boolean;
+  paymentDate?: string;
 }
+
+// Mapping functions
+const mapDbDocumentToFrontend = (dbDoc: DbDocument): Document => ({
+  id: dbDoc.id,
+  name: dbDoc.name,
+  filePath: dbDoc.file_path,
+  isMandatory: dbDoc.is_mandatory,
+  isUploaded: dbDoc.is_uploaded,
+  category: dbDoc.category,
+  requiresLicenseType: dbDoc.requires_license_type || undefined,
+});
+
+const mapDbStatusChangeToFrontend = (dbStatusChange: DbStatusChange): StatusChange => ({
+  id: dbStatusChange.id,
+  previousStatus: dbStatusChange.previous_status,
+  newStatus: dbStatusChange.new_status,
+  comment: dbStatusChange.comment,
+  changedBy: dbStatusChange.changed_by,
+  changedByRole: dbStatusChange.changed_by_role,
+  timestamp: dbStatusChange.created_at || '',
+});
+
+const mapDbCustomerToFrontend = (dbCustomer: DbCustomer, documents: Document[], statusHistory: StatusChange[], comments: string[]): Customer => ({
+  id: dbCustomer.id,
+  name: dbCustomer.name,
+  mobile: dbCustomer.mobile,
+  company: dbCustomer.company,
+  email: dbCustomer.email,
+  leadSource: dbCustomer.lead_source,
+  licenseType: dbCustomer.license_type,
+  status: dbCustomer.status,
+  amount: Number(dbCustomer.amount),
+  documents,
+  userId: dbCustomer.user_id,
+  comments,
+  statusHistory,
+  createdAt: dbCustomer.created_at || '',
+  paymentReceived: dbCustomer.payment_received || false,
+  paymentDate: dbCustomer.payment_date || undefined,
+});
 
 interface CustomerContextType {
   customers: Customer[];
   loading: boolean;
-  addCustomer: (customer: Omit<Customer, 'id' | 'created_at' | 'status_history' | 'documents' | 'comments'>) => Promise<void>;
+  addCustomer: (customer: Omit<Customer, 'id' | 'createdAt' | 'statusHistory' | 'documents' | 'comments'>) => Promise<void>;
   updateCustomer: (id: string, updates: Partial<Omit<Customer, 'id'>>) => Promise<void>;
   getCustomerById: (id: string) => Customer | undefined;
   getCustomersByUserId: (userId: string) => Customer[];
@@ -110,12 +156,12 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
             .eq('customer_id', customer.id)
             .order('created_at', { ascending: true });
 
-          return {
-            ...customer,
-            documents: customer.documents || [],
-            status_history: statusData || [],
-            comments: (commentsData || []).map(c => c.comment)
-          };
+          // Map to frontend types
+          const mappedDocuments = (customer.documents || []).map(mapDbDocumentToFrontend);
+          const mappedStatusHistory = (statusData || []).map(mapDbStatusChangeToFrontend);
+          const mappedComments = (commentsData || []).map(c => c.comment);
+
+          return mapDbCustomerToFrontend(customer, mappedDocuments, mappedStatusHistory, mappedComments);
         })
       );
 
@@ -131,7 +177,7 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     fetchCustomers();
   }, [isAuthenticated, user]);
 
-  const addCustomer = async (customerData: Omit<Customer, 'id' | 'created_at' | 'status_history' | 'documents' | 'comments'>) => {
+  const addCustomer = async (customerData: Omit<Customer, 'id' | 'createdAt' | 'statusHistory' | 'documents' | 'comments'>) => {
     if (!user) return;
 
     const { data, error } = await supabase
@@ -141,8 +187,8 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         mobile: customerData.mobile,
         company: customerData.company,
         email: customerData.email,
-        lead_source: customerData.lead_source,
-        license_type: customerData.license_type,
+        lead_source: customerData.leadSource,
+        license_type: customerData.licenseType,
         amount: customerData.amount,
         user_id: user.id,
         status: 'Draft' as Status
@@ -159,9 +205,19 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const updateCustomer = async (id: string, updates: Partial<Omit<Customer, 'id'>>) => {
+    // Map frontend updates to database format
+    const dbUpdates: any = {};
+    if (updates.name !== undefined) dbUpdates.name = updates.name;
+    if (updates.mobile !== undefined) dbUpdates.mobile = updates.mobile;
+    if (updates.company !== undefined) dbUpdates.company = updates.company;
+    if (updates.email !== undefined) dbUpdates.email = updates.email;
+    if (updates.leadSource !== undefined) dbUpdates.lead_source = updates.leadSource;
+    if (updates.licenseType !== undefined) dbUpdates.license_type = updates.licenseType;
+    if (updates.amount !== undefined) dbUpdates.amount = updates.amount;
+
     const { error } = await supabase
       .from('customers')
-      .update(updates)
+      .update(dbUpdates)
       .eq('id', id);
 
     if (error) {
@@ -261,7 +317,7 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   const getCustomersByUserId = (userId: string) => {
-    return customers.filter(customer => customer.user_id === userId);
+    return customers.filter(customer => customer.userId === userId);
   };
 
   const getCustomersByStatus = (status: Status) => {

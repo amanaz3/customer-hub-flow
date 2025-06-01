@@ -12,6 +12,9 @@ export interface UserProfile {
   role: UserRole;
 }
 
+// Export User type for other components
+export type { User };
+
 interface AuthContextType {
   user: UserProfile | null;
   session: Session | null;
@@ -79,8 +82,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return () => subscription.unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string) => {
-    const { data, error } = await supabase.auth.signInWithPassword({
+  const login = async (email: string, password: string): Promise<void> => {
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
@@ -88,12 +91,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) {
       throw error;
     }
-
-    return data;
   };
 
-  const signup = async (email: string, password: string, name: string) => {
-    const { data, error } = await supabase.auth.signUp({
+  const signup = async (email: string, password: string, name: string): Promise<void> => {
+    const { error } = await supabase.auth.signUp({
       email,
       password,
       options: {
@@ -107,8 +108,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (error) {
       throw error;
     }
-
-    return data;
   };
 
   const logout = async () => {

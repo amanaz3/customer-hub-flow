@@ -54,7 +54,6 @@ const CustomerDetail = () => {
     company: string;
     email: string;
     leadSource: string;
-    licenseType: string;
     amount: string;
   }) => {
     if (!customer) return;
@@ -65,7 +64,6 @@ const CustomerDetail = () => {
       company: formData.company,
       email: formData.email,
       leadSource: formData.leadSource as any,
-      licenseType: formData.licenseType as any,
       amount: parseFloat(formData.amount),
     });
     
