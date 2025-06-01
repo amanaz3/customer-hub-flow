@@ -21,9 +21,9 @@ const SCOPES = [
 class GoogleDriveService {
   private accessToken: string | null = null;
   private tokenExpiry: number | null = null;
+  private mainFolderId: string | null = null;
 
   async initializeAuth(): Promise<void> {
-    // Check if we have a stored token
     const storedToken = localStorage.getItem('google_drive_token');
     const storedExpiry = localStorage.getItem('google_drive_token_expiry');
     
@@ -36,7 +36,6 @@ class GoogleDriveService {
       }
     }
     
-    // If no valid token, initiate OAuth flow
     await this.requestAuth();
   }
 
@@ -50,7 +49,6 @@ class GoogleDriveService {
     authUrl.searchParams.set('response_type', 'code');
     authUrl.searchParams.set('access_type', 'offline');
     
-    // Open OAuth window
     const authWindow = window.open(
       authUrl.toString(),
       'google-auth',
@@ -65,7 +63,6 @@ class GoogleDriveService {
         }
       }, 1000);
 
-      // Listen for auth completion
       window.addEventListener('message', async (event) => {
         if (event.origin !== window.location.origin) return;
         
@@ -107,12 +104,42 @@ class GoogleDriveService {
       this.accessToken = data.access_token;
       this.tokenExpiry = Date.now() + (data.expires_in * 1000);
       
-      // Store token
       localStorage.setItem('google_drive_token', this.accessToken);
       localStorage.setItem('google_drive_token_expiry', this.tokenExpiry.toString());
     } else {
       throw new Error('Failed to obtain access token');
     }
+  }
+
+  private async ensureMainFolder(): Promise<string> {
+    if (this.mainFolderId) {
+      return this.mainFolderId;
+    }
+
+    if (!this.accessToken) {
+      await this.initializeAuth();
+    }
+
+    // Search for existing main folder
+    const searchResponse = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=name='Amana Finance Documents' and mimeType='application/vnd.google-apps.folder'`,
+      {
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`,
+        },
+      }
+    );
+
+    const searchResult = await searchResponse.json();
+    
+    if (searchResult.files && searchResult.files.length > 0) {
+      this.mainFolderId = searchResult.files[0].id;
+    } else {
+      // Create main folder
+      this.mainFolderId = await this.createFolder('Amana Finance Documents');
+    }
+
+    return this.mainFolderId;
   }
 
   async uploadFile(file: File, fileName: string, parentFolderId?: string): Promise<string> {
@@ -173,6 +200,30 @@ class GoogleDriveService {
     return result.id;
   }
 
+  async getOrCreateCustomerFolder(customerId: string): Promise<string> {
+    const mainFolderId = await this.ensureMainFolder();
+    const customerFolderName = `Customer_${customerId}`;
+
+    // Search for existing customer folder
+    const searchResponse = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q=name='${customerFolderName}' and '${mainFolderId}' in parents and mimeType='application/vnd.google-apps.folder'`,
+      {
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`,
+        },
+      }
+    );
+
+    const searchResult = await searchResponse.json();
+    
+    if (searchResult.files && searchResult.files.length > 0) {
+      return searchResult.files[0].id;
+    }
+
+    // Create customer folder
+    return await this.createFolder(customerFolderName, mainFolderId);
+  }
+
   async getFileLink(fileId: string): Promise<string> {
     if (!this.accessToken) {
       await this.initializeAuth();
@@ -192,6 +243,81 @@ class GoogleDriveService {
     });
 
     return `https://drive.google.com/file/d/${fileId}/view`;
+  }
+
+  async listCustomerFiles(customerId: string): Promise<any[]> {
+    const customerFolderId = await this.getOrCreateCustomerFolder(customerId);
+    
+    const response = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q='${customerFolderId}' in parents&fields=files(id,name,mimeType,createdTime,size,webViewLink)`,
+      {
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to list files: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    return result.files || [];
+  }
+
+  async getAllCustomerFolders(): Promise<any[]> {
+    const mainFolderId = await this.ensureMainFolder();
+    
+    const response = await fetch(
+      `https://www.googleapis.com/drive/v3/files?q='${mainFolderId}' in parents and mimeType='application/vnd.google-apps.folder'&fields=files(id,name,createdTime)`,
+      {
+        headers: {
+          'Authorization': `Bearer ${this.accessToken}`,
+        },
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to list customer folders: ${response.statusText}`);
+    }
+
+    const result = await response.json();
+    return result.files || [];
+  }
+
+  async downloadFile(fileId: string): Promise<Blob> {
+    if (!this.accessToken) {
+      await this.initializeAuth();
+    }
+
+    const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+      headers: {
+        'Authorization': `Bearer ${this.accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Download failed: ${response.statusText}`);
+    }
+
+    return response.blob();
+  }
+
+  async deleteFile(fileId: string): Promise<void> {
+    if (!this.accessToken) {
+      await this.initializeAuth();
+    }
+
+    const response = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}`, {
+      method: 'DELETE',
+      headers: {
+        'Authorization': `Bearer ${this.accessToken}`,
+      },
+    });
+
+    if (!response.ok) {
+      throw new Error(`Delete failed: ${response.statusText}`);
+    }
   }
 
   isAuthenticated(): boolean {

@@ -12,19 +12,10 @@ export const uploadToGoogleDrive = async (
       await googleDriveService.initializeAuth();
     }
 
-    // Create customer folder if it doesn't exist
-    const customerFolderName = `Customer_${customerId}`;
-    let customerFolderId: string;
-    
-    try {
-      customerFolderId = await googleDriveService.createFolder(customerFolderName);
-    } catch (error) {
-      // Folder might already exist, for now we'll create a new one
-      // In production, you'd want to search for existing folders
-      customerFolderId = await googleDriveService.createFolder(`${customerFolderName}_${Date.now()}`);
-    }
+    // Get or create customer folder in organized structure
+    const customerFolderId = await googleDriveService.getOrCreateCustomerFolder(customerId);
 
-    // Upload file
+    // Upload file with proper naming
     const fileName = `${documentId}_${file.name}`;
     const fileId = await googleDriveService.uploadFile(file, fileName, customerFolderId);
     
