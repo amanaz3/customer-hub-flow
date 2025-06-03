@@ -1,4 +1,3 @@
-
 import { SignJWT } from 'jose';
 
 // Service Account Configuration
@@ -30,6 +29,38 @@ class GoogleDriveService {
   private accessToken: string | null = null;
   private tokenExpiry: number = 0;
 
+  private async importPrivateKey(): Promise<CryptoKey> {
+    // Clean and format the private key
+    const privateKeyPem = SERVICE_ACCOUNT_CONFIG.private_key
+      .replace(/\\n/g, '\n')
+      .trim();
+
+    // Remove the header and footer
+    const privateKeyBase64 = privateKeyPem
+      .replace(/-----BEGIN PRIVATE KEY-----/, '')
+      .replace(/-----END PRIVATE KEY-----/, '')
+      .replace(/\s/g, '');
+
+    // Convert base64 to binary
+    const binaryDer = atob(privateKeyBase64);
+    const keyBuffer = new Uint8Array(binaryDer.length);
+    for (let i = 0; i < binaryDer.length; i++) {
+      keyBuffer[i] = binaryDer.charCodeAt(i);
+    }
+
+    // Import the key
+    return await crypto.subtle.importKey(
+      'pkcs8',
+      keyBuffer,
+      {
+        name: 'RSASSA-PKCS1-v1_5',
+        hash: 'SHA-256',
+      },
+      false,
+      ['sign']
+    );
+  }
+
   private async getAccessToken(): Promise<string> {
     // Check if we have a valid token
     if (this.accessToken && Date.now() < this.tokenExpiry) {
@@ -40,14 +71,10 @@ class GoogleDriveService {
       // Create JWT for service account authentication using jose
       const now = Math.floor(Date.now() / 1000);
       
-      // Clean and format the private key properly
-      const privateKeyPem = SERVICE_ACCOUNT_CONFIG.private_key
-        .replace(/\\n/g, '\n')
-        .replace(/\s+/g, '\n')
-        .replace(/\n+/g, '\n')
-        .trim();
+      console.log('Importing private key for JWT signing');
+      const privateKey = await this.importPrivateKey();
       
-      console.log('Creating JWT with cleaned private key');
+      console.log('Creating JWT with imported private key');
 
       // Create and sign JWT using jose
       const jwt = await new SignJWT({
@@ -62,7 +89,7 @@ class GoogleDriveService {
           kid: SERVICE_ACCOUNT_CONFIG.private_key_id,
           typ: 'JWT'
         })
-        .sign(new TextEncoder().encode(privateKeyPem));
+        .sign(privateKey);
 
       console.log('JWT created successfully');
 
