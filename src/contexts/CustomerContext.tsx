@@ -1,7 +1,9 @@
+
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { googleDriveService } from '@/services/googleDriveService';
 
-export type CustomerStatus = 'Draft' | 'Review' | 'Approved' | 'Rejected' | 'Completed';
+export type CustomerStatus = 'Draft' | 'Submitted' | 'Returned' | 'Sent to Bank' | 'Complete' | 'Rejected' | 'Need More Info' | 'Paid';
+export type Status = CustomerStatus; // Alias for backward compatibility
 export type LeadSource = 'Website' | 'Referral' | 'Social Media' | 'Other';
 export type LicenseType = 'Mainland' | 'Freezone' | 'Offshore';
 
@@ -21,6 +23,16 @@ export interface Comment {
   timestamp: Date;
 }
 
+export interface StatusChange {
+  id: string;
+  previousStatus: CustomerStatus;
+  newStatus: CustomerStatus;
+  comment?: string;
+  changedBy: string;
+  changedByRole: string;
+  timestamp: Date;
+}
+
 export interface Customer {
   id: string;
   name: string;
@@ -34,9 +46,12 @@ export interface Customer {
   userId: string;
   documents: Document[];
   comments: Comment[];
+  statusHistory: StatusChange[];
   createdAt?: Date;
   updatedAt?: Date;
   driveFolderId?: string;
+  paymentReceived?: boolean;
+  paymentDate?: Date;
 }
 
 interface CustomerContextType {
@@ -45,8 +60,13 @@ interface CustomerContextType {
   updateCustomer: (id: string, updates: Partial<Customer>) => void;
   deleteCustomer: (id: string) => void;
   getCustomerById: (id: string) => Customer | undefined;
+  getCustomersByUserId: (userId: string) => Customer[];
   updateDocument: (customerId: string, documentId: string, filePath: string) => void;
+  uploadDocument: (customerId: string, documentId: string, filePath: string) => void;
   addComment: (customerId: string, comment: Omit<Comment, 'id'>) => void;
+  updateCustomerStatus: (customerId: string, status: CustomerStatus, comment: string, changedBy: string, changedByRole: string) => void;
+  markPaymentReceived: (customerId: string, changedBy: string) => void;
+  submitToAdmin: (customerId: string, userId: string, userName: string) => void;
 }
 
 const CustomerContext = createContext<CustomerContextType | undefined>(undefined);
@@ -156,6 +176,12 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({
           ...comment,
           timestamp: new Date(comment.timestamp),
         })) || [],
+        statusHistory: customer.statusHistory?.map((change: any) => ({
+          ...change,
+          timestamp: new Date(change.timestamp),
+        })) || [],
+        paymentReceived: customer.paymentReceived || false,
+        paymentDate: customer.paymentDate ? new Date(customer.paymentDate) : undefined,
       }));
       setCustomers(parsedCustomers);
     }
@@ -171,8 +197,10 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({
       ...customerData,
       id: crypto.randomUUID(),
       documents: DEFAULT_DOCUMENTS.map(doc => ({ ...doc })),
+      statusHistory: [],
       createdAt: new Date(),
       updatedAt: new Date(),
+      paymentReceived: false,
     };
 
     try {
@@ -207,6 +235,10 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({
     return customers.find(customer => customer.id === id);
   };
 
+  const getCustomersByUserId = (userId: string): Customer[] => {
+    return customers.filter(customer => customer.userId === userId);
+  };
+
   const updateDocument = (customerId: string, documentId: string, filePath: string) => {
     setCustomers(prev =>
       prev.map(customer =>
@@ -223,6 +255,10 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({
           : customer
       )
     );
+  };
+
+  const uploadDocument = (customerId: string, documentId: string, filePath: string) => {
+    updateDocument(customerId, documentId, filePath);
   };
 
   const addComment = (customerId: string, comment: Omit<Comment, 'id'>) => {
@@ -244,6 +280,86 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({
     );
   };
 
+  const updateCustomerStatus = (customerId: string, status: CustomerStatus, comment: string, changedBy: string, changedByRole: string) => {
+    setCustomers(prev =>
+      prev.map(customer => {
+        if (customer.id === customerId) {
+          const statusChange: StatusChange = {
+            id: crypto.randomUUID(),
+            previousStatus: customer.status,
+            newStatus: status,
+            comment,
+            changedBy,
+            changedByRole,
+            timestamp: new Date(),
+          };
+
+          return {
+            ...customer,
+            status,
+            statusHistory: [...customer.statusHistory, statusChange],
+            updatedAt: new Date(),
+          };
+        }
+        return customer;
+      })
+    );
+  };
+
+  const markPaymentReceived = (customerId: string, changedBy: string) => {
+    setCustomers(prev =>
+      prev.map(customer => {
+        if (customer.id === customerId) {
+          const statusChange: StatusChange = {
+            id: crypto.randomUUID(),
+            previousStatus: customer.status,
+            newStatus: 'Paid',
+            comment: 'Payment received',
+            changedBy,
+            changedByRole: 'admin',
+            timestamp: new Date(),
+          };
+
+          return {
+            ...customer,
+            status: 'Paid' as CustomerStatus,
+            paymentReceived: true,
+            paymentDate: new Date(),
+            statusHistory: [...customer.statusHistory, statusChange],
+            updatedAt: new Date(),
+          };
+        }
+        return customer;
+      })
+    );
+  };
+
+  const submitToAdmin = (customerId: string, userId: string, userName: string) => {
+    setCustomers(prev =>
+      prev.map(customer => {
+        if (customer.id === customerId) {
+          const statusChange: StatusChange = {
+            id: crypto.randomUUID(),
+            previousStatus: customer.status,
+            newStatus: 'Submitted',
+            comment: 'Application submitted to admin for review',
+            changedBy: userName,
+            changedByRole: 'user',
+            timestamp: new Date(),
+          };
+
+          return {
+            ...customer,
+            status: 'Submitted' as CustomerStatus,
+            statusHistory: [...customer.statusHistory, statusChange],
+            updatedAt: new Date(),
+          };
+        }
+        return customer;
+      })
+    );
+  };
+
   return (
     <CustomerContext.Provider
       value={{
@@ -252,8 +368,13 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({
         updateCustomer,
         deleteCustomer,
         getCustomerById,
+        getCustomersByUserId,
         updateDocument,
+        uploadDocument,
         addComment,
+        updateCustomerStatus,
+        markPaymentReceived,
+        submitToAdmin,
       }}
     >
       {children}

@@ -3,13 +3,13 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Status } from '@/contexts/CustomerContext';
+import { CustomerStatus, Comment } from '@/contexts/CustomerContext';
 import { formatCurrency, formatDate } from '@/lib/utils';
 
 interface CustomerStatusCardProps {
-  status: Status;
+  status: CustomerStatus;
   amount: number;
-  comments: string[];
+  comments: Comment[];
   paymentReceived?: boolean;
   paymentDate?: Date;
 }
@@ -21,7 +21,7 @@ const CustomerStatusCard: React.FC<CustomerStatusCardProps> = ({
   paymentReceived,
   paymentDate,
 }) => {
-  const getStatusColor = (status: Status) => {
+  const getStatusColor = (status: CustomerStatus) => {
     switch (status) {
       case 'Draft': return 'bg-gray-500 text-white';
       case 'Submitted': return 'bg-blue-500 text-white';
@@ -77,8 +77,11 @@ const CustomerStatusCard: React.FC<CustomerStatusCardProps> = ({
               <Label>Recent Comments</Label>
               <ul className="mt-2 space-y-2 max-h-32 overflow-y-auto">
                 {comments.slice(-3).map((comment, index) => (
-                  <li key={index} className="p-2 bg-gray-50 rounded-md text-sm">
-                    {comment}
+                  <li key={comment.id} className="p-2 bg-gray-50 rounded-md text-sm">
+                    <div className="text-xs text-muted-foreground mb-1">
+                      {comment.author} - {formatDate(comment.timestamp)}
+                    </div>
+                    {comment.content}
                   </li>
                 ))}
               </ul>
