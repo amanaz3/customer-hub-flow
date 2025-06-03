@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
@@ -208,6 +207,7 @@ const CustomerDetail = () => {
                   documents={customer.documents}
                   customerId={customer.id}
                   customerLicenseType={customer.licenseType}
+                  customerFolderId={customer.driveFolderId}
                   onUpload={handleDocumentUpload}
                 />
                 

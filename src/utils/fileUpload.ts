@@ -43,23 +43,23 @@ export const uploadFile = async (
   file: File, 
   customerId: string, 
   documentId: string,
-  customerFolderId?: string
+  customerFolderId: string
 ): Promise<string> => {
   try {
-    console.log(`Uploading file ${file.name} for customer ${customerId}, document ${documentId}`);
+    console.log(`Uploading file ${file.name} to customer folder ${customerFolderId} for document ${documentId}`);
 
-    // If no folder ID provided, we'll need to get it from somewhere
-    // In a real implementation, this would be stored with the customer data
     if (!customerFolderId) {
-      throw new Error('Customer folder ID not found');
+      throw new Error('Customer folder ID is required');
     }
 
-    // Upload to Google Drive
+    // Upload to Google Drive using the customer's specific folder
     const driveFile = await googleDriveService.uploadFile(
       file, 
       customerFolderId, 
       `${documentId}-${file.name}`
     );
+
+    console.log(`File uploaded successfully to Drive: ${driveFile.id}`);
 
     // Return the Drive file ID as the file path
     return `/drive/${driveFile.id}`;
