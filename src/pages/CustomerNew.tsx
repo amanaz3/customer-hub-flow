@@ -29,7 +29,8 @@ const CustomerNew = () => {
       status: 'Draft' as const,
       userId: user.id,
       documents: [],
-      comments: []
+      comments: [],
+      statusHistory: []
     };
     
     try {
