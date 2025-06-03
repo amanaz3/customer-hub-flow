@@ -40,19 +40,16 @@ class GoogleDriveService {
       // Create JWT for service account authentication using jose
       const now = Math.floor(Date.now() / 1000);
       
-      // Convert the private key to the correct format for jose
-      const privateKey = await crypto.subtle.importKey(
-        'pkcs8',
-        new TextEncoder().encode(SERVICE_ACCOUNT_CONFIG.private_key),
-        {
-          name: 'RSASSA-PKCS1-v1_5',
-          hash: 'SHA-256',
-        },
-        false,
-        ['sign']
-      );
+      // Clean and format the private key properly
+      const privateKeyPem = SERVICE_ACCOUNT_CONFIG.private_key
+        .replace(/\\n/g, '\n')
+        .replace(/\s+/g, '\n')
+        .replace(/\n+/g, '\n')
+        .trim();
+      
+      console.log('Creating JWT with cleaned private key');
 
-      // Create and sign JWT
+      // Create and sign JWT using jose
       const jwt = await new SignJWT({
         iss: SERVICE_ACCOUNT_CONFIG.client_email,
         scope: "https://www.googleapis.com/auth/drive",
@@ -65,7 +62,9 @@ class GoogleDriveService {
           kid: SERVICE_ACCOUNT_CONFIG.private_key_id,
           typ: 'JWT'
         })
-        .sign(privateKey);
+        .sign(new TextEncoder().encode(privateKeyPem));
+
+      console.log('JWT created successfully');
 
       const response = await fetch(SERVICE_ACCOUNT_CONFIG.token_uri, {
         method: 'POST',
