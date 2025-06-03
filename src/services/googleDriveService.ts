@@ -1,4 +1,3 @@
-
 import { SignJWT } from 'jose';
 
 // Service Account Configuration
@@ -30,7 +29,7 @@ interface DriveFile {
 class GoogleDriveService {
   private accessToken: string | null = null;
   private tokenExpiry: number = 0;
-  private databaseFolderId: string | null = null;
+  private amanaFolderId: string | null = null;
 
   private async importPrivateKey(): Promise<CryptoKey> {
     // Clean and format the private key
@@ -219,49 +218,47 @@ class GoogleDriveService {
     }
   }
 
-  private async ensureDatabaseFolder(): Promise<string> {
-    if (this.databaseFolderId) {
-      return this.databaseFolderId;
+  private async ensureAmanaFolder(): Promise<string> {
+    if (this.amanaFolderId) {
+      return this.amanaFolderId;
     }
 
     try {
-      // First, try to find existing Database folder
-      let folderId = await this.findFolderByName('Database');
+      // First, try to find existing "amana" folder
+      let folderId = await this.findFolderByName('amana');
       
       if (!folderId) {
-        // Create Database folder if it doesn't exist
-        console.log('Creating Database folder...');
-        folderId = await this.createFolder('Database');
+        // Create "amana" folder if it doesn't exist
+        console.log('Creating amana folder...');
+        folderId = await this.createFolder('amana');
         
-        // Share the Database folder with banking email
-        console.log(`Sharing Database folder with ${BANKING_EMAIL}...`);
+        // Share the amana folder with banking email
+        console.log(`Sharing amana folder with ${BANKING_EMAIL}...`);
         await this.shareFolder(folderId, BANKING_EMAIL);
       }
 
-      this.databaseFolderId = folderId;
+      this.amanaFolderId = folderId;
       return folderId;
     } catch (error) {
-      console.error('Error ensuring Database folder:', error);
-      throw new Error('Failed to create or access Database folder');
+      console.error('Error ensuring amana folder:', error);
+      throw new Error('Failed to create or access amana folder');
     }
   }
 
-  async createCustomerFolder(customerName: string, customerId: string): Promise<string> {
+  async createCustomerFolder(customerName: string): Promise<string> {
     try {
-      // Ensure Database folder exists
-      const databaseFolderId = await this.ensureDatabaseFolder();
+      // Ensure amana folder exists
+      const amanaFolderId = await this.ensureAmanaFolder();
       
-      const folderName = `${customerName} - ${customerId}`;
-      
-      // Check if customer folder already exists in Database folder
-      let customerFolderId = await this.findFolderByName(folderName, databaseFolderId);
+      // Check if customer folder already exists in amana folder
+      let customerFolderId = await this.findFolderByName(customerName, amanaFolderId);
       
       if (!customerFolderId) {
-        // Create customer folder inside Database folder
-        customerFolderId = await this.createFolder(folderName, databaseFolderId);
+        // Create customer folder inside amana folder
+        customerFolderId = await this.createFolder(customerName, amanaFolderId);
       }
 
-      console.log('Customer folder created/found:', customerFolderId);
+      console.log(`Customer folder created/found: ${customerFolderId} for ${customerName}`);
       return customerFolderId;
     } catch (error) {
       console.error('Error creating customer folder:', error);
@@ -362,9 +359,9 @@ class GoogleDriveService {
     }
   }
 
-  // Method to get the Database folder ID for external use
-  async getDatabaseFolderId(): Promise<string> {
-    return await this.ensureDatabaseFolder();
+  // Method to get the amana folder ID for external use
+  async getAmanaFolderId(): Promise<string> {
+    return await this.ensureAmanaFolder();
   }
 }
 
