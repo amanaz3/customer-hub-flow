@@ -1,5 +1,5 @@
 
-import jwt from 'jsonwebtoken';
+import { SignJWT } from 'jose';
 
 // Service Account Configuration
 const SERVICE_ACCOUNT_CONFIG = {
@@ -37,25 +37,35 @@ class GoogleDriveService {
     }
 
     try {
-      // Create JWT for service account authentication
+      // Create JWT for service account authentication using jose
       const now = Math.floor(Date.now() / 1000);
-      const payload = {
+      
+      // Convert the private key to the correct format for jose
+      const privateKey = await crypto.subtle.importKey(
+        'pkcs8',
+        new TextEncoder().encode(SERVICE_ACCOUNT_CONFIG.private_key),
+        {
+          name: 'RSASSA-PKCS1-v1_5',
+          hash: 'SHA-256',
+        },
+        false,
+        ['sign']
+      );
+
+      // Create and sign JWT
+      const jwt = await new SignJWT({
         iss: SERVICE_ACCOUNT_CONFIG.client_email,
         scope: "https://www.googleapis.com/auth/drive",
         aud: SERVICE_ACCOUNT_CONFIG.token_uri,
         exp: now + 3600, // 1 hour
         iat: now
-      };
-
-      // Sign JWT with private key
-      const assertion = jwt.sign(payload, SERVICE_ACCOUNT_CONFIG.private_key, {
-        algorithm: 'RS256',
-        header: {
+      })
+        .setProtectedHeader({ 
+          alg: 'RS256',
           kid: SERVICE_ACCOUNT_CONFIG.private_key_id,
-          typ: 'JWT',
-          alg: 'RS256'
-        }
-      });
+          typ: 'JWT'
+        })
+        .sign(privateKey);
 
       const response = await fetch(SERVICE_ACCOUNT_CONFIG.token_uri, {
         method: 'POST',
@@ -64,7 +74,7 @@ class GoogleDriveService {
         },
         body: new URLSearchParams({
           grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer',
-          assertion: assertion
+          assertion: jwt
         })
       });
 
