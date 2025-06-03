@@ -16,12 +16,14 @@ import { Upload, CheckCircle, Eye, AlertCircle } from 'lucide-react';
 interface DocumentUploadProps {
   documents: Document[];
   customerId: string;
+  customerFolderId?: string;
   onUpload: (documentId: string, filePath: string) => void;
 }
 
 const DocumentUpload: React.FC<DocumentUploadProps> = ({
   documents,
   customerId,
+  customerFolderId,
   onUpload,
 }) => {
   const { toast } = useToast();
@@ -45,6 +47,15 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       return;
     }
 
+    if (!customerFolderId) {
+      toast({
+        title: "Upload Failed",
+        description: "Customer folder not found. Please contact support.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setUploading(documentId);
     setUploadProgress({ ...uploadProgress, [documentId]: 0 });
 
@@ -60,7 +71,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         });
       }, 200);
 
-      const filePath = await uploadFile(file, customerId, documentId);
+      const filePath = await uploadFile(file, customerId, documentId, customerFolderId);
       
       clearInterval(progressInterval);
       setUploadProgress({ ...uploadProgress, [documentId]: 100 });

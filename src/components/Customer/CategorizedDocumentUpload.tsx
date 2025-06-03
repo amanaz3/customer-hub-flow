@@ -255,44 +255,6 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
     );
   };
 
-  const formatFileSize = (bytes: number) => {
-    return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
-  };
-
-  const getSupportedTypesText = () => {
-    return Object.values(SUPPORTED_FILE_TYPES).join(', ');
-  };
-
-  const getCategoryIcon = (category: string) => {
-    switch (category) {
-      case 'mandatory': return <Building className="w-5 h-5" />;
-      case 'freezone': return <Shield className="w-5 h-5" />;
-      case 'supporting': return <FileText className="w-5 h-5" />;
-      case 'signatory': return <Users className="w-5 h-5" />;
-      default: return <FileText className="w-5 h-5" />;
-    }
-  };
-
-  const getCategoryTitle = (category: string) => {
-    switch (category) {
-      case 'mandatory': return 'Mandatory Documents (All Applications)';
-      case 'freezone': return 'Required for Freezone Only';
-      case 'supporting': return 'Supporting Documents (Optional but Recommended)';
-      case 'signatory': return 'Signatory Documents (For Authorized Signatory Only)';
-      default: return 'Documents';
-    }
-  };
-
-  const getCategoryDescription = (category: string) => {
-    switch (category) {
-      case 'mandatory': return 'These documents are required for all applications';
-      case 'freezone': return 'Additional documents required for Freezone license types';
-      case 'supporting': return 'Optional documents that can help speed up your application';
-      case 'signatory': return 'Documents for the authorized signatory of the company';
-      default: return '';
-    }
-  };
-
   return (
     <div className="space-y-6">
       <div className="text-sm text-muted-foreground">
