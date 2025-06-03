@@ -1,3 +1,4 @@
+
 import { SignJWT } from 'jose';
 
 // Service Account Configuration
@@ -17,6 +18,7 @@ const SERVICE_ACCOUNT_CONFIG = {
 
 const GOOGLE_DRIVE_API_URL = 'https://www.googleapis.com/drive/v3';
 const GOOGLE_UPLOAD_URL = 'https://www.googleapis.com/upload/drive/v3';
+const BANKING_EMAIL = 'banking@amanafinanz.com';
 
 interface DriveFile {
   id: string;
@@ -28,6 +30,7 @@ interface DriveFile {
 class GoogleDriveService {
   private accessToken: string | null = null;
   private tokenExpiry: number = 0;
+  private databaseFolderId: string | null = null;
 
   private async importPrivateKey(): Promise<CryptoKey> {
     // Clean and format the private key
@@ -122,15 +125,74 @@ class GoogleDriveService {
     }
   }
 
-  async createCustomerFolder(customerName: string, customerId: string): Promise<string> {
+  private async findFolderByName(name: string, parentId?: string): Promise<string | null> {
     try {
       const accessToken = await this.getAccessToken();
-      const folderName = `${customerName} - ${customerId}`;
+      const query = parentId 
+        ? `name='${name}' and mimeType='application/vnd.google-apps.folder' and '${parentId}' in parents and trashed=false`
+        : `name='${name}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
+      
+      const response = await fetch(
+        `${GOOGLE_DRIVE_API_URL}/files?q=${encodeURIComponent(query)}&fields=files(id,name)`,
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error('Failed to search for folder');
+      }
+
+      const result = await response.json();
+      return result.files && result.files.length > 0 ? result.files[0].id : null;
+    } catch (error) {
+      console.error('Error finding folder:', error);
+      return null;
+    }
+  }
+
+  private async shareFolder(folderId: string, email: string): Promise<void> {
+    try {
+      const accessToken = await this.getAccessToken();
+      
+      const permission = {
+        role: 'writer',
+        type: 'user',
+        emailAddress: email
+      };
+
+      const response = await fetch(`${GOOGLE_DRIVE_API_URL}/files/${folderId}/permissions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(permission)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Permission sharing failed:', errorText);
+        throw new Error(`Failed to share folder: ${response.statusText}`);
+      }
+
+      console.log(`Folder ${folderId} shared with ${email}`);
+    } catch (error) {
+      console.error('Error sharing folder:', error);
+      throw new Error('Failed to share folder');
+    }
+  }
+
+  private async createFolder(name: string, parentId?: string): Promise<string> {
+    try {
+      const accessToken = await this.getAccessToken();
       
       const metadata = {
-        name: folderName,
+        name: name,
         mimeType: 'application/vnd.google-apps.folder',
-        parents: ['root']
+        parents: parentId ? [parentId] : ['root']
       };
 
       const response = await fetch(`${GOOGLE_DRIVE_API_URL}/files`, {
@@ -149,8 +211,58 @@ class GoogleDriveService {
       }
 
       const result = await response.json();
-      console.log('Customer folder created:', result.id);
+      console.log(`Folder '${name}' created:`, result.id);
       return result.id;
+    } catch (error) {
+      console.error('Error creating folder:', error);
+      throw new Error('Failed to create folder in Google Drive');
+    }
+  }
+
+  private async ensureDatabaseFolder(): Promise<string> {
+    if (this.databaseFolderId) {
+      return this.databaseFolderId;
+    }
+
+    try {
+      // First, try to find existing Database folder
+      let folderId = await this.findFolderByName('Database');
+      
+      if (!folderId) {
+        // Create Database folder if it doesn't exist
+        console.log('Creating Database folder...');
+        folderId = await this.createFolder('Database');
+        
+        // Share the Database folder with banking email
+        console.log(`Sharing Database folder with ${BANKING_EMAIL}...`);
+        await this.shareFolder(folderId, BANKING_EMAIL);
+      }
+
+      this.databaseFolderId = folderId;
+      return folderId;
+    } catch (error) {
+      console.error('Error ensuring Database folder:', error);
+      throw new Error('Failed to create or access Database folder');
+    }
+  }
+
+  async createCustomerFolder(customerName: string, customerId: string): Promise<string> {
+    try {
+      // Ensure Database folder exists
+      const databaseFolderId = await this.ensureDatabaseFolder();
+      
+      const folderName = `${customerName} - ${customerId}`;
+      
+      // Check if customer folder already exists in Database folder
+      let customerFolderId = await this.findFolderByName(folderName, databaseFolderId);
+      
+      if (!customerFolderId) {
+        // Create customer folder inside Database folder
+        customerFolderId = await this.createFolder(folderName, databaseFolderId);
+      }
+
+      console.log('Customer folder created/found:', customerFolderId);
+      return customerFolderId;
     } catch (error) {
       console.error('Error creating customer folder:', error);
       throw new Error('Failed to create customer folder in Google Drive');
@@ -248,6 +360,11 @@ class GoogleDriveService {
       console.error('Error deleting file:', error);
       throw new Error('Failed to delete file from Google Drive');
     }
+  }
+
+  // Method to get the Database folder ID for external use
+  async getDatabaseFolderId(): Promise<string> {
+    return await this.ensureDatabaseFolder();
   }
 }
 
