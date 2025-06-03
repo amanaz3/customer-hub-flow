@@ -15,7 +15,7 @@ const CustomerNew = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
 
-  const handleSubmit = (data: CustomerFormValues) => {
+  const handleSubmit = async (data: CustomerFormValues) => {
     if (!user) return;
 
     const newCustomer = {
@@ -32,14 +32,26 @@ const CustomerNew = () => {
       comments: []
     };
     
-    addCustomer(newCustomer);
-    
-    toast({
-      title: "Success",
-      description: "Customer application created as draft",
-    });
-    
-    navigate('/customers');
+    try {
+      await addCustomer(newCustomer);
+      
+      toast({
+        title: "Success",
+        description: "Customer application created with Google Drive folder",
+      });
+      
+      navigate('/customers');
+    } catch (error) {
+      console.error('Error creating customer:', error);
+      
+      toast({
+        title: "Warning",
+        description: "Customer created but Google Drive folder creation failed. Documents can still be uploaded locally.",
+        variant: "destructive",
+      });
+      
+      navigate('/customers');
+    }
   };
 
   return (
@@ -47,7 +59,7 @@ const CustomerNew = () => {
       <div className="space-y-6">
         <CustomerNewHeader 
           title="Add New Customer" 
-          description="Create a new customer application" 
+          description="Create a new customer application with Google Drive integration" 
         />
         
         <Card>

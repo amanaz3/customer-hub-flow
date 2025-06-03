@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState } from 'react';
+import { googleDriveService } from '@/services/googleDriveService';
 
 export type Status = 'Draft' | 'Submitted' | 'Returned' | 'Sent to Bank' | 'Complete' | 'Rejected' | 'Need More Info' | 'Paid';
 export type LeadSource = 'Website' | 'Referral' | 'Social Media' | 'Other';
@@ -41,11 +42,12 @@ export interface Customer {
   createdAt: Date;
   paymentReceived?: boolean;
   paymentDate?: Date;
+  driveFolderId?: string; // Google Drive folder ID
 }
 
 interface CustomerContextType {
   customers: Customer[];
-  addCustomer: (customer: Omit<Customer, 'id' | 'createdAt' | 'statusHistory'>) => void;
+  addCustomer: (customer: Omit<Customer, 'id' | 'createdAt' | 'statusHistory' | 'driveFolderId'>) => Promise<void>;
   updateCustomer: (id: string, updates: Partial<Omit<Customer, 'id'>>) => void;
   getCustomerById: (id: string) => Customer | undefined;
   getCustomersByUserId: (userId: string) => Customer[];
@@ -114,7 +116,8 @@ const mockCustomers: Customer[] = [
       }
     ],
     createdAt: new Date('2023-01-15'),
-    paymentReceived: false
+    paymentReceived: false,
+    driveFolderId: 'sample-folder-id-1'
   },
   {
     id: 'c2',
@@ -141,7 +144,8 @@ const mockCustomers: Customer[] = [
       }
     ],
     createdAt: new Date('2023-02-20'),
-    paymentReceived: false
+    paymentReceived: false,
+    driveFolderId: 'sample-folder-id-2'
   },
   {
     id: 'c3',
@@ -178,34 +182,70 @@ const mockCustomers: Customer[] = [
     ],
     createdAt: new Date('2023-03-05'),
     paymentReceived: true,
-    paymentDate: new Date('2023-03-10')
+    paymentDate: new Date('2023-03-10'),
+    driveFolderId: 'sample-folder-id-3'
   }
 ];
 
 export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [customers, setCustomers] = useState<Customer[]>(mockCustomers);
 
-  const addCustomer = (customer: Omit<Customer, 'id' | 'createdAt' | 'statusHistory'>) => {
-    const newCustomer: Customer = {
-      ...customer,
-      id: `c${customers.length + 1}`,
-      createdAt: new Date(),
-      documents: getDefaultDocuments(customer.licenseType),
-      status: 'Draft', // Start with Draft status
-      statusHistory: [
-        {
-          id: `sh${Date.now()}`,
-          previousStatus: 'Draft',
-          newStatus: 'Draft',
-          comment: 'Application created',
-          changedBy: customer.userId === '1' ? 'Admin User' : 'Regular User',
-          changedByRole: customer.userId === '1' ? 'admin' : 'user',
-          timestamp: new Date()
-        }
-      ],
-      paymentReceived: false
-    };
-    setCustomers([...customers, newCustomer]);
+  const addCustomer = async (customer: Omit<Customer, 'id' | 'createdAt' | 'statusHistory' | 'driveFolderId'>) => {
+    const newCustomerId = `c${customers.length + 1}`;
+    
+    try {
+      // Create Google Drive folder for the customer
+      console.log('Creating Drive folder for customer:', customer.name);
+      const driveFolderId = await googleDriveService.createCustomerFolder(customer.name, newCustomerId);
+      
+      const newCustomer: Customer = {
+        ...customer,
+        id: newCustomerId,
+        createdAt: new Date(),
+        documents: getDefaultDocuments(customer.licenseType),
+        status: 'Draft',
+        statusHistory: [
+          {
+            id: `sh${Date.now()}`,
+            previousStatus: 'Draft',
+            newStatus: 'Draft',
+            comment: 'Application created',
+            changedBy: customer.userId === '1' ? 'Admin User' : 'Regular User',
+            changedByRole: customer.userId === '1' ? 'admin' : 'user',
+            timestamp: new Date()
+          }
+        ],
+        paymentReceived: false,
+        driveFolderId
+      };
+      
+      setCustomers([...customers, newCustomer]);
+    } catch (error) {
+      console.error('Error creating customer with Drive folder:', error);
+      // Create customer without Drive folder as fallback
+      const newCustomer: Customer = {
+        ...customer,
+        id: newCustomerId,
+        createdAt: new Date(),
+        documents: getDefaultDocuments(customer.licenseType),
+        status: 'Draft',
+        statusHistory: [
+          {
+            id: `sh${Date.now()}`,
+            previousStatus: 'Draft',
+            newStatus: 'Draft',
+            comment: 'Application created (Drive folder creation failed)',
+            changedBy: customer.userId === '1' ? 'Admin User' : 'Regular User',
+            changedByRole: customer.userId === '1' ? 'admin' : 'user',
+            timestamp: new Date()
+          }
+        ],
+        paymentReceived: false
+      };
+      
+      setCustomers([...customers, newCustomer]);
+      throw error; // Re-throw to let the UI handle the error
+    }
   };
 
   const updateCustomer = (id: string, updates: Partial<Omit<Customer, 'id'>>) => {

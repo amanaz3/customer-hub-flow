@@ -1,56 +1,71 @@
 
+import { googleDriveService } from '@/services/googleDriveService';
+
 export const SUPPORTED_FILE_TYPES = {
-  'application/pdf': '.pdf',
-  'image/jpeg': '.jpg,.jpeg',
-  'image/png': '.png',
-  'application/vnd.openxmlformats-officedocument.wordprocessingml.document': '.docx',
-  'application/msword': '.doc'
+  '.pdf': 'application/pdf',
+  '.doc': 'application/msword',
+  '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.txt': 'text/plain'
 };
 
 export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
-export interface FileValidationResult {
+export interface FileValidation {
   isValid: boolean;
   error?: string;
 }
 
-export const validateFile = (file: File): FileValidationResult => {
+export const validateFile = (file: File): FileValidation => {
   // Check file size
   if (file.size > MAX_FILE_SIZE) {
     return {
       isValid: false,
-      error: `File size exceeds 10MB limit. Current size: ${(file.size / (1024 * 1024)).toFixed(2)}MB`
+      error: `File size exceeds ${MAX_FILE_SIZE / (1024 * 1024)}MB limit`
     };
   }
 
   // Check file type
-  if (!Object.keys(SUPPORTED_FILE_TYPES).includes(file.type)) {
+  const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+  if (!Object.keys(SUPPORTED_FILE_TYPES).includes(fileExtension)) {
     return {
       isValid: false,
-      error: `Unsupported file type: ${file.type}. Supported types: PDF, JPEG, PNG, DOCX, DOC`
+      error: `File type not supported. Supported types: ${Object.keys(SUPPORTED_FILE_TYPES).join(', ')}`
     };
   }
 
   return { isValid: true };
 };
 
-export const uploadFile = async (file: File, customerId: string, documentId: string): Promise<string> => {
-  // Simulate file upload - In a real app, this would upload to a cloud storage service
-  return new Promise((resolve, reject) => {
-    setTimeout(() => {
-      // Simulate occasional upload failures for testing
-      if (Math.random() < 0.1) {
-        reject(new Error('Upload failed due to network error. Please try again.'));
-        return;
-      }
-      
-      // Generate a mock file path
-      const timestamp = Date.now();
-      const fileName = `${timestamp}_${file.name}`;
-      const filePath = `/uploads/${customerId}/${documentId}/${fileName}`;
-      
-      console.log(`File uploaded successfully: ${fileName}`);
-      resolve(filePath);
-    }, 2000); // 2 second delay to simulate upload
-  });
+export const uploadFile = async (
+  file: File, 
+  customerId: string, 
+  documentId: string,
+  customerFolderId?: string
+): Promise<string> => {
+  try {
+    console.log(`Uploading file ${file.name} for customer ${customerId}, document ${documentId}`);
+
+    // If no folder ID provided, we'll need to get it from somewhere
+    // In a real implementation, this would be stored with the customer data
+    if (!customerFolderId) {
+      throw new Error('Customer folder ID not found');
+    }
+
+    // Upload to Google Drive
+    const driveFile = await googleDriveService.uploadFile(
+      file, 
+      customerFolderId, 
+      `${documentId}-${file.name}`
+    );
+
+    // Return the Drive file ID as the file path
+    return `/drive/${driveFile.id}`;
+    
+  } catch (error) {
+    console.error('Upload failed:', error);
+    throw new Error(error instanceof Error ? error.message : 'Upload failed');
+  }
 };

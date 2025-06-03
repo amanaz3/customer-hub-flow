@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Document } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
@@ -17,6 +16,7 @@ interface CategorizedDocumentUploadProps {
   documents: Document[];
   customerId: string;
   customerLicenseType: string;
+  customerFolderId?: string;
   onUpload: (documentId: string, filePath: string) => void;
 }
 
@@ -24,6 +24,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
   documents,
   customerId,
   customerLicenseType,
+  customerFolderId,
   onUpload,
 }) => {
   const { toast } = useToast();
@@ -46,6 +47,15 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
       return;
     }
 
+    if (!customerFolderId) {
+      toast({
+        title: "Upload Failed",
+        description: "Customer folder not found. Please contact support.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setUploading(documentId);
     setUploadProgress({ ...uploadProgress, [documentId]: 0 });
 
@@ -60,7 +70,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
         });
       }, 200);
 
-      const filePath = await uploadFile(file, customerId, documentId);
+      const filePath = await uploadFile(file, customerId, documentId, customerFolderId);
       
       clearInterval(progressInterval);
       setUploadProgress({ ...uploadProgress, [documentId]: 100 });
@@ -70,7 +80,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
       
       toast({
         title: "Document uploaded successfully",
-        description: `${file.name} has been uploaded and saved.`,
+        description: `${file.name} has been uploaded to Google Drive.`,
       });
 
       console.log(`Upload completed for document ${documentId}`);
@@ -144,96 +154,105 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
 
   const categoryOrder = ['mandatory', 'freezone', 'supporting', 'signatory'];
 
-  const renderDocumentItem = (doc: Document) => (
-    <div 
-      key={doc.id} 
-      className="p-4 border rounded-md flex flex-col space-y-3"
-    >
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-medium">
-          {doc.name}
-          {doc.isMandatory && <span className="text-red-500 ml-1">*</span>}
-        </h3>
-        {doc.isMandatory ? (
-          <Badge variant="destructive">Required</Badge>
+  const renderDocumentItem = (doc: Document) => {
+    const handleViewFile = () => {
+      if (doc.filePath?.startsWith('/drive/')) {
+        const driveFileId = doc.filePath.replace('/drive/', '');
+        window.open(`https://drive.google.com/file/d/${driveFileId}/view`, '_blank');
+      }
+    };
+
+    return (
+      <div 
+        key={doc.id} 
+        className="p-4 border rounded-md flex flex-col space-y-3"
+      >
+        <div className="flex items-center justify-between">
+          <h3 className="text-sm font-medium">
+            {doc.name}
+            {doc.isMandatory && <span className="text-red-500 ml-1">*</span>}
+          </h3>
+          {doc.isMandatory ? (
+            <Badge variant="destructive">Required</Badge>
+          ) : (
+            <Badge variant="outline">Optional</Badge>
+          )}
+        </div>
+        
+        {doc.isUploaded ? (
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2 text-green-600">
+              <CheckCircle className="w-4 h-4" />
+              <span className="text-xs">Uploaded to Drive</span>
+            </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={handleViewFile}
+              className="flex items-center gap-1"
+            >
+              <Eye className="w-3 h-3" />
+              View
+            </Button>
+          </div>
         ) : (
-          <Badge variant="outline">Optional</Badge>
+          <div className="space-y-2">
+            {uploading === doc.id && (
+              <div className="space-y-1">
+                <div className="flex justify-between text-xs">
+                  <span>Uploading to Drive...</span>
+                  <span>{uploadProgress[doc.id] || 0}%</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div 
+                    className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                    style={{ width: `${uploadProgress[doc.id] || 0}%` }}
+                  />
+                </div>
+              </div>
+            )}
+            
+            <div className="flex items-center space-x-2">
+              <input
+                type="file"
+                id={`file-${doc.id}`}
+                className="hidden"
+                accept={Object.keys(SUPPORTED_FILE_TYPES).join(',')}
+                onChange={handleFileChange(doc.id)}
+                disabled={uploading === doc.id}
+              />
+              <label
+                htmlFor={`file-${doc.id}`}
+                className="w-full"
+              >
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="w-full flex items-center gap-2" 
+                  disabled={uploading === doc.id}
+                  asChild
+                >
+                  <span>
+                    {uploading === doc.id ? (
+                      <>
+                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current" />
+                        Uploading...
+                      </>
+                    ) : (
+                      <>
+                        <Upload className="w-3 h-3" />
+                        Upload to Drive
+                      </>
+                    )}
+                  </span>
+                </Button>
+              </label>
+            </div>
+          </div>
         )}
       </div>
-      
-      {doc.isUploaded ? (
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 text-green-600">
-            <CheckCircle className="w-4 h-4" />
-            <span className="text-xs">Uploaded</span>
-          </div>
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => window.open(`https://drive.google.com${doc.filePath}`, '_blank')}
-            className="flex items-center gap-1"
-          >
-            <Eye className="w-3 h-3" />
-            View
-          </Button>
-        </div>
-      ) : (
-        <div className="space-y-2">
-          {uploading === doc.id && (
-            <div className="space-y-1">
-              <div className="flex justify-between text-xs">
-                <span>Uploading...</span>
-                <span>{uploadProgress[doc.id] || 0}%</span>
-              </div>
-              <div className="w-full bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                  style={{ width: `${uploadProgress[doc.id] || 0}%` }}
-                />
-              </div>
-            </div>
-          )}
-          
-          <div className="flex items-center space-x-2">
-            <input
-              type="file"
-              id={`file-${doc.id}`}
-              className="hidden"
-              accept={Object.keys(SUPPORTED_FILE_TYPES).join(',')}
-              onChange={handleFileChange(doc.id)}
-              disabled={uploading === doc.id}
-            />
-            <label
-              htmlFor={`file-${doc.id}`}
-              className="w-full"
-            >
-              <Button 
-                variant="outline" 
-                size="sm" 
-                className="w-full flex items-center gap-2" 
-                disabled={uploading === doc.id}
-                asChild
-              >
-                <span>
-                  {uploading === doc.id ? (
-                    <>
-                      <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current" />
-                      Uploading...
-                    </>
-                  ) : (
-                    <>
-                      <Upload className="w-3 h-3" />
-                      Upload
-                    </>
-                  )}
-                </span>
-              </Button>
-            </label>
-          </div>
-        </div>
-      )}
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="space-y-6">
@@ -241,6 +260,9 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
         <p>Supported formats: {getSupportedTypesText()}</p>
         <p>Maximum file size: {formatFileSize(MAX_FILE_SIZE)}</p>
         <p className="text-red-600 font-medium">* Indicates mandatory documents</p>
+        {customerFolderId && (
+          <p className="text-green-600 font-medium">✓ Connected to Google Drive</p>
+        )}
       </div>
 
       {categoryOrder.map(category => {
@@ -275,7 +297,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
             <ul className="mt-1 space-y-1 text-xs">
               <li>• Ensure documents are clear and readable</li>
               <li>• All mandatory documents (*) must be uploaded before submission</li>
-              <li>• Files will be automatically validated for type and size</li>
+              <li>• Files are uploaded securely to Google Drive</li>
               <li>• You can save your progress as draft and continue later</li>
             </ul>
           </div>
