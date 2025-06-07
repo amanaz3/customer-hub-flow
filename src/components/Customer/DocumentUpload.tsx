@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Document } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
+import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -10,8 +11,10 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { validateFile, uploadFile, SUPPORTED_FILE_TYPES, MAX_FILE_SIZE } from '@/utils/fileUpload';
-import { Upload, CheckCircle, Eye, AlertCircle } from 'lucide-react';
+import { Progress } from "@/components/ui/progress";
+import { validateFile, uploadFile, SUPPORTED_FILE_TYPES, MAX_FILE_SIZE, formatFileSize, getFileIcon } from '@/utils/fileUpload';
+import type { UploadProgress } from '@/utils/fileUpload';
+import { Upload, CheckCircle, Eye, AlertCircle, X } from 'lucide-react';
 
 interface DocumentUploadProps {
   documents: Document[];
@@ -27,6 +30,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   onUpload,
 }) => {
   const { toast } = useToast();
+  const { handleError } = useErrorHandler();
   const [uploading, setUploading] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
 
@@ -39,75 +43,116 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     // Validate file
     const validation = validateFile(file);
     if (!validation.isValid) {
-      toast({
-        title: "Upload Failed",
-        description: validation.error,
-        variant: "destructive",
-      });
+      handleError(new Error(validation.error || 'File validation failed'), 'File Upload');
       return;
     }
 
     if (!customerFolderId) {
-      toast({
-        title: "Upload Failed",
-        description: "Customer folder not found. Please contact support.",
-        variant: "destructive",
-      });
+      handleError(new Error('Customer folder not found. Please contact support.'), 'File Upload');
       return;
     }
 
     setUploading(documentId);
-    setUploadProgress({ ...uploadProgress, [documentId]: 0 });
+    setUploadProgress(prev => ({ ...prev, [documentId]: 0 }));
 
     try {
-      // Simulate progress updates
-      const progressInterval = setInterval(() => {
-        setUploadProgress(prev => {
-          const currentProgress = prev[documentId] || 0;
-          if (currentProgress < 90) {
-            return { ...prev, [documentId]: currentProgress + 10 };
-          }
-          return prev;
-        });
-      }, 200);
-
-      const filePath = await uploadFile(file, customerId, documentId, customerFolderId);
-      
-      clearInterval(progressInterval);
-      setUploadProgress({ ...uploadProgress, [documentId]: 100 });
+      const filePath = await uploadFile(
+        file, 
+        customerId, 
+        documentId, 
+        customerFolderId,
+        (progress: UploadProgress) => {
+          setUploadProgress(prev => ({ ...prev, [documentId]: progress.percentage }));
+        }
+      );
       
       onUpload(documentId, filePath);
       setUploading(null);
+      setUploadProgress(prev => ({ ...prev, [documentId]: 100 }));
       
       toast({
         title: "Document uploaded successfully",
-        description: `${file.name} has been uploaded and saved.`,
+        description: `${getFileIcon(file.name)} ${file.name} has been uploaded and saved.`,
       });
 
       console.log(`Upload completed for document ${documentId}`);
       
     } catch (error) {
-      console.error(`Upload failed for document ${documentId}:`, error);
       setUploading(null);
-      setUploadProgress({ ...uploadProgress, [documentId]: 0 });
-      
-      toast({
-        title: "Upload Failed",
-        description: error instanceof Error ? error.message : "An unexpected error occurred during upload.",
-        variant: "destructive",
-      });
+      setUploadProgress(prev => ({ ...prev, [documentId]: 0 }));
+      handleError(error, 'File Upload');
     }
 
     // Reset file input
     event.target.value = '';
   };
 
-  const formatFileSize = (bytes: number) => {
-    return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
+  const cancelUpload = (documentId: string) => {
+    setUploading(null);
+    setUploadProgress(prev => ({ ...prev, [documentId]: 0 }));
+    
+    toast({
+      title: "Upload cancelled",
+      description: "File upload has been cancelled.",
+    });
   };
 
   const getSupportedTypesText = () => {
-    return Object.values(SUPPORTED_FILE_TYPES).join(', ');
+    return Object.keys(SUPPORTED_FILE_TYPES).join(', ');
+  };
+
+  const renderUploadButton = (doc: Document) => {
+    const isCurrentlyUploading = uploading === doc.id;
+    const progress = uploadProgress[doc.id] || 0;
+
+    if (isCurrentlyUploading) {
+      return (
+        <div className="space-y-2">
+          <div className="flex justify-between text-xs">
+            <span>Uploading...</span>
+            <span>{Math.round(progress)}%</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <Progress value={progress} className="flex-1" />
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => cancelUpload(doc.id)}
+              className="px-2"
+            >
+              <X className="w-3 h-3" />
+            </Button>
+          </div>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center space-x-2">
+        <input
+          type="file"
+          id={`file-${doc.id}`}
+          className="hidden"
+          accept={Object.keys(SUPPORTED_FILE_TYPES).join(',')}
+          onChange={handleFileChange(doc.id)}
+          disabled={!!uploading}
+        />
+        <label htmlFor={`file-${doc.id}`} className="w-full">
+          <Button 
+            variant="outline" 
+            size="sm" 
+            className="w-full flex items-center gap-2" 
+            disabled={!!uploading}
+            asChild
+          >
+            <span>
+              <Upload className="w-3 h-3" />
+              Upload
+            </span>
+          </Button>
+        </label>
+      </div>
+    );
   };
 
   return (
@@ -127,10 +172,13 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           {documents.map((doc) => (
             <div 
               key={doc.id} 
-              className="p-4 border rounded-md flex flex-col space-y-3"
+              className="p-4 border rounded-md flex flex-col space-y-3 hover:border-gray-300 transition-colors"
             >
               <div className="flex items-center justify-between">
-                <h3 className="text-sm font-medium">{doc.name}</h3>
+                <h3 className="text-sm font-medium flex items-center gap-2">
+                  {doc.isUploaded && getFileIcon(doc.name)}
+                  {doc.name}
+                </h3>
                 {doc.isMandatory ? (
                   <Badge variant="destructive">Required</Badge>
                 ) : (
@@ -147,67 +195,20 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                   <Button 
                     variant="outline" 
                     size="sm"
-                    onClick={() => window.open(`https://drive.google.com${doc.filePath}`, '_blank')}
+                    onClick={() => {
+                      if (doc.filePath) {
+                        window.open(`https://drive.google.com${doc.filePath}`, '_blank');
+                      }
+                    }}
                     className="flex items-center gap-1"
+                    disabled={!doc.filePath}
                   >
                     <Eye className="w-3 h-3" />
                     View
                   </Button>
                 </div>
               ) : (
-                <div className="space-y-2">
-                  {uploading === doc.id && (
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-xs">
-                        <span>Uploading...</span>
-                        <span>{uploadProgress[doc.id] || 0}%</span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div 
-                          className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                          style={{ width: `${uploadProgress[doc.id] || 0}%` }}
-                        />
-                      </div>
-                    </div>
-                  )}
-                  
-                  <div className="flex items-center space-x-2">
-                    <input
-                      type="file"
-                      id={`file-${doc.id}`}
-                      className="hidden"
-                      accept={Object.keys(SUPPORTED_FILE_TYPES).join(',')}
-                      onChange={handleFileChange(doc.id)}
-                      disabled={uploading === doc.id}
-                    />
-                    <label
-                      htmlFor={`file-${doc.id}`}
-                      className="w-full"
-                    >
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="w-full flex items-center gap-2" 
-                        disabled={uploading === doc.id}
-                        asChild
-                      >
-                        <span>
-                          {uploading === doc.id ? (
-                            <>
-                              <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current" />
-                              Uploading...
-                            </>
-                          ) : (
-                            <>
-                              <Upload className="w-3 h-3" />
-                              Upload
-                            </>
-                          )}
-                        </span>
-                      </Button>
-                    </label>
-                  </div>
-                </div>
+                renderUploadButton(doc)
               )}
             </div>
           ))}
@@ -215,17 +216,31 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         
         <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
           <div className="flex items-start gap-2">
-            <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5" />
+            <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="text-blue-800 text-sm">
               <p className="font-medium">Upload Guidelines:</p>
               <ul className="mt-1 space-y-1 text-xs">
                 <li>• Ensure documents are clear and readable</li>
                 <li>• All mandatory documents must be uploaded</li>
-                <li>• Files will be automatically validated for type and size</li>
+                <li>• Files are automatically validated for type and size</li>
+                <li>• Uploaded files are securely stored in Google Drive</li>
+                <li>• Banking team has automatic access to all documents</li>
               </ul>
             </div>
           </div>
         </div>
+
+        {!customerFolderId && (
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+            <div className="flex items-start gap-2">
+              <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5" />
+              <div className="text-yellow-800 text-sm">
+                <p className="font-medium">Warning:</p>
+                <p>Google Drive folder not available. Document upload is currently disabled.</p>
+              </div>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

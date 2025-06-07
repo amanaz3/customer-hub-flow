@@ -1,23 +1,6 @@
+
 import { SignJWT } from 'jose';
-
-// Service Account Configuration
-const SERVICE_ACCOUNT_CONFIG = {
-  type: "service_account",
-  project_id: "inbound-pattern-461813-p5",
-  private_key_id: "e4557508a92e7dfea6336302d941fd0329260d0d",
-  private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCrUaWzpKh/RMdz\nesazodFfPowMFvMnca8oc400izaOmhekUXvWZg9fVMpXtRbUHp0/bOSloBAMJZrr\nh/Rfp2ljhQ4ycOkq3lo/jsxVUV90SXlelzV7cH7B+l0bdyLiTq1HjCaZOo4HW49b\nCBaf/Bc1FbvcKbyghF7yP4dCPdNkSBb1H6vufI4vZxBpHk9qV/dtX5OCOLRaxUUb\nrQyjiqBEVFHmWAvQFKuidEYjmH3BSymLr+Ui4S6M9K0hYhRgQRXlVUPnnOZCUKqc\nwND4K6sCc3DX4xf38AgLE12iqle9pc4cFid9XwPgXQLRb87tqV9dcgE31BxGJHwg\nxPLLko/9AgMBAAECggEAAfeTh/8FgkSXZ6+KtYhPn6DXudHPo+3NvZCqF+bbTwLc\n76GR4vHUDluqYRxusSvS0WYeL/qpBIKwBzFN8IU7FA30jka2nqvj7GPm27nt9yda\n0ee5kPvHMNH/nK+fAms12SL2VH8UH2iBOmHa5KZf29euiwYdqNgsQOrS0kNkeHvI\nlRTc4XDgAF7R3BlIqzjQqyqW6gWIM8gIcpcl0Srf73BliWmhZC/rmW9A+TgVxd7Z\nTu8YF8AX2N4P1qhTmKj7c8kC0dlxYVfQifADedoR9Q/jUs1LvkAxT+o90vLopUoW\nQthJWX/Y7EnPC2WoNZYYuqeNu89/yML9wBjTc3BvXwKBgQDpwLlR8Qj4eO3ILxpX\nr5cigQXuWEPjSL+fNGetrkUTWphWFFDlTYyJEbqTa8rkHjMZw+6j5a2PCCkhla3F\n2H5+I2rRbUJ5EFnBF4cx0wAQMUeleKAxsWlY9zpmNwMiEiBWzVUoYutdQ1Wsxk7k\nysFBxATxy5cNvsrQdjbB5iKgEwKBgQC7n8BY3bnbB6wQSqLrevipYk/AgxtaZ4CN\nXffWQsWZu91U2PH0ZHz7Js2hjBFNcpL7nMC8RidXwAVPFfBviMEGD6nxlwK/QYwh\nOjF8fZtBTLdQqmegLbahbtUkmi5oH0ez4uT90LtKCHPqo/rGrD4/tDSgDcEFmEQ7\n4Xi9/R6xrwKBgGdbUhYLT/4d6nXjbfBrsZYOGsNCv/HVjvUkRNuk/OIL4uPc49Ag\nNA2/ixH4TaQEPnAcFH7f5Zgi8ZzqBAZBLd00Z9zmRMgnFKiucJb1R0fhol5mMd8H\nJR+zYV0k4fvErAv1irvq0UtRpKZaoTPE+yLLO6x2avom7KK0Qo4F5jWFAoGACbPI\nIZBNtRrfdfQ2GpFAXJn938mn13P0vNq4HzdSupFxb5rMYEP2BpLKHWl915BuM162\nxMWn8Sy32ZAb39iliqeytRCHDtbX5Tv6JSLlrWnHLP+y3iCfChgOI5dpgO7lKVM5\nXjq2BK0NOXwDUtTDX031TrWHXr+x/5q4QLLfLHcCgYA1jqQP1H9LZSymYSiTodY3\nhuNWhlyPdWncMxI1WnYT0R0LfSScrYW8PySfXdzeq3PVdU40sEUE3aD1sVOYGldk\nGiCcLJVs35N7sDeHWI/7FXiJoNuHZSOJyW5u+0i51HD1M08Meb8KaxY7r24+Of50\nOZiWh/G4y0GwK+OuOdJAig==\n-----END PRIVATE KEY-----\n",
-  client_email: "amana-912@inbound-pattern-461813-p5.iam.gserviceaccount.com",
-  client_id: "103117814412564644548",
-  auth_uri: "https://accounts.google.com/o/oauth2/auth",
-  token_uri: "https://oauth2.googleapis.com/token",
-  auth_provider_x509_cert_url: "https://www.googleapis.com/oauth2/v1/certs",
-  client_x509_cert_url: "https://www.googleapis.com/robot/v1/metadata/x509/amana-912%40inbound-pattern-461813-p5.iam.gserviceaccount.com",
-  universe_domain: "googleapis.com"
-};
-
-const GOOGLE_DRIVE_API_URL = 'https://www.googleapis.com/drive/v3';
-const GOOGLE_UPLOAD_URL = 'https://www.googleapis.com/upload/drive/v3';
-const BANKING_EMAIL = 'banking@amanafinanz.com';
+import { GOOGLE_DRIVE_CONFIG, getServiceAccountConfig } from '@/config/googleDrive';
 
 interface DriveFile {
   id: string;
@@ -26,51 +9,57 @@ interface DriveFile {
   webViewLink?: string;
 }
 
+interface DriveError extends Error {
+  code?: string;
+  status?: number;
+}
+
 class GoogleDriveService {
   private accessToken: string | null = null;
   private tokenExpiry: number = 0;
   private amanaFolderId: string | null = null;
 
   private async importPrivateKey(): Promise<CryptoKey> {
-    // Clean and format the private key
-    const privateKeyPem = SERVICE_ACCOUNT_CONFIG.private_key
-      .replace(/\\n/g, '\n')
-      .trim();
+    try {
+      const config = getServiceAccountConfig();
+      const privateKeyPem = config.private_key
+        .replace(/\\n/g, '\n')
+        .trim();
 
-    // Remove the header and footer
-    const privateKeyBase64 = privateKeyPem
-      .replace(/-----BEGIN PRIVATE KEY-----/, '')
-      .replace(/-----END PRIVATE KEY-----/, '')
-      .replace(/\s/g, '');
+      const privateKeyBase64 = privateKeyPem
+        .replace(/-----BEGIN PRIVATE KEY-----/, '')
+        .replace(/-----END PRIVATE KEY-----/, '')
+        .replace(/\s/g, '');
 
-    // Convert base64 to binary
-    const binaryDer = atob(privateKeyBase64);
-    const keyBuffer = new Uint8Array(binaryDer.length);
-    for (let i = 0; i < binaryDer.length; i++) {
-      keyBuffer[i] = binaryDer.charCodeAt(i);
+      const binaryDer = atob(privateKeyBase64);
+      const keyBuffer = new Uint8Array(binaryDer.length);
+      for (let i = 0; i < binaryDer.length; i++) {
+        keyBuffer[i] = binaryDer.charCodeAt(i);
+      }
+
+      return await crypto.subtle.importKey(
+        'pkcs8',
+        keyBuffer,
+        {
+          name: 'RSASSA-PKCS1-v1_5',
+          hash: 'SHA-256',
+        },
+        false,
+        ['sign']
+      );
+    } catch (error) {
+      console.error('Error importing private key:', error);
+      throw new Error('Failed to import Google Drive private key');
     }
-
-    // Import the key
-    return await crypto.subtle.importKey(
-      'pkcs8',
-      keyBuffer,
-      {
-        name: 'RSASSA-PKCS1-v1_5',
-        hash: 'SHA-256',
-      },
-      false,
-      ['sign']
-    );
   }
 
   private async getAccessToken(): Promise<string> {
-    // Check if we have a valid token
     if (this.accessToken && Date.now() < this.tokenExpiry) {
       return this.accessToken;
     }
 
     try {
-      // Create JWT for service account authentication using jose
+      const config = getServiceAccountConfig();
       const now = Math.floor(Date.now() / 1000);
       
       console.log('Importing private key for JWT signing');
@@ -78,24 +67,23 @@ class GoogleDriveService {
       
       console.log('Creating JWT with imported private key');
 
-      // Create and sign JWT using jose
       const jwt = await new SignJWT({
-        iss: SERVICE_ACCOUNT_CONFIG.client_email,
+        iss: config.client_email,
         scope: "https://www.googleapis.com/auth/drive",
-        aud: SERVICE_ACCOUNT_CONFIG.token_uri,
-        exp: now + 3600, // 1 hour
+        aud: config.token_uri,
+        exp: now + 3600,
         iat: now
       })
         .setProtectedHeader({ 
           alg: 'RS256',
-          kid: SERVICE_ACCOUNT_CONFIG.private_key_id,
+          kid: config.private_key_id,
           typ: 'JWT'
         })
         .sign(privateKey);
 
       console.log('JWT created successfully');
 
-      const response = await fetch(SERVICE_ACCOUNT_CONFIG.token_uri, {
+      const response = await fetch(config.token_uri, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded',
@@ -109,18 +97,20 @@ class GoogleDriveService {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Token request failed:', errorText);
-        throw new Error('Failed to get access token');
+        throw new Error(`Failed to get access token: ${response.status} ${response.statusText}`);
       }
 
       const data = await response.json();
       this.accessToken = data.access_token;
-      this.tokenExpiry = Date.now() + (data.expires_in * 1000) - 60000; // Subtract 1 minute for safety
+      this.tokenExpiry = Date.now() + (data.expires_in * 1000) - 60000;
 
       console.log('Successfully obtained access token');
       return this.accessToken;
     } catch (error) {
       console.error('Error getting access token:', error);
-      throw new Error('Failed to authenticate with Google Drive');
+      const driveError: DriveError = new Error('Failed to authenticate with Google Drive');
+      driveError.code = 'AUTH_FAILED';
+      throw driveError;
     }
   }
 
@@ -132,7 +122,7 @@ class GoogleDriveService {
         : `name='${name}' and mimeType='application/vnd.google-apps.folder' and trashed=false`;
       
       const response = await fetch(
-        `${GOOGLE_DRIVE_API_URL}/files?q=${encodeURIComponent(query)}&fields=files(id,name)`,
+        `${GOOGLE_DRIVE_CONFIG.apiUrl}/files?q=${encodeURIComponent(query)}&fields=files(id,name)`,
         {
           headers: {
             'Authorization': `Bearer ${accessToken}`
@@ -141,7 +131,8 @@ class GoogleDriveService {
       );
 
       if (!response.ok) {
-        throw new Error('Failed to search for folder');
+        console.error('Search folder failed:', response.status, response.statusText);
+        return null;
       }
 
       const result = await response.json();
@@ -162,7 +153,7 @@ class GoogleDriveService {
         emailAddress: email
       };
 
-      const response = await fetch(`${GOOGLE_DRIVE_API_URL}/files/${folderId}/permissions`, {
+      const response = await fetch(`${GOOGLE_DRIVE_CONFIG.apiUrl}/files/${folderId}/permissions`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -174,13 +165,13 @@ class GoogleDriveService {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Permission sharing failed:', errorText);
-        throw new Error(`Failed to share folder: ${response.statusText}`);
+        throw new Error(`Failed to share folder: ${response.status} ${response.statusText}`);
       }
 
       console.log(`Folder ${folderId} shared with ${email}`);
     } catch (error) {
       console.error('Error sharing folder:', error);
-      throw new Error('Failed to share folder');
+      throw new Error('Failed to share folder with banking team');
     }
   }
 
@@ -194,7 +185,7 @@ class GoogleDriveService {
         parents: parentId ? [parentId] : ['root']
       };
 
-      const response = await fetch(`${GOOGLE_DRIVE_API_URL}/files`, {
+      const response = await fetch(`${GOOGLE_DRIVE_CONFIG.apiUrl}/files`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`,
@@ -206,7 +197,7 @@ class GoogleDriveService {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('Folder creation failed:', errorText);
-        throw new Error(`Failed to create folder: ${response.statusText}`);
+        throw new Error(`Failed to create folder: ${response.status} ${response.statusText}`);
       }
 
       const result = await response.json();
@@ -224,17 +215,14 @@ class GoogleDriveService {
     }
 
     try {
-      // First, try to find existing "amana" folder
       let folderId = await this.findFolderByName('amana');
       
       if (!folderId) {
-        // Create "amana" folder if it doesn't exist
         console.log('Creating amana folder...');
         folderId = await this.createFolder('amana');
         
-        // Share the amana folder with banking email
-        console.log(`Sharing amana folder with ${BANKING_EMAIL}...`);
-        await this.shareFolder(folderId, BANKING_EMAIL);
+        console.log(`Sharing amana folder with ${GOOGLE_DRIVE_CONFIG.bankingEmail}...`);
+        await this.shareFolder(folderId, GOOGLE_DRIVE_CONFIG.bankingEmail);
       }
 
       this.amanaFolderId = folderId;
@@ -246,15 +234,16 @@ class GoogleDriveService {
   }
 
   async createCustomerFolder(customerName: string): Promise<string> {
+    if (!customerName || typeof customerName !== 'string') {
+      throw new Error('Valid customer name is required');
+    }
+
     try {
-      // Ensure amana folder exists
       const amanaFolderId = await this.ensureAmanaFolder();
       
-      // Check if customer folder already exists in amana folder
       let customerFolderId = await this.findFolderByName(customerName, amanaFolderId);
       
       if (!customerFolderId) {
-        // Create customer folder inside amana folder
         customerFolderId = await this.createFolder(customerName, amanaFolderId);
       }
 
@@ -262,11 +251,32 @@ class GoogleDriveService {
       return customerFolderId;
     } catch (error) {
       console.error('Error creating customer folder:', error);
-      throw new Error('Failed to create customer folder in Google Drive');
+      const driveError: DriveError = new Error('Failed to create customer folder in Google Drive');
+      driveError.code = 'FOLDER_CREATION_FAILED';
+      throw driveError;
     }
   }
 
   async uploadFile(file: File, folderId: string, fileName?: string): Promise<DriveFile> {
+    if (!file) {
+      throw new Error('File is required for upload');
+    }
+
+    if (!folderId) {
+      throw new Error('Folder ID is required for upload');
+    }
+
+    // Validate file size
+    if (file.size > GOOGLE_DRIVE_CONFIG.maxFileSize) {
+      throw new Error(`File size exceeds ${GOOGLE_DRIVE_CONFIG.maxFileSize / (1024 * 1024)}MB limit`);
+    }
+
+    // Validate file type
+    const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
+    if (!Object.keys(GOOGLE_DRIVE_CONFIG.supportedFileTypes).includes(fileExtension)) {
+      throw new Error(`File type not supported. Supported types: ${Object.keys(GOOGLE_DRIVE_CONFIG.supportedFileTypes).join(', ')}`);
+    }
+
     try {
       const accessToken = await this.getAccessToken();
       
@@ -279,7 +289,7 @@ class GoogleDriveService {
       form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
       form.append('file', file);
 
-      const response = await fetch(`${GOOGLE_UPLOAD_URL}/files?uploadType=multipart`, {
+      const response = await fetch(`${GOOGLE_DRIVE_CONFIG.uploadUrl}/files?uploadType=multipart`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`
@@ -290,7 +300,7 @@ class GoogleDriveService {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('File upload failed:', errorText);
-        throw new Error(`Upload failed: ${response.statusText}`);
+        throw new Error(`Upload failed: ${response.status} ${response.statusText}`);
       }
 
       const result = await response.json();
@@ -304,16 +314,22 @@ class GoogleDriveService {
       };
     } catch (error) {
       console.error('Error uploading file to Drive:', error);
-      throw new Error('Failed to upload file to Google Drive');
+      const driveError: DriveError = new Error('Failed to upload file to Google Drive');
+      driveError.code = 'UPLOAD_FAILED';
+      throw driveError;
     }
   }
 
   async listFiles(folderId: string): Promise<DriveFile[]> {
+    if (!folderId) {
+      throw new Error('Folder ID is required to list files');
+    }
+
     try {
       const accessToken = await this.getAccessToken();
       
       const response = await fetch(
-        `${GOOGLE_DRIVE_API_URL}/files?q='${folderId}' in parents&fields=files(id,name,mimeType,webViewLink)`,
+        `${GOOGLE_DRIVE_CONFIG.apiUrl}/files?q='${folderId}' in parents&fields=files(id,name,mimeType,webViewLink)`,
         {
           headers: {
             'Authorization': `Bearer ${accessToken}`
@@ -324,7 +340,7 @@ class GoogleDriveService {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('List files failed:', errorText);
-        throw new Error(`Failed to list files: ${response.statusText}`);
+        return [];
       }
 
       const result = await response.json();
@@ -336,10 +352,14 @@ class GoogleDriveService {
   }
 
   async deleteFile(fileId: string): Promise<void> {
+    if (!fileId) {
+      throw new Error('File ID is required for deletion');
+    }
+
     try {
       const accessToken = await this.getAccessToken();
       
-      const response = await fetch(`${GOOGLE_DRIVE_API_URL}/files/${fileId}`, {
+      const response = await fetch(`${GOOGLE_DRIVE_CONFIG.apiUrl}/files/${fileId}`, {
         method: 'DELETE',
         headers: {
           'Authorization': `Bearer ${accessToken}`
@@ -349,7 +369,7 @@ class GoogleDriveService {
       if (!response.ok) {
         const errorText = await response.text();
         console.error('File deletion failed:', errorText);
-        throw new Error(`Failed to delete file: ${response.statusText}`);
+        throw new Error(`Failed to delete file: ${response.status} ${response.statusText}`);
       }
 
       console.log('File deleted from Drive:', fileId);
@@ -359,9 +379,19 @@ class GoogleDriveService {
     }
   }
 
-  // Method to get the amana folder ID for external use
   async getAmanaFolderId(): Promise<string> {
     return await this.ensureAmanaFolder();
+  }
+
+  // Health check method
+  async isServiceHealthy(): Promise<boolean> {
+    try {
+      await this.getAccessToken();
+      return true;
+    } catch (error) {
+      console.error('Google Drive service health check failed:', error);
+      return false;
+    }
   }
 }
 

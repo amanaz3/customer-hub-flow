@@ -3,7 +3,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { googleDriveService } from '@/services/googleDriveService';
 
 export type CustomerStatus = 'Draft' | 'Submitted' | 'Returned' | 'Sent to Bank' | 'Complete' | 'Rejected' | 'Need More Info' | 'Paid';
-export type Status = CustomerStatus; // Alias for backward compatibility
+export type Status = CustomerStatus;
 export type LeadSource = 'Website' | 'Referral' | 'Social Media' | 'Other';
 export type LicenseType = 'Mainland' | 'Freezone' | 'Offshore';
 
@@ -67,6 +67,8 @@ interface CustomerContextType {
   updateCustomerStatus: (customerId: string, status: CustomerStatus, comment: string, changedBy: string, changedByRole: string) => void;
   markPaymentReceived: (customerId: string, changedBy: string) => void;
   submitToAdmin: (customerId: string, userId: string, userName: string) => void;
+  isLoading: boolean;
+  error: string | null;
 }
 
 const CustomerContext = createContext<CustomerContextType | undefined>(undefined);
@@ -163,72 +165,123 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const [customers, setCustomers] = useState<Customer[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   // Load customers from localStorage on mount
   useEffect(() => {
-    const savedCustomers = localStorage.getItem('customers');
-    if (savedCustomers) {
-      const parsedCustomers = JSON.parse(savedCustomers).map((customer: any) => ({
-        ...customer,
-        createdAt: customer.createdAt ? new Date(customer.createdAt) : new Date(),
-        updatedAt: customer.updatedAt ? new Date(customer.updatedAt) : new Date(),
-        comments: customer.comments?.map((comment: any) => ({
-          ...comment,
-          timestamp: new Date(comment.timestamp),
-        })) || [],
-        statusHistory: customer.statusHistory?.map((change: any) => ({
-          ...change,
-          timestamp: new Date(change.timestamp),
-        })) || [],
-        paymentReceived: customer.paymentReceived || false,
-        paymentDate: customer.paymentDate ? new Date(customer.paymentDate) : undefined,
-      }));
-      setCustomers(parsedCustomers);
-    }
+    const loadCustomers = () => {
+      try {
+        setIsLoading(true);
+        setError(null);
+        
+        const savedCustomers = localStorage.getItem('customers');
+        if (savedCustomers) {
+          const parsedCustomers = JSON.parse(savedCustomers).map((customer: any) => ({
+            ...customer,
+            createdAt: customer.createdAt ? new Date(customer.createdAt) : new Date(),
+            updatedAt: customer.updatedAt ? new Date(customer.updatedAt) : new Date(),
+            comments: customer.comments?.map((comment: any) => ({
+              ...comment,
+              timestamp: new Date(comment.timestamp),
+            })) || [],
+            statusHistory: customer.statusHistory?.map((change: any) => ({
+              ...change,
+              timestamp: new Date(change.timestamp),
+            })) || [],
+            paymentReceived: customer.paymentReceived || false,
+            paymentDate: customer.paymentDate ? new Date(customer.paymentDate) : undefined,
+          }));
+          setCustomers(parsedCustomers);
+        }
+      } catch (err) {
+        console.error('Error loading customers:', err);
+        setError('Failed to load customers from storage');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    loadCustomers();
   }, []);
 
   // Save customers to localStorage whenever customers change
   useEffect(() => {
-    localStorage.setItem('customers', JSON.stringify(customers));
+    try {
+      localStorage.setItem('customers', JSON.stringify(customers));
+      setError(null);
+    } catch (err) {
+      console.error('Error saving customers:', err);
+      setError('Failed to save customers to storage');
+    }
   }, [customers]);
 
   const addCustomer = async (customerData: Omit<Customer, 'id' | 'createdAt' | 'updatedAt'>) => {
-    const newCustomer: Customer = {
-      ...customerData,
-      id: crypto.randomUUID(),
-      documents: DEFAULT_DOCUMENTS.map(doc => ({ ...doc })),
-      statusHistory: [],
-      createdAt: new Date(),
-      updatedAt: new Date(),
-      paymentReceived: false,
-    };
-
     try {
-      // Create Google Drive folder for the customer using just the customer name
-      console.log(`Creating Drive folder for customer: ${customerData.name}`);
-      const driveFolderId = await googleDriveService.createCustomerFolder(customerData.name);
-      newCustomer.driveFolderId = driveFolderId;
-      console.log(`Drive folder created with ID: ${driveFolderId}`);
-    } catch (error) {
-      console.error('Failed to create Drive folder:', error);
-      // Continue without Drive folder - customer can still be created
-    }
+      setIsLoading(true);
+      setError(null);
 
-    setCustomers(prev => [...prev, newCustomer]);
+      // Validate required fields
+      if (!customerData.name || !customerData.email || !customerData.mobile) {
+        throw new Error('Name, email, and mobile are required fields');
+      }
+
+      const newCustomer: Customer = {
+        ...customerData,
+        id: crypto.randomUUID(),
+        documents: DEFAULT_DOCUMENTS.map(doc => ({ ...doc })),
+        statusHistory: [],
+        createdAt: new Date(),
+        updatedAt: new Date(),
+        paymentReceived: false,
+      };
+
+      try {
+        // Create Google Drive folder for the customer
+        console.log(`Creating Drive folder for customer: ${customerData.name}`);
+        const driveFolderId = await googleDriveService.createCustomerFolder(customerData.name);
+        newCustomer.driveFolderId = driveFolderId;
+        console.log(`Drive folder created with ID: ${driveFolderId}`);
+      } catch (driveError) {
+        console.error('Failed to create Drive folder:', driveError);
+        // Continue without Drive folder - customer can still be created
+        // Don't throw here, just log the error
+      }
+
+      setCustomers(prev => [...prev, newCustomer]);
+    } catch (err) {
+      console.error('Error adding customer:', err);
+      setError(err instanceof Error ? err.message : 'Failed to add customer');
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const updateCustomer = (id: string, updates: Partial<Customer>) => {
-    setCustomers(prev =>
-      prev.map(customer =>
-        customer.id === id
-          ? { ...customer, ...updates, updatedAt: new Date() }
-          : customer
-      )
-    );
+    try {
+      setError(null);
+      setCustomers(prev =>
+        prev.map(customer =>
+          customer.id === id
+            ? { ...customer, ...updates, updatedAt: new Date() }
+            : customer
+        )
+      );
+    } catch (err) {
+      console.error('Error updating customer:', err);
+      setError('Failed to update customer');
+    }
   };
 
   const deleteCustomer = (id: string) => {
-    setCustomers(prev => prev.filter(customer => customer.id !== id));
+    try {
+      setError(null);
+      setCustomers(prev => prev.filter(customer => customer.id !== id));
+    } catch (err) {
+      console.error('Error deleting customer:', err);
+      setError('Failed to delete customer');
+    }
   };
 
   const getCustomerById = (id: string): Customer | undefined => {
@@ -240,21 +293,13 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const updateDocument = (customerId: string, documentId: string, filePath: string) => {
-    setCustomers(prev =>
-      prev.map(customer =>
-        customer.id === customerId
-          ? {
-              ...customer,
-              documents: customer.documents.map(doc =>
-                doc.id === documentId
-                  ? { ...doc, isUploaded: true, filePath }
-                  : doc
-              ),
-              updatedAt: new Date(),
-            }
-          : customer
-      )
-    );
+    updateCustomer(customerId, {
+      documents: customers.find(c => c.id === customerId)?.documents.map(doc =>
+        doc.id === documentId
+          ? { ...doc, isUploaded: true, filePath }
+          : doc
+      ) || []
+    });
   };
 
   const uploadDocument = (customerId: string, documentId: string, filePath: string) => {
@@ -262,102 +307,103 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({
   };
 
   const addComment = (customerId: string, comment: Omit<Comment, 'id'>) => {
-    const newComment: Comment = {
-      ...comment,
-      id: crypto.randomUUID(),
-    };
+    try {
+      setError(null);
+      const newComment: Comment = {
+        ...comment,
+        id: crypto.randomUUID(),
+      };
 
-    setCustomers(prev =>
-      prev.map(customer =>
-        customer.id === customerId
-          ? {
-              ...customer,
-              comments: [...customer.comments, newComment],
-              updatedAt: new Date(),
-            }
-          : customer
-      )
-    );
+      const customer = customers.find(c => c.id === customerId);
+      if (customer) {
+        updateCustomer(customerId, {
+          comments: [...customer.comments, newComment]
+        });
+      }
+    } catch (err) {
+      console.error('Error adding comment:', err);
+      setError('Failed to add comment');
+    }
   };
 
   const updateCustomerStatus = (customerId: string, status: CustomerStatus, comment: string, changedBy: string, changedByRole: string) => {
-    setCustomers(prev =>
-      prev.map(customer => {
-        if (customer.id === customerId) {
-          const statusChange: StatusChange = {
-            id: crypto.randomUUID(),
-            previousStatus: customer.status,
-            newStatus: status,
-            comment,
-            changedBy,
-            changedByRole,
-            timestamp: new Date(),
-          };
+    try {
+      setError(null);
+      const customer = customers.find(c => c.id === customerId);
+      if (customer) {
+        const statusChange: StatusChange = {
+          id: crypto.randomUUID(),
+          previousStatus: customer.status,
+          newStatus: status,
+          comment,
+          changedBy,
+          changedByRole,
+          timestamp: new Date(),
+        };
 
-          return {
-            ...customer,
-            status,
-            statusHistory: [...customer.statusHistory, statusChange],
-            updatedAt: new Date(),
-          };
-        }
-        return customer;
-      })
-    );
+        updateCustomer(customerId, {
+          status,
+          statusHistory: [...customer.statusHistory, statusChange]
+        });
+      }
+    } catch (err) {
+      console.error('Error updating status:', err);
+      setError('Failed to update customer status');
+    }
   };
 
   const markPaymentReceived = (customerId: string, changedBy: string) => {
-    setCustomers(prev =>
-      prev.map(customer => {
-        if (customer.id === customerId) {
-          const statusChange: StatusChange = {
-            id: crypto.randomUUID(),
-            previousStatus: customer.status,
-            newStatus: 'Paid',
-            comment: 'Payment received',
-            changedBy,
-            changedByRole: 'admin',
-            timestamp: new Date(),
-          };
+    try {
+      setError(null);
+      const customer = customers.find(c => c.id === customerId);
+      if (customer) {
+        const statusChange: StatusChange = {
+          id: crypto.randomUUID(),
+          previousStatus: customer.status,
+          newStatus: 'Paid',
+          comment: 'Payment received',
+          changedBy,
+          changedByRole: 'admin',
+          timestamp: new Date(),
+        };
 
-          return {
-            ...customer,
-            status: 'Paid' as CustomerStatus,
-            paymentReceived: true,
-            paymentDate: new Date(),
-            statusHistory: [...customer.statusHistory, statusChange],
-            updatedAt: new Date(),
-          };
-        }
-        return customer;
-      })
-    );
+        updateCustomer(customerId, {
+          status: 'Paid' as CustomerStatus,
+          paymentReceived: true,
+          paymentDate: new Date(),
+          statusHistory: [...customer.statusHistory, statusChange]
+        });
+      }
+    } catch (err) {
+      console.error('Error marking payment received:', err);
+      setError('Failed to mark payment as received');
+    }
   };
 
   const submitToAdmin = (customerId: string, userId: string, userName: string) => {
-    setCustomers(prev =>
-      prev.map(customer => {
-        if (customer.id === customerId) {
-          const statusChange: StatusChange = {
-            id: crypto.randomUUID(),
-            previousStatus: customer.status,
-            newStatus: 'Submitted',
-            comment: 'Application submitted to admin for review',
-            changedBy: userName,
-            changedByRole: 'user',
-            timestamp: new Date(),
-          };
+    try {
+      setError(null);
+      const customer = customers.find(c => c.id === customerId);
+      if (customer) {
+        const statusChange: StatusChange = {
+          id: crypto.randomUUID(),
+          previousStatus: customer.status,
+          newStatus: 'Submitted',
+          comment: 'Application submitted to admin for review',
+          changedBy: userName,
+          changedByRole: 'user',
+          timestamp: new Date(),
+        };
 
-          return {
-            ...customer,
-            status: 'Submitted' as CustomerStatus,
-            statusHistory: [...customer.statusHistory, statusChange],
-            updatedAt: new Date(),
-          };
-        }
-        return customer;
-      })
-    );
+        updateCustomer(customerId, {
+          status: 'Submitted' as CustomerStatus,
+          statusHistory: [...customer.statusHistory, statusChange]
+        });
+      }
+    } catch (err) {
+      console.error('Error submitting to admin:', err);
+      setError('Failed to submit application to admin');
+    }
   };
 
   return (
@@ -375,6 +421,8 @@ export const CustomerProvider: React.FC<{ children: React.ReactNode }> = ({
         updateCustomerStatus,
         markPaymentReceived,
         submitToAdmin,
+        isLoading,
+        error,
       }}
     >
       {children}
