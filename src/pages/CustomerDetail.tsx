@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
 import CategorizedDocumentUpload from '@/components/Customer/CategorizedDocumentUpload';
@@ -9,11 +10,13 @@ import StatusHistoryCard from '@/components/Customer/StatusHistoryCard';
 import { useCustomers, Status } from '@/contexts/CustomerContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { formatDate } from '@/lib/utils';
-import { Send } from 'lucide-react';
+import { Send, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
+import { fileMonitoringService } from '@/services/fileMonitoringService';
 
 const CustomerDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -29,7 +32,28 @@ const CustomerDetail = () => {
     submitToAdmin
   } = useCustomers();
   
+  const [fileStats, setFileStats] = useState<{ accessible: number; total: number; errors: number } | null>(null);
+  
   const customer = getCustomerById(id || '');
+  
+  useEffect(() => {
+    const checkFileStats = async () => {
+      if (customer && customer.documents.some(doc => doc.isUploaded)) {
+        try {
+          const stats = await fileMonitoringService.getMonitoringStats();
+          setFileStats({
+            accessible: stats.accessibleFiles,
+            total: stats.totalFiles,
+            errors: stats.errors.length
+          });
+        } catch (error) {
+          console.error('Error getting file stats:', error);
+        }
+      }
+    };
+
+    checkFileStats();
+  }, [customer]);
   
   if (!customer) {
     return (
@@ -135,6 +159,7 @@ const CustomerDetail = () => {
     })
     .every(doc => doc.isUploaded);
 
+  const uploadedDocumentsCount = customer.documents.filter(doc => doc.isUploaded).length;
   const isEditable = !['Paid', 'Complete'].includes(customer.status);
   const isUserOwner = customer.userId === user?.id;
   const canSubmitToAdmin = (customer.status === 'Draft' || customer.status === 'Returned') && isUserOwner;
@@ -172,6 +197,51 @@ const CustomerDetail = () => {
             )}
           </div>
         </div>
+
+        {/* File Security Status Card */}
+        {uploadedDocumentsCount > 0 && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-sm">
+                <Shield className="w-4 h-4" />
+                File Security Status
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center gap-4">
+                <div className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-green-600" />
+                  <span className="text-sm">
+                    {uploadedDocumentsCount} document{uploadedDocumentsCount !== 1 ? 's' : ''} uploaded
+                  </span>
+                </div>
+                
+                {fileStats && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Badge variant={fileStats.accessible === fileStats.total ? "default" : "destructive"}>
+                        {fileStats.accessible}/{fileStats.total} accessible
+                      </Badge>
+                    </div>
+                    
+                    {fileStats.errors > 0 && (
+                      <div className="flex items-center gap-2 text-yellow-600">
+                        <AlertTriangle className="w-4 h-4" />
+                        <span className="text-sm">{fileStats.errors} verification error{fileStats.errors !== 1 ? 's' : ''}</span>
+                      </div>
+                    )}
+                  </>
+                )}
+                
+                {customer.driveFolderId && (
+                  <Badge variant="outline" className="text-xs">
+                    Drive Folder: {customer.driveFolderId.substring(0, 8)}...
+                  </Badge>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        )}
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="col-span-1 md:col-span-1 space-y-4">
@@ -190,7 +260,13 @@ const CustomerDetail = () => {
             <Tabs defaultValue="details">
               <TabsList className="grid w-full grid-cols-2">
                 <TabsTrigger value="details">Application Details</TabsTrigger>
-                <TabsTrigger value="documents">Documents</TabsTrigger>
+                <TabsTrigger value="documents">
+                  Documents {uploadedDocumentsCount > 0 && (
+                    <Badge variant="secondary" className="ml-2">
+                      {uploadedDocumentsCount}
+                    </Badge>
+                  )}
+                </TabsTrigger>
               </TabsList>
               
               <TabsContent value="details">

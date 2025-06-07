@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Document } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
@@ -12,9 +12,20 @@ import {
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { validateFile, uploadFile, SUPPORTED_FILE_TYPES, MAX_FILE_SIZE, formatFileSize, getFileIcon } from '@/utils/fileUpload';
+import { 
+  validateFile, 
+  uploadFile, 
+  SUPPORTED_FILE_TYPES, 
+  MAX_FILE_SIZE, 
+  formatFileSize, 
+  getFileIcon,
+  verifyFileAccess,
+  getFileViewLink,
+  getFileDownloadLink,
+  getFileName
+} from '@/utils/fileUpload';
 import type { UploadProgress } from '@/utils/fileUpload';
-import { Upload, CheckCircle, Eye, AlertCircle, X } from 'lucide-react';
+import { Upload, CheckCircle, Eye, AlertCircle, X, Download, RefreshCw } from 'lucide-react';
 
 interface DocumentUploadProps {
   documents: Document[];
@@ -33,6 +44,41 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   const { handleError } = useErrorHandler();
   const [uploading, setUploading] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
+  const [verifyingFiles, setVerifyingFiles] = useState<Set<string>>(new Set());
+  const [fileAccessStatus, setFileAccessStatus] = useState<Record<string, boolean>>({});
+
+  // Verify file access on component mount and periodically
+  useEffect(() => {
+    const verifyAllFiles = async () => {
+      const uploadedDocs = documents.filter(doc => doc.isUploaded && doc.filePath);
+      
+      for (const doc of uploadedDocs) {
+        if (doc.filePath) {
+          setVerifyingFiles(prev => new Set(prev).add(doc.id));
+          try {
+            const isAccessible = await verifyFileAccess(doc.filePath);
+            setFileAccessStatus(prev => ({ ...prev, [doc.id]: isAccessible }));
+          } catch (error) {
+            console.error(`Error verifying file access for ${doc.id}:`, error);
+            setFileAccessStatus(prev => ({ ...prev, [doc.id]: false }));
+          } finally {
+            setVerifyingFiles(prev => {
+              const newSet = new Set(prev);
+              newSet.delete(doc.id);
+              return newSet;
+            });
+          }
+        }
+      }
+    };
+
+    verifyAllFiles();
+    
+    // Set up periodic verification every 5 minutes
+    const interval = setInterval(verifyAllFiles, 5 * 60 * 1000);
+    
+    return () => clearInterval(interval);
+  }, [documents]);
 
   const handleFileChange = (documentId: string) => async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -69,10 +115,11 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       onUpload(documentId, filePath);
       setUploading(null);
       setUploadProgress(prev => ({ ...prev, [documentId]: 100 }));
+      setFileAccessStatus(prev => ({ ...prev, [documentId]: true }));
       
       toast({
         title: "Document uploaded successfully",
-        description: `${getFileIcon(file.name)} ${file.name} has been uploaded and saved.`,
+        description: `${getFileIcon(file.name)} ${file.name} has been uploaded and is accessible.`,
       });
 
       console.log(`Upload completed for document ${documentId}`);
@@ -95,6 +142,45 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       title: "Upload cancelled",
       description: "File upload has been cancelled.",
     });
+  };
+
+  const verifyFileAccess = async (filePath: string): Promise<boolean> => {
+    try {
+      const result = await import('@/utils/fileUpload').then(module => 
+        module.verifyFileAccess(filePath)
+      );
+      return result;
+    } catch (error) {
+      console.error('Error verifying file access:', error);
+      return false;
+    }
+  };
+
+  const handleManualVerify = async (doc: Document) => {
+    if (!doc.filePath) return;
+    
+    setVerifyingFiles(prev => new Set(prev).add(doc.id));
+    
+    try {
+      const isAccessible = await verifyFileAccess(doc.filePath);
+      setFileAccessStatus(prev => ({ ...prev, [doc.id]: isAccessible }));
+      
+      toast({
+        title: isAccessible ? "File is accessible" : "File access issue",
+        description: isAccessible 
+          ? "File is accessible and can be viewed." 
+          : "File may have been moved or deleted.",
+        variant: isAccessible ? "default" : "destructive",
+      });
+    } catch (error) {
+      handleError(error, 'File Verification');
+    } finally {
+      setVerifyingFiles(prev => {
+        const newSet = new Set(prev);
+        newSet.delete(doc.id);
+        return newSet;
+      });
+    }
   };
 
   const getSupportedTypesText = () => {
@@ -155,6 +241,71 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     );
   };
 
+  const renderFileActions = (doc: Document) => {
+    if (!doc.filePath) return null;
+
+    const isVerifying = verifyingFiles.has(doc.id);
+    const isAccessible = fileAccessStatus[doc.id];
+    const fileName = getFileName(doc.filePath);
+    const viewLink = getFileViewLink(doc.filePath);
+    const downloadLink = getFileDownloadLink(doc.filePath);
+
+    return (
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          {isAccessible === false ? (
+            <div className="flex items-center gap-1 text-red-600">
+              <AlertCircle className="w-4 h-4" />
+              <span className="text-xs">Access Issue</span>
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-green-600">
+              <CheckCircle className="w-4 h-4" />
+              <span className="text-xs">{fileName}</span>
+            </div>
+          )}
+        </div>
+        
+        <div className="flex items-center gap-1">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => handleManualVerify(doc)}
+            disabled={isVerifying}
+            className="px-2"
+            title="Verify file access"
+          >
+            <RefreshCw className={`w-3 h-3 ${isVerifying ? 'animate-spin' : ''}`} />
+          </Button>
+          
+          {viewLink && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => window.open(viewLink, '_blank')}
+              className="px-2"
+              title="View file"
+            >
+              <Eye className="w-3 h-3" />
+            </Button>
+          )}
+          
+          {downloadLink && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => window.open(downloadLink, '_blank')}
+              className="px-2"
+              title="Download file"
+            >
+              <Download className="w-3 h-3" />
+            </Button>
+          )}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <Card>
       <CardHeader>
@@ -165,6 +316,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         <div className="text-sm text-muted-foreground">
           <p>Supported formats: {getSupportedTypesText()}</p>
           <p>Maximum file size: {formatFileSize(MAX_FILE_SIZE)}</p>
+          <p>Files are automatically verified for accessibility</p>
         </div>
       </CardHeader>
       <CardContent>
@@ -176,7 +328,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-medium flex items-center gap-2">
-                  {doc.isUploaded && getFileIcon(doc.name)}
+                  {doc.isUploaded && getFileIcon(doc.filePath ? getFileName(doc.filePath) : doc.name)}
                   {doc.name}
                 </h3>
                 {doc.isMandatory ? (
@@ -186,30 +338,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 )}
               </div>
               
-              {doc.isUploaded ? (
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2 text-green-600">
-                    <CheckCircle className="w-4 h-4" />
-                    <span className="text-xs">Uploaded</span>
-                  </div>
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => {
-                      if (doc.filePath) {
-                        window.open(`https://drive.google.com${doc.filePath}`, '_blank');
-                      }
-                    }}
-                    className="flex items-center gap-1"
-                    disabled={!doc.filePath}
-                  >
-                    <Eye className="w-3 h-3" />
-                    View
-                  </Button>
-                </div>
-              ) : (
-                renderUploadButton(doc)
-              )}
+              {doc.isUploaded ? renderFileActions(doc) : renderUploadButton(doc)}
             </div>
           ))}
         </div>
@@ -223,8 +352,10 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 <li>• Ensure documents are clear and readable</li>
                 <li>• All mandatory documents must be uploaded</li>
                 <li>• Files are automatically validated for type and size</li>
-                <li>• Uploaded files are securely stored in Google Drive</li>
+                <li>• Uploaded files are securely stored and remain accessible</li>
                 <li>• Banking team has automatic access to all documents</li>
+                <li>• File accessibility is verified automatically</li>
+                <li>• Use the refresh button to manually verify file access</li>
               </ul>
             </div>
           </div>

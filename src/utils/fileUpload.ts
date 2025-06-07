@@ -16,6 +16,14 @@ export interface UploadProgress {
   percentage: number;
 }
 
+export interface FileAccessInfo {
+  fileId: string;
+  isAccessible: boolean;
+  webViewLink?: string;
+  downloadUrl?: string;
+  lastChecked: Date;
+}
+
 export const validateFile = (file: File): FileValidation => {
   if (!file) {
     return {
@@ -116,8 +124,26 @@ export const uploadFile = async (
 
     console.log(`File uploaded successfully: ${driveFile.id}`);
 
-    // Return the Drive file ID as the file path
-    return `/drive/${driveFile.id}`;
+    // Store file access information for future verification
+    const fileAccessInfo: FileAccessInfo = {
+      fileId: driveFile.id,
+      isAccessible: true,
+      webViewLink: driveFile.webViewLink,
+      downloadUrl: driveFile.downloadUrl,
+      lastChecked: new Date()
+    };
+
+    // Store in localStorage for tracking
+    const fileAccessKey = `file_access_${driveFile.id}`;
+    localStorage.setItem(fileAccessKey, JSON.stringify(fileAccessInfo));
+
+    // Return the complete file path with both view and download links
+    return JSON.stringify({
+      fileId: driveFile.id,
+      webViewLink: driveFile.webViewLink,
+      downloadUrl: driveFile.downloadUrl,
+      name: driveFile.name
+    });
     
   } catch (error) {
     console.error('Upload failed:', error);
@@ -137,6 +163,68 @@ export const uploadFile = async (
     }
     
     throw new Error('Upload failed due to an unexpected error');
+  }
+};
+
+export const verifyFileAccess = async (filePath: string): Promise<boolean> => {
+  try {
+    // Parse the file path to get file ID
+    const fileInfo = JSON.parse(filePath);
+    const fileId = fileInfo.fileId;
+    
+    if (!fileId) {
+      console.error('No file ID found in file path');
+      return false;
+    }
+
+    // Check if file is still accessible
+    const isAccessible = await googleDriveService.verifyFileAccess(fileId);
+    
+    // Update access info in localStorage
+    const fileAccessKey = `file_access_${fileId}`;
+    const existingInfo = localStorage.getItem(fileAccessKey);
+    
+    if (existingInfo) {
+      const accessInfo: FileAccessInfo = JSON.parse(existingInfo);
+      accessInfo.isAccessible = isAccessible;
+      accessInfo.lastChecked = new Date();
+      localStorage.setItem(fileAccessKey, JSON.stringify(accessInfo));
+    }
+
+    return isAccessible;
+  } catch (error) {
+    console.error('Error verifying file access:', error);
+    return false;
+  }
+};
+
+export const getFileViewLink = (filePath: string): string | null => {
+  try {
+    const fileInfo = JSON.parse(filePath);
+    return fileInfo.webViewLink || null;
+  } catch (error) {
+    console.error('Error parsing file path:', error);
+    return null;
+  }
+};
+
+export const getFileDownloadLink = (filePath: string): string | null => {
+  try {
+    const fileInfo = JSON.parse(filePath);
+    return fileInfo.downloadUrl || null;
+  } catch (error) {
+    console.error('Error parsing file path:', error);
+    return null;
+  }
+};
+
+export const getFileName = (filePath: string): string => {
+  try {
+    const fileInfo = JSON.parse(filePath);
+    return fileInfo.name || 'Unknown File';
+  } catch (error) {
+    console.error('Error parsing file path:', error);
+    return 'Unknown File';
   }
 };
 
@@ -168,4 +256,29 @@ export const getFileIcon = (fileName: string): string => {
     default:
       return '📎';
   }
+};
+
+// Function to clean up file access info for deleted files
+export const cleanupFileAccessInfo = (fileId: string): void => {
+  const fileAccessKey = `file_access_${fileId}`;
+  localStorage.removeItem(fileAccessKey);
+};
+
+// Function to get all file access info for monitoring
+export const getAllFileAccessInfo = (): FileAccessInfo[] => {
+  const accessInfoList: FileAccessInfo[] = [];
+  
+  for (let i = 0; i < localStorage.length; i++) {
+    const key = localStorage.key(i);
+    if (key?.startsWith('file_access_')) {
+      try {
+        const accessInfo = JSON.parse(localStorage.getItem(key) || '');
+        accessInfoList.push(accessInfo);
+      } catch (error) {
+        console.error('Error parsing file access info:', error);
+      }
+    }
+  }
+  
+  return accessInfoList;
 };

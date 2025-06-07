@@ -7,6 +7,8 @@ interface DriveFile {
   name: string;
   mimeType: string;
   webViewLink?: string;
+  webContentLink?: string;
+  downloadUrl?: string;
 }
 
 interface DriveError extends Error {
@@ -289,7 +291,7 @@ class GoogleDriveService {
       form.append('metadata', new Blob([JSON.stringify(metadata)], {type: 'application/json'}));
       form.append('file', file);
 
-      const response = await fetch(`${GOOGLE_DRIVE_CONFIG.uploadUrl}/files?uploadType=multipart`, {
+      const response = await fetch(`${GOOGLE_DRIVE_CONFIG.uploadUrl}/files?uploadType=multipart&fields=id,name,mimeType,webViewLink,webContentLink`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${accessToken}`
@@ -306,17 +308,101 @@ class GoogleDriveService {
       const result = await response.json();
       console.log('File uploaded to Drive:', result.id);
       
+      // Make file publicly viewable to ensure accessibility
+      await this.makeFilePublic(result.id);
+      
       return {
         id: result.id,
         name: result.name,
         mimeType: result.mimeType,
-        webViewLink: result.webViewLink
+        webViewLink: result.webViewLink,
+        webContentLink: result.webContentLink,
+        downloadUrl: `https://drive.google.com/uc?id=${result.id}&export=download`
       };
     } catch (error) {
       console.error('Error uploading file to Drive:', error);
       const driveError: DriveError = new Error('Failed to upload file to Google Drive');
       driveError.code = 'UPLOAD_FAILED';
       throw driveError;
+    }
+  }
+
+  async makeFilePublic(fileId: string): Promise<void> {
+    try {
+      const accessToken = await this.getAccessToken();
+      
+      const permission = {
+        role: 'reader',
+        type: 'anyone'
+      };
+
+      const response = await fetch(`${GOOGLE_DRIVE_CONFIG.apiUrl}/files/${fileId}/permissions`, {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${accessToken}`,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(permission)
+      });
+
+      if (!response.ok) {
+        console.warn('Failed to make file public, but upload succeeded');
+      } else {
+        console.log(`File ${fileId} made publicly viewable`);
+      }
+    } catch (error) {
+      console.warn('Error making file public:', error);
+      // Don't throw error here as the upload was successful
+    }
+  }
+
+  async getFileInfo(fileId: string): Promise<DriveFile | null> {
+    try {
+      const accessToken = await this.getAccessToken();
+      
+      const response = await fetch(
+        `${GOOGLE_DRIVE_CONFIG.apiUrl}/files/${fileId}?fields=id,name,mimeType,webViewLink,webContentLink,trashed`,
+        {
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        }
+      );
+
+      if (!response.ok) {
+        console.error('Get file info failed:', response.status, response.statusText);
+        return null;
+      }
+
+      const result = await response.json();
+      
+      // Check if file is trashed
+      if (result.trashed) {
+        console.warn(`File ${fileId} is in trash`);
+        return null;
+      }
+      
+      return {
+        id: result.id,
+        name: result.name,
+        mimeType: result.mimeType,
+        webViewLink: result.webViewLink,
+        webContentLink: result.webContentLink,
+        downloadUrl: `https://drive.google.com/uc?id=${result.id}&export=download`
+      };
+    } catch (error) {
+      console.error('Error getting file info:', error);
+      return null;
+    }
+  }
+
+  async verifyFileAccess(fileId: string): Promise<boolean> {
+    try {
+      const fileInfo = await this.getFileInfo(fileId);
+      return fileInfo !== null;
+    } catch (error) {
+      console.error('Error verifying file access:', error);
+      return false;
     }
   }
 
@@ -329,7 +415,7 @@ class GoogleDriveService {
       const accessToken = await this.getAccessToken();
       
       const response = await fetch(
-        `${GOOGLE_DRIVE_CONFIG.apiUrl}/files?q='${folderId}' in parents&fields=files(id,name,mimeType,webViewLink)`,
+        `${GOOGLE_DRIVE_CONFIG.apiUrl}/files?q='${folderId}' in parents and trashed=false&fields=files(id,name,mimeType,webViewLink,webContentLink)`,
         {
           headers: {
             'Authorization': `Bearer ${accessToken}`
@@ -344,7 +430,10 @@ class GoogleDriveService {
       }
 
       const result = await response.json();
-      return result.files || [];
+      return (result.files || []).map((file: any) => ({
+        ...file,
+        downloadUrl: `https://drive.google.com/uc?id=${file.id}&export=download`
+      }));
     } catch (error) {
       console.error('Error listing files:', error);
       return [];
@@ -383,7 +472,6 @@ class GoogleDriveService {
     return await this.ensureAmanaFolder();
   }
 
-  // Health check method
   async isServiceHealthy(): Promise<boolean> {
     try {
       await this.getAccessToken();
