@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import MainLayout from '@/components/Layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -34,34 +34,6 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { User } from '@/contexts/AuthContext';
 
-// In a real app, this would come from the backend
-const mockUsers: User[] = [
-  {
-    id: '1',
-    name: 'Admin User',
-    email: 'admin@example.com',
-    role: 'admin'
-  },
-  {
-    id: '2',
-    name: 'Regular User',
-    email: 'user@example.com',
-    role: 'user'
-  },
-  {
-    id: '3',
-    name: 'Jane Smith',
-    email: 'jane@example.com',
-    role: 'user'
-  },
-  {
-    id: '4',
-    name: 'Bob Johnson',
-    email: 'bob@example.com',
-    role: 'user'
-  }
-];
-
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Enter a valid email address"),
@@ -71,7 +43,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const UserManagement = () => {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  const [users, setUsers] = useState<User[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   
@@ -84,9 +56,22 @@ const UserManagement = () => {
     },
   });
 
+  // Load users from localStorage on component mount
+  useEffect(() => {
+    const savedUsers = localStorage.getItem('systemUsers');
+    if (savedUsers) {
+      setUsers(JSON.parse(savedUsers));
+    }
+  }, []);
+
+  // Save users to localStorage whenever users change
+  useEffect(() => {
+    localStorage.setItem('systemUsers', JSON.stringify(users));
+  }, [users]);
+
   const addUser = (data: FormValues) => {
     const newUser: User = {
-      id: `${users.length + 1}`,
+      id: crypto.randomUUID(),
       name: data.name,
       email: data.email,
       role: data.role,
@@ -212,27 +197,34 @@ const UserManagement = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {users.map((user) => (
-                <TableRow key={user.id}>
-                  <TableCell className="font-medium">{user.name}</TableCell>
-                  <TableCell>{user.email}</TableCell>
-                  <TableCell>
-                    <span className={`capitalize ${user.role === 'admin' ? 'text-blue-600 font-semibold' : ''}`}>
-                      {user.role}
-                    </span>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => removeUser(user.id)}
-                      disabled={user.email === 'admin@example.com'} // Prevent removing the demo admin
-                    >
-                      Remove
-                    </Button>
+              {users.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={4} className="text-center text-muted-foreground py-8">
+                    No users found. Add a new user to get started.
                   </TableCell>
                 </TableRow>
-              ))}
+              ) : (
+                users.map((user) => (
+                  <TableRow key={user.id}>
+                    <TableCell className="font-medium">{user.name}</TableCell>
+                    <TableCell>{user.email}</TableCell>
+                    <TableCell>
+                      <span className={`capitalize ${user.role === 'admin' ? 'text-blue-600 font-semibold' : ''}`}>
+                        {user.role}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => removeUser(user.id)}
+                      >
+                        Remove
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
             </TableBody>
           </Table>
         </div>

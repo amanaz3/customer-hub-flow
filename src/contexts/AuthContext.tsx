@@ -20,22 +20,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Mock users for demo
-const MOCK_USERS: User[] = [
-  {
-    id: '1',
-    name: 'Admin User',
-    email: 'admin@example.com',
-    role: 'admin'
-  },
-  {
-    id: '2',
-    name: 'Regular User',
-    email: 'user@example.com',
-    role: 'user'
-  }
-];
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const isAuthenticated = !!user;
@@ -50,8 +34,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   }, []);
 
   const login = async (email: string, password: string) => {
-    // In a real app, this would be an API call
-    const user = MOCK_USERS.find(u => u.email === email);
+    // Check if any users exist in the system
+    const savedUsers = localStorage.getItem('systemUsers');
+    const users: User[] = savedUsers ? JSON.parse(savedUsers) : [];
+    
+    const user = users.find(u => u.email === email);
     
     if (user) {
       setUser(user);
