@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 
 const Login = () => {
@@ -26,7 +26,7 @@ const Login = () => {
       console.error('Login failed', error);
       toast({
         title: 'Login Failed',
-        description: 'Invalid email or password. Try admin@example.com / user@example.com',
+        description: 'Invalid email or password',
         variant: 'destructive',
       });
     } finally {
@@ -81,17 +81,6 @@ const Login = () => {
             </div>
           </form>
         </CardContent>
-        <CardFooter className="flex-col">
-          <p className="px-8 text-center text-sm text-muted-foreground">
-            <strong>Demo credentials:</strong>
-          </p>
-          <p className="px-8 text-center text-sm text-muted-foreground">
-            Admin: admin@example.com (any password)
-          </p>
-          <p className="px-8 text-center text-sm text-muted-foreground">
-            User: user@example.com (any password)
-          </p>
-        </CardFooter>
       </Card>
     </div>
   );
