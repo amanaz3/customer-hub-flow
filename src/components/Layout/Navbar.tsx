@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Bell, User } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/SecureAuthContext';
 import { 
   DropdownMenu, 
   DropdownMenuContent, 
@@ -14,10 +14,10 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 
 const Navbar: React.FC = () => {
-  const { user, logout } = useAuth();
+  const { user, signOut, isAdmin } = useAuth();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await signOut();
   };
 
   const getInitials = (name: string) => {
@@ -34,7 +34,7 @@ const Navbar: React.FC = () => {
       <div className="h-14 px-4 flex items-center justify-between">
         <div className="flex-1">
           <h2 className="text-xl font-semibold text-gray-800">
-            {user?.role === 'admin' ? 'Amana Corporate - Admin Portal' : 'Amana Corporate - User Portal'}
+            {isAdmin ? 'Amana Corporate - Admin Portal' : 'Amana Corporate - User Portal'}
           </h2>
         </div>
         
@@ -48,14 +48,14 @@ const Navbar: React.FC = () => {
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className="relative h-8 w-8 rounded-full">
                 <Avatar className="h-8 w-8">
-                  <AvatarFallback>{user?.name ? getInitials(user.name) : 'U'}</AvatarFallback>
+                  <AvatarFallback>{user?.profile?.name ? getInitials(user.profile.name) : 'U'}</AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="end" forceMount>
               <DropdownMenuLabel className="font-normal">
                 <div className="flex flex-col space-y-1">
-                  <p className="text-sm font-medium leading-none">{user?.name}</p>
+                  <p className="text-sm font-medium leading-none">{user?.profile?.name}</p>
                   <p className="text-xs leading-none text-muted-foreground">{user?.email}</p>
                 </div>
               </DropdownMenuLabel>
