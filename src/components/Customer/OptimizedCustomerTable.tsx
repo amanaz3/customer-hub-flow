@@ -1,5 +1,5 @@
 
-import React, { memo, useMemo, useEffect } from 'react';
+import React, { memo, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Customer } from '@/contexts/CustomerContext';
 import { formatCurrency } from '@/lib/utils';
@@ -23,6 +23,7 @@ interface OptimizedCustomerTableProps {
 const StatusBadge = memo(({ status }: { status: string }) => {
   const statusColor = useMemo(() => {
     switch (status) {
+      case 'Draft': return 'bg-gray-500 text-white';
       case 'Submitted': return 'bg-blue-500 text-white';
       case 'Returned': return 'bg-orange-500 text-white';
       case 'Sent to Bank': return 'bg-purple-500 text-white';

@@ -22,6 +22,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({ customers }) => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
+      case 'Draft': return 'bg-gray-500 text-white';
       case 'Submitted': return 'bg-blue-500 text-white';
       case 'Returned': return 'bg-orange-500 text-white';
       case 'Sent to Bank': return 'bg-purple-500 text-white';
