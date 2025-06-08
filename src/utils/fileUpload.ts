@@ -24,13 +24,6 @@ export interface UploadProgress {
   percentage: number;
 }
 
-export interface FileAccessInfo {
-  fileId: string;
-  isAccessible: boolean;
-  publicUrl?: string;
-  lastChecked: Date;
-}
-
 export const validateFile = (file: File): FileValidation => {
   if (!file) {
     return {
@@ -121,17 +114,6 @@ export const uploadFile = async (
 
     console.log(`File uploaded successfully: ${data.path}`);
 
-    // Store file access information
-    const fileAccessInfo: FileAccessInfo = {
-      fileId: data.path,
-      isAccessible: true,
-      publicUrl: publicUrlData.publicUrl,
-      lastChecked: new Date()
-    };
-
-    const fileAccessKey = `file_access_${data.path.replace(/[\/\\]/g, '_')}`;
-    localStorage.setItem(fileAccessKey, JSON.stringify(fileAccessInfo));
-
     // Return the file path for storage in database
     return JSON.stringify({
       filePath: data.path,
@@ -166,7 +148,12 @@ export const verifyFileAccess = async (filePath: string): Promise<boolean> => {
       return false;
     }
 
-    // Try to get the file info from Supabase Storage
+    // Get fresh public URL from Supabase Storage
+    const { data: publicUrlData } = supabase.storage
+      .from('customer-documents')
+      .getPublicUrl(path);
+
+    // Check if the file exists by trying to get its metadata
     const { data, error } = await supabase.storage
       .from('customer-documents')
       .list(path.split('/').slice(0, -1).join('/'), {
@@ -175,17 +162,7 @@ export const verifyFileAccess = async (filePath: string): Promise<boolean> => {
 
     const isAccessible = !error && data && data.length > 0;
     
-    // Update access info in localStorage
-    const fileAccessKey = `file_access_${path.replace(/[\/\\]/g, '_')}`;
-    const existingInfo = localStorage.getItem(fileAccessKey);
-    
-    if (existingInfo) {
-      const accessInfo: FileAccessInfo = JSON.parse(existingInfo);
-      accessInfo.isAccessible = isAccessible;
-      accessInfo.lastChecked = new Date();
-      localStorage.setItem(fileAccessKey, JSON.stringify(accessInfo));
-    }
-
+    console.log(`File access verification for ${path}:`, isAccessible);
     return isAccessible;
   } catch (error) {
     console.error('Error verifying file access:', error);
@@ -196,9 +173,20 @@ export const verifyFileAccess = async (filePath: string): Promise<boolean> => {
 export const getFileViewLink = (filePath: string): string | null => {
   try {
     const fileInfo = JSON.parse(filePath);
-    return fileInfo.publicUrl || null;
+    const path = fileInfo.filePath;
+    
+    if (!path) {
+      return null;
+    }
+
+    // Always get fresh public URL from Supabase Storage
+    const { data: publicUrlData } = supabase.storage
+      .from('customer-documents')
+      .getPublicUrl(path);
+
+    return publicUrlData.publicUrl || null;
   } catch (error) {
-    console.error('Error parsing file path:', error);
+    console.error('Error getting file view link:', error);
     return null;
   }
 };
@@ -206,9 +194,20 @@ export const getFileViewLink = (filePath: string): string | null => {
 export const getFileDownloadLink = (filePath: string): string | null => {
   try {
     const fileInfo = JSON.parse(filePath);
-    return fileInfo.publicUrl || null;
+    const path = fileInfo.filePath;
+    
+    if (!path) {
+      return null;
+    }
+
+    // Always get fresh public URL from Supabase Storage
+    const { data: publicUrlData } = supabase.storage
+      .from('customer-documents')
+      .getPublicUrl(path);
+
+    return publicUrlData.publicUrl || null;
   } catch (error) {
-    console.error('Error parsing file path:', error);
+    console.error('Error getting file download link:', error);
     return null;
   }
 };
@@ -251,27 +250,4 @@ export const getFileIcon = (fileName: string): string => {
     default:
       return '📎';
   }
-};
-
-export const cleanupFileAccessInfo = (fileId: string): void => {
-  const fileAccessKey = `file_access_${fileId.replace(/[\/\\]/g, '_')}`;
-  localStorage.removeItem(fileAccessKey);
-};
-
-export const getAllFileAccessInfo = (): FileAccessInfo[] => {
-  const accessInfoList: FileAccessInfo[] = [];
-  
-  for (let i = 0; i < localStorage.length; i++) {
-    const key = localStorage.key(i);
-    if (key?.startsWith('file_access_')) {
-      try {
-        const accessInfo = JSON.parse(localStorage.getItem(key) || '');
-        accessInfoList.push(accessInfo);
-      } catch (error) {
-        console.error('Error parsing file access info:', error);
-      }
-    }
-  }
-  
-  return accessInfoList;
 };
