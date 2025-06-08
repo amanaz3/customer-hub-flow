@@ -107,18 +107,13 @@ export const uploadFile = async (
       onProgress({ loaded: file.size, total: file.size, percentage: 100 });
     }
 
-    // Get public URL for the uploaded file
-    const { data: publicUrlData } = supabase.storage
-      .from('customer-documents')
-      .getPublicUrl(filePath);
-
     console.log(`File uploaded successfully: ${data.path}`);
 
     // Return the file path for storage in database
     return JSON.stringify({
       filePath: data.path,
-      publicUrl: publicUrlData.publicUrl,
-      name: file.name
+      name: file.name,
+      uploadedAt: new Date().toISOString()
     });
     
   } catch (error) {
@@ -147,11 +142,6 @@ export const verifyFileAccess = async (filePath: string): Promise<boolean> => {
       console.error('No file path found');
       return false;
     }
-
-    // Get fresh public URL from Supabase Storage
-    const { data: publicUrlData } = supabase.storage
-      .from('customer-documents')
-      .getPublicUrl(path);
 
     // Check if the file exists by trying to get its metadata
     const { data, error } = await supabase.storage

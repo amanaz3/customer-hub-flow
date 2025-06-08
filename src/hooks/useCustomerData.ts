@@ -57,7 +57,7 @@ export const useCustomerData = () => {
       setDocuments([]);
       setStatusChanges([]);
     }
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user?.id]); // Added user.id to dependency array
 
   return {
     customers,
