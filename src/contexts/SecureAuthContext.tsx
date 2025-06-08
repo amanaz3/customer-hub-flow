@@ -1,7 +1,6 @@
-
 import React, { createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/lib/supabase';
+import { supabase, getFunctionUrl } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthState } from '@/hooks/useAuthState';
 
@@ -216,32 +215,49 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const resetUserPassword = async (userId: string, newPassword: string) => {
     if (!isAdmin) {
-      return { error: { message: 'Unauthorized - Password reset requires service role access' } };
+      return { error: { message: 'Unauthorized - Admin access required' } };
     }
 
-    // This function requires service role access which isn't available on client side
-    toast({
-      title: 'Feature Unavailable',
-      description: 'Password reset requires server-side implementation with service role access.',
-      variant: 'destructive'
-    });
+    try {
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      if (!currentSession) {
+        return { error: { message: 'No active session' } };
+      }
 
-    return { error: { message: 'Password reset requires service role access' } };
+      const response = await fetch(getFunctionUrl('reset-user-password'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentSession.access_token}`,
+        },
+        body: JSON.stringify({
+          userId,
+          newPassword
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return { error: { message: result.error || 'Failed to reset password' } };
+      }
+
+      toast({
+        title: 'Password Reset',
+        description: 'Password has been reset successfully.',
+      });
+
+      return { error: null };
+    } catch (error) {
+      console.error('Reset password error:', error);
+      return { error: { message: 'Failed to reset password' } };
+    }
   };
 
   const changeUserPassword = async (userId: string, newPassword: string) => {
-    if (!isAdmin) {
-      return { error: { message: 'Unauthorized - Password change requires service role access' } };
-    }
-
-    // This function requires service role access which isn't available on client side
-    toast({
-      title: 'Feature Unavailable',
-      description: 'Password change requires server-side implementation with service role access.',
-      variant: 'destructive'
-    });
-
-    return { error: { message: 'Password change requires service role access' } };
+    // Use the same function for both reset and change operations
+    return await resetUserPassword(userId, newPassword);
   };
 
   return (

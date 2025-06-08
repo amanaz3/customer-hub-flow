@@ -13,3 +13,8 @@ export const supabase = createClient<Database>(supabaseUrl, supabaseAnonKey, {
     detectSessionInUrl: true
   }
 })
+
+// Helper function to get the correct function URL
+export const getFunctionUrl = (functionName: string) => {
+  return `${supabaseUrl}/functions/v1/${functionName}`
+}
