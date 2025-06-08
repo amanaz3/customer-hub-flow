@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/SecureAuthContext';
@@ -157,8 +158,7 @@ export const CustomerProvider: React.FC<{ children: ReactNode }> = ({ children }
       let driveFolderId: string | undefined;
       try {
         const folderName = `${customer.name} - ${customer.company}`;
-        const driveFolder = await googleDriveService.createCustomerFolder(folderName);
-        driveFolderId = driveFolder?.id;
+        driveFolderId = await googleDriveService.createCustomerFolder(folderName);
         console.log('Google Drive folder created:', driveFolderId);
       } catch (driveError) {
         console.error('Google Drive folder creation failed:', driveError);
