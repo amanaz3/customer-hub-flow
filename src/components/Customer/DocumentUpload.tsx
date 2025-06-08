@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Document } from '@/types/customer';
 import { useToast } from '@/hooks/use-toast';
@@ -57,6 +56,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           try {
             const isAccessible = await verifyFileAccess(doc.file_path);
             setFileAccessStatus(prev => ({ ...prev, [doc.id]: isAccessible }));
+            console.log(`File access check for ${doc.id}:`, isAccessible);
           } catch (error) {
             console.error(`Error verifying file access for ${doc.id}:`, error);
             setFileAccessStatus(prev => ({ ...prev, [doc.id]: false }));
@@ -160,6 +160,42 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     }
   };
 
+  const handleViewFile = (doc: Document) => {
+    if (!doc.file_path) return;
+    
+    console.log('Attempting to view file:', doc.file_path);
+    const viewLink = getFileViewLink(doc.file_path);
+    console.log('Generated view link:', viewLink);
+    
+    if (viewLink) {
+      window.open(viewLink, '_blank');
+    } else {
+      toast({
+        title: "Unable to view file",
+        description: "Could not generate a valid link to view this file.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDownloadFile = (doc: Document) => {
+    if (!doc.file_path) return;
+    
+    console.log('Attempting to download file:', doc.file_path);
+    const downloadLink = getFileDownloadLink(doc.file_path);
+    console.log('Generated download link:', downloadLink);
+    
+    if (downloadLink) {
+      window.open(downloadLink, '_blank');
+    } else {
+      toast({
+        title: "Unable to download file",
+        description: "Could not generate a valid link to download this file.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const getSupportedTypesText = () => {
     return Object.keys(SUPPORTED_FILE_TYPES).join(', ');
   };
@@ -224,8 +260,6 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     const isVerifying = verifyingFiles.has(doc.id);
     const isAccessible = fileAccessStatus[doc.id];
     const fileName = getFileName(doc.file_path);
-    const viewLink = getFileViewLink(doc.file_path);
-    const downloadLink = getFileDownloadLink(doc.file_path);
 
     return (
       <div className="flex items-center justify-between">
@@ -255,29 +289,25 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
             <RefreshCw className={`w-3 h-3 ${isVerifying ? 'animate-spin' : ''}`} />
           </Button>
           
-          {viewLink && (
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => window.open(viewLink, '_blank')}
-              className="px-2"
-              title="View file"
-            >
-              <Eye className="w-3 h-3" />
-            </Button>
-          )}
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => handleViewFile(doc)}
+            className="px-2"
+            title="View file"
+          >
+            <Eye className="w-3 h-3" />
+          </Button>
           
-          {downloadLink && (
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => window.open(downloadLink, '_blank')}
-              className="px-2"
-              title="Download file"
-            >
-              <Download className="w-3 h-3" />
-            </Button>
-          )}
+          <Button 
+            variant="outline" 
+            size="sm"
+            onClick={() => handleDownloadFile(doc)}
+            className="px-2"
+            title="Download file"
+          >
+            <Download className="w-3 h-3" />
+          </Button>
         </div>
       </div>
     );

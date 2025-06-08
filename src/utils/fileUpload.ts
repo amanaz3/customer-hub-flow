@@ -166,6 +166,7 @@ export const getFileViewLink = (filePath: string): string | null => {
     const path = fileInfo.filePath;
     
     if (!path) {
+      console.error('No file path found in:', filePath);
       return null;
     }
 
@@ -174,6 +175,7 @@ export const getFileViewLink = (filePath: string): string | null => {
       .from('customer-documents')
       .getPublicUrl(path);
 
+    console.log('Generated view URL for:', path, publicUrlData.publicUrl);
     return publicUrlData.publicUrl || null;
   } catch (error) {
     console.error('Error getting file view link:', error);
@@ -187,6 +189,7 @@ export const getFileDownloadLink = (filePath: string): string | null => {
     const path = fileInfo.filePath;
     
     if (!path) {
+      console.error('No file path found in:', filePath);
       return null;
     }
 
@@ -195,6 +198,7 @@ export const getFileDownloadLink = (filePath: string): string | null => {
       .from('customer-documents')
       .getPublicUrl(path);
 
+    console.log('Generated download URL for:', path, publicUrlData.publicUrl);
     return publicUrlData.publicUrl || null;
   } catch (error) {
     console.error('Error getting file download link:', error);
