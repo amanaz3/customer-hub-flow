@@ -56,7 +56,7 @@ const RecentActivities = memo(() => {
   
   const recentCustomers = useMemo(() => 
     customers
-      .sort((a, b) => new Date(b.created_at || 0).getTime() - new Date(a.created_at || 0).getTime())
+      .sort((a, b) => new Date(b.createdAt || 0).getTime() - new Date(a.createdAt || 0).getTime())
       .slice(0, 5),
     [customers]
   );
@@ -104,7 +104,7 @@ const OptimizedDashboard: React.FC = () => {
     const completedCases = customers.filter(c => c.status === 'Complete').length;
     const pendingCases = customers.filter(c => !['Complete', 'Rejected'].includes(c.status)).length;
     const totalRevenue = customers
-      .filter(c => c.status === 'Complete' && c.payment_received)
+      .filter(c => c.status === 'Complete' && c.paymentReceived)
       .reduce((sum, c) => sum + Number(c.amount), 0);
 
     return {
@@ -135,7 +135,9 @@ const OptimizedDashboard: React.FC = () => {
   if (isLoading) {
     return (
       <MainLayout>
-        <LazyWrapper className="min-h-[400px]" />
+        <LazyWrapper className="min-h-[400px]">
+          <div>Loading dashboard...</div>
+        </LazyWrapper>
       </MainLayout>
     );
   }
@@ -148,7 +150,7 @@ const OptimizedDashboard: React.FC = () => {
           <div>
             <h1 className="text-3xl font-bold">Dashboard</h1>
             <p className="text-muted-foreground">
-              Welcome back, {user?.name}! Here's an overview of your workflow.
+              Welcome back, {user?.profile?.name}! Here's an overview of your workflow.
             </p>
           </div>
           <div className="mt-4 md:mt-0">

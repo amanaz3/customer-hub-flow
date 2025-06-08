@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import MainLayout from '@/components/Layout/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -105,7 +106,7 @@ const Settings = () => {
                 <Label htmlFor="name">Name</Label>
                 <Input
                   id="name"
-                  defaultValue={user?.name}
+                  defaultValue={user?.profile?.name}
                   className="mt-1"
                 />
               </div>
