@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MainLayout from '@/components/Layout/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -22,6 +21,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -34,7 +39,8 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/contexts/SecureAuthContext';
-import { Shield, UserPlus, Trash2 } from 'lucide-react';
+import { Shield, UserPlus, Trash2, MoreVertical, Key, RotateCcw } from 'lucide-react';
+import PasswordManagementDialog from '@/components/Admin/PasswordManagementDialog';
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -55,6 +61,9 @@ interface UserProfile {
 const SecureUserManagement = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
+  const [passwordAction, setPasswordAction] = useState<'reset' | 'change'>('reset');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const { createUser, getUsers, deleteUser, user: currentUser } = useAuth();
@@ -177,6 +186,12 @@ const SecureUserManagement = () => {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handlePasswordAction = (user: UserProfile, action: 'reset' | 'change') => {
+    setSelectedUser(user);
+    setPasswordAction(action);
+    setPasswordDialogOpen(true);
   };
 
   return (
@@ -310,16 +325,39 @@ const SecureUserManagement = () => {
                       {new Date(user.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => removeUser(user.id)}
-                        disabled={isLoading || user.id === currentUser?.id}
-                        className="flex items-center space-x-1"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                        <span>Remove</span>
-                      </Button>
+                      <div className="flex items-center justify-end space-x-2">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <MoreVertical className="h-4 w-4" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end">
+                            <DropdownMenuItem
+                              onClick={() => handlePasswordAction(user, 'reset')}
+                              disabled={isLoading}
+                            >
+                              <RotateCcw className="h-4 w-4 mr-2" />
+                              Reset Password
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => handlePasswordAction(user, 'change')}
+                              disabled={isLoading}
+                            >
+                              <Key className="h-4 w-4 mr-2" />
+                              Change Password
+                            </DropdownMenuItem>
+                            <DropdownMenuItem
+                              onClick={() => removeUser(user.id)}
+                              disabled={isLoading || user.id === currentUser?.id}
+                              className="text-red-600"
+                            >
+                              <Trash2 className="h-4 w-4 mr-2" />
+                              Remove User
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
@@ -327,6 +365,13 @@ const SecureUserManagement = () => {
             </TableBody>
           </Table>
         </div>
+
+        <PasswordManagementDialog
+          isOpen={passwordDialogOpen}
+          onClose={() => setPasswordDialogOpen(false)}
+          user={selectedUser}
+          action={passwordAction}
+        />
       </div>
     </MainLayout>
   );
