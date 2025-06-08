@@ -1,4 +1,3 @@
-
 import React, { memo, useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import MainLayout from '@/components/Layout/MainLayout';
@@ -101,7 +100,7 @@ const PersonalInsights = memo(() => {
   const { user } = useAuth();
 
   const insights = useMemo(() => {
-    const userCustomers = customers.filter(c => c.user_id === user?.id);
+    const userCustomers = customers.filter(c => c.userId === user?.id);
     const thisWeekStart = new Date();
     thisWeekStart.setDate(thisWeekStart.getDate() - thisWeekStart.getDay());
     
