@@ -17,6 +17,11 @@ export interface Customer {
   payment_date?: string;
   created_at?: string;
   updated_at?: string;
+  // Additional properties for frontend compatibility
+  documents?: Document[];
+  comments?: Comment[];
+  statusHistory?: StatusChange[];
+  driveFolderId?: string;
 }
 
 export interface StatusChange {
@@ -63,11 +68,17 @@ interface CustomerContextType {
   updateCustomer: (id: string, updates: Partial<Customer>) => void;
   deleteCustomer: (id: string) => void;
   getCustomerById: (id: string) => Customer | undefined;
+  getCustomersByUserId: (userId: string) => Customer[];
   statusChanges: StatusChange[];
   setStatusChanges: (changes: StatusChange[]) => void;
   documents: Document[];
   setDocuments: (documents: Document[]) => void;
   refreshData: () => void;
+  // Additional methods for compatibility
+  uploadDocument: (customerId: string, documentId: string, filePath: string) => void;
+  updateCustomerStatus: (customerId: string, status: string, comment: string, changedBy: string, role: string) => void;
+  markPaymentReceived: (customerId: string, changedBy: string) => void;
+  submitToAdmin: (customerId: string, userId: string, userName: string) => void;
 }
 
 const CustomerContext = createContext<CustomerContextType | undefined>(undefined);
@@ -124,6 +135,31 @@ export const CustomerProvider: React.FC<{ children: ReactNode }> = ({ children }
     return customers.find(customer => customer.id === id);
   };
 
+  const getCustomersByUserId = (userId: string) => {
+    return customers.filter(customer => customer.user_id === userId);
+  };
+
+  // Additional methods for compatibility
+  const uploadDocument = (customerId: string, documentId: string, filePath: string) => {
+    console.log('Upload document:', { customerId, documentId, filePath });
+    // Implementation would go here
+  };
+
+  const updateCustomerStatus = (customerId: string, status: string, comment: string, changedBy: string, role: string) => {
+    console.log('Update customer status:', { customerId, status, comment, changedBy, role });
+    // Implementation would go here
+  };
+
+  const markPaymentReceived = (customerId: string, changedBy: string) => {
+    console.log('Mark payment received:', { customerId, changedBy });
+    // Implementation would go here
+  };
+
+  const submitToAdmin = (customerId: string, userId: string, userName: string) => {
+    console.log('Submit to admin:', { customerId, userId, userName });
+    // Implementation would go here
+  };
+
   return (
     <CustomerContext.Provider value={{
       customers,
@@ -132,11 +168,16 @@ export const CustomerProvider: React.FC<{ children: ReactNode }> = ({ children }
       updateCustomer,
       deleteCustomer,
       getCustomerById,
+      getCustomersByUserId,
       statusChanges,
       setStatusChanges,
       documents,
       setDocuments,
-      refreshData
+      refreshData,
+      uploadDocument,
+      updateCustomerStatus,
+      markPaymentReceived,
+      submitToAdmin
     }}>
       {children}
     </CustomerContext.Provider>

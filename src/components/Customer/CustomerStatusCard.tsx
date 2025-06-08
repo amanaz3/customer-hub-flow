@@ -11,7 +11,7 @@ interface CustomerStatusCardProps {
   amount: number;
   comments: Comment[];
   paymentReceived?: boolean;
-  paymentDate?: Date;
+  paymentDate?: string;
 }
 
 const CustomerStatusCard: React.FC<CustomerStatusCardProps> = ({

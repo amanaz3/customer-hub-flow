@@ -1,7 +1,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/SecureAuthContext';
-import { useCustomers } from '@/contexts/CustomerContext';
+import { useCustomer } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
 
 export interface Notification {
@@ -30,7 +30,7 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const { user, isAdmin } = useAuth();
-  const { customers } = useCustomers();
+  const { customers } = useCustomer();
   const { toast } = useToast();
 
   // Generate notifications based on customer status changes
@@ -42,7 +42,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     // Check for recently updated customers
     customers.forEach(customer => {
-      const updatedAt = new Date(customer.updatedAt || customer.createdAt || now);
+      const updatedAt = new Date(customer.updated_at || customer.created_at || now);
       
       if (updatedAt > oneHourAgo) {
         const existingNotification = notifications.find(n => 

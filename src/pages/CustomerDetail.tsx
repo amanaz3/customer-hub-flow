@@ -7,7 +7,7 @@ import CustomerStatusCard from '@/components/Customer/CustomerStatusCard';
 import CustomerDetailsForm from '@/components/Customer/CustomerDetailsForm';
 import CustomerActionButtons from '@/components/Customer/CustomerActionButtons';
 import StatusHistoryCard from '@/components/Customer/StatusHistoryCard';
-import { useCustomers, Status } from '@/contexts/CustomerContext';
+import { useCustomer, Status } from '@/contexts/CustomerContext';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,7 +30,7 @@ const CustomerDetail = () => {
     updateCustomerStatus,
     markPaymentReceived,
     submitToAdmin
-  } = useCustomers();
+  } = useCustomer();
   
   const [fileStats, setFileStats] = useState<{ accessible: number; total: number; errors: number } | null>(null);
   
@@ -38,7 +38,7 @@ const CustomerDetail = () => {
   
   useEffect(() => {
     const checkFileStats = async () => {
-      if (customer && customer.documents.some(doc => doc.isUploaded)) {
+      if (customer && customer.documents && customer.documents.some(doc => doc.is_uploaded)) {
         try {
           const stats = await fileMonitoringService.getMonitoringStats();
           setFileStats({
@@ -150,18 +150,20 @@ const CustomerDetail = () => {
 
   // Check if all mandatory documents are uploaded
   const mandatoryDocumentsUploaded = customer.documents
-    .filter(doc => {
-      // For Freezone documents, only check if customer has Freezone license
-      if (doc.category === 'freezone' && customer.licenseType !== 'Freezone') {
-        return false;
-      }
-      return doc.isMandatory;
-    })
-    .every(doc => doc.isUploaded);
+    ? customer.documents
+        .filter(doc => {
+          // For Freezone documents, only check if customer has Freezone license
+          if (doc.category === 'freezone' && customer.licenseType !== 'Freezone') {
+            return false;
+          }
+          return doc.is_mandatory;
+        })
+        .every(doc => doc.is_uploaded)
+    : false;
 
-  const uploadedDocumentsCount = customer.documents.filter(doc => doc.isUploaded).length;
+  const uploadedDocumentsCount = customer.documents ? customer.documents.filter(doc => doc.is_uploaded).length : 0;
   const isEditable = !['Paid', 'Complete'].includes(customer.status);
-  const isUserOwner = customer.userId === user?.id;
+  const isUserOwner = customer.user_id === user?.id;
   const canSubmitToAdmin = (customer.status === 'Draft' || customer.status === 'Returned') && isUserOwner;
 
   return (
@@ -171,7 +173,7 @@ const CustomerDetail = () => {
           <div>
             <h1 className="text-3xl font-bold">{customer.name}</h1>
             <p className="text-muted-foreground">
-              {customer.company} • {customer.licenseType} License • Created on {formatDate(customer.createdAt)}
+              {customer.company} • {customer.licenseType} License • Created on {formatDate(customer.created_at || new Date())}
             </p>
           </div>
           <div className="mt-4 md:mt-0 flex gap-2">
@@ -248,12 +250,12 @@ const CustomerDetail = () => {
             <CustomerStatusCard 
               status={customer.status} 
               amount={customer.amount} 
-              comments={customer.comments}
-              paymentReceived={customer.paymentReceived}
-              paymentDate={customer.paymentDate}
+              comments={customer.comments || []}
+              paymentReceived={customer.payment_received}
+              paymentDate={customer.payment_date}
             />
             
-            <StatusHistoryCard statusHistory={customer.statusHistory} />
+            <StatusHistoryCard statusHistory={customer.statusHistory || []} />
           </div>
           
           <div className="col-span-1 md:col-span-2">
@@ -280,7 +282,7 @@ const CustomerDetail = () => {
               
               <TabsContent value="documents">
                 <CategorizedDocumentUpload 
-                  documents={customer.documents}
+                  documents={customer.documents || []}
                   customerId={customer.id}
                   customerLicenseType={customer.licenseType}
                   customerFolderId={customer.driveFolderId}
