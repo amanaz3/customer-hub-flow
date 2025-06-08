@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase, getFunctionUrl } from '@/lib/supabase';
@@ -176,25 +175,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      // Delete the profile (user deletion from auth.users requires service role)
-      const { error: profileError } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', userId);
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      if (!currentSession) {
+        return { error: { message: 'No active session' } };
+      }
 
-      if (profileError) {
-        return { error: profileError };
+      const response = await fetch(getFunctionUrl('delete-user'), {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${currentSession.access_token}`,
+        },
+        body: JSON.stringify({
+          userId
+        })
+      });
+
+      const result = await response.json();
+
+      if (!response.ok) {
+        return { error: { message: result.error || 'Failed to delete user' } };
       }
 
       toast({
-        title: 'User Removed',
-        description: 'User profile has been removed from the system.',
+        title: 'User Deleted',
+        description: 'User has been completely removed from the system.',
       });
 
       return { error: null };
     } catch (error) {
       console.error('Delete user error:', error);
-      return { error };
+      return { error: { message: 'Failed to delete user' } };
     }
   };
 
