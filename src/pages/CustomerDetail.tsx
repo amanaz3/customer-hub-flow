@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
@@ -8,7 +7,7 @@ import CustomerDetailsForm from '@/components/Customer/CustomerDetailsForm';
 import CustomerActionButtons from '@/components/Customer/CustomerActionButtons';
 import StatusHistoryCard from '@/components/Customer/StatusHistoryCard';
 import { useCustomer, Status } from '@/contexts/CustomerContext';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/SecureAuthContext';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -110,8 +109,8 @@ const CustomerDetail = () => {
       customer.id, 
       status, 
       commentText, 
-      user.name, 
-      user.role
+      user.profile?.name || user.email || 'Unknown User', 
+      isAdmin ? 'admin' : 'user'
     );
     
     toast({
@@ -127,7 +126,7 @@ const CustomerDetail = () => {
   const handlePaymentReceived = () => {
     if (!customer || !user) return;
     
-    markPaymentReceived(customer.id, user.name);
+    markPaymentReceived(customer.id, user.profile?.name || user.email || 'Unknown User');
     
     toast({
       title: "Payment Confirmed",
@@ -140,7 +139,7 @@ const CustomerDetail = () => {
   const handleSubmitToAdmin = () => {
     if (!customer || !user) return;
     
-    submitToAdmin(customer.id, user.id, user.name);
+    submitToAdmin(customer.id, user.id, user.profile?.name || user.email || 'Unknown User');
     
     toast({
       title: "Submitted Successfully",
