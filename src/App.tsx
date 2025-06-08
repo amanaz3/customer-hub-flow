@@ -18,6 +18,7 @@ import CustomerDetail from "./pages/CustomerDetail";
 import CompletedCases from "./pages/CompletedCases";
 import SecureUserManagement from "./pages/SecureUserManagement";
 import Settings from "./pages/Settings";
+import Security from "./pages/Security";
 import NotFound from "./pages/NotFound";
 
 // Create QueryClient instance outside component to prevent recreation on every render
@@ -49,6 +50,7 @@ const App: React.FC = () => {
                   <Route path="/customers/:id" element={<CustomerDetail />} />
                   <Route path="/completed" element={<CompletedCases />} />
                   <Route path="/users" element={<SecureUserManagement />} />
+                  <Route path="/security" element={<Security />} />
                   <Route path="/settings" element={<Settings />} />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
