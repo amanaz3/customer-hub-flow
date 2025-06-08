@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -96,34 +97,46 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Generate a secure temporary password
       const tempPassword = `Temp${Math.random().toString(36).slice(-8)}!1`;
       
-      // Create user without email confirmation
+      // Create user with basic signup
       const { data, error } = await supabase.auth.signUp({
         email,
         password: tempPassword,
         options: {
-          emailRedirectTo: undefined, // No email verification needed
           data: {
             name,
-            role,
-            email_confirm: true // Auto-confirm email
+            role
           }
         }
       });
 
-      if (!error && data.user) {
-        // Manually confirm the user since we disabled email verification
-        await supabase.auth.admin.updateUserById(data.user.id, {
-          email_confirm: true
-        });
+      if (error) {
+        return { error };
+      }
+
+      if (data.user) {
+        // Create profile entry manually
+        const { error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            id: data.user.id,
+            email,
+            name,
+            role
+          });
+
+        if (profileError) {
+          console.error('Profile creation error:', profileError);
+          // Continue anyway, as the user was created
+        }
 
         toast({
           title: 'User Created',
           description: `User ${name} has been created successfully. Temporary password: ${tempPassword}`,
-          duration: 10000, // Show longer so admin can copy password
+          duration: 10000,
         });
       }
 
-      return { error };
+      return { error: null };
     } catch (error) {
       console.error('Create user error:', error);
       return { error };
@@ -161,7 +174,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      // First delete the profile (this will help with cleanup)
+      // Delete the profile (user deletion from auth.users requires service role)
       const { error: profileError } = await supabase
         .from('profiles')
         .delete()
@@ -203,52 +216,32 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const resetUserPassword = async (userId: string, newPassword: string) => {
     if (!isAdmin) {
-      return { error: { message: 'Unauthorized' } };
+      return { error: { message: 'Unauthorized - Password reset requires service role access' } };
     }
 
-    try {
-      // Use admin API to update password directly
-      const { error } = await supabase.auth.admin.updateUserById(userId, {
-        password: newPassword
-      });
+    // This function requires service role access which isn't available on client side
+    toast({
+      title: 'Feature Unavailable',
+      description: 'Password reset requires server-side implementation with service role access.',
+      variant: 'destructive'
+    });
 
-      if (!error) {
-        toast({
-          title: 'Password Reset',
-          description: `Password has been reset successfully.`,
-        });
-      }
-
-      return { error };
-    } catch (error) {
-      console.error('Reset password error:', error);
-      return { error };
-    }
+    return { error: { message: 'Password reset requires service role access' } };
   };
 
   const changeUserPassword = async (userId: string, newPassword: string) => {
     if (!isAdmin) {
-      return { error: { message: 'Unauthorized' } };
+      return { error: { message: 'Unauthorized - Password change requires service role access' } };
     }
 
-    try {
-      // Use admin API to update password directly
-      const { error } = await supabase.auth.admin.updateUserById(userId, {
-        password: newPassword
-      });
+    // This function requires service role access which isn't available on client side
+    toast({
+      title: 'Feature Unavailable',
+      description: 'Password change requires server-side implementation with service role access.',
+      variant: 'destructive'
+    });
 
-      if (!error) {
-        toast({
-          title: 'Password Changed',
-          description: `Password has been changed successfully.`,
-        });
-      }
-
-      return { error };
-    } catch (error) {
-      console.error('Change password error:', error);
-      return { error };
-    }
+    return { error: { message: 'Password change requires service role access' } };
   };
 
   return (
