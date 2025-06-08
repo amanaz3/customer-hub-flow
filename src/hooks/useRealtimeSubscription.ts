@@ -1,4 +1,3 @@
-
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 
@@ -60,9 +59,8 @@ export const useRealtimeSubscription = ({
         channelRef.current = null;
       }
     };
-  }, [table, event, schema]); // Removed onUpdate from dependencies to prevent recreation
+  }, [table, event, schema]);
 
-  // Use a separate effect for onUpdate changes
   useEffect(() => {
     // This effect handles when onUpdate function changes
     // but doesn't recreate the subscription

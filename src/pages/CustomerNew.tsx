@@ -44,8 +44,6 @@ const CustomerNew = () => {
       
       navigate('/customers');
     } catch (error) {
-      console.error('Error creating customer:', error);
-      
       toast({
         title: "Warning",
         description: "Customer created but Google Drive folder creation failed. Documents can still be uploaded locally.",

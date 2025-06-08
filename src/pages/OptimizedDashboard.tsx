@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useMemo } from 'react';
 import MainLayout from '@/components/Layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -103,7 +104,6 @@ const OptimizedDashboard = () => {
   useRealtimeSubscription({
     table: 'customers',
     onUpdate: () => {
-      console.log('Dashboard: Customer data updated');
       setRefreshKey(prev => prev + 1);
       refreshData();
     }
@@ -112,7 +112,6 @@ const OptimizedDashboard = () => {
   useRealtimeSubscription({
     table: 'documents',
     onUpdate: () => {
-      console.log('Dashboard: Document data updated');
       setRefreshKey(prev => prev + 1);
     }
   });
@@ -120,7 +119,6 @@ const OptimizedDashboard = () => {
   useRealtimeSubscription({
     table: 'status_changes',
     onUpdate: () => {
-      console.log('Dashboard: Status changes updated');
       setRefreshKey(prev => prev + 1);
     }
   });
@@ -163,7 +161,6 @@ const OptimizedDashboard = () => {
   }, [customers, refreshKey]);
 
   const handleDataRefresh = () => {
-    console.log('Manual data refresh triggered');
     setRefreshKey(prev => prev + 1);
     refreshData();
   };
