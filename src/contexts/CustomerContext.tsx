@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/SecureAuthContext';
@@ -157,27 +156,25 @@ export const CustomerProvider: React.FC<{ children: ReactNode }> = ({ children }
       // Create Google Drive folder first
       let driveFolderId: string | undefined;
       try {
-        const driveFolder = await googleDriveService.createCustomerFolder(
-          customer.name,
-          customer.company
-        );
-        driveFolderId = driveFolder.id;
+        const folderName = `${customer.name} - ${customer.company}`;
+        const driveFolder = await googleDriveService.createCustomerFolder(folderName);
+        driveFolderId = driveFolder?.id;
         console.log('Google Drive folder created:', driveFolderId);
       } catch (driveError) {
         console.error('Google Drive folder creation failed:', driveError);
         // Continue without Drive folder - we'll handle this gracefully
       }
 
-      // Insert customer into database
+      // Insert customer into database with proper type casting
       const customerData = {
         name: customer.name,
         email: customer.email,
         mobile: customer.mobile,
         company: customer.company,
-        lead_source: customer.leadSource,
-        license_type: customer.licenseType,
+        lead_source: customer.leadSource as "Website" | "Referral" | "Social Media" | "Other",
+        license_type: customer.licenseType as "Mainland" | "Freezone" | "Offshore",
         amount: customer.amount,
-        status: customer.status,
+        status: customer.status as "Draft" | "Submitted" | "Returned" | "Sent to Bank" | "Complete" | "Rejected" | "Need More Info" | "Paid",
         user_id: user.id,
         drive_folder_id: driveFolderId
       };
