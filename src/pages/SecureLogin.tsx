@@ -3,14 +3,11 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield } from 'lucide-react';
 import SignInForm from '@/components/Auth/SignInForm';
-import SignUpForm from '@/components/Auth/SignUpForm';
 import AuthLoadingSpinner from '@/components/Auth/AuthLoadingSpinner';
 
 const SecureLogin = () => {
-  const [isSignUp, setIsSignUp] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   
   const { isAuthenticated, isLoading: authLoading } = useAuth();
@@ -35,24 +32,16 @@ const SecureLogin = () => {
             <CardTitle className="text-2xl font-bold">Amana Corporate</CardTitle>
           </div>
           <CardDescription className="text-center">
-            Secure access to your workflow management system
+            Sign in to access your workflow management system
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Tabs value={isSignUp ? 'signup' : 'signin'} onValueChange={(value) => setIsSignUp(value === 'signup')}>
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="signin">Sign In</TabsTrigger>
-              <TabsTrigger value="signup">Sign Up</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="signin">
-              <SignInForm isLoading={isLoading} setIsLoading={setIsLoading} />
-            </TabsContent>
-            
-            <TabsContent value="signup">
-              <SignUpForm isLoading={isLoading} setIsLoading={setIsLoading} />
-            </TabsContent>
-          </Tabs>
+          <SignInForm isLoading={isLoading} setIsLoading={setIsLoading} />
+          <div className="mt-4 text-center">
+            <p className="text-sm text-gray-600">
+              Don't have an account? Contact your administrator.
+            </p>
+          </div>
         </CardContent>
       </Card>
     </div>

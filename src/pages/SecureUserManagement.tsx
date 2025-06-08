@@ -120,10 +120,6 @@ const SecureUserManagement = () => {
       } else {
         setIsDialogOpen(false);
         form.reset();
-        toast({
-          title: "User Created",
-          description: `${data.name} has been added successfully. They will receive an email with login instructions.`,
-        });
         await loadUsers();
       }
     } catch (error) {
@@ -204,7 +200,7 @@ const SecureUserManagement = () => {
               <h1 className="text-3xl font-bold">Secure User Management</h1>
             </div>
             <p className="text-muted-foreground">
-              Manage user accounts and permissions with enterprise-grade security
+              Manage user accounts and permissions. Users are activated immediately without email verification.
             </p>
           </div>
           <div className="mt-4 md:mt-0">
@@ -219,7 +215,7 @@ const SecureUserManagement = () => {
                 <DialogHeader>
                   <DialogTitle>Add New User</DialogTitle>
                   <DialogDescription>
-                    Create a new user account with secure authentication.
+                    Create a new user account. The user will be activated immediately with a temporary password.
                   </DialogDescription>
                 </DialogHeader>
                 <form onSubmit={form.handleSubmit(addUser)} className="space-y-4">

@@ -19,7 +19,6 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isLoading: boolean;
-  signUp: (email: string, password: string, name: string) => Promise<{ error: any }>;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
   createUser: (email: string, name: string, role: UserRole) => Promise<{ error: any }>;
@@ -40,47 +39,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const isAuthenticated = !!session?.user;
   const isAdmin = user?.profile?.role === 'admin';
-
-  const signUp = async (email: string, password: string, name: string) => {
-    setIsLoading(true);
-    
-    try {
-      // Check if this is the first user - make them admin
-      const { data: existingUsers } = await supabase
-        .from('profiles')
-        .select('id')
-        .limit(1);
-      
-      const isFirstUser = !existingUsers || existingUsers.length === 0;
-      const role = isFirstUser ? 'admin' : 'user';
-      
-      const { data, error } = await supabase.auth.signUp({
-        email,
-        password,
-        options: {
-          emailRedirectTo: `${window.location.origin}/dashboard`,
-          data: {
-            name,
-            role
-          }
-        }
-      });
-
-      if (!error && data.user) {
-        toast({
-          title: 'Account Created',
-          description: isFirstUser ? 'Welcome! You have been granted admin access.' : 'Account created successfully! Please check your email to verify your account.',
-        });
-      }
-
-      return { error };
-    } catch (error) {
-      console.error('Sign up error:', error);
-      return { error };
-    } finally {
-      setIsLoading(false);
-    }
-  };
 
   const signIn = async (email: string, password: string) => {
     setIsLoading(true);
@@ -135,27 +93,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      // Generate a temporary password
-      const tempPassword = 'TempPassword123!';
+      // Generate a secure temporary password
+      const tempPassword = `Temp${Math.random().toString(36).slice(-8)}!1`;
       
-      // Use the regular signUp API instead of admin API
+      // Create user without email confirmation
       const { data, error } = await supabase.auth.signUp({
         email,
         password: tempPassword,
         options: {
-          emailRedirectTo: `${window.location.origin}/login`,
+          emailRedirectTo: undefined, // No email verification needed
           data: {
             name,
-            role
+            role,
+            email_confirm: true // Auto-confirm email
           }
         }
       });
 
       if (!error && data.user) {
-        // The trigger will automatically create the profile
+        // Manually confirm the user since we disabled email verification
+        await supabase.auth.admin.updateUserById(data.user.id, {
+          email_confirm: true
+        });
+
         toast({
           title: 'User Created',
-          description: `User ${name} has been created successfully. They will receive an email with login instructions.`,
+          description: `User ${name} has been created successfully. Temporary password: ${tempPassword}`,
+          duration: 10000, // Show longer so admin can copy password
         });
       }
 
@@ -207,8 +171,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: profileError };
       }
 
-      // Note: We can't delete from auth.users directly via the client
-      // In a production app, you'd need a server-side function for this
       toast({
         title: 'User Removed',
         description: 'User profile has been removed from the system.',
@@ -245,45 +207,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      // Create a temporary user with the new password
-      const { data, error } = await supabase.auth.signUp({
-        email: `temp_${Date.now()}@temp.com`,
-        password: newPassword,
+      // Use admin API to update password directly
+      const { error } = await supabase.auth.admin.updateUserById(userId, {
+        password: newPassword
       });
 
-      if (error) {
-        return { error };
-      }
-
-      // Get the user's current email
-      const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('email')
-        .eq('id', userId)
-        .single();
-
-      if (profileError) {
-        return { error: profileError };
-      }
-
-      // Since we can't directly change passwords via client, we'll create a new account
-      // and guide the user to use the reset password flow
-      const { error: signUpError } = await supabase.auth.signUp({
-        email: profile.email,
-        password: newPassword,
-        options: {
-          emailRedirectTo: `${window.location.origin}/login`,
-        }
-      });
-
-      if (!signUpError) {
+      if (!error) {
         toast({
           title: 'Password Reset',
-          description: `Password has been reset. The user will receive an email with login instructions.`,
+          description: `Password has been reset successfully.`,
         });
       }
 
-      return { error: signUpError };
+      return { error };
     } catch (error) {
       console.error('Reset password error:', error);
       return { error };
@@ -296,9 +232,19 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      // For password changes, we'll use the same approach as reset
-      // In a production environment, you'd use Supabase's admin API
-      return await resetUserPassword(userId, newPassword);
+      // Use admin API to update password directly
+      const { error } = await supabase.auth.admin.updateUserById(userId, {
+        password: newPassword
+      });
+
+      if (!error) {
+        toast({
+          title: 'Password Changed',
+          description: `Password has been changed successfully.`,
+        });
+      }
+
+      return { error };
     } catch (error) {
       console.error('Change password error:', error);
       return { error };
@@ -312,7 +258,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       isAuthenticated,
       isAdmin,
       isLoading,
-      signUp,
       signIn,
       signOut,
       createUser,
