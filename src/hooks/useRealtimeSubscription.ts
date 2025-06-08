@@ -1,3 +1,4 @@
+
 import { useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 
@@ -40,29 +41,22 @@ export const useRealtimeSubscription = ({
           table
         },
         (payload) => {
-          console.log(`${table} change detected:`, payload);
           onUpdate();
         }
       )
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') {
-          console.log(`Successfully subscribed to ${table} changes`);
+          // Successfully subscribed
         } else if (status === 'CHANNEL_ERROR') {
-          console.error(`Error subscribing to ${table} changes`);
+          // Error subscribing
         }
       });
 
     return () => {
       if (channelRef.current) {
-        console.log(`Cleaning up subscription for ${table}`);
         supabase.removeChannel(channelRef.current);
         channelRef.current = null;
       }
     };
-  }, [table, event, schema]);
-
-  useEffect(() => {
-    // This effect handles when onUpdate function changes
-    // but doesn't recreate the subscription
-  }, [onUpdate]);
+  }, [table, event, schema, onUpdate]);
 };
