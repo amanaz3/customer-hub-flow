@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import MainLayout from '@/components/Layout/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -41,6 +42,7 @@ import { z } from 'zod';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { Shield, UserPlus, Trash2, MoreVertical, Key, RotateCcw } from 'lucide-react';
 import PasswordManagementDialog from '@/components/Admin/PasswordManagementDialog';
+import { supabase } from '@/lib/supabase';
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -104,6 +106,28 @@ const SecureUserManagement = () => {
 
   useEffect(() => {
     loadUsers();
+
+    // Set up real-time subscription for profiles table
+    const channel = supabase
+      .channel('profiles-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'profiles'
+        },
+        (payload) => {
+          console.log('Profile change detected:', payload);
+          // Reload users when any change occurs
+          loadUsers();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, []);
 
   const addUser = async (data: FormValues) => {
@@ -120,7 +144,7 @@ const SecureUserManagement = () => {
       } else {
         setIsDialogOpen(false);
         form.reset();
-        await loadUsers();
+        // Real-time subscription will automatically update the list
       }
     } catch (error) {
       console.error('Error creating user:', error);
@@ -170,7 +194,7 @@ const SecureUserManagement = () => {
           title: "User Removed",
           description: "User has been removed successfully",
         });
-        await loadUsers();
+        // Real-time subscription will automatically update the list
       }
     } catch (error) {
       console.error('Error removing user:', error);
