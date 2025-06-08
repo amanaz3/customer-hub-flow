@@ -1,6 +1,8 @@
+
 import React, { useState } from 'react';
 import { Document } from '@/types/customer';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth } from '@/contexts/SecureAuthContext';
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -16,7 +18,6 @@ interface CategorizedDocumentUploadProps {
   documents: Document[];
   customerId: string;
   customerLicenseType: string;
-  customerFolderId?: string;
   onUpload: (documentId: string, filePath: string) => void;
 }
 
@@ -24,16 +25,16 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
   documents,
   customerId,
   customerLicenseType,
-  customerFolderId,
   onUpload,
 }) => {
   const { toast } = useToast();
+  const { user } = useAuth();
   const [uploading, setUploading] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
 
   const handleFileChange = (documentId: string) => async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file || !user) return;
 
     console.log(`Starting upload for document ${documentId}:`, file.name);
 
@@ -42,15 +43,6 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
       toast({
         title: "Upload Failed",
         description: validation.error,
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (!customerFolderId) {
-      toast({
-        title: "Upload Failed",
-        description: "Customer folder not found. Please contact support.",
         variant: "destructive",
       });
       return;
@@ -70,7 +62,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
         });
       }, 200);
 
-      const filePath = await uploadFile(file, customerId, documentId, customerFolderId);
+      const filePath = await uploadFile(file, customerId, documentId, user.id);
       
       clearInterval(progressInterval);
       setUploadProgress({ ...uploadProgress, [documentId]: 100 });
@@ -80,7 +72,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
       
       toast({
         title: "Document uploaded successfully",
-        description: `${file.name} has been uploaded to Google Drive.`,
+        description: `${file.name} has been uploaded to Supabase Storage.`,
       });
 
       console.log(`Upload completed for document ${documentId}`);
@@ -138,9 +130,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
     }
   };
 
-  // Group documents by category
   const documentsByCategory = documents.reduce((acc, doc) => {
-    // Filter out Freezone documents if customer doesn't have Freezone license
     if (doc.category === 'freezone' && customerLicenseType !== 'Freezone') {
       return acc;
     }
@@ -156,9 +146,15 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
 
   const renderDocumentItem = (doc: Document) => {
     const handleViewFile = () => {
-      if (doc.file_path?.startsWith('/drive/')) {
-        const driveFileId = doc.file_path.replace('/drive/', '');
-        window.open(`https://drive.google.com/file/d/${driveFileId}/view`, '_blank');
+      if (doc.file_path) {
+        try {
+          const fileInfo = JSON.parse(doc.file_path);
+          if (fileInfo.publicUrl) {
+            window.open(fileInfo.publicUrl, '_blank');
+          }
+        } catch (error) {
+          console.error('Error opening file:', error);
+        }
       }
     };
 
@@ -183,7 +179,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-green-600">
               <CheckCircle className="w-4 h-4" />
-              <span className="text-xs">Uploaded to Drive</span>
+              <span className="text-xs">Uploaded to Storage</span>
             </div>
             <Button 
               variant="outline" 
@@ -200,7 +196,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
             {uploading === doc.id && (
               <div className="space-y-1">
                 <div className="flex justify-between text-xs">
-                  <span>Uploading to Drive...</span>
+                  <span>Uploading to Storage...</span>
                   <span>{uploadProgress[doc.id] || 0}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -241,7 +237,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
                     ) : (
                       <>
                         <Upload className="w-3 h-3" />
-                        Upload to Drive
+                        Upload to Storage
                       </>
                     )}
                   </span>
@@ -260,11 +256,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
         <p>Supported formats: {getSupportedTypesText()}</p>
         <p>Maximum file size: {formatFileSize(MAX_FILE_SIZE)}</p>
         <p className="text-red-600 font-medium">* Indicates mandatory documents</p>
-        {customerFolderId ? (
-          <p className="text-green-600 font-medium">✓ Connected to Google Drive</p>
-        ) : (
-          <p className="text-red-600 font-medium">⚠️ Google Drive folder not found</p>
-        )}
+        <p className="text-green-600 font-medium">✓ Using Supabase Storage</p>
       </div>
 
       {categoryOrder.map(category => {
@@ -299,7 +291,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
             <ul className="mt-1 space-y-1 text-xs">
               <li>• Ensure documents are clear and readable</li>
               <li>• All mandatory documents (*) must be uploaded before submission</li>
-              <li>• Files are uploaded securely to Google Drive</li>
+              <li>• Files are uploaded securely to Supabase Storage</li>
               <li>• You can save your progress as draft and continue later</li>
             </ul>
           </div>

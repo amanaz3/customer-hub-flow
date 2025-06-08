@@ -1,9 +1,17 @@
 
-import { googleDriveService } from '@/services/googleDriveService';
-import { GOOGLE_DRIVE_CONFIG } from '@/config/googleDrive';
+import { supabase } from '@/lib/supabase';
 
-export const SUPPORTED_FILE_TYPES = GOOGLE_DRIVE_CONFIG.supportedFileTypes;
-export const MAX_FILE_SIZE = GOOGLE_DRIVE_CONFIG.maxFileSize;
+export const SUPPORTED_FILE_TYPES = {
+  '.pdf': 'application/pdf',
+  '.doc': 'application/msword',
+  '.docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.png': 'image/png',
+  '.txt': 'text/plain'
+};
+
+export const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
 
 export interface FileValidation {
   isValid: boolean;
@@ -19,8 +27,7 @@ export interface UploadProgress {
 export interface FileAccessInfo {
   fileId: string;
   isAccessible: boolean;
-  webViewLink?: string;
-  downloadUrl?: string;
+  publicUrl?: string;
   lastChecked: Date;
 }
 
@@ -32,7 +39,6 @@ export const validateFile = (file: File): FileValidation => {
     };
   }
 
-  // Check file size
   if (file.size > MAX_FILE_SIZE) {
     return {
       isValid: false,
@@ -47,7 +53,6 @@ export const validateFile = (file: File): FileValidation => {
     };
   }
 
-  // Check file type
   const fileExtension = '.' + file.name.split('.').pop()?.toLowerCase();
   if (!Object.keys(SUPPORTED_FILE_TYPES).includes(fileExtension)) {
     return {
@@ -56,7 +61,6 @@ export const validateFile = (file: File): FileValidation => {
     };
   }
 
-  // Check for potentially dangerous file names
   if (file.name.includes('..') || file.name.includes('/') || file.name.includes('\\')) {
     return {
       isValid: false,
@@ -71,93 +75,79 @@ export const uploadFile = async (
   file: File, 
   customerId: string, 
   documentId: string,
-  customerFolderId: string,
+  userId: string,
   onProgress?: (progress: UploadProgress) => void
 ): Promise<string> => {
   try {
-    console.log(`Starting upload: ${file.name} to folder ${customerFolderId} for document ${documentId}`);
+    console.log(`Starting upload: ${file.name} for customer ${customerId}, document ${documentId}`);
 
-    // Validate inputs
-    if (!file) {
-      throw new Error('File is required');
+    if (!file || !customerId || !documentId || !userId) {
+      throw new Error('Missing required parameters for file upload');
     }
 
-    if (!customerId) {
-      throw new Error('Customer ID is required');
-    }
-
-    if (!documentId) {
-      throw new Error('Document ID is required');
-    }
-
-    if (!customerFolderId) {
-      throw new Error('Customer folder ID is required');
-    }
-
-    // Validate file before upload
     const validation = validateFile(file);
     if (!validation.isValid) {
       throw new Error(validation.error);
     }
 
-    // Check if Google Drive service is healthy
-    const isHealthy = await googleDriveService.isServiceHealthy();
-    if (!isHealthy) {
-      throw new Error('Google Drive service is currently unavailable');
-    }
-
-    // Simulate progress if callback provided
     if (onProgress) {
       onProgress({ loaded: 0, total: file.size, percentage: 0 });
     }
 
-    // Upload to Google Drive
-    const driveFile = await googleDriveService.uploadFile(
-      file, 
-      customerFolderId, 
-      `${documentId}-${file.name}`
-    );
+    // Create file path: userId/customerId/documentId-filename
+    const filePath = `${userId}/${customerId}/${documentId}-${file.name}`;
+
+    // Upload to Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('customer-documents')
+      .upload(filePath, file, {
+        cacheControl: '3600',
+        upsert: true
+      });
+
+    if (error) {
+      console.error('Supabase upload error:', error);
+      throw new Error(`Upload failed: ${error.message}`);
+    }
 
     if (onProgress) {
       onProgress({ loaded: file.size, total: file.size, percentage: 100 });
     }
 
-    console.log(`File uploaded successfully: ${driveFile.id}`);
+    // Get public URL for the uploaded file
+    const { data: publicUrlData } = supabase.storage
+      .from('customer-documents')
+      .getPublicUrl(filePath);
 
-    // Store file access information for future verification
+    console.log(`File uploaded successfully: ${data.path}`);
+
+    // Store file access information
     const fileAccessInfo: FileAccessInfo = {
-      fileId: driveFile.id,
+      fileId: data.path,
       isAccessible: true,
-      webViewLink: driveFile.webViewLink,
-      downloadUrl: driveFile.downloadUrl,
+      publicUrl: publicUrlData.publicUrl,
       lastChecked: new Date()
     };
 
-    // Store in localStorage for tracking
-    const fileAccessKey = `file_access_${driveFile.id}`;
+    const fileAccessKey = `file_access_${data.path.replace(/[\/\\]/g, '_')}`;
     localStorage.setItem(fileAccessKey, JSON.stringify(fileAccessInfo));
 
-    // Return the complete file path with both view and download links
+    // Return the file path for storage in database
     return JSON.stringify({
-      fileId: driveFile.id,
-      webViewLink: driveFile.webViewLink,
-      downloadUrl: driveFile.downloadUrl,
-      name: driveFile.name
+      filePath: data.path,
+      publicUrl: publicUrlData.publicUrl,
+      name: file.name
     });
     
   } catch (error) {
     console.error('Upload failed:', error);
     
-    // Provide more specific error messages
     if (error instanceof Error) {
-      if (error.message.includes('AUTH_FAILED')) {
-        throw new Error('Authentication with Google Drive failed. Please contact support.');
+      if (error.message.includes('row-level security')) {
+        throw new Error('Authentication required for file upload. Please sign in.');
       }
-      if (error.message.includes('QUOTA_EXCEEDED')) {
-        throw new Error('Storage quota exceeded. Please contact support.');
-      }
-      if (error.message.includes('NETWORK')) {
-        throw new Error('Network error occurred. Please check your connection and try again.');
+      if (error.message.includes('storage')) {
+        throw new Error('Storage service error. Please try again.');
       }
       throw error;
     }
@@ -168,20 +158,25 @@ export const uploadFile = async (
 
 export const verifyFileAccess = async (filePath: string): Promise<boolean> => {
   try {
-    // Parse the file path to get file ID
     const fileInfo = JSON.parse(filePath);
-    const fileId = fileInfo.fileId;
+    const path = fileInfo.filePath;
     
-    if (!fileId) {
-      console.error('No file ID found in file path');
+    if (!path) {
+      console.error('No file path found');
       return false;
     }
 
-    // Check if file is still accessible
-    const isAccessible = await googleDriveService.verifyFileAccess(fileId);
+    // Try to get the file info from Supabase Storage
+    const { data, error } = await supabase.storage
+      .from('customer-documents')
+      .list(path.split('/').slice(0, -1).join('/'), {
+        search: path.split('/').pop()
+      });
+
+    const isAccessible = !error && data && data.length > 0;
     
     // Update access info in localStorage
-    const fileAccessKey = `file_access_${fileId}`;
+    const fileAccessKey = `file_access_${path.replace(/[\/\\]/g, '_')}`;
     const existingInfo = localStorage.getItem(fileAccessKey);
     
     if (existingInfo) {
@@ -201,7 +196,7 @@ export const verifyFileAccess = async (filePath: string): Promise<boolean> => {
 export const getFileViewLink = (filePath: string): string | null => {
   try {
     const fileInfo = JSON.parse(filePath);
-    return fileInfo.webViewLink || null;
+    return fileInfo.publicUrl || null;
   } catch (error) {
     console.error('Error parsing file path:', error);
     return null;
@@ -211,7 +206,7 @@ export const getFileViewLink = (filePath: string): string | null => {
 export const getFileDownloadLink = (filePath: string): string | null => {
   try {
     const fileInfo = JSON.parse(filePath);
-    return fileInfo.downloadUrl || null;
+    return fileInfo.publicUrl || null;
   } catch (error) {
     console.error('Error parsing file path:', error);
     return null;
@@ -258,13 +253,11 @@ export const getFileIcon = (fileName: string): string => {
   }
 };
 
-// Function to clean up file access info for deleted files
 export const cleanupFileAccessInfo = (fileId: string): void => {
-  const fileAccessKey = `file_access_${fileId}`;
+  const fileAccessKey = `file_access_${fileId.replace(/[\/\\]/g, '_')}`;
   localStorage.removeItem(fileAccessKey);
 };
 
-// Function to get all file access info for monitoring
 export const getAllFileAccessInfo = (): FileAccessInfo[] => {
   const accessInfoList: FileAccessInfo[] = [];
   

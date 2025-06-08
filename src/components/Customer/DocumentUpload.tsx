@@ -1,7 +1,9 @@
+
 import React, { useState, useEffect } from 'react';
 import { Document } from '@/types/customer';
 import { useToast } from '@/hooks/use-toast';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
+import { useAuth } from '@/contexts/SecureAuthContext';
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -29,24 +31,22 @@ import { Upload, CheckCircle, Eye, AlertCircle, X, Download, RefreshCw } from 'l
 interface DocumentUploadProps {
   documents: Document[];
   customerId: string;
-  customerFolderId?: string;
   onUpload: (documentId: string, filePath: string) => void;
 }
 
 const DocumentUpload: React.FC<DocumentUploadProps> = ({
   documents,
   customerId,
-  customerFolderId,
   onUpload,
 }) => {
   const { toast } = useToast();
   const { handleError } = useErrorHandler();
+  const { user } = useAuth();
   const [uploading, setUploading] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   const [verifyingFiles, setVerifyingFiles] = useState<Set<string>>(new Set());
   const [fileAccessStatus, setFileAccessStatus] = useState<Record<string, boolean>>({});
 
-  // Verify file access on component mount and periodically
   useEffect(() => {
     const verifyAllFiles = async () => {
       const uploadedDocs = documents.filter(doc => doc.is_uploaded && doc.file_path);
@@ -72,28 +72,19 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     };
 
     verifyAllFiles();
-    
-    // Set up periodic verification every 5 minutes
     const interval = setInterval(verifyAllFiles, 5 * 60 * 1000);
-    
     return () => clearInterval(interval);
   }, [documents]);
 
   const handleFileChange = (documentId: string) => async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (!file) return;
+    if (!file || !user) return;
 
     console.log(`Starting upload for document ${documentId}:`, file.name);
 
-    // Validate file
     const validation = validateFile(file);
     if (!validation.isValid) {
       handleError(new Error(validation.error || 'File validation failed'), 'File Upload');
-      return;
-    }
-
-    if (!customerFolderId) {
-      handleError(new Error('Customer folder not found. Please contact support.'), 'File Upload');
       return;
     }
 
@@ -105,7 +96,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         file, 
         customerId, 
         documentId, 
-        customerFolderId,
+        user.id,
         (progress: UploadProgress) => {
           setUploadProgress(prev => ({ ...prev, [documentId]: progress.percentage }));
         }
@@ -118,7 +109,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       
       toast({
         title: "Document uploaded successfully",
-        description: `${getFileIcon(file.name)} ${file.name} has been uploaded and is accessible.`,
+        description: `${getFileIcon(file.name)} ${file.name} has been uploaded to Supabase Storage.`,
       });
 
       console.log(`Upload completed for document ${documentId}`);
@@ -129,7 +120,6 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       handleError(error, 'File Upload');
     }
 
-    // Reset file input
     event.target.value = '';
   };
 
@@ -323,7 +313,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         <div className="text-sm text-muted-foreground">
           <p>Supported formats: {getSupportedTypesText()}</p>
           <p>Maximum file size: {formatFileSize(MAX_FILE_SIZE)}</p>
-          <p>Files are automatically verified for accessibility</p>
+          <p>Files are stored securely in Supabase Storage</p>
         </div>
       </CardHeader>
       <CardContent>
@@ -359,26 +349,14 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 <li>• Ensure documents are clear and readable</li>
                 <li>• All mandatory documents must be uploaded</li>
                 <li>• Files are automatically validated for type and size</li>
-                <li>• Uploaded files are securely stored in Google Drive</li>
-                <li>• Banking team has automatic access to all documents</li>
+                <li>• Uploaded files are securely stored in Supabase Storage</li>
+                <li>• Admin team has automatic access to all documents</li>
                 <li>• File accessibility is verified automatically</li>
                 <li>• Use the refresh button to manually verify file access</li>
               </ul>
             </div>
           </div>
         </div>
-
-        {!customerFolderId && (
-          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-            <div className="flex items-start gap-2">
-              <AlertCircle className="w-4 h-4 text-yellow-600 mt-0.5" />
-              <div className="text-yellow-800 text-sm">
-                <p className="font-medium">Warning:</p>
-                <p>Google Drive folder not available. Document upload is currently disabled.</p>
-              </div>
-            </div>
-          </div>
-        )}
       </CardContent>
     </Card>
   );

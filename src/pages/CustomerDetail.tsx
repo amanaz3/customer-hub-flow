@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
@@ -15,8 +16,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { formatDate } from '@/lib/utils';
-import { Send, Shield, AlertTriangle, CheckCircle } from 'lucide-react';
-import { fileMonitoringService } from '@/services/fileMonitoringService';
+import { Send, Shield, CheckCircle } from 'lucide-react';
 
 const CustomerDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -32,28 +32,7 @@ const CustomerDetail = () => {
     submitToAdmin
   } = useCustomer();
   
-  const [fileStats, setFileStats] = useState<{ accessible: number; total: number; errors: number } | null>(null);
-  
   const customer = getCustomerById(id || '');
-  
-  useEffect(() => {
-    const checkFileStats = async () => {
-      if (customer && customer.documents && customer.documents.some(doc => doc.is_uploaded)) {
-        try {
-          const stats = await fileMonitoringService.getMonitoringStats();
-          setFileStats({
-            accessible: stats.accessibleFiles,
-            total: stats.totalFiles,
-            errors: stats.errors.length
-          });
-        } catch (error) {
-          console.error('Error getting file stats:', error);
-        }
-      }
-    };
-
-    checkFileStats();
-  }, [customer]);
   
   if (!customer) {
     return (
@@ -148,11 +127,9 @@ const CustomerDetail = () => {
     });
   };
 
-  // Check if all mandatory documents are uploaded
   const mandatoryDocumentsUploaded = customer.documents
     ? customer.documents
         .filter(doc => {
-          // For Freezone documents, only check if customer has Freezone license
           if (doc.category === 'freezone' && customer.licenseType !== 'Freezone') {
             return false;
           }
@@ -200,13 +177,12 @@ const CustomerDetail = () => {
           </div>
         </div>
 
-        {/* File Security Status Card */}
         {uploadedDocumentsCount > 0 && (
           <Card>
             <CardHeader className="pb-3">
               <CardTitle className="flex items-center gap-2 text-sm">
                 <Shield className="w-4 h-4" />
-                File Security Status
+                File Storage Status
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -218,28 +194,9 @@ const CustomerDetail = () => {
                   </span>
                 </div>
                 
-                {fileStats && (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <Badge variant={fileStats.accessible === fileStats.total ? "default" : "destructive"}>
-                        {fileStats.accessible}/{fileStats.total} accessible
-                      </Badge>
-                    </div>
-                    
-                    {fileStats.errors > 0 && (
-                      <div className="flex items-center gap-2 text-yellow-600">
-                        <AlertTriangle className="w-4 h-4" />
-                        <span className="text-sm">{fileStats.errors} verification error{fileStats.errors !== 1 ? 's' : ''}</span>
-                      </div>
-                    )}
-                  </>
-                )}
-                
-                {customer.driveFolderId && (
-                  <Badge variant="outline" className="text-xs">
-                    Drive Folder: {customer.driveFolderId.substring(0, 8)}...
-                  </Badge>
-                )}
+                <Badge variant="default" className="text-xs">
+                  Supabase Storage
+                </Badge>
               </div>
             </CardContent>
           </Card>
@@ -285,7 +242,6 @@ const CustomerDetail = () => {
                   documents={customer.documents || []}
                   customerId={customer.id}
                   customerLicenseType={customer.licenseType}
-                  customerFolderId={customer.driveFolderId}
                   onUpload={handleDocumentUpload}
                 />
                 

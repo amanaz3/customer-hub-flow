@@ -20,10 +20,10 @@ export const useCustomerActions = (
       console.log('Creating customer via service:', customer);
       await CustomerService.createCustomer(customer, user.id);
       console.log('Customer created, refreshing data...');
-      await refreshData(); // Refresh to show the new customer
+      await refreshData();
     } catch (error) {
       console.error('Error creating customer:', error);
-      throw error; // Re-throw to handle in the calling component
+      throw error;
     }
   };
 
@@ -58,7 +58,6 @@ export const useCustomerActions = (
       console.log('Uploading document:', { customerId, documentId, filePath });
       const fileInfo = await CustomerService.uploadDocument(customerId, documentId, filePath);
 
-      // Update local state
       setDocuments(prev => 
         prev.map(doc => 
           doc.id === documentId 
@@ -67,7 +66,6 @@ export const useCustomerActions = (
         )
       );
 
-      // Update customer's documents
       setCustomers(
         customers.map(customer => 
           customer.id === customerId 
@@ -93,17 +91,14 @@ export const useCustomerActions = (
 
   const updateCustomerStatus = (customerId: string, status: string, comment: string, changedBy: string, role: string) => {
     console.log('Update customer status:', { customerId, status, comment, changedBy, role });
-    // Implementation would go here - placeholder for now
   };
 
   const markPaymentReceived = (customerId: string, changedBy: string) => {
     console.log('Mark payment received:', { customerId, changedBy });
-    // Implementation would go here - placeholder for now
   };
 
   const submitToAdmin = (customerId: string, userId: string, userName: string) => {
     console.log('Submit to admin:', { customerId, userId, userName });
-    // Implementation would go here - placeholder for now
   };
 
   return {
