@@ -10,6 +10,7 @@ import { useAuth } from '@/contexts/SecureAuthContext';
 import { formatCurrency } from '@/lib/utils';
 import { usePerformanceMonitor } from '@/hooks/usePerformanceMonitor';
 import LazyWrapper from '@/components/Performance/LazyWrapper';
+import UserCIATriadMetrics from '@/components/Security/UserCIATriadMetrics';
 import {
   Users,
   DollarSign,
@@ -191,6 +192,9 @@ const OptimizedDashboard: React.FC = () => {
           />
         </div>
 
+        {/* User Security Profile - CIA Triad */}
+        <UserCIATriadMetrics />
+
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Quick Actions */}
@@ -225,14 +229,24 @@ const OptimizedDashboard: React.FC = () => {
                 Completed Cases
               </Button>
               {isAdmin && (
-                <Button 
-                  variant="outline" 
-                  className="w-full justify-start"
-                  onClick={() => navigate('/users')}
-                >
-                  <FileText className="h-4 w-4 mr-2" />
-                  User Management
-                </Button>
+                <>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => navigate('/users')}
+                  >
+                    <FileText className="h-4 w-4 mr-2" />
+                    User Management
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    className="w-full justify-start"
+                    onClick={() => navigate('/security')}
+                  >
+                    <AlertCircle className="h-4 w-4 mr-2" />
+                    Security Center
+                  </Button>
+                </>
               )}
             </CardContent>
           </Card>
