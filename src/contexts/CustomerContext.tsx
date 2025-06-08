@@ -1,6 +1,9 @@
 
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/SecureAuthContext';
+import { useToast } from '@/hooks/use-toast';
+import { googleDriveService } from '@/services/googleDriveService';
 
 export interface Customer {
   id: string;
@@ -64,7 +67,7 @@ export interface Comment {
 interface CustomerContextType {
   customers: Customer[];
   setCustomers: (customers: Customer[]) => void;
-  addCustomer: (customer: Customer) => void;
+  addCustomer: (customer: Customer) => Promise<void>;
   updateCustomer: (id: string, updates: Partial<Customer>) => void;
   deleteCustomer: (id: string) => void;
   getCustomerById: (id: string) => Customer | undefined;
@@ -73,12 +76,12 @@ interface CustomerContextType {
   setStatusChanges: (changes: StatusChange[]) => void;
   documents: Document[];
   setDocuments: (documents: Document[]) => void;
-  refreshData: () => void;
-  // Additional methods for compatibility
-  uploadDocument: (customerId: string, documentId: string, filePath: string) => void;
+  refreshData: () => Promise<void>;
+  uploadDocument: (customerId: string, documentId: string, filePath: string) => Promise<void>;
   updateCustomerStatus: (customerId: string, status: string, comment: string, changedBy: string, role: string) => void;
   markPaymentReceived: (customerId: string, changedBy: string) => void;
   submitToAdmin: (customerId: string, userId: string, userName: string) => void;
+  isLoading: boolean;
 }
 
 const CustomerContext = createContext<CustomerContextType | undefined>(undefined);
@@ -87,36 +90,124 @@ export const CustomerProvider: React.FC<{ children: ReactNode }> = ({ children }
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [statusChanges, setStatusChanges] = useState<StatusChange[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const { user } = useAuth();
+  const { toast } = useToast();
 
-  const refreshData = () => {
-    // This function can be called to manually refresh data
-    // Individual components should implement their own data fetching
-    console.log('Data refresh requested');
+  const fetchCustomers = async () => {
+    if (!user) return;
+    
+    setIsLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from('customers')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) {
+        console.error('Error fetching customers:', error);
+        toast({
+          title: "Error",
+          description: "Failed to fetch customers",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // Fetch documents for each customer
+      const customersWithDocuments = await Promise.all(
+        (data || []).map(async (customer) => {
+          const { data: docsData } = await supabase
+            .from('documents')
+            .select('*')
+            .eq('customer_id', customer.id);
+
+          return {
+            ...customer,
+            leadSource: customer.lead_source,
+            licenseType: customer.license_type,
+            documents: docsData || []
+          };
+        })
+      );
+
+      setCustomers(customersWithDocuments);
+    } catch (error) {
+      console.error('Error fetching customers:', error);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  // Set up real-time subscriptions for all tables
-  useRealtimeSubscription({
-    table: 'customers',
-    onUpdate: refreshData
-  });
+  const refreshData = async () => {
+    await fetchCustomers();
+  };
 
-  useRealtimeSubscription({
-    table: 'status_changes',
-    onUpdate: refreshData
-  });
+  useEffect(() => {
+    fetchCustomers();
+  }, [user]);
 
-  useRealtimeSubscription({
-    table: 'documents',
-    onUpdate: refreshData
-  });
+  const addCustomer = async (customer: Customer) => {
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
 
-  useRealtimeSubscription({
-    table: 'comments',
-    onUpdate: refreshData
-  });
+    setIsLoading(true);
+    try {
+      // Create Google Drive folder first
+      let driveFolderId: string | undefined;
+      try {
+        const driveFolder = await googleDriveService.createCustomerFolder(
+          customer.name,
+          customer.company
+        );
+        driveFolderId = driveFolder.id;
+        console.log('Google Drive folder created:', driveFolderId);
+      } catch (driveError) {
+        console.error('Google Drive folder creation failed:', driveError);
+        // Continue without Drive folder - we'll handle this gracefully
+      }
 
-  const addCustomer = (customer: Customer) => {
-    setCustomers(prev => [...prev, customer]);
+      // Insert customer into database
+      const customerData = {
+        name: customer.name,
+        email: customer.email,
+        mobile: customer.mobile,
+        company: customer.company,
+        lead_source: customer.leadSource,
+        license_type: customer.licenseType,
+        amount: customer.amount,
+        status: customer.status,
+        user_id: user.id,
+        drive_folder_id: driveFolderId
+      };
+
+      const { data, error } = await supabase
+        .from('customers')
+        .insert(customerData)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Database insert error:', error);
+        throw new Error('Failed to create customer in database');
+      }
+
+      console.log('Customer created in database:', data);
+      
+      // Refresh the customers list to show the new customer
+      await fetchCustomers();
+      
+      if (!driveFolderId) {
+        throw new Error('Google Drive folder creation failed');
+      }
+      
+    } catch (error) {
+      console.error('Add customer error:', error);
+      throw error;
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const updateCustomer = (id: string, updates: Partial<Customer>) => {
@@ -139,10 +230,56 @@ export const CustomerProvider: React.FC<{ children: ReactNode }> = ({ children }
     return customers.filter(customer => customer.user_id === userId);
   };
 
-  // Additional methods for compatibility
-  const uploadDocument = (customerId: string, documentId: string, filePath: string) => {
-    console.log('Upload document:', { customerId, documentId, filePath });
-    // Implementation would go here
+  const uploadDocument = async (customerId: string, documentId: string, filePath: string) => {
+    try {
+      // Parse the Google Drive file info from filePath
+      const fileInfo = JSON.parse(filePath);
+      
+      // Update document in database
+      const { error } = await supabase
+        .from('documents')
+        .update({ 
+          is_uploaded: true, 
+          file_path: filePath,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', documentId);
+
+      if (error) {
+        console.error('Error updating document:', error);
+        throw error;
+      }
+
+      // Update local state
+      setDocuments(prev => 
+        prev.map(doc => 
+          doc.id === documentId 
+            ? { ...doc, is_uploaded: true, file_path: filePath }
+            : doc
+        )
+      );
+
+      // Update customer's documents
+      setCustomers(prev => 
+        prev.map(customer => 
+          customer.id === customerId 
+            ? {
+                ...customer,
+                documents: customer.documents?.map(doc => 
+                  doc.id === documentId 
+                    ? { ...doc, is_uploaded: true, file_path: filePath }
+                    : doc
+                ) || []
+              }
+            : customer
+        )
+      );
+
+      console.log('Document uploaded successfully:', fileInfo);
+    } catch (error) {
+      console.error('Error in uploadDocument:', error);
+      throw error;
+    }
   };
 
   const updateCustomerStatus = (customerId: string, status: string, comment: string, changedBy: string, role: string) => {
@@ -177,7 +314,8 @@ export const CustomerProvider: React.FC<{ children: ReactNode }> = ({ children }
       uploadDocument,
       updateCustomerStatus,
       markPaymentReceived,
-      submitToAdmin
+      submitToAdmin,
+      isLoading
     }}>
       {children}
     </CustomerContext.Provider>

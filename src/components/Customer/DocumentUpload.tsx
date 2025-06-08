@@ -144,25 +144,13 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     });
   };
 
-  const verifyFileAccessLocal = async (filePath: string): Promise<boolean> => {
-    try {
-      const result = await import('@/utils/fileUpload').then(module => 
-        module.verifyFileAccess(filePath)
-      );
-      return result;
-    } catch (error) {
-      console.error('Error verifying file access:', error);
-      return false;
-    }
-  };
-
   const handleManualVerify = async (doc: Document) => {
     if (!doc.file_path) return;
     
     setVerifyingFiles(prev => new Set(prev).add(doc.id));
     
     try {
-      const isAccessible = await verifyFileAccessLocal(doc.file_path);
+      const isAccessible = await verifyFileAccess(doc.file_path);
       setFileAccessStatus(prev => ({ ...prev, [doc.id]: isAccessible }));
       
       toast({
@@ -223,7 +211,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           onChange={handleFileChange(doc.id)}
           disabled={!!uploading}
         />
-        <label htmlFor={`file-${doc.id}`} className="w-full">
+        <label htmlFor={`file-${doc.id}`} className="w-full cursor-pointer">
           <Button 
             variant="outline" 
             size="sm" 
@@ -233,7 +221,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           >
             <span>
               <Upload className="w-3 h-3" />
-              Upload
+              Upload File
             </span>
           </Button>
         </label>
@@ -306,6 +294,26 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     );
   };
 
+  if (!documents || documents.length === 0) {
+    return (
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Upload className="w-5 h-5" />
+            Required Documents
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="text-center py-8 text-muted-foreground">
+            <AlertCircle className="w-12 h-12 mx-auto mb-4 text-gray-400" />
+            <p>No documents configured for this customer.</p>
+            <p className="text-sm">Documents will be automatically created when the customer application is saved.</p>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
   return (
     <Card>
       <CardHeader>
@@ -352,7 +360,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
                 <li>• Ensure documents are clear and readable</li>
                 <li>• All mandatory documents must be uploaded</li>
                 <li>• Files are automatically validated for type and size</li>
-                <li>• Uploaded files are securely stored and remain accessible</li>
+                <li>• Uploaded files are securely stored in Google Drive</li>
                 <li>• Banking team has automatic access to all documents</li>
                 <li>• File accessibility is verified automatically</li>
                 <li>• Use the refresh button to manually verify file access</li>
