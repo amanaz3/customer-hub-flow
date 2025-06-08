@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MainLayout from '@/components/Layout/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -42,7 +41,7 @@ import { z } from 'zod';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { Shield, UserPlus, Trash2, MoreVertical, Key, RotateCcw } from 'lucide-react';
 import PasswordManagementDialog from '@/components/Admin/PasswordManagementDialog';
-import { supabase } from '@/lib/supabase';
+import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -106,29 +105,13 @@ const SecureUserManagement = () => {
 
   useEffect(() => {
     loadUsers();
-
-    // Set up real-time subscription for profiles table
-    const channel = supabase
-      .channel('profiles-changes')
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'profiles'
-        },
-        (payload) => {
-          console.log('Profile change detected:', payload);
-          // Reload users when any change occurs
-          loadUsers();
-        }
-      )
-      .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
   }, []);
+
+  // Set up real-time subscription for profiles table
+  useRealtimeSubscription({
+    table: 'profiles',
+    onUpdate: loadUsers
+  });
 
   const addUser = async (data: FormValues) => {
     setIsLoading(true);

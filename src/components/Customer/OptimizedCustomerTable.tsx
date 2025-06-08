@@ -1,5 +1,5 @@
 
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Customer } from '@/contexts/CustomerContext';
 import { formatCurrency } from '@/lib/utils';
@@ -12,9 +12,11 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 
 interface OptimizedCustomerTableProps {
   customers: Customer[];
+  onDataChange?: () => void;
 }
 
 // Memoized status badge component
@@ -70,13 +72,24 @@ const CustomerRow = memo(({ customer, onClick }: {
 
 CustomerRow.displayName = 'CustomerRow';
 
-const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({ customers }) => {
+const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({ customers, onDataChange }) => {
   const navigate = useNavigate();
 
   const handleRowClick = useMemo(() => 
     (id: string) => navigate(`/customers/${id}`), 
     [navigate]
   );
+
+  // Set up real-time subscription for customer updates
+  useRealtimeSubscription({
+    table: 'customers',
+    onUpdate: () => {
+      console.log('Customer data updated, refreshing...');
+      if (onDataChange) {
+        onDataChange();
+      }
+    }
+  });
 
   const tableRows = useMemo(() => 
     customers.map((customer) => (
