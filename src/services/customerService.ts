@@ -5,6 +5,9 @@ import { googleDriveService } from '@/services/googleDriveService';
 
 export class CustomerService {
   static async fetchCustomers(userId?: string) {
+    console.log('Fetching customers for user:', userId);
+    
+    // Fetch customers with proper RLS handling
     const { data, error } = await supabase
       .from('customers')
       .select('*')
@@ -15,13 +18,19 @@ export class CustomerService {
       throw error;
     }
 
+    console.log('Raw customers data:', data);
+
     // Fetch documents for each customer
     const customersWithDocuments = await Promise.all(
       (data || []).map(async (customer) => {
-        const { data: docsData } = await supabase
+        const { data: docsData, error: docsError } = await supabase
           .from('documents')
           .select('*')
           .eq('customer_id', customer.id);
+
+        if (docsError) {
+          console.error('Error fetching documents for customer:', customer.id, docsError);
+        }
 
         return {
           ...customer,
@@ -32,6 +41,7 @@ export class CustomerService {
       })
     );
 
+    console.log('Customers with documents:', customersWithDocuments);
     return customersWithDocuments;
   }
 
@@ -101,5 +111,68 @@ export class CustomerService {
 
     console.log('Document uploaded successfully:', fileInfo);
     return fileInfo;
+  }
+
+  // Add method to fetch customer by ID with documents
+  static async fetchCustomerById(customerId: string) {
+    console.log('Fetching customer by ID:', customerId);
+    
+    const { data: customer, error: customerError } = await supabase
+      .from('customers')
+      .select('*')
+      .eq('id', customerId)
+      .single();
+
+    if (customerError) {
+      console.error('Error fetching customer:', customerError);
+      throw customerError;
+    }
+
+    // Fetch documents for this customer
+    const { data: documents, error: docsError } = await supabase
+      .from('documents')
+      .select('*')
+      .eq('customer_id', customerId);
+
+    if (docsError) {
+      console.error('Error fetching documents:', docsError);
+      throw docsError;
+    }
+
+    // Fetch comments for this customer
+    const { data: comments, error: commentsError } = await supabase
+      .from('comments')
+      .select('*')
+      .eq('customer_id', customerId)
+      .order('created_at', { ascending: false });
+
+    if (commentsError) {
+      console.error('Error fetching comments:', commentsError);
+      // Don't throw, just log the error
+    }
+
+    // Fetch status changes for this customer
+    const { data: statusHistory, error: statusError } = await supabase
+      .from('status_changes')
+      .select('*')
+      .eq('customer_id', customerId)
+      .order('created_at', { ascending: false });
+
+    if (statusError) {
+      console.error('Error fetching status history:', statusError);
+      // Don't throw, just log the error
+    }
+
+    const customerWithDetails = {
+      ...customer,
+      leadSource: customer.lead_source,
+      licenseType: customer.license_type,
+      documents: documents || [],
+      comments: comments || [],
+      statusHistory: statusHistory || []
+    };
+
+    console.log('Customer with details:', customerWithDetails);
+    return customerWithDetails;
   }
 }
