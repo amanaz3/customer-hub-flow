@@ -11,14 +11,13 @@ export const useCustomerActions = (
 ) => {
   const { user } = useAuth();
 
-  const addCustomer = async (customer: Customer) => {
+  const addCustomer = async (customer: Customer): Promise<void> => {
     if (!user) {
       throw new Error('User not authenticated');
     }
 
-    const newCustomer = await CustomerService.createCustomer(customer, user.id);
+    await CustomerService.createCustomer(customer, user.id);
     await refreshData(); // Refresh to show the new customer
-    return newCustomer;
   };
 
   const updateCustomer = (id: string, updates: Partial<Customer>) => {

@@ -1,8 +1,6 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Customer } from '@/contexts/CustomerContext';
-import { formatCurrency } from '@/lib/utils';
+import { Customer } from '@/types/customer';
 import {
   Table,
   TableBody,

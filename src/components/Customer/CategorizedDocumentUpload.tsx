@@ -1,6 +1,5 @@
-
 import React, { useState } from 'react';
-import { Document } from '@/contexts/CustomerContext';
+import { Document } from '@/types/customer';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from "@/components/ui/button";
 import {

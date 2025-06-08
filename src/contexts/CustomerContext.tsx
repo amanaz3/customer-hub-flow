@@ -85,3 +85,6 @@ export const useCustomer = () => {
 
 // Export alias for backward compatibility
 export const useCustomers = useCustomer;
+
+// Re-export types for backward compatibility
+export type { Customer, StatusChange, Document } from '@/types/customer';
