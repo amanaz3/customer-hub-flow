@@ -157,8 +157,8 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
 
   const renderDocumentItem = (doc: Document) => {
     const handleViewFile = () => {
-      if (doc.filePath?.startsWith('/drive/')) {
-        const driveFileId = doc.filePath.replace('/drive/', '');
+      if (doc.file_path?.startsWith('/drive/')) {
+        const driveFileId = doc.file_path.replace('/drive/', '');
         window.open(`https://drive.google.com/file/d/${driveFileId}/view`, '_blank');
       }
     };
@@ -171,16 +171,16 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
         <div className="flex items-center justify-between">
           <h3 className="text-sm font-medium">
             {doc.name}
-            {doc.isMandatory && <span className="text-red-500 ml-1">*</span>}
+            {doc.is_mandatory && <span className="text-red-500 ml-1">*</span>}
           </h3>
-          {doc.isMandatory ? (
+          {doc.is_mandatory ? (
             <Badge variant="destructive">Required</Badge>
           ) : (
             <Badge variant="outline">Optional</Badge>
           )}
         </div>
         
-        {doc.isUploaded ? (
+        {doc.is_uploaded ? (
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-green-600">
               <CheckCircle className="w-4 h-4" />

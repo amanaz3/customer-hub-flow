@@ -43,6 +43,19 @@ export interface Document {
   updated_at?: string;
 }
 
+// Type aliases for compatibility
+export type Status = string;
+export type CustomerStatus = string;
+export type LeadSource = 'Website' | 'Referral' | 'Social Media' | 'Other';
+export type LicenseType = 'Mainland' | 'Freezone' | 'Offshore';
+
+export interface Comment {
+  id: string;
+  content: string;
+  author: string;
+  timestamp: string;
+}
+
 interface CustomerContextType {
   customers: Customer[];
   setCustomers: (customers: Customer[]) => void;
@@ -137,3 +150,6 @@ export const useCustomer = () => {
   }
   return context;
 };
+
+// Export alias for backward compatibility
+export const useCustomers = useCustomer;

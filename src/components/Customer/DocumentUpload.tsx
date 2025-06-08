@@ -50,13 +50,13 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   // Verify file access on component mount and periodically
   useEffect(() => {
     const verifyAllFiles = async () => {
-      const uploadedDocs = documents.filter(doc => doc.isUploaded && doc.filePath);
+      const uploadedDocs = documents.filter(doc => doc.is_uploaded && doc.file_path);
       
       for (const doc of uploadedDocs) {
-        if (doc.filePath) {
+        if (doc.file_path) {
           setVerifyingFiles(prev => new Set(prev).add(doc.id));
           try {
-            const isAccessible = await verifyFileAccess(doc.filePath);
+            const isAccessible = await verifyFileAccess(doc.file_path);
             setFileAccessStatus(prev => ({ ...prev, [doc.id]: isAccessible }));
           } catch (error) {
             console.error(`Error verifying file access for ${doc.id}:`, error);
@@ -144,7 +144,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     });
   };
 
-  const verifyFileAccess = async (filePath: string): Promise<boolean> => {
+  const verifyFileAccessLocal = async (filePath: string): Promise<boolean> => {
     try {
       const result = await import('@/utils/fileUpload').then(module => 
         module.verifyFileAccess(filePath)
@@ -157,12 +157,12 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   };
 
   const handleManualVerify = async (doc: Document) => {
-    if (!doc.filePath) return;
+    if (!doc.file_path) return;
     
     setVerifyingFiles(prev => new Set(prev).add(doc.id));
     
     try {
-      const isAccessible = await verifyFileAccess(doc.filePath);
+      const isAccessible = await verifyFileAccessLocal(doc.file_path);
       setFileAccessStatus(prev => ({ ...prev, [doc.id]: isAccessible }));
       
       toast({
@@ -242,13 +242,13 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   };
 
   const renderFileActions = (doc: Document) => {
-    if (!doc.filePath) return null;
+    if (!doc.file_path) return null;
 
     const isVerifying = verifyingFiles.has(doc.id);
     const isAccessible = fileAccessStatus[doc.id];
-    const fileName = getFileName(doc.filePath);
-    const viewLink = getFileViewLink(doc.filePath);
-    const downloadLink = getFileDownloadLink(doc.filePath);
+    const fileName = getFileName(doc.file_path);
+    const viewLink = getFileViewLink(doc.file_path);
+    const downloadLink = getFileDownloadLink(doc.file_path);
 
     return (
       <div className="flex items-center justify-between">
@@ -328,17 +328,17 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
             >
               <div className="flex items-center justify-between">
                 <h3 className="text-sm font-medium flex items-center gap-2">
-                  {doc.isUploaded && getFileIcon(doc.filePath ? getFileName(doc.filePath) : doc.name)}
+                  {doc.is_uploaded && getFileIcon(doc.file_path ? getFileName(doc.file_path) : doc.name)}
                   {doc.name}
                 </h3>
-                {doc.isMandatory ? (
+                {doc.is_mandatory ? (
                   <Badge variant="destructive">Required</Badge>
                 ) : (
                   <Badge variant="outline">Optional</Badge>
                 )}
               </div>
               
-              {doc.isUploaded ? renderFileActions(doc) : renderUploadButton(doc)}
+              {doc.is_uploaded ? renderFileActions(doc) : renderUploadButton(doc)}
             </div>
           ))}
         </div>

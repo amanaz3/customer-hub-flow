@@ -44,20 +44,20 @@ const StatusHistoryCard: React.FC<StatusHistoryCardProps> = ({
             statusHistory.map((change, index) => (
               <div key={change.id} className="border-l-2 border-gray-200 pl-4 pb-4 last:pb-0">
                 <div className="flex items-center justify-between mb-2">
-                  <Badge className={`${getStatusColor(change.newStatus)} text-white`}>
-                    {change.newStatus}
+                  <Badge className={`${getStatusColor(change.new_status)} text-white`}>
+                    {change.new_status}
                   </Badge>
                   <span className="text-xs text-muted-foreground">
-                    {formatDate(change.timestamp)}
+                    {formatDate(change.created_at)}
                   </span>
                 </div>
                 
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">Changed by:</span>
-                    <span className="text-sm">{change.changedBy}</span>
-                    <Badge variant="outline" className={getRoleColor(change.changedByRole)}>
-                      {change.changedByRole}
+                    <span className="text-sm">{change.changed_by}</span>
+                    <Badge variant="outline" className={getRoleColor(change.changed_by_role)}>
+                      {change.changed_by_role}
                     </Badge>
                   </div>
                   
@@ -67,9 +67,9 @@ const StatusHistoryCard: React.FC<StatusHistoryCardProps> = ({
                     </div>
                   )}
                   
-                  {index < statusHistory.length - 1 && change.previousStatus !== change.newStatus && (
+                  {index < statusHistory.length - 1 && change.previous_status !== change.new_status && (
                     <div className="text-xs text-muted-foreground">
-                      Previous: {change.previousStatus}
+                      Previous: {change.previous_status}
                     </div>
                   )}
                 </div>
