@@ -72,13 +72,26 @@ const Sidebar: React.FC = () => {
     >
       <div className="flex items-center justify-between h-14 px-4 border-b border-gray-200">
         {!collapsed && (
-          <h1 className="text-lg font-semibold text-gray-800">Amana Corporate</h1>
+          <div className="flex items-center space-x-2">
+            <img 
+              src="/lovable-uploads/5ccffe54-41ae-4fc6-9a3a-3843049b907b.png" 
+              alt="Amana Corporate" 
+              className="h-8 w-auto"
+            />
+          </div>
+        )}
+        {collapsed && (
+          <img 
+            src="/lovable-uploads/5ccffe54-41ae-4fc6-9a3a-3843049b907b.png" 
+            alt="Amana Corporate" 
+            className="h-8 w-8 object-contain mx-auto"
+          />
         )}
         <Button 
           variant="ghost"
           size="sm"
           onClick={() => setCollapsed(!collapsed)}
-          className="ml-auto"
+          className={collapsed ? "ml-0" : "ml-auto"}
         >
           {collapsed ? <ChevronRight /> : <ChevronLeft />}
         </Button>
