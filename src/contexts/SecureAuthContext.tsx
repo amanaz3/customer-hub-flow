@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -65,12 +66,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       });
 
       if (!error && data.user) {
-        // Create profile manually if needed
-        await createProfile(data.user.id, email, role);
-        
         toast({
           title: 'Account Created',
-          description: isFirstUser ? 'Welcome! You have been granted admin access.' : 'Please check your email to verify your account.',
+          description: isFirstUser ? 'Welcome! You have been granted admin access.' : 'Account created successfully! Please check your email to verify your account.',
         });
       }
 
@@ -102,11 +100,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     try {
-      // Check if there's an active session before attempting logout
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       
       if (!currentSession) {
-        // User is already logged out, just clear local state
         setUser(null);
         setSession(null);
         return { error: null };
@@ -126,7 +122,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error };
     } catch (error) {
       console.error('Sign out error:', error);
-      // Even if there's an error, clear local state
       setUser(null);
       setSession(null);
       return { error };
@@ -139,15 +134,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const { data, error } = await supabase.auth.admin.createUser({
+      // Generate a temporary password
+      const tempPassword = 'TempPassword123!';
+      
+      // Use the regular signUp API instead of admin API
+      const { data, error } = await supabase.auth.signUp({
         email,
-        password: 'TempPassword123!',
-        email_confirm: true,
-        user_metadata: { name, role }
+        password: tempPassword,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login`,
+          data: {
+            name,
+            role
+          }
+        }
       });
 
       if (!error && data.user) {
-        await createProfile(data.user.id, email, role);
+        // The trigger will automatically create the profile
+        toast({
+          title: 'User Created',
+          description: `User ${name} has been created successfully. They will receive an email with login instructions.`,
+        });
       }
 
       return { error };
@@ -165,8 +173,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ role })
+        .update({ role, updated_at: new Date().toISOString() })
         .eq('id', userId);
+
+      if (!error) {
+        toast({
+          title: 'Role Updated',
+          description: `User role has been updated to ${role}.`,
+        });
+      }
 
       return { error };
     } catch (error) {
@@ -181,8 +196,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      const { error } = await supabase.auth.admin.deleteUser(userId);
-      return { error };
+      // First delete the profile (this will help with cleanup)
+      const { error: profileError } = await supabase
+        .from('profiles')
+        .delete()
+        .eq('id', userId);
+
+      if (profileError) {
+        return { error: profileError };
+      }
+
+      // Note: We can't delete from auth.users directly via the client
+      // In a production app, you'd need a server-side function for this
+      toast({
+        title: 'User Removed',
+        description: 'User profile has been removed from the system.',
+      });
+
+      return { error: null };
     } catch (error) {
       console.error('Delete user error:', error);
       return { error };

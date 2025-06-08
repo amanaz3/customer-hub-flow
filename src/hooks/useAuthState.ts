@@ -35,10 +35,6 @@ export const useAuthState = () => {
 
       if (error) {
         console.error('Error fetching profile:', error);
-        // If profile doesn't exist, create one
-        if (error.code === 'PGRST116') {
-          await createProfile(userId, session?.user?.email || '', 'user');
-        }
         return null;
       }
 
@@ -63,7 +59,6 @@ export const useAuthState = () => {
         setSession(session);
         
         if (session?.user) {
-          // Use setTimeout to prevent auth state change recursion
           setTimeout(async () => {
             if (!isMounted) return;
             
@@ -74,6 +69,8 @@ export const useAuthState = () => {
                 ...session.user,
                 profile
               });
+            } else if (isMounted) {
+              setUser(session.user as AuthUser);
             }
           }, 0);
         } else {
