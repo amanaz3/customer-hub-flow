@@ -67,7 +67,7 @@ const SecureUserManagement = () => {
   const [passwordAction, setPasswordAction] = useState<'reset' | 'change'>('reset');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const { createUser, getUsers, deleteUser, user: currentUser } = useAuth();
+  const { createUser, getUsers, deleteUser, user: currentUser, isAdmin, isLoading: authLoading } = useAuth();
   
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -79,6 +79,11 @@ const SecureUserManagement = () => {
   });
 
   const loadUsers = async () => {
+    // Don't try to load users if auth is still loading or user is not admin
+    if (authLoading || !isAdmin) {
+      return;
+    }
+
     setIsLoading(true);
     try {
       const { data, error } = await getUsers();
@@ -104,8 +109,11 @@ const SecureUserManagement = () => {
   };
 
   useEffect(() => {
-    loadUsers();
-  }, []);
+    // Only load users when auth loading is complete and user is admin
+    if (!authLoading && isAdmin) {
+      loadUsers();
+    }
+  }, [authLoading, isAdmin]);
 
   // Set up real-time subscription for profiles table
   useRealtimeSubscription({
@@ -196,6 +204,20 @@ const SecureUserManagement = () => {
     setPasswordAction(action);
     setPasswordDialogOpen(true);
   };
+
+  // Show loading spinner while auth is loading
+  if (authLoading) {
+    return (
+      <MainLayout requiredRole="admin">
+        <div className="flex items-center justify-center py-20">
+          <div className="flex items-center space-x-2">
+            <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600"></div>
+            <span>Loading...</span>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout requiredRole="admin">
