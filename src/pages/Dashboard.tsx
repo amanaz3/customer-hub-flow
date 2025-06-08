@@ -2,7 +2,7 @@
 import React from 'react';
 import MainLayout from '@/components/Layout/MainLayout';
 import CustomerTable from '@/components/Customer/CustomerTable';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/SecureAuthContext';
 import { useCustomers } from '@/contexts/CustomerContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 

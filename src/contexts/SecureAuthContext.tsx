@@ -7,7 +7,6 @@ import { useToast } from '@/hooks/use-toast';
 type UserRole = 'admin' | 'user';
 
 export interface AuthUser extends User {
-  role?: UserRole;
   profile?: {
     name: string;
     role: UserRole;
@@ -66,7 +65,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
               } else {
                 setUser({
                   ...session.user,
-                  profile
+                  profile: {
+                    name: profile.name,
+                    role: profile.role as UserRole
+                  }
                 });
               }
             } catch (error) {
