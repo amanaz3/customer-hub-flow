@@ -1,8 +1,9 @@
 
-import React, { createContext, useState, useContext, useEffect } from 'react';
+import React, { createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
+import { useAuthState } from '@/hooks/useAuthState';
 
 type UserRole = 'admin' | 'user';
 
@@ -30,141 +31,107 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+export { UserRole };
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = useState<AuthUser | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const { user, session, isLoading, setUser, setSession, setIsLoading, createProfile } = useAuthState();
   const { toast } = useToast();
 
   const isAuthenticated = !!session?.user;
   const isAdmin = user?.profile?.role === 'admin';
 
-  useEffect(() => {
-    // Set up auth state listener
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      async (event, session) => {
-        console.log('Auth state changed:', event, session?.user?.email);
-        setSession(session);
-        
-        if (session?.user) {
-          // Fetch user profile
-          setTimeout(async () => {
-            try {
-              const { data: profile, error } = await supabase
-                .from('profiles')
-                .select('name, role')
-                .eq('id', session.user.id)
-                .single();
-
-              if (error) {
-                console.error('Error fetching profile:', error);
-                // If profile doesn't exist, create one
-                if (error.code === 'PGRST116') {
-                  await createProfile(session.user.id, session.user.email || '', 'user');
-                }
-              } else {
-                setUser({
-                  ...session.user,
-                  profile: {
-                    name: profile.name,
-                    role: profile.role as UserRole
-                  }
-                });
-              }
-            } catch (error) {
-              console.error('Profile fetch error:', error);
-            }
-          }, 0);
-        } else {
-          setUser(null);
-        }
-        
-        setIsLoading(false);
-      }
-    );
-
-    // Check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      if (!session) {
-        setIsLoading(false);
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
-
-  const createProfile = async (userId: string, email: string, role: UserRole) => {
-    const { error } = await supabase
-      .from('profiles')
-      .insert({
-        id: userId,
-        email,
-        name: email.split('@')[0],
-        role
-      });
-    
-    if (error) {
-      console.error('Error creating profile:', error);
-    }
-    return { error };
-  };
-
   const signUp = async (email: string, password: string, name: string) => {
     setIsLoading(true);
     
-    // Check if this is the first user - make them admin
-    const { data: existingUsers } = await supabase
-      .from('profiles')
-      .select('id')
-      .limit(1);
-    
-    const isFirstUser = !existingUsers || existingUsers.length === 0;
-    const role = isFirstUser ? 'admin' : 'user';
-    
-    const { data, error } = await supabase.auth.signUp({
-      email,
-      password,
-      options: {
-        emailRedirectTo: `${window.location.origin}/dashboard`,
-        data: {
-          name,
-          role
-        }
-      }
-    });
-
-    if (!error && data.user) {
-      // Create profile manually if needed
-      await createProfile(data.user.id, email, role);
+    try {
+      // Check if this is the first user - make them admin
+      const { data: existingUsers } = await supabase
+        .from('profiles')
+        .select('id')
+        .limit(1);
       
-      toast({
-        title: 'Account Created',
-        description: isFirstUser ? 'Welcome! You have been granted admin access.' : 'Please check your email to verify your account.',
+      const isFirstUser = !existingUsers || existingUsers.length === 0;
+      const role = isFirstUser ? 'admin' : 'user';
+      
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/dashboard`,
+          data: {
+            name,
+            role
+          }
+        }
       });
-    }
 
-    setIsLoading(false);
-    return { error };
+      if (!error && data.user) {
+        // Create profile manually if needed
+        await createProfile(data.user.id, email, role);
+        
+        toast({
+          title: 'Account Created',
+          description: isFirstUser ? 'Welcome! You have been granted admin access.' : 'Please check your email to verify your account.',
+        });
+      }
+
+      return { error };
+    } catch (error) {
+      console.error('Sign up error:', error);
+      return { error };
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const signIn = async (email: string, password: string) => {
     setIsLoading(true);
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    setIsLoading(false);
-    return { error };
+    
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      return { error };
+    } catch (error) {
+      console.error('Sign in error:', error);
+      return { error };
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (!error) {
+    try {
+      // Check if there's an active session before attempting logout
+      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      
+      if (!currentSession) {
+        // User is already logged out, just clear local state
+        setUser(null);
+        setSession(null);
+        return { error: null };
+      }
+
+      const { error } = await supabase.auth.signOut();
+      
+      if (!error) {
+        setUser(null);
+        setSession(null);
+        toast({
+          title: 'Signed Out',
+          description: 'You have been successfully signed out.',
+        });
+      }
+      
+      return { error };
+    } catch (error) {
+      console.error('Sign out error:', error);
+      // Even if there's an error, clear local state
       setUser(null);
       setSession(null);
+      return { error };
     }
-    return { error };
   };
 
   const createUser = async (email: string, name: string, role: UserRole) => {
@@ -172,18 +139,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error: { message: 'Unauthorized' } };
     }
 
-    const { data, error } = await supabase.auth.admin.createUser({
-      email,
-      password: 'TempPassword123!',
-      email_confirm: true,
-      user_metadata: { name, role }
-    });
+    try {
+      const { data, error } = await supabase.auth.admin.createUser({
+        email,
+        password: 'TempPassword123!',
+        email_confirm: true,
+        user_metadata: { name, role }
+      });
 
-    if (!error && data.user) {
-      await createProfile(data.user.id, email, role);
+      if (!error && data.user) {
+        await createProfile(data.user.id, email, role);
+      }
+
+      return { error };
+    } catch (error) {
+      console.error('Create user error:', error);
+      return { error };
     }
-
-    return { error };
   };
 
   const updateUserRole = async (userId: string, role: UserRole) => {
@@ -191,12 +163,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error: { message: 'Unauthorized' } };
     }
 
-    const { error } = await supabase
-      .from('profiles')
-      .update({ role })
-      .eq('id', userId);
+    try {
+      const { error } = await supabase
+        .from('profiles')
+        .update({ role })
+        .eq('id', userId);
 
-    return { error };
+      return { error };
+    } catch (error) {
+      console.error('Update user role error:', error);
+      return { error };
+    }
   };
 
   const deleteUser = async (userId: string) => {
@@ -204,8 +181,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error: { message: 'Cannot delete yourself or unauthorized' } };
     }
 
-    const { error } = await supabase.auth.admin.deleteUser(userId);
-    return { error };
+    try {
+      const { error } = await supabase.auth.admin.deleteUser(userId);
+      return { error };
+    } catch (error) {
+      console.error('Delete user error:', error);
+      return { error };
+    }
   };
 
   const getUsers = async () => {
@@ -213,12 +195,17 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { data: [], error: { message: 'Unauthorized' } };
     }
 
-    const { data, error } = await supabase
-      .from('profiles')
-      .select('*')
-      .order('created_at', { ascending: false });
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('*')
+        .order('created_at', { ascending: false });
 
-    return { data: data || [], error };
+      return { data: data || [], error };
+    } catch (error) {
+      console.error('Get users error:', error);
+      return { data: [], error };
+    }
   };
 
   return (
