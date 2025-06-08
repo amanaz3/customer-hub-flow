@@ -34,7 +34,7 @@ export const useRealtimeSubscription = ({
 
     channel
       .on(
-        'postgres_changes',
+        'postgres_changes' as any,
         {
           event,
           schema,
