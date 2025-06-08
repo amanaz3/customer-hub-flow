@@ -93,8 +93,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     try {
-      // Generate a secure temporary password
-      const tempPassword = `Temp${Math.random().toString(36).slice(-8)}!1`;
+      // Use the default temporary password
+      const tempPassword = 'support@143';
       
       // Create user with basic signup
       const { data, error } = await supabase.auth.signUp({
@@ -130,7 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         toast({
           title: 'User Created',
-          description: `User ${name} has been created successfully. Temporary password: ${tempPassword}`,
+          description: `User ${name} has been created successfully. Default password: ${tempPassword}`,
           duration: 10000,
         });
       }
