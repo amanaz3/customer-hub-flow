@@ -1,9 +1,8 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Status } from '@/types/customer';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/SecureAuthContext';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -72,8 +71,6 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
     }
   };
 
-  const availableStatuses = getAvailableStatuses();
-
   const getStatusButtonText = (targetStatus: Status): string => {
     switch (targetStatus) {
       case 'Returned': return 'Return to User';
@@ -117,6 +114,8 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
   const handleStatusChange = (value: string) => {
     setSelectedStatus(value as Status);
   };
+
+  const availableStatuses = getAvailableStatuses();
 
   return (
     <div className="flex flex-wrap gap-2">
@@ -219,7 +218,7 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
                     if (selectedStatus === 'Paid' && onPaymentReceived) {
                       onPaymentReceived();
                     } else {
-                      onStatusChange(selectedStatus as Status, comment || `Manual override by ${user?.name}`);
+                      onStatusChange(selectedStatus as Status, comment || `Manual override by ${user?.profile?.name}`);
                     }
                     setComment('');
                     setSelectedStatus('');

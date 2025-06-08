@@ -3,7 +3,7 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/contexts/SecureAuthContext';
 import { useCustomer } from '@/contexts/CustomerContext';
 import { LeadSource, LicenseType } from '@/types/customer';
 import { useToast } from '@/hooks/use-toast';

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -22,6 +23,7 @@ interface CustomerDetailsFormProps {
     company: string;
     email: string;
     leadSource: string;
+    licenseType: string;
     amount: string;
   }) => void;
 }
@@ -38,6 +40,7 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
     company: customer.company || '',
     email: customer.email || '',
     leadSource: customer.leadSource || 'Website',
+    licenseType: customer.licenseType || 'Mainland',
     amount: customer.amount.toString() || '',
   });
 
@@ -127,6 +130,24 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
                 <SelectItem value="Referral">Referral</SelectItem>
                 <SelectItem value="Social Media">Social Media</SelectItem>
                 <SelectItem value="Other">Other</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          
+          <div>
+            <Label htmlFor="licenseType">License Type</Label>
+            <Select
+              disabled={!isEditable || !isUserOwner}
+              value={formData.licenseType}
+              onValueChange={(value) => handleSelectChange('licenseType', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Select license type" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Mainland">Mainland</SelectItem>
+                <SelectItem value="Freezone">Freezone</SelectItem>
+                <SelectItem value="Offshore">Offshore</SelectItem>
               </SelectContent>
             </Select>
           </div>
