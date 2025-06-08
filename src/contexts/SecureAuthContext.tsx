@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/lib/supabase';
@@ -31,7 +30,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-export { UserRole };
+export type { UserRole };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, session, isLoading, setUser, setSession, setIsLoading, createProfile } = useAuthState();
