@@ -25,7 +25,6 @@ const Settings = () => {
   const [emailNotifications, setEmailNotifications] = useState(true);
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
-  const [googleDriveConnected, setGoogleDriveConnected] = useState(false);
   
   const handlePasswordChange = (e: React.FormEvent) => {
     e.preventDefault();
@@ -56,24 +55,6 @@ const Settings = () => {
     
     setPassword('');
     setConfirmPassword('');
-  };
-  
-  const handleConnectGoogleDrive = () => {
-    // In a real app, this would open OAuth flow
-    setGoogleDriveConnected(true);
-    toast({
-      title: "Connected",
-      description: "Google Drive has been connected successfully",
-    });
-  };
-  
-  const handleDisconnectGoogleDrive = () => {
-    // In a real app, this would revoke access
-    setGoogleDriveConnected(false);
-    toast({
-      title: "Disconnected",
-      description: "Google Drive has been disconnected",
-    });
   };
   
   const handleSaveNotificationSettings = () => {
@@ -160,53 +141,6 @@ const Settings = () => {
                 </div>
                 <Button type="submit">Change Password</Button>
               </form>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader>
-              <CardTitle>Google Drive Integration</CardTitle>
-              <CardDescription>
-                Connect your Google Drive for document storage
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="font-medium">Google Drive</p>
-                  <p className="text-sm text-muted-foreground">
-                    {googleDriveConnected
-                      ? "Your account is connected"
-                      : "Connect your Google Drive account"}
-                  </p>
-                </div>
-                {googleDriveConnected ? (
-                  <Button 
-                    variant="outline" 
-                    onClick={handleDisconnectGoogleDrive}
-                  >
-                    Disconnect
-                  </Button>
-                ) : (
-                  <Button onClick={handleConnectGoogleDrive}>
-                    Connect
-                  </Button>
-                )}
-              </div>
-              
-              {googleDriveConnected && (
-                <div>
-                  <Label htmlFor="folder-path">Default Folder Path</Label>
-                  <Input
-                    id="folder-path"
-                    defaultValue="/Workflow App Documents/"
-                    className="mt-1"
-                  />
-                  <p className="text-xs text-muted-foreground mt-1">
-                    Documents will be saved to this folder in your Google Drive
-                  </p>
-                </div>
-              )}
             </CardContent>
           </Card>
           
