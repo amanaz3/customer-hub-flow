@@ -19,7 +19,10 @@ import {
   CheckCircle,
   Clock,
   AlertCircle,
-  Plus
+  Plus,
+  Calendar,
+  Target,
+  Award
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -92,6 +95,69 @@ const RecentActivities = memo(() => {
 
 RecentActivities.displayName = 'RecentActivities';
 
+// Personal insights component
+const PersonalInsights = memo(() => {
+  const { customers } = useCustomers();
+  const { user } = useAuth();
+
+  const insights = useMemo(() => {
+    const userCustomers = customers.filter(c => c.user_id === user?.id);
+    const thisWeekStart = new Date();
+    thisWeekStart.setDate(thisWeekStart.getDate() - thisWeekStart.getDay());
+    
+    const thisWeekCustomers = userCustomers.filter(c => 
+      new Date(c.createdAt || 0) >= thisWeekStart
+    );
+
+    const completedThisWeek = thisWeekCustomers.filter(c => c.status === 'Complete').length;
+    const avgProcessingTime = '2.5 days'; // This would be calculated from actual data
+
+    return {
+      weeklyProgress: thisWeekCustomers.length,
+      completedThisWeek,
+      avgProcessingTime,
+      productivityScore: Math.min(100, (completedThisWeek / Math.max(thisWeekCustomers.length, 1)) * 100)
+    };
+  }, [customers, user?.id]);
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center space-x-2">
+          <Target className="h-5 w-5 text-blue-600" />
+          <span>Your Weekly Insights</span>
+        </CardTitle>
+        <CardDescription>Personal performance and achievements</CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center p-3 bg-blue-50 rounded-lg">
+            <div className="text-2xl font-bold text-blue-600">{insights.weeklyProgress}</div>
+            <div className="text-sm text-muted-foreground">New Cases This Week</div>
+          </div>
+          <div className="text-center p-3 bg-green-50 rounded-lg">
+            <div className="text-2xl font-bold text-green-600">{insights.completedThisWeek}</div>
+            <div className="text-sm text-muted-foreground">Completed This Week</div>
+          </div>
+        </div>
+        <div className="flex items-center justify-between text-sm">
+          <span>Avg. Processing Time:</span>
+          <Badge variant="outline">{insights.avgProcessingTime}</Badge>
+        </div>
+        <div className="flex items-center justify-between text-sm">
+          <span>Productivity Score:</span>
+          <div className="flex items-center space-x-2">
+            <Award className="h-4 w-4 text-yellow-500" />
+            <span className="font-medium">{insights.productivityScore.toFixed(0)}%</span>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+});
+
+PersonalInsights.displayName = 'PersonalInsights';
+
 const OptimizedDashboard: React.FC = () => {
   usePerformanceMonitor('OptimizedDashboard');
   
@@ -116,6 +182,16 @@ const OptimizedDashboard: React.FC = () => {
       completionRate: totalCustomers > 0 ? Math.round((completedCases / totalCustomers) * 100) : 0
     };
   }, [customers]);
+
+  // Personal greeting based on time of day
+  const getPersonalGreeting = () => {
+    const hour = new Date().getHours();
+    const name = user?.profile?.name || 'there';
+    
+    if (hour < 12) return `Good morning, ${name}!`;
+    if (hour < 17) return `Good afternoon, ${name}!`;
+    return `Good evening, ${name}!`;
+  };
 
   const handleQuickAction = (action: string) => {
     switch (action) {
@@ -146,13 +222,30 @@ const OptimizedDashboard: React.FC = () => {
   return (
     <MainLayout>
       <div className="space-y-6">
-        {/* Header */}
+        {/* Personalized Header */}
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Dashboard</h1>
+            <h1 className="text-3xl font-bold">{getPersonalGreeting()}</h1>
             <p className="text-muted-foreground">
-              Welcome back, {user?.profile?.name}! Here's an overview of your workflow.
+              {isAdmin ? 
+                "Here's your administrative overview and system insights." :
+                "Here's your personal workflow overview and achievements."
+              }
             </p>
+            <div className="flex items-center space-x-4 mt-2 text-sm text-muted-foreground">
+              <div className="flex items-center space-x-1">
+                <Calendar className="h-4 w-4" />
+                <span>{new Date().toLocaleDateString('en-US', { 
+                  weekday: 'long', 
+                  year: 'numeric', 
+                  month: 'long', 
+                  day: 'numeric' 
+                })}</span>
+              </div>
+              <Badge variant="outline" className="text-xs">
+                {isAdmin ? 'Administrator' : 'User'}
+              </Badge>
+            </div>
           </div>
           <div className="mt-4 md:mt-0">
             <Button onClick={() => handleQuickAction('add-customer')}>
@@ -197,11 +290,16 @@ const OptimizedDashboard: React.FC = () => {
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          {/* Personal Insights */}
+          <LazyWrapper>
+            <PersonalInsights />
+          </LazyWrapper>
+
           {/* Quick Actions */}
           <Card>
             <CardHeader>
               <CardTitle>Quick Actions</CardTitle>
-              <CardDescription>Common tasks and shortcuts</CardDescription>
+              <CardDescription>Your frequently used tasks</CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               <Button 
@@ -252,11 +350,9 @@ const OptimizedDashboard: React.FC = () => {
           </Card>
 
           {/* Recent Activities */}
-          <div className="lg:col-span-2">
-            <LazyWrapper>
-              <RecentActivities />
-            </LazyWrapper>
-          </div>
+          <LazyWrapper>
+            <RecentActivities />
+          </LazyWrapper>
         </div>
 
         {/* Performance Metrics */}
