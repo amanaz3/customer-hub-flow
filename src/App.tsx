@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/SecureAuthContext";
 import { CustomerProvider } from "./contexts/CustomerContext";
+import { NotificationProvider } from "./contexts/NotificationContext";
 import React from "react";
 
 // Pages
@@ -37,20 +38,22 @@ const App: React.FC = () => {
         <Sonner />
         <AuthProvider>
           <CustomerProvider>
-            <BrowserRouter>
-              <Routes>
-                <Route path="/" element={<Navigate to="/login" replace />} />
-                <Route path="/login" element={<SecureLogin />} />
-                <Route path="/dashboard" element={<Dashboard />} />
-                <Route path="/customers" element={<CustomerList />} />
-                <Route path="/customers/new" element={<CustomerNew />} />
-                <Route path="/customers/:id" element={<CustomerDetail />} />
-                <Route path="/completed" element={<CompletedCases />} />
-                <Route path="/users" element={<SecureUserManagement />} />
-                <Route path="/settings" element={<Settings />} />
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </BrowserRouter>
+            <NotificationProvider>
+              <BrowserRouter>
+                <Routes>
+                  <Route path="/" element={<Navigate to="/login" replace />} />
+                  <Route path="/login" element={<SecureLogin />} />
+                  <Route path="/dashboard" element={<Dashboard />} />
+                  <Route path="/customers" element={<CustomerList />} />
+                  <Route path="/customers/new" element={<CustomerNew />} />
+                  <Route path="/customers/:id" element={<CustomerDetail />} />
+                  <Route path="/completed" element={<CompletedCases />} />
+                  <Route path="/users" element={<SecureUserManagement />} />
+                  <Route path="/settings" element={<Settings />} />
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </BrowserRouter>
+            </NotificationProvider>
           </CustomerProvider>
         </AuthProvider>
       </TooltipProvider>

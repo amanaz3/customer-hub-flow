@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Bell, User } from 'lucide-react';
+import { User } from 'lucide-react';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { 
   DropdownMenu, 
@@ -12,6 +12,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import NotificationDropdown from '@/components/Notifications/NotificationDropdown';
 
 const Navbar: React.FC = () => {
   const { user, signOut, isAdmin } = useAuth();
@@ -39,10 +40,7 @@ const Navbar: React.FC = () => {
         </div>
         
         <div className="flex items-center space-x-4">
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5" />
-            <span className="absolute top-0 right-0 h-2 w-2 rounded-full bg-red-500"></span>
-          </Button>
+          <NotificationDropdown />
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
