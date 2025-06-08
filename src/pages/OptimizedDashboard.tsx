@@ -28,72 +28,8 @@ import {
 } from "@/components/ui/select";
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 
-// Mock data for development
-const mockCustomers: Customer[] = [
-  {
-    id: '1',
-    name: 'Ahmed Al-Rashid',
-    email: 'ahmed@example.com',
-    mobile: '+971501234567',
-    company: 'Al-Rashid Trading LLC',
-    leadSource: 'Website',
-    licenseType: 'Mainland',
-    status: 'Submitted',
-    amount: 15000,
-    created_at: '2024-01-15T10:00:00Z'
-  },
-  {
-    id: '2',
-    name: 'Sarah Johnson',
-    email: 'sarah@techstart.ae',
-    mobile: '+971502345678',
-    company: 'TechStart Solutions',
-    leadSource: 'Referral',
-    licenseType: 'Freezone',
-    status: 'Returned',
-    amount: 25000,
-    created_at: '2024-01-14T14:30:00Z'
-  },
-  {
-    id: '3',
-    name: 'Mohammed Hassan',
-    email: 'mohammed@greentech.ae',
-    mobile: '+971503456789',
-    company: 'Green Tech Industries',
-    leadSource: 'Social Media',
-    licenseType: 'Offshore',
-    status: 'Complete',
-    amount: 35000,
-    created_at: '2024-01-13T09:15:00Z'
-  },
-  {
-    id: '4',
-    name: 'Lisa Chen',
-    email: 'lisa@innovate.ae',
-    mobile: '+971504567890',
-    company: 'Innovate Consulting',
-    leadSource: 'Google Ads',
-    licenseType: 'Mainland',
-    status: 'Sent to Bank',
-    amount: 18000,
-    created_at: '2024-01-12T16:45:00Z'
-  },
-  {
-    id: '5',
-    name: 'Omar Abdullah',
-    email: 'omar@logistics.ae',
-    mobile: '+971505678901',
-    company: 'Express Logistics',
-    leadSource: 'Website',
-    licenseType: 'Freezone',
-    status: 'Need More Info',
-    amount: 22000,
-    created_at: '2024-01-11T11:20:00Z'
-  }
-];
-
 const OptimizedDashboard = () => {
-  const { customers, setCustomers, refreshData } = useCustomer();
+  const { customers, refreshData, isLoading } = useCustomer();
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
@@ -123,13 +59,6 @@ const OptimizedDashboard = () => {
     }
   });
 
-  // Load mock data for now (replace with real data loading later)
-  useEffect(() => {
-    if (customers.length === 0) {
-      setCustomers(mockCustomers);
-    }
-  }, [customers.length, setCustomers]);
-
   // Filter customers based on search and status
   const filteredCustomers = useMemo(() => {
     return customers.filter(customer => {
@@ -143,7 +72,7 @@ const OptimizedDashboard = () => {
     });
   }, [customers, searchTerm, statusFilter, refreshKey]);
 
-  // Calculate statistics
+  // Calculate statistics from real data
   const stats = useMemo(() => {
     const totalCustomers = customers.length;
     const completedCases = customers.filter(c => c.status === 'Complete' || c.status === 'Paid').length;
@@ -164,6 +93,21 @@ const OptimizedDashboard = () => {
     setRefreshKey(prev => prev + 1);
     refreshData();
   };
+
+  if (isLoading) {
+    return (
+      <MainLayout>
+        <div className="space-y-6">
+          <div className="flex items-center justify-center py-20">
+            <div className="text-center">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto mb-4"></div>
+              <p className="text-muted-foreground">Loading dashboard data...</p>
+            </div>
+          </div>
+        </div>
+      </MainLayout>
+    );
+  }
 
   return (
     <MainLayout>
@@ -263,6 +207,7 @@ const OptimizedDashboard = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="Draft">Draft</SelectItem>
                     <SelectItem value="Submitted">Submitted</SelectItem>
                     <SelectItem value="Returned">Returned</SelectItem>
                     <SelectItem value="Sent to Bank">Sent to Bank</SelectItem>
@@ -275,10 +220,22 @@ const OptimizedDashboard = () => {
               </div>
             </div>
 
-            <OptimizedCustomerTable 
-              customers={filteredCustomers} 
-              onDataChange={handleDataRefresh}
-            />
+            {customers.length === 0 ? (
+              <div className="text-center py-12">
+                <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">No customers yet</h3>
+                <p className="text-gray-500 mb-4">Get started by creating your first customer application.</p>
+                <Button onClick={() => navigate('/customers/new')}>
+                  <Plus className="mr-2 h-4 w-4" />
+                  Add First Customer
+                </Button>
+              </div>
+            ) : (
+              <OptimizedCustomerTable 
+                customers={filteredCustomers} 
+                onDataChange={handleDataRefresh}
+              />
+            )}
           </CardContent>
         </Card>
       </div>
