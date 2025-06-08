@@ -53,6 +53,7 @@ export type Database = {
           amount: number
           company: string
           created_at: string | null
+          drive_folder_id: string | null
           email: string
           id: string
           lead_source: Database["public"]["Enums"]["lead_source"]
@@ -69,6 +70,7 @@ export type Database = {
           amount: number
           company: string
           created_at?: string | null
+          drive_folder_id?: string | null
           email: string
           id?: string
           lead_source: Database["public"]["Enums"]["lead_source"]
@@ -85,6 +87,7 @@ export type Database = {
           amount?: number
           company?: string
           created_at?: string | null
+          drive_folder_id?: string | null
           email?: string
           id?: string
           lead_source?: Database["public"]["Enums"]["lead_source"]

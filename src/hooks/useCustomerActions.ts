@@ -16,8 +16,13 @@ export const useCustomerActions = (
       throw new Error('User not authenticated');
     }
 
-    await CustomerService.createCustomer(customer, user.id);
-    await refreshData(); // Refresh to show the new customer
+    try {
+      await CustomerService.createCustomer(customer, user.id);
+      await refreshData(); // Refresh to show the new customer
+    } catch (error) {
+      console.error('Error creating customer:', error);
+      throw error; // Re-throw to handle in the calling component
+    }
   };
 
   const updateCustomer = (id: string, updates: Partial<Customer>) => {

@@ -36,15 +36,17 @@ export class CustomerService {
   }
 
   static async createCustomer(customer: Customer, userId: string) {
-    // Create Google Drive folder first
+    console.log('Creating customer:', customer);
+    
+    // Create Google Drive folder first (optional)
     let driveFolderId: string | undefined;
     try {
       const folderName = `${customer.name} - ${customer.company}`;
       driveFolderId = await googleDriveService.createCustomerFolder(folderName);
       console.log('Google Drive folder created:', driveFolderId);
     } catch (driveError) {
-      console.error('Google Drive folder creation failed:', driveError);
-      // Continue without Drive folder - we'll handle this gracefully
+      console.warn('Google Drive folder creation failed (continuing without it):', driveError);
+      // Continue without Drive folder - this is optional
     }
 
     // Insert customer into database with proper type casting
@@ -58,8 +60,10 @@ export class CustomerService {
       amount: customer.amount,
       status: customer.status as "Draft" | "Submitted" | "Returned" | "Sent to Bank" | "Complete" | "Rejected" | "Need More Info" | "Paid",
       user_id: userId,
-      drive_folder_id: driveFolderId
+      drive_folder_id: driveFolderId || null
     };
+
+    console.log('Inserting customer data:', customerData);
 
     const { data, error } = await supabase
       .from('customers')
@@ -69,15 +73,10 @@ export class CustomerService {
 
     if (error) {
       console.error('Database insert error:', error);
-      throw new Error('Failed to create customer in database');
+      throw new Error(`Failed to create customer in database: ${error.message}`);
     }
 
-    console.log('Customer created in database:', data);
-    
-    if (!driveFolderId) {
-      throw new Error('Google Drive folder creation failed');
-    }
-
+    console.log('Customer created successfully:', data);
     return data;
   }
 
