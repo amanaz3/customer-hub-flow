@@ -1,6 +1,7 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Customer } from '@/types/customer';
+import { formatCurrency } from '@/lib/utils';
 import {
   Table,
   TableBody,

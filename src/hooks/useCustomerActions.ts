@@ -6,7 +6,7 @@ import { useAuth } from '@/contexts/SecureAuthContext';
 export const useCustomerActions = (
   customers: Customer[],
   setCustomers: (customers: Customer[]) => void,
-  setDocuments: (documents: Document[]) => void,
+  setDocuments: (documents: Document[] | ((prev: Document[]) => Document[])) => void,
   refreshData: () => Promise<void>
 ) => {
   const { user } = useAuth();
