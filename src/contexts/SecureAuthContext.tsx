@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase, getFunctionUrl } from '@/lib/supabase';
@@ -96,14 +97,16 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       // Use the default temporary password
       const tempPassword = 'support@143';
       
-      // Create user with basic signup
+      // Create user with email confirmation disabled
       const { data, error } = await supabase.auth.signUp({
         email,
         password: tempPassword,
         options: {
+          emailRedirectTo: undefined, // Disable email redirect
           data: {
             name,
-            role
+            role,
+            email_confirm: false // Disable email confirmation
           }
         }
       });
