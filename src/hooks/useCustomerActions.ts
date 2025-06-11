@@ -120,8 +120,8 @@ export const useCustomerActions = (
         };
 
         // Update customer with new status history
-        setCustomers(prev => 
-          prev.map(customer => 
+        setCustomers(
+          customers.map(customer => 
             customer.id === customerId 
               ? { 
                   ...customer, 
@@ -172,8 +172,8 @@ export const useCustomerActions = (
           created_at: new Date().toISOString()
         };
 
-        setCustomers(prev => 
-          prev.map(customer => 
+        setCustomers(
+          customers.map(customer => 
             customer.id === customerId 
               ? { 
                   ...customer, 
@@ -218,8 +218,8 @@ export const useCustomerActions = (
           created_at: new Date().toISOString()
         };
 
-        setCustomers(prev => 
-          prev.map(customer => 
+        setCustomers(
+          customers.map(customer => 
             customer.id === customerId 
               ? { 
                   ...customer, 
