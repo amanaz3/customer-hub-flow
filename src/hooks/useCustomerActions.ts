@@ -89,16 +89,152 @@ export const useCustomerActions = (
     }
   };
 
-  const updateCustomerStatus = (customerId: string, status: string, comment: string, changedBy: string, role: string) => {
-    console.log('Update customer status:', { customerId, status, comment, changedBy, role });
+  const updateCustomerStatus = async (customerId: string, status: string, comment: string, changedBy: string, role: string) => {
+    try {
+      console.log('Updating customer status:', { customerId, status, comment, changedBy, role });
+      
+      // Update the customer status locally first for immediate UI feedback
+      const customer = customers.find(c => c.id === customerId);
+      if (customer) {
+        const previousStatus = customer.status;
+        
+        // Update customer status
+        setCustomers(
+          customers.map(customer => 
+            customer.id === customerId 
+              ? { ...customer, status, updated_at: new Date().toISOString() }
+              : customer
+          )
+        );
+
+        // Add status change to history
+        const statusChange: StatusChange = {
+          id: crypto.randomUUID(),
+          customer_id: customerId,
+          previous_status: previousStatus,
+          new_status: status,
+          changed_by: changedBy,
+          changed_by_role: role,
+          comment: comment || undefined,
+          created_at: new Date().toISOString()
+        };
+
+        // Update customer with new status history
+        setCustomers(prev => 
+          prev.map(customer => 
+            customer.id === customerId 
+              ? { 
+                  ...customer, 
+                  statusHistory: [statusChange, ...(customer.statusHistory || [])]
+                }
+              : customer
+          )
+        );
+
+        console.log('Customer status updated successfully');
+      }
+    } catch (error) {
+      console.error('Error updating customer status:', error);
+      throw error;
+    }
   };
 
-  const markPaymentReceived = (customerId: string, changedBy: string) => {
-    console.log('Mark payment received:', { customerId, changedBy });
+  const markPaymentReceived = async (customerId: string, changedBy: string) => {
+    try {
+      console.log('Marking payment received:', { customerId, changedBy });
+      
+      // Update customer payment status
+      setCustomers(
+        customers.map(customer => 
+          customer.id === customerId 
+            ? { 
+                ...customer, 
+                status: 'Paid',
+                payment_received: true,
+                payment_date: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+              }
+            : customer
+        )
+      );
+
+      // Add status change to history
+      const customer = customers.find(c => c.id === customerId);
+      if (customer) {
+        const statusChange: StatusChange = {
+          id: crypto.randomUUID(),
+          customer_id: customerId,
+          previous_status: customer.status,
+          new_status: 'Paid',
+          changed_by: changedBy,
+          changed_by_role: 'admin',
+          comment: 'Payment received and confirmed',
+          created_at: new Date().toISOString()
+        };
+
+        setCustomers(prev => 
+          prev.map(customer => 
+            customer.id === customerId 
+              ? { 
+                  ...customer, 
+                  statusHistory: [statusChange, ...(customer.statusHistory || [])]
+                }
+              : customer
+          )
+        );
+      }
+
+      console.log('Payment marked as received successfully');
+    } catch (error) {
+      console.error('Error marking payment received:', error);
+      throw error;
+    }
   };
 
-  const submitToAdmin = (customerId: string, userId: string, userName: string) => {
-    console.log('Submit to admin:', { customerId, userId, userName });
+  const submitToAdmin = async (customerId: string, userId: string, userName: string) => {
+    try {
+      console.log('Submitting to admin:', { customerId, userId, userName });
+      
+      // Update customer status to Submitted
+      setCustomers(
+        customers.map(customer => 
+          customer.id === customerId 
+            ? { ...customer, status: 'Submitted', updated_at: new Date().toISOString() }
+            : customer
+        )
+      );
+
+      // Add status change to history
+      const customer = customers.find(c => c.id === customerId);
+      if (customer) {
+        const statusChange: StatusChange = {
+          id: crypto.randomUUID(),
+          customer_id: customerId,
+          previous_status: customer.status,
+          new_status: 'Submitted',
+          changed_by: userName,
+          changed_by_role: 'user',
+          comment: 'Application submitted to admin for review',
+          created_at: new Date().toISOString()
+        };
+
+        setCustomers(prev => 
+          prev.map(customer => 
+            customer.id === customerId 
+              ? { 
+                  ...customer, 
+                  statusHistory: [statusChange, ...(customer.statusHistory || [])]
+                }
+              : customer
+          )
+        );
+      }
+
+      console.log('Application submitted to admin successfully');
+    } catch (error) {
+      console.error('Error submitting to admin:', error);
+      throw error;
+    }
   };
 
   return {
