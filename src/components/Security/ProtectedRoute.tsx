@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/SecureAuthContext';
 
 interface ProtectedRouteProps {
@@ -9,7 +9,17 @@ interface ProtectedRouteProps {
 }
 
 const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin = false }) => {
-  const { isAuthenticated, isAdmin, isLoading } = useAuth();
+  const { isAuthenticated, isAdmin, isLoading, session } = useAuth();
+  const location = useLocation();
+
+  console.log('ProtectedRoute check:', { 
+    isAuthenticated, 
+    isAdmin, 
+    isLoading, 
+    hasSession: !!session,
+    requireAdmin,
+    currentPath: location.pathname 
+  });
 
   if (isLoading) {
     return (
@@ -22,16 +32,24 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
     );
   }
 
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
+  if (!isAuthenticated || !session) {
+    console.log('User not authenticated, redirecting to login');
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
   if (requireAdmin && !isAdmin) {
+    console.log('Admin access required but user is not admin');
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-red-600">Access Denied</h1>
           <p className="text-gray-600 mt-2">You don't have permission to access this resource.</p>
+          <button 
+            onClick={() => window.history.back()} 
+            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+          >
+            Go Back
+          </button>
         </div>
       </div>
     );

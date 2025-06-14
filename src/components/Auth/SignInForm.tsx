@@ -21,6 +21,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isLoading, setIsLoading }) => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
     if (!email || !password) {
       toast({
         title: 'Error',
@@ -33,19 +34,23 @@ const SignInForm: React.FC<SignInFormProps> = ({ isLoading, setIsLoading }) => {
     setIsLoading(true);
     
     try {
+      console.log('Attempting sign in for:', email);
       const { error } = await signIn(email, password);
+      
       if (error) {
-        console.error('Sign in failed', error);
+        console.error('Sign in failed:', error);
         toast({
           title: 'Sign In Failed',
           description: error.message || 'Invalid email or password',
           variant: 'destructive',
         });
       } else {
+        console.log('Sign in successful');
         toast({
           title: 'Welcome back!',
           description: 'You have been signed in successfully.',
         });
+        // Navigation will be handled by the auth state change
       }
     } catch (error) {
       console.error('Sign in error:', error);
@@ -90,6 +95,7 @@ const SignInForm: React.FC<SignInFormProps> = ({ isLoading, setIsLoading }) => {
             size="sm"
             className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
             onClick={() => setShowPassword(!showPassword)}
+            disabled={isLoading}
           >
             {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
           </Button>

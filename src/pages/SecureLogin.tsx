@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield } from 'lucide-react';
@@ -10,16 +10,28 @@ import AuthLoadingSpinner from '@/components/Auth/AuthLoadingSpinner';
 const SecureLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
   
-  const { isAuthenticated, isLoading: authLoading } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, session } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  // Get the redirect path from location state, default to dashboard
+  const from = location.state?.from?.pathname || '/dashboard';
 
   useEffect(() => {
-    if (isAuthenticated) {
-      navigate('/dashboard');
+    console.log('SecureLogin useEffect:', { isAuthenticated, authLoading, hasSession: !!session });
+    
+    if (!authLoading && isAuthenticated && session) {
+      console.log('User is authenticated, redirecting to:', from);
+      navigate(from, { replace: true });
     }
-  }, [isAuthenticated, navigate]);
+  }, [isAuthenticated, authLoading, navigate, from, session]);
 
   if (authLoading) {
+    return <AuthLoadingSpinner />;
+  }
+
+  // Don't render login form if user is already authenticated
+  if (isAuthenticated && session) {
     return <AuthLoadingSpinner />;
   }
 
