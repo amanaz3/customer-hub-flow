@@ -21,19 +21,19 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
     currentPath: location.pathname 
   });
 
-  // Show loading state with a simpler timeout
+  // Show loading state
   if (isLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Verifying access...</p>
+          <p className="mt-2 text-gray-600">Loading...</p>
         </div>
       </div>
     );
   }
 
-  // If not loading and not authenticated, redirect to login
+  // If not authenticated, redirect to login
   if (!isAuthenticated || !session) {
     console.log('User not authenticated, redirecting to login');
     return <Navigate to="/login" replace state={{ from: location }} />;
