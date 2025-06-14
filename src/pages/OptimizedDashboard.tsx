@@ -7,6 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { formatCurrency } from '@/lib/utils';
 import OptimizedCustomerTable from '@/components/Customer/OptimizedCustomerTable';
+import UserAnalytics from '@/components/Analytics/UserAnalytics';
 import { Customer, useCustomer } from '@/contexts/CustomerContext';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { 
@@ -16,7 +17,8 @@ import {
   CheckCircle, 
   Clock,
   Plus,
-  Filter
+  Filter,
+  BarChart3
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -26,11 +28,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 
 const OptimizedDashboard = () => {
   const { customers, refreshData, isLoading } = useCustomer();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
@@ -181,63 +184,143 @@ const OptimizedDashboard = () => {
           </Card>
         </div>
 
-        {/* Filters and Search */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Recent Customers</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="flex flex-col md:flex-row gap-4 mb-6">
-              <div className="flex-1">
-                <div className="relative">
-                  <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search customers..."
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
+        {/* Admin Dashboard with Tabs */}
+        {isAdmin ? (
+          <Tabs defaultValue="customers" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="customers" className="flex items-center gap-2">
+                <Users className="h-4 w-4" />
+                Customers
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="flex items-center gap-2">
+                <BarChart3 className="h-4 w-4" />
+                User Analytics
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="customers" className="space-y-6">
+              {/* Filters and Search */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Recent Customers</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex flex-col md:flex-row gap-4 mb-6">
+                    <div className="flex-1">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Search customers..."
+                          value={searchTerm}
+                          onChange={(e) => setSearchTerm(e.target.value)}
+                          className="pl-10"
+                        />
+                      </div>
+                    </div>
+                    <div className="md:w-48">
+                      <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger>
+                          <Filter className="mr-2 h-4 w-4" />
+                          <SelectValue placeholder="Filter by status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Status</SelectItem>
+                          <SelectItem value="Draft">Draft</SelectItem>
+                          <SelectItem value="Submitted">Submitted</SelectItem>
+                          <SelectItem value="Returned">Returned</SelectItem>
+                          <SelectItem value="Sent to Bank">Sent to Bank</SelectItem>
+                          <SelectItem value="Complete">Complete</SelectItem>
+                          <SelectItem value="Rejected">Rejected</SelectItem>
+                          <SelectItem value="Need More Info">Need More Info</SelectItem>
+                          <SelectItem value="Paid">Paid</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {customers.length === 0 ? (
+                    <div className="text-center py-12">
+                      <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                      <h3 className="text-lg font-medium text-gray-900 mb-2">No customers yet</h3>
+                      <p className="text-gray-500 mb-4">Get started by creating your first customer application.</p>
+                      <Button onClick={() => navigate('/customers/new')}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        Add First Customer
+                      </Button>
+                    </div>
+                  ) : (
+                    <OptimizedCustomerTable 
+                      customers={filteredCustomers} 
+                      onDataChange={handleDataRefresh}
+                    />
+                  )}
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="analytics">
+              <UserAnalytics />
+            </TabsContent>
+          </Tabs>
+        ) : (
+          /* Regular User Dashboard */
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Customers</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col md:flex-row gap-4 mb-6">
+                <div className="flex-1">
+                  <div className="relative">
+                    <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search customers..."
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+                </div>
+                <div className="md:w-48">
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger>
+                      <Filter className="mr-2 h-4 w-4" />
+                      <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Status</SelectItem>
+                      <SelectItem value="Draft">Draft</SelectItem>
+                      <SelectItem value="Submitted">Submitted</SelectItem>
+                      <SelectItem value="Returned">Returned</SelectItem>
+                      <SelectItem value="Sent to Bank">Sent to Bank</SelectItem>
+                      <SelectItem value="Complete">Complete</SelectItem>
+                      <SelectItem value="Rejected">Rejected</SelectItem>
+                      <SelectItem value="Need More Info">Need More Info</SelectItem>
+                      <SelectItem value="Paid">Paid</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
               </div>
-              <div className="md:w-48">
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger>
-                    <Filter className="mr-2 h-4 w-4" />
-                    <SelectValue placeholder="Filter by status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="Draft">Draft</SelectItem>
-                    <SelectItem value="Submitted">Submitted</SelectItem>
-                    <SelectItem value="Returned">Returned</SelectItem>
-                    <SelectItem value="Sent to Bank">Sent to Bank</SelectItem>
-                    <SelectItem value="Complete">Complete</SelectItem>
-                    <SelectItem value="Rejected">Rejected</SelectItem>
-                    <SelectItem value="Need More Info">Need More Info</SelectItem>
-                    <SelectItem value="Paid">Paid</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
 
-            {customers.length === 0 ? (
-              <div className="text-center py-12">
-                <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
-                <h3 className="text-lg font-medium text-gray-900 mb-2">No customers yet</h3>
-                <p className="text-gray-500 mb-4">Get started by creating your first customer application.</p>
-                <Button onClick={() => navigate('/customers/new')}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add First Customer
-                </Button>
-              </div>
-            ) : (
-              <OptimizedCustomerTable 
-                customers={filteredCustomers} 
-                onDataChange={handleDataRefresh}
-              />
-            )}
-          </CardContent>
-        </Card>
+              {customers.length === 0 ? (
+                <div className="text-center py-12">
+                  <Users className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+                  <h3 className="text-lg font-medium text-gray-900 mb-2">No customers yet</h3>
+                  <p className="text-gray-500 mb-4">Get started by creating your first customer application.</p>
+                  <Button onClick={() => navigate('/customers/new')}>
+                    <Plus className="mr-2 h-4 w-4" />
+                    Add First Customer
+                  </Button>
+                </div>
+              ) : (
+                <OptimizedCustomerTable 
+                  customers={filteredCustomers} 
+                  onDataChange={handleDataRefresh}
+                />
+              )}
+            </CardContent>
+          </Card>
+        )}
       </div>
     </MainLayout>
   );
