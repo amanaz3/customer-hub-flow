@@ -32,7 +32,7 @@ import { Label } from "@/components/ui/label";
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { User } from '@/contexts/AuthContext';
+import { AuthUser } from '@/contexts/SecureAuthContext';
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -43,7 +43,7 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 const UserManagement = () => {
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<AuthUser[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { toast } = useToast();
   
@@ -70,11 +70,24 @@ const UserManagement = () => {
   }, [users]);
 
   const addUser = (data: FormValues) => {
-    const newUser: User = {
+    const newUser: AuthUser = {
       id: crypto.randomUUID(),
-      name: data.name,
+      aud: 'authenticated',
+      role: 'authenticated',
       email: data.email,
-      role: data.role,
+      email_confirmed_at: new Date().toISOString(),
+      phone: '',
+      confirmed_at: new Date().toISOString(),
+      last_sign_in_at: new Date().toISOString(),
+      app_metadata: {},
+      user_metadata: {},
+      identities: [],
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString(),
+      profile: {
+        name: data.name,
+        role: data.role,
+      }
     };
     
     setUsers([...users, newUser]);
@@ -90,7 +103,7 @@ const UserManagement = () => {
   const removeUser = (userId: string) => {
     const userToRemove = users.find(user => user.id === userId);
     
-    if (userToRemove?.role === 'admin' && users.filter(u => u.role === 'admin').length <= 1) {
+    if (userToRemove?.profile?.role === 'admin' && users.filter(u => u.profile?.role === 'admin').length <= 1) {
       toast({
         title: "Error",
         description: "Cannot remove the last admin user",
@@ -206,11 +219,11 @@ const UserManagement = () => {
               ) : (
                 users.map((user) => (
                   <TableRow key={user.id}>
-                    <TableCell className="font-medium">{user.name}</TableCell>
+                    <TableCell className="font-medium">{user.profile?.name || user.email}</TableCell>
                     <TableCell>{user.email}</TableCell>
                     <TableCell>
-                      <span className={`capitalize ${user.role === 'admin' ? 'text-blue-600 font-semibold' : ''}`}>
-                        {user.role}
+                      <span className={`capitalize ${user.profile?.role === 'admin' ? 'text-blue-600 font-semibold' : ''}`}>
+                        {user.profile?.role || 'user'}
                       </span>
                     </TableCell>
                     <TableCell className="text-right">
