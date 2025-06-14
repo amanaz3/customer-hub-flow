@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Document } from '@/types/customer';
 import { useToast } from '@/hooks/use-toast';
@@ -10,8 +11,8 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { validateFile, uploadFile, SUPPORTED_FILE_TYPES, MAX_FILE_SIZE } from '@/utils/fileUpload';
-import { Upload, CheckCircle, Eye, AlertCircle, FileText, Building, Users, Shield } from 'lucide-react';
+import { validateFile, uploadFile, SUPPORTED_FILE_TYPES, MAX_FILE_SIZE, formatFileSize, getFileIcon, getFileName, getFileViewLink, getFileDownloadLink } from '@/utils/fileUpload';
+import { Upload, CheckCircle, Eye, AlertCircle, FileText, Building, Users, Shield, ExternalLink, Download } from 'lucide-react';
 
 interface CategorizedDocumentUploadProps {
   documents: Document[];
@@ -74,7 +75,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
       
       toast({
         title: "Document uploaded successfully",
-        description: `${document?.name || file.name} has been uploaded and recorded in status history.`,
+        description: `${getFileIcon(file.name)} ${document?.name || file.name} has been uploaded to Supabase Storage.`,
       });
 
       console.log(`Upload completed for document ${documentId}`);
@@ -92,10 +93,6 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
     }
 
     event.target.value = '';
-  };
-
-  const formatFileSize = (bytes: number) => {
-    return `${(bytes / (1024 * 1024)).toFixed(1)}MB`;
   };
 
   const getSupportedTypesText = () => {
@@ -146,20 +143,43 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
 
   const categoryOrder = ['mandatory', 'freezone', 'supporting', 'signatory'];
 
-  const renderDocumentItem = (doc: Document) => {
-    const handleViewFile = () => {
-      if (doc.file_path) {
-        try {
-          const fileInfo = JSON.parse(doc.file_path);
-          if (fileInfo.publicUrl) {
-            window.open(fileInfo.publicUrl, '_blank');
-          }
-        } catch (error) {
-          console.error('Error opening file:', error);
-        }
-      }
-    };
+  const handleViewFile = (doc: Document) => {
+    if (!doc.file_path) return;
+    
+    const viewLink = getFileViewLink(doc.file_path);
+    if (viewLink) {
+      window.open(viewLink, '_blank', 'noopener,noreferrer');
+    } else {
+      toast({
+        title: "Unable to view file",
+        description: "Could not generate a valid link to view this file.",
+        variant: "destructive",
+      });
+    }
+  };
 
+  const handleDownloadFile = (doc: Document) => {
+    if (!doc.file_path) return;
+    
+    const downloadLink = getFileDownloadLink(doc.file_path);
+    if (downloadLink) {
+      const link = document.createElement('a');
+      link.href = downloadLink;
+      link.download = getFileName(doc.file_path);
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      toast({
+        title: "Unable to download file",
+        description: "Could not generate a valid link to download this file.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const renderDocumentItem = (doc: Document) => {
     return (
       <div 
         key={doc.id} 
@@ -178,27 +198,46 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
         </div>
         
         {doc.is_uploaded ? (
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2 text-green-600">
-              <CheckCircle className="w-4 h-4" />
-              <span className="text-xs">Uploaded to Storage</span>
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2 text-green-600">
+                <CheckCircle className="w-4 h-4" />
+                <div className="text-xs">
+                  <div className="font-medium">{getFileName(doc.file_path || '')}</div>
+                  <div className="text-gray-500 flex items-center gap-1">
+                    <ExternalLink className="w-3 h-3" />
+                    Stored in Supabase
+                  </div>
+                </div>
+              </div>
+              <div className="flex gap-1">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleViewFile(doc)}
+                  className="px-2"
+                  title="View file"
+                >
+                  <Eye className="w-3 h-3" />
+                </Button>
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => handleDownloadFile(doc)}
+                  className="px-2"
+                  title="Download file"
+                >
+                  <Download className="w-3 h-3" />
+                </Button>
+              </div>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={handleViewFile}
-              className="flex items-center gap-1"
-            >
-              <Eye className="w-3 h-3" />
-              View
-            </Button>
           </div>
         ) : (
           <div className="space-y-2">
             {uploading === doc.id && (
               <div className="space-y-1">
                 <div className="flex justify-between text-xs">
-                  <span>Uploading to Storage...</span>
+                  <span>Uploading to Supabase Storage...</span>
                   <span>{uploadProgress[doc.id] || 0}%</span>
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
@@ -258,7 +297,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
         <p>Supported formats: {getSupportedTypesText()}</p>
         <p>Maximum file size: {formatFileSize(MAX_FILE_SIZE)}</p>
         <p className="text-red-600 font-medium">* Indicates mandatory documents</p>
-        <p className="text-green-600 font-medium">✓ Using Supabase Storage</p>
+        <p className="text-green-600 font-medium">✓ Files stored securely in Supabase Storage</p>
       </div>
 
       {categoryOrder.map(category => {
@@ -289,12 +328,14 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
         <div className="flex items-start gap-2">
           <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5" />
           <div className="text-blue-800 text-sm">
-            <p className="font-medium">Upload Guidelines:</p>
+            <p className="font-medium">Supabase Storage Guidelines:</p>
             <ul className="mt-1 space-y-1 text-xs">
               <li>• Ensure documents are clear and readable</li>
               <li>• All mandatory documents (*) must be uploaded before submission</li>
-              <li>• Files are uploaded securely to Supabase Storage</li>
+              <li>• Files are uploaded securely to Supabase Storage with public access</li>
               <li>• You can save your progress as draft and continue later</li>
+              <li>• Files can be viewed and downloaded directly from storage</li>
+              <li>• All uploads are tracked in the status history</li>
             </ul>
           </div>
         </div>

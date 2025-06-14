@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { Document } from '@/types/customer';
 import { useToast } from '@/hooks/use-toast';
@@ -22,10 +23,11 @@ import {
   verifyFileAccess,
   getFileViewLink,
   getFileDownloadLink,
-  getFileName
+  getFileName,
+  getFileSize
 } from '@/utils/fileUpload';
 import type { UploadProgress } from '@/utils/fileUpload';
-import { Upload, CheckCircle, Eye, AlertCircle, X, Download, RefreshCw } from 'lucide-react';
+import { Upload, CheckCircle, Eye, AlertCircle, X, Download, RefreshCw, ExternalLink } from 'lucide-react';
 
 interface DocumentUploadProps {
   documents: Document[];
@@ -112,7 +114,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       
       toast({
         title: "Document uploaded successfully",
-        description: `${getFileIcon(file.name)} ${document?.name || file.name} has been uploaded and added to status history.`,
+        description: `${getFileIcon(file.name)} ${document?.name || file.name} has been uploaded to Supabase Storage.`,
       });
 
       console.log(`Upload completed for document ${documentId}`);
@@ -148,8 +150,8 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       toast({
         title: isAccessible ? "File is accessible" : "File access issue",
         description: isAccessible 
-          ? "File is accessible and can be viewed." 
-          : "File may have been moved or deleted.",
+          ? "File is accessible and can be viewed from Supabase Storage." 
+          : "File may have been moved or deleted from storage.",
         variant: isAccessible ? "default" : "destructive",
       });
     } catch (error) {
@@ -171,11 +173,12 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     console.log('Generated view link:', viewLink);
     
     if (viewLink) {
-      window.open(viewLink, '_blank');
+      // Open in new tab for better viewing experience
+      window.open(viewLink, '_blank', 'noopener,noreferrer');
     } else {
       toast({
         title: "Unable to view file",
-        description: "Could not generate a valid link to view this file.",
+        description: "Could not generate a valid link to view this file from Supabase Storage.",
         variant: "destructive",
       });
     }
@@ -189,11 +192,18 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     console.log('Generated download link:', downloadLink);
     
     if (downloadLink) {
-      window.open(downloadLink, '_blank');
+      // Create a temporary anchor element to trigger download
+      const link = document.createElement('a');
+      link.href = downloadLink;
+      link.download = getFileName(doc.file_path);
+      link.target = '_blank';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
     } else {
       toast({
         title: "Unable to download file",
-        description: "Could not generate a valid link to download this file.",
+        description: "Could not generate a valid link to download this file from Supabase Storage.",
         variant: "destructive",
       });
     }
@@ -211,7 +221,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       return (
         <div className="space-y-2">
           <div className="flex justify-between text-xs">
-            <span>Uploading...</span>
+            <span>Uploading to Supabase Storage...</span>
             <span>{Math.round(progress)}%</span>
           </div>
           <div className="flex items-center gap-2">
@@ -249,7 +259,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           >
             <span>
               <Upload className="w-3 h-3" />
-              Upload File
+              Upload to Storage
             </span>
           </Button>
         </label>
@@ -263,54 +273,67 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     const isVerifying = verifyingFiles.has(doc.id);
     const isAccessible = fileAccessStatus[doc.id];
     const fileName = getFileName(doc.file_path);
+    const fileSize = getFileSize(doc.file_path);
 
     return (
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
-          {isAccessible === false ? (
-            <div className="flex items-center gap-1 text-red-600">
-              <AlertCircle className="w-4 h-4" />
-              <span className="text-xs">Access Issue</span>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2 text-green-600">
-              <CheckCircle className="w-4 h-4" />
-              <span className="text-xs">{fileName}</span>
-            </div>
-          )}
+      <div className="space-y-2">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            {isAccessible === false ? (
+              <div className="flex items-center gap-1 text-red-600">
+                <AlertCircle className="w-4 h-4" />
+                <span className="text-xs">Storage Access Issue</span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-2 text-green-600">
+                <CheckCircle className="w-4 h-4" />
+                <div className="text-xs">
+                  <div className="font-medium">{fileName}</div>
+                  {fileSize > 0 && (
+                    <div className="text-gray-500">{formatFileSize(fileSize)}</div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+          
+          <div className="flex items-center gap-1">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => handleManualVerify(doc)}
+              disabled={isVerifying}
+              className="px-2"
+              title="Verify file access in Supabase Storage"
+            >
+              <RefreshCw className={`w-3 h-3 ${isVerifying ? 'animate-spin' : ''}`} />
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => handleViewFile(doc)}
+              className="px-2"
+              title="View file from Supabase Storage"
+            >
+              <Eye className="w-3 h-3" />
+            </Button>
+            
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => handleDownloadFile(doc)}
+              className="px-2"
+              title="Download file from Supabase Storage"
+            >
+              <Download className="w-3 h-3" />
+            </Button>
+          </div>
         </div>
         
-        <div className="flex items-center gap-1">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => handleManualVerify(doc)}
-            disabled={isVerifying}
-            className="px-2"
-            title="Verify file access"
-          >
-            <RefreshCw className={`w-3 h-3 ${isVerifying ? 'animate-spin' : ''}`} />
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => handleViewFile(doc)}
-            className="px-2"
-            title="View file"
-          >
-            <Eye className="w-3 h-3" />
-          </Button>
-          
-          <Button 
-            variant="outline" 
-            size="sm"
-            onClick={() => handleDownloadFile(doc)}
-            className="px-2"
-            title="Download file"
-          >
-            <Download className="w-3 h-3" />
-          </Button>
+        <div className="text-xs text-gray-500 flex items-center gap-1">
+          <ExternalLink className="w-3 h-3" />
+          Stored in Supabase Storage
         </div>
       </div>
     );
@@ -346,7 +369,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         <div className="text-sm text-muted-foreground">
           <p>Supported formats: {getSupportedTypesText()}</p>
           <p>Maximum file size: {formatFileSize(MAX_FILE_SIZE)}</p>
-          <p>Files are stored securely in Supabase Storage</p>
+          <p className="text-green-600 font-medium">✓ Files are stored securely in Supabase Storage</p>
         </div>
       </CardHeader>
       <CardContent>
@@ -377,15 +400,16 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           <div className="flex items-start gap-2">
             <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
             <div className="text-blue-800 text-sm">
-              <p className="font-medium">Upload Guidelines:</p>
+              <p className="font-medium">Supabase Storage Guidelines:</p>
               <ul className="mt-1 space-y-1 text-xs">
-                <li>• Ensure documents are clear and readable</li>
-                <li>• All mandatory documents must be uploaded</li>
+                <li>• All files are securely stored in Supabase Storage</li>
+                <li>• Files are publicly accessible via secure URLs</li>
+                <li>• All mandatory documents must be uploaded before submission</li>
                 <li>• Files are automatically validated for type and size</li>
-                <li>• Uploaded files are securely stored in Supabase Storage</li>
                 <li>• Admin team has automatic access to all documents</li>
-                <li>• File accessibility is verified automatically</li>
+                <li>• File accessibility is verified automatically every 5 minutes</li>
                 <li>• Use the refresh button to manually verify file access</li>
+                <li>• Click view/download to access files directly from storage</li>
               </ul>
             </div>
           </div>

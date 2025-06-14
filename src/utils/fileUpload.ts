@@ -88,7 +88,11 @@ export const uploadFile = async (
     }
 
     // Create file path: userId/customerId/documentId-filename
-    const filePath = `${userId}/${customerId}/${documentId}-${file.name}`;
+    const timestamp = new Date().getTime();
+    const sanitizedFileName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+    const filePath = `${userId}/${customerId}/${documentId}-${timestamp}-${sanitizedFileName}`;
+
+    console.log('Uploading to path:', filePath);
 
     // Upload to Supabase Storage
     const { data, error } = await supabase.storage
@@ -109,12 +113,26 @@ export const uploadFile = async (
 
     console.log(`File uploaded successfully: ${data.path}`);
 
-    // Return the file path for storage in database
-    return JSON.stringify({
+    // Get the public URL immediately after upload
+    const { data: publicUrlData } = supabase.storage
+      .from('customer-documents')
+      .getPublicUrl(data.path);
+
+    const fileInfo = {
       filePath: data.path,
+      publicUrl: publicUrlData.publicUrl,
       name: file.name,
-      uploadedAt: new Date().toISOString()
-    });
+      originalName: file.name,
+      size: file.size,
+      type: file.type,
+      uploadedAt: new Date().toISOString(),
+      uploadedBy: userId
+    };
+
+    console.log('File info created:', fileInfo);
+
+    // Return the file info as JSON string for storage in database
+    return JSON.stringify(fileInfo);
     
   } catch (error) {
     console.error('Upload failed:', error);
@@ -143,11 +161,16 @@ export const verifyFileAccess = async (filePath: string): Promise<boolean> => {
       return false;
     }
 
-    // Check if the file exists by trying to get its metadata
+    // Try to get public URL to verify file exists
+    const { data: publicUrlData } = supabase.storage
+      .from('customer-documents')
+      .getPublicUrl(path);
+
+    // Check if we can access the file by trying to fetch its metadata
     const { data, error } = await supabase.storage
       .from('customer-documents')
       .list(path.split('/').slice(0, -1).join('/'), {
-        search: path.split('/').pop()
+        search: path.split('/').pop()?.split('-').slice(2).join('-') // Get original filename part
       });
 
     const isAccessible = !error && data && data.length > 0;
@@ -163,19 +186,25 @@ export const verifyFileAccess = async (filePath: string): Promise<boolean> => {
 export const getFileViewLink = (filePath: string): string | null => {
   try {
     const fileInfo = JSON.parse(filePath);
-    const path = fileInfo.filePath;
     
+    // First try to use stored public URL
+    if (fileInfo.publicUrl) {
+      console.log('Using stored public URL:', fileInfo.publicUrl);
+      return fileInfo.publicUrl;
+    }
+
+    // Fallback to generating new public URL
+    const path = fileInfo.filePath;
     if (!path) {
       console.error('No file path found in:', filePath);
       return null;
     }
 
-    // Always get fresh public URL from Supabase Storage
     const { data: publicUrlData } = supabase.storage
       .from('customer-documents')
       .getPublicUrl(path);
 
-    console.log('Generated view URL for:', path, publicUrlData.publicUrl);
+    console.log('Generated new view URL for:', path, publicUrlData.publicUrl);
     return publicUrlData.publicUrl || null;
   } catch (error) {
     console.error('Error getting file view link:', error);
@@ -186,19 +215,25 @@ export const getFileViewLink = (filePath: string): string | null => {
 export const getFileDownloadLink = (filePath: string): string | null => {
   try {
     const fileInfo = JSON.parse(filePath);
-    const path = fileInfo.filePath;
     
+    // First try to use stored public URL
+    if (fileInfo.publicUrl) {
+      console.log('Using stored public URL for download:', fileInfo.publicUrl);
+      return fileInfo.publicUrl;
+    }
+
+    // Fallback to generating new public URL
+    const path = fileInfo.filePath;
     if (!path) {
       console.error('No file path found in:', filePath);
       return null;
     }
 
-    // Always get fresh public URL from Supabase Storage
     const { data: publicUrlData } = supabase.storage
       .from('customer-documents')
       .getPublicUrl(path);
 
-    console.log('Generated download URL for:', path, publicUrlData.publicUrl);
+    console.log('Generated new download URL for:', path, publicUrlData.publicUrl);
     return publicUrlData.publicUrl || null;
   } catch (error) {
     console.error('Error getting file download link:', error);
@@ -209,10 +244,20 @@ export const getFileDownloadLink = (filePath: string): string | null => {
 export const getFileName = (filePath: string): string => {
   try {
     const fileInfo = JSON.parse(filePath);
-    return fileInfo.name || 'Unknown File';
+    return fileInfo.originalName || fileInfo.name || 'Unknown File';
   } catch (error) {
     console.error('Error parsing file path:', error);
     return 'Unknown File';
+  }
+};
+
+export const getFileSize = (filePath: string): number => {
+  try {
+    const fileInfo = JSON.parse(filePath);
+    return fileInfo.size || 0;
+  } catch (error) {
+    console.error('Error parsing file path:', error);
+    return 0;
   }
 };
 
@@ -243,5 +288,32 @@ export const getFileIcon = (fileName: string): string => {
       return '📋';
     default:
       return '📎';
+  }
+};
+
+export const deleteFile = async (filePath: string): Promise<boolean> => {
+  try {
+    const fileInfo = JSON.parse(filePath);
+    const path = fileInfo.filePath;
+    
+    if (!path) {
+      console.error('No file path found for deletion');
+      return false;
+    }
+
+    const { error } = await supabase.storage
+      .from('customer-documents')
+      .remove([path]);
+
+    if (error) {
+      console.error('Error deleting file:', error);
+      return false;
+    }
+
+    console.log('File deleted successfully:', path);
+    return true;
+  } catch (error) {
+    console.error('Error deleting file:', error);
+    return false;
   }
 };
