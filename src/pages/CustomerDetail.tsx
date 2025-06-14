@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import MainLayout from '@/components/Layout/MainLayout';
@@ -116,14 +115,14 @@ const CustomerDetail = () => {
     navigate('/completed');
   };
 
-  const handleSubmitToAdmin = () => {
+  const handleSubmitApplication = () => {
     if (!customer || !user) return;
     
     submitToAdmin(customer.id, user.id, user.profile?.name || user.email || 'Unknown User');
     
     toast({
-      title: "Submitted Successfully",
-      description: "Application submitted to admin for review",
+      title: "Application Submitted",
+      description: "Application submitted successfully and status changed to Submitted",
     });
   };
 
@@ -141,7 +140,7 @@ const CustomerDetail = () => {
   const uploadedDocumentsCount = customer.documents ? customer.documents.filter(doc => doc.is_uploaded).length : 0;
   const isEditable = !['Paid', 'Complete'].includes(customer.status);
   const isUserOwner = customer.user_id === user?.id;
-  const canSubmitToAdmin = (customer.status === 'Draft' || customer.status === 'Returned') && isUserOwner;
+  const canSubmitApplication = (customer.status === 'Draft' || customer.status === 'Returned') && isUserOwner && mandatoryDocumentsUploaded;
 
   return (
     <MainLayout>
@@ -154,13 +153,13 @@ const CustomerDetail = () => {
             </p>
           </div>
           <div className="mt-4 md:mt-0 flex gap-2">
-            {canSubmitToAdmin && (
+            {canSubmitApplication && (
               <Button 
-                onClick={handleSubmitToAdmin}
+                onClick={handleSubmitApplication}
                 className="bg-blue-600 hover:bg-blue-700"
               >
                 <Send className="w-4 h-4 mr-2" />
-                Submit to Admin
+                Submit the Application
               </Button>
             )}
             
@@ -248,7 +247,7 @@ const CustomerDetail = () => {
                 {!mandatoryDocumentsUploaded && (
                   <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                     <p className="text-yellow-800 text-sm">
-                      ⚠️ All mandatory documents must be uploaded before the application can be submitted to admin.
+                      ⚠️ All mandatory documents must be uploaded before the application can be submitted.
                     </p>
                   </div>
                 )}
