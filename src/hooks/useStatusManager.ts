@@ -5,6 +5,7 @@ import { useCustomer } from '@/contexts/CustomerContext';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useToast } from '@/hooks/use-toast';
 import { Status } from '@/types/customer';
+import { validateStatusTransition } from '@/utils/statusValidation';
 
 export const useStatusManager = () => {
   const [isUpdating, setIsUpdating] = useState(false);
@@ -16,8 +17,11 @@ export const useStatusManager = () => {
   const updateStatus = async (
     customerId: string, 
     customerName: string,
+    customerUserId: string,
+    currentStatus: Status,
     newStatus: Status, 
     comment: string,
+    hasRequiredDocuments: boolean = false,
     onSuccess?: () => void
   ) => {
     if (!user) {
@@ -29,10 +33,29 @@ export const useStatusManager = () => {
       return;
     }
 
+    // Validate the status transition
+    const validation = validateStatusTransition(
+      currentStatus,
+      newStatus,
+      isAdmin,
+      customerUserId === user.id,
+      hasRequiredDocuments,
+      comment
+    );
+
+    if (!validation.isValid) {
+      toast({
+        title: "Invalid Status Change",
+        description: validation.error,
+        variant: "destructive",
+      });
+      return;
+    }
+
     setIsUpdating(true);
     
     try {
-      console.log('Updating status:', { customerId, newStatus, comment });
+      console.log('Updating status:', { customerId, currentStatus, newStatus, comment });
       
       // Update status in database
       await updateCustomerStatus(
@@ -46,7 +69,7 @@ export const useStatusManager = () => {
       // Add notification for status change
       addNotification({
         title: 'Status Updated',
-        message: `${customerName} status changed to ${newStatus}`,
+        message: `${customerName} status changed from ${currentStatus} to ${newStatus}`,
         type: newStatus === 'Complete' ? 'success' : 
               newStatus === 'Rejected' ? 'error' : 'info',
         customerName: customerName,
@@ -56,7 +79,7 @@ export const useStatusManager = () => {
       // Show success toast
       toast({
         title: "Status Updated",
-        description: `Application status changed to ${newStatus}`,
+        description: `Application status changed from ${currentStatus} to ${newStatus}`,
       });
 
       // Refresh data to ensure consistency

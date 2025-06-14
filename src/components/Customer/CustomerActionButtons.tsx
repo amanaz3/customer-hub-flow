@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -21,6 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Badge } from '@/components/ui/badge';
 
 interface CustomerActionButtonsProps {
   status: Status;
@@ -52,6 +54,8 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
 
     // Admin available statuses based on current status
     switch (status) {
+      case 'Draft':
+        return ['Submitted']; // Allow admins to submit on behalf of users
       case 'Submitted':
         return ['Returned', 'Sent to Bank'];
       case 'Returned':
@@ -78,7 +82,7 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
       case 'Complete': return 'Mark as Complete';
       case 'Rejected': return 'Mark as Rejected';
       case 'Need More Info': return 'Request More Info';
-      case 'Submitted': return 'Resubmit';
+      case 'Submitted': return isAdmin ? 'Mark as Submitted' : 'Resubmit';
       case 'Paid': return 'Mark as Paid';
       default: return `Update to ${targetStatus}`;
     }
@@ -91,6 +95,8 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
         return 'destructive' as const;
       case 'Complete':
       case 'Paid':
+        return 'default' as const;
+      case 'Sent to Bank':
         return 'default' as const;
       default:
         return 'outline' as const;
@@ -111,16 +117,39 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
     return ['Returned', 'Rejected', 'Need More Info'].includes(targetStatus);
   };
 
+  const getActionDescription = (targetStatus: Status): string => {
+    switch (targetStatus) {
+      case 'Returned': return 'Please provide feedback on what needs to be corrected.';
+      case 'Sent to Bank': return 'Are you sure you want to send this application to the bank? Ensure all mandatory documents are uploaded.';
+      case 'Complete': return 'Mark this application as approved and complete.';
+      case 'Rejected': return 'Please provide a reason for rejection.';
+      case 'Need More Info': return 'Specify what additional information is required.';
+      case 'Submitted': return isAdmin ? 'Mark this application as submitted on behalf of the user.' : 'Are you sure you want to resubmit this application?';
+      case 'Paid': return 'Confirm that payment has been received for this application.';
+      default: return `Update status to ${targetStatus}`;
+    }
+  };
+
   const handleStatusChange = (value: string) => {
     setSelectedStatus(value as Status);
   };
 
   const availableStatuses = getAvailableStatuses();
 
+  if (availableStatuses.length === 0) {
+    return (
+      <div className="flex items-center gap-2">
+        <Badge variant="secondary" className="text-xs">
+          {status === 'Paid' ? 'Final Status' : 'No Actions Available'}
+        </Badge>
+      </div>
+    );
+  }
+
   return (
     <div className="flex flex-wrap gap-2">
       {/* Quick action buttons for common transitions */}
-      {availableStatuses.map((targetStatus) => (
+      {availableStatuses.slice(0, 2).map((targetStatus) => (
         <AlertDialog key={targetStatus}>
           <AlertDialogTrigger asChild>
             <Button 
@@ -129,19 +158,18 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
               size="sm"
             >
               {getStatusButtonText(targetStatus)}
+              {targetStatus === 'Sent to Bank' && !mandatoryDocumentsUploaded && (
+                <Badge variant="destructive" className="ml-2 text-xs">
+                  Docs Required
+                </Badge>
+              )}
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>{getStatusButtonText(targetStatus)}</AlertDialogTitle>
               <AlertDialogDescription>
-                {targetStatus === 'Returned' && 'Please provide feedback on what needs to be corrected.'}
-                {targetStatus === 'Sent to Bank' && 'Are you sure you want to send this application to the bank?'}
-                {targetStatus === 'Complete' && 'Mark this application as approved and complete.'}
-                {targetStatus === 'Rejected' && 'Please provide a reason for rejection.'}
-                {targetStatus === 'Need More Info' && 'Specify what additional information is required.'}
-                {targetStatus === 'Submitted' && 'Are you sure you want to resubmit this application?'}
-                {targetStatus === 'Paid' && 'Confirm that payment has been received for this application.'}
+                {getActionDescription(targetStatus)}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <Textarea
@@ -174,19 +202,19 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
         </AlertDialog>
       ))}
 
-      {/* Admin manual status override */}
+      {/* Additional actions menu for admins */}
       {isAdmin && availableStatuses.length > 2 && (
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="ghost" size="sm">
-              Manual Override
+              More Actions ({availableStatuses.length - 2})
             </Button>
           </AlertDialogTrigger>
           <AlertDialogContent>
             <AlertDialogHeader>
-              <AlertDialogTitle>Manual Status Override</AlertDialogTitle>
+              <AlertDialogTitle>Additional Status Actions</AlertDialogTitle>
               <AlertDialogDescription>
-                Manually change the application status. This action will be logged.
+                Select a status to update this application. This action will be logged.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <Select value={selectedStatus} onValueChange={handleStatusChange}>
@@ -194,9 +222,9 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
                 <SelectValue placeholder="Select new status" />
               </SelectTrigger>
               <SelectContent>
-                {availableStatuses.map((status) => (
+                {availableStatuses.slice(2).map((status) => (
                   <SelectItem key={status} value={status}>
-                    {status}
+                    {getStatusButtonText(status)}
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -204,7 +232,11 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
             <Textarea
               value={comment}
               onChange={(e) => setComment(e.target.value)}
-              placeholder="Reason for manual override (required)..."
+              placeholder={
+                selectedStatus && requiresComment(selectedStatus as Status)
+                  ? "Comment is required..."
+                  : "Optional comment..."
+              }
               className="my-4"
             />
             <AlertDialogFooter>
@@ -218,13 +250,13 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
                     if (selectedStatus === 'Paid' && onPaymentReceived) {
                       onPaymentReceived();
                     } else {
-                      onStatusChange(selectedStatus as Status, comment || `Manual override by ${user?.profile?.name}`);
+                      onStatusChange(selectedStatus as Status, comment || `Status updated by ${user?.profile?.name || 'Admin'}`);
                     }
                     setComment('');
                     setSelectedStatus('');
                   }
                 }}
-                disabled={!selectedStatus || !comment.trim()}
+                disabled={!selectedStatus || (selectedStatus && requiresComment(selectedStatus as Status) && !comment.trim())}
               >
                 Update Status
               </AlertDialogAction>

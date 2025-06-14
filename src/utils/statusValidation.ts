@@ -6,6 +6,7 @@ export interface StatusTransition {
   to: Status[];
   requiresAdmin: boolean;
   requiresComment?: boolean;
+  requiresDocuments?: boolean;
 }
 
 export const STATUS_TRANSITIONS: StatusTransition[] = [
@@ -13,6 +14,7 @@ export const STATUS_TRANSITIONS: StatusTransition[] = [
     from: 'Draft',
     to: ['Submitted'],
     requiresAdmin: false,
+    requiresDocuments: true,
   },
   {
     from: 'Submitted', 
@@ -44,6 +46,7 @@ export const STATUS_TRANSITIONS: StatusTransition[] = [
     from: 'Rejected',
     to: ['Sent to Bank'],
     requiresAdmin: true,
+    requiresComment: true,
   },
   {
     from: 'Paid',
@@ -55,7 +58,8 @@ export const STATUS_TRANSITIONS: StatusTransition[] = [
 export const getAvailableTransitions = (
   currentStatus: Status, 
   isAdmin: boolean,
-  isUserOwner: boolean
+  isUserOwner: boolean,
+  hasRequiredDocuments: boolean = false
 ): Status[] => {
   const transition = STATUS_TRANSITIONS.find(t => t.from === currentStatus);
   
@@ -71,6 +75,11 @@ export const getAvailableTransitions = (
     return [];
   }
   
+  // Filter out transitions that require documents when not available
+  if (transition.requiresDocuments && !hasRequiredDocuments) {
+    return [];
+  }
+  
   return transition.to;
 };
 
@@ -79,6 +88,7 @@ export const validateStatusTransition = (
   to: Status,
   isAdmin: boolean,
   isUserOwner: boolean,
+  hasRequiredDocuments: boolean = false,
   comment?: string
 ): { isValid: boolean; error?: string } => {
   const transition = STATUS_TRANSITIONS.find(t => t.from === from);
@@ -97,6 +107,10 @@ export const validateStatusTransition = (
   
   if (!isAdmin && !isUserOwner) {
     return { isValid: false, error: 'You can only modify your own applications' };
+  }
+  
+  if (transition.requiresDocuments && !hasRequiredDocuments) {
+    return { isValid: false, error: 'All mandatory documents must be uploaded' };
   }
   
   if (transition.requiresComment && (!comment || comment.trim().length === 0)) {
@@ -131,5 +145,17 @@ export const getStatusDescription = (status: Status): string => {
     case 'Need More Info': return 'Additional information required';
     case 'Paid': return 'Payment received and processed';
     default: return 'Unknown status';
+  }
+};
+
+export const getNextRecommendedStatus = (currentStatus: Status, isAdmin: boolean): Status | null => {
+  if (!isAdmin) return null;
+  
+  switch (currentStatus) {
+    case 'Draft': return 'Submitted';
+    case 'Submitted': return 'Sent to Bank';
+    case 'Sent to Bank': return 'Complete';
+    case 'Complete': return 'Paid';
+    default: return null;
   }
 };
