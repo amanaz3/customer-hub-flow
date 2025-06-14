@@ -21,7 +21,7 @@ interface AuthContextType {
   isLoading: boolean;
   signIn: (email: string, password: string) => Promise<{ error: any }>;
   signOut: () => Promise<{ error: any }>;
-  createUser: (email: string, name: string, role: UserRole) => Promise<{ error: any }>;
+  createUser: (email: string, name: string, role: UserRole, password: string) => Promise<{ error: any }>;
   updateUserRole: (userId: string, role: UserRole) => Promise<{ error: any }>;
   deleteUser: (userId: string) => Promise<{ error: any }>;
   getUsers: () => Promise<{ data: any[], error: any }>;
@@ -87,35 +87,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const createUser = async (email: string, name: string, role: UserRole) => {
+  const createUser = async (email: string, name: string, role: UserRole, password: string) => {
     if (!isAdmin) {
-      return { error: { message: 'Unauthorized' } };
+      return { error: { message: 'Unauthorized - Admin access required' } };
     }
 
     try {
-      // Use the default temporary password
-      const tempPassword = 'support@143';
-      
-      // Create user with email confirmation disabled
+      // Create user with the provided secure password
       const { data, error } = await supabase.auth.signUp({
         email,
-        password: tempPassword,
+        password,
         options: {
-          emailRedirectTo: undefined, // Disable email redirect
+          emailRedirectTo: undefined, // Disable email redirect for admin-created users
           data: {
             name,
             role,
-            email_confirm: false // Disable email confirmation
+            email_confirm: false, // Disable email confirmation for admin-created users
+            force_password_change: true // Require password change on first login
           }
         }
       });
 
       if (error) {
+        console.error('User creation error:', error);
         return { error };
       }
 
       if (data.user) {
-        // Create profile entry manually
+        // Create profile entry manually since email confirmation is disabled
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
@@ -127,20 +126,20 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (profileError) {
           console.error('Profile creation error:', profileError);
-          // Continue anyway, as the user was created
+          // Continue anyway, as the user was created successfully
         }
 
         toast({
-          title: 'User Created',
-          description: `User ${name} has been created successfully. Default password: ${tempPassword}`,
-          duration: 10000,
+          title: 'User Created Successfully',
+          description: `User ${name} has been created. They must change their password on first login.`,
+          duration: 8000,
         });
       }
 
       return { error: null };
     } catch (error) {
       console.error('Create user error:', error);
-      return { error };
+      return { error: { message: 'Failed to create user account' } };
     }
   };
 

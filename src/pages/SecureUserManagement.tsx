@@ -34,6 +34,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { Users, Shield, Trash2, Plus } from 'lucide-react';
+import SecurePasswordDialog from '@/components/Admin/SecurePasswordDialog';
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -54,7 +55,9 @@ interface UserProfile {
 const SecureUserManagement = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [pendingUserData, setPendingUserData] = useState<FormValues | null>(null);
   const { toast } = useToast();
   const { createUser, deleteUser, getUsers } = useAuth();
   
@@ -97,9 +100,23 @@ const SecureUserManagement = () => {
     }
   };
 
-  const addUser = async (data: FormValues) => {
+  const handleFormSubmit = (data: FormValues) => {
+    // Store the form data and open password dialog
+    setPendingUserData(data);
+    setIsPasswordDialogOpen(true);
+    setIsDialogOpen(false);
+  };
+
+  const handlePasswordSet = async (password: string) => {
+    if (!pendingUserData) return;
+
     try {
-      const { error } = await createUser(data.email, data.name, data.role);
+      const { error } = await createUser(
+        pendingUserData.email, 
+        pendingUserData.name, 
+        pendingUserData.role,
+        password
+      );
       
       if (error) {
         toast({
@@ -110,8 +127,9 @@ const SecureUserManagement = () => {
         return;
       }
 
-      setIsDialogOpen(false);
+      // Reset form and pending data
       form.reset();
+      setPendingUserData(null);
       
       // Refresh users list
       await fetchUsers();
@@ -177,10 +195,10 @@ const SecureUserManagement = () => {
                 <DialogHeader>
                   <DialogTitle>Add New User</DialogTitle>
                   <DialogDescription>
-                    Create a new user to access the workflow system.
+                    Create a new user account. You'll set a secure password in the next step.
                   </DialogDescription>
                 </DialogHeader>
-                <form onSubmit={form.handleSubmit(addUser)} className="space-y-4">
+                <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-4">
                   <div className="grid gap-4">
                     <div>
                       <Label htmlFor="name">Name</Label>
@@ -229,13 +247,26 @@ const SecureUserManagement = () => {
                   </div>
                   
                   <DialogFooter>
-                    <Button type="submit">Add User</Button>
+                    <Button type="submit">Next: Set Password</Button>
                   </DialogFooter>
                 </form>
               </DialogContent>
             </Dialog>
           </div>
         </div>
+        
+        {/* Password Dialog */}
+        <SecurePasswordDialog
+          open={isPasswordDialogOpen}
+          onOpenChange={(open) => {
+            setIsPasswordDialogOpen(open);
+            if (!open) {
+              setPendingUserData(null);
+            }
+          }}
+          onPasswordSet={handlePasswordSet}
+          userName={pendingUserData?.name || ''}
+        />
         
         <div className="rounded-md border bg-white">
           <Table>
