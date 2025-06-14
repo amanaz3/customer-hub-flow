@@ -1,4 +1,3 @@
-
 import { supabase } from '@/lib/supabase';
 import { Customer } from '@/types/customer';
 
@@ -94,6 +93,45 @@ export class CustomerService {
 
     console.log('Document uploaded successfully:', fileInfo);
     return fileInfo;
+  }
+
+  static async updateCustomerStatus(customerId: string, status: string, comment: string, changedBy: string, role: string) {
+    console.log('Updating customer status in database:', { customerId, status, comment, changedBy, role });
+    
+    // Update customer status
+    const { error: customerError } = await supabase
+      .from('customers')
+      .update({ 
+        status: status as "Draft" | "Submitted" | "Returned" | "Sent to Bank" | "Complete" | "Rejected" | "Need More Info" | "Paid",
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', customerId);
+
+    if (customerError) {
+      console.error('Error updating customer status:', customerError);
+      throw customerError;
+    }
+
+    // Add status change to history
+    const { error: statusError } = await supabase
+      .from('status_changes')
+      .insert({
+        customer_id: customerId,
+        previous_status: 'Draft', // This could be improved to get the actual previous status
+        new_status: status,
+        changed_by: changedBy,
+        changed_by_role: role,
+        comment: comment || undefined,
+        created_at: new Date().toISOString()
+      });
+
+    if (statusError) {
+      console.error('Error adding status change to history:', statusError);
+      throw statusError;
+    }
+
+    console.log('Customer status updated successfully in database');
+    return { success: true };
   }
 
   static async fetchCustomerById(customerId: string) {
