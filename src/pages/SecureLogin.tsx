@@ -5,7 +5,6 @@ import { useAuth } from '@/contexts/SecureAuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield } from 'lucide-react';
 import SignInForm from '@/components/Auth/SignInForm';
-import AuthLoadingSpinner from '@/components/Auth/AuthLoadingSpinner';
 
 const SecureLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -27,28 +26,13 @@ const SecureLogin = () => {
     }
   }, [isAuthenticated, authLoading, navigate, from, session]);
 
-  // Force a redirect check after a timeout to prevent infinite loading
-  useEffect(() => {
-    if (authLoading) {
-      const timeout = setTimeout(() => {
-        console.log('Login page: Auth loading timeout reached');
-        if (authLoading && !session) {
-          setIsLoading(false);
-        }
-      }, 8000);
-
-      return () => clearTimeout(timeout);
-    }
-  }, [authLoading, session]);
-
-  // Show loading spinner while auth is loading (but not indefinitely)
+  // Show loading spinner while auth is loading
   if (authLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
           <p className="mt-2 text-gray-600">Loading...</p>
-          <p className="mt-1 text-sm text-gray-500">Checking authentication status</p>
         </div>
       </div>
     );
