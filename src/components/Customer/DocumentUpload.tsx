@@ -107,9 +107,12 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       setUploadProgress(prev => ({ ...prev, [documentId]: 100 }));
       setFileAccessStatus(prev => ({ ...prev, [documentId]: true }));
       
+      // Get document name for toast
+      const document = documents.find(doc => doc.id === documentId);
+      
       toast({
         title: "Document uploaded successfully",
-        description: `${getFileIcon(file.name)} ${file.name} has been uploaded to Supabase Storage.`,
+        description: `${getFileIcon(file.name)} ${document?.name || file.name} has been uploaded and added to status history.`,
       });
 
       console.log(`Upload completed for document ${documentId}`);

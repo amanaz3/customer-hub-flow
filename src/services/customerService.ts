@@ -1,4 +1,3 @@
-
 import { supabase } from '@/lib/supabase';
 import { Customer } from '@/types/customer';
 
@@ -90,6 +89,35 @@ export class CustomerService {
     if (error) {
       console.error('Error updating document:', error);
       throw error;
+    }
+
+    // Get document name for status history
+    const { data: documentData, error: docError } = await supabase
+      .from('documents')
+      .select('name')
+      .eq('id', documentId)
+      .single();
+
+    if (docError) {
+      console.error('Error fetching document name:', docError);
+    }
+
+    // Add status change to history for document upload
+    const { error: statusError } = await supabase
+      .from('status_changes')
+      .insert({
+        customer_id: customerId,
+        previous_status: 'Draft' as "Draft" | "Submitted" | "Returned" | "Sent to Bank" | "Complete" | "Rejected" | "Need More Info" | "Paid",
+        new_status: 'Draft' as "Draft" | "Submitted" | "Returned" | "Sent to Bank" | "Complete" | "Rejected" | "Need More Info" | "Paid",
+        changed_by: 'System',
+        changed_by_role: 'user' as "admin" | "user",
+        comment: `Document uploaded: ${documentData?.name || fileInfo.name}`,
+        created_at: new Date().toISOString()
+      });
+
+    if (statusError) {
+      console.error('Error adding document upload to status history:', statusError);
+      // Don't throw error here as the upload itself was successful
     }
 
     console.log('Document uploaded successfully:', fileInfo);

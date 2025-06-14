@@ -81,6 +81,34 @@ export const useCustomerActions = (
         )
       );
 
+      // Add status change to local state for immediate UI feedback
+      const customer = customers.find(c => c.id === customerId);
+      const document = customer?.documents?.find(d => d.id === documentId);
+      
+      if (customer && document) {
+        const statusChange: StatusChange = {
+          id: crypto.randomUUID(),
+          customer_id: customerId,
+          previous_status: customer.status,
+          new_status: customer.status,
+          changed_by: user?.profile?.name || user?.email || 'Unknown User',
+          changed_by_role: 'user',
+          comment: `Document uploaded: ${document.name}`,
+          created_at: new Date().toISOString()
+        };
+
+        setCustomers(
+          customers.map(customer => 
+            customer.id === customerId 
+              ? { 
+                  ...customer, 
+                  statusHistory: [statusChange, ...(customer.statusHistory || [])]
+                }
+              : customer
+          )
+        );
+      }
+
       console.log('Document upload completed successfully');
       return fileInfo;
     } catch (error) {

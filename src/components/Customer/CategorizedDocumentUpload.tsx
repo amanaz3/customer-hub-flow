@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Document } from '@/types/customer';
 import { useToast } from '@/hooks/use-toast';
@@ -70,9 +69,12 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
       onUpload(documentId, filePath);
       setUploading(null);
       
+      // Get document name for toast
+      const document = documents.find(doc => doc.id === documentId);
+      
       toast({
         title: "Document uploaded successfully",
-        description: `${file.name} has been uploaded to Supabase Storage.`,
+        description: `${document?.name || file.name} has been uploaded and recorded in status history.`,
       });
 
       console.log(`Upload completed for document ${documentId}`);
