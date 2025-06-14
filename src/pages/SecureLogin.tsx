@@ -20,19 +20,50 @@ const SecureLogin = () => {
   useEffect(() => {
     console.log('SecureLogin useEffect:', { isAuthenticated, authLoading, hasSession: !!session });
     
+    // Only redirect if we're sure the user is authenticated and has a valid session
     if (!authLoading && isAuthenticated && session) {
       console.log('User is authenticated, redirecting to:', from);
       navigate(from, { replace: true });
     }
   }, [isAuthenticated, authLoading, navigate, from, session]);
 
+  // Force a redirect check after a timeout to prevent infinite loading
+  useEffect(() => {
+    if (authLoading) {
+      const timeout = setTimeout(() => {
+        console.log('Login page: Auth loading timeout reached');
+        if (authLoading && !session) {
+          setIsLoading(false);
+        }
+      }, 8000);
+
+      return () => clearTimeout(timeout);
+    }
+  }, [authLoading, session]);
+
+  // Show loading spinner while auth is loading (but not indefinitely)
   if (authLoading) {
-    return <AuthLoadingSpinner />;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Loading...</p>
+          <p className="mt-1 text-sm text-gray-500">Checking authentication status</p>
+        </div>
+      </div>
+    );
   }
 
   // Don't render login form if user is already authenticated
   if (isAuthenticated && session) {
-    return <AuthLoadingSpinner />;
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
+          <p className="mt-2 text-gray-600">Redirecting...</p>
+        </div>
+      </div>
+    );
   }
 
   return (

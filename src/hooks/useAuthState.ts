@@ -48,12 +48,42 @@ export const useAuthState = () => {
     }
   };
 
+  const validateSession = async (currentSession: Session) => {
+    try {
+      // Check if the session is still valid by making a test request
+      const { data, error } = await supabase.auth.getUser(currentSession.access_token);
+      
+      if (error || !data.user) {
+        console.log('Session validation failed:', error);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error('Session validation error:', error);
+      return false;
+    }
+  };
+
   useEffect(() => {
     let isMounted = true;
+    let timeoutId: NodeJS.Timeout;
 
     const initializeAuth = async () => {
       try {
-        // First, get the current session
+        console.log('Initializing auth state...');
+        
+        // Set a timeout to prevent infinite loading
+        timeoutId = setTimeout(() => {
+          if (isMounted) {
+            console.log('Auth initialization timeout, setting as unauthenticated');
+            setSession(null);
+            setUser(null);
+            setIsLoading(false);
+          }
+        }, 10000); // 10 second timeout
+
+        // Get the current session
         const { data: { session: currentSession }, error: sessionError } = await supabase.auth.getSession();
         
         if (sessionError) {
@@ -67,7 +97,21 @@ export const useAuthState = () => {
         }
 
         if (currentSession && isMounted) {
-          console.log('Current session found:', currentSession.user.email);
+          console.log('Current session found, validating...', currentSession.user.email);
+          
+          // Validate the session
+          const isValid = await validateSession(currentSession);
+          
+          if (!isValid) {
+            console.log('Session is invalid, clearing auth state');
+            if (isMounted) {
+              setSession(null);
+              setUser(null);
+              setIsLoading(false);
+            }
+            return;
+          }
+          
           setSession(currentSession);
           
           // Fetch profile for the current user
@@ -85,11 +129,13 @@ export const useAuthState = () => {
         }
         
         if (isMounted) {
+          clearTimeout(timeoutId);
           setIsLoading(false);
         }
       } catch (error) {
         console.error('Auth initialization error:', error);
         if (isMounted) {
+          clearTimeout(timeoutId);
           setSession(null);
           setUser(null);
           setIsLoading(false);
@@ -106,6 +152,19 @@ export const useAuthState = () => {
         
         try {
           if (session?.user) {
+            // Validate the new session
+            const isValid = await validateSession(session);
+            
+            if (!isValid) {
+              console.log('New session is invalid, clearing auth state');
+              if (isMounted) {
+                setSession(null);
+                setUser(null);
+                setIsLoading(false);
+              }
+              return;
+            }
+            
             setSession(session);
             
             // Fetch profile for the authenticated user
@@ -140,6 +199,9 @@ export const useAuthState = () => {
 
     return () => {
       isMounted = false;
+      if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
       subscription.unsubscribe();
     };
   }, []);
