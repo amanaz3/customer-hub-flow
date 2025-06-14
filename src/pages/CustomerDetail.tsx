@@ -209,6 +209,7 @@ const CustomerDetail = () => {
               comments={customer.comments || []}
               paymentReceived={customer.payment_received}
               paymentDate={customer.payment_date}
+              onStatusChange={handleStatusChange}
             />
             
             <StatusHistoryCard statusHistory={customer.statusHistory || []} />

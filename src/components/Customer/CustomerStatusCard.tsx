@@ -1,100 +1,207 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { CustomerStatus, Comment } from '@/types/customer';
+import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Status, Comment } from '@/types/customer';
+import { useAuth } from '@/contexts/SecureAuthContext';
 import { formatCurrency, formatDate } from '@/lib/utils';
+import { MessageSquare, DollarSign, Calendar, Settings } from 'lucide-react';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 interface CustomerStatusCardProps {
-  status: CustomerStatus;
+  status: Status;
   amount: number;
-  comments: Comment[];
+  comments?: Comment[];
   paymentReceived?: boolean;
   paymentDate?: string;
+  onStatusChange?: (status: Status, comment: string) => void;
 }
+
+const getStatusColor = (status: Status) => {
+  switch (status) {
+    case 'Draft': return 'bg-gray-100 text-gray-800';
+    case 'Submitted': return 'bg-blue-100 text-blue-800';
+    case 'Returned': return 'bg-yellow-100 text-yellow-800';
+    case 'Sent to Bank': return 'bg-purple-100 text-purple-800';
+    case 'Complete': return 'bg-green-100 text-green-800';
+    case 'Rejected': return 'bg-red-100 text-red-800';
+    case 'Need More Info': return 'bg-orange-100 text-orange-800';
+    case 'Paid': return 'bg-emerald-100 text-emerald-800';
+    default: return 'bg-gray-100 text-gray-800';
+  }
+};
+
+const getAvailableStatuses = (currentStatus: Status): Status[] => {
+  // Admin can change to any status except "Sent to Bank"
+  const allStatuses: Status[] = ['Draft', 'Submitted', 'Returned', 'Complete', 'Rejected', 'Need More Info', 'Paid'];
+  return allStatuses.filter(status => status !== 'Sent to Bank' && status !== currentStatus);
+};
 
 const CustomerStatusCard: React.FC<CustomerStatusCardProps> = ({
   status,
   amount,
-  comments,
+  comments = [],
   paymentReceived,
   paymentDate,
+  onStatusChange
 }) => {
-  const getStatusColor = (status: CustomerStatus) => {
-    switch (status) {
-      case 'Draft': return 'bg-gray-500 text-white';
-      case 'Submitted': return 'bg-blue-500 text-white';
-      case 'Returned': return 'bg-orange-500 text-white';
-      case 'Sent to Bank': return 'bg-purple-500 text-white';
-      case 'Complete': return 'bg-green-500 text-white';
-      case 'Rejected': return 'bg-red-500 text-white';
-      case 'Need More Info': return 'bg-yellow-500 text-white';
-      case 'Paid': return 'bg-emerald-500 text-white';
-      default: return 'bg-gray-500 text-white';
+  const { isAdmin } = useAuth();
+  const [selectedStatus, setSelectedStatus] = useState<Status | ''>('');
+  const [comment, setComment] = useState('');
+
+  const availableStatuses = getAvailableStatuses(status);
+
+  const handleStatusChange = () => {
+    if (selectedStatus && onStatusChange) {
+      onStatusChange(selectedStatus as Status, comment);
+      setSelectedStatus('');
+      setComment('');
     }
   };
 
+  const requiresComment = (targetStatus: Status): boolean => {
+    return ['Returned', 'Rejected', 'Need More Info'].includes(targetStatus);
+  };
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Application Status</CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          <div>
-            <Label>Current Status</Label>
-            <div className="mt-1">
-              <Badge className={getStatusColor(status)}>
+    <div className="space-y-4">
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-lg flex items-center gap-2">
+            <DollarSign className="w-5 h-5" />
+            Application Status
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm text-muted-foreground">Current Status</p>
+              <Badge className={`${getStatusColor(status)} mt-1`}>
                 {status}
               </Badge>
             </div>
+            {isAdmin && availableStatuses.length > 0 && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Change Status
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Change Application Status</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Select a new status for this application. This action will be logged in the status history.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <div className="space-y-4">
+                    <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select new status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {availableStatuses.map((statusOption) => (
+                          <SelectItem key={statusOption} value={statusOption}>
+                            {statusOption}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Textarea
+                      value={comment}
+                      onChange={(e) => setComment(e.target.value)}
+                      placeholder={
+                        selectedStatus && requiresComment(selectedStatus as Status)
+                          ? "Comment is required for this status..."
+                          : "Optional comment..."
+                      }
+                    />
+                  </div>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel onClick={() => {
+                      setSelectedStatus('');
+                      setComment('');
+                    }}>
+                      Cancel
+                    </AlertDialogCancel>
+                    <AlertDialogAction 
+                      onClick={handleStatusChange}
+                      disabled={
+                        !selectedStatus || 
+                        (selectedStatus && requiresComment(selectedStatus as Status) && !comment.trim())
+                      }
+                    >
+                      Update Status
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
-          
+
           <div>
-            <Label>Amount</Label>
-            <div className="text-lg font-semibold mt-1">
-              {formatCurrency(amount)}
-            </div>
+            <p className="text-sm text-muted-foreground">Amount</p>
+            <p className="text-xl font-semibold">{formatCurrency(amount)}</p>
           </div>
-          
-          {paymentReceived && paymentDate && (
-            <div>
-              <Label>Payment Status</Label>
-              <div className="mt-1 space-y-1">
-                <Badge className="bg-emerald-500 text-white">
-                  Payment Received
-                </Badge>
-                <div className="text-sm text-muted-foreground">
-                  Paid on {formatDate(paymentDate)}
-                </div>
+
+          {paymentReceived && (
+            <div className="bg-green-50 border border-green-200 rounded-md p-3">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-green-600" />
+                <span className="text-sm font-medium text-green-800">Payment Received</span>
               </div>
-            </div>
-          )}
-          
-          {comments.length > 0 && (
-            <div>
-              <Label>Recent Comments</Label>
-              <ul className="mt-2 space-y-2 max-h-32 overflow-y-auto">
-                {comments.slice(-3).map((comment, index) => (
-                  <li key={comment.id} className="p-2 bg-gray-50 rounded-md text-sm">
-                    <div className="text-xs text-muted-foreground mb-1">
-                      {comment.author} - {formatDate(comment.timestamp)}
-                    </div>
-                    {comment.content}
-                  </li>
-                ))}
-              </ul>
-              {comments.length > 3 && (
-                <p className="text-xs text-muted-foreground mt-1">
-                  Showing last 3 comments
+              {paymentDate && (
+                <p className="text-sm text-green-600 mt-1">
+                  Paid on {formatDate(paymentDate)}
                 </p>
               )}
             </div>
           )}
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+
+      {comments && comments.length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <MessageSquare className="w-5 h-5" />
+              Comments ({comments.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-3">
+              {comments.slice(0, 3).map((comment, index) => (
+                <div key={index} className="border-l-2 border-blue-200 pl-3">
+                  <p className="text-sm">{comment.content}</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {comment.author} • {formatDate(comment.timestamp)}
+                  </p>
+                </div>
+              ))}
+              {comments.length > 3 && (
+                <p className="text-sm text-muted-foreground">
+                  And {comments.length - 3} more comments...
+                </p>
+              )}
+            </div>
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 };
 
