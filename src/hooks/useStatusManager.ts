@@ -56,30 +56,44 @@ export const useStatusManager = () => {
     setIsUpdating(true);
     
     try {
-      console.log('Updating status:', { customerId, currentStatus, newStatus, comment });
+      const changedByName = user.profile?.name || user.email || 'Unknown User';
+      const changedByRole = isAdmin ? 'admin' : 'user';
+      
+      console.log('Updating status with full logging:', { 
+        customerId, 
+        currentStatus, 
+        newStatus, 
+        comment,
+        changedByName,
+        changedByRole,
+        isAdmin
+      });
+      
+      // Ensure comment is provided for admin actions if required
+      const finalComment = comment || (isAdmin ? `Status updated by admin: ${changedByName}` : '');
       
       // Update status in database through CustomerService to ensure persistence
       await CustomerService.updateCustomerStatus(
         customerId,
         newStatus,
-        comment,
-        user.profile?.name || user.email || 'Unknown User',
-        isAdmin ? 'admin' : 'user'
+        finalComment,
+        changedByName,
+        changedByRole
       );
 
       // Update local state through context
       await updateCustomerStatus(
         customerId,
         newStatus,
-        comment,
-        user.profile?.name || user.email || 'Unknown User',
-        isAdmin ? 'admin' : 'user'
+        finalComment,
+        changedByName,
+        changedByRole
       );
 
       // Add notification for status change
       addNotification({
         title: 'Status Updated',
-        message: `${customerName} status changed from ${currentStatus} to ${newStatus}`,
+        message: `${customerName} status changed from ${currentStatus} to ${newStatus}${isAdmin ? ' by admin' : ''}`,
         type: newStatus === 'Complete' ? 'success' : 
               newStatus === 'Rejected' ? 'error' : 'info',
         customerName: customerName,
@@ -98,7 +112,11 @@ export const useStatusManager = () => {
       // Call success callback if provided
       onSuccess?.();
 
-      console.log('Status updated successfully and persisted to database');
+      console.log('Status updated successfully and logged:', {
+        newStatus,
+        changedBy: changedByName,
+        role: changedByRole
+      });
       
     } catch (error) {
       console.error('Error updating status:', error);
@@ -129,15 +147,22 @@ export const useStatusManager = () => {
     setIsUpdating(true);
     
     try {
-      console.log('Marking payment received for customer:', customerId);
+      const changedByName = user.profile?.name || user.email || 'Unknown User';
+      const changedByRole = isAdmin ? 'admin' : 'user';
       
-      // Mark payment as received through context
-      await markPaymentReceived(customerId, user.profile?.name || user.email || 'Unknown User');
+      console.log('Marking payment received with logging:', { 
+        customerId, 
+        changedByName, 
+        changedByRole 
+      });
+      
+      // Mark payment as received through context with proper logging
+      await markPaymentReceived(customerId, changedByName);
 
       // Add notification
       addNotification({
         title: 'Payment Confirmed',
-        message: `Payment received for ${customerName}`,
+        message: `Payment received for ${customerName}${isAdmin ? ' (confirmed by admin)' : ''}`,
         type: 'success',
         customerName: customerName,
         actionUrl: `/customers/${customerId}`,
@@ -155,7 +180,7 @@ export const useStatusManager = () => {
       // Call success callback
       onSuccess?.();
 
-      console.log('Payment marked as received successfully');
+      console.log('Payment marked as received and logged successfully');
       
     } catch (error) {
       console.error('Error marking payment:', error);
