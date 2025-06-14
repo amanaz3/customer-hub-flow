@@ -203,7 +203,7 @@ export const useCustomerActions = (
 
       const previousStatus = customer.status;
       
-      // Update customer status to Submitted immediately
+      // Update customer status to Submitted immediately for UI feedback
       setCustomers(
         customers.map(customer => 
           customer.id === customerId 
@@ -212,7 +212,10 @@ export const useCustomerActions = (
         )
       );
 
-      // Add status change to history
+      // Persist status change to database
+      await CustomerService.updateCustomerStatus(customerId, 'Submitted', 'Application submitted to admin for review', userName, 'user');
+
+      // Add status change to history locally
       const statusChange: StatusChange = {
         id: crypto.randomUUID(),
         customer_id: customerId,
@@ -237,9 +240,25 @@ export const useCustomerActions = (
         )
       );
 
-      console.log('Application submitted to admin successfully, status changed to Submitted');
+      // Refresh data to ensure consistency across all users
+      await refreshData();
+
+      console.log('Application submitted to admin successfully, status changed to Submitted and persisted to database');
     } catch (error) {
       console.error('Error submitting to admin:', error);
+      
+      // Revert local status change if database update fails
+      const customer = customers.find(c => c.id === customerId);
+      if (customer) {
+        setCustomers(
+          customers.map(customer => 
+            customer.id === customerId 
+              ? { ...customer, status: customer.status }
+              : customer
+          )
+        );
+      }
+      
       throw error;
     }
   };
