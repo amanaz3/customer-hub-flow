@@ -193,9 +193,17 @@ export const useCustomerActions = (
 
   const submitToAdmin = async (customerId: string, userId: string, userName: string) => {
     try {
-      console.log('Submitting to admin:', { customerId, userId, userName });
+      console.log('Submitting application to admin:', { customerId, userId, userName });
       
-      // Update customer status to Submitted
+      // Get the current customer to access previous status
+      const customer = customers.find(c => c.id === customerId);
+      if (!customer) {
+        throw new Error('Customer not found');
+      }
+
+      const previousStatus = customer.status;
+      
+      // Update customer status to Submitted immediately
       setCustomers(
         customers.map(customer => 
           customer.id === customerId 
@@ -205,32 +213,31 @@ export const useCustomerActions = (
       );
 
       // Add status change to history
-      const customer = customers.find(c => c.id === customerId);
-      if (customer) {
-        const statusChange: StatusChange = {
-          id: crypto.randomUUID(),
-          customer_id: customerId,
-          previous_status: customer.status,
-          new_status: 'Submitted',
-          changed_by: userName,
-          changed_by_role: 'user',
-          comment: 'Application submitted to admin for review',
-          created_at: new Date().toISOString()
-        };
+      const statusChange: StatusChange = {
+        id: crypto.randomUUID(),
+        customer_id: customerId,
+        previous_status: previousStatus,
+        new_status: 'Submitted',
+        changed_by: userName,
+        changed_by_role: 'user',
+        comment: 'Application submitted to admin for review',
+        created_at: new Date().toISOString()
+      };
 
-        setCustomers(
-          customers.map(customer => 
-            customer.id === customerId 
-              ? { 
-                  ...customer, 
-                  statusHistory: [statusChange, ...(customer.statusHistory || [])]
-                }
-              : customer
-          )
-        );
-      }
+      // Update customer with new status history
+      setCustomers(
+        customers.map(customer => 
+          customer.id === customerId 
+            ? { 
+                ...customer, 
+                status: 'Submitted',
+                statusHistory: [statusChange, ...(customer.statusHistory || [])]
+              }
+            : customer
+        )
+      );
 
-      console.log('Application submitted to admin successfully');
+      console.log('Application submitted to admin successfully, status changed to Submitted');
     } catch (error) {
       console.error('Error submitting to admin:', error);
       throw error;
