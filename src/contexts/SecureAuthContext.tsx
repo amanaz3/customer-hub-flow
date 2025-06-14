@@ -1,4 +1,4 @@
-import React, { createContext, useContext } from 'react';
+import React, { createContext, useContext, useMemo } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase, getFunctionUrl } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
@@ -37,8 +37,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const { user, session, isLoading, setUser, setSession, setIsLoading, createProfile } = useAuthState();
   const { toast } = useToast();
 
-  const isAuthenticated = !!session?.user;
-  const isAdmin = user?.profile?.role === 'admin';
+  // Memoize computed values to prevent unnecessary re-renders
+  const isAuthenticated = useMemo(() => !!session?.user, [session]);
+  const isAdmin = useMemo(() => user?.profile?.role === 'admin', [user]);
 
   const signIn = async (email: string, password: string) => {
     setIsLoading(true);
@@ -274,22 +275,24 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return await resetUserPassword(userId, newPassword);
   };
 
+  const contextValue = useMemo(() => ({
+    user,
+    session,
+    isAuthenticated,
+    isAdmin,
+    isLoading,
+    signIn,
+    signOut,
+    createUser,
+    updateUserRole,
+    deleteUser,
+    getUsers,
+    resetUserPassword,
+    changeUserPassword
+  }), [user, session, isAuthenticated, isAdmin, isLoading]);
+
   return (
-    <AuthContext.Provider value={{
-      user,
-      session,
-      isAuthenticated,
-      isAdmin,
-      isLoading,
-      signIn,
-      signOut,
-      createUser,
-      updateUserRole,
-      deleteUser,
-      getUsers,
-      resetUserPassword,
-      changeUserPassword
-    }}>
+    <AuthContext.Provider value={contextValue}>
       {children}
     </AuthContext.Provider>
   );
