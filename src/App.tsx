@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/SecureAuthContext";
 import { CustomerProvider } from "./contexts/CustomerContext";
 import { NotificationProvider } from "./contexts/NotificationContext";
+import ProtectedRoute from "./components/Security/ProtectedRoute";
 import React from "react";
 
 // Pages
@@ -42,16 +43,72 @@ const App: React.FC = () => {
             <NotificationProvider>
               <BrowserRouter>
                 <Routes>
-                  <Route path="/" element={<Navigate to="/login" replace />} />
+                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
                   <Route path="/login" element={<SecureLogin />} />
-                  <Route path="/dashboard" element={<Dashboard />} />
-                  <Route path="/customers" element={<CustomerList />} />
-                  <Route path="/customers/new" element={<CustomerNew />} />
-                  <Route path="/customers/:id" element={<CustomerDetail />} />
-                  <Route path="/completed" element={<CompletedCases />} />
-                  <Route path="/users" element={<SecureUserManagement />} />
-                  <Route path="/security" element={<Security />} />
-                  <Route path="/settings" element={<Settings />} />
+                  <Route 
+                    path="/dashboard" 
+                    element={
+                      <ProtectedRoute>
+                        <Dashboard />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/customers" 
+                    element={
+                      <ProtectedRoute>
+                        <CustomerList />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/customers/new" 
+                    element={
+                      <ProtectedRoute>
+                        <CustomerNew />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/customers/:id" 
+                    element={
+                      <ProtectedRoute>
+                        <CustomerDetail />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/completed" 
+                    element={
+                      <ProtectedRoute>
+                        <CompletedCases />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/users" 
+                    element={
+                      <ProtectedRoute requireAdmin={true}>
+                        <SecureUserManagement />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/security" 
+                    element={
+                      <ProtectedRoute requireAdmin={true}>
+                        <Security />
+                      </ProtectedRoute>
+                    } 
+                  />
+                  <Route 
+                    path="/settings" 
+                    element={
+                      <ProtectedRoute>
+                        <Settings />
+                      </ProtectedRoute>
+                    } 
+                  />
                   <Route path="*" element={<NotFound />} />
                 </Routes>
               </BrowserRouter>
