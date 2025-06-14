@@ -132,8 +132,8 @@ export class CustomerService {
       .from('status_changes')
       .insert({
         customer_id: customerId,
-        previous_status: previousStatus,
-        new_status: status,
+        previous_status: previousStatus as "Draft" | "Submitted" | "Returned" | "Sent to Bank" | "Complete" | "Rejected" | "Need More Info" | "Paid",
+        new_status: status as "Draft" | "Submitted" | "Returned" | "Sent to Bank" | "Complete" | "Rejected" | "Need More Info" | "Paid",
         changed_by: changedBy,
         changed_by_role: role as "admin" | "user",
         comment: comment || null,
