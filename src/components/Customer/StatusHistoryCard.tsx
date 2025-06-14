@@ -1,18 +1,69 @@
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { StatusChange } from '@/contexts/CustomerContext';
 import { formatDate } from '@/lib/utils';
 import { Clock } from 'lucide-react';
+import { supabase } from '@/lib/supabase';
 
 interface StatusHistoryCardProps {
   statusHistory: StatusChange[];
 }
 
+interface StatusHistoryWithUserInfo extends StatusChange {
+  user_name?: string;
+}
+
 const StatusHistoryCard: React.FC<StatusHistoryCardProps> = ({
   statusHistory,
 }) => {
+  const [enrichedHistory, setEnrichedHistory] = useState<StatusHistoryWithUserInfo[]>([]);
+
+  useEffect(() => {
+    const enrichHistoryWithUserNames = async () => {
+      const enrichedData = await Promise.all(
+        statusHistory.map(async (change) => {
+          // If changed_by is a UUID, fetch the user profile
+          const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(change.changed_by);
+          
+          if (isUUID) {
+            try {
+              const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('name')
+                .eq('id', change.changed_by)
+                .single();
+              
+              if (!error && profile) {
+                return {
+                  ...change,
+                  user_name: profile.name
+                };
+              }
+            } catch (error) {
+              console.error('Error fetching user profile:', error);
+            }
+          }
+          
+          // If not a UUID or profile fetch failed, use the original changed_by value
+          return {
+            ...change,
+            user_name: change.changed_by
+          };
+        })
+      );
+      
+      setEnrichedHistory(enrichedData);
+    };
+
+    if (statusHistory.length > 0) {
+      enrichHistoryWithUserNames();
+    } else {
+      setEnrichedHistory([]);
+    }
+  }, [statusHistory]);
+
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Submitted': return 'bg-blue-500';
@@ -40,8 +91,8 @@ const StatusHistoryCard: React.FC<StatusHistoryCardProps> = ({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
-          {statusHistory.length > 0 ? (
-            statusHistory.map((change, index) => (
+          {enrichedHistory.length > 0 ? (
+            enrichedHistory.map((change, index) => (
               <div key={change.id} className="border-l-2 border-gray-200 pl-4 pb-4 last:pb-0">
                 <div className="flex items-center justify-between mb-2">
                   <Badge className={`${getStatusColor(change.new_status)} text-white`}>
@@ -55,7 +106,7 @@ const StatusHistoryCard: React.FC<StatusHistoryCardProps> = ({
                 <div className="space-y-1">
                   <div className="flex items-center gap-2">
                     <span className="text-sm font-medium">Changed by:</span>
-                    <span className="text-sm">{change.changed_by}</span>
+                    <span className="text-sm">{change.user_name || change.changed_by}</span>
                     <Badge variant="outline" className={getRoleColor(change.changed_by_role)}>
                       {change.changed_by_role}
                     </Badge>
@@ -67,7 +118,7 @@ const StatusHistoryCard: React.FC<StatusHistoryCardProps> = ({
                     </div>
                   )}
                   
-                  {index < statusHistory.length - 1 && change.previous_status !== change.new_status && (
+                  {index < enrichedHistory.length - 1 && change.previous_status !== change.new_status && (
                     <div className="text-xs text-muted-foreground">
                       Previous: {change.previous_status}
                     </div>

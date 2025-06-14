@@ -1,3 +1,4 @@
+
 import { supabase } from '@/lib/supabase';
 import { Customer } from '@/types/customer';
 
@@ -155,14 +156,16 @@ export class CustomerService {
       throw customerError;
     }
 
-    // Add status change to history - using the correct property names from the database schema
+    // Add status change to history using the user ID from auth instead of name
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    
     const { error: statusError } = await supabase
       .from('status_changes')
       .insert({
         customer_id: customerId,
         previous_status: previousStatus as "Draft" | "Submitted" | "Returned" | "Sent to Bank" | "Complete" | "Rejected" | "Need More Info" | "Paid",
         new_status: status as "Draft" | "Submitted" | "Returned" | "Sent to Bank" | "Complete" | "Rejected" | "Need More Info" | "Paid",
-        changed_by: changedBy,
+        changed_by: user?.id || changedBy, // Use user ID if available
         changed_by_role: role as "admin" | "user",
         comment: comment || null,
         created_at: new Date().toISOString()
@@ -173,7 +176,7 @@ export class CustomerService {
       throw statusError;
     }
 
-    console.log('Customer status updated successfully in database');
+    console.log('Customer status updated successfully in database with status history');
     return { success: true };
   }
 
@@ -211,9 +214,19 @@ export class CustomerService {
       console.error('Error fetching comments:', commentsError);
     }
 
+    // Fetch status history with proper field mapping
     const { data: statusHistory, error: statusError } = await supabase
       .from('status_changes')
-      .select('*')
+      .select(`
+        id,
+        customer_id,
+        previous_status,
+        new_status,
+        changed_by,
+        changed_by_role,
+        comment,
+        created_at
+      `)
       .eq('customer_id', customerId)
       .order('created_at', { ascending: false });
 
@@ -230,7 +243,7 @@ export class CustomerService {
       statusHistory: statusHistory || []
     };
 
-    console.log('Customer with details:', customerWithDetails);
+    console.log('Customer with details and status history:', customerWithDetails);
     return customerWithDetails;
   }
 }

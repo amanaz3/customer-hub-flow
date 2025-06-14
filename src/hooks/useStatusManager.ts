@@ -6,6 +6,7 @@ import { useNotifications } from '@/contexts/NotificationContext';
 import { useToast } from '@/hooks/use-toast';
 import { Status } from '@/types/customer';
 import { validateStatusTransition } from '@/utils/statusValidation';
+import { CustomerService } from '@/services/customerService';
 
 export const useStatusManager = () => {
   const [isUpdating, setIsUpdating] = useState(false);
@@ -57,7 +58,16 @@ export const useStatusManager = () => {
     try {
       console.log('Updating status:', { customerId, currentStatus, newStatus, comment });
       
-      // Update status in database
+      // Update status in database through CustomerService to ensure persistence
+      await CustomerService.updateCustomerStatus(
+        customerId,
+        newStatus,
+        comment,
+        user.profile?.name || user.email || 'Unknown User',
+        isAdmin ? 'admin' : 'user'
+      );
+
+      // Update local state through context
       await updateCustomerStatus(
         customerId,
         newStatus,
@@ -88,7 +98,7 @@ export const useStatusManager = () => {
       // Call success callback if provided
       onSuccess?.();
 
-      console.log('Status updated successfully');
+      console.log('Status updated successfully and persisted to database');
       
     } catch (error) {
       console.error('Error updating status:', error);
@@ -121,7 +131,7 @@ export const useStatusManager = () => {
     try {
       console.log('Marking payment received for customer:', customerId);
       
-      // Mark payment as received
+      // Mark payment as received through context
       await markPaymentReceived(customerId, user.profile?.name || user.email || 'Unknown User');
 
       // Add notification

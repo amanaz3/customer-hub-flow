@@ -81,33 +81,8 @@ export const useCustomerActions = (
         )
       );
 
-      // Add status change to local state for immediate UI feedback
-      const customer = customers.find(c => c.id === customerId);
-      const document = customer?.documents?.find(d => d.id === documentId);
-      
-      if (customer && document) {
-        const statusChange: StatusChange = {
-          id: crypto.randomUUID(),
-          customer_id: customerId,
-          previous_status: customer.status,
-          new_status: customer.status,
-          changed_by: user?.profile?.name || user?.email || 'Unknown User',
-          changed_by_role: 'user',
-          comment: `Document uploaded: ${document.name}`,
-          created_at: new Date().toISOString()
-        };
-
-        setCustomers(
-          customers.map(customer => 
-            customer.id === customerId 
-              ? { 
-                  ...customer, 
-                  statusHistory: [statusChange, ...(customer.statusHistory || [])]
-                }
-              : customer
-          )
-        );
-      }
+      // Refresh data to get updated status history from database
+      await refreshData();
 
       console.log('Document upload completed successfully');
       return fileInfo;
@@ -121,7 +96,10 @@ export const useCustomerActions = (
     try {
       console.log('Updating customer status:', { customerId, status, comment, changedBy, role });
       
-      // Update the customer status locally first for immediate UI feedback
+      // Update status in database first to ensure persistence
+      await CustomerService.updateCustomerStatus(customerId, status, comment, changedBy, role);
+
+      // Update customer status locally for immediate UI feedback
       const customer = customers.find(c => c.id === customerId);
       if (customer) {
         const previousStatus = customer.status;
@@ -134,33 +112,12 @@ export const useCustomerActions = (
               : customer
           )
         );
-
-        // Add status change to history
-        const statusChange: StatusChange = {
-          id: crypto.randomUUID(),
-          customer_id: customerId,
-          previous_status: previousStatus,
-          new_status: status,
-          changed_by: changedBy,
-          changed_by_role: role,
-          comment: comment || undefined,
-          created_at: new Date().toISOString()
-        };
-
-        // Update customer with new status history
-        setCustomers(
-          customers.map(customer => 
-            customer.id === customerId 
-              ? { 
-                  ...customer, 
-                  statusHistory: [statusChange, ...(customer.statusHistory || [])]
-                }
-              : customer
-          )
-        );
-
-        console.log('Customer status updated successfully');
       }
+
+      // Refresh data to get the complete updated state from database including status history
+      await refreshData();
+
+      console.log('Customer status updated successfully and persisted to database');
     } catch (error) {
       console.error('Error updating customer status:', error);
       throw error;
@@ -186,31 +143,8 @@ export const useCustomerActions = (
         )
       );
 
-      // Add status change to history
-      const customer = customers.find(c => c.id === customerId);
-      if (customer) {
-        const statusChange: StatusChange = {
-          id: crypto.randomUUID(),
-          customer_id: customerId,
-          previous_status: customer.status,
-          new_status: 'Paid',
-          changed_by: changedBy,
-          changed_by_role: 'admin',
-          comment: 'Payment received and confirmed',
-          created_at: new Date().toISOString()
-        };
-
-        setCustomers(
-          customers.map(customer => 
-            customer.id === customerId 
-              ? { 
-                  ...customer, 
-                  statusHistory: [statusChange, ...(customer.statusHistory || [])]
-                }
-              : customer
-          )
-        );
-      }
+      // Refresh data to ensure database consistency
+      await refreshData();
 
       console.log('Payment marked as received successfully');
     } catch (error) {
@@ -243,32 +177,7 @@ export const useCustomerActions = (
       // Persist status change to database
       await CustomerService.updateCustomerStatus(customerId, 'Submitted', 'Application submitted to admin for review', userName, 'user');
 
-      // Add status change to history locally
-      const statusChange: StatusChange = {
-        id: crypto.randomUUID(),
-        customer_id: customerId,
-        previous_status: previousStatus,
-        new_status: 'Submitted',
-        changed_by: userName,
-        changed_by_role: 'user',
-        comment: 'Application submitted to admin for review',
-        created_at: new Date().toISOString()
-      };
-
-      // Update customer with new status history
-      setCustomers(
-        customers.map(customer => 
-          customer.id === customerId 
-            ? { 
-                ...customer, 
-                status: 'Submitted',
-                statusHistory: [statusChange, ...(customer.statusHistory || [])]
-              }
-            : customer
-        )
-      );
-
-      // Refresh data to ensure consistency across all users
+      // Refresh data to ensure consistency across all users and get updated status history
       await refreshData();
 
       console.log('Application submitted to admin successfully, status changed to Submitted and persisted to database');
