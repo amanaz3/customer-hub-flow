@@ -1,3 +1,4 @@
+
 import { supabase } from '@/lib/supabase';
 import { Customer } from '@/types/customer';
 
@@ -98,6 +99,20 @@ export class CustomerService {
   static async updateCustomerStatus(customerId: string, status: string, comment: string, changedBy: string, role: string) {
     console.log('Updating customer status in database:', { customerId, status, comment, changedBy, role });
     
+    // Get the current customer to access previous status
+    const { data: currentCustomer, error: fetchError } = await supabase
+      .from('customers')
+      .select('status')
+      .eq('id', customerId)
+      .single();
+
+    if (fetchError) {
+      console.error('Error fetching current customer status:', fetchError);
+      throw fetchError;
+    }
+
+    const previousStatus = currentCustomer?.status || 'Draft';
+
     // Update customer status
     const { error: customerError } = await supabase
       .from('customers')
@@ -112,16 +127,16 @@ export class CustomerService {
       throw customerError;
     }
 
-    // Add status change to history
+    // Add status change to history - using the correct property names from the database schema
     const { error: statusError } = await supabase
       .from('status_changes')
       .insert({
         customer_id: customerId,
-        previous_status: 'Draft', // This could be improved to get the actual previous status
+        previous_status: previousStatus,
         new_status: status,
         changed_by: changedBy,
-        changed_by_role: role,
-        comment: comment || undefined,
+        changed_by_role: role as "admin" | "user",
+        comment: comment || null,
         created_at: new Date().toISOString()
       });
 
