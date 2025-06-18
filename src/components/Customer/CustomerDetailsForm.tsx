@@ -4,6 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Select,
   SelectContent,
@@ -12,6 +13,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Customer } from '@/types/customer';
+
+const UAE_BANKS = [
+  'First Abu Dhabi Bank (FAB)',
+  'Emirates NBD',
+  'Abu Dhabi Commercial Bank (ADCB)',
+  'Dubai Islamic Bank (DIB)',
+  'Mashreq Bank',
+  'Abu Dhabi Islamic Bank (ADIB)',
+  'RAKBANK (National Bank of Ras Al Khaimah)',
+  'Commercial Bank of Dubai (CBD)',
+  'Emirates Islamic Bank',
+  'National Bank of Fujairah (NBF)',
+  'United Arab Bank (UAB)',
+  'Bank of Sharjah',
+  'Al Hilal Bank',
+  'Ajman Bank',
+  'Commercial Bank International (CBI)',
+  'Invest Bank',
+  'National Bank of Umm Al Quwain',
+  'Al Maryah Community Bank',
+  'Wio Bank',
+  'Zand Bank'
+];
 
 interface CustomerDetailsFormProps {
   customer: Customer;
@@ -25,6 +49,10 @@ interface CustomerDetailsFormProps {
     leadSource: string;
     licenseType: string;
     amount: string;
+    preferredBank?: string;
+    annualTurnover?: string;
+    jurisdiction?: string;
+    customerNotes?: string;
   }) => void;
 }
 
@@ -42,9 +70,13 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
     leadSource: customer.leadSource || 'Website',
     licenseType: customer.licenseType || 'Mainland',
     amount: customer.amount.toString() || '',
+    preferredBank: customer.preferred_bank || '',
+    annualTurnover: customer.annual_turnover?.toString() || '',
+    jurisdiction: customer.jurisdiction || 'Mainland',
+    customerNotes: customer.customer_notes || '',
   });
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({
       ...formData,
@@ -151,9 +183,26 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
               </SelectContent>
             </Select>
           </div>
+
+          <div>
+            <Label htmlFor="jurisdiction">Jurisdiction</Label>
+            <Select
+              disabled={!isEditable || !isUserOwner}
+              value={formData.jurisdiction}
+              onValueChange={(value) => handleSelectChange('jurisdiction', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Select jurisdiction" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Mainland">Mainland</SelectItem>
+                <SelectItem value="Freezone">Freezone</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           
           <div>
-            <Label htmlFor="amount">Amount</Label>
+            <Label htmlFor="amount">Amount (AED)</Label>
             <Input
               id="amount"
               name="amount"
@@ -163,6 +212,52 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
               disabled={!isEditable || !isUserOwner}
             />
           </div>
+
+          <div>
+            <Label htmlFor="preferredBank">Preferred Bank</Label>
+            <Select
+              disabled={!isEditable || !isUserOwner}
+              value={formData.preferredBank}
+              onValueChange={(value) => handleSelectChange('preferredBank', value)}
+            >
+              <SelectTrigger className="mt-1">
+                <SelectValue placeholder="Select preferred bank" />
+              </SelectTrigger>
+              <SelectContent>
+                {UAE_BANKS.map((bank) => (
+                  <SelectItem key={bank} value={bank}>
+                    {bank}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div>
+            <Label htmlFor="annualTurnover">Annual Turnover (AED)</Label>
+            <Input
+              id="annualTurnover"
+              name="annualTurnover"
+              value={formData.annualTurnover}
+              onChange={handleInputChange}
+              className="mt-1"
+              disabled={!isEditable || !isUserOwner}
+            />
+          </div>
+        </div>
+
+        <div className="mt-4">
+          <Label htmlFor="customerNotes">Customer Notes</Label>
+          <Textarea
+            id="customerNotes"
+            name="customerNotes"
+            value={formData.customerNotes}
+            onChange={handleInputChange}
+            className="mt-1"
+            rows={4}
+            placeholder="Mention any specific queries or requirements here..."
+            disabled={!isEditable || !isUserOwner}
+          />
         </div>
         
         {isEditable && isUserOwner && (

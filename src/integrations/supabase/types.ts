@@ -51,51 +51,63 @@ export type Database = {
       customers: {
         Row: {
           amount: number
+          annual_turnover: number | null
           company: string
           created_at: string | null
+          customer_notes: string | null
           drive_folder_id: string | null
           email: string
           id: string
+          jurisdiction: string | null
           lead_source: Database["public"]["Enums"]["lead_source"]
           license_type: Database["public"]["Enums"]["license_type"]
           mobile: string
           name: string
           payment_date: string | null
           payment_received: boolean | null
+          preferred_bank: string | null
           status: Database["public"]["Enums"]["customer_status"]
           updated_at: string | null
           user_id: string
         }
         Insert: {
           amount: number
+          annual_turnover?: number | null
           company: string
           created_at?: string | null
+          customer_notes?: string | null
           drive_folder_id?: string | null
           email: string
           id?: string
+          jurisdiction?: string | null
           lead_source: Database["public"]["Enums"]["lead_source"]
           license_type: Database["public"]["Enums"]["license_type"]
           mobile: string
           name: string
           payment_date?: string | null
           payment_received?: boolean | null
+          preferred_bank?: string | null
           status?: Database["public"]["Enums"]["customer_status"]
           updated_at?: string | null
           user_id: string
         }
         Update: {
           amount?: number
+          annual_turnover?: number | null
           company?: string
           created_at?: string | null
+          customer_notes?: string | null
           drive_folder_id?: string | null
           email?: string
           id?: string
+          jurisdiction?: string | null
           lead_source?: Database["public"]["Enums"]["lead_source"]
           license_type?: Database["public"]["Enums"]["license_type"]
           mobile?: string
           name?: string
           payment_date?: string | null
           payment_received?: boolean | null
+          preferred_bank?: string | null
           status?: Database["public"]["Enums"]["customer_status"]
           updated_at?: string | null
           user_id?: string

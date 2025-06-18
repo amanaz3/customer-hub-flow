@@ -38,7 +38,11 @@ const CustomerNew = () => {
       user_id: user.id,
       documents: [],
       comments: [],
-      statusHistory: []
+      statusHistory: [],
+      preferred_bank: data.preferredBank,
+      annual_turnover: data.annualTurnover ? parseFloat(data.annualTurnover) : undefined,
+      jurisdiction: data.jurisdiction,
+      customer_notes: data.customerNotes,
     };
     
     try {

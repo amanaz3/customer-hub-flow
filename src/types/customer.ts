@@ -18,6 +18,10 @@ export interface Customer {
   comments?: Comment[];
   statusHistory?: StatusChange[];
   driveFolderId?: string;
+  preferred_bank?: string;
+  annual_turnover?: number;
+  jurisdiction?: string;
+  customer_notes?: string;
 }
 
 export interface StatusChange {

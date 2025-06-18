@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -9,6 +10,7 @@ import { LeadSource, LicenseType } from '@/types/customer';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Form,
   FormControl,
@@ -25,6 +27,29 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { sanitizeInput, rateLimiter } from '@/utils/security';
+
+const UAE_BANKS = [
+  'First Abu Dhabi Bank (FAB)',
+  'Emirates NBD',
+  'Abu Dhabi Commercial Bank (ADCB)',
+  'Dubai Islamic Bank (DIB)',
+  'Mashreq Bank',
+  'Abu Dhabi Islamic Bank (ADIB)',
+  'RAKBANK (National Bank of Ras Al Khaimah)',
+  'Commercial Bank of Dubai (CBD)',
+  'Emirates Islamic Bank',
+  'National Bank of Fujairah (NBF)',
+  'United Arab Bank (UAB)',
+  'Bank of Sharjah',
+  'Al Hilal Bank',
+  'Ajman Bank',
+  'Commercial Bank International (CBI)',
+  'Invest Bank',
+  'National Bank of Umm Al Quwain',
+  'Al Maryah Community Bank',
+  'Wio Bank',
+  'Zand Bank'
+];
 
 const formSchema = z.object({
   name: z.string()
@@ -49,6 +74,10 @@ const formSchema = z.object({
   }, {
     message: "Amount must be a positive number less than 10,000,000",
   }),
+  preferredBank: z.string().optional(),
+  annualTurnover: z.string().optional(),
+  jurisdiction: z.enum(['Mainland', 'Freezone']),
+  customerNotes: z.string().optional(),
 });
 
 export type CustomerFormValues = z.infer<typeof formSchema>;
@@ -72,13 +101,17 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ onSubmit }) => {
       leadSource: 'Website',
       licenseType: 'Mainland',
       amount: '',
+      preferredBank: '',
+      annualTurnover: '',
+      jurisdiction: 'Mainland',
+      customerNotes: '',
     },
   });
 
   const handleSubmit = async (data: CustomerFormValues) => {
     // Rate limiting check
-    const clientIP = 'user-session'; // In production, use actual IP
-    if (!rateLimiter.canAttempt(clientIP, 10, 60000)) { // 10 attempts per minute
+    const clientIP = 'user-session';
+    if (!rateLimiter.canAttempt(clientIP, 10, 60000)) {
       toast({
         title: "Too Many Requests",
         description: "Please wait before submitting again.",
@@ -97,6 +130,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ onSubmit }) => {
         company: sanitizeInput(data.company.trim()),
         email: data.email.toLowerCase().trim(),
         mobile: data.mobile.replace(/\s/g, ''),
+        customerNotes: data.customerNotes ? sanitizeInput(data.customerNotes.trim()) : '',
       };
       
       await onSubmit(sanitizedData);
@@ -142,7 +176,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ onSubmit }) => {
                 <FormLabel>Mobile</FormLabel>
                 <FormControl>
                   <Input 
-                    placeholder="+1 234 567 8901" 
+                    placeholder="+971 50 123 4567" 
                     {...field} 
                     disabled={isSubmitting}
                     maxLength={20}
@@ -221,6 +255,32 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ onSubmit }) => {
           
           <FormField
             control={form.control}
+            name="jurisdiction"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Jurisdiction</FormLabel>
+                <Select 
+                  onValueChange={field.onChange} 
+                  defaultValue={field.value}
+                  disabled={isSubmitting}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select jurisdiction" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Mainland">Mainland</SelectItem>
+                    <SelectItem value="Freezone">Freezone</SelectItem>
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
             name="leadSource"
             render={({ field }) => (
               <FormItem>
@@ -252,7 +312,7 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ onSubmit }) => {
             name="amount"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Amount</FormLabel>
+                <FormLabel>Amount (AED)</FormLabel>
                 <FormControl>
                   <Input 
                     placeholder="50000" 
@@ -265,7 +325,75 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ onSubmit }) => {
               </FormItem>
             )}
           />
+          
+          <FormField
+            control={form.control}
+            name="preferredBank"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Preferred Bank</FormLabel>
+                <Select 
+                  onValueChange={field.onChange} 
+                  value={field.value}
+                  disabled={isSubmitting}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select preferred bank" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {UAE_BANKS.map((bank) => (
+                      <SelectItem key={bank} value={bank}>
+                        {bank}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          
+          <FormField
+            control={form.control}
+            name="annualTurnover"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Annual Turnover (AED)</FormLabel>
+                <FormControl>
+                  <Input 
+                    placeholder="1000000" 
+                    {...field} 
+                    disabled={isSubmitting}
+                    maxLength={15}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
+        
+        <FormField
+          control={form.control}
+          name="customerNotes"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Customer Notes</FormLabel>
+              <FormControl>
+                <Textarea 
+                  placeholder="Mention any specific queries or requirements here..."
+                  {...field} 
+                  disabled={isSubmitting}
+                  rows={4}
+                  maxLength={1000}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         
         <div className="flex justify-end">
           <Button 
