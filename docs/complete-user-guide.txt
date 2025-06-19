@@ -1,0 +1,664 @@
+
+# COMPLETE USER GUIDE
+# Customer Management System - Amana Corporate
+
+================================================================================
+TABLE OF CONTENTS
+================================================================================
+
+1. GETTING STARTED
+2. DASHBOARD OVERVIEW
+3. MANAGING CUSTOMERS
+4. APPLICATION PROCESS
+5. DOCUMENT MANAGEMENT
+6. STATUS MANAGEMENT
+7. BANKING PREFERENCES
+8. ADMINISTRATIVE FUNCTIONS
+9. TROUBLESHOOTING
+10. BEST PRACTICES
+11. QUICK REFERENCE
+
+================================================================================
+1. GETTING STARTED
+================================================================================
+
+FIRST TIME LOGIN
+----------------
+1. Navigate to the login page
+2. Enter your registered email address and password
+3. Click "Sign In" to access the system
+4. If you don't have an account, contact your administrator
+
+Note: New users are automatically assigned the "user" role unless specified otherwise by an administrator.
+
+SYSTEM REQUIREMENTS
+-------------------
+- Modern web browser (Chrome, Firefox, Safari, Edge)
+- Stable internet connection
+- JavaScript enabled
+- Minimum screen resolution: 1024x768
+
+INITIAL SETUP
+-------------
+1. After first login, review your profile information
+2. Set up notification preferences in Settings
+3. Familiarize yourself with the dashboard layout
+4. Review the quick start guide for new applications
+
+================================================================================
+2. DASHBOARD OVERVIEW
+================================================================================
+
+MAIN SECTIONS
+-------------
+The dashboard is divided into several key areas:
+
+Navigation Sidebar:
+- Dashboard (home page)
+- Customers (all applications)
+- Add Customer (new application)
+- Completed Cases (finished applications)
+- Settings (account preferences)
+- Security (admin only)
+
+Main Content Area:
+- Statistics cards showing your application metrics
+- Recent activity feed
+- Quick action buttons
+- Status overview charts
+
+STATISTICS CARDS
+----------------
+Your dashboard displays:
+- Total Customers: All applications you've created
+- Pending Applications: Applications requiring action
+- Completed Cases: Successfully processed applications
+- Success Rate: Percentage of approved applications
+
+RECENT ACTIVITY
+---------------
+Shows the latest updates on your applications including:
+- Status changes
+- Document uploads
+- Comments from administrators
+- Payment confirmations
+
+================================================================================
+3. MANAGING CUSTOMERS
+================================================================================
+
+CREATING A NEW CUSTOMER APPLICATION
+-----------------------------------
+1. Click "Add Customer" from the dashboard or sidebar
+2. Fill in the Customer Information form:
+
+   PERSONAL DETAILS:
+   - Customer Name (required)
+   - Mobile Number (required)
+   - Email Address (required)
+   - Company Name (required)
+
+   APPLICATION DETAILS:
+   - Lead Source (Website, Referral, Social Media, Other)
+   - License Type (Mainland, Freezone, Offshore)
+   - Jurisdiction (Mainland, Freezone)
+   - Amount in AED (required)
+   - Annual Turnover in AED (optional)
+
+   BANKING PREFERENCES:
+   Option 1: Select "Any Suitable Bank" checkbox
+   Option 2: Enter up to 3 preferred banks:
+   - First Preference
+   - Second Preference  
+   - Third Preference
+
+   ADDITIONAL INFORMATION:
+   - Customer Notes (optional but recommended)
+   - Any specific queries or requirements
+
+3. Click "Save Customer" to create the application
+4. Default documents will be automatically generated based on license type
+
+VIEWING YOUR APPLICATIONS
+-------------------------
+Navigate to "Customers" to see all your applications with:
+- Customer name and company
+- Current status
+- License type
+- Amount
+- Last updated date
+- Quick action buttons
+
+FILTERING AND SEARCHING
+-----------------------
+Use the available filters to find specific applications:
+- Filter by Status: Draft, Submitted, Complete, etc.
+- Filter by License Type: Mainland, Freezone, Offshore
+- Search by: Customer name, email, or company name
+- Sort by: Date created, amount, status
+
+TABS FOR ORGANIZATION
+---------------------
+Applications are organized into tabs:
+- Active Applications: All non-completed cases
+- Completed Applications: Finished cases (Complete, Paid)
+
+================================================================================
+4. APPLICATION PROCESS
+================================================================================
+
+APPLICATION LIFECYCLE
+----------------------
+Every application follows this general flow:
+
+1. DRAFT STATUS
+   - Initial creation
+   - Information can be edited
+   - Documents can be uploaded
+   - Not yet submitted for review
+
+2. SUBMITTED STATUS
+   - Application sent for review
+   - Limited editing capabilities
+   - Admin review in progress
+
+3. PROCESSING STATUSES
+   - Returned: Needs corrections (you can edit)
+   - Sent to Bank: Being processed by financial institution
+   - Need More Info: Additional documents/info required
+
+4. FINAL STATUSES
+   - Complete: Application approved
+   - Rejected: Application declined
+   - Paid: Payment received and confirmed
+
+STATUS TRANSITIONS
+------------------
+Users can transition applications:
+- Draft → Submitted (when ready)
+- Returned → Submitted (after corrections)
+
+Administrators handle other transitions:
+- Submitted → Returned/Sent to Bank
+- Sent to Bank → Complete/Rejected/Need More Info
+- Complete → Paid
+
+SUBMISSION REQUIREMENTS
+-----------------------
+Before submitting an application, ensure:
+✓ All mandatory information is completed
+✓ All required documents are uploaded
+✓ Banking preferences are specified
+✓ Contact information is accurate
+
+The system will prevent submission if mandatory requirements are missing.
+
+================================================================================
+5. DOCUMENT MANAGEMENT
+================================================================================
+
+DOCUMENT CATEGORIES
+-------------------
+Documents are organized into four main categories:
+
+1. COMPANY DOCUMENTS
+   - Trade License (required)
+   - MOA (Memorandum of Association) (required)
+   - Incorporation Certificate (optional)
+   - Share Certificate (optional for Freezone)
+   - Ejari (optional)
+   - Company Profile (optional)
+   - Other Company Documents (optional)
+
+2. SHAREHOLDER DOCUMENTS
+   - Passport Copy (required)
+   - Emirates ID (required)
+   - CV (Curriculum Vitae) (optional)
+   - Residential Address Proof (optional)
+
+3. SOURCE OF FUNDS
+   - Personal Bank Statements (optional)
+   - Company Bank Statements (optional)
+   - Trade License of Other Company (optional)
+
+4. ADDITIONAL INFORMATION
+   - Customer Supplier Information (optional)
+   - Annual Turnover Documentation (optional)
+   - Monthly Cash Deposits Record (optional)
+   - Monthly Withdrawals Record (optional)
+
+LICENSE-SPECIFIC REQUIREMENTS
+-----------------------------
+Document requirements vary by license type:
+
+ALL LICENSE TYPES:
+- Trade License, MOA, Passport, Emirates ID
+
+FREEZONE ADDITIONAL:
+- Share Certificate
+- Certificate of Incorporation
+
+MAINLAND SPECIFIC:
+- Standard company registration documents
+
+OFFSHORE SPECIFIC:
+- International compliance documents
+
+UPLOADING DOCUMENTS
+-------------------
+1. Navigate to customer details
+2. Click on "Documents" tab
+3. Select the appropriate category tab
+4. Click "Upload Document" next to the required document
+5. Select file from your computer
+6. Wait for upload confirmation
+
+SUPPORTED FILE FORMATS
+----------------------
+- PDF (recommended)
+- JPEG/JPG images
+- PNG images
+- Maximum file size: 10MB per file
+
+FILE MANAGEMENT
+---------------
+After uploading, you can:
+- View documents in browser
+- Download documents
+- Replace documents (upload new version)
+- Check upload status and progress
+
+DOCUMENT STATUS INDICATORS
+--------------------------
+✅ Uploaded: Document successfully submitted
+❌ Missing: Required document not uploaded
+📄 Optional: Supporting document (not mandatory)
+🔄 Uploading: File transfer in progress
+
+================================================================================
+6. STATUS MANAGEMENT
+================================================================================
+
+UNDERSTANDING STATUS MEANINGS
+------------------------------
+DRAFT: Application being prepared
+- You can edit all information
+- Upload/replace documents
+- Submit when ready
+
+SUBMITTED: Application under review
+- Limited editing (contact admin for changes)
+- Can upload additional documents if requested
+- Waiting for admin review
+
+RETURNED: Needs corrections
+- Full editing access restored
+- Review admin comments for required changes
+- Resubmit after corrections
+
+SENT TO BANK: Processing with financial institution
+- No editing allowed
+- Bank is reviewing application
+- Wait for processing completion
+
+COMPLETE: Application approved
+- Final approval received
+- Prepare for payment
+- Review final documentation
+
+REJECTED: Application declined
+- Review rejection reasons
+- Contact admin for guidance
+- May be eligible for resubmission
+
+NEED MORE INFO: Additional information required
+- Upload requested documents
+- Provide additional details as specified
+- Contact admin if requirements unclear
+
+PAID: Payment confirmed
+- Final status
+- Application process complete
+- Keep records for your files
+
+STATUS HISTORY TRACKING
+-----------------------
+Every status change is recorded with:
+- Previous status
+- New status
+- Date and time of change
+- Person who made the change
+- Comments explaining the change
+- Admin or user role indication
+
+COMMENTING SYSTEM
+-----------------
+- Admin comments provide guidance and feedback
+- Comments are timestamped and attributed
+- Review comments for specific instructions
+- Use comments to track application progress
+
+================================================================================
+7. BANKING PREFERENCES
+================================================================================
+
+BANKING OPTIONS
+---------------
+You have two options for banking preferences:
+
+OPTION 1: ANY SUITABLE BANK
+- Check the "Any Suitable Bank" checkbox
+- System will recommend appropriate banks
+- Faster processing time
+- Based on your business requirements
+
+OPTION 2: SPECIFIC BANK PREFERENCES
+- Enter up to 3 preferred banks in order of preference
+- First Preference: Your top choice
+- Second Preference: Alternative option
+- Third Preference: Backup choice
+
+BANK SELECTION CONSIDERATIONS
+-----------------------------
+Consider these factors when choosing banks:
+- Business activity type
+- Minimum balance requirements
+- Service fees and charges
+- Branch locations and accessibility
+- Online banking capabilities
+- International transfer facilities
+- Customer service quality
+- Processing times for applications
+
+POPULAR BANK OPTIONS
+--------------------
+Common choices include:
+- Emirates NBD
+- First Abu Dhabi Bank (FAB)
+- Abu Dhabi Commercial Bank (ADCB)
+- Dubai Islamic Bank (DIB)
+- Commercial Bank of Dubai (CBD)
+- HSBC UAE
+- Standard Chartered
+- Mashreq Bank
+
+CHANGING BANK PREFERENCES
+-------------------------
+- Can be modified while application is in Draft status
+- Contact admin for changes after submission
+- May affect processing timeline
+- Consider business needs carefully before finalizing
+
+================================================================================
+8. ADMINISTRATIVE FUNCTIONS
+================================================================================
+
+USER ROLES
+----------
+REGULAR USER:
+- Create and manage own applications
+- Upload documents
+- Submit applications
+- View own application history
+
+ADMINISTRATOR:
+- Manage all applications
+- Change application statuses
+- Review and approve submissions
+- Manage user accounts
+- Access security features
+- Generate reports
+
+ADMIN CAPABILITIES
+------------------
+Administrators can:
+- Update application status with comments
+- Return applications for corrections
+- Send applications to banks
+- Mark applications as complete or rejected
+- Confirm payment receipt
+- Request additional information
+- Manage document requirements
+- View system analytics
+
+STATUS CHANGE WORKFLOW
+----------------------
+Admins follow specific workflows:
+
+FROM SUBMITTED:
+- Return to User (with feedback)
+- Send to Bank (if complete)
+
+FROM SENT TO BANK:
+- Mark Complete (approval received)
+- Mark Rejected (declined)
+- Request More Info (additional requirements)
+
+FROM COMPLETE:
+- Mark as Paid (payment confirmed)
+
+USER MANAGEMENT
+---------------
+Administrators can:
+- Create new user accounts
+- Reset user passwords
+- Assign user roles
+- Deactivate accounts
+- Monitor user activity
+
+================================================================================
+9. TROUBLESHOOTING
+================================================================================
+
+COMMON ISSUES AND SOLUTIONS
+----------------------------
+
+DOCUMENT UPLOAD PROBLEMS:
+Problem: Cannot upload documents
+Solution: 
+- Check file size (must be under 10MB)
+- Verify file format (PDF, JPG, PNG only)
+- Clear browser cache
+- Try different browser
+- Check internet connection
+
+Problem: Upload appears stuck
+Solution:
+- Wait for completion (large files take time)
+- Refresh page and try again
+- Use smaller file size
+- Convert to PDF format
+
+APPLICATION SUBMISSION ISSUES:
+Problem: Cannot submit application
+Solution:
+- Verify all mandatory fields are completed
+- Upload all required documents
+- Check banking preferences are set
+- Review error messages on screen
+
+Problem: Application disappeared
+Solution:
+- Check different status tabs
+- Use search function
+- Contact administrator
+- Check if accidentally deleted
+
+LOGIN PROBLEMS:
+Problem: Cannot access system
+Solution:
+- Verify email and password
+- Check caps lock
+- Reset password if forgotten
+- Contact administrator
+- Clear browser cookies
+
+BROWSER COMPATIBILITY:
+Problem: System not working properly
+Solution:
+- Update browser to latest version
+- Enable JavaScript
+- Disable browser extensions
+- Try incognito/private mode
+- Use different browser
+
+PERFORMANCE ISSUES:
+Problem: System running slowly
+Solution:
+- Check internet connection
+- Close unnecessary browser tabs
+- Clear browser cache
+- Try during off-peak hours
+- Contact technical support
+
+ERROR MESSAGES
+--------------
+"Validation Error": Check required fields
+"Upload Failed": File size or format issue
+"Access Denied": Permission problem
+"Session Expired": Login again
+"Network Error": Check internet connection
+
+GETTING HELP
+-------------
+1. Check this user guide first
+2. Review error messages carefully
+3. Try basic troubleshooting steps
+4. Contact your administrator
+5. Provide specific error details when reporting issues
+
+================================================================================
+10. BEST PRACTICES
+================================================================================
+
+APPLICATION PREPARATION
+-----------------------
+Before starting a new application:
+✓ Gather all required documents
+✓ Verify customer information accuracy
+✓ Check document validity dates
+✓ Prepare high-quality scans/photos
+✓ Research banking preferences
+✓ Note any special requirements
+
+DOCUMENT MANAGEMENT
+-------------------
+✓ Use PDF format when possible
+✓ Ensure documents are clear and readable
+✓ Name files descriptively
+✓ Keep originals for your records
+✓ Upload documents promptly
+✓ Check upload confirmations
+
+INFORMATION ACCURACY
+--------------------
+✓ Double-check all entered data
+✓ Verify spelling of names
+✓ Confirm contact information
+✓ Validate license type selection
+✓ Review amount calculations
+✓ Update information if changes occur
+
+COMMUNICATION
+-------------
+✓ Respond promptly to admin requests
+✓ Provide clear, detailed comments
+✓ Ask questions if requirements unclear
+✓ Keep customers informed of progress
+✓ Document important conversations
+
+WORKFLOW EFFICIENCY
+-------------------
+✓ Save applications as drafts frequently
+✓ Complete applications in batches
+✓ Use consistent naming conventions
+✓ Monitor status changes regularly
+✓ Plan for processing timelines
+✓ Maintain organized records
+
+SECURITY PRACTICES
+------------------
+✓ Use strong, unique passwords
+✓ Log out when finished
+✓ Don't share account credentials
+✓ Keep sensitive information secure
+✓ Report suspicious activity
+✓ Follow data protection guidelines
+
+================================================================================
+11. QUICK REFERENCE
+================================================================================
+
+KEYBOARD SHORTCUTS
+------------------
+Ctrl+S: Save current form
+Ctrl+N: New application (from customers page)
+Ctrl+F: Search/Filter
+Esc: Close dialog boxes
+Tab: Navigate between fields
+
+STATUS COLOR CODES
+------------------
+🔵 Draft - Blue (In preparation)
+🟡 Submitted - Yellow (Under review)
+🔴 Returned - Red (Needs attention)
+🟢 Sent to Bank - Green (Processing)
+✅ Complete - Green (Approved)
+❌ Rejected - Red (Declined)
+🟠 Need More Info - Orange (Info required)
+💰 Paid - Gold (Payment confirmed)
+
+REQUIRED DOCUMENTS CHECKLIST
+-----------------------------
+MANDATORY FOR ALL:
+□ Trade License
+□ MOA (Memorandum of Association)
+□ Passport Copy
+□ Emirates ID
+
+FREEZONE ADDITIONAL:
+□ Share Certificate
+□ Certificate of Incorporation
+
+CONTACT INFORMATION
+-------------------
+Technical Support: Contact your administrator
+Documentation: This user guide
+Training: Available upon request
+Updates: Check dashboard notifications
+
+IMPORTANT REMINDERS
+-------------------
+- Save work frequently
+- Upload documents promptly
+- Respond to admin requests quickly
+- Keep customer information updated
+- Monitor application progress regularly
+- Maintain document quality standards
+- Follow security best practices
+- Report issues immediately
+
+FILE SIZE LIMITS
+----------------
+- Maximum file size: 10MB per document
+- Recommended: Under 5MB for faster uploads
+- Compress large files if necessary
+- Use PDF format for best compatibility
+
+BUSINESS HOURS
+--------------
+- System available 24/7
+- Admin support: Business hours only
+- Emergency contact: Through administrator
+- Maintenance: Scheduled during off-hours
+
+================================================================================
+END OF USER GUIDE
+================================================================================
+
+This comprehensive guide covers all aspects of the Customer Management System.
+For additional support or questions not covered in this guide, please contact
+your system administrator.
+
+Last Updated: Current Version
+System: Amana Corporate Customer Management System
