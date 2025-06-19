@@ -93,6 +93,10 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
     });
   };
 
+  const handleAnySuitableBankChange = (checked: boolean | "indeterminate") => {
+    setAnySuitableBank(checked === true);
+  };
+
   const handleSubmit = () => {
     let preferredBank = '';
     if (anySuitableBank) {
@@ -250,7 +254,7 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
             <Checkbox
               id="anySuitableBank"
               checked={anySuitableBank}
-              onCheckedChange={setAnySuitableBank}
+              onCheckedChange={handleAnySuitableBankChange}
               disabled={!isEditable || !isUserOwner}
             />
             <Label htmlFor="anySuitableBank">Any Suitable Bank</Label>
