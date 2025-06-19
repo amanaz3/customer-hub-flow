@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Form,
   FormControl,
@@ -27,29 +28,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { sanitizeInput, rateLimiter } from '@/utils/security';
-
-const UAE_BANKS = [
-  'First Abu Dhabi Bank (FAB)',
-  'Emirates NBD',
-  'Abu Dhabi Commercial Bank (ADCB)',
-  'Dubai Islamic Bank (DIB)',
-  'Mashreq Bank',
-  'Abu Dhabi Islamic Bank (ADIB)',
-  'RAKBANK (National Bank of Ras Al Khaimah)',
-  'Commercial Bank of Dubai (CBD)',
-  'Emirates Islamic Bank',
-  'National Bank of Fujairah (NBF)',
-  'United Arab Bank (UAB)',
-  'Bank of Sharjah',
-  'Al Hilal Bank',
-  'Ajman Bank',
-  'Commercial Bank International (CBI)',
-  'Invest Bank',
-  'National Bank of Umm Al Quwain',
-  'Al Maryah Community Bank',
-  'Wio Bank',
-  'Zand Bank'
-];
 
 const formSchema = z.object({
   name: z.string()
@@ -74,7 +52,10 @@ const formSchema = z.object({
   }, {
     message: "Amount must be a positive number less than 10,000,000",
   }),
-  preferredBank: z.string().optional(),
+  anySuitableBank: z.boolean().default(false),
+  preferredBank1: z.string().optional(),
+  preferredBank2: z.string().optional(),
+  preferredBank3: z.string().optional(),
   annualTurnover: z.string().optional(),
   jurisdiction: z.enum(['Mainland', 'Freezone']),
   customerNotes: z.string().optional(),
@@ -101,12 +82,17 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ onSubmit }) => {
       leadSource: 'Website',
       licenseType: 'Mainland',
       amount: '',
-      preferredBank: '',
+      anySuitableBank: false,
+      preferredBank1: '',
+      preferredBank2: '',
+      preferredBank3: '',
       annualTurnover: '',
       jurisdiction: 'Mainland',
       customerNotes: '',
     },
   });
+
+  const watchAnySuitableBank = form.watch('anySuitableBank');
 
   const handleSubmit = async (data: CustomerFormValues) => {
     // Rate limiting check
@@ -131,6 +117,9 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ onSubmit }) => {
         email: data.email.toLowerCase().trim(),
         mobile: data.mobile.replace(/\s/g, ''),
         customerNotes: data.customerNotes ? sanitizeInput(data.customerNotes.trim()) : '',
+        preferredBank1: data.preferredBank1 ? sanitizeInput(data.preferredBank1.trim()) : '',
+        preferredBank2: data.preferredBank2 ? sanitizeInput(data.preferredBank2.trim()) : '',
+        preferredBank3: data.preferredBank3 ? sanitizeInput(data.preferredBank3.trim()) : '',
       };
       
       await onSubmit(sanitizedData);
@@ -328,35 +317,6 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ onSubmit }) => {
           
           <FormField
             control={form.control}
-            name="preferredBank"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Preferred Bank</FormLabel>
-                <Select 
-                  onValueChange={field.onChange} 
-                  value={field.value}
-                  disabled={isSubmitting}
-                >
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select preferred bank" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {UAE_BANKS.map((bank) => (
-                      <SelectItem key={bank} value={bank}>
-                        {bank}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
-          />
-          
-          <FormField
-            control={form.control}
             name="annualTurnover"
             render={({ field }) => (
               <FormItem>
@@ -373,6 +333,92 @@ const CustomerForm: React.FC<CustomerFormProps> = ({ onSubmit }) => {
               </FormItem>
             )}
           />
+        </div>
+        
+        {/* Preferred Banks Section */}
+        <div className="space-y-4">
+          <FormField
+            control={form.control}
+            name="anySuitableBank"
+            render={({ field }) => (
+              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+                <FormControl>
+                  <Checkbox
+                    checked={field.value}
+                    onCheckedChange={field.onChange}
+                    disabled={isSubmitting}
+                  />
+                </FormControl>
+                <div className="space-y-1 leading-none">
+                  <FormLabel>Any Suitable Bank</FormLabel>
+                </div>
+              </FormItem>
+            )}
+          />
+
+          {!watchAnySuitableBank && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Preferred Banks</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <FormField
+                  control={form.control}
+                  name="preferredBank1"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>First Preference</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Enter bank name" 
+                          {...field} 
+                          disabled={isSubmitting}
+                          maxLength={100}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="preferredBank2"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Second Preference</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Enter bank name" 
+                          {...field} 
+                          disabled={isSubmitting}
+                          maxLength={100}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+                
+                <FormField
+                  control={form.control}
+                  name="preferredBank3"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Third Preference</FormLabel>
+                      <FormControl>
+                        <Input 
+                          placeholder="Enter bank name" 
+                          {...field} 
+                          disabled={isSubmitting}
+                          maxLength={100}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              </div>
+            </div>
+          )}
         </div>
         
         <FormField

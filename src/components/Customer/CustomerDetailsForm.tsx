@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Select,
   SelectContent,
@@ -13,29 +14,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Customer } from '@/types/customer';
-
-const UAE_BANKS = [
-  'First Abu Dhabi Bank (FAB)',
-  'Emirates NBD',
-  'Abu Dhabi Commercial Bank (ADCB)',
-  'Dubai Islamic Bank (DIB)',
-  'Mashreq Bank',
-  'Abu Dhabi Islamic Bank (ADIB)',
-  'RAKBANK (National Bank of Ras Al Khaimah)',
-  'Commercial Bank of Dubai (CBD)',
-  'Emirates Islamic Bank',
-  'National Bank of Fujairah (NBF)',
-  'United Arab Bank (UAB)',
-  'Bank of Sharjah',
-  'Al Hilal Bank',
-  'Ajman Bank',
-  'Commercial Bank International (CBI)',
-  'Invest Bank',
-  'National Bank of Umm Al Quwain',
-  'Al Maryah Community Bank',
-  'Wio Bank',
-  'Zand Bank'
-];
 
 interface CustomerDetailsFormProps {
   customer: Customer;
@@ -76,6 +54,22 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
     customerNotes: customer.customer_notes || '',
   });
 
+  const [anySuitableBank, setAnySuitableBank] = useState(
+    customer.preferred_bank === 'Any Suitable Bank'
+  );
+
+  const [bankPreferences, setBankPreferences] = useState(() => {
+    if (customer.preferred_bank && customer.preferred_bank !== 'Any Suitable Bank') {
+      const banks = customer.preferred_bank.split(', ').filter(bank => bank.trim() !== '');
+      return {
+        bank1: banks[0] || '',
+        bank2: banks[1] || '',
+        bank3: banks[2] || '',
+      };
+    }
+    return { bank1: '', bank2: '', bank3: '' };
+  });
+
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData({
@@ -88,6 +82,30 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
     setFormData({
       ...formData,
       [name]: value,
+    });
+  };
+
+  const handleBankPreferenceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = e.target;
+    setBankPreferences({
+      ...bankPreferences,
+      [name]: value,
+    });
+  };
+
+  const handleSubmit = () => {
+    let preferredBank = '';
+    if (anySuitableBank) {
+      preferredBank = 'Any Suitable Bank';
+    } else {
+      const banks = [bankPreferences.bank1, bankPreferences.bank2, bankPreferences.bank3]
+        .filter(bank => bank && bank.trim() !== '');
+      preferredBank = banks.join(', ');
+    }
+
+    onUpdate({
+      ...formData,
+      preferredBank,
     });
   };
 
@@ -214,26 +232,6 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
           </div>
 
           <div>
-            <Label htmlFor="preferredBank">Preferred Bank</Label>
-            <Select
-              disabled={!isEditable || !isUserOwner}
-              value={formData.preferredBank}
-              onValueChange={(value) => handleSelectChange('preferredBank', value)}
-            >
-              <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Select preferred bank" />
-              </SelectTrigger>
-              <SelectContent>
-                {UAE_BANKS.map((bank) => (
-                  <SelectItem key={bank} value={bank}>
-                    {bank}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
             <Label htmlFor="annualTurnover">Annual Turnover (AED)</Label>
             <Input
               id="annualTurnover"
@@ -244,6 +242,65 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
               disabled={!isEditable || !isUserOwner}
             />
           </div>
+        </div>
+
+        {/* Preferred Banks Section */}
+        <div className="mt-6 space-y-4">
+          <div className="flex items-center space-x-2">
+            <Checkbox
+              id="anySuitableBank"
+              checked={anySuitableBank}
+              onCheckedChange={setAnySuitableBank}
+              disabled={!isEditable || !isUserOwner}
+            />
+            <Label htmlFor="anySuitableBank">Any Suitable Bank</Label>
+          </div>
+
+          {!anySuitableBank && (
+            <div className="space-y-4">
+              <h3 className="text-lg font-medium">Preferred Banks</h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <Label htmlFor="bank1">First Preference</Label>
+                  <Input
+                    id="bank1"
+                    name="bank1"
+                    value={bankPreferences.bank1}
+                    onChange={handleBankPreferenceChange}
+                    className="mt-1"
+                    placeholder="Enter bank name"
+                    disabled={!isEditable || !isUserOwner}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="bank2">Second Preference</Label>
+                  <Input
+                    id="bank2"
+                    name="bank2"
+                    value={bankPreferences.bank2}
+                    onChange={handleBankPreferenceChange}
+                    className="mt-1"
+                    placeholder="Enter bank name"
+                    disabled={!isEditable || !isUserOwner}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="bank3">Third Preference</Label>
+                  <Input
+                    id="bank3"
+                    name="bank3"
+                    value={bankPreferences.bank3}
+                    onChange={handleBankPreferenceChange}
+                    className="mt-1"
+                    placeholder="Enter bank name"
+                    disabled={!isEditable || !isUserOwner}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="mt-4">
@@ -262,7 +319,7 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
         
         {isEditable && isUserOwner && (
           <div className="mt-6 flex justify-end">
-            <Button onClick={() => onUpdate(formData)}>
+            <Button onClick={handleSubmit}>
               Save Changes
             </Button>
           </div>
