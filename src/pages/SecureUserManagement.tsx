@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import MainLayout from '@/components/Layout/MainLayout';
 import { Button } from '@/components/ui/button';
@@ -33,8 +32,9 @@ import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/contexts/SecureAuthContext';
-import { Users, Shield, Trash2, Plus } from 'lucide-react';
+import { Users, Shield, Trash2, Plus, Key } from 'lucide-react';
 import SecurePasswordDialog from '@/components/Admin/SecurePasswordDialog';
+import PasswordManagementDialog from '@/components/Admin/PasswordManagementDialog';
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -56,6 +56,8 @@ const SecureUserManagement = () => {
   const [users, setUsers] = useState<UserProfile[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isPasswordDialogOpen, setIsPasswordDialogOpen] = useState(false);
+  const [isPasswordManagementOpen, setIsPasswordManagementOpen] = useState(false);
+  const [selectedUser, setSelectedUser] = useState<UserProfile | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [pendingUserData, setPendingUserData] = useState<FormValues | null>(null);
   const { toast } = useToast();
@@ -142,6 +144,11 @@ const SecureUserManagement = () => {
         variant: "destructive",
       });
     }
+  };
+
+  const handleChangePassword = (user: UserProfile) => {
+    setSelectedUser(user);
+    setIsPasswordManagementOpen(true);
   };
 
   const removeUser = async (userId: string, userEmail: string) => {
@@ -268,6 +275,17 @@ const SecureUserManagement = () => {
           userName={pendingUserData?.name || ''}
         />
         
+        {/* Password Management Dialog */}
+        <PasswordManagementDialog
+          isOpen={isPasswordManagementOpen}
+          onClose={() => {
+            setIsPasswordManagementOpen(false);
+            setSelectedUser(null);
+          }}
+          user={selectedUser}
+          action="change"
+        />
+        
         <div className="rounded-md border bg-white">
           <Table>
             <TableHeader>
@@ -309,15 +327,26 @@ const SecureUserManagement = () => {
                       {new Date(user.created_at).toLocaleDateString()}
                     </TableCell>
                     <TableCell className="text-right">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => removeUser(user.id, user.email)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="w-4 h-4 mr-1" />
-                        Remove
-                      </Button>
+                      <div className="flex justify-end gap-2">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleChangePassword(user)}
+                          className="text-blue-600 hover:text-blue-700"
+                        >
+                          <Key className="w-4 h-4 mr-1" />
+                          Change Password
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => removeUser(user.id, user.email)}
+                          className="text-red-600 hover:text-red-700"
+                        >
+                          <Trash2 className="w-4 h-4 mr-1" />
+                          Remove
+                        </Button>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
