@@ -1,3 +1,4 @@
+
 import { supabase } from '@/lib/supabase';
 import { Customer } from '@/types/customer';
 
@@ -85,7 +86,14 @@ export class CustomerService {
   static async createDefaultDocuments(customerId: string, licenseType: string) {
     console.log('Creating default documents for customer:', customerId, licenseType);
     
-    const defaultDocuments = [
+    interface DefaultDocument {
+      name: string;
+      is_mandatory: boolean;
+      category: string;
+      requires_license_type?: string;
+    }
+
+    const defaultDocuments: DefaultDocument[] = [
       // Mandatory documents for all license types
       { name: 'Passport Copy', is_mandatory: true, category: 'mandatory' },
       { name: 'Emirates ID Copy', is_mandatory: true, category: 'mandatory' },
