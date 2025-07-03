@@ -1,4 +1,3 @@
-
 import { supabase } from '@/lib/supabase';
 import { Customer } from '@/types/customer';
 
@@ -55,6 +54,10 @@ export class CustomerService {
       amount: customer.amount,
       status: customer.status as "Draft" | "Submitted" | "Returned" | "Sent to Bank" | "Complete" | "Rejected" | "Need More Info" | "Paid",
       user_id: userId,
+      preferred_bank: customer.preferred_bank,
+      annual_turnover: customer.annual_turnover,
+      jurisdiction: customer.jurisdiction,
+      customer_notes: customer.customer_notes,
       drive_folder_id: null // No longer using Google Drive
     };
 
@@ -72,7 +75,66 @@ export class CustomerService {
     }
 
     console.log('Customer created successfully:', data);
+
+    // Create default documents for the new customer
+    await this.createDefaultDocuments(data.id, customer.licenseType);
+
     return data;
+  }
+
+  static async createDefaultDocuments(customerId: string, licenseType: string) {
+    console.log('Creating default documents for customer:', customerId, licenseType);
+    
+    const defaultDocuments = [
+      // Mandatory documents for all license types
+      { name: 'Passport Copy', is_mandatory: true, category: 'mandatory' },
+      { name: 'Emirates ID Copy', is_mandatory: true, category: 'mandatory' },
+      { name: 'Trade License Copy', is_mandatory: true, category: 'mandatory' },
+      { name: 'Memorandum of Association (MOA)', is_mandatory: true, category: 'mandatory' },
+      { name: 'Bank Statements (Last 6 months)', is_mandatory: true, category: 'mandatory' },
+      
+      // Supporting documents (optional but recommended)
+      { name: 'Company Profile', is_mandatory: false, category: 'supporting' },
+      { name: 'Audited Financial Statements', is_mandatory: false, category: 'supporting' },
+      { name: 'Business Plan', is_mandatory: false, category: 'supporting' },
+      { name: 'Proof of Address', is_mandatory: false, category: 'supporting' },
+      
+      // Signatory documents
+      { name: 'Authorized Signatory Passport', is_mandatory: false, category: 'signatory' },
+      { name: 'Authorized Signatory Emirates ID', is_mandatory: false, category: 'signatory' },
+      { name: 'Board Resolution', is_mandatory: false, category: 'signatory' },
+    ];
+
+    // Add Freezone-specific documents if applicable
+    if (licenseType === 'Freezone') {
+      defaultDocuments.push(
+        { name: 'Freezone License Copy', is_mandatory: true, category: 'freezone', requires_license_type: 'Freezone' },
+        { name: 'Lease Agreement (Freezone)', is_mandatory: true, category: 'freezone', requires_license_type: 'Freezone' },
+        { name: 'No Objection Certificate', is_mandatory: false, category: 'freezone', requires_license_type: 'Freezone' }
+      );
+    }
+
+    const documentsToInsert = defaultDocuments.map(doc => ({
+      customer_id: customerId,
+      name: doc.name,
+      is_mandatory: doc.is_mandatory,
+      category: doc.category as "mandatory" | "freezone" | "supporting" | "signatory",
+      requires_license_type: doc.requires_license_type ? doc.requires_license_type as "Mainland" | "Freezone" | "Offshore" : null,
+      is_uploaded: false,
+      file_path: null
+    }));
+
+    const { error } = await supabase
+      .from('documents')
+      .insert(documentsToInsert);
+
+    if (error) {
+      console.error('Error creating default documents:', error);
+      // Don't throw error here as customer creation was successful
+      // Just log the error and continue
+    } else {
+      console.log('Default documents created successfully for customer:', customerId);
+    }
   }
 
   static async uploadDocument(customerId: string, documentId: string, filePath: string) {
