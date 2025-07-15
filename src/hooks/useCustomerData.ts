@@ -10,7 +10,17 @@ export const useCustomerData = () => {
   const [statusChanges, setStatusChanges] = useState<StatusChange[]>([]);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const { user, isAuthenticated } = useAuth();
+  
+  // Use a try-catch to handle auth context not being available
+  let authData;
+  try {
+    authData = useAuth();
+  } catch (error) {
+    // Auth context not available yet, set default values
+    authData = { user: null, isAuthenticated: false };
+  }
+  
+  const { user, isAuthenticated } = authData;
   const { toast } = useToast();
 
   const fetchCustomers = async () => {
