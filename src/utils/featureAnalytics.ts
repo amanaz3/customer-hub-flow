@@ -1,241 +1,183 @@
-// Feature usage analytics for production insights
-import React from 'react';
 
-interface UserEvent {
+// Feature Analytics for production monitoring and optimization
+interface FeatureEvent {
   eventName: string;
-  properties?: Record<string, any>;
   userId?: string;
+  sessionId?: string;
   timestamp: number;
+  data?: Record<string, any>; // Allow flexible data structure
+  page?: string;
+  userAgent?: string;
 }
 
-interface FeatureUsage {
-  feature: string;
-  usage_count: number;
-  unique_users: number;
-  avg_session_duration: number;
-  success_rate: number;
+interface CustomerWorkflowEvent {
+  customerId: string;
+  workflowStep: string;
+  timestamp: number;
+  metadata?: Record<string, any>;
+}
+
+interface UserEngagementEvent {
+  engagementType: string;
+  timestamp: number;
+  sessionDuration?: number;
+  metadata?: Record<string, any>;
 }
 
 class FeatureAnalytics {
-  private static events: UserEvent[] = [];
-  private static sessionStart = Date.now();
-  
-  // Track feature usage
-  static trackFeature(feature: string, properties?: Record<string, any>, userId?: string) {
-    const event: UserEvent = {
-      eventName: `feature_used_${feature}`,
-      properties: {
-        ...properties,
-        session_duration: Date.now() - this.sessionStart,
-        page_url: typeof window !== 'undefined' ? window.location.pathname : 'unknown'
-      },
+  private events: FeatureEvent[] = [];
+  private customerEvents: CustomerWorkflowEvent[] = [];
+  private engagementEvents: UserEngagementEvent[] = [];
+  private isInitialized = false;
+
+  init() {
+    if (this.isInitialized) return;
+    
+    this.isInitialized = true;
+    console.log('🎯 Feature Analytics initialized');
+    
+    // Clean up old events periodically
+    setInterval(() => {
+      this.cleanupOldEvents();
+    }, 300000); // Every 5 minutes
+  }
+
+  trackUserAction(eventName: string, data?: Record<string, any>, userId?: string) {
+    if (!this.isInitialized) {
+      console.warn('Feature Analytics not initialized');
+      return;
+    }
+
+    const event: FeatureEvent = {
+      eventName,
       userId,
-      timestamp: Date.now()
+      sessionId: this.getSessionId(),
+      timestamp: Date.now(),
+      data: data || {},
+      page: window.location.pathname,
+      userAgent: navigator.userAgent.substring(0, 100) // Truncate for storage
     };
 
     this.events.push(event);
-    console.log('Feature tracked:', feature, properties);
+    console.log('📊 Feature Event:', eventName, data);
 
-    // In production, send to PostHog/Amplitude:
-    /*
-    if (window.posthog) {
-      window.posthog.capture(event.eventName, event.properties);
+    // Auto-send critical events immediately
+    if (this.isCriticalEvent(eventName)) {
+      this.sendEventsBatch([event]);
     }
-    */
   }
 
-  // Track user actions with context
-  static trackUserAction(action: string, context?: {
-    customerId?: string;
-    documentType?: string;
-    statusChange?: { from: string; to: string };
-    errorContext?: string;
-  }, userId?: string) {
-    this.trackFeature('user_action', {
-      action,
-      ...context,
-      timestamp: new Date().toISOString()
-    }, userId);
+  trackCustomerWorkflow(workflowStep: string, customerId: string, metadata?: Record<string, any>) {
+    const event: CustomerWorkflowEvent = {
+      customerId,
+      workflowStep,
+      timestamp: Date.now(),
+      metadata: metadata || {}
+    };
+
+    this.customerEvents.push(event);
+    console.log('🔄 Customer Workflow:', workflowStep, customerId);
   }
 
-  // Track business metrics
-  static trackBusinessMetric(metric: string, value: number, metadata?: Record<string, any>) {
-    this.trackFeature('business_metric', {
-      metric,
-      value,
-      ...metadata
-    });
+  trackUserEngagement(engagementType: string, metadata?: Record<string, any>) {
+    const event: UserEngagementEvent = {
+      engagementType,
+      timestamp: Date.now(),
+      metadata: metadata || {}
+    };
+
+    this.engagementEvents.push(event);
+    console.log('👤 User Engagement:', engagementType);
   }
 
-  // Track performance-related events
-  static trackPerformance(operation: string, duration: number, success: boolean, metadata?: any) {
-    this.trackFeature('performance', {
-      operation,
-      duration,
-      success,
-      ...metadata
-    });
-  }
-
-  // Get usage analytics summary
-  static getUsageSummary(): {
-    totalEvents: number;
-    uniqueFeatures: string[];
-    topFeatures: Array<{ feature: string; count: number }>;
-    sessionDuration: number;
-    errorRate: number;
-  } {
-    const featureCounts: Record<string, number> = {};
-    const uniqueFeatures = new Set<string>();
-    let errorEvents = 0;
-
-    this.events.forEach(event => {
-      const feature = event.eventName.replace('feature_used_', '');
-      uniqueFeatures.add(feature);
-      featureCounts[feature] = (featureCounts[feature] || 0) + 1;
-      
-      if (event.properties?.errorContext) {
-        errorEvents++;
-      }
-    });
-
-    const topFeatures = Object.entries(featureCounts)
-      .map(([feature, count]) => ({ feature, count }))
-      .sort((a, b) => b.count - a.count)
-      .slice(0, 10);
-
+  // Analytics aggregation methods
+  getEventsSummary() {
+    const now = Date.now();
+    const hourAgo = now - (60 * 60 * 1000);
+    
+    const recentEvents = this.events.filter(event => event.timestamp > hourAgo);
+    
     return {
       totalEvents: this.events.length,
-      uniqueFeatures: Array.from(uniqueFeatures),
-      topFeatures,
-      sessionDuration: Date.now() - this.sessionStart,
-      errorRate: this.events.length > 0 ? errorEvents / this.events.length : 0
+      recentEvents: recentEvents.length,
+      topEvents: this.getTopEvents(recentEvents),
+      activeUsers: new Set(recentEvents.map(e => e.userId).filter(Boolean)).size,
+      customerWorkflows: this.customerEvents.length,
+      engagementEvents: this.engagementEvents.length
     };
   }
 
-  // Customer workflow analytics
-  static trackCustomerWorkflow(stage: 'created' | 'documents_uploaded' | 'status_changed' | 'completed', customerId: string, metadata?: any) {
-    this.trackFeature('customer_workflow', {
-      stage,
-      customer_id: customerId,
-      workflow_step: stage,
-      ...metadata
-    });
+  getTopEvents(events: FeatureEvent[], limit = 5) {
+    const eventCounts = events.reduce((acc, event) => {
+      acc[event.eventName] = (acc[event.eventName] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(eventCounts)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, limit)
+      .map(([name, count]) => ({ name, count }));
   }
 
-  // Document management analytics
-  static trackDocumentAction(action: 'upload' | 'view' | 'download' | 'delete', documentType: string, success: boolean, metadata?: any) {
-    this.trackFeature('document_management', {
-      action,
-      document_type: documentType,
-      success,
-      ...metadata
-    });
-  }
-
-  // User engagement analytics
-  static trackUserEngagement(metric: 'session_start' | 'page_view' | 'action_completed' | 'feature_discovery', metadata?: any) {
-    this.trackFeature('user_engagement', {
-      engagement_metric: metric,
-      ...metadata
-    });
-  }
-
-  // A/B testing support
-  static trackExperiment(experimentName: string, variant: string, outcome?: 'success' | 'failure', metadata?: any) {
-    this.trackFeature('experiment', {
-      experiment_name: experimentName,
-      variant,
-      outcome,
-      ...metadata
-    });
-  }
-
-  // Funnel analysis
-  static trackFunnel(funnelName: string, step: string, stepIndex: number, metadata?: any) {
-    this.trackFeature('funnel', {
-      funnel_name: funnelName,
-      step,
-      step_index: stepIndex,
-      ...metadata
-    });
-  }
-
-  // Export data for analysis
-  static exportAnalytics(): {
-    events: UserEvent[];
-    summary: ReturnType<typeof FeatureAnalytics.getUsageSummary>;
-    recommendations: string[];
-  } {
-    const summary = this.getUsageSummary();
-    const recommendations: string[] = [];
-
-    // Generate insights
-    if (summary.errorRate > 0.1) {
-      recommendations.push('High error rate detected. Review error tracking and user experience.');
+  // Utility methods
+  private getSessionId(): string {
+    let sessionId = sessionStorage.getItem('analytics_session_id');
+    if (!sessionId) {
+      sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+      sessionStorage.setItem('analytics_session_id', sessionId);
     }
-
-    if (summary.sessionDuration < 60000) {
-      recommendations.push('Short session duration. Consider improving user onboarding.');
-    }
-
-    if (summary.topFeatures.length < 3) {
-      recommendations.push('Low feature adoption. Consider improving feature discoverability.');
-    }
-
-    return {
-      events: this.events,
-      summary,
-      recommendations
-    };
+    return sessionId;
   }
 
-  // Clear analytics data (for privacy compliance)
-  static clearData() {
-    this.events = [];
-    this.sessionStart = Date.now();
+  private isCriticalEvent(eventName: string): boolean {
+    const criticalEvents = [
+      'login_failed',
+      'customer_create_failed',
+      'user_creation_failed',
+      'security_violation',
+      'system_error'
+    ];
+    return criticalEvents.includes(eventName);
   }
 
-  // Initialize analytics
-  static init(userId?: string) {
-    // In production, initialize PostHog/Amplitude:
-    /*
-    if (typeof window !== 'undefined') {
-      // PostHog initialization
-      posthog.init('YOUR_POSTHOG_KEY', {
-        api_host: 'https://app.posthog.com',
-        person_profiles: 'identified_only'
-      });
-      
-      if (userId) {
-        posthog.identify(userId);
-      }
-    }
-    */
+  private cleanupOldEvents() {
+    const cutoff = Date.now() - (24 * 60 * 60 * 1000); // 24 hours ago
     
-    this.trackUserEngagement('session_start');
+    this.events = this.events.filter(event => event.timestamp > cutoff);
+    this.customerEvents = this.customerEvents.filter(event => event.timestamp > cutoff);
+    this.engagementEvents = this.engagementEvents.filter(event => event.timestamp > cutoff);
+  }
+
+  private async sendEventsBatch(events: FeatureEvent[]) {
+    try {
+      // In production, send to analytics service
+      console.log('📤 Sending analytics batch:', events.length, 'events');
+      
+      // For now, just log the events
+      // In production: await fetch('/api/analytics', { method: 'POST', body: JSON.stringify(events) });
+    } catch (error) {
+      console.error('Failed to send analytics batch:', error);
+    }
+  }
+
+  // Data export for monitoring dashboards
+  exportData() {
+    return {
+      events: this.events.slice(-1000), // Last 1000 events
+      customerWorkflows: this.customerEvents.slice(-500),
+      engagementEvents: this.engagementEvents.slice(-500),
+      summary: this.getEventsSummary(),
+      timestamp: Date.now()
+    };
+  }
+
+  clearData() {
+    this.events = [];
+    this.customerEvents = [];
+    this.engagementEvents = [];
+    sessionStorage.removeItem('analytics_session_id');
+    console.log('🧹 Analytics data cleared');
   }
 }
 
-// React hook for feature analytics
-export const useFeatureAnalytics = (featureName: string, userId?: string) => {
-  React.useEffect(() => {
-    FeatureAnalytics.trackFeature(`${featureName}_mounted`, {}, userId);
-    
-    return () => {
-      FeatureAnalytics.trackFeature(`${featureName}_unmounted`, {}, userId);
-    };
-  }, [featureName, userId]);
-
-  const trackAction = (action: string, properties?: Record<string, any>) => {
-    FeatureAnalytics.trackUserAction(`${featureName}_${action}`, properties, userId);
-  };
-
-  const trackMetric = (metric: string, value: number) => {
-    FeatureAnalytics.trackBusinessMetric(`${featureName}_${metric}`, value);
-  };
-
-  return { trackAction, trackMetric };
-};
-
-export default FeatureAnalytics;
+export default new FeatureAnalytics();

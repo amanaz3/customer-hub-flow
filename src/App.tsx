@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/contexts/SecureAuthContext';
 import { CustomerProvider } from '@/contexts/CustomerContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
-import { ProtectedRoute } from '@/components/Security/ProtectedRoute';
+import ProtectedRoute from '@/components/Security/ProtectedRoute';
 import MainLayout from '@/components/Layout/MainLayout';
 import SecureLogin from '@/pages/SecureLogin';
 import Dashboard from '@/pages/Dashboard';
