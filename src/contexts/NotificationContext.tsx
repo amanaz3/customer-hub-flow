@@ -29,13 +29,13 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const { user, isAdmin } = useAuth();
+  const { user, isAdmin, isAuthenticated } = useAuth();
   const { customers } = useCustomer();
   const { toast } = useToast();
 
-  // Generate notifications based on customer status changes
+  // Only run notification logic when user is authenticated
   useEffect(() => {
-    if (!user || customers.length === 0) return;
+    if (!isAuthenticated || !user || customers.length === 0) return;
 
     const now = new Date();
     const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
@@ -62,11 +62,11 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         }
       }
     });
-  }, [customers, user, isAdmin]);
+  }, [customers, user, isAdmin, isAuthenticated]);
 
   // Add system notifications for admins
   useEffect(() => {
-    if (!isAdmin || !user) return;
+    if (!isAuthenticated || !isAdmin || !user) return;
 
     const pendingCustomers = customers.filter(c => 
       !['Complete', 'Rejected'].includes(c.status)
@@ -86,7 +86,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
         });
       }
     }
-  }, [customers, isAdmin, user]);
+  }, [customers, isAdmin, user, isAuthenticated]);
 
   const addNotification = (notificationData: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
     const newNotification: Notification = {

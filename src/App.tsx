@@ -42,8 +42,8 @@ function App() {
   return (
     <Router>
       <AuthProvider>
-        <NotificationProvider>
-          <CustomerProvider>
+        <CustomerProvider>
+          <NotificationProvider>
             <div className="min-h-screen bg-background">
               <Routes>
                 <Route path="/login" element={<SecureLogin />} />
@@ -117,8 +117,8 @@ function App() {
               </Routes>
             </div>
             <Toaster />
-          </CustomerProvider>
-        </NotificationProvider>
+          </NotificationProvider>
+        </CustomerProvider>
       </AuthProvider>
     </Router>
   );
