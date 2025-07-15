@@ -10,7 +10,7 @@ import EmptyDashboardState from '@/components/Dashboard/EmptyDashboardState';
 import DashboardHeader from '@/components/Dashboard/DashboardHeader';
 import { Customer, useCustomer } from '@/contexts/CustomerContext';
 import { useAuth } from '@/contexts/SecureAuthContext';
-import { BarChart3 } from 'lucide-react';
+import { BarChart3, Users } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
@@ -88,14 +88,15 @@ const OptimizedDashboard = () => {
   if (isLoading) {
     return (
       <MainLayout>
-        <div className="space-y-6">
-          <div className="flex items-center justify-center py-20">
-            <div className="text-center space-y-4">
-              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-              <div className="space-y-2">
-                <h3 className="text-lg font-medium text-gray-900">Loading Dashboard</h3>
-                <p className="text-muted-foreground">Please wait while we fetch your data...</p>
-              </div>
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-center space-y-6">
+            <div className="relative">
+              <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/30 border-t-primary mx-auto"></div>
+              <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary/20 animate-ping"></div>
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-xl font-semibold text-foreground">Loading Dashboard</h3>
+              <p className="text-muted-foreground">Fetching your latest data...</p>
             </div>
           </div>
         </div>
@@ -105,7 +106,7 @@ const OptimizedDashboard = () => {
 
   return (
     <MainLayout>
-      <div className="space-y-8">
+      <div className="space-y-8 pb-8">
         {/* Enhanced Header */}
         <DashboardHeader
           userName={user?.profile?.name}
@@ -118,17 +119,15 @@ const OptimizedDashboard = () => {
 
         {/* Admin Dashboard with Tabs */}
         {isAdmin ? (
-          <Tabs defaultValue="customers" className="space-y-6">
-            <TabsList className="grid w-full grid-cols-2 max-w-md">
-              <TabsTrigger value="customers" className="flex items-center gap-2">
-                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                </svg>
-                Customers
+          <Tabs defaultValue="customers" className="space-y-8">
+            <TabsList className="grid w-full grid-cols-2 max-w-md h-12 bg-muted/50">
+              <TabsTrigger value="customers" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                <Users className="h-4 w-4" />
+                <span className="font-medium">Customers</span>
               </TabsTrigger>
-              <TabsTrigger value="analytics" className="flex items-center gap-2">
+              <TabsTrigger value="analytics" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
                 <BarChart3 className="h-4 w-4" />
-                Analytics
+                <span className="font-medium">Analytics</span>
               </TabsTrigger>
             </TabsList>
 
@@ -136,37 +135,42 @@ const OptimizedDashboard = () => {
               {customers.length === 0 ? (
                 <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
               ) : (
-                <Card className="shadow-sm">
-                  <CardHeader className="pb-4">
-                    <CardTitle className="flex items-center gap-2">
-                      <svg className="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                      </svg>
-                      Recent Customers
-                      <span className="text-sm font-normal text-muted-foreground">
-                        ({filteredCustomers.length} of {customers.length})
-                      </span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <DashboardFilters
-                      searchTerm={searchTerm}
-                      setSearchTerm={setSearchTerm}
-                      statusFilter={statusFilter}
-                      setStatusFilter={setStatusFilter}
-                      onRefresh={handleDataRefresh}
-                      isLoading={isLoading}
-                    />
-                    <OptimizedCustomerTable 
-                      customers={filteredCustomers} 
-                      onDataChange={handleDataRefresh}
-                    />
-                  </CardContent>
-                </Card>
+                <div className="space-y-6">
+                  <DashboardFilters
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    statusFilter={statusFilter}
+                    setStatusFilter={setStatusFilter}
+                    onRefresh={handleDataRefresh}
+                    isLoading={isLoading}
+                  />
+                  
+                  <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
+                    <CardHeader className="pb-4 border-b border-border/50">
+                      <CardTitle className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <Users className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-xl font-semibold">Customer Applications</span>
+                          <p className="text-sm text-muted-foreground font-normal mt-1">
+                            Showing {filteredCustomers.length} of {customers.length} customers
+                          </p>
+                        </div>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <OptimizedCustomerTable 
+                        customers={filteredCustomers} 
+                        onDataChange={handleDataRefresh}
+                      />
+                    </CardContent>
+                  </Card>
+                </div>
               )}
             </TabsContent>
 
-            <TabsContent value="analytics">
+            <TabsContent value="analytics" className="space-y-6">
               <UserAnalytics />
             </TabsContent>
           </Tabs>
@@ -175,33 +179,38 @@ const OptimizedDashboard = () => {
           customers.length === 0 ? (
             <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
           ) : (
-            <Card className="shadow-sm">
-              <CardHeader className="pb-4">
-                <CardTitle className="flex items-center gap-2">
-                  <svg className="h-5 w-5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                  </svg>
-                  My Customers
-                  <span className="text-sm font-normal text-muted-foreground">
-                    ({filteredCustomers.length} of {customers.length})
-                  </span>
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <DashboardFilters
-                  searchTerm={searchTerm}
-                  setSearchTerm={setSearchTerm}
-                  statusFilter={statusFilter}
-                  setStatusFilter={setStatusFilter}
-                  onRefresh={handleDataRefresh}
-                  isLoading={isLoading}
-                />
-                <OptimizedCustomerTable 
-                  customers={filteredCustomers} 
-                  onDataChange={handleDataRefresh}
-                />
-              </CardContent>
-            </Card>
+            <div className="space-y-6">
+              <DashboardFilters
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                onRefresh={handleDataRefresh}
+                isLoading={isLoading}
+              />
+              
+              <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
+                <CardHeader className="pb-4 border-b border-border/50">
+                  <CardTitle className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Users className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-xl font-semibold">My Customer Applications</span>
+                      <p className="text-sm text-muted-foreground font-normal mt-1">
+                        Showing {filteredCustomers.length} of {customers.length} customers
+                      </p>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <OptimizedCustomerTable 
+                    customers={filteredCustomers} 
+                    onDataChange={handleDataRefresh}
+                  />
+                </CardContent>
+              </Card>
+            </div>
           )
         )}
       </div>
