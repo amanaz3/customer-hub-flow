@@ -29,8 +29,28 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const { user, isAdmin, isAuthenticated } = useAuth();
-  const { customers } = useCustomer();
+  
+  // Use a try-catch to handle auth context not being available
+  let authData;
+  try {
+    authData = useAuth();
+  } catch (error) {
+    // Auth context not available yet, set default values
+    authData = { user: null, isAdmin: false, isAuthenticated: false };
+  }
+  
+  const { user, isAdmin, isAuthenticated } = authData;
+  
+  // Use a try-catch to handle customer context not being available
+  let customerData;
+  try {
+    customerData = useCustomer();
+  } catch (error) {
+    // Customer context not available yet, set default values
+    customerData = { customers: [] };
+  }
+  
+  const { customers } = customerData;
   const { toast } = useToast();
 
   // Only run notification logic when user is authenticated
