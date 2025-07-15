@@ -1,134 +1,136 @@
-// Error tracking configuration for production monitoring
-// Note: This would require adding @sentry/react package
-import React from 'react';
-
+// Error tracking utility for production monitoring
 interface ErrorContext {
   userId?: string;
   userRole?: string;
   page?: string;
+  customerId?: string;
+  action?: string;
+  company?: string;
+  documentType?: string;
+  statusChange?: {
+    from: string;
+    to: string;
+  };
+  errorContext?: string;
+  email_domain?: string;
+  error?: string;
+  target_role?: string;
+  new_role?: string;
+  deleted_user_id?: string;
+  target_user_id?: string;
   customerContext?: {
-    customerId?: string;
-    action?: string;
+    action: string;
+    company: string;
   };
-  fileContext?: {
-    fileName?: string;
-    fileSize?: number;
-    uploadType?: string;
-  };
-}
-
-interface PerformanceMetric {
-  name: string;
-  duration: number;
-  metadata?: Record<string, any>;
+  [key: string]: any; // Allow any additional properties
 }
 
 class ErrorTracker {
-  private static isInitialized = false;
-  
-  static init() {
-    if (this.isInitialized || process.env.NODE_ENV !== 'production') {
+  private errors: { message: string; context: ErrorContext; timestamp: number }[] = [];
+  private isInitialized = false;
+
+  init() {
+    if (this.isInitialized) return;
+    this.isInitialized = true;
+    console.log('🚨 Error Tracker initialized');
+
+    // Clean up old errors periodically
+    setInterval(() => {
+      this.cleanupOldErrors();
+    }, 300000); // Every 5 minutes
+  }
+
+  captureError(error: Error | string, context: ErrorContext = {}) {
+    if (!this.isInitialized) {
+      console.warn('Error Tracker not initialized');
       return;
     }
 
-    // Sentry initialization would go here
-    /*
-    Sentry.init({
-      dsn: 'YOUR_SENTRY_DSN',
-      environment: 'production',
-      beforeSend(event) {
-        // Filter out non-critical errors
-        if (event.exception?.values?.[0]?.type === 'ChunkLoadError') {
-          return null; // Don't report chunk load errors
-        }
-        return event;
+    const message = typeof error === 'string' ? error : error.message;
+
+    const errorEntry = {
+      message: message,
+      context: {
+        ...context,
+        page: window.location.pathname,
+        userAgent: navigator.userAgent.substring(0, 100) // Truncate for storage
       },
-      tracesSampleRate: 0.1, // 10% sampling for performance
-    });
-    */
-    
-    this.isInitialized = true;
+      timestamp: Date.now()
+    };
+
+    this.errors.push(errorEntry);
+    console.error('🔥 Error Captured:', message, context);
+
+    // Send critical errors immediately
+    if (this.isCriticalError(message)) {
+      this.sendErrorsBatch([errorEntry]);
+    }
   }
 
-  static captureError(error: Error, context?: ErrorContext) {
-    console.error('Application Error:', error, context);
-    
-    // In production, this would send to Sentry
-    /*
-    Sentry.withScope((scope) => {
-      if (context?.userId) scope.setUser({ id: context.userId });
-      if (context?.userRole) scope.setTag('userRole', context.userRole);
-      if (context?.page) scope.setTag('page', context.page);
-      if (context?.customerContext) scope.setContext('customer', context.customerContext);
-      if (context?.fileContext) scope.setContext('file', context.fileContext);
+  private isCriticalError(message: string): boolean {
+    const criticalErrors = [
+      'Failed to fetch',
+      'Uncaught (in promise)',
+      'TypeError:',
+      'ReferenceError:'
+    ];
+    return criticalErrors.some(phrase => message.includes(phrase));
+  }
+
+  private cleanupOldErrors() {
+    const cutoff = Date.now() - (24 * 60 * 60 * 1000); // 24 hours ago
+    this.errors = this.errors.filter(error => error.timestamp > cutoff);
+  }
+
+  private async sendErrorsBatch(errors: { message: string; context: ErrorContext; timestamp: number }[]) {
+    try {
+      // In production, send to error tracking service
+      console.log('📤 Sending error batch:', errors.length, 'errors');
       
-      Sentry.captureException(error);
-    });
-    */
+      // For now, just log the errors
+      // In production: await fetch('/api/errors', { method: 'POST', body: JSON.stringify(errors) });
+    } catch (error) {
+      console.error('Failed to send error batch:', error);
+    }
   }
 
-  static captureMessage(message: string, level: 'info' | 'warning' | 'error' = 'info', context?: ErrorContext) {
-    console.log(`[${level.toUpperCase()}] ${message}`, context);
-    
-    // In production:
-    /*
-    Sentry.withScope((scope) => {
-      if (context) {
-        Object.entries(context).forEach(([key, value]) => {
-          scope.setContext(key, value);
-        });
-      }
-      Sentry.captureMessage(message, level);
-    });
-    */
+  // Data export for monitoring dashboards
+  exportData() {
+    return {
+      errors: this.errors.slice(-500), // Last 500 errors
+      summary: this.getErrorSummary(),
+      timestamp: Date.now()
+    };
   }
 
-  static trackPerformance(metric: PerformanceMetric) {
-    console.log('Performance Metric:', metric);
-    
-    // In production, send to monitoring service
-    /*
-    Sentry.addBreadcrumb({
-      category: 'performance',
-      message: `${metric.name}: ${metric.duration}ms`,
-      level: metric.duration > 3000 ? 'warning' : 'info',
-      data: metric.metadata,
-    });
-    */
+  getErrorSummary() {
+    const now = Date.now();
+    const hourAgo = now - (60 * 60 * 1000);
+    const recentErrors = this.errors.filter(error => error.timestamp > hourAgo);
+
+    return {
+      totalErrors: this.errors.length,
+      recentErrors: recentErrors.length,
+      topErrors: this.getTopErrors(recentErrors)
+    };
   }
 
-  static setUserContext(userId: string, email: string, role: string) {
-    // In production:
-    /*
-    Sentry.setUser({
-      id: userId,
-      email,
-      role,
-    });
-    */
+  getTopErrors(errors: { message: string; context: ErrorContext; timestamp: number }[], limit = 5) {
+    const errorCounts = errors.reduce((acc, error) => {
+      acc[error.message] = (acc[error.message] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+
+    return Object.entries(errorCounts)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, limit)
+      .map(([message, count]) => ({ message, count }));
   }
 
-  static addBreadcrumb(message: string, category: string, data?: any) {
-    console.log(`[BREADCRUMB] ${category}: ${message}`, data);
-    
-    // In production:
-    /*
-    Sentry.addBreadcrumb({
-      message,
-      category,
-      data,
-      timestamp: Date.now() / 1000,
-    });
-    */
+  clearData() {
+    this.errors = [];
+    console.log('🧹 Error data cleared');
   }
 }
 
-// React Error Boundary HOC for error tracking
-export const withErrorTracking = (WrappedComponent: React.ComponentType<any>) => {
-  return function ErrorTrackedComponent(props: any) {
-    // This would integrate with React Error Boundary in production
-    return React.createElement(WrappedComponent, props);
-  };
-};
-
-export default ErrorTracker;
+export default new ErrorTracker();

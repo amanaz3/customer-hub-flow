@@ -107,6 +107,65 @@ class FeatureAnalytics {
     };
   }
 
+  // Add the missing getUsageSummary method
+  getUsageSummary() {
+    const now = Date.now();
+    const hourAgo = now - (60 * 60 * 1000);
+    const dayAgo = now - (24 * 60 * 60 * 1000);
+    
+    const recentEvents = this.events.filter(event => event.timestamp > hourAgo);
+    const dailyEvents = this.events.filter(event => event.timestamp > dayAgo);
+    
+    // Calculate error rate
+    const errorEvents = dailyEvents.filter(event => 
+      event.eventName.includes('error') || 
+      event.eventName.includes('failed') ||
+      event.eventName.includes('violation')
+    );
+    
+    const errorRate = dailyEvents.length > 0 ? errorEvents.length / dailyEvents.length : 0;
+    
+    // Get top features
+    const featureCounts = dailyEvents.reduce((acc, event) => {
+      const feature = event.eventName.split('_')[0] || 'unknown';
+      acc[feature] = (acc[feature] || 0) + 1;
+      return acc;
+    }, {} as Record<string, number>);
+    
+    const topFeatures = Object.entries(featureCounts)
+      .sort(([,a], [,b]) => b - a)
+      .slice(0, 5)
+      .map(([feature, count]) => ({ feature, count }));
+    
+    // Get unique features
+    const uniqueFeatures = Array.from(new Set(dailyEvents.map(event => 
+      event.eventName.split('_')[0] || 'unknown'
+    )));
+    
+    // Calculate session duration (approximate)
+    const sessionDuration = this.calculateSessionDuration();
+    
+    return {
+      totalEvents: dailyEvents.length,
+      recentEvents: recentEvents.length,
+      errorRate,
+      topFeatures,
+      uniqueFeatures,
+      sessionDuration,
+      activeUsers: new Set(dailyEvents.map(e => e.userId).filter(Boolean)).size
+    };
+  }
+
+  private calculateSessionDuration(): number {
+    if (this.events.length < 2) return 0;
+    
+    const sortedEvents = [...this.events].sort((a, b) => a.timestamp - b.timestamp);
+    const firstEvent = sortedEvents[0];
+    const lastEvent = sortedEvents[sortedEvents.length - 1];
+    
+    return lastEvent.timestamp - firstEvent.timestamp;
+  }
+
   getTopEvents(events: FeatureEvent[], limit = 5) {
     const eventCounts = events.reduce((acc, event) => {
       acc[event.eventName] = (acc[event.eventName] || 0) + 1;
