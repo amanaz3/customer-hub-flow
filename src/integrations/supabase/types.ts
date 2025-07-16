@@ -60,7 +60,6 @@ export type Database = {
           company: string
           created_at: string | null
           customer_notes: string | null
-          drive_folder_id: string | null
           email: string
           id: string
           jurisdiction: string | null
@@ -68,8 +67,6 @@ export type Database = {
           license_type: Database["public"]["Enums"]["license_type"]
           mobile: string
           name: string
-          payment_date: string | null
-          payment_received: boolean | null
           preferred_bank: string | null
           status: Database["public"]["Enums"]["customer_status"]
           updated_at: string | null
@@ -81,7 +78,6 @@ export type Database = {
           company: string
           created_at?: string | null
           customer_notes?: string | null
-          drive_folder_id?: string | null
           email: string
           id?: string
           jurisdiction?: string | null
@@ -89,8 +85,6 @@ export type Database = {
           license_type: Database["public"]["Enums"]["license_type"]
           mobile: string
           name: string
-          payment_date?: string | null
-          payment_received?: boolean | null
           preferred_bank?: string | null
           status?: Database["public"]["Enums"]["customer_status"]
           updated_at?: string | null
@@ -102,7 +96,6 @@ export type Database = {
           company?: string
           created_at?: string | null
           customer_notes?: string | null
-          drive_folder_id?: string | null
           email?: string
           id?: string
           jurisdiction?: string | null
@@ -110,8 +103,6 @@ export type Database = {
           license_type?: Database["public"]["Enums"]["license_type"]
           mobile?: string
           name?: string
-          payment_date?: string | null
-          payment_received?: boolean | null
           preferred_bank?: string | null
           status?: Database["public"]["Enums"]["customer_status"]
           updated_at?: string | null
@@ -185,6 +176,7 @@ export type Database = {
           created_at: string | null
           email: string
           id: string
+          is_active: boolean
           name: string
           role: Database["public"]["Enums"]["app_role"]
           updated_at: string | null
@@ -193,6 +185,7 @@ export type Database = {
           created_at?: string | null
           email: string
           id: string
+          is_active?: boolean
           name: string
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string | null
@@ -201,6 +194,7 @@ export type Database = {
           created_at?: string | null
           email?: string
           id?: string
+          is_active?: boolean
           name?: string
           role?: Database["public"]["Enums"]["app_role"]
           updated_at?: string | null

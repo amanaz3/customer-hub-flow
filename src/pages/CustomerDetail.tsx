@@ -27,7 +27,7 @@ const CustomerDetail = () => {
     updateCustomer, 
     uploadDocument, 
     updateCustomerStatus,
-    markPaymentReceived,
+    // markPaymentReceived removed
     submitToAdmin
   } = useCustomer();
   
@@ -102,18 +102,7 @@ const CustomerDetail = () => {
     }
   };
 
-  const handlePaymentReceived = () => {
-    if (!customer || !user) return;
-    
-    markPaymentReceived(customer.id, user.profile?.name || user.email || 'Unknown User');
-    
-    toast({
-      title: "Payment Confirmed",
-      description: "Application marked as paid",
-    });
-    
-    navigate('/completed');
-  };
+  // handlePaymentReceived function removed - payment tracking out of scope
 
   const handleSubmitApplication = () => {
     if (!customer || !user) return;
@@ -170,7 +159,7 @@ const CustomerDetail = () => {
                 isUserOwner={isUserOwner}
                 mandatoryDocumentsUploaded={mandatoryDocumentsUploaded}
                 onStatusChange={handleStatusChange}
-                onPaymentReceived={handlePaymentReceived}
+                // onPaymentReceived removed
               />
             )}
           </div>
@@ -207,8 +196,7 @@ const CustomerDetail = () => {
               status={customer.status} 
               amount={customer.amount} 
               comments={customer.comments || []}
-              paymentReceived={customer.payment_received}
-              paymentDate={customer.payment_date}
+              /* Payment fields removed - no longer in scope */
               onStatusChange={handleStatusChange}
             />
             

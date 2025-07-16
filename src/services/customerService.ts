@@ -58,7 +58,7 @@ export class CustomerService {
       annual_turnover: customer.annual_turnover,
       jurisdiction: customer.jurisdiction,
       customer_notes: customer.customer_notes,
-      drive_folder_id: null // No longer using Google Drive
+      // drive_folder_id removed - no longer using Google Drive
     };
 
     console.log('Inserting customer data:', customerData);

@@ -10,14 +10,11 @@ export interface Customer {
   status: string;
   amount: number;
   user_id?: string;
-  payment_received?: boolean;
-  payment_date?: string;
   created_at?: string;
   updated_at?: string;
   documents?: Document[];
   comments?: Comment[];
   statusHistory?: StatusChange[];
-  driveFolderId?: string;
   preferred_bank?: string;
   annual_turnover?: number;
   jurisdiction?: string;

@@ -25,8 +25,7 @@ interface CustomerStatusCardProps {
   status: Status;
   amount: number;
   comments?: Comment[];
-  paymentReceived?: boolean;
-  paymentDate?: string;
+  // Payment fields removed - no longer in scope
   onStatusChange?: (status: Status, comment: string) => void;
 }
 
@@ -54,8 +53,7 @@ const CustomerStatusCard: React.FC<CustomerStatusCardProps> = ({
   status,
   amount,
   comments = [],
-  paymentReceived,
-  paymentDate,
+  // Payment props removed
   onStatusChange
 }) => {
   const { isAdmin } = useAuth();
@@ -158,19 +156,7 @@ const CustomerStatusCard: React.FC<CustomerStatusCardProps> = ({
             <p className="text-xl font-semibold">{formatCurrency(amount)}</p>
           </div>
 
-          {paymentReceived && (
-            <div className="bg-green-50 border border-green-200 rounded-md p-3">
-              <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 text-green-600" />
-                <span className="text-sm font-medium text-green-800">Payment Received</span>
-              </div>
-              {paymentDate && (
-                <p className="text-sm text-green-600 mt-1">
-                  Paid on {formatDate(paymentDate)}
-                </p>
-              )}
-            </div>
-          )}
+          {/* Payment tracking removed - no longer in scope */}
         </CardContent>
       </Card>
 

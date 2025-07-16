@@ -23,10 +23,10 @@ const CustomerList = () => {
     
     // Filter customers by status
     const active = filtered.filter(customer => 
-      !['Complete', 'Paid'].includes(customer.status)
+      customer.status !== 'Complete'
     );
     const completed = filtered.filter(customer => 
-      ['Complete', 'Paid'].includes(customer.status)
+      customer.status === 'Complete'
     );
 
     return {

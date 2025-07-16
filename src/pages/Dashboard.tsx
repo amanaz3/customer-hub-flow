@@ -1,9 +1,4 @@
 
-import React from 'react';
-import OptimizedDashboard from './OptimizedDashboard';
-
-const Dashboard = () => {
-  return <OptimizedDashboard />;
-};
-
-export default Dashboard;
+// This file consolidated with OptimizedDashboard.tsx
+// All dashboard functionality moved to OptimizedDashboard.tsx for better maintainability
+export { default } from './OptimizedDashboard';

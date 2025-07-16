@@ -132,34 +132,7 @@ export const useCustomerActions = (
     }
   };
 
-  const markPaymentReceived = async (customerId: string, changedBy: string) => {
-    try {
-      console.log('Marking payment received:', { customerId, changedBy });
-      
-      // Update customer payment status
-      setCustomers(
-        customers.map(customer => 
-          customer.id === customerId 
-            ? { 
-                ...customer, 
-                status: 'Paid',
-                payment_received: true,
-                payment_date: new Date().toISOString(),
-                updated_at: new Date().toISOString()
-              }
-            : customer
-        )
-      );
-
-      // Refresh data to ensure database consistency
-      await refreshData();
-
-      console.log('Payment marked as received successfully');
-    } catch (error) {
-      console.error('Error marking payment received:', error);
-      throw error;
-    }
-  };
+  // markPaymentReceived function removed - payment tracking out of scope
 
   const submitToAdmin = async (customerId: string, userId: string, userName: string) => {
     try {
@@ -216,7 +189,7 @@ export const useCustomerActions = (
     getCustomersByUserId,
     uploadDocument,
     updateCustomerStatus,
-    markPaymentReceived,
+    // markPaymentReceived removed
     submitToAdmin
   };
 };

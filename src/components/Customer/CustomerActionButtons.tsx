@@ -30,7 +30,7 @@ interface CustomerActionButtonsProps {
   isUserOwner: boolean;
   mandatoryDocumentsUploaded: boolean;
   onStatusChange: (status: Status, comment: string) => void;
-  onPaymentReceived?: () => void;
+  // onPaymentReceived removed - payment tracking out of scope
 }
 
 const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
@@ -39,7 +39,7 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
   isUserOwner,
   mandatoryDocumentsUploaded,
   onStatusChange,
-  onPaymentReceived,
+  // onPaymentReceived prop removed
 }) => {
   const [comment, setComment] = useState('');
   const [selectedStatus, setSelectedStatus] = useState<Status | ''>('');
@@ -65,11 +65,10 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
       case 'Need More Info':
         return ['Sent to Bank', 'Returned'];
       case 'Complete':
-        return ['Paid'];
+        return []; // Complete is now final status - no payment tracking
       case 'Rejected':
         return ['Sent to Bank']; // Allow re-submission
-      case 'Paid':
-        return []; // Final status
+      // 'Paid' status removed
       default:
         return [];
     }
@@ -83,7 +82,7 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
       case 'Rejected': return 'Mark as Rejected';
       case 'Need More Info': return 'Request More Info';
       case 'Submitted': return isAdmin ? 'Mark as Submitted' : 'Resubmit';
-      case 'Paid': return 'Mark as Paid';
+      // 'Paid' case removed
       default: return `Update to ${targetStatus}`;
     }
   };
@@ -94,7 +93,6 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
       case 'Rejected':
         return 'destructive' as const;
       case 'Complete':
-      case 'Paid':
         return 'default' as const;
       case 'Sent to Bank':
         return 'default' as const;
@@ -125,7 +123,7 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
       case 'Rejected': return 'Please provide a reason for rejection.';
       case 'Need More Info': return 'Specify what additional information is required.';
       case 'Submitted': return isAdmin ? 'Mark this application as submitted on behalf of the user.' : 'Are you sure you want to resubmit this application?';
-      case 'Paid': return 'Confirm that payment has been received for this application.';
+      // 'Paid' case removed - payment tracking out of scope
       default: return `Update status to ${targetStatus}`;
     }
   };
@@ -140,7 +138,7 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
     return (
       <div className="flex items-center gap-2">
         <Badge variant="secondary" className="text-xs">
-          {status === 'Paid' ? 'Final Status' : 'No Actions Available'}
+          {status === 'Complete' ? 'Final Status' : 'No Actions Available'}
         </Badge>
       </div>
     );
@@ -186,11 +184,7 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
               <AlertDialogCancel onClick={() => setComment('')}>Cancel</AlertDialogCancel>
               <AlertDialogAction 
                 onClick={() => {
-                  if (targetStatus === 'Paid' && onPaymentReceived) {
-                    onPaymentReceived();
-                  } else {
-                    onStatusChange(targetStatus, comment);
-                  }
+                  onStatusChange(targetStatus, comment);
                   setComment('');
                 }}
                 disabled={requiresComment(targetStatus) && !comment.trim()}
@@ -247,11 +241,7 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
               <AlertDialogAction 
                 onClick={() => {
                   if (selectedStatus) {
-                    if (selectedStatus === 'Paid' && onPaymentReceived) {
-                      onPaymentReceived();
-                    } else {
-                      onStatusChange(selectedStatus as Status, comment || `Status updated by ${user?.profile?.name || 'Admin'}`);
-                    }
+                    onStatusChange(selectedStatus as Status, comment || `Status updated by ${user?.profile?.name || 'Admin'}`);
                     setComment('');
                     setSelectedStatus('');
                   }

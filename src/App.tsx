@@ -8,7 +8,7 @@ import { NotificationProvider } from '@/contexts/NotificationContext';
 import ProtectedRoute from '@/components/Security/ProtectedRoute';
 import MainLayout from '@/components/Layout/MainLayout';
 import SecureLogin from '@/pages/SecureLogin';
-import Dashboard from '@/pages/Dashboard';
+import OptimizedDashboard from '@/pages/OptimizedDashboard';
 import CustomerList from '@/pages/CustomerList';
 import CustomerNew from '@/pages/CustomerNew';
 import CustomerDetail from '@/pages/CustomerDetail';
@@ -52,7 +52,7 @@ function App() {
                 <Route path="/dashboard" element={
                   <ProtectedRoute>
                     <MainLayout>
-                      <Dashboard />
+                      <OptimizedDashboard />
                     </MainLayout>
                   </ProtectedRoute>
                 } />

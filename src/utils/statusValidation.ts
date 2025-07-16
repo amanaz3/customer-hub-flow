@@ -39,7 +39,7 @@ export const STATUS_TRANSITIONS: StatusTransition[] = [
   },
   {
     from: 'Complete',
-    to: ['Paid'],
+    to: [], // Complete is now final status - no payment tracking
     requiresAdmin: true,
   },
   {
@@ -48,11 +48,7 @@ export const STATUS_TRANSITIONS: StatusTransition[] = [
     requiresAdmin: true,
     requiresComment: true,
   },
-  {
-    from: 'Paid',
-    to: [],
-    requiresAdmin: true,
-  },
+  // 'Paid' status removed - payment tracking out of scope
 ];
 
 export const getAvailableTransitions = (
@@ -129,7 +125,7 @@ export const getStatusColor = (status: Status): string => {
     case 'Complete': return 'bg-green-100 text-green-800';
     case 'Rejected': return 'bg-red-100 text-red-800';
     case 'Need More Info': return 'bg-orange-100 text-orange-800';
-    case 'Paid': return 'bg-emerald-100 text-emerald-800';
+    // 'Paid' case removed
     default: return 'bg-gray-100 text-gray-800';
   }
 };
@@ -143,7 +139,7 @@ export const getStatusDescription = (status: Status): string => {
     case 'Complete': return 'Application approved and complete';
     case 'Rejected': return 'Application rejected';
     case 'Need More Info': return 'Additional information required';
-    case 'Paid': return 'Payment received and processed';
+    // 'Paid' status removed - payment tracking out of scope
     default: return 'Unknown status';
   }
 };
@@ -155,7 +151,7 @@ export const getNextRecommendedStatus = (currentStatus: Status, isAdmin: boolean
     case 'Draft': return 'Submitted';
     case 'Submitted': return 'Sent to Bank';
     case 'Sent to Bank': return 'Complete';
-    case 'Complete': return 'Paid';
+    case 'Complete': return null; // Complete is final status
     default: return null;
   }
 };

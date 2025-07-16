@@ -11,7 +11,7 @@ import { CustomerService } from '@/services/customerService';
 export const useStatusManager = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const { user, isAdmin } = useAuth();
-  const { updateCustomerStatus, markPaymentReceived, refreshData } = useCustomer();
+  const { updateCustomerStatus, refreshData } = useCustomer();
   const { addNotification } = useNotifications();
   const { toast } = useToast();
 
@@ -130,73 +130,11 @@ export const useStatusManager = () => {
     }
   };
 
-  const markAsPaid = async (
-    customerId: string,
-    customerName: string,
-    onSuccess?: () => void
-  ) => {
-    if (!user) {
-      toast({
-        title: "Error", 
-        description: "User not authenticated",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setIsUpdating(true);
-    
-    try {
-      const changedByName = user.profile?.name || user.email || 'Unknown User';
-      const changedByRole = isAdmin ? 'admin' : 'user';
-      
-      console.log('Marking payment received with logging:', { 
-        customerId, 
-        changedByName, 
-        changedByRole 
-      });
-      
-      // Mark payment as received through context with proper logging
-      await markPaymentReceived(customerId, changedByName);
-
-      // Add notification
-      addNotification({
-        title: 'Payment Confirmed',
-        message: `Payment received for ${customerName}${isAdmin ? ' (confirmed by admin)' : ''}`,
-        type: 'success',
-        customerName: customerName,
-        actionUrl: `/customers/${customerId}`,
-      });
-
-      // Show success toast
-      toast({
-        title: "Payment Confirmed",
-        description: "Application marked as paid",
-      });
-
-      // Refresh data
-      await refreshData();
-
-      // Call success callback
-      onSuccess?.();
-
-      console.log('Payment marked as received and logged successfully');
-      
-    } catch (error) {
-      console.error('Error marking payment:', error);
-      toast({
-        title: "Error",
-        description: "Failed to mark payment. Please try again.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsUpdating(false);
-    }
-  };
+  // markAsPaid function removed - payment tracking out of scope
 
   return {
     updateStatus,
-    markAsPaid,
+    // markAsPaid removed
     isUpdating
   };
 };

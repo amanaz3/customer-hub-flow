@@ -55,7 +55,7 @@ export const useErrorHandler = () => {
     }
 
     if (code === 'FOLDER_CREATION_FAILED') {
-      return 'Failed to create folder in Google Drive. Please try again or contact support.';
+      return 'Failed to create folder. Please try again or contact support.';
     }
 
     if (code === 'UPLOAD_FAILED') {
