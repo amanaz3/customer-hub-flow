@@ -2,10 +2,7 @@ import React, { createContext, useContext, useMemo } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase, getFunctionUrl } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
-import { useAuthOptimized } from '@/hooks/useAuthOptimized';
-import ErrorTracker from '@/utils/errorTracking';
-import FeatureAnalytics from '@/utils/featureAnalytics';
-import { ProductionRateLimit } from '@/utils/productionRateLimit';
+import { useAuthState } from '@/hooks/useAuthState';
 
 type UserRole = 'admin' | 'user';
 
@@ -37,57 +34,27 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export type { UserRole };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user: authUser, session, isLoading, isAuthenticated } = useAuthOptimized();
+  const { user, session, isLoading, setUser, setSession, setIsLoading, createProfile } = useAuthState();
   const { toast } = useToast();
 
-  // Convert auth user to AuthUser type
-  const user = useMemo(() => {
-    if (!authUser) return null;
-    return authUser as AuthUser;
-  }, [authUser]);
-
+  // Memoize computed values to prevent unnecessary re-renders
+  const isAuthenticated = useMemo(() => !!session?.user, [session]);
   const isAdmin = useMemo(() => user?.profile?.role === 'admin', [user]);
 
   const signIn = async (email: string, password: string) => {
-    const rateLimitResult = ProductionRateLimit.checkRateLimitWithBackoff(email, 'login');
+    setIsLoading(true);
     
-    if (!rateLimitResult.allowed) {
-      const message = `Too many login attempts. Please wait ${Math.ceil((rateLimitResult.backoffMs || 60000) / 1000)} seconds before trying again.`;
-      toast({
-        title: 'Rate Limited',
-        description: message,
-        variant: 'destructive',
-      });
-      return { error: { message } };
-    }
-
     try {
-      FeatureAnalytics.trackUserAction('login_attempt', { email_domain: email.split('@')[1] });
-      
       const { error } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
-
-      if (error) {
-        ErrorTracker.captureError(error, { 
-          userId: email, 
-          page: 'login',
-          userRole: 'unauthenticated'
-        });
-        FeatureAnalytics.trackUserAction('login_failed', { error: error.message });
-      } else {
-        FeatureAnalytics.trackUserAction('login_success');
-      }
-
       return { error };
     } catch (error) {
       console.error('Sign in error:', error);
-      ErrorTracker.captureError(error as Error, { 
-        userId: email, 
-        page: 'login'
-      });
       return { error };
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -96,31 +63,27 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { data: { session: currentSession } } = await supabase.auth.getSession();
       
       if (!currentSession) {
+        setUser(null);
+        setSession(null);
         return { error: null };
       }
 
       const { error } = await supabase.auth.signOut();
       
       if (!error) {
-        FeatureAnalytics.trackUserAction('logout_success');
+        setUser(null);
+        setSession(null);
         toast({
           title: 'Signed Out',
           description: 'You have been successfully signed out.',
-        });
-      } else {
-        ErrorTracker.captureError(error, { 
-          userId: user?.id, 
-          page: 'logout'
         });
       }
       
       return { error };
     } catch (error) {
       console.error('Sign out error:', error);
-      ErrorTracker.captureError(error as Error, { 
-        userId: user?.id, 
-        page: 'logout'
-      });
+      setUser(null);
+      setSession(null);
       return { error };
     }
   };
@@ -130,45 +93,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error: { message: 'Unauthorized - Admin access required' } };
     }
 
-    // Rate limiting for user creation
-    const rateLimitResult = ProductionRateLimit.checkRateLimit(user?.id || 'unknown', 'customerCreate');
-    if (!rateLimitResult.allowed) {
-      toast({
-        title: 'Rate Limited',
-        description: 'Too many user creation attempts. Please wait before trying again.',
-        variant: 'destructive',
-      });
-      return { error: { message: 'Rate limited' } };
-    }
-
     try {
-      FeatureAnalytics.trackUserAction('user_create_attempt', { target_role: role }, user?.id);
-
+      // Create user with the provided secure password
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
         options: {
-          emailRedirectTo: undefined,
+          emailRedirectTo: undefined, // Disable email redirect for admin-created users
           data: {
             name,
             role,
-            email_confirm: false,
-            force_password_change: true
+            email_confirm: false, // Disable email confirmation for admin-created users
+            force_password_change: true // Require password change on first login
           }
         }
       });
 
       if (error) {
         console.error('User creation error:', error);
-        ErrorTracker.captureError(error, {
-          userId: user?.id,
-          userRole: user?.profile?.role,
-          page: 'user_management'
-        });
         return { error };
       }
 
       if (data.user) {
+        // Create profile entry manually since email confirmation is disabled
         const { error: profileError } = await supabase
           .from('profiles')
           .insert({
@@ -180,14 +127,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
         if (profileError) {
           console.error('Profile creation error:', profileError);
-          ErrorTracker.captureError(profileError, {
-            userId: user?.id,
-            userRole: user?.profile?.role,
-            page: 'user_management'
-          });
+          // Continue anyway, as the user was created successfully
         }
-
-        FeatureAnalytics.trackUserAction('user_create_success', { target_role: role }, user?.id);
 
         toast({
           title: 'User Created Successfully',
@@ -199,11 +140,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error: null };
     } catch (error) {
       console.error('Create user error:', error);
-      ErrorTracker.captureError(error as Error, {
-        userId: user?.id,
-        userRole: user?.profile?.role,
-        page: 'user_management'
-      });
       return { error: { message: 'Failed to create user account' } };
     }
   };
@@ -220,7 +156,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         .eq('id', userId);
 
       if (!error) {
-        FeatureAnalytics.trackUserAction('user_role_updated', { new_role: role }, user?.id);
         toast({
           title: 'Role Updated',
           description: `User role has been updated to ${role}.`,
@@ -230,11 +165,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error };
     } catch (error) {
       console.error('Update user role error:', error);
-      ErrorTracker.captureError(error as Error, {
-        userId: user?.id,
-        userRole: user?.profile?.role,
-        page: 'user_management'
-      });
       return { error };
     }
   };
@@ -268,8 +198,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: { message: result.error || 'Failed to delete user' } };
       }
 
-      FeatureAnalytics.trackUserAction('user_deleted', { deleted_user_id: userId }, user?.id);
-
       toast({
         title: 'User Deleted',
         description: 'User has been completely removed from the system.',
@@ -278,11 +206,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error: null };
     } catch (error) {
       console.error('Delete user error:', error);
-      ErrorTracker.captureError(error as Error, {
-        userId: user?.id,
-        userRole: user?.profile?.role,
-        page: 'user_management'
-      });
       return { error: { message: 'Failed to delete user' } };
     }
   };
@@ -301,11 +224,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { data: data || [], error };
     } catch (error) {
       console.error('Get users error:', error);
-      ErrorTracker.captureError(error as Error, {
-        userId: user?.id,
-        userRole: user?.profile?.role,
-        page: 'user_management'
-      });
       return { data: [], error };
     }
   };
@@ -340,8 +258,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: { message: result.error || 'Failed to reset password' } };
       }
 
-      FeatureAnalytics.trackUserAction('password_reset', { target_user_id: userId }, user?.id);
-
       toast({
         title: 'Password Reset',
         description: 'Password has been reset successfully.',
@@ -350,16 +266,12 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return { error: null };
     } catch (error) {
       console.error('Reset password error:', error);
-      ErrorTracker.captureError(error as Error, {
-        userId: user?.id,
-        userRole: user?.profile?.role,
-        page: 'user_management'
-      });
       return { error: { message: 'Failed to reset password' } };
     }
   };
 
   const changeUserPassword = async (userId: string, newPassword: string) => {
+    // Use the same function for both reset and change operations
     return await resetUserPassword(userId, newPassword);
   };
 
@@ -378,18 +290,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     resetUserPassword,
     changeUserPassword
   }), [user, session, isAuthenticated, isAdmin, isLoading]);
-
-  // Don't render children until auth is initialized (not loading)
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-100">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Initializing...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <AuthContext.Provider value={contextValue}>
