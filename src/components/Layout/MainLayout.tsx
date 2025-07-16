@@ -15,6 +15,8 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   requiredRole = 'any'
 }) => {
   const { isAuthenticated, isAdmin, user } = useAuth();
+  
+  console.log('MainLayout render:', { isAuthenticated, isAdmin, user: user?.email, requiredRole });
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;

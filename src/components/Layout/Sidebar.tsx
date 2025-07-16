@@ -19,6 +19,8 @@ const Sidebar: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const { isAdmin } = useAuth();
   const location = useLocation();
+  
+  console.log('Sidebar render:', { isAdmin });
 
   const navItems = [
     {
@@ -48,6 +50,12 @@ const Sidebar: React.FC = () => {
     {
       name: 'User Management',
       path: '/users',
+      icon: <UserCog className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
+      name: 'Security',
+      path: '/security',
       icon: <UserCog className="h-5 w-5" />,
       roles: ['admin'],
     },

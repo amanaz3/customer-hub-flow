@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useMemo } from 'react';
+import React, { createContext, useContext, useMemo, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase, getFunctionUrl } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
@@ -39,14 +39,58 @@ export type { UserRole };
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user: authUser, session, isLoading, isAuthenticated } = useAuthOptimized();
   const { toast } = useToast();
+  const [profile, setProfile] = useState<{ role: UserRole; name: string } | null>(null);
+  const [profileLoading, setProfileLoading] = useState(false);
 
-  // Convert auth user to AuthUser type
+  // Fetch profile data when user changes
+  useEffect(() => {
+    const fetchProfile = async () => {
+      if (!authUser?.id) {
+        setProfile(null);
+        return;
+      }
+
+      setProfileLoading(true);
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('role, name')
+          .eq('id', authUser.id)
+          .eq('is_active', true)
+          .single();
+
+        if (error) {
+          console.error('Profile fetch error:', error);
+          setProfile(null);
+        } else {
+          console.log('Profile loaded:', data);
+          setProfile(data);
+        }
+      } catch (error) {
+        console.error('Profile fetch error:', error);
+        setProfile(null);
+      } finally {
+        setProfileLoading(false);
+      }
+    };
+
+    fetchProfile();
+  }, [authUser?.id]);
+
+  // Convert auth user to AuthUser type with profile
   const user = useMemo(() => {
     if (!authUser) return null;
-    return authUser as AuthUser;
-  }, [authUser]);
+    return {
+      ...authUser,
+      profile
+    } as AuthUser;
+  }, [authUser, profile]);
 
-  const isAdmin = useMemo(() => user?.profile?.role === 'admin', [user]);
+  const isAdmin = useMemo(() => {
+    const adminStatus = profile?.role === 'admin';
+    console.log('Admin status check:', { profile, adminStatus });
+    return adminStatus;
+  }, [profile]);
 
   const signIn = async (email: string, password: string) => {
     const rateLimitResult = ProductionRateLimit.checkRateLimitWithBackoff(email, 'login');
@@ -368,7 +412,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     session,
     isAuthenticated,
     isAdmin,
-    isLoading,
+    isLoading: isLoading || profileLoading,
     signIn,
     signOut,
     createUser,
@@ -377,7 +421,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     getUsers,
     resetUserPassword,
     changeUserPassword
-  }), [user, session, isAuthenticated, isAdmin, isLoading]);
+  }), [user, session, isAuthenticated, isAdmin, isLoading, profileLoading]);
 
   // Don't render children until auth is initialized (not loading)
   if (isLoading) {
