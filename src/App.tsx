@@ -116,10 +116,10 @@ function App() {
                 <Route path="*" element={<NotFound />} />
               </Routes>
             </div>
-            <Toaster />
           </NotificationProvider>
         </CustomerProvider>
       </AuthProvider>
+      <Toaster />
     </Router>
   );
 }
