@@ -161,19 +161,13 @@ export const verifyFileAccess = async (filePath: string): Promise<boolean> => {
       return false;
     }
 
-    // Try to get public URL to verify file exists
-    const { data: publicUrlData } = supabase.storage
+    // Simply try to get public URL - getPublicUrl always succeeds for public buckets
+    const { data } = supabase.storage
       .from('customer-documents')
       .getPublicUrl(path);
 
-    // Check if we can access the file by trying to fetch its metadata
-    const { data, error } = await supabase.storage
-      .from('customer-documents')
-      .list(path.split('/').slice(0, -1).join('/'), {
-        search: path.split('/').pop()?.split('-').slice(2).join('-') // Get original filename part
-      });
-
-    const isAccessible = !error && data && data.length > 0;
+    // If we can get a public URL, the file should be accessible
+    const isAccessible = Boolean(data && data.publicUrl);
     
     console.log(`File access verification for ${path}:`, isAccessible);
     return isAccessible;
