@@ -6,7 +6,7 @@ import { useCustomer } from '@/contexts/CustomerContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import CustomerNewHeader from '@/components/Customer/CustomerNewHeader';
-import OptimizedCustomerForm from '@/components/Customer/OptimizedCustomerForm';
+import ComprehensiveCustomerForm from '@/components/Customer/ComprehensiveCustomerForm';
 
 const CustomerNew = () => {
   const { user } = useAuth();
@@ -29,14 +29,7 @@ const CustomerNew = () => {
           description="Create a new customer application" 
         />
         
-        <Card>
-          <CardHeader>
-            <CardTitle>Customer Information</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <OptimizedCustomerForm onSuccess={handleSuccess} />
-          </CardContent>
-        </Card>
+        <ComprehensiveCustomerForm onSuccess={handleSuccess} />
       </div>
     );
 };
