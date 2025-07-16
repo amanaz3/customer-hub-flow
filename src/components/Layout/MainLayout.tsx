@@ -17,6 +17,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   const { isAuthenticated, isAdmin, user } = useAuth();
   
   console.log('MainLayout render:', { isAuthenticated, isAdmin, user: user?.email, requiredRole });
+  console.log('MainLayout DOM mounting check - should only see this once per page');
 
   if (!isAuthenticated) {
     return <Navigate to="/login" replace />;

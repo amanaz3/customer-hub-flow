@@ -6,8 +6,8 @@ import "./index.css";
 import SecurityHeaders from "./components/Security/SecurityHeaders";
 
 createRoot(document.getElementById("root")!).render(
-  <StrictMode>
+  <>
     <SecurityHeaders />
     <App />
-  </StrictMode>
+  </>
 );

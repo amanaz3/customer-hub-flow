@@ -20,7 +20,8 @@ const Sidebar: React.FC = () => {
   const { isAdmin } = useAuth();
   const location = useLocation();
   
-  console.log('Sidebar render:', { isAdmin });
+  console.log('Sidebar render:', { isAdmin, collapsed, timestamp: new Date().toISOString() });
+  console.log('Sidebar DOM mounting check - should only see this once per sidebar');
 
   const navItems = [
     {
