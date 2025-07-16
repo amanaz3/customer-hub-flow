@@ -1,4 +1,3 @@
-
 import { Customer, StatusChange, Document } from '@/types/customer';
 import { CustomerService } from '@/services/customerService';
 import { useAuth } from '@/contexts/SecureAuthContext';
@@ -9,7 +8,16 @@ export const useCustomerActions = (
   setDocuments: (documents: Document[] | ((prev: Document[]) => Document[])) => void,
   refreshData: () => Promise<void>
 ) => {
-  const { user } = useAuth();
+  // Use a try-catch to handle auth context not being available
+  let authData;
+  try {
+    authData = useAuth();
+  } catch (error) {
+    // Auth context not available yet, set default values
+    authData = { user: null };
+  }
+  
+  const { user } = authData;
 
   const addCustomer = async (customer: Customer): Promise<void> => {
     if (!user) {

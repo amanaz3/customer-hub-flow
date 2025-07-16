@@ -34,11 +34,6 @@ const Navbar: React.FC = () => {
     <header className="bg-white border-b border-gray-200">
       <div className="h-14 px-4 flex items-center justify-between">
         <div className="flex items-center space-x-4">
-          <img 
-            src="/lovable-uploads/5ccffe54-41ae-4fc6-9a3a-3843049b907b.png" 
-            alt="Amana Corporate" 
-            className="h-8 w-auto"
-          />
           <h2 className="text-xl font-semibold text-gray-800">
             {isAdmin ? 'Admin Portal' : 'User Portal'}
           </h2>
