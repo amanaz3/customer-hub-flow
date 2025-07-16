@@ -1,7 +1,6 @@
 
 import React, { memo, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import MainLayout from '@/components/Layout/MainLayout';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useCustomers } from '@/contexts/CustomerContext';
 import OptimizedCustomerTable from '@/components/Customer/OptimizedCustomerTable';
@@ -39,8 +38,7 @@ const CustomerList = () => {
   const handleNewApplication = () => navigate('/customers/new');
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl font-bold">
@@ -93,8 +91,7 @@ const CustomerList = () => {
           </Tabs>
         </LazyWrapper>
       </div>
-    </MainLayout>
-  );
+    );
 };
 
 export default memo(CustomerList);

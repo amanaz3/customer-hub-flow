@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from 'react';
-import MainLayout from '@/components/Layout/MainLayout';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -178,8 +177,7 @@ const SecureUserManagement = () => {
   };
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-2">
             <Users className="w-6 h-6" />
@@ -355,8 +353,7 @@ const SecureUserManagement = () => {
           </Table>
         </div>
       </div>
-    </MainLayout>
-  );
-};
+    );
+  };
 
 export default SecureUserManagement;

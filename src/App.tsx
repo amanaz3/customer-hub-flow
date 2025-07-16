@@ -99,7 +99,7 @@ function App() {
                 
                 <Route path="/security" element={
                   <ProtectedRoute requireAdmin>
-                    <MainLayout>
+                    <MainLayout requiredRole="admin">
                       <Security />
                     </MainLayout>
                   </ProtectedRoute>

@@ -1,6 +1,5 @@
 
 import React from 'react';
-import MainLayout from '@/components/Layout/MainLayout';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield } from 'lucide-react';
 import CIATriadDashboard from '@/components/Security/CIATriadDashboard';
@@ -9,8 +8,7 @@ import SecurityAuditLog from '@/components/Security/SecurityAuditLog';
 
 const Security: React.FC = () => {
   return (
-    <MainLayout requiredRole="admin">
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div>
           <div className="flex items-center space-x-2">
             <Shield className="h-6 w-6 text-blue-600" />
@@ -41,8 +39,7 @@ const Security: React.FC = () => {
           </TabsContent>
         </Tabs>
       </div>
-    </MainLayout>
-  );
-};
+    );
+  };
 
 export default Security;

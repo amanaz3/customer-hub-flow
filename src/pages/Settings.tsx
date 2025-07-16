@@ -1,6 +1,5 @@
 
 import React from 'react';
-import MainLayout from '@/components/Layout/MainLayout';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import NotificationSettings from '@/components/Settings/NotificationSettings';
 import WorkflowValidator from '@/components/Admin/WorkflowValidator';
@@ -11,8 +10,7 @@ const Settings = () => {
   const { isAdmin } = useAuth();
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex items-center gap-2">
           <SettingsIcon className="w-6 h-6" />
           <h1 className="text-2xl font-bold">Settings</h1>
@@ -49,8 +47,7 @@ const Settings = () => {
           )}
         </div>
       </div>
-    </MainLayout>
-  );
-};
+    );
+  };
 
 export default Settings;

@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import MainLayout from '@/components/Layout/MainLayout';
 import CategorizedDocumentUpload from '@/components/Customer/CategorizedDocumentUpload';
 import CustomerStatusCard from '@/components/Customer/CustomerStatusCard';
 import CustomerDetailsForm from '@/components/Customer/CustomerDetailsForm';
@@ -35,17 +34,15 @@ const CustomerDetail = () => {
   
   if (!customer) {
     return (
-      <MainLayout>
-        <div className="text-center py-20">
-          <h1 className="text-2xl font-bold">Customer not found</h1>
-          <Button
-            onClick={() => navigate('/customers')}
-            className="mt-4"
-          >
-            Back to Customers
-          </Button>
-        </div>
-      </MainLayout>
+      <div className="text-center py-20">
+        <h1 className="text-2xl font-bold">Customer not found</h1>
+        <Button
+          onClick={() => navigate('/customers')}
+          className="mt-4"
+        >
+          Back to Customers
+        </Button>
+      </div>
     );
   }
 
@@ -132,8 +129,7 @@ const CustomerDetail = () => {
   const canSubmitApplication = (customer.status === 'Draft' || customer.status === 'Returned') && isUserOwner && mandatoryDocumentsUploaded;
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div>
             <h1 className="text-3xl font-bold">{customer.name}</h1>
@@ -245,8 +241,7 @@ const CustomerDetail = () => {
           </div>
         </div>
       </div>
-    </MainLayout>
-  );
-};
+    );
+  };
 
 export default CustomerDetail;

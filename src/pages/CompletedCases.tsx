@@ -1,6 +1,5 @@
 
 import React, { useState, useMemo, memo } from 'react';
-import MainLayout from '@/components/Layout/MainLayout';
 import OptimizedCustomerTable from '@/components/Customer/OptimizedCustomerTable';
 import LazyWrapper from '@/components/Performance/LazyWrapper';
 import { useAuth } from '@/contexts/SecureAuthContext';
@@ -43,8 +42,7 @@ const CompletedCases = () => {
   }, [customers, isAdmin, user?.id, getCustomersByUserId, searchTerm, statusFilter]);
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Completed Cases</h1>
           <p className="text-muted-foreground">
@@ -84,8 +82,7 @@ const CompletedCases = () => {
           <OptimizedCustomerTable customers={filteredCustomers} />
         </LazyWrapper>
       </div>
-    </MainLayout>
-  );
-};
+    );
+  };
 
 export default memo(CompletedCases);

@@ -1,6 +1,5 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import MainLayout from '@/components/Layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import OptimizedCustomerTable from '@/components/Customer/OptimizedCustomerTable';
 import UserAnalytics from '@/components/Analytics/UserAnalytics';
@@ -87,26 +86,23 @@ const OptimizedDashboard = () => {
 
   if (isLoading) {
     return (
-      <MainLayout>
-        <div className="min-h-screen flex items-center justify-center">
-          <div className="text-center space-y-6">
-            <div className="relative">
-              <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/30 border-t-primary mx-auto"></div>
-              <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary/20 animate-ping"></div>
-            </div>
-            <div className="space-y-2">
-              <h3 className="text-xl font-semibold text-foreground">Loading Dashboard</h3>
-              <p className="text-muted-foreground">Fetching your latest data...</p>
-            </div>
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center space-y-6">
+          <div className="relative">
+            <div className="animate-spin rounded-full h-16 w-16 border-4 border-primary/30 border-t-primary mx-auto"></div>
+            <div className="absolute inset-0 rounded-full border-4 border-transparent border-t-primary/20 animate-ping"></div>
+          </div>
+          <div className="space-y-2">
+            <h3 className="text-xl font-semibold text-foreground">Loading Dashboard</h3>
+            <p className="text-muted-foreground">Fetching your latest data...</p>
           </div>
         </div>
-      </MainLayout>
+      </div>
     );
   }
 
   return (
-    <MainLayout>
-      <div className="space-y-8 pb-8">
+    <div className="space-y-8 pb-8">
         {/* Enhanced Header */}
         <DashboardHeader
           userName={user?.profile?.name}
@@ -214,8 +210,7 @@ const OptimizedDashboard = () => {
           )
         )}
       </div>
-    </MainLayout>
-  );
-};
+    );
+  };
 
 export default OptimizedDashboard;

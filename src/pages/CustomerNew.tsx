@@ -1,7 +1,6 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import MainLayout from '@/components/Layout/MainLayout';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useCustomer } from '@/contexts/CustomerContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -24,8 +23,7 @@ const CustomerNew = () => {
   };
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
+    <div className="space-y-6">
         <CustomerNewHeader 
           title="Add New Customer" 
           description="Create a new customer application" 
@@ -40,8 +38,7 @@ const CustomerNew = () => {
           </CardContent>
         </Card>
       </div>
-    </MainLayout>
-  );
+    );
 };
 
 export default CustomerNew;
