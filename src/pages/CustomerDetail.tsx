@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import CategorizedDocumentUpload from '@/components/Customer/CategorizedDocumentUpload';
+import CustomDocumentUpload from '@/components/Customer/CustomDocumentUpload';
 import CustomerStatusCard from '@/components/Customer/CustomerStatusCard';
 import CustomerDetailsForm from '@/components/Customer/CustomerDetailsForm';
 import CustomerActionButtons from '@/components/Customer/CustomerActionButtons';
@@ -27,7 +28,8 @@ const CustomerDetail = () => {
     uploadDocument, 
     updateCustomerStatus,
     // markPaymentReceived removed
-    submitToAdmin
+    submitToAdmin,
+    refreshData
   } = useCustomer();
   
   const customer = getCustomerById(id || '');
@@ -222,12 +224,19 @@ const CustomerDetail = () => {
               </TabsContent>
               
               <TabsContent value="documents">
-                <CategorizedDocumentUpload 
-                  documents={customer.documents || []}
-                  customerId={customer.id}
-                  customerLicenseType={customer.licenseType}
-                  onUpload={handleDocumentUpload}
-                />
+                <div className="space-y-6">
+                  <CategorizedDocumentUpload 
+                    documents={customer.documents || []}
+                    customerId={customer.id}
+                    customerLicenseType={customer.licenseType}
+                    onUpload={handleDocumentUpload}
+                  />
+                  
+                  <CustomDocumentUpload 
+                    customerId={customer.id}
+                    onDocumentAdded={refreshData}
+                  />
+                </div>
                 
                 {!mandatoryDocumentsUploaded && (
                   <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
