@@ -55,12 +55,6 @@ const Sidebar: React.FC = () => {
       roles: ['admin'],
     },
     {
-      name: 'Security',
-      path: '/security',
-      icon: <UserCog className="h-5 w-5" />,
-      roles: ['admin'],
-    },
-    {
       name: 'Settings',
       path: '/settings',
       icon: <Settings className="h-5 w-5" />,
