@@ -225,16 +225,14 @@ export class CustomerService {
       throw customerError;
     }
 
-    // Add status change to history using the user ID from auth instead of name
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    
+    // Add status change to history
     const { error: statusError } = await supabase
       .from('status_changes')
       .insert({
         customer_id: customerId,
         previous_status: previousStatus as "Draft" | "Submitted" | "Returned" | "Sent to Bank" | "Complete" | "Rejected" | "Need More Info" | "Paid",
         new_status: status as "Draft" | "Submitted" | "Returned" | "Sent to Bank" | "Complete" | "Rejected" | "Need More Info" | "Paid",
-        changed_by: user?.id || changedBy, // Use user ID if available
+        changed_by: changedBy, // Use the provided changedBy parameter (user ID)
         changed_by_role: role as "admin" | "user",
         comment: comment || null,
         created_at: new Date().toISOString()
