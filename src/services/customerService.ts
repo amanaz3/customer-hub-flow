@@ -249,6 +249,8 @@ export class CustomerService {
     }
 
     const previousStatus = currentCustomer?.status || 'Draft';
+    
+    console.log('Previous status retrieved:', previousStatus, 'New status:', status);
 
     // Update customer status
     const { error: customerError } = await supabase
@@ -265,22 +267,30 @@ export class CustomerService {
     }
 
     // Add status change to history
-    const { error: statusError } = await supabase
+    const statusChangeData = {
+      customer_id: customerId,
+      previous_status: previousStatus as "Draft" | "Submitted" | "Returned" | "Sent to Bank" | "Complete" | "Rejected" | "Need More Info" | "Paid",
+      new_status: status as "Draft" | "Submitted" | "Returned" | "Sent to Bank" | "Complete" | "Rejected" | "Need More Info" | "Paid",
+      changed_by: changedBy, // Use the provided changedBy parameter (user ID)
+      changed_by_role: role as "admin" | "user",
+      comment: comment || null,
+      created_at: new Date().toISOString()
+    };
+    
+    console.log('Inserting status change to history:', statusChangeData);
+    
+    const { data: statusChangeResult, error: statusError } = await supabase
       .from('status_changes')
-      .insert({
-        customer_id: customerId,
-        previous_status: previousStatus as "Draft" | "Submitted" | "Returned" | "Sent to Bank" | "Complete" | "Rejected" | "Need More Info" | "Paid",
-        new_status: status as "Draft" | "Submitted" | "Returned" | "Sent to Bank" | "Complete" | "Rejected" | "Need More Info" | "Paid",
-        changed_by: changedBy, // Use the provided changedBy parameter (user ID)
-        changed_by_role: role as "admin" | "user",
-        comment: comment || null,
-        created_at: new Date().toISOString()
-      });
+      .insert(statusChangeData)
+      .select()
+      .single();
 
     if (statusError) {
       console.error('Error adding status change to history:', statusError);
       throw statusError;
     }
+    
+    console.log('Status change successfully inserted:', statusChangeResult);
 
     console.log('Customer status updated successfully in database with status history');
     return { success: true };
