@@ -77,7 +77,7 @@ export const useStatusManager = () => {
         customerId,
         newStatus,
         finalComment,
-        changedByName,
+        user.id, // Use user ID instead of name for RLS policies
         changedByRole
       );
 

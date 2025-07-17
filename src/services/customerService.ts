@@ -236,6 +236,12 @@ export class CustomerService {
   static async updateCustomerStatus(customerId: string, status: string, comment: string, changedBy: string, role: string) {
     console.log('Updating customer status in database:', { customerId, status, comment, changedBy, role });
     
+    // Validate that changedBy is a valid UUID (user ID, not name)
+    if (!changedBy || changedBy.length !== 36) {
+      console.error('Invalid changedBy parameter - must be a valid user UUID:', changedBy);
+      throw new Error('Invalid user ID provided for status change');
+    }
+    
     // Get the current customer to access previous status
     const { data: currentCustomer, error: fetchError } = await supabase
       .from('customers')
