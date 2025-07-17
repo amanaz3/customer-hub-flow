@@ -52,6 +52,13 @@ export const useCustomerActions = (
   const getCustomerById = (id: string) => {
     const customer = customers.find(customer => customer.id === id);
     console.log('Getting customer by ID:', id, customer);
+    
+    // If customer doesn't have status history, trigger a refresh to fetch it
+    if (customer && (!customer.statusHistory || customer.statusHistory.length === 0)) {
+      console.log('Customer found but no status history, triggering refresh...');
+      refreshData();
+    }
+    
     return customer;
   };
 

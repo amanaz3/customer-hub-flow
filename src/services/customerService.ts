@@ -17,8 +17,9 @@ export class CustomerService {
 
     console.log('Raw customers data:', data);
 
-    const customersWithDocuments = await Promise.all(
+    const customersWithDocumentsAndHistory = await Promise.all(
       (data || []).map(async (customer) => {
+        // Fetch documents
         const { data: docsData, error: docsError } = await supabase
           .from('documents')
           .select('*')
@@ -28,17 +29,55 @@ export class CustomerService {
           console.error('Error fetching documents for customer:', customer.id, docsError);
         }
 
+        // Fetch status history
+        const { data: statusHistory, error: statusError } = await supabase
+          .from('status_changes')
+          .select(`
+            id,
+            customer_id,
+            previous_status,
+            new_status,
+            changed_by,
+            changed_by_role,
+            comment,
+            created_at
+          `)
+          .eq('customer_id', customer.id)
+          .order('created_at', { ascending: false });
+
+        if (statusError) {
+          console.error('Error fetching status history for customer:', customer.id, statusError);
+        }
+
+        // Fetch comments
+        const { data: comments, error: commentsError } = await supabase
+          .from('comments')
+          .select('*')
+          .eq('customer_id', customer.id)
+          .order('created_at', { ascending: false });
+
+        if (commentsError) {
+          console.error('Error fetching comments for customer:', customer.id, commentsError);
+        }
+
         return {
           ...customer,
           leadSource: customer.lead_source,
           licenseType: customer.license_type,
-          documents: docsData || []
+          documents: docsData || [],
+          statusHistory: statusHistory || [],
+          comments: (comments || []).map(comment => ({
+            id: comment.id,
+            content: comment.comment,
+            author: comment.created_by,
+            timestamp: comment.created_at || new Date().toISOString()
+          }))
         };
       })
     );
 
-    console.log('Customers with documents:', customersWithDocuments);
-    return customersWithDocuments;
+    console.log('Customers with documents and status history:', customersWithDocumentsAndHistory);
+    return customersWithDocumentsAndHistory;
   }
 
   static async createCustomer(customer: Customer, userId: string) {
@@ -299,6 +338,8 @@ export class CustomerService {
 
     if (statusError) {
       console.error('Error fetching status history:', statusError);
+    } else {
+      console.log('Status history fetched successfully:', statusHistory);
     }
 
     const customerWithDetails = {
