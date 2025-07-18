@@ -169,7 +169,7 @@ const SecurePasswordDialog: React.FC<SecurePasswordDialogProps> = ({
               <AlertDescription>
                 <ul className="list-disc list-inside space-y-1">
                   {passwordValidation.errors.map((error, index) => (
-                    <li key={index}>{error}</li>
+                    <li key={`error-${error}-${index}`}>{error}</li>
                   ))}
                 </ul>
               </AlertDescription>

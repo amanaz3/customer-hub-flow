@@ -83,7 +83,7 @@ const CIATriadDashboard: React.FC = () => {
               <Progress value={calculateOverallScore(confidentialityMetrics)} className="w-full" />
               
               {confidentialityMetrics.map((metric, index) => (
-                <div key={index} className="flex items-center justify-between">
+                <div key={`confidentiality-${metric.name.replace(/\s+/g, '-').toLowerCase()}`} className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     {getStatusIcon(metric.status)}
                     <span className="text-sm">{metric.name}</span>
@@ -119,7 +119,7 @@ const CIATriadDashboard: React.FC = () => {
               <Progress value={calculateOverallScore(integrityMetrics)} className="w-full" />
               
               {integrityMetrics.map((metric, index) => (
-                <div key={index} className="flex items-center justify-between">
+                <div key={`integrity-${metric.name.replace(/\s+/g, '-').toLowerCase()}`} className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     {getStatusIcon(metric.status)}
                     <span className="text-sm">{metric.name}</span>
@@ -155,7 +155,7 @@ const CIATriadDashboard: React.FC = () => {
               <Progress value={calculateOverallScore(availabilityMetrics)} className="w-full" />
               
               {availabilityMetrics.map((metric, index) => (
-                <div key={index} className="flex items-center justify-between">
+                <div key={`availability-${metric.name.replace(/\s+/g, '-').toLowerCase()}`} className="flex items-center justify-between">
                   <div className="flex items-center space-x-2">
                     {getStatusIcon(metric.status)}
                     <span className="text-sm">{metric.name}</span>

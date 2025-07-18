@@ -104,7 +104,7 @@ const UserCIATriadMetrics: React.FC = () => {
                 </Badge>
               </div>
               {userCIAData.confidentiality.map((metric, index) => (
-                <div key={index} className="flex items-center justify-between text-xs">
+                <div key={`user-confidentiality-${metric.name.replace(/\s+/g, '-').toLowerCase()}`} className="flex items-center justify-between text-xs">
                   <div className="flex items-center space-x-1">
                     {getStatusIcon(metric.status)}
                     <span>{metric.name}</span>
@@ -126,7 +126,7 @@ const UserCIATriadMetrics: React.FC = () => {
                 </Badge>
               </div>
               {userCIAData.integrity.map((metric, index) => (
-                <div key={index} className="flex items-center justify-between text-xs">
+                <div key={`user-integrity-${metric.name.replace(/\s+/g, '-').toLowerCase()}`} className="flex items-center justify-between text-xs">
                   <div className="flex items-center space-x-1">
                     {getStatusIcon(metric.status)}
                     <span>{metric.name}</span>
@@ -148,7 +148,7 @@ const UserCIATriadMetrics: React.FC = () => {
                 </Badge>
               </div>
               {userCIAData.availability.map((metric, index) => (
-                <div key={index} className="flex items-center justify-between text-xs">
+                <div key={`user-availability-${metric.name.replace(/\s+/g, '-').toLowerCase()}`} className="flex items-center justify-between text-xs">
                   <div className="flex items-center space-x-1">
                     {getStatusIcon(metric.status)}
                     <span>{metric.name}</span>

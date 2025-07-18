@@ -75,7 +75,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       {statCards.map((stat, index) => (
         <Card 
-          key={index} 
+          key={`stat-${stat.title.replace(/\s+/g, '-').toLowerCase()}`}
           className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-105 border-l-4 ${stat.borderColor} bg-gradient-to-br from-background to-muted/20`}
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">

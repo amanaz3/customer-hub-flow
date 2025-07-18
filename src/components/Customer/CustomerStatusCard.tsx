@@ -171,7 +171,7 @@ const CustomerStatusCard: React.FC<CustomerStatusCardProps> = ({
           <CardContent>
             <div className="space-y-3">
               {comments.slice(0, 3).map((comment, index) => (
-                <div key={index} className="border-l-2 border-blue-200 pl-3">
+                <div key={comment.id || `comment-${comment.timestamp}-${index}`} className="border-l-2 border-blue-200 pl-3">
                   <p className="text-sm">{comment.content}</p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {comment.author} • {formatDate(comment.timestamp)}

@@ -259,7 +259,7 @@ const WorkflowValidator: React.FC = () => {
 
         <div className="space-y-3">
           {results.map((result, index) => (
-            <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+            <div key={`workflow-result-${result.name}-${result.status}-${index}`} className="flex items-center justify-between p-3 border rounded-lg">
               <div className="flex items-center gap-3">
                 {getStatusIcon(result.status)}
                 <div>

@@ -164,7 +164,7 @@ const ProductionMonitor: React.FC = () => {
                 <h4 className="font-medium mb-2">Top Rate Limited Keys</h4>
                 <div className="space-y-2">
                   {rateLimitAnalytics.topOffenders.slice(0, 3).map((offender: any, index: number) => (
-                    <div key={index} className="flex justify-between items-center">
+                    <div key={`offender-${offender.key}-${offender.attempts}`} className="flex justify-between items-center">
                       <span className="text-sm text-gray-600">{offender.key}</span>
                       <Badge variant="secondary">{offender.attempts} attempts</Badge>
                     </div>
@@ -214,7 +214,7 @@ const ProductionMonitor: React.FC = () => {
                 <h4 className="font-medium mb-2">Most Used Features</h4>
                 <div className="space-y-2">
                   {featureUsage.topFeatures.slice(0, 5).map((feature: any, index: number) => (
-                    <div key={index} className="flex justify-between items-center">
+                    <div key={`feature-${feature.feature}-${feature.count}`} className="flex justify-between items-center">
                       <span className="text-sm">{feature.feature}</span>
                       <Badge variant="outline">{feature.count} uses</Badge>
                     </div>
