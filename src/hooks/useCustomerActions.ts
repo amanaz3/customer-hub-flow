@@ -56,7 +56,8 @@ export const useCustomerActions = (
     // If customer doesn't have status history, trigger a refresh to fetch it
     if (customer && (!customer.statusHistory || customer.statusHistory.length === 0)) {
       console.log('Customer found but no status history, triggering refresh...');
-      refreshData();
+      // Use setTimeout to debounce and prevent immediate duplicate calls
+      setTimeout(() => refreshData(), 0);
     }
     
     return customer;
