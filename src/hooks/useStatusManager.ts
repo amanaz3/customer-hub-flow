@@ -90,13 +90,14 @@ export const useStatusManager = () => {
         changedByRole
       );
 
-      // Add notification for status change
+      // Add notification for status change (this will trigger real-time notification)
       addNotification({
         title: 'Status Updated',
         message: `${customerName} status changed from ${currentStatus} to ${newStatus}${isAdmin ? ' by admin' : ''}`,
         type: newStatus === 'Complete' ? 'success' : 
               newStatus === 'Rejected' ? 'error' : 'info',
         customerName: customerName,
+        customerId: customerId,
         actionUrl: `/customers/${customerId}`,
       });
 

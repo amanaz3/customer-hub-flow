@@ -1,24 +1,24 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/SecureAuthContext';
-import { useCustomer } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
 
 export interface Notification {
   id: string;
   title: string;
   message: string;
-  type: 'info' | 'success' | 'warning' | 'error';
-  timestamp: Date;
-  read: boolean;
-  userId?: string;
+  type: 'info' | 'success' | 'error' | 'warning';
   customerName?: string;
+  customerId?: string;
   actionUrl?: string;
+  isRead: boolean;
+  createdAt: string;
 }
 
 interface NotificationContextType {
   notifications: Notification[];
   unreadCount: number;
-  addNotification: (notification: Omit<Notification, 'id' | 'timestamp' | 'read'>) => void;
+  addNotification: (notification: Omit<Notification, 'id' | 'isRead' | 'createdAt'>) => void;
   markAsRead: (notificationId: string) => void;
   markAllAsRead: () => void;
   clearNotifications: () => void;
@@ -28,114 +28,194 @@ const NotificationContext = createContext<NotificationContextType | undefined>(u
 
 export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const { user, isAdmin, isAuthenticated } = useAuth();
-  const { customers } = useCustomer();
+  const { user, isAdmin } = useAuth();
   const { toast } = useToast();
 
-  // Only run notification logic when user is authenticated
-  useEffect(() => {
-    if (!isAuthenticated || !user || customers.length === 0) return;
+  // Generate unique notification ID
+  const generateNotificationId = () => `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-    const now = new Date();
-    const oneHourAgo = new Date(now.getTime() - 60 * 60 * 1000);
-
-    // Check for recently updated customers
-    customers.forEach(customer => {
-      const updatedAt = new Date(customer.updated_at || customer.created_at || now);
-      
-      if (updatedAt > oneHourAgo) {
-        const existingNotification = notifications.find(n => 
-          n.customerName === customer.name && n.message.includes(customer.status)
-        );
-
-        if (!existingNotification) {
-          addNotification({
-            title: 'Customer Status Update',
-            message: `${customer.name} status changed to ${customer.status}`,
-            type: customer.status === 'Complete' ? 'success' : 
-                  customer.status === 'Rejected' ? 'error' : 'info',
-            customerName: customer.name,
-            actionUrl: `/customers/${customer.id}`,
-            userId: isAdmin ? undefined : user.id
-          });
-        }
-      }
-    });
-  }, [customers, user, isAdmin, isAuthenticated]);
-
-  // Add system notifications for admins
-  useEffect(() => {
-    if (!isAuthenticated || !isAdmin || !user) return;
-
-    const pendingCustomers = customers.filter(c => 
-      !['Complete', 'Rejected'].includes(c.status)
-    ).length;
-
-    if (pendingCustomers > 5) {
-      const existingNotification = notifications.find(n => 
-        n.title === 'High Pending Cases' && n.read === false
-      );
-
-      if (!existingNotification) {
-        addNotification({
-          title: 'High Pending Cases',
-          message: `You have ${pendingCustomers} cases awaiting processing`,
-          type: 'warning',
-          actionUrl: '/customers'
-        });
-      }
-    }
-  }, [customers, isAdmin, user, isAuthenticated]);
-
-  const addNotification = (notificationData: Omit<Notification, 'id' | 'timestamp' | 'read'>) => {
+  const addNotification = useCallback((notification: Omit<Notification, 'id' | 'isRead' | 'createdAt'>) => {
     const newNotification: Notification = {
-      ...notificationData,
-      id: Math.random().toString(36).substring(7),
-      timestamp: new Date(),
-      read: false
+      ...notification,
+      id: generateNotificationId(),
+      isRead: false,
+      createdAt: new Date().toISOString(),
     };
-
-    setNotifications(prev => [newNotification, ...prev.slice(0, 49)]); // Keep max 50 notifications
-
-    // Show toast for new notifications
+    
+    setNotifications(prev => [newNotification, ...prev].slice(0, 50)); // Keep max 50 notifications
+    
+    // Show toast for real-time notifications
     toast({
-      title: newNotification.title,
-      description: newNotification.message,
-      variant: newNotification.type === 'error' ? 'destructive' : 'default'
+      title: notification.title,
+      description: notification.message,
+      variant: notification.type === 'error' ? 'destructive' : 'default',
     });
-  };
+  }, [toast]);
 
-  const markAsRead = (notificationId: string) => {
-    setNotifications(prev =>
-      prev.map(notification =>
-        notification.id === notificationId
-          ? { ...notification, read: true }
-          : notification
+  const markAsRead = useCallback((notificationId: string) => {
+    setNotifications(prev => 
+      prev.map(notif => 
+        notif.id === notificationId ? { ...notif, isRead: true } : notif
       )
     );
-  };
+  }, []);
 
-  const markAllAsRead = () => {
-    setNotifications(prev =>
-      prev.map(notification => ({ ...notification, read: true }))
-    );
-  };
+  const markAllAsRead = useCallback(() => {
+    setNotifications(prev => prev.map(notif => ({ ...notif, isRead: true })));
+  }, []);
 
-  const clearNotifications = () => {
+  const clearNotifications = useCallback(() => {
     setNotifications([]);
-  };
+  }, []);
 
-  const unreadCount = notifications.filter(n => !n.read).length;
+  // Set up real-time subscriptions for status changes and comments
+  useEffect(() => {
+    if (!user) return;
+
+    console.log('Setting up real-time subscriptions for notifications...');
+
+    // Status changes subscription
+    const statusChangesSubscription = supabase
+      .channel('status_changes_notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'status_changes'
+        },
+        async (payload) => {
+          console.log('Status change detected:', payload);
+          
+          // Get customer info for notification
+          const { data: customer } = await supabase
+            .from('customers')
+            .select('name, company, user_id')
+            .eq('id', payload.new.customer_id)
+            .single();
+
+          if (!customer) return;
+
+          // Show notification if it's relevant to current user
+          const isRelevant = isAdmin || customer.user_id === user.id;
+          
+          if (isRelevant) {
+            const statusChange = payload.new;
+            addNotification({
+              title: `Status Updated: ${customer.name}`,
+              message: `${customer.company} status changed from ${statusChange.previous_status} to ${statusChange.new_status}`,
+              type: statusChange.new_status === 'Complete' ? 'success' : 
+                    statusChange.new_status === 'Rejected' ? 'error' : 'info',
+              customerName: customer.name,
+              customerId: payload.new.customer_id,
+              actionUrl: `/customers/${payload.new.customer_id}`,
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    // Comments subscription
+    const commentsSubscription = supabase
+      .channel('comments_notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'comments'
+        },
+        async (payload) => {
+          console.log('Comment detected:', payload);
+          
+          // Get customer info for notification
+          const { data: customer } = await supabase
+            .from('customers')
+            .select('name, company, user_id')
+            .eq('id', payload.new.customer_id)
+            .single();
+
+          if (!customer) return;
+
+          // Show notification if it's relevant to current user and not their own comment
+          const isRelevant = (isAdmin || customer.user_id === user.id) && payload.new.created_by !== user.id;
+          
+          if (isRelevant) {
+            addNotification({
+              title: `New Comment: ${customer.name}`,
+              message: `A comment was added to ${customer.company}`,
+              type: 'info',
+              customerName: customer.name,
+              customerId: payload.new.customer_id,
+              actionUrl: `/customers/${payload.new.customer_id}`,
+            });
+          }
+        }
+      )
+      .subscribe();
+
+    // Customer document updates subscription  
+    const documentsSubscription = supabase
+      .channel('documents_notifications')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'documents'
+        },
+        async (payload) => {
+          // Only notify if document was uploaded (is_uploaded changed to true)
+          if (payload.new.is_uploaded && !payload.old.is_uploaded) {
+            console.log('Document upload detected:', payload);
+            
+            // Get customer info for notification
+            const { data: customer } = await supabase
+              .from('customers')
+              .select('name, company, user_id')
+              .eq('id', payload.new.customer_id)
+              .single();
+
+            if (!customer) return;
+
+            // Show notification to admins when users upload documents
+            if (isAdmin && customer.user_id !== user.id) {
+              addNotification({
+                title: `Document Uploaded: ${customer.name}`,
+                message: `${payload.new.name} uploaded for ${customer.company}`,
+                type: 'info',
+                customerName: customer.name,
+                customerId: payload.new.customer_id,
+                actionUrl: `/customers/${payload.new.customer_id}`,
+              });
+            }
+          }
+        }
+      )
+      .subscribe();
+
+    // Cleanup function
+    return () => {
+      console.log('Cleaning up notification subscriptions...');
+      supabase.removeChannel(statusChangesSubscription);
+      supabase.removeChannel(commentsSubscription);
+      supabase.removeChannel(documentsSubscription);
+    };
+  }, [user, isAdmin, addNotification]);
+
+  const unreadCount = notifications.filter(n => !n.isRead).length;
+
+  const contextValue = {
+    notifications,
+    unreadCount,
+    addNotification,
+    markAsRead,
+    markAllAsRead,
+    clearNotifications,
+  };
 
   return (
-    <NotificationContext.Provider value={{
-      notifications,
-      unreadCount,
-      addNotification,
-      markAsRead,
-      markAllAsRead,
-      clearNotifications
-    }}>
+    <NotificationContext.Provider value={contextValue}>
       {children}
     </NotificationContext.Provider>
   );
