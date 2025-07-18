@@ -9,11 +9,48 @@ import FeatureAnalytics from '@/utils/featureAnalytics';
 import ErrorTracker from '@/utils/errorTracking';
 import { AlertTriangle, CheckCircle, Activity, Users, Database } from 'lucide-react';
 
+// Type definitions for better type safety
+interface RateLimitOffender {
+  key: string;
+  attempts: number;
+}
+
+interface RateLimitAnalytics {
+  totalAttempts: number;
+  activeKeys: number;
+  topOffenders: RateLimitOffender[];
+}
+
+interface FeatureUsageItem {
+  feature: string;
+  count: number;
+}
+
+interface FeatureUsage {
+  totalEvents: number;
+  uniqueFeatures: string[];
+  sessionDuration: number;
+  errorRate: number;
+  topFeatures: FeatureUsageItem[];
+}
+
+type SystemHealth = 'healthy' | 'warning' | 'critical';
+
 const ProductionMonitor: React.FC = () => {
   const [performanceMetrics, setPerformanceMetrics] = useState<Record<string, number>>({});
-  const [rateLimitAnalytics, setRateLimitAnalytics] = useState<any>({});
-  const [featureUsage, setFeatureUsage] = useState<any>({});
-  const [systemHealth, setSystemHealth] = useState<'healthy' | 'warning' | 'critical'>('healthy');
+  const [rateLimitAnalytics, setRateLimitAnalytics] = useState<RateLimitAnalytics>({
+    totalAttempts: 0,
+    activeKeys: 0,
+    topOffenders: []
+  });
+  const [featureUsage, setFeatureUsage] = useState<FeatureUsage>({
+    totalEvents: 0,
+    uniqueFeatures: [],
+    sessionDuration: 0,
+    errorRate: 0,
+    topFeatures: []
+  });
+  const [systemHealth, setSystemHealth] = useState<SystemHealth>('healthy');
 
   useEffect(() => {
     const updateMetrics = () => {
@@ -30,7 +67,7 @@ const ProductionMonitor: React.FC = () => {
       setFeatureUsage(usageData);
 
       // Determine system health
-      let health: 'healthy' | 'warning' | 'critical' = 'healthy';
+      let health: SystemHealth = 'healthy';
       
       if (perfMetrics['page-load-time'] > 3000 || perfMetrics['LCP'] > 2500) {
         health = 'warning';
@@ -163,7 +200,7 @@ const ProductionMonitor: React.FC = () => {
               <div>
                 <h4 className="font-medium mb-2">Top Rate Limited Keys</h4>
                 <div className="space-y-2">
-                  {rateLimitAnalytics.topOffenders.slice(0, 3).map((offender: any, index: number) => (
+                  {rateLimitAnalytics.topOffenders.slice(0, 3).map((offender: RateLimitOffender) => (
                     <div key={`offender-${offender.key}-${offender.attempts}`} className="flex justify-between items-center">
                       <span className="text-sm text-gray-600">{offender.key}</span>
                       <Badge variant="secondary">{offender.attempts} attempts</Badge>
@@ -213,7 +250,7 @@ const ProductionMonitor: React.FC = () => {
               <div>
                 <h4 className="font-medium mb-2">Most Used Features</h4>
                 <div className="space-y-2">
-                  {featureUsage.topFeatures.slice(0, 5).map((feature: any, index: number) => (
+                  {featureUsage.topFeatures.slice(0, 5).map((feature: FeatureUsageItem) => (
                     <div key={`feature-${feature.feature}-${feature.count}`} className="flex justify-between items-center">
                       <span className="text-sm">{feature.feature}</span>
                       <Badge variant="outline">{feature.count} uses</Badge>
