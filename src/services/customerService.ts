@@ -17,64 +17,93 @@ export class CustomerService {
 
     console.log('Raw customers data:', data);
 
-    const customersWithDocumentsAndHistory = await Promise.all(
-      (data || []).map(async (customer) => {
-        // Fetch documents
-        const { data: docsData, error: docsError } = await supabase
-          .from('documents')
-          .select('*')
-          .eq('customer_id', customer.id);
+    // Extract all customer IDs for batch queries
+    const customerIds = (data || []).map(customer => customer.id);
+    
+    if (customerIds.length === 0) {
+      return [];
+    }
 
-        if (docsError) {
-          console.error('Error fetching documents for customer:', customer.id, docsError);
-        }
+    // Batch fetch all documents at once
+    const { data: allDocuments, error: docsError } = await supabase
+      .from('documents')
+      .select('*')
+      .in('customer_id', customerIds);
 
-        // Fetch status history
-        const { data: statusHistory, error: statusError } = await supabase
-          .from('status_changes')
-          .select(`
-            id,
-            customer_id,
-            previous_status,
-            new_status,
-            changed_by,
-            changed_by_role,
-            comment,
-            created_at
-          `)
-          .eq('customer_id', customer.id)
-          .order('created_at', { ascending: false });
+    if (docsError) {
+      console.error('Error fetching documents:', docsError);
+    }
 
-        if (statusError) {
-          console.error('Error fetching status history for customer:', customer.id, statusError);
-        }
+    // Batch fetch all status history at once
+    const { data: allStatusHistory, error: statusError } = await supabase
+      .from('status_changes')
+      .select(`
+        id,
+        customer_id,
+        previous_status,
+        new_status,
+        changed_by,
+        changed_by_role,
+        comment,
+        created_at
+      `)
+      .in('customer_id', customerIds)
+      .order('created_at', { ascending: false });
 
-        // Fetch comments
-        const { data: comments, error: commentsError } = await supabase
-          .from('comments')
-          .select('*')
-          .eq('customer_id', customer.id)
-          .order('created_at', { ascending: false });
+    if (statusError) {
+      console.error('Error fetching status history:', statusError);
+    }
 
-        if (commentsError) {
-          console.error('Error fetching comments for customer:', customer.id, commentsError);
-        }
+    // Batch fetch all comments at once
+    const { data: allComments, error: commentsError } = await supabase
+      .from('comments')
+      .select('*')
+      .in('customer_id', customerIds)
+      .order('created_at', { ascending: false });
 
-        return {
-          ...customer,
-          leadSource: customer.lead_source,
-          licenseType: customer.license_type,
-          documents: docsData || [],
-          statusHistory: statusHistory || [],
-          comments: (comments || []).map(comment => ({
-            id: comment.id,
-            content: comment.comment,
-            author: comment.created_by,
-            timestamp: comment.created_at || new Date().toISOString()
-          }))
-        };
-      })
-    );
+    if (commentsError) {
+      console.error('Error fetching comments:', commentsError);
+    }
+
+    // Group data by customer_id for efficient lookup
+    const documentsByCustomer = (allDocuments || []).reduce((acc, doc) => {
+      if (!acc[doc.customer_id]) acc[doc.customer_id] = [];
+      acc[doc.customer_id].push(doc);
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    const statusHistoryByCustomer = (allStatusHistory || []).reduce((acc, status) => {
+      if (!acc[status.customer_id]) acc[status.customer_id] = [];
+      acc[status.customer_id].push(status);
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    const commentsByCustomer = (allComments || []).reduce((acc, comment) => {
+      if (!acc[comment.customer_id]) acc[comment.customer_id] = [];
+      acc[comment.customer_id].push(comment);
+      return acc;
+    }, {} as Record<string, any[]>);
+
+    // Map customers with their related data
+    const customersWithDocumentsAndHistory = (data || []).map(customer => {
+      const customerDocuments = documentsByCustomer[customer.id] || [];
+      const customerStatusHistory = statusHistoryByCustomer[customer.id] || [];
+      const customerComments = commentsByCustomer[customer.id] || [];
+
+      return {
+        ...customer,
+        leadSource: customer.lead_source,
+        licenseType: customer.license_type,
+        documents: customerDocuments,
+        statusHistory: customerStatusHistory,
+        comments: customerComments.map(comment => ({
+          id: comment.id,
+          content: comment.comment,
+          author: comment.created_by,
+          timestamp: comment.created_at || new Date().toISOString()
+        }))
+      };
+    });
 
     console.log('Customers with documents and status history:', customersWithDocumentsAndHistory);
     return customersWithDocumentsAndHistory;
