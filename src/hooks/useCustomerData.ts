@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { Customer, StatusChange, Document } from '@/types/customer';
 import { CustomerService } from '@/services/customerService';
 import { useAuth } from '@/contexts/SecureAuthContext';
@@ -23,7 +23,7 @@ export const useCustomerData = () => {
   const { user, isAuthenticated } = authData;
   const { toast } = useToast();
 
-  const fetchCustomers = async () => {
+  const fetchCustomers = useCallback(async () => {
     if (!isAuthenticated || !user) {
       console.log('User not authenticated, skipping fetch');
       return;
@@ -50,7 +50,7 @@ export const useCustomerData = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [isAuthenticated, user, toast]);
 
   const refreshData = async () => {
     console.log('Refreshing customer data...');
@@ -67,7 +67,7 @@ export const useCustomerData = () => {
       setDocuments([]);
       setStatusChanges([]);
     }
-  }, [isAuthenticated, user?.id]); // Added user.id to dependency array
+  }, [isAuthenticated, user?.id, fetchCustomers]); // Added fetchCustomers to dependency array
 
   return {
     customers,
