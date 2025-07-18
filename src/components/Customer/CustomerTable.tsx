@@ -21,15 +21,15 @@ const CustomerTable: React.FC<CustomerTableProps> = ({ customers }) => {
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'Draft': return 'bg-gray-500 text-white';
-      case 'Submitted': return 'bg-blue-500 text-white';
-      case 'Returned': return 'bg-orange-500 text-white';
-      case 'Sent to Bank': return 'bg-purple-500 text-white';
-      case 'Complete': return 'bg-green-500 text-white';
-      case 'Rejected': return 'bg-red-500 text-white';
-      case 'Need More Info': return 'bg-yellow-500 text-white';
-      case 'Paid': return 'bg-emerald-500 text-white';
-      default: return 'bg-gray-500 text-white';
+      case 'Draft': return 'bg-status-draft text-status-draft-foreground';
+      case 'Submitted': return 'bg-status-submitted text-status-submitted-foreground';
+      case 'Returned': return 'bg-status-returned text-status-returned-foreground';
+      case 'Sent to Bank': return 'bg-primary text-primary-foreground';
+      case 'Complete': return 'bg-status-complete text-status-complete-foreground';
+      case 'Rejected': return 'bg-status-rejected text-status-rejected-foreground';
+      case 'Need More Info': return 'bg-severity-warning text-severity-warning-foreground';
+      case 'Paid': return 'bg-severity-success text-severity-success-foreground';
+      default: return 'bg-muted text-muted-foreground';
     }
   };
 

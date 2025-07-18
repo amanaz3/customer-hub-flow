@@ -64,10 +64,28 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				},
 				status: {
-					pending: '#f59e0b',
-					returned: '#ef4444',
-					submitted: '#3b82f6',
-					completed: '#22c55e'
+					draft: 'hsl(var(--status-draft))',
+					'draft-foreground': 'hsl(var(--status-draft-foreground))',
+					submitted: 'hsl(var(--status-submitted))',
+					'submitted-foreground': 'hsl(var(--status-submitted-foreground))',
+					returned: 'hsl(var(--status-returned))',
+					'returned-foreground': 'hsl(var(--status-returned-foreground))',
+					approved: 'hsl(var(--status-approved))',
+					'approved-foreground': 'hsl(var(--status-approved-foreground))',
+					rejected: 'hsl(var(--status-rejected))',
+					'rejected-foreground': 'hsl(var(--status-rejected-foreground))',
+					complete: 'hsl(var(--status-complete))',
+					'complete-foreground': 'hsl(var(--status-complete-foreground))'
+				},
+				severity: {
+					info: 'hsl(var(--severity-info))',
+					'info-foreground': 'hsl(var(--severity-info-foreground))',
+					warning: 'hsl(var(--severity-warning))',
+					'warning-foreground': 'hsl(var(--severity-warning-foreground))',
+					error: 'hsl(var(--severity-error))',
+					'error-foreground': 'hsl(var(--severity-error-foreground))',
+					success: 'hsl(var(--severity-success))',
+					'success-foreground': 'hsl(var(--severity-success-foreground))'
 				}
 			},
 			borderRadius: {

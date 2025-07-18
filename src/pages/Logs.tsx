@@ -265,11 +265,21 @@ const Logs: React.FC = () => {
               </Select>
             </div>
             <div className="flex gap-2">
-              <Button variant="outline" onClick={downloadLogs} disabled={filteredLogs.length === 0}>
+              <Button 
+                variant="outline" 
+                onClick={downloadLogs} 
+                disabled={filteredLogs.length === 0}
+                aria-label="Export logs as CSV file"
+              >
                 <Download className="h-4 w-4 mr-2" />
                 Export CSV
               </Button>
-              <Button variant="destructive" onClick={clearLogs} disabled={logs.length === 0}>
+              <Button 
+                variant="destructive" 
+                onClick={clearLogs} 
+                disabled={logs.length === 0}
+                aria-label="Clear all system logs"
+              >
                 <Trash2 className="h-4 w-4 mr-2" />
                 Clear All
               </Button>

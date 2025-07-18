@@ -106,11 +106,20 @@ class ErrorBoundary extends Component<Props, State> {
               )}
 
               <div className="flex gap-2">
-                <Button onClick={this.handleRetry} variant="outline" size="sm">
+                <Button 
+                  onClick={this.handleRetry} 
+                  variant="outline" 
+                  size="sm"
+                  aria-label="Retry loading component"
+                >
                   <RefreshCw className="h-4 w-4 mr-2" />
                   Try Again
                 </Button>
-                <Button onClick={this.handleGoHome} size="sm">
+                <Button 
+                  onClick={this.handleGoHome} 
+                  size="sm"
+                  aria-label="Navigate to dashboard"
+                >
                   <Home className="h-4 w-4 mr-2" />
                   Go to Dashboard
                 </Button>

@@ -184,11 +184,16 @@ const SecurePasswordDialog: React.FC<SecurePasswordDialogProps> = ({
         </div>
 
         <DialogFooter className="flex justify-between">
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
+          <Button 
+            variant="outline" 
+            onClick={() => onOpenChange(false)}
+            aria-label="Cancel password reset"
+          >
             Cancel
           </Button>
           <Button 
             onClick={handleConfirm}
+            aria-label="Confirm password reset"
             disabled={useCustomPassword && !passwordValidation.isValid}
           >
             Set Password & Create User

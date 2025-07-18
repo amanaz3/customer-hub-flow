@@ -10,15 +10,18 @@ import PageErrorBoundary from '@/components/PageErrorBoundary';
 import ProtectedRoute from '@/components/Security/ProtectedRoute';
 import MainLayout from '@/components/Layout/MainLayout';
 import SecureLogin from '@/pages/SecureLogin';
-import OptimizedDashboard from '@/pages/OptimizedDashboard';
-import CustomerList from '@/pages/CustomerList';
-import CustomerNew from '@/pages/CustomerNew';
-import CustomerDetail from '@/pages/CustomerDetail';
-import SecureUserManagement from '@/pages/SecureUserManagement';
-import CompletedCases from '@/pages/CompletedCases';
-import Logs from '@/pages/Logs';
-import Settings from '@/pages/Settings';
-import NotFound from '@/pages/NotFound';
+import {
+  LazyOptimizedDashboard,
+  LazyCustomerList,
+  LazyCustomerNew,
+  LazyCustomerDetail,
+  LazySecureUserManagement,
+  LazyCompletedCases,
+  LazyLogs,
+  LazySettings,
+  LazyNotFound,
+  PageLoadingFallback
+} from '@/components/LazyComponents';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -65,7 +68,7 @@ function App() {
                     <ProtectedRoute>
                       <MainLayout>
                         <PageErrorBoundary pageName="Dashboard">
-                          <OptimizedDashboard />
+                          <LazyOptimizedDashboard />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
@@ -75,7 +78,7 @@ function App() {
                     <ProtectedRoute>
                       <MainLayout>
                         <PageErrorBoundary pageName="Customer List">
-                          <CustomerList />
+                          <LazyCustomerList />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
@@ -85,7 +88,7 @@ function App() {
                     <ProtectedRoute>
                       <MainLayout>
                         <PageErrorBoundary pageName="New Customer">
-                          <CustomerNew />
+                          <LazyCustomerNew />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
@@ -95,7 +98,7 @@ function App() {
                     <ProtectedRoute>
                       <MainLayout>
                         <PageErrorBoundary pageName="Customer Details">
-                          <CustomerDetail />
+                          <LazyCustomerDetail />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
@@ -105,7 +108,7 @@ function App() {
                     <ProtectedRoute requireAdmin>
                       <MainLayout>
                         <PageErrorBoundary pageName="User Management">
-                          <SecureUserManagement />
+                          <LazySecureUserManagement />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
@@ -115,7 +118,7 @@ function App() {
                     <ProtectedRoute>
                       <MainLayout>
                         <PageErrorBoundary pageName="Completed Cases">
-                          <CompletedCases />
+                          <LazyCompletedCases />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
@@ -125,7 +128,7 @@ function App() {
                     <ProtectedRoute requireAdmin>
                       <MainLayout>
                         <PageErrorBoundary pageName="System Logs">
-                          <Logs />
+                          <LazyLogs />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
@@ -135,7 +138,7 @@ function App() {
                     <ProtectedRoute>
                       <MainLayout>
                         <PageErrorBoundary pageName="Settings">
-                          <Settings />
+                          <LazySettings />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
@@ -143,7 +146,7 @@ function App() {
                   
                   <Route path="*" element={
                     <PageErrorBoundary pageName="Not Found">
-                      <NotFound />
+                      <LazyNotFound />
                     </PageErrorBoundary>
                   } />
                 </Routes>

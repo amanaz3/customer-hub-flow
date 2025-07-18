@@ -323,7 +323,10 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
         
         {isEditable && isUserOwner && (
           <div className="mt-6 flex justify-end">
-            <Button onClick={handleSubmit}>
+            <Button 
+              onClick={handleSubmit}
+              aria-label="Save customer details changes"
+            >
               Save Changes
             </Button>
           </div>
