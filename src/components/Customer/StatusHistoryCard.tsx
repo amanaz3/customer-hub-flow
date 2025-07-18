@@ -24,11 +24,18 @@ const StatusHistoryCard: React.FC<StatusHistoryCardProps> = ({
   const { isAdmin, user } = useAuth();
 
   useEffect(() => {
+    const abortController = new AbortController();
+    
     const enrichHistoryWithUserNames = async () => {
+      if (abortController.signal.aborted) return;
+      
       setIsLoading(true);
       try {
         const enrichedData = await Promise.all(
           statusHistory.map(async (change) => {
+            // Check if operation was cancelled
+            if (abortController.signal.aborted) return null;
+            
             // If changed_by is a UUID, fetch the user profile
             const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(change.changed_by);
             
@@ -38,16 +45,19 @@ const StatusHistoryCard: React.FC<StatusHistoryCardProps> = ({
                   .from('profiles')
                   .select('name, email')
                   .eq('id', change.changed_by)
+                  .abortSignal(abortController.signal)
                   .single();
                 
-                if (!error && profile) {
+                if (!error && profile && !abortController.signal.aborted) {
                   return {
                     ...change,
                     user_name: profile.name || profile.email
                   };
                 }
               } catch (error) {
-                console.error('Error fetching user profile:', error);
+                if (error.name !== 'AbortError') {
+                  console.error('Error fetching user profile:', error);
+                }
               }
             }
             
@@ -59,17 +69,26 @@ const StatusHistoryCard: React.FC<StatusHistoryCardProps> = ({
           })
         );
         
-        // Sort by creation date, newest first
-        const sortedData = enrichedData.sort((a, b) => 
-          new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
-        );
+        // Filter out null values from aborted operations
+        const validData = enrichedData.filter(item => item !== null);
         
-        setEnrichedHistory(sortedData);
+        if (!abortController.signal.aborted) {
+          // Sort by creation date, newest first
+          const sortedData = validData.sort((a, b) => 
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+          );
+          
+          setEnrichedHistory(sortedData);
+        }
       } catch (error) {
-        console.error('Error enriching status history:', error);
-        setEnrichedHistory(statusHistory.map(change => ({ ...change, user_name: change.changed_by })));
+        if (!abortController.signal.aborted) {
+          console.error('Error enriching status history:', error);
+          setEnrichedHistory(statusHistory.map(change => ({ ...change, user_name: change.changed_by })));
+        }
       } finally {
-        setIsLoading(false);
+        if (!abortController.signal.aborted) {
+          setIsLoading(false);
+        }
       }
     };
 
@@ -79,6 +98,11 @@ const StatusHistoryCard: React.FC<StatusHistoryCardProps> = ({
       setEnrichedHistory([]);
       setIsLoading(false);
     }
+
+    // Cleanup function to abort ongoing requests
+    return () => {
+      abortController.abort();
+    };
   }, [statusHistory]);
 
   const getStatusColor = (status: string) => {
