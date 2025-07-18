@@ -205,7 +205,7 @@ export class CustomerService {
       .from('documents')
       .select('name')
       .eq('id', documentId)
-      .single();
+      .maybeSingle();
 
     if (docError) {
       console.error('Error fetching document name:', docError);
@@ -247,14 +247,18 @@ export class CustomerService {
       .from('customers')
       .select('status')
       .eq('id', customerId)
-      .single();
+      .maybeSingle();
 
     if (fetchError) {
       console.error('Error fetching current customer status:', fetchError);
       throw fetchError;
     }
 
-    const previousStatus = currentCustomer?.status || 'Draft';
+    if (!currentCustomer) {
+      throw new Error(`Customer with ID ${customerId} not found`);
+    }
+
+    const previousStatus = currentCustomer.status || 'Draft';
     
     console.log('Previous status retrieved:', previousStatus, 'New status:', status);
 
@@ -309,11 +313,15 @@ export class CustomerService {
       .from('customers')
       .select('*')
       .eq('id', customerId)
-      .single();
+      .maybeSingle();
 
     if (customerError) {
       console.error('Error fetching customer:', customerError);
       throw customerError;
+    }
+
+    if (!customer) {
+      throw new Error(`Customer with ID ${customerId} not found`);
     }
 
     const { data: documents, error: docsError } = await supabase
