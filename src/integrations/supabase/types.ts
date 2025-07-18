@@ -171,6 +171,39 @@ export type Database = {
           },
         ]
       }
+      logs: {
+        Row: {
+          component: string | null
+          created_at: string
+          id: string
+          level: string
+          message: string
+          stack_trace: string | null
+          user_email: string | null
+          user_id: string | null
+        }
+        Insert: {
+          component?: string | null
+          created_at?: string
+          id?: string
+          level?: string
+          message: string
+          stack_trace?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          component?: string | null
+          created_at?: string
+          id?: string
+          level?: string
+          message?: string
+          stack_trace?: string | null
+          user_email?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null

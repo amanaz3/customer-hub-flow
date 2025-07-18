@@ -14,7 +14,7 @@ import CustomerNew from '@/pages/CustomerNew';
 import CustomerDetail from '@/pages/CustomerDetail';
 import SecureUserManagement from '@/pages/SecureUserManagement';
 import CompletedCases from '@/pages/CompletedCases';
-
+import Logs from '@/pages/Logs';
 import Settings from '@/pages/Settings';
 import NotFound from '@/pages/NotFound';
 import ErrorTracker from '@/utils/errorTracking';
@@ -97,6 +97,13 @@ function App() {
                   </ProtectedRoute>
                 } />
                 
+                <Route path="/logs" element={
+                  <ProtectedRoute requireAdmin>
+                    <MainLayout>
+                      <Logs />
+                    </MainLayout>
+                  </ProtectedRoute>
+                } />
                 
                 <Route path="/settings" element={
                   <ProtectedRoute>
