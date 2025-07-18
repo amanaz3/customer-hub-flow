@@ -9,6 +9,7 @@ import {
   CheckSquare,
   UserCog,
   Settings,
+  AlertTriangle,
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
@@ -52,6 +53,12 @@ const Sidebar: React.FC = () => {
       name: 'User Management',
       path: '/users',
       icon: <UserCog className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
+      name: 'Error Logs',
+      path: '/error-logs',
+      icon: <AlertTriangle className="h-5 w-5" />,
       roles: ['admin'],
     },
     {
