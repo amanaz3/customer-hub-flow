@@ -86,7 +86,7 @@ export const useStatusManager = () => {
         customerId,
         newStatus,
         finalComment,
-        changedByName,
+        user.id,
         changedByRole
       );
 

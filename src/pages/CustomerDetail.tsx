@@ -87,7 +87,7 @@ const CustomerDetail = () => {
       customer.id, 
       status, 
       commentText, 
-      user.profile?.name || user.email || 'Unknown User', 
+      user.id, 
       isAdmin ? 'admin' : 'user'
     );
     

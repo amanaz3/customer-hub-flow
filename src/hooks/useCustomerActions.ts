@@ -163,7 +163,7 @@ export const useCustomerActions = (
       );
 
       // Persist status change to database
-      await CustomerService.updateCustomerStatus(customerId, 'Submitted', 'Application submitted to admin for review', userName, 'user');
+      await CustomerService.updateCustomerStatus(customerId, 'Submitted', 'Application submitted to admin for review', userId, 'user');
 
       // Refresh data to ensure consistency across all users and get updated status history
       await refreshData();
