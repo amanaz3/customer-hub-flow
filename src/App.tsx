@@ -5,6 +5,8 @@ import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/contexts/SecureAuthContext';
 import { CustomerProvider } from '@/contexts/CustomerContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
+import ErrorBoundary from '@/components/ErrorBoundary';
+import PageErrorBoundary from '@/components/PageErrorBoundary';
 import ProtectedRoute from '@/components/Security/ProtectedRoute';
 import MainLayout from '@/components/Layout/MainLayout';
 import SecureLogin from '@/pages/SecureLogin';
@@ -40,87 +42,118 @@ function App() {
   }, []);
 
   return (
-    <Router>
-      <AuthProvider>
-        <CustomerProvider>
-          <NotificationProvider>
-            <div className="min-h-screen bg-background">
-              <Routes>
-                <Route path="/login" element={<SecureLogin />} />
-                <Route path="/" element={<Navigate to="/dashboard" replace />} />
-                
-                <Route path="/dashboard" element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <OptimizedDashboard />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/customers" element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <CustomerList />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/customers/new" element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <CustomerNew />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/customers/:id" element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <CustomerDetail />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/users" element={
-                  <ProtectedRoute requireAdmin>
-                    <MainLayout>
-                      <SecureUserManagement />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/completed" element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <CompletedCases />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/logs" element={
-                  <ProtectedRoute requireAdmin>
-                    <MainLayout>
-                      <Logs />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="/settings" element={
-                  <ProtectedRoute>
-                    <MainLayout>
-                      <Settings />
-                    </MainLayout>
-                  </ProtectedRoute>
-                } />
-                
-                <Route path="*" element={<NotFound />} />
-              </Routes>
-            </div>
-          </NotificationProvider>
-        </CustomerProvider>
-      </AuthProvider>
-      <Toaster />
-    </Router>
+    <ErrorBoundary
+      onError={(error, errorInfo) => {
+        // Log application-level errors
+        ErrorTracker.captureError(error, { component: 'App', ...errorInfo });
+      }}
+    >
+      <Router>
+        <AuthProvider>
+          <CustomerProvider>
+            <NotificationProvider>
+              <div className="min-h-screen bg-background">
+                <Routes>
+                  <Route path="/login" element={
+                    <PageErrorBoundary pageName="Login">
+                      <SecureLogin />
+                    </PageErrorBoundary>
+                  } />
+                  <Route path="/" element={<Navigate to="/dashboard" replace />} />
+                  
+                  <Route path="/dashboard" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Dashboard">
+                          <OptimizedDashboard />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/customers" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Customer List">
+                          <CustomerList />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/customers/new" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="New Customer">
+                          <CustomerNew />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/customers/:id" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Customer Details">
+                          <CustomerDetail />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/users" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="User Management">
+                          <SecureUserManagement />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/completed" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Completed Cases">
+                          <CompletedCases />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/logs" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="System Logs">
+                          <Logs />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/settings" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Settings">
+                          <Settings />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="*" element={
+                    <PageErrorBoundary pageName="Not Found">
+                      <NotFound />
+                    </PageErrorBoundary>
+                  } />
+                </Routes>
+              </div>
+            </NotificationProvider>
+          </CustomerProvider>
+        </AuthProvider>
+        <Toaster />
+      </Router>
+    </ErrorBoundary>
   );
 }
 
