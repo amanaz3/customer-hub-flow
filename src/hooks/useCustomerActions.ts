@@ -115,20 +115,14 @@ export const useCustomerActions = (
       // Update status in database first to ensure persistence
       await CustomerService.updateCustomerStatus(customerId, status, comment, changedBy, role);
 
-      // Update customer status locally for immediate UI feedback
-      const customer = customers.find(c => c.id === customerId);
-      if (customer) {
-        const previousStatus = customer.status;
-        
-        // Update customer status
-        setCustomers(
-          customers.map(customer => 
-            customer.id === customerId 
-              ? { ...customer, status, updated_at: new Date().toISOString() }
-              : customer
-          )
-        );
-      }
+      // Only update UI after successful database operation
+      setCustomers(
+        customers.map(customer => 
+          customer.id === customerId 
+            ? { ...customer, status, updated_at: new Date().toISOString() }
+            : customer
+        )
+      );
 
       // Refresh data to get the complete updated state from database including status history
       await refreshData();
@@ -143,18 +137,20 @@ export const useCustomerActions = (
   // markPaymentReceived function removed - payment tracking out of scope
 
   const submitToAdmin = async (customerId: string, userId: string, userName: string) => {
+    const customer = customers.find(c => c.id === customerId);
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+
+    const previousStatus = customer.status;
+    
     try {
       console.log('Submitting application to admin:', { customerId, userId, userName });
       
-      // Get the current customer to access previous status
-      const customer = customers.find(c => c.id === customerId);
-      if (!customer) {
-        throw new Error('Customer not found');
-      }
+      // Persist status change to database first
+      await CustomerService.updateCustomerStatus(customerId, 'Submitted', 'Application submitted to admin for review', userId, 'user');
 
-      const previousStatus = customer.status;
-      
-      // Update customer status to Submitted immediately for UI feedback
+      // Only update UI after successful database operation
       setCustomers(
         customers.map(customer => 
           customer.id === customerId 
@@ -163,9 +159,6 @@ export const useCustomerActions = (
         )
       );
 
-      // Persist status change to database
-      await CustomerService.updateCustomerStatus(customerId, 'Submitted', 'Application submitted to admin for review', userId, 'user');
-
       // Refresh data to ensure consistency across all users and get updated status history
       await refreshData();
 
@@ -173,17 +166,14 @@ export const useCustomerActions = (
     } catch (error) {
       console.error('Error submitting to admin:', error);
       
-      // Revert local status change if database update fails
-      const customer = customers.find(c => c.id === customerId);
-      if (customer) {
-        setCustomers(
-          customers.map(customer => 
-            customer.id === customerId 
-              ? { ...customer, status: customer.status }
-              : customer
-          )
-        );
-      }
+      // Revert to previous status if database update fails
+      setCustomers(
+        customers.map(customer => 
+          customer.id === customerId 
+            ? { ...customer, status: previousStatus }
+            : customer
+        )
+      );
       
       throw error;
     }
