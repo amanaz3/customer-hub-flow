@@ -177,6 +177,19 @@ export const verifyFileAccess = async (filePath: string): Promise<boolean> => {
   }
 };
 
+// URL validation utility
+const isValidUrl = (url: string): boolean => {
+  try {
+    const urlObj = new URL(url);
+    // Only allow https URLs from trusted Supabase domains
+    return urlObj.protocol === 'https:' && 
+           (urlObj.hostname.endsWith('.supabase.co') || 
+            urlObj.hostname.endsWith('.supabase.in'));
+  } catch {
+    return false;
+  }
+};
+
 export const getFileViewLink = (filePath: string): string | null => {
   try {
     const fileInfo = JSON.parse(filePath);
@@ -184,6 +197,13 @@ export const getFileViewLink = (filePath: string): string | null => {
     // First try to use stored public URL
     if (fileInfo.publicUrl) {
       console.log('Using stored public URL:', fileInfo.publicUrl);
+      
+      // Validate the stored URL before returning
+      if (!isValidUrl(fileInfo.publicUrl)) {
+        console.warn('Invalid stored public URL detected:', fileInfo.publicUrl);
+        return null;
+      }
+      
       return fileInfo.publicUrl;
     }
 
@@ -198,8 +218,16 @@ export const getFileViewLink = (filePath: string): string | null => {
       .from('customer-documents')
       .getPublicUrl(path);
 
-    console.log('Generated new view URL for:', path, publicUrlData.publicUrl);
-    return publicUrlData.publicUrl || null;
+    const generatedUrl = publicUrlData.publicUrl;
+    
+    // Validate the generated URL
+    if (generatedUrl && !isValidUrl(generatedUrl)) {
+      console.warn('Invalid generated URL detected:', generatedUrl);
+      return null;
+    }
+
+    console.log('Generated new view URL for:', path, generatedUrl);
+    return generatedUrl || null;
   } catch (error) {
     console.error('Error getting file view link:', error);
     return null;
@@ -213,6 +241,13 @@ export const getFileDownloadLink = (filePath: string): string | null => {
     // First try to use stored public URL
     if (fileInfo.publicUrl) {
       console.log('Using stored public URL for download:', fileInfo.publicUrl);
+      
+      // Validate the stored URL before returning
+      if (!isValidUrl(fileInfo.publicUrl)) {
+        console.warn('Invalid stored public download URL detected:', fileInfo.publicUrl);
+        return null;
+      }
+      
       return fileInfo.publicUrl;
     }
 
@@ -227,8 +262,16 @@ export const getFileDownloadLink = (filePath: string): string | null => {
       .from('customer-documents')
       .getPublicUrl(path);
 
-    console.log('Generated new download URL for:', path, publicUrlData.publicUrl);
-    return publicUrlData.publicUrl || null;
+    const generatedUrl = publicUrlData.publicUrl;
+    
+    // Validate the generated URL
+    if (generatedUrl && !isValidUrl(generatedUrl)) {
+      console.warn('Invalid generated download URL detected:', generatedUrl);
+      return null;
+    }
+
+    console.log('Generated new download URL for:', path, generatedUrl);
+    return generatedUrl || null;
   } catch (error) {
     console.error('Error getting file download link:', error);
     return null;
