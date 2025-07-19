@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -14,6 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Customer } from '@/types/customer';
+import { useAuth } from '@/contexts/SecureAuthContext';
 
 interface CustomerDetailsFormProps {
   customer: Customer;
@@ -40,6 +40,11 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
   isUserOwner,
   onUpdate,
 }) => {
+  const { isAdmin } = useAuth();
+  
+  // Determine if the current user can edit this customer
+  const canEdit = isEditable && (isUserOwner || isAdmin);
+  
   const [formData, setFormData] = useState({
     name: customer.name || '',
     mobile: customer.mobile || '',
@@ -116,7 +121,14 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Customer Information</CardTitle>
+        <CardTitle>
+          Customer Information
+          {isAdmin && !isUserOwner && (
+            <span className="ml-2 text-sm font-normal text-muted-foreground">
+              (Admin Access)
+            </span>
+          )}
+        </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -128,7 +140,7 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
               value={formData.name}
               onChange={handleInputChange}
               className="mt-1"
-              disabled={!isEditable || !isUserOwner}
+              disabled={!canEdit}
             />
           </div>
           
@@ -140,7 +152,7 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
               value={formData.mobile}
               onChange={handleInputChange}
               className="mt-1"
-              disabled={!isEditable || !isUserOwner}
+              disabled={!canEdit}
             />
           </div>
           
@@ -152,7 +164,7 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
               value={formData.company}
               onChange={handleInputChange}
               className="mt-1"
-              disabled={!isEditable || !isUserOwner}
+              disabled={!canEdit}
             />
           </div>
           
@@ -165,14 +177,14 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
               value={formData.email}
               onChange={handleInputChange}
               className="mt-1"
-              disabled={!isEditable || !isUserOwner}
+              disabled={!canEdit}
             />
           </div>
           
           <div>
             <Label htmlFor="leadSource">Lead Source</Label>
             <Select
-              disabled={!isEditable || !isUserOwner}
+              disabled={!canEdit}
               value={formData.leadSource}
               onValueChange={(value) => handleSelectChange('leadSource', value)}
             >
@@ -191,7 +203,7 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
           <div>
             <Label htmlFor="licenseType">License Type</Label>
             <Select
-              disabled={!isEditable || !isUserOwner}
+              disabled={!canEdit}
               value={formData.licenseType}
               onValueChange={(value) => handleSelectChange('licenseType', value)}
             >
@@ -209,7 +221,7 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
           <div>
             <Label htmlFor="jurisdiction">Jurisdiction</Label>
             <Select
-              disabled={!isEditable || !isUserOwner}
+              disabled={!canEdit}
               value={formData.jurisdiction}
               onValueChange={(value) => handleSelectChange('jurisdiction', value)}
             >
@@ -231,7 +243,7 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
               value={formData.amount}
               onChange={handleInputChange}
               className="mt-1"
-              disabled={!isEditable || !isUserOwner}
+              disabled={!canEdit}
             />
           </div>
 
@@ -243,7 +255,7 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
               value={formData.annualTurnover}
               onChange={handleInputChange}
               className="mt-1"
-              disabled={!isEditable || !isUserOwner}
+              disabled={!canEdit}
             />
           </div>
         </div>
@@ -255,7 +267,7 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
               id="anySuitableBank"
               checked={anySuitableBank}
               onCheckedChange={handleAnySuitableBankChange}
-              disabled={!isEditable || !isUserOwner}
+              disabled={!canEdit}
             />
             <Label htmlFor="anySuitableBank">Any Suitable Bank</Label>
           </div>
@@ -273,7 +285,7 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
                     onChange={handleBankPreferenceChange}
                     className="mt-1"
                     placeholder="Enter bank name"
-                    disabled={!isEditable || !isUserOwner}
+                    disabled={!canEdit}
                   />
                 </div>
                 
@@ -286,7 +298,7 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
                     onChange={handleBankPreferenceChange}
                     className="mt-1"
                     placeholder="Enter bank name"
-                    disabled={!isEditable || !isUserOwner}
+                    disabled={!canEdit}
                   />
                 </div>
                 
@@ -299,7 +311,7 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
                     onChange={handleBankPreferenceChange}
                     className="mt-1"
                     placeholder="Enter bank name"
-                    disabled={!isEditable || !isUserOwner}
+                    disabled={!canEdit}
                   />
                 </div>
               </div>
@@ -317,11 +329,11 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
             className="mt-1"
             rows={4}
             placeholder="Mention any specific queries or requirements here..."
-            disabled={!isEditable || !isUserOwner}
+            disabled={!canEdit}
           />
         </div>
         
-        {isEditable && isUserOwner && (
+        {canEdit && (
           <div className="mt-6 flex justify-end">
             <Button 
               onClick={handleSubmit}

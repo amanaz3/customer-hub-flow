@@ -27,7 +27,6 @@ const CustomerDetail = () => {
     updateCustomer, 
     uploadDocument, 
     updateCustomerStatus,
-    // markPaymentReceived removed
     submitToAdmin,
     refreshData
   } = useCustomer();
@@ -48,7 +47,7 @@ const CustomerDetail = () => {
     );
   }
 
-  const handleUpdateCustomer = (formData: {
+  const handleUpdateCustomer = async (formData: {
     name: string;
     mobile: string;
     company: string;
@@ -56,23 +55,43 @@ const CustomerDetail = () => {
     leadSource: string;
     licenseType: string;
     amount: string;
+    preferredBank?: string;
+    annualTurnover?: string;
+    jurisdiction?: string;
+    customerNotes?: string;
   }) => {
     if (!customer) return;
     
-    updateCustomer(customer.id, {
-      name: formData.name,
-      mobile: formData.mobile,
-      company: formData.company,
-      email: formData.email,
-      leadSource: formData.leadSource as any,
-      licenseType: formData.licenseType as any,
-      amount: parseFloat(formData.amount),
-    });
-    
-    toast({
-      title: "Success",
-      description: "Customer information updated",
-    });
+    try {
+      await updateCustomer(customer.id, {
+        name: formData.name,
+        mobile: formData.mobile,
+        company: formData.company,
+        email: formData.email,
+        leadSource: formData.leadSource as any,
+        licenseType: formData.licenseType as any,
+        amount: parseFloat(formData.amount),
+        preferred_bank: formData.preferredBank,
+        annual_turnover: formData.annualTurnover ? parseFloat(formData.annualTurnover) : undefined,
+        jurisdiction: formData.jurisdiction,
+        customer_notes: formData.customerNotes,
+      });
+      
+      // Refresh data to get updated information
+      await refreshData();
+      
+      toast({
+        title: "Success",
+        description: "Customer information updated successfully",
+      });
+    } catch (error) {
+      console.error('Error updating customer:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update customer information. Please try again.",
+        variant: "destructive",
+      });
+    }
   };
 
   const handleDocumentUpload = (documentId: string, filePath: string) => {
@@ -100,8 +119,6 @@ const CustomerDetail = () => {
       navigate('/completed');
     }
   };
-
-  // handlePaymentReceived function removed - payment tracking out of scope
 
   const handleSubmitApplication = () => {
     if (!customer || !user) return;
@@ -157,7 +174,6 @@ const CustomerDetail = () => {
                 isUserOwner={isUserOwner}
                 mandatoryDocumentsUploaded={mandatoryDocumentsUploaded}
                 onStatusChange={handleStatusChange}
-                // onPaymentReceived removed
               />
             )}
           </div>
@@ -194,7 +210,6 @@ const CustomerDetail = () => {
               status={customer.status} 
               amount={customer.amount} 
               comments={customer.comments || []}
-              /* Payment fields removed - no longer in scope */
               onStatusChange={handleStatusChange}
             />
             

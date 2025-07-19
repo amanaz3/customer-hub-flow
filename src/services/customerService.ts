@@ -126,7 +126,6 @@ export class CustomerService {
       annual_turnover: customer.annual_turnover,
       jurisdiction: customer.jurisdiction,
       customer_notes: customer.customer_notes,
-      // drive_folder_id removed - no longer using Google Drive
     };
 
     console.log('Inserting customer data:', customerData);
@@ -147,6 +146,44 @@ export class CustomerService {
     // Create default documents for the new customer
     await this.createDefaultDocuments(data.id, customer.licenseType);
 
+    return data;
+  }
+
+  static async updateCustomer(customerId: string, updates: Partial<Customer>) {
+    console.log('Updating customer in database:', customerId, updates);
+    
+    // Map frontend field names to database column names
+    const updateData: any = {};
+    
+    if (updates.name !== undefined) updateData.name = updates.name;
+    if (updates.email !== undefined) updateData.email = updates.email;
+    if (updates.mobile !== undefined) updateData.mobile = updates.mobile;
+    if (updates.company !== undefined) updateData.company = updates.company;
+    if (updates.leadSource !== undefined) updateData.lead_source = updates.leadSource;
+    if (updates.licenseType !== undefined) updateData.license_type = updates.licenseType;
+    if (updates.amount !== undefined) updateData.amount = updates.amount;
+    if (updates.preferred_bank !== undefined) updateData.preferred_bank = updates.preferred_bank;
+    if (updates.annual_turnover !== undefined) updateData.annual_turnover = updates.annual_turnover;
+    if (updates.jurisdiction !== undefined) updateData.jurisdiction = updates.jurisdiction;
+    if (updates.customer_notes !== undefined) updateData.customer_notes = updates.customer_notes;
+    if (updates.status !== undefined) updateData.status = updates.status;
+    
+    // Always update the updated_at timestamp
+    updateData.updated_at = new Date().toISOString();
+
+    const { data, error } = await supabase
+      .from('customers')
+      .update(updateData)
+      .eq('id', customerId)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Error updating customer in database:', error);
+      throw error;
+    }
+
+    console.log('Customer updated successfully in database:', data);
     return data;
   }
 

@@ -35,13 +35,25 @@ export const useCustomerActions = (
     }
   };
 
-  const updateCustomer = (id: string, updates: Partial<Customer>) => {
-    console.log('Updating customer locally:', id, updates);
-    setCustomers(
-      customers.map(customer => 
-        customer.id === id ? { ...customer, ...updates } : customer
-      )
-    );
+  const updateCustomer = async (id: string, updates: Partial<Customer>) => {
+    try {
+      console.log('Updating customer:', id, updates);
+      
+      // Update in database first
+      await CustomerService.updateCustomer(id, updates);
+      
+      // Then update local state
+      setCustomers(
+        customers.map(customer => 
+          customer.id === id ? { ...customer, ...updates } : customer
+        )
+      );
+      
+      console.log('Customer updated successfully');
+    } catch (error) {
+      console.error('Error updating customer:', error);
+      throw error;
+    }
   };
 
   const deleteCustomer = (id: string) => {
@@ -134,8 +146,6 @@ export const useCustomerActions = (
     }
   };
 
-  // markPaymentReceived function removed - payment tracking out of scope
-
   const submitToAdmin = async (customerId: string, userId: string, userName: string) => {
     const customer = customers.find(c => c.id === customerId);
     if (!customer) {
@@ -187,7 +197,6 @@ export const useCustomerActions = (
     getCustomersByUserId,
     uploadDocument,
     updateCustomerStatus,
-    // markPaymentReceived removed
     submitToAdmin
   };
 };
