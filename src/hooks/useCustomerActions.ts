@@ -56,9 +56,21 @@ export const useCustomerActions = (
     }
   };
 
-  const deleteCustomer = (id: string) => {
-    console.log('Deleting customer locally:', id);
-    setCustomers(customers.filter(customer => customer.id !== id));
+  const deleteCustomer = async (id: string) => {
+    try {
+      console.log('Deleting customer:', id);
+      
+      // Delete from database first
+      await CustomerService.deleteCustomer(id);
+      
+      // Then update local state
+      setCustomers(customers.filter(customer => customer.id !== id));
+      
+      console.log('Customer deleted successfully');
+    } catch (error) {
+      console.error('Error deleting customer:', error);
+      throw error;
+    }
   };
 
   const getCustomerById = (id: string) => {

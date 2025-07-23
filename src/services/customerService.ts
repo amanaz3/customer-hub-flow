@@ -444,4 +444,53 @@ export class CustomerService {
     console.log('Customer with details and status history:', customerWithDetails);
     return customerWithDetails;
   }
+
+  static async deleteCustomer(customerId: string) {
+    console.log('Deleting customer:', customerId);
+
+    // Delete all related data first (documents, comments, status_changes)
+    const { error: documentsError } = await supabase
+      .from('documents')
+      .delete()
+      .eq('customer_id', customerId);
+
+    if (documentsError) {
+      console.error('Error deleting customer documents:', documentsError);
+      throw documentsError;
+    }
+
+    const { error: commentsError } = await supabase
+      .from('comments')
+      .delete()
+      .eq('customer_id', customerId);
+
+    if (commentsError) {
+      console.error('Error deleting customer comments:', commentsError);
+      throw commentsError;
+    }
+
+    const { error: statusError } = await supabase
+      .from('status_changes')
+      .delete()
+      .eq('customer_id', customerId);
+
+    if (statusError) {
+      console.error('Error deleting customer status history:', statusError);
+      throw statusError;
+    }
+
+    // Finally delete the customer
+    const { error } = await supabase
+      .from('customers')
+      .delete()
+      .eq('id', customerId);
+
+    if (error) {
+      console.error('Error deleting customer:', error);
+      throw error;
+    }
+
+    console.log('Customer deleted successfully:', customerId);
+    return { success: true };
+  }
 }
