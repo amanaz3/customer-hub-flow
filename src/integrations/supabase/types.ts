@@ -70,7 +70,7 @@ export type Database = {
           preferred_bank: string | null
           status: Database["public"]["Enums"]["customer_status"]
           updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           amount: number
@@ -88,7 +88,7 @@ export type Database = {
           preferred_bank?: string | null
           status?: Database["public"]["Enums"]["customer_status"]
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           amount?: number
@@ -106,7 +106,7 @@ export type Database = {
           preferred_bank?: string | null
           status?: Database["public"]["Enums"]["customer_status"]
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -214,6 +214,7 @@ export type Database = {
       profiles: {
         Row: {
           created_at: string | null
+          deleted_at: string | null
           email: string
           id: string
           is_active: boolean
@@ -223,6 +224,7 @@ export type Database = {
         }
         Insert: {
           created_at?: string | null
+          deleted_at?: string | null
           email: string
           id: string
           is_active?: boolean
@@ -232,6 +234,7 @@ export type Database = {
         }
         Update: {
           created_at?: string | null
+          deleted_at?: string | null
           email?: string
           id?: string
           is_active?: boolean
