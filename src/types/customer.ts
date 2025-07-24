@@ -1,6 +1,6 @@
 // Separated Customer and Application data for better architecture and CRM integration
 
-export interface Customer {
+export interface BaseCustomer {
   id: string;
   name: string;
   email: string;
@@ -8,6 +8,22 @@ export interface Customer {
   company: string;
   created_at?: string;
   updated_at?: string;
+}
+
+// Current Customer interface (includes application data for backward compatibility)
+export interface Customer extends BaseCustomer {
+  leadSource: string;
+  licenseType: string;
+  status: string;
+  amount: number;
+  user_id?: string;
+  preferred_bank?: string;
+  annual_turnover?: number;
+  jurisdiction?: string;
+  customer_notes?: string;
+  documents?: Document[];
+  comments?: Comment[];
+  statusHistory?: StatusChange[];
 }
 
 export interface Application {
@@ -33,7 +49,7 @@ export interface Application {
 
 export interface StatusChange {
   id: string;
-  application_id: string; // Changed from customer_id to application_id
+  customer_id: string;
   previous_status: string;
   new_status: string;
   changed_by: string;
@@ -44,7 +60,7 @@ export interface StatusChange {
 
 export interface Document {
   id: string;
-  application_id: string; // Changed from customer_id to application_id
+  customer_id: string;
   name: string;
   is_mandatory: boolean;
   is_uploaded: boolean;
@@ -57,7 +73,7 @@ export interface Document {
 
 export interface Comment {
   id: string;
-  application_id: string; // Changed from customer_id to application_id
+  customer_id: string;
   content: string;
   author: string;
   timestamp: string;
