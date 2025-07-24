@@ -39,11 +39,13 @@ interface CustomDocument {
 
 interface CustomDocumentUploadProps {
   customerId: string;
+  customerStatus?: string;
   onDocumentAdded?: () => void;
 }
 
 const CustomDocumentUpload: React.FC<CustomDocumentUploadProps> = ({
   customerId,
+  customerStatus,
   onDocumentAdded,
 }) => {
   const { toast } = useToast();
@@ -247,6 +249,8 @@ const CustomDocumentUpload: React.FC<CustomDocumentUploadProps> = ({
   const renderUploadButton = (doc: CustomDocument) => {
     const isCurrentlyUploading = uploading === doc.id;
     const progress = uploadProgress[doc.id] || 0;
+    const isCompleted = customerStatus === 'Complete' || customerStatus === 'Paid';
+    const isUploadDisabled = !!uploading || isCompleted;
 
     if (isCurrentlyUploading) {
       return (
@@ -270,6 +274,20 @@ const CustomDocumentUpload: React.FC<CustomDocumentUploadProps> = ({
       );
     }
 
+    if (isCompleted) {
+      return (
+        <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
+          <div className="flex items-center gap-2 text-gray-600">
+            <CheckCircle className="w-4 h-4" />
+            <span className="text-sm font-medium">Case Completed</span>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">
+            Document uploads are locked for completed cases
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div className="flex items-center space-x-2">
         <input
@@ -278,14 +296,14 @@ const CustomDocumentUpload: React.FC<CustomDocumentUploadProps> = ({
           className="hidden"
           accept={Object.keys(SUPPORTED_FILE_TYPES).join(',')}
           onChange={handleFileChange(doc.id)}
-          disabled={!!uploading}
+          disabled={isUploadDisabled}
         />
-        <label htmlFor={`custom-file-${doc.id}`} className="w-full cursor-pointer">
+        <label htmlFor={`custom-file-${doc.id}`} className={`w-full ${isUploadDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
           <Button 
             variant="outline" 
             size="sm" 
             className="w-full flex items-center gap-2" 
-            disabled={!!uploading}
+            disabled={isUploadDisabled}
             asChild
           >
             <span>
@@ -347,15 +365,17 @@ const CustomDocumentUpload: React.FC<CustomDocumentUploadProps> = ({
             <FileText className="w-5 h-5" />
             Additional Documents
           </CardTitle>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setShowAddForm(!showAddForm)}
-            className="flex items-center gap-2"
-          >
-            <Plus className="w-4 h-4" />
-            Add Document
-          </Button>
+          {!(customerStatus === 'Complete' || customerStatus === 'Paid') && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setShowAddForm(!showAddForm)}
+              className="flex items-center gap-2"
+            >
+              <Plus className="w-4 h-4" />
+              Add Document
+            </Button>
+          )}
         </div>
         <div className="text-sm text-muted-foreground">
           Upload additional documents with custom names

@@ -244,11 +244,13 @@ const CustomerDetail = () => {
                     documents={customer.documents || []}
                     customerId={customer.id}
                     customerLicenseType={customer.licenseType}
+                    customerStatus={customer.status}
                     onUpload={handleDocumentUpload}
                   />
                   
                   <CustomDocumentUpload 
                     customerId={customer.id}
+                    customerStatus={customer.status}
                     onDocumentAdded={refreshData}
                   />
                 </div>

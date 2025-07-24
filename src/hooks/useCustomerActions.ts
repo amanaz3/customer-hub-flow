@@ -1,6 +1,7 @@
 import { Customer, StatusChange, Document } from '@/types/customer';
 import { CustomerService } from '@/services/customerService';
 import { useAuth } from '@/contexts/SecureAuthContext';
+import { supabase } from '@/lib/supabase';
 
 export const useCustomerActions = (
   customers: Customer[],
@@ -136,21 +137,36 @@ export const useCustomerActions = (
     try {
       console.log('Updating customer status:', { customerId, status, comment, changedBy, role });
       
-      // Update status in database first to ensure persistence
-      await CustomerService.updateCustomerStatus(customerId, status, comment, changedBy, role);
+      // Use the edge function to properly track status history
+      const { data, error } = await supabase.functions.invoke('update-customer-status', {
+        body: {
+          customerId,
+          newStatus: status,
+          comment,
+          changedBy,
+          changedByRole: role
+        }
+      });
 
-      // Only update UI after successful database operation
-      setCustomers(
-        customers.map(customer => 
+      if (error) {
+        console.error('Error from update-customer-status function:', error);
+        throw new Error(error.message || 'Failed to update customer status');
+      }
+
+      console.log('Status update response:', data);
+
+      // Update local state with the updated customer data
+      if (data.customer) {
+        setCustomers(customers.map(customer => 
           customer.id === customerId 
-            ? { ...customer, status, updated_at: new Date().toISOString() }
+            ? { ...customer, status: data.customer.status, updated_at: data.customer.updated_at }
             : customer
-        )
-      );
+        ));
+      }
 
-      // Refresh data to get the complete updated state from database including status history
+      // Refresh data to get latest status history
       await refreshData();
-
+      
       console.log('Customer status updated successfully and persisted to database');
     } catch (error) {
       console.error('Error updating customer status:', error);

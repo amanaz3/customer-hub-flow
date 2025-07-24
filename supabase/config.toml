@@ -56,3 +56,6 @@ verify_jwt = true
 
 [functions.reset-user-password]
 verify_jwt = true
+
+[functions.update-customer-status]
+verify_jwt = true

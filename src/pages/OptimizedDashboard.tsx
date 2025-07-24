@@ -58,12 +58,17 @@ const OptimizedDashboard = () => {
     });
   }, [customers, searchTerm, statusFilter, refreshKey]);
 
-  // Calculate statistics from real data
+  // Calculate statistics from real data with role-based filtering
   const stats = useMemo(() => {
-    const totalCustomers = customers.length;
-    const completedCases = customers.filter(c => c.status === 'Complete' || c.status === 'Paid').length;
-    const pendingCases = customers.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status)).length;
-    const totalRevenue = customers
+    // For non-admin users, only show their own data
+    const relevantCustomers = isAdmin ? customers : customers.filter(c => c.user_id === user?.id);
+    
+    const totalCustomers = relevantCustomers.length;
+    const completedCases = relevantCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid').length;
+    const pendingCases = relevantCustomers.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status)).length;
+    
+    // Revenue calculation: for non-admin users, only include their submitted cases
+    const totalRevenue = relevantCustomers
       .filter(c => c.status === 'Complete' || c.status === 'Paid')
       .reduce((sum, c) => sum + c.amount, 0);
 
@@ -73,7 +78,7 @@ const OptimizedDashboard = () => {
       pendingCases,
       totalRevenue
     };
-  }, [customers, refreshKey]);
+  }, [customers, refreshKey, isAdmin, user?.id]);
 
   const handleDataRefresh = () => {
     setRefreshKey(prev => prev + 1);

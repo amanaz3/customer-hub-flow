@@ -18,6 +18,7 @@ interface CategorizedDocumentUploadProps {
   documents: Document[];
   customerId: string;
   customerLicenseType: string;
+  customerStatus?: string;
   onUpload: (documentId: string, filePath: string) => void;
 }
 
@@ -25,6 +26,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
   documents,
   customerId,
   customerLicenseType,
+  customerStatus,
   onUpload,
 }) => {
   const { toast } = useToast();
@@ -234,57 +236,71 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
           </div>
         ) : (
           <div className="space-y-2">
-            {uploading === doc.id && (
-              <div className="space-y-1">
-                <div className="flex justify-between text-xs">
-                  <span>Uploading to Supabase Storage...</span>
-                  <span>{uploadProgress[doc.id] || 0}%</span>
+            {customerStatus === 'Complete' || customerStatus === 'Paid' ? (
+              <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
+                <div className="flex items-center gap-2 text-gray-600">
+                  <CheckCircle className="w-4 h-4" />
+                  <span className="text-sm font-medium">Case Completed</span>
                 </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div 
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
-                    style={{ width: `${uploadProgress[doc.id] || 0}%` }}
-                  />
-                </div>
+                <p className="text-xs text-gray-500 mt-1">
+                  Document uploads are locked for completed cases
+                </p>
               </div>
+            ) : (
+              <>
+                {uploading === doc.id && (
+                  <div className="space-y-1">
+                    <div className="flex justify-between text-xs">
+                      <span>Uploading to Supabase Storage...</span>
+                      <span>{uploadProgress[doc.id] || 0}%</span>
+                    </div>
+                    <div className="w-full bg-gray-200 rounded-full h-2">
+                      <div 
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-300" 
+                        style={{ width: `${uploadProgress[doc.id] || 0}%` }}
+                      />
+                    </div>
+                  </div>
+                )}
+                
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="file"
+                    id={`file-${doc.id}`}
+                    className="hidden"
+                    accept={Object.keys(SUPPORTED_FILE_TYPES).join(',')}
+                    onChange={handleFileChange(doc.id)}
+                    disabled={uploading === doc.id}
+                  />
+                  <label
+                    htmlFor={`file-${doc.id}`}
+                    className="w-full"
+                  >
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      className="w-full flex items-center gap-2" 
+                      disabled={uploading === doc.id}
+                      asChild
+                    >
+                      <span>
+                        {uploading === doc.id ? (
+                          <>
+                            <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current" />
+                            Uploading...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="w-3 h-3" />
+                            Upload to Storage
+                          </>
+                        )}
+                      </span>
+                    </Button>
+                  </label>
+                </div>
+              </>
             )}
-            
-            <div className="flex items-center space-x-2">
-              <input
-                type="file"
-                id={`file-${doc.id}`}
-                className="hidden"
-                accept={Object.keys(SUPPORTED_FILE_TYPES).join(',')}
-                onChange={handleFileChange(doc.id)}
-                disabled={uploading === doc.id}
-              />
-              <label
-                htmlFor={`file-${doc.id}`}
-                className="w-full"
-              >
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  className="w-full flex items-center gap-2" 
-                  disabled={uploading === doc.id}
-                  asChild
-                >
-                  <span>
-                    {uploading === doc.id ? (
-                      <>
-                        <div className="animate-spin rounded-full h-3 w-3 border-b-2 border-current" />
-                        Uploading...
-                      </>
-                    ) : (
-                      <>
-                        <Upload className="w-3 h-3" />
-                        Upload to Storage
-                      </>
-                    )}
-                  </span>
-                </Button>
-              </label>
-            </div>
           </div>
         )}
       </div>

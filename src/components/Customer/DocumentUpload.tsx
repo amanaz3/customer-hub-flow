@@ -33,12 +33,14 @@ interface DocumentUploadProps {
   documents: Document[];
   customerId: string;
   onUpload: (documentId: string, filePath: string) => void;
+  customerStatus?: string;
 }
 
 const DocumentUpload: React.FC<DocumentUploadProps> = ({
   documents,
   customerId,
   onUpload,
+  customerStatus,
 }) => {
   const { toast } = useToast();
   const { handleError } = useErrorHandler();
@@ -216,6 +218,8 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   const renderUploadButton = (doc: Document) => {
     const isCurrentlyUploading = uploading === doc.id;
     const progress = uploadProgress[doc.id] || 0;
+    const isCompleted = customerStatus === 'Complete' || customerStatus === 'Paid';
+    const isUploadDisabled = !!uploading || isCompleted;
 
     if (isCurrentlyUploading) {
       return (
@@ -239,6 +243,20 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
       );
     }
 
+    if (isCompleted) {
+      return (
+        <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
+          <div className="flex items-center gap-2 text-gray-600">
+            <CheckCircle className="w-4 h-4" />
+            <span className="text-sm font-medium">Case Completed</span>
+          </div>
+          <p className="text-xs text-gray-500 mt-1">
+            Document uploads are locked for completed cases
+          </p>
+        </div>
+      );
+    }
+
     return (
       <div className="flex items-center space-x-2">
         <input
@@ -247,14 +265,14 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           className="hidden"
           accept={Object.keys(SUPPORTED_FILE_TYPES).join(',')}
           onChange={handleFileChange(doc.id)}
-          disabled={!!uploading}
+          disabled={isUploadDisabled}
         />
-        <label htmlFor={`file-${doc.id}`} className="w-full cursor-pointer">
+        <label htmlFor={`file-${doc.id}`} className={`w-full ${isUploadDisabled ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
           <Button 
             variant="outline" 
             size="sm" 
             className="w-full flex items-center gap-2" 
-            disabled={!!uploading}
+            disabled={isUploadDisabled}
             asChild
           >
             <span>
