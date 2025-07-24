@@ -1,7 +1,9 @@
 
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { formatCurrency } from '@/lib/utils';
+import { useAuth } from '@/contexts/SecureAuthContext';
 import { 
   Users, 
   FileText, 
@@ -22,19 +24,21 @@ interface DashboardStatsProps {
 }
 
 const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
+  const { isAdmin } = useAuth();
   const completionRate = stats.totalCustomers > 0 ? (stats.completedCases / stats.totalCustomers) * 100 : 0;
   
   const statCards = [
     {
-      title: "Total Customers",
+      title: isAdmin ? "Total Applications" : "My Applications",
       value: stats.totalCustomers,
       icon: Users,
-      description: "Active customer accounts",
+      description: isAdmin ? "System-wide applications" : "Applications you submitted",
       color: "text-blue-600",
       bgColor: "bg-blue-50 dark:bg-blue-950/50",
       borderColor: "border-blue-200 dark:border-blue-800",
       trend: null,
-      subtitle: "Total accounts"
+      subtitle: isAdmin ? "All users" : "Personal",
+      badge: isAdmin ? "Admin View" : "User View"
     },
     {
       title: "Completed Cases",
@@ -45,29 +49,32 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
       bgColor: "bg-green-50 dark:bg-green-950/50",
       borderColor: "border-green-200 dark:border-green-800",
       trend: stats.completedCases > 0 ? "up" : null,
-      subtitle: "Successfully processed"
+      subtitle: "Successfully processed",
+      badge: null
     },
     {
-      title: "Pending Cases",
+      title: "Active Cases",
       value: stats.pendingCases,
       icon: Clock,
-      description: "Awaiting processing",
+      description: "Currently in progress",
       color: "text-orange-600",
       bgColor: "bg-orange-50 dark:bg-orange-950/50",
       borderColor: "border-orange-200 dark:border-orange-800",
       trend: stats.pendingCases > 5 ? "attention" : null,
-      subtitle: "In progress"
+      subtitle: "In progress",
+      badge: null
     },
     {
-      title: "Total Revenue",
+      title: isAdmin ? "Total Revenue" : "My Revenue",
       value: formatCurrency(stats.totalRevenue),
       icon: DollarSign,
-      description: "From completed cases",
+      description: isAdmin ? "From all completed cases" : "From your completed cases only",
       color: "text-emerald-600",
       bgColor: "bg-emerald-50 dark:bg-emerald-950/50",
       borderColor: "border-emerald-200 dark:border-emerald-800",
       trend: stats.totalRevenue > 0 ? "up" : null,
-      subtitle: "Revenue generated"
+      subtitle: "Revenue generated",
+      badge: isAdmin ? "All Users" : "Personal"
     }
   ];
 
@@ -80,9 +87,16 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
         >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <div className="space-y-1">
-              <CardTitle className="text-sm font-medium text-muted-foreground">
-                {stat.title}
-              </CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {stat.title}
+                </CardTitle>
+                {stat.badge && (
+                  <Badge variant="secondary" className="text-xs">
+                    {stat.badge}
+                  </Badge>
+                )}
+              </div>
               <p className="text-xs text-muted-foreground/70">
                 {stat.subtitle}
               </p>
