@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Customer } from '@/types/customer';
 import { useAuth } from '@/contexts/SecureAuthContext';
+import { supabase } from '@/lib/supabase';
 import { Search, Filter, X, Users, User } from 'lucide-react';
 
 interface AdminFiltersProps {
@@ -19,6 +20,33 @@ const AdminFilters: React.FC<AdminFiltersProps> = ({ customers, onFilteredCustom
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [agentFilter, setAgentFilter] = useState<string>('all');
   const [showMySubmissions, setShowMySubmissions] = useState(false);
+  const [userProfiles, setUserProfiles] = useState<Record<string, { name: string; email: string }>>({});
+
+  // Fetch user profiles for agent names
+  useEffect(() => {
+    const fetchUserProfiles = async () => {
+      try {
+        const { data: profiles, error } = await supabase
+          .from('profiles')
+          .select('id, name, email');
+        
+        if (error) throw error;
+        
+        const profileMap = profiles.reduce((acc, profile) => {
+          acc[profile.id] = { name: profile.name, email: profile.email };
+          return acc;
+        }, {} as Record<string, { name: string; email: string }>);
+        
+        setUserProfiles(profileMap);
+      } catch (error) {
+        console.error('Error fetching user profiles:', error);
+      }
+    };
+
+    if (isAdmin) {
+      fetchUserProfiles();
+    }
+  }, [isAdmin]);
 
   const applyFilters = () => {
     let filtered = [...customers];
@@ -141,11 +169,15 @@ const AdminFilters: React.FC<AdminFiltersProps> = ({ customers, onFilteredCustom
                 <SelectContent>
                   <SelectItem value="all">All Agents</SelectItem>
                   <SelectItem value="system">System</SelectItem>
-                  {getUniqueAgents().map(agentId => (
-                    <SelectItem key={agentId} value={agentId}>
-                      Agent {agentId?.substring(0, 8)}...
-                    </SelectItem>
-                  ))}
+                  {getUniqueAgents().map(agentId => {
+                    const profile = userProfiles[agentId];
+                    const displayName = profile ? profile.name : `User ${agentId?.substring(0, 8)}...`;
+                    return (
+                      <SelectItem key={agentId} value={agentId}>
+                        {displayName}
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
@@ -203,7 +235,8 @@ const AdminFilters: React.FC<AdminFiltersProps> = ({ customers, onFilteredCustom
               
               {agentFilter !== 'all' && (
                 <Badge variant="outline" className="gap-1">
-                  Agent: {agentFilter === 'system' ? 'System' : `${agentFilter?.substring(0, 8)}...`}
+                  Agent: {agentFilter === 'system' ? 'System' : 
+                    userProfiles[agentFilter]?.name || `User ${agentFilter?.substring(0, 8)}...`}
                   <X 
                     className="w-3 h-3 cursor-pointer" 
                     onClick={() => setAgentFilter('all')}
