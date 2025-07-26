@@ -48,7 +48,9 @@ const formSchema = z.object({
     .max(1000000000, "Annual turnover cannot exceed 1,000,000,000"),
   jurisdiction: z.string().optional(),
   any_suitable_bank: z.boolean().default(false),
-  preferred_bank: z.string().optional(),
+  bank_preference_1: z.string().optional(),
+  bank_preference_2: z.string().optional(),
+  bank_preference_3: z.string().optional(),
   customer_notes: z.string().optional(),
 });
 
@@ -84,7 +86,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       annual_turnover: undefined,
       jurisdiction: '',
       any_suitable_bank: false,
-      preferred_bank: '',
+      bank_preference_1: '',
+      bank_preference_2: '',
+      bank_preference_3: '',
       customer_notes: '',
       ...initialData
     },
@@ -225,7 +229,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         lead_source: data.lead_source,
         annual_turnover: data.annual_turnover,
         jurisdiction: data.jurisdiction ? sanitizeInput(data.jurisdiction.trim()) : null,
-        preferred_bank: data.any_suitable_bank ? null : (data.preferred_bank ? sanitizeInput(data.preferred_bank.trim()) : null),
+        preferred_bank: data.any_suitable_bank ? 'Any Suitable Bank' : [
+          data.bank_preference_1?.trim(),
+          data.bank_preference_2?.trim(), 
+          data.bank_preference_3?.trim()
+        ].filter(Boolean).join(', ') || null,
         customer_notes: data.customer_notes ? sanitizeInput(data.customer_notes.trim()) : null,
         user_id: user.id,
         status: 'Draft' as const
@@ -548,14 +556,36 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </div>
 
                   {!watchAnySuitableBank && (
-                    <div className="space-y-2">
-                      <Label htmlFor="preferred_bank">Preferred Bank</Label>
-                      <Input
-                        id="preferred_bank"
-                        {...form.register('preferred_bank')}
-                        disabled={isSubmitting}
-                        placeholder="Enter preferred bank name"
-                      />
+                    <div className="space-y-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="bank_preference_1">First Preference</Label>
+                        <Input
+                          id="bank_preference_1"
+                          {...form.register('bank_preference_1')}
+                          placeholder="Enter first preference bank"
+                          disabled={isSubmitting}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="bank_preference_2">Second Preference</Label>
+                        <Input
+                          id="bank_preference_2"
+                          {...form.register('bank_preference_2')}
+                          placeholder="Enter second preference bank"
+                          disabled={isSubmitting}
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <Label htmlFor="bank_preference_3">Third Preference</Label>
+                        <Input
+                          id="bank_preference_3"
+                          {...form.register('bank_preference_3')}
+                          placeholder="Enter third preference bank"
+                          disabled={isSubmitting}
+                        />
+                      </div>
                     </div>
                   )}
                 </div>
