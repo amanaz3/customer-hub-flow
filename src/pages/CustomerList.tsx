@@ -25,7 +25,9 @@ const CustomerList = () => {
     
     // Filter customers by status
     const active = baseCustomers.filter(customer => 
-      customer.status !== 'Complete'
+      customer.status !== 'Complete' && 
+      customer.status !== 'Paid' && 
+      customer.status !== 'Rejected'
     );
     const completed = baseCustomers.filter(customer => 
       customer.status === 'Complete'
