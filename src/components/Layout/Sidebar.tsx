@@ -7,6 +7,7 @@ import {
   Users,
   UserPlus,
   CheckSquare,
+  XCircle,
   UserCog,
   Settings,
   FileText,
@@ -50,6 +51,12 @@ const Sidebar: React.FC = () => {
       roles: ['admin', 'user'],
     },
     {
+      name: 'Rejected Cases',
+      path: '/rejected',
+      icon: <XCircle className="h-5 w-5" />,
+      roles: ['admin', 'user'],
+    },
+    {
       name: 'User Management',
       path: '/users',
       icon: <UserCog className="h-5 w-5" />,
@@ -71,7 +78,7 @@ const Sidebar: React.FC = () => {
 
   const isActiveRoute = (path: string) => {
     // Exact match for most routes
-    if (path === '/completed' || path === '/settings' || path === '/logs' || path === '/users' || path === '/dashboard') {
+    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/logs' || path === '/users' || path === '/dashboard') {
       return location.pathname === path;
     }
     

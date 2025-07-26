@@ -17,6 +17,7 @@ import {
   LazyCustomerDetail,
   LazySecureUserManagement,
   LazyCompletedCases,
+  LazyRejectedCases,
   LazyLogs,
   LazySettings,
   LazyNotFound,
@@ -119,6 +120,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Completed Cases">
                           <LazyCompletedCases />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/rejected" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Rejected Cases">
+                          <LazyRejectedCases />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
