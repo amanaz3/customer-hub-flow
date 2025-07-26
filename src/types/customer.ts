@@ -21,6 +21,7 @@ export interface Customer extends BaseCustomer {
   annual_turnover?: number;
   jurisdiction?: string;
   customer_notes?: string;
+  document_checklist_complete?: boolean;
   documents?: Document[];
   comments?: Comment[];
   statusHistory?: StatusChange[];

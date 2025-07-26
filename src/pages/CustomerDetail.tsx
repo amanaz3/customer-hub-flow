@@ -6,6 +6,7 @@ import CustomerStatusCard from '@/components/Customer/CustomerStatusCard';
 import CustomerDetailsForm from '@/components/Customer/CustomerDetailsForm';
 import CustomerActionButtons from '@/components/Customer/CustomerActionButtons';
 import StatusHistoryCard from '@/components/Customer/StatusHistoryCard';
+import DocumentCompleteCheckbox from '@/components/Customer/DocumentCompleteCheckbox';
 import { useCustomer } from '@/contexts/CustomerContext';
 import { Status } from '@/types/customer';
 import { useAuth } from '@/contexts/SecureAuthContext';
@@ -32,6 +33,10 @@ const CustomerDetail = () => {
   } = useCustomer();
   
   const customer = getCustomerById(id || '');
+  
+  const [documentChecklistComplete, setDocumentChecklistComplete] = useState(
+    customer?.document_checklist_complete || false
+  );
   
   if (!customer) {
     return (
@@ -89,6 +94,36 @@ const CustomerDetail = () => {
       toast({
         title: "Error",
         description: "Failed to update customer information. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDocumentChecklistChange = async (checked: boolean) => {
+    if (!isAdmin) return;
+    
+    try {
+      setDocumentChecklistComplete(checked);
+      
+      // Update customer record with document checklist status
+      await updateCustomer(customer.id, {
+        ...customer,
+        document_checklist_complete: checked
+      });
+      
+      toast({
+        title: checked ? "Document Checklist Marked Complete" : "Document Checklist Unmarked",
+        description: checked ? 
+          "All documents have been confirmed as reviewed and complete." :
+          "Document checklist status has been updated.",
+      });
+      
+    } catch (error) {
+      console.error('Error updating document checklist:', error);
+      setDocumentChecklistComplete(!checked); // Revert on error
+      toast({
+        title: "Error",
+        description: "Failed to update document checklist status.",
         variant: "destructive",
       });
     }
@@ -172,7 +207,7 @@ const CustomerDetail = () => {
                 status={customer.status}
                 isAdmin={isAdmin}
                 isUserOwner={isUserOwner}
-                mandatoryDocumentsUploaded={mandatoryDocumentsUploaded}
+                mandatoryDocumentsUploaded={mandatoryDocumentsUploaded && documentChecklistComplete}
                 onStatusChange={handleStatusChange}
               />
             )}
@@ -255,10 +290,30 @@ const CustomerDetail = () => {
                   />
                 </div>
                 
+                {/* Admin Document Checklist */}
+                {isAdmin && (
+                  <div className="mt-6">
+                    <DocumentCompleteCheckbox
+                      isChecked={documentChecklistComplete}
+                      onCheckedChange={handleDocumentChecklistChange}
+                      documents={customer.documents || []}
+                      disabled={customer.status === 'Complete' || customer.status === 'Paid'}
+                    />
+                  </div>
+                )}
+                
                 {!mandatoryDocumentsUploaded && (
                   <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                     <p className="text-yellow-800 text-sm">
                       ⚠️ All mandatory documents must be uploaded before the application can be submitted.
+                    </p>
+                  </div>
+                )}
+                
+                {isAdmin && mandatoryDocumentsUploaded && !documentChecklistComplete && (
+                  <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                    <p className="text-blue-800 text-sm">
+                      📋 Please review all documents and confirm completion using the checklist above before advancing the application status.
                     </p>
                   </div>
                 )}

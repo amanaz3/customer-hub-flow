@@ -1,8 +1,10 @@
 
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Customer } from '@/types/customer';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useCustomers } from '@/contexts/CustomerContext';
+import AdminFilters from '@/components/Admin/AdminFilters';
 import OptimizedCustomerTable from '@/components/Customer/OptimizedCustomerTable';
 import LazyWrapper from '@/components/Performance/LazyWrapper';
 import { Button } from '@/components/ui/button';
@@ -14,26 +16,27 @@ const CustomerList = () => {
   const { user, isAdmin } = useAuth();
   const { customers, getCustomersByUserId } = useCustomers();
   const navigate = useNavigate();
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
 
   const { userCustomers, activeCustomers, completedCustomers } = useMemo(() => {
     // For regular users, show only their customers
-    // For admins, show all customers
-    const filtered = isAdmin ? customers : getCustomersByUserId(user?.id || '');
+    // For admins, show filtered customers or all customers
+    const baseCustomers = isAdmin ? (filteredCustomers.length > 0 ? filteredCustomers : customers) : getCustomersByUserId(user?.id || '');
     
     // Filter customers by status
-    const active = filtered.filter(customer => 
+    const active = baseCustomers.filter(customer => 
       customer.status !== 'Complete'
     );
-    const completed = filtered.filter(customer => 
+    const completed = baseCustomers.filter(customer => 
       customer.status === 'Complete'
     );
 
     return {
-      userCustomers: filtered,
+      userCustomers: baseCustomers,
       activeCustomers: active,
       completedCustomers: completed
     };
-  }, [customers, isAdmin, user?.id, getCustomersByUserId]);
+  }, [customers, filteredCustomers, isAdmin, user?.id, getCustomersByUserId]);
 
   const handleNewApplication = () => navigate('/customers/new');
 
@@ -59,6 +62,14 @@ const CustomerList = () => {
             New Application
           </Button>
         </div>
+        
+        {/* Admin Filters */}
+        {isAdmin && (
+          <AdminFilters
+            customers={customers}
+            onFilteredCustomers={setFilteredCustomers}
+          />
+        )}
 
         <LazyWrapper>
           <Tabs defaultValue="active">

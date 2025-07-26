@@ -60,6 +60,7 @@ export type Database = {
           company: string
           created_at: string | null
           customer_notes: string | null
+          document_checklist_complete: boolean
           email: string
           id: string
           jurisdiction: string | null
@@ -78,6 +79,7 @@ export type Database = {
           company: string
           created_at?: string | null
           customer_notes?: string | null
+          document_checklist_complete?: boolean
           email: string
           id?: string
           jurisdiction?: string | null
@@ -96,6 +98,7 @@ export type Database = {
           company?: string
           created_at?: string | null
           customer_notes?: string | null
+          document_checklist_complete?: boolean
           email?: string
           id?: string
           jurisdiction?: string | null
