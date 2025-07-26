@@ -162,54 +162,59 @@ const StatusHistoryCard: React.FC<StatusHistoryCardProps> = ({
       <CardContent>
         <div className="space-y-4 max-h-96 overflow-y-auto">
           {enrichedHistory.length > 0 ? (
-            enrichedHistory.map((change, index) => (
-              <div key={change.id} className="border-l-2 border-gray-200 pl-4 pb-4 last:pb-0 relative">
-                {/* Timeline dot */}
-                <div className="absolute -left-2 top-2 w-4 h-4 bg-white border-2 border-gray-300 rounded-full"></div>
-                
-                <div className="space-y-3">
-                  {/* Status and timestamp header */}
-                  <div className="flex items-center justify-between">
-                    <Badge className={`${getStatusColor(change.new_status)} text-white font-medium`}>
-                      {change.new_status}
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">
-                      {formatDate(change.created_at)}
-                    </span>
-                  </div>
+            <div className="relative">
+              {/* Main timeline line */}
+              <div className="absolute left-2 top-0 bottom-0 w-0.5 bg-gradient-to-b from-blue-500 via-gray-300 to-gray-200"></div>
+              
+              {enrichedHistory.map((change, index) => (
+                <div key={change.id} className="relative pb-6 last:pb-0">
+                  {/* Timeline dot */}
+                  <div className={`absolute left-0 top-2 w-4 h-4 rounded-full border-2 bg-white z-10 ${getStatusColor(change.new_status)} border-white shadow-sm`}></div>
                   
-                  {/* User and role information */}
-                  <div className="flex items-center gap-2 text-sm">
-                    <span className="font-medium text-muted-foreground">Changed by:</span>
-                    <span className="font-medium">
-                      {change.user_name || change.changed_by}
-                    </span>
-                    <Badge 
-                      variant="outline" 
-                      className={`${getRoleColor(change.changed_by_role)} flex items-center gap-1`}
-                    >
-                      {getRoleIcon(change.changed_by_role)}
-                      {change.changed_by_role}
-                    </Badge>
-                  </div>
-                  
-                  {/* Previous status indicator */}
-                  {change.previous_status && change.previous_status !== change.new_status && (
-                    <div className="text-xs text-muted-foreground">
-                      <span className="font-medium">From:</span> {change.previous_status}
+                  <div className="ml-8 space-y-3">
+                    {/* Status and timestamp header */}
+                    <div className="flex items-center justify-between">
+                      <Badge className={`${getStatusColor(change.new_status)} text-white font-medium`}>
+                        {change.new_status}
+                      </Badge>
+                      <span className="text-xs text-muted-foreground">
+                        {formatDate(change.created_at)}
+                      </span>
                     </div>
-                  )}
-                  
-                  {/* Comment */}
-                  {change.comment && (
-                    <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
-                      <div className="text-xs font-medium text-muted-foreground mb-1">Comment:</div>
-                      <div className="text-sm text-gray-700">{change.comment}</div>
+                    
+                    {/* User and role information */}
+                    <div className="flex items-center gap-2 text-sm">
+                      <span className="font-medium text-muted-foreground">Changed by:</span>
+                      <span className="font-medium">
+                        {change.user_name || change.changed_by}
+                      </span>
+                      <Badge 
+                        variant="outline" 
+                        className={`${getRoleColor(change.changed_by_role)} flex items-center gap-1`}
+                      >
+                        {getRoleIcon(change.changed_by_role)}
+                        {change.changed_by_role}
+                      </Badge>
                     </div>
-                  )}
+                    
+                    {/* Previous status indicator */}
+                    {change.previous_status && change.previous_status !== change.new_status && (
+                      <div className="text-xs text-muted-foreground bg-gray-50 p-2 rounded">
+                        <span className="font-medium">Previous Status:</span> {change.previous_status} → {change.new_status}
+                      </div>
+                    )}
+                    
+                    {/* Comment */}
+                    {change.comment && (
+                      <div className="bg-gray-50 border border-gray-200 rounded-md p-3">
+                        <div className="text-xs font-medium text-muted-foreground mb-1">Comment:</div>
+                        <div className="text-sm text-gray-700">{change.comment}</div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
-            ))
+              ))
+            </div>
           ) : (
             <div className="text-center py-8">
               <Clock className="w-8 h-8 text-muted-foreground mx-auto mb-2" />

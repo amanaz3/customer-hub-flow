@@ -274,21 +274,32 @@ const CustomerDetail = () => {
               </TabsContent>
               
               <TabsContent value="documents">
-                <div className="space-y-6">
-                  <CategorizedDocumentUpload 
-                    documents={customer.documents || []}
-                    customerId={customer.id}
-                    customerLicenseType={customer.licenseType}
-                    customerStatus={customer.status}
-                    onUpload={handleDocumentUpload}
-                  />
-                  
-                  <CustomDocumentUpload 
-                    customerId={customer.id}
-                    customerStatus={customer.status}
-                    onDocumentAdded={refreshData}
-                  />
-                </div>
+                {customer.status === 'Draft' && customer.name === '' ? (
+                  <Card>
+                    <CardContent className="pt-6">
+                      <div className="text-center py-8 text-muted-foreground">
+                        <p className="text-lg font-medium">Save Application First</p>
+                        <p className="text-sm mt-2">Complete and save the application details before uploading documents.</p>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <div className="space-y-6">
+                    <CategorizedDocumentUpload 
+                      documents={customer.documents || []}
+                      customerId={customer.id}
+                      customerLicenseType={customer.licenseType}
+                      customerStatus={customer.status}
+                      onUpload={handleDocumentUpload}
+                    />
+                    
+                    <CustomDocumentUpload 
+                      customerId={customer.id}
+                      customerStatus={customer.status}
+                      onDocumentAdded={refreshData}
+                    />
+                  </div>
+                )}
                 
                 {/* Admin Document Checklist */}
                 {isAdmin && (

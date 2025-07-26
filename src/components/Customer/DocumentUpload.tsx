@@ -331,27 +331,18 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
               variant="outline" 
               size="sm"
               onClick={() => handleViewFile(doc)}
-              className="px-2 h-8 w-8 flex items-center justify-center"
-              title="View file from Supabase Storage"
+              className="px-3 h-8 flex items-center gap-1"
+              title="View & Download from Supabase Storage"
             >
               <Eye className="w-3 h-3" />
-            </Button>
-            
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => handleDownloadFile(doc)}
-              className="px-2 h-8 w-8 flex items-center justify-center"
-              title="Download file from Supabase Storage"
-            >
-              <Download className="w-3 h-3" />
+              <span className="text-xs">View</span>
             </Button>
           </div>
         </div>
         
         <div className="text-xs text-gray-500 flex items-center gap-1">
           <ExternalLink className="w-3 h-3" />
-          Stored in Supabase Storage
+          Stored in Supabase Storage • Click View to access file
         </div>
       </div>
     );

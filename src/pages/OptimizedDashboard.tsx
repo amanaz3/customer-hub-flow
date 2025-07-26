@@ -164,9 +164,9 @@ const OptimizedDashboard = () => {
                           <Users className="h-5 w-5 text-primary" />
                         </div>
                         <div className="flex-1">
-                          <span className="text-xl font-semibold">Customer Applications</span>
+                          <span className="text-xl font-semibold">Application Management</span>
                           <p className="text-sm text-muted-foreground font-normal mt-1">
-                            Showing {filteredCustomers.length} of {customers.length} customers
+                            Showing {filteredCustomers.length} priority applications requiring attention
                           </p>
                         </div>
                       </CardTitle>
@@ -208,9 +208,9 @@ const OptimizedDashboard = () => {
                       <Users className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <span className="text-xl font-semibold">My Customer Applications</span>
+                      <span className="text-xl font-semibold">My Applications</span>
                       <p className="text-sm text-muted-foreground font-normal mt-1">
-                        Showing {filteredCustomers.length} of {customers.length} customers
+                        Showing {filteredCustomers.length} applications requiring your attention
                       </p>
                     </div>
                   </CardTitle>

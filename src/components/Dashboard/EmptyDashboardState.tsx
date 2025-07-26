@@ -37,7 +37,7 @@ const EmptyDashboardState: React.FC<EmptyDashboardStateProps> = ({ onCreateCusto
                   Welcome to Your Dashboard
                 </h3>
                 <p className="text-muted-foreground text-lg leading-relaxed max-w-md mx-auto">
-                  Ready to get started? Create your first customer application and watch your business grow.
+                  Ready to get started? Create your first license application and begin the approval process.
                 </p>
               </div>
 
