@@ -25,7 +25,6 @@ import {
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
-import { setupGlobalErrorHandling } from '@/hooks/useErrorTracking';
 
 function App() {
   useEffect(() => {
@@ -34,9 +33,6 @@ function App() {
     PerformanceMonitor.init();
     PerformanceMonitor.trackPageLoad();
     FeatureAnalytics.init();
-
-    // Initialize comprehensive error tracking
-    setupGlobalErrorHandling();
 
     // Track app initialization
     FeatureAnalytics.trackUserEngagement('session_start');
