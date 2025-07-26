@@ -180,7 +180,7 @@ const CustomerDetail = () => {
   const uploadedDocumentsCount = customer.documents ? customer.documents.filter(doc => doc.is_uploaded).length : 0;
   const isEditable = !['Paid', 'Complete'].includes(customer.status);
   const isUserOwner = customer.user_id === user?.id;
-  const canSubmitApplication = (customer.status === 'Draft' || customer.status === 'Returned') && isUserOwner && mandatoryDocumentsUploaded;
+  const canSubmitApplication = (customer.status === 'Draft' || customer.status === 'Returned' || customer.status === 'Need more info' || customer.status === 'Rejected') && isUserOwner && mandatoryDocumentsUploaded;
 
   return (
     <div className="space-y-6">
