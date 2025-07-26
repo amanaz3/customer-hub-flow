@@ -146,6 +146,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signOut();
       
       if (!error) {
+        // Clear any cached session data and redirect to login
+        window.location.href = '/login';
         FeatureAnalytics.trackUserAction('logout_success');
         toast({
           title: 'Signed Out',

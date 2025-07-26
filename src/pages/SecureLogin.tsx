@@ -13,7 +13,8 @@ const SecureLogin = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Always redirect to dashboard for consistent user experience
+  // Always redirect to dashboard for security and consistent user experience
+  // This prevents users from landing on previous user's pages and provides clean UX
   const from = '/dashboard';
 
   useEffect(() => {
