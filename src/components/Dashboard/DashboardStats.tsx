@@ -21,21 +21,35 @@ interface DashboardStatsProps {
     pendingCases: number;
     totalRevenue: number;
   };
-  revenueMonth?: number;
+  selectedMonths?: number[];
   revenueYear?: number;
 }
 
-const DashboardStats: React.FC<DashboardStatsProps> = ({ stats, revenueMonth, revenueYear }) => {
+const DashboardStats: React.FC<DashboardStatsProps> = ({ stats, selectedMonths, revenueYear }) => {
   const { isAdmin } = useAuth();
   const completionRate = stats.totalCustomers > 0 ? (stats.completedCases / stats.totalCustomers) * 100 : 0;
   
-  // Generate month name for admin revenue description
-  const monthName = revenueMonth ? new Date(2000, revenueMonth - 1).toLocaleString('default', { month: 'long' }) : '';
-  const revenueDescription = isAdmin && revenueMonth && revenueYear 
-    ? `${monthName} ${revenueYear} completed cases`
-    : isAdmin 
-    ? "From all completed cases" 
-    : "From your completed cases only";
+  // Generate description for admin revenue based on selected months
+  const getRevenueDescription = () => {
+    if (!isAdmin) return "From your completed cases only";
+    
+    if (!selectedMonths || selectedMonths.length === 0) {
+      return "No months selected";
+    }
+    
+    if (selectedMonths.length === 1) {
+      const monthName = new Date(2000, selectedMonths[0] - 1).toLocaleString('default', { month: 'long' });
+      return `${monthName} ${revenueYear} completed cases`;
+    }
+    
+    if (selectedMonths.length === 12) {
+      return `All months of ${revenueYear}`;
+    }
+    
+    return `${selectedMonths.length} months of ${revenueYear}`;
+  };
+  
+  const revenueDescription = getRevenueDescription();
   
   const statCards = [
     {
