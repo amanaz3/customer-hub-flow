@@ -3,10 +3,9 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useCustomer } from '@/contexts/CustomerContext';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import CustomerNewHeader from '@/components/Customer/CustomerNewHeader';
-import ComprehensiveCustomerForm from '@/components/Customer/ComprehensiveCustomerForm';
+import EnhancedCustomerForm from '@/components/Customer/EnhancedCustomerForm';
 
 const CustomerNew = () => {
   const { user } = useAuth();
@@ -34,7 +33,7 @@ const CustomerNew = () => {
           description="Create a new customer application" 
         />
         
-        <ComprehensiveCustomerForm onSuccess={handleSuccess} />
+        <EnhancedCustomerForm onSuccess={handleSuccess} />
       </div>
     );
 };

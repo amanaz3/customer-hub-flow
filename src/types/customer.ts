@@ -30,8 +30,14 @@ export interface Customer extends BaseCustomer {
 export interface Application {
   id: string;
   customer_id: string;
+  name: string;
+  email: string;
+  mobile: string;
+  company: string;
   leadSource: string;
   licenseType: string;
+  license_type: string; // Database field name
+  lead_source: string; // Database field name
   status: string;
   amount: number;
   user_id?: string;
