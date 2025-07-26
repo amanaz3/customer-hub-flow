@@ -21,11 +21,21 @@ interface DashboardStatsProps {
     pendingCases: number;
     totalRevenue: number;
   };
+  revenueMonth?: number;
+  revenueYear?: number;
 }
 
-const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
+const DashboardStats: React.FC<DashboardStatsProps> = ({ stats, revenueMonth, revenueYear }) => {
   const { isAdmin } = useAuth();
   const completionRate = stats.totalCustomers > 0 ? (stats.completedCases / stats.totalCustomers) * 100 : 0;
+  
+  // Generate month name for admin revenue description
+  const monthName = revenueMonth ? new Date(2000, revenueMonth - 1).toLocaleString('default', { month: 'long' }) : '';
+  const revenueDescription = isAdmin && revenueMonth && revenueYear 
+    ? `${monthName} ${revenueYear} completed cases`
+    : isAdmin 
+    ? "From all completed cases" 
+    : "From your completed cases only";
   
   const statCards = [
     {
@@ -68,7 +78,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ stats }) => {
       title: isAdmin ? "Total Revenue" : "My Revenue",
       value: formatCurrency(stats.totalRevenue),
       icon: DollarSign,
-      description: isAdmin ? "From all completed cases" : "From your completed cases only",
+      description: revenueDescription,
       color: "text-emerald-600",
       bgColor: "bg-emerald-50 dark:bg-emerald-950/50",
       borderColor: "border-emerald-200 dark:border-emerald-800",
