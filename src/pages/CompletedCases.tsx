@@ -6,11 +6,13 @@ import { useAuth } from '@/contexts/SecureAuthContext';
 import { useCustomers } from '@/contexts/CustomerContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const CompletedCases = () => {
   const { user, isAdmin } = useAuth();
   const { customers, getCustomersByUserId } = useCustomers();
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'Complete' | 'Paid'>('all');
   
   const { filteredCustomers, completeCount, paidCount, totalRevenue } = useMemo(() => {
     // For regular users, show only their completed applications
@@ -19,8 +21,13 @@ const CompletedCases = () => {
       ? customers.filter(c => c.status === 'Complete' || c.status === 'Paid')
       : getCustomersByUserId(user?.id || '').filter(c => c.status === 'Complete' || c.status === 'Paid');
     
+    // Apply status filter
+    const statusFiltered = statusFilter === 'all' 
+      ? completedApplications 
+      : completedApplications.filter(c => c.status === statusFilter);
+    
     // Apply search filter
-    const searchFiltered = completedApplications.filter(customer => 
+    const searchFiltered = statusFiltered.filter(customer => 
       customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -39,7 +46,7 @@ const CompletedCases = () => {
       totalCompleted: completedApplications.length,
       totalRevenue: revenue
     };
-  }, [customers, isAdmin, user?.id, getCustomersByUserId, searchTerm]);
+  }, [customers, isAdmin, user?.id, getCustomersByUserId, searchTerm, statusFilter]);
 
   return (
     <div className="space-y-6">
@@ -58,6 +65,17 @@ const CompletedCases = () => {
               onChange={(e) => setSearchTerm(e.target.value)}
               className="md:max-w-xs"
             />
+            
+            <Select value={statusFilter} onValueChange={(value: 'all' | 'Complete' | 'Paid') => setStatusFilter(value)}>
+              <SelectTrigger className="w-[150px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="Complete">Complete</SelectItem>
+                <SelectItem value="Paid">Paid</SelectItem>
+              </SelectContent>
+            </Select>
             
             <div className="flex gap-2">
               <div className="text-sm text-muted-foreground px-3 py-2 bg-muted rounded-md">
