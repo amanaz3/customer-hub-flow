@@ -5,8 +5,7 @@ import { Customer } from '@/types/customer';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useCustomers } from '@/contexts/CustomerContext';
 import AdminFilters from '@/components/Admin/AdminFilters';
-import CustomerApplicationsList from '@/components/Customer/CustomerApplicationsList';
-import ResponsiveCustomerTable from '@/components/Customer/ResponsiveCustomerTable';
+import OptimizedCustomerTable from '@/components/Customer/OptimizedCustomerTable';
 import LazyWrapper from '@/components/Performance/LazyWrapper';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -85,12 +84,7 @@ const CustomerList = () => {
                   <CardTitle>Active Applications</CardTitle>
                 </CardHeader>
                 <CardContent>
-            <div className="block lg:hidden">
-              <CustomerApplicationsList customers={activeCustomers} />
-            </div>
-            <div className="hidden lg:block">
-              <ResponsiveCustomerTable customers={activeCustomers} />
-            </div>
+                  <OptimizedCustomerTable customers={activeCustomers} />
                 </CardContent>
               </Card>
             </TabsContent>
@@ -101,12 +95,7 @@ const CustomerList = () => {
                   <CardTitle>Completed Applications</CardTitle>
                 </CardHeader>
                 <CardContent>
-            <div className="block lg:hidden">
-              <CustomerApplicationsList customers={completedCustomers} />
-            </div>
-            <div className="hidden lg:block">
-              <ResponsiveCustomerTable customers={completedCustomers} />
-            </div>
+                  <OptimizedCustomerTable customers={completedCustomers} />
                 </CardContent>
               </Card>
             </TabsContent>
