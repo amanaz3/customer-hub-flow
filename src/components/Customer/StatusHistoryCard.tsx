@@ -213,7 +213,7 @@ const StatusHistoryCard: React.FC<StatusHistoryCardProps> = ({
                     )}
                   </div>
                 </div>
-              ))
+                ))}
             </div>
           ) : (
             <div className="text-center py-8">
