@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import OptimizedCustomerTable from '@/components/Customer/OptimizedCustomerTable';
+import ResponsiveCustomerTable from '@/components/Customer/ResponsiveCustomerTable';
 import UserAnalytics from '@/components/Analytics/UserAnalytics';
 import DashboardStats from '@/components/Dashboard/DashboardStats';
 import DashboardFilters from '@/components/Dashboard/DashboardFilters';
@@ -18,11 +18,14 @@ import { BarChart3, Users, Calendar, ChevronDown, X, RotateCcw, CheckCircle, Clo
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 const OptimizedDashboard = () => {
   const { customers, refreshData, isLoading } = useCustomer();
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [refreshKey, setRefreshKey] = useState(0);
@@ -265,7 +268,11 @@ const OptimizedDashboard = () => {
   }
 
   return (
-    <div className="space-y-8 pb-8">
+    <div className={cn(
+      "space-y-4 xs:space-y-5 sm:space-y-6 lg:space-y-8",
+      "pb-4 xs:pb-6 sm:pb-8",
+      "max-w-full overflow-hidden"
+    )}>
         {/* Enhanced Header */}
         <DashboardHeader
           userName={user?.profile?.name}
@@ -475,7 +482,7 @@ const OptimizedDashboard = () => {
                       </CardTitle>
                     </CardHeader>
                     <CardContent className="p-0">
-                      <OptimizedCustomerTable 
+                      <ResponsiveCustomerTable 
                         customers={filteredCustomers} 
                         onDataChange={handleDataRefresh}
                       />
@@ -519,7 +526,7 @@ const OptimizedDashboard = () => {
                   </CardTitle>
                 </CardHeader>
                 <CardContent className="p-0">
-                  <OptimizedCustomerTable 
+                  <ResponsiveCustomerTable 
                     customers={filteredCustomers} 
                     onDataChange={handleDataRefresh}
                   />

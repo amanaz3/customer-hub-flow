@@ -98,4 +98,70 @@
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Responsive text scaling */
+  html {
+    font-size: clamp(14px, 1.5vw, 16px);
+  }
+
+  /* Responsive headings */
+  h1 { font-size: clamp(1.75rem, 4vw, 2.25rem); }
+  h2 { font-size: clamp(1.5rem, 3.5vw, 2rem); }
+  h3 { font-size: clamp(1.25rem, 3vw, 1.75rem); }
+  h4 { font-size: clamp(1.125rem, 2.5vw, 1.5rem); }
+  h5 { font-size: clamp(1rem, 2vw, 1.25rem); }
+  h6 { font-size: clamp(0.875rem, 1.5vw, 1rem); }
+
+  /* Smooth transitions for responsive elements */
+  .responsive-transition {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Container queries for fine-grained responsive control */
+  @container (max-width: 640px) {
+    .container-responsive {
+      padding: 0.75rem;
+    }
+  }
+
+  @container (min-width: 641px) and (max-width: 1024px) {
+    .container-responsive {
+      padding: 1.5rem;
+    }
+  }
+
+  @container (min-width: 1025px) {
+    .container-responsive {
+      padding: 2rem;
+    }
+  }
+
+  /* Touch-friendly interactive elements */
+  @media (hover: none) and (pointer: coarse) {
+    .touch-friendly {
+      min-height: 44px;
+      min-width: 44px;
+    }
+    
+    button, .clickable {
+      @apply touch-friendly;
+    }
+  }
+
+  /* High contrast for accessibility */
+  @media (prefers-contrast: high) {
+    :root {
+      --border: 220 13% 30%;
+      --input: 220 13% 30%;
+    }
+  }
+
+  /* Reduced motion support */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
 }
