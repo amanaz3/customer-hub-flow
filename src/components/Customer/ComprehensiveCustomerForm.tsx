@@ -43,7 +43,9 @@ const formSchema = z.object({
     .max(10000000, "Amount cannot exceed 10,000,000"),
   license_type: z.enum(['Mainland', 'Freezone', 'Offshore']),
   lead_source: z.enum(['Website', 'Referral', 'Social Media', 'Other']),
-  annual_turnover: z.number().optional(),
+  annual_turnover: z.number()
+    .min(0.01, "Annual turnover must be greater than 0")
+    .max(1000000000, "Annual turnover cannot exceed 1,000,000,000"),
   jurisdiction: z.string().optional(),
   any_suitable_bank: z.boolean().default(false),
   preferred_bank: z.string().optional(),
@@ -282,8 +284,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         description: `${data.name} has been successfully created. You can now upload documents.`,
       });
 
-      // Move to documents tab
+      // Move to documents tab and refresh parent component
       setActiveTab('documents');
+      
+      // Trigger refresh in parent to update customer list
+      if (onSuccess) {
+        onSuccess();
+      }
 
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -330,14 +337,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   }, [createdCustomerId, uploadDocument, toast]);
 
   const handleFinish = useCallback(() => {
+    // Always call onSuccess to trigger refresh
     if (onSuccess) {
       onSuccess();
-    } else {
-      toast({
-        title: 'Application Complete',
-        description: 'Customer application has been created successfully.',
-      });
     }
+    
+    toast({
+      title: 'Application Complete',
+      description: 'Customer application has been created successfully.',
+    });
   }, [onSuccess, toast]);
 
   const mandatoryDocuments = documents.filter(doc => doc.is_mandatory);
@@ -347,7 +355,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   return (
     <Card className="w-full max-w-4xl mx-auto">
       <CardHeader>
-        <CardTitle>Create New Customer Application</CardTitle>
+        <CardTitle>New Application</CardTitle>
       </CardHeader>
       <CardContent>
         <Tabs value={activeTab} onValueChange={setActiveTab}>
@@ -484,14 +492,19 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="annual_turnover">Annual Turnover (AED)</Label>
+                    <Label htmlFor="annual_turnover">Annual Turnover (AED) *</Label>
                     <Input
                       id="annual_turnover"
                       type="number"
                       min="0"
+                      step="0.01"
                       {...form.register('annual_turnover', { valueAsNumber: true })}
                       disabled={isSubmitting}
+                      required
                     />
+                    {form.formState.errors.annual_turnover && (
+                      <p className="text-sm text-red-600">{form.formState.errors.annual_turnover.message}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">

@@ -5,7 +5,7 @@ import { useCustomer } from '@/contexts/CustomerContext';
 import { useNotifications } from '@/contexts/NotificationContext';
 import { useToast } from '@/hooks/use-toast';
 import { Status } from '@/types/customer';
-import { validateStatusTransition } from '@/utils/statusValidation';
+import { validateStatusTransition, type Status as StatusType } from '@/utils/statusTransitionRules';
 import { CustomerService } from '@/services/customerService';
 
 export const useStatusManager = () => {
@@ -36,8 +36,8 @@ export const useStatusManager = () => {
 
     // Validate the status transition
     const validation = validateStatusTransition(
-      currentStatus,
-      newStatus,
+      currentStatus as StatusType,
+      newStatus as StatusType,
       isAdmin,
       customerUserId === user.id,
       hasRequiredDocuments,

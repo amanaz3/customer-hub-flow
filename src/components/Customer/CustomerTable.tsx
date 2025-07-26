@@ -43,9 +43,8 @@ const CustomerTable: React.FC<CustomerTableProps> = ({ customers }) => {
         <TableHeader>
           <TableRow>
             <TableHead>Customer Name</TableHead>
-            <TableHead>Mobile</TableHead>
             <TableHead>Company Name</TableHead>
-            <TableHead>Email</TableHead>
+            <TableHead>Agent</TableHead>
             <TableHead>Lead Source</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Amount</TableHead>
@@ -60,9 +59,10 @@ const CustomerTable: React.FC<CustomerTableProps> = ({ customers }) => {
                 onClick={() => handleRowClick(customer.id)}
               >
                 <TableCell className="font-medium">{customer.name}</TableCell>
-                <TableCell>{customer.mobile}</TableCell>
                 <TableCell>{customer.company}</TableCell>
-                <TableCell>{customer.email}</TableCell>
+                <TableCell className="text-sm text-muted-foreground">
+                  {customer.user_id ? 'Agent' : 'System'}
+                </TableCell>
                 <TableCell>{customer.leadSource}</TableCell>
                 <TableCell>
                   <Badge className={getStatusColor(customer.status)}>
@@ -76,7 +76,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({ customers }) => {
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+              <TableCell colSpan={6} className="text-center py-6 text-muted-foreground">
                 No customers found
               </TableCell>
             </TableRow>

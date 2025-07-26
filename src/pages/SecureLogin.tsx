@@ -13,8 +13,8 @@ const SecureLogin = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  // Get the redirect path from location state, default to dashboard
-  const from = location.state?.from?.pathname || '/dashboard';
+  // Always redirect to dashboard for consistent user experience
+  const from = '/dashboard';
 
   useEffect(() => {
     console.log('SecureLogin useEffect:', { isAuthenticated, authLoading, hasSession: !!session });

@@ -15,6 +15,9 @@ const CustomerNew = () => {
   const { toast } = useToast();
 
   const handleSuccess = () => {
+    // Refresh customer data in context
+    refreshData();
+    
     toast({
       title: "Success",
       description: "Customer created successfully",
@@ -22,10 +25,12 @@ const CustomerNew = () => {
     navigate('/customers');
   };
 
+  const { refreshData } = useCustomer();
+
   return (
     <div className="space-y-6">
         <CustomerNewHeader 
-          title="Add New Customer" 
+          title="New Application" 
           description="Create a new customer application" 
         />
         

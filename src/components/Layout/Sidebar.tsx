@@ -38,7 +38,7 @@ const Sidebar: React.FC = () => {
       roles: ['admin', 'user'],
     },
     {
-      name: 'Add Customer',
+      name: 'New Application',
       path: '/customers/new',
       icon: <UserPlus className="h-5 w-5" />,
       roles: ['admin', 'user'],
@@ -70,6 +70,17 @@ const Sidebar: React.FC = () => {
   ];
 
   const isActiveRoute = (path: string) => {
+    // Special handling for completed cases to avoid conflict with customers
+    if (path === '/completed') {
+      return location.pathname === '/completed';
+    }
+    
+    // Special handling for customers to avoid conflict with completed
+    if (path === '/customers') {
+      return location.pathname === '/customers' || 
+             (location.pathname.startsWith('/customers/') && !location.pathname.startsWith('/completed'));
+    }
+    
     return location.pathname === path || location.pathname.startsWith(`${path}/`);
   };
 

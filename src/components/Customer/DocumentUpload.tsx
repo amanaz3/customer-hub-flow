@@ -321,7 +321,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
               size="sm"
               onClick={() => handleManualVerify(doc)}
               disabled={isVerifying}
-              className="px-2"
+              className="px-2 h-8 w-8 flex items-center justify-center"
               title="Verify file access in Supabase Storage"
             >
               <RefreshCw className={`w-3 h-3 ${isVerifying ? 'animate-spin' : ''}`} />
@@ -331,7 +331,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
               variant="outline" 
               size="sm"
               onClick={() => handleViewFile(doc)}
-              className="px-2"
+              className="px-2 h-8 w-8 flex items-center justify-center"
               title="View file from Supabase Storage"
             >
               <Eye className="w-3 h-3" />
@@ -341,7 +341,7 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
               variant="outline" 
               size="sm"
               onClick={() => handleDownloadFile(doc)}
-              className="px-2"
+              className="px-2 h-8 w-8 flex items-center justify-center"
               title="Download file from Supabase Storage"
             >
               <Download className="w-3 h-3" />

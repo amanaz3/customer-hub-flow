@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Status } from '@/types/customer';
+import type { Status as StatusType } from '@/utils/statusTransitionRules';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import {
   AlertDialog,
@@ -23,6 +24,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Badge } from '@/components/ui/badge';
+import { getAvailableStatusTransitions } from '@/utils/statusTransitionRules';
 
 interface CustomerActionButtonsProps {
   status: Status;
@@ -46,32 +48,7 @@ const CustomerActionButtons: React.FC<CustomerActionButtonsProps> = ({
   const { user } = useAuth();
 
   const getAvailableStatuses = (): Status[] => {
-    if (!isAdmin) {
-      // Users can only resubmit when returned
-      if (status === 'Returned') return ['Submitted'];
-      return [];
-    }
-
-    // Admin available statuses based on current status
-    switch (status) {
-      case 'Draft':
-        return ['Submitted']; // Allow admins to submit on behalf of users
-      case 'Submitted':
-        return ['Returned', 'Sent to Bank'];
-      case 'Returned':
-        return ['Sent to Bank'];
-      case 'Sent to Bank':
-        return ['Complete', 'Rejected', 'Need More Info'];
-      case 'Need More Info':
-        return ['Sent to Bank', 'Returned'];
-      case 'Complete':
-        return []; // Complete is now final status - no payment tracking
-      case 'Rejected':
-        return ['Sent to Bank']; // Allow re-submission
-      // 'Paid' status removed
-      default:
-        return [];
-    }
+    return getAvailableStatusTransitions(status as StatusType, isAdmin, mandatoryDocumentsUploaded) as Status[];
   };
 
   const getStatusButtonText = (targetStatus: Status): string => {

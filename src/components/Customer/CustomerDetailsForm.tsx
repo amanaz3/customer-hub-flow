@@ -240,6 +240,7 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
             <Input
               id="amount"
               name="amount"
+              type="number"
               value={formData.amount}
               onChange={handleInputChange}
               className="mt-1"
@@ -252,6 +253,7 @@ const CustomerDetailsForm: React.FC<CustomerDetailsFormProps> = ({
             <Input
               id="annualTurnover"
               name="annualTurnover"
+              type="number"
               value={formData.annualTurnover}
               onChange={handleInputChange}
               className="mt-1"
