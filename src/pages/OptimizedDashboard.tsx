@@ -45,18 +45,29 @@ const OptimizedDashboard = () => {
     }
   });
 
-  // Filter customers based on search and status
+  // Filter customers to show only recent and priority applications
   const filteredCustomers = useMemo(() => {
-    return customers.filter(customer => {
+    // First filter by role-based access
+    const roleBasedCustomers = isAdmin ? customers : customers.filter(c => c.user_id === user?.id);
+    
+    // Show only applications that need attention (excluding completed/paid/rejected)
+    const priorityStatuses = ['Draft', 'Submitted', 'Need More Info', 'Returned', 'Sent to Bank'];
+    const recentAndPriorityCustomers = roleBasedCustomers.filter(customer => {
+      const isPriority = priorityStatuses.includes(customer.status);
+      const isRecent = new Date(customer.created_at || '').getTime() > Date.now() - (30 * 24 * 60 * 60 * 1000); // Last 30 days
+      return isPriority || isRecent;
+    });
+    
+    return recentAndPriorityCustomers.filter(customer => {
       const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          customer.company.toLowerCase().includes(searchTerm.toLowerCase());
+                           customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                           customer.company.toLowerCase().includes(searchTerm.toLowerCase());
       
       const matchesStatus = statusFilter === 'all' || customer.status === statusFilter;
       
       return matchesSearch && matchesStatus;
     });
-  }, [customers, searchTerm, statusFilter, refreshKey]);
+  }, [customers, searchTerm, statusFilter, refreshKey, isAdmin, user?.id]);
 
   // Calculate statistics from real data with role-based filtering
   const stats = useMemo(() => {

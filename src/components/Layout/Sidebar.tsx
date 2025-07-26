@@ -70,18 +70,23 @@ const Sidebar: React.FC = () => {
   ];
 
   const isActiveRoute = (path: string) => {
-    // Special handling for completed cases to avoid conflict with customers
-    if (path === '/completed') {
-      return location.pathname === '/completed';
+    // Exact match for most routes
+    if (path === '/completed' || path === '/settings' || path === '/logs' || path === '/users' || path === '/dashboard') {
+      return location.pathname === path;
     }
     
-    // Special handling for customers to avoid conflict with completed
+    // Special handling for customers - only active when exactly on /customers
     if (path === '/customers') {
-      return location.pathname === '/customers' || 
-             (location.pathname.startsWith('/customers/') && !location.pathname.startsWith('/completed'));
+      return location.pathname === '/customers';
     }
     
-    return location.pathname === path || location.pathname.startsWith(`${path}/`);
+    // Special handling for new application - only active when on /customers/new
+    if (path === '/customers/new') {
+      return location.pathname === '/customers/new';
+    }
+    
+    // For customer detail pages, don't highlight any sidebar item to avoid confusion
+    return false;
   };
 
   return (

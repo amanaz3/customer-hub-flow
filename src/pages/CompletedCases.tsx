@@ -11,28 +11,23 @@ const CompletedCases = () => {
   const { user, isAdmin } = useAuth();
   const { customers, getCustomersByUserId } = useCustomers();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'Complete'>('all');
   
-  const { filteredCustomers, completeCount, totalRevenue } = useMemo(() => {
+  const { filteredCustomers, completeCount, paidCount, totalRevenue } = useMemo(() => {
     // For regular users, show only their completed applications
     // For admins, show all completed applications
     const completedApplications = isAdmin 
       ? customers.filter(c => c.status === 'Complete' || c.status === 'Paid')
       : getCustomersByUserId(user?.id || '').filter(c => c.status === 'Complete' || c.status === 'Paid');
     
-    // Apply status filter
-    const statusFiltered = statusFilter === 'all' 
-      ? completedApplications 
-      : completedApplications.filter(c => c.status === statusFilter);
-    
     // Apply search filter
-    const searchFiltered = statusFiltered.filter(customer => 
+    const searchFiltered = completedApplications.filter(customer => 
       customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    const complete = completedApplications.length;
+    const complete = completedApplications.filter(c => c.status === 'Complete').length;
+    const paid = completedApplications.filter(c => c.status === 'Paid').length;
     
     // Calculate revenue from completed applications (role-based filtering already applied)
     const revenue = completedApplications.reduce((sum, c) => sum + c.amount, 0);
@@ -40,17 +35,18 @@ const CompletedCases = () => {
     return {
       filteredCustomers: searchFiltered,
       completeCount: complete,
+      paidCount: paid,
       totalCompleted: completedApplications.length,
       totalRevenue: revenue
     };
-  }, [customers, isAdmin, user?.id, getCustomersByUserId, searchTerm, statusFilter]);
+  }, [customers, isAdmin, user?.id, getCustomersByUserId, searchTerm]);
 
   return (
     <div className="space-y-6">
         <div>
           <h1 className="text-3xl font-bold">Completed Cases</h1>
           <p className="text-muted-foreground">
-            View completed applications {!isAdmin && 'you submitted'} (Revenue: {new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(totalRevenue)})
+            View completed applications {!isAdmin && 'you submitted'} (Revenue: {new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED' }).format(totalRevenue)})
           </p>
         </div>
         
@@ -64,20 +60,9 @@ const CompletedCases = () => {
             />
             
             <div className="flex gap-2">
-              <Button
-                variant={statusFilter === 'all' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setStatusFilter('all')}
-              >
-                All ({completeCount})
-              </Button>
-              <Button
-                variant={statusFilter === 'Complete' ? 'default' : 'outline'}
-                size="sm"
-                onClick={() => setStatusFilter('Complete')}
-              >
-                Complete ({completeCount})
-              </Button>
+              <div className="text-sm text-muted-foreground px-3 py-2 bg-muted rounded-md">
+                Complete: {completeCount} | Paid: {paidCount}
+              </div>
             </div>
           </div>
         </LazyWrapper>
