@@ -93,7 +93,8 @@ const AdminFilters: React.FC<AdminFiltersProps> = ({ customers, onFilteredCustom
   };
 
   const getUniqueStatuses = () => {
-    const statuses = [...new Set(customers.map(c => c.status))];
+    const statuses = [...new Set(customers.map(c => c.status))]
+      .filter(status => status !== 'Complete' && status !== 'Paid' && status !== 'Rejected');
     return statuses.sort();
   };
 
