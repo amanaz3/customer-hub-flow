@@ -14,7 +14,7 @@ import EmptyDashboardState from '@/components/Dashboard/EmptyDashboardState';
 import DashboardHeader from '@/components/Dashboard/DashboardHeader';
 import { Customer, useCustomer } from '@/contexts/CustomerContext';
 import { useAuth } from '@/contexts/SecureAuthContext';
-import { BarChart3, Users, Calendar, ChevronDown, X, RotateCcw } from 'lucide-react';
+import { BarChart3, Users, Calendar, ChevronDown, X, RotateCcw, CheckCircle, Clock, DollarSign } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
@@ -26,6 +26,9 @@ const OptimizedDashboard = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [refreshKey, setRefreshKey] = useState(0);
+  
+  // Widget selection state - default to applications
+  const [activeWidget, setActiveWidget] = useState<'applications' | 'completed' | 'pending' | 'revenue'>('applications');
   
   // Enhanced date filtering for admin revenue
   const currentDate = new Date();
@@ -96,15 +99,26 @@ const OptimizedDashboard = () => {
     // First filter by role-based access
     const roleBasedCustomers = isAdmin ? customers : customers.filter(c => c.user_id === user?.id);
     
-    // Show only applications that need attention (excluding completed/paid/rejected)
-    const priorityStatuses = ['Draft', 'Submitted', 'Need More Info', 'Returned', 'Sent to Bank'];
-    const recentAndPriorityCustomers = roleBasedCustomers.filter(customer => {
-      const isPriority = priorityStatuses.includes(customer.status);
-      const isRecent = new Date(customer.created_at || '').getTime() > Date.now() - (30 * 24 * 60 * 60 * 1000); // Last 30 days
-      return isPriority || isRecent;
-    });
+    // Filter based on active widget
+    let statusFilteredCustomers = roleBasedCustomers;
     
-    return recentAndPriorityCustomers.filter(customer => {
+    if (activeWidget === 'completed') {
+      statusFilteredCustomers = roleBasedCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
+    } else if (activeWidget === 'pending') {
+      statusFilteredCustomers = roleBasedCustomers.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status));
+    } else if (activeWidget === 'revenue') {
+      statusFilteredCustomers = roleBasedCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
+    } else {
+      // Default applications view - show priority and recent
+      const priorityStatuses = ['Draft', 'Submitted', 'Need More Info', 'Returned', 'Sent to Bank'];
+      statusFilteredCustomers = roleBasedCustomers.filter(customer => {
+        const isPriority = priorityStatuses.includes(customer.status);
+        const isRecent = new Date(customer.created_at || '').getTime() > Date.now() - (30 * 24 * 60 * 60 * 1000); // Last 30 days
+        return isPriority || isRecent;
+      });
+    }
+    
+    return statusFilteredCustomers.filter(customer => {
       const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
                            customer.company.toLowerCase().includes(searchTerm.toLowerCase());
@@ -113,7 +127,7 @@ const OptimizedDashboard = () => {
       
       return matchesSearch && matchesStatus;
     });
-  }, [customers, searchTerm, statusFilter, refreshKey, isAdmin, user?.id]);
+  }, [customers, searchTerm, statusFilter, refreshKey, isAdmin, user?.id, activeWidget]);
 
   // Calculate statistics from real data with role-based filtering
   const stats = useMemo(() => {
@@ -186,6 +200,44 @@ const OptimizedDashboard = () => {
     return new Date(2000, month - 1).toLocaleString('default', { month: 'long' });
   };
 
+  // Get dynamic content based on active widget
+  const getWidgetContent = () => {
+    switch (activeWidget) {
+      case 'applications':
+        return {
+          title: isAdmin ? 'All Applications' : 'My Applications',
+          description: `Showing ${filteredCustomers.length} ${isAdmin ? 'total applications' : 'applications requiring attention'}`,
+          icon: Users
+        };
+      case 'completed':
+        return {
+          title: 'Completed Cases',
+          description: `Showing ${filteredCustomers.length} completed applications`,
+          icon: CheckCircle
+        };
+      case 'pending':
+        return {
+          title: 'Active Cases',
+          description: `Showing ${filteredCustomers.length} cases in progress`,
+          icon: Clock
+        };
+      case 'revenue':
+        return {
+          title: 'Revenue Analysis',
+          description: `Showing ${filteredCustomers.length} revenue-generating cases`,
+          icon: DollarSign
+        };
+      default:
+        return {
+          title: 'Applications',
+          description: 'Select a widget to view details',
+          icon: Users
+        };
+    }
+  };
+
+  const widgetContent = getWidgetContent();
+
   const handleDataRefresh = () => {
     setRefreshKey(prev => prev + 1);
     refreshData();
@@ -225,11 +277,13 @@ const OptimizedDashboard = () => {
         <DashboardStats 
           stats={stats} 
           selectedMonths={isAdmin ? selectedMonths : undefined} 
-          revenueYear={isAdmin ? revenueYear : undefined} 
+          revenueYear={isAdmin ? revenueYear : undefined}
+          onWidgetClick={setActiveWidget}
+          activeWidget={activeWidget}
         />
 
-        {/* Enhanced Admin Revenue Date Filter */}
-        {isAdmin && (
+        {/* Conditional Filters - Only show revenue filter when revenue widget is active */}
+        {isAdmin && activeWidget === 'revenue' && (
           <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
             <CardHeader className="pb-4">
               <div className="flex items-center justify-between">
@@ -410,12 +464,12 @@ const OptimizedDashboard = () => {
                     <CardHeader className="pb-4 border-b border-border/50">
                       <CardTitle className="flex items-center gap-3">
                         <div className="p-2 rounded-lg bg-primary/10">
-                          <Users className="h-5 w-5 text-primary" />
+                          <widgetContent.icon className="h-5 w-5 text-primary" />
                         </div>
                         <div className="flex-1">
-                          <span className="text-xl font-semibold">Application Management</span>
+                          <span className="text-xl font-semibold">{widgetContent.title}</span>
                           <p className="text-sm text-muted-foreground font-normal mt-1">
-                            Showing {filteredCustomers.length} priority applications requiring attention
+                            {widgetContent.description}
                           </p>
                         </div>
                       </CardTitle>
@@ -454,12 +508,12 @@ const OptimizedDashboard = () => {
                 <CardHeader className="pb-4 border-b border-border/50">
                   <CardTitle className="flex items-center gap-3">
                     <div className="p-2 rounded-lg bg-primary/10">
-                      <Users className="h-5 w-5 text-primary" />
+                      <widgetContent.icon className="h-5 w-5 text-primary" />
                     </div>
                     <div className="flex-1">
-                      <span className="text-xl font-semibold">My Applications</span>
+                      <span className="text-xl font-semibold">{widgetContent.title}</span>
                       <p className="text-sm text-muted-foreground font-normal mt-1">
-                        Showing {filteredCustomers.length} applications requiring your attention
+                        {widgetContent.description}
                       </p>
                     </div>
                   </CardTitle>

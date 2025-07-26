@@ -23,9 +23,17 @@ interface DashboardStatsProps {
   };
   selectedMonths?: number[];
   revenueYear?: number;
+  onWidgetClick?: (widget: 'applications' | 'completed' | 'pending' | 'revenue') => void;
+  activeWidget?: 'applications' | 'completed' | 'pending' | 'revenue';
 }
 
-const DashboardStats: React.FC<DashboardStatsProps> = ({ stats, selectedMonths, revenueYear }) => {
+const DashboardStats: React.FC<DashboardStatsProps> = ({ 
+  stats, 
+  selectedMonths, 
+  revenueYear, 
+  onWidgetClick,
+  activeWidget = 'applications'
+}) => {
   const { isAdmin } = useAuth();
   const completionRate = stats.totalCustomers > 0 ? (stats.completedCases / stats.totalCustomers) * 100 : 0;
   
@@ -53,6 +61,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ stats, selectedMonths, 
   
   const statCards = [
     {
+      id: 'applications' as const,
       title: isAdmin ? "Total Applications" : "My Applications",
       value: stats.totalCustomers,
       icon: Users,
@@ -65,6 +74,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ stats, selectedMonths, 
       badge: isAdmin ? "Admin View" : "User View"
     },
     {
+      id: 'completed' as const,
       title: "Completed Cases",
       value: stats.completedCases,
       icon: CheckCircle,
@@ -77,6 +87,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ stats, selectedMonths, 
       badge: null
     },
     {
+      id: 'pending' as const,
       title: "Active Cases",
       value: stats.pendingCases,
       icon: Clock,
@@ -89,6 +100,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ stats, selectedMonths, 
       badge: null
     },
     {
+      id: 'revenue' as const,
       title: isAdmin ? "Total Revenue" : "My Revenue",
       value: formatCurrency(stats.totalRevenue),
       icon: DollarSign,
@@ -102,25 +114,45 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ stats, selectedMonths, 
     }
   ];
 
+  const handleCardClick = (cardId: 'applications' | 'completed' | 'pending' | 'revenue') => {
+    if (onWidgetClick) {
+      onWidgetClick(cardId);
+    }
+  };
+
   return (
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
-      {statCards.map((stat, index) => (
-        <Card 
-          key={`stat-${stat.title.replace(/\s+/g, '-').toLowerCase()}`}
-          className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg hover:scale-105 border-l-4 ${stat.borderColor} bg-gradient-to-br from-background to-muted/20`}
-        >
+      {statCards.map((stat, index) => {
+        const isActive = activeWidget === stat.id;
+        const isClickable = onWidgetClick !== undefined;
+        
+        return (
+          <Card 
+            key={`stat-${stat.title.replace(/\s+/g, '-').toLowerCase()}`}
+            className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 ${stat.borderColor} bg-gradient-to-br from-background to-muted/20 ${
+              isClickable ? 'cursor-pointer hover:scale-105' : ''
+            } ${
+              isActive ? 'ring-2 ring-primary ring-offset-2 shadow-lg scale-105' : ''
+            }`}
+            onClick={() => isClickable && handleCardClick(stat.id)}
+          >
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
             <div className="space-y-1">
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">
-                  {stat.title}
-                </CardTitle>
-                {stat.badge && (
-                  <Badge variant="secondary" className="text-xs">
-                    {stat.badge}
-                  </Badge>
-                )}
-              </div>
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
+                    {stat.title}
+                  </CardTitle>
+                  {stat.badge && (
+                    <Badge variant="secondary" className="text-xs">
+                      {stat.badge}
+                    </Badge>
+                  )}
+                  {isActive && (
+                    <Badge variant="default" className="text-xs">
+                      Active
+                    </Badge>
+                  )}
+                </div>
               <p className="text-xs text-muted-foreground/70">
                 {stat.subtitle}
               </p>
@@ -166,9 +198,10 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({ stats, selectedMonths, 
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
-      ))}
+            </CardContent>
+          </Card>
+        );
+      })}
     </div>
   );
 };
