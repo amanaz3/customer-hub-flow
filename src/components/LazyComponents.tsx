@@ -10,7 +10,7 @@ const CustomerDetail = React.lazy(() => import('@/pages/CustomerDetail'));
 const SecureUserManagement = React.lazy(() => import('@/pages/SecureUserManagement'));
 const CompletedCases = React.lazy(() => import('@/pages/CompletedCases'));
 const RejectedCases = React.lazy(() => import('@/pages/RejectedCases'));
-const Logs = React.lazy(() => import('@/pages/Logs'));
+
 const Settings = React.lazy(() => import('@/pages/Settings'));
 const NotFound = React.lazy(() => import('@/pages/NotFound'));
 
@@ -66,7 +66,7 @@ export const LazyCustomerDetail = withLazyLoading(CustomerDetail, "Loading custo
 export const LazySecureUserManagement = withLazyLoading(SecureUserManagement, "Loading user management...");
 export const LazyCompletedCases = withLazyLoading(CompletedCases, "Loading completed cases...");
 export const LazyRejectedCases = withLazyLoading(RejectedCases, "Loading rejected cases...");
-export const LazyLogs = withLazyLoading(Logs, "Loading system logs...");
+
 export const LazySettings = withLazyLoading(Settings, "Loading settings...");
 export const LazyNotFound = withLazyLoading(NotFound, "Loading page...");
 

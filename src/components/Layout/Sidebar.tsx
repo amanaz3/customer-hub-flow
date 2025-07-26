@@ -83,12 +83,6 @@ const Sidebar: React.FC = () => {
       roles: ['admin'],
     },
     {
-      name: 'Logs',
-      path: '/logs',
-      icon: <FileText className="h-5 w-5" />,
-      roles: ['admin'],
-    },
-    {
       name: 'Settings',
       path: '/settings',
       icon: <Settings className="h-5 w-5" />,
@@ -98,7 +92,7 @@ const Sidebar: React.FC = () => {
 
   const isActiveRoute = (path: string) => {
     // Exact match for most routes
-    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/logs' || path === '/users' || path === '/dashboard') {
+    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard') {
       return location.pathname === path;
     }
     

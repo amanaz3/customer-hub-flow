@@ -18,7 +18,6 @@ import {
   LazySecureUserManagement,
   LazyCompletedCases,
   LazyRejectedCases,
-  LazyLogs,
   LazySettings,
   LazyNotFound,
   PageLoadingFallback
@@ -135,15 +134,6 @@ function App() {
                     </ProtectedRoute>
                   } />
                   
-                  <Route path="/logs" element={
-                    <ProtectedRoute requireAdmin>
-                      <MainLayout>
-                        <PageErrorBoundary pageName="System Logs">
-                          <LazyLogs />
-                        </PageErrorBoundary>
-                      </MainLayout>
-                    </ProtectedRoute>
-                  } />
                   
                   <Route path="/settings" element={
                     <ProtectedRoute>
