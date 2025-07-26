@@ -2,12 +2,9 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import NotificationSettings from '@/components/Settings/NotificationSettings';
-import WorkflowValidator from '@/components/Admin/WorkflowValidator';
-import { useAuth } from '@/contexts/SecureAuthContext';
-import { Settings as SettingsIcon, Shield } from 'lucide-react';
+import { Settings as SettingsIcon } from 'lucide-react';
 
 const Settings = () => {
-  const { isAdmin } = useAuth();
 
   return (
     <div className="space-y-6">
@@ -28,23 +25,6 @@ const Settings = () => {
               <NotificationSettings />
             </CardContent>
           </Card>
-
-          {isAdmin && (
-            <Card>
-              <CardHeader className="flex flex-row items-center gap-2">
-                <Shield className="w-5 h-5" />
-                <div>
-                  <CardTitle>System Validation</CardTitle>
-                  <CardDescription>
-                    Run comprehensive checks on all workflow systems
-                  </CardDescription>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <WorkflowValidator />
-              </CardContent>
-            </Card>
-          )}
         </div>
       </div>
     );
