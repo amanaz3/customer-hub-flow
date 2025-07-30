@@ -95,7 +95,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
   };
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 max-w-4xl mx-auto">
       {statCards.map((stat, index) => {
         const isActive = activeWidget === stat.id;
         const isClickable = onWidgetClick !== undefined && (stat.id === 'applications' || stat.id === 'revenue');
