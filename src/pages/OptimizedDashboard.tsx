@@ -141,15 +141,26 @@ const OptimizedDashboard = () => {
     const completedCases = relevantCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid').length;
     const pendingCases = relevantCustomers.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status)).length;
     
-    // Revenue calculation with enhanced date filtering for admins
+    // Revenue calculation based on active widget
     let totalRevenue = 0;
-    if (isAdmin) {
-      // Filter by selected months/year for admin
-      totalRevenue = relevantCustomers
+    let revenueCustomers = relevantCustomers;
+    
+    // Filter customers based on active widget for revenue calculation
+    if (activeWidget === 'completed') {
+      revenueCustomers = relevantCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
+    } else if (activeWidget === 'pending') {
+      revenueCustomers = relevantCustomers.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status));
+    } else if (activeWidget === 'revenue') {
+      revenueCustomers = relevantCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
+    } else {
+      // Default applications view - include all completed/paid for revenue
+      revenueCustomers = relevantCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
+    }
+    
+    if (isAdmin && activeWidget === 'revenue') {
+      // Apply date filtering only for admin revenue widget
+      totalRevenue = revenueCustomers
         .filter(c => {
-          if (c.status !== 'Complete' && c.status !== 'Paid') return false;
-          
-          // Parse the created_at or updated_at date to check if it's in the selected months/year
           const customerDate = new Date(c.updated_at || c.created_at || '');
           const customerMonth = customerDate.getMonth() + 1; // 1-based month
           const customerYear = customerDate.getFullYear();
@@ -158,10 +169,8 @@ const OptimizedDashboard = () => {
         })
         .reduce((sum, c) => sum + c.amount, 0);
     } else {
-      // For non-admin users, include all their submitted cases (no date filtering)
-      totalRevenue = relevantCustomers
-        .filter(c => c.status === 'Complete' || c.status === 'Paid')
-        .reduce((sum, c) => sum + c.amount, 0);
+      // For other widgets or non-admin users, calculate revenue from filtered customers without date filtering
+      totalRevenue = revenueCustomers.reduce((sum, c) => sum + c.amount, 0);
     }
 
     return {
@@ -170,7 +179,7 @@ const OptimizedDashboard = () => {
       pendingCases,
       totalRevenue
     };
-  }, [customers, refreshKey, isAdmin, user?.id, selectedMonths, revenueYear]);
+  }, [customers, refreshKey, isAdmin, user?.id, selectedMonths, revenueYear, activeWidget]);
 
   // Helper functions for month selection
   const toggleMonth = (month: number) => {
