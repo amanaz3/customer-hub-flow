@@ -162,13 +162,13 @@ const AdminFilters: React.FC<AdminFiltersProps> = ({ customers, onFilteredCustom
 
             {/* Agent Filter */}
             <div>
-              <label className="text-sm font-medium text-gray-700 mb-1 block">Agent</label>
+              <label className="text-sm font-medium text-gray-700 mb-1 block">Manager</label>
               <Select value={agentFilter} onValueChange={setAgentFilter}>
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">All Agents</SelectItem>
+                  <SelectItem value="all">All Managers</SelectItem>
                   <SelectItem value="system">System</SelectItem>
                   {getUniqueAgents().map(agentId => {
                     const profile = userProfiles[agentId];
@@ -236,7 +236,7 @@ const AdminFilters: React.FC<AdminFiltersProps> = ({ customers, onFilteredCustom
               
               {agentFilter !== 'all' && (
                 <Badge variant="outline" className="gap-1">
-                  Agent: {agentFilter === 'system' ? 'System' : 
+                  Manager: {agentFilter === 'system' ? 'System' : 
                     userProfiles[agentFilter]?.name || `User ${agentFilter?.substring(0, 8)}...`}
                   <X 
                     className="w-3 h-3 cursor-pointer" 

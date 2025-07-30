@@ -44,7 +44,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({ customers }) => {
           <TableRow>
             <TableHead>Customer Name</TableHead>
             <TableHead>Company Name</TableHead>
-            <TableHead>Agent</TableHead>
+            <TableHead>Manager</TableHead>
             <TableHead>Lead Source</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Amount</TableHead>
@@ -61,7 +61,7 @@ const CustomerTable: React.FC<CustomerTableProps> = ({ customers }) => {
                 <TableCell className="font-medium">{customer.name}</TableCell>
                 <TableCell>{customer.company}</TableCell>
                 <TableCell className="text-sm text-muted-foreground">
-                  {customer.user_id ? 'Agent' : 'System'}
+                  {customer.user_id ? 'Manager' : 'System'}
                 </TableCell>
                 <TableCell>{customer.leadSource}</TableCell>
                 <TableCell>
