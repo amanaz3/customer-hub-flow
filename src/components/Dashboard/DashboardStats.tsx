@@ -86,33 +86,6 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
       subtitle: "Revenue generated",
       badge: isAdmin ? "All Users" : "Personal"
     },
-    // Keep these stats for display but not as clickable widgets
-    {
-      id: 'completed-display',
-      title: "Completed Cases",
-      value: stats.completedCases,
-      icon: CheckCircle,
-      description: `${completionRate.toFixed(1)}% completion rate`,
-      color: "text-green-600",
-      bgColor: "bg-green-50 dark:bg-green-950/50",
-      borderColor: "border-green-200 dark:border-green-800",
-      trend: stats.completedCases > 0 ? "up" : null,
-      subtitle: "Successfully processed",
-      badge: null
-    },
-    {
-      id: 'pending-display',
-      title: "Active Cases",
-      value: stats.pendingCases,
-      icon: Clock,
-      description: "Currently in progress",
-      color: "text-orange-600",
-      bgColor: "bg-orange-50 dark:bg-orange-950/50",
-      borderColor: "border-orange-200 dark:border-orange-800",
-      trend: stats.pendingCases > 5 ? "attention" : null,
-      subtitle: "In progress",
-      badge: null
-    }
   ];
 
   const handleCardClick = (cardId: string) => {
