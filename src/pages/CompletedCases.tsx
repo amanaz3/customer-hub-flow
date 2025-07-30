@@ -77,8 +77,8 @@ const CompletedCases = () => {
     const complete = completedApplications.filter(c => c.status === 'Complete').length;
     const paid = completedApplications.filter(c => c.status === 'Paid').length;
     
-    // Calculate revenue from completed applications (role-based filtering already applied)
-    const revenue = completedApplications.reduce((sum, c) => sum + c.amount, 0);
+    // Calculate revenue from filtered results
+    const revenue = searchFiltered.reduce((sum, c) => sum + c.amount, 0);
 
     return {
       filteredCustomers: searchFiltered,
