@@ -7,12 +7,18 @@ import { useCustomers } from '@/contexts/CustomerContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { CalendarIcon, X } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 const CompletedCases = () => {
   const { user, isAdmin } = useAuth();
   const { customers, getCustomersByUserId } = useCustomers();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<'all' | 'Complete' | 'Paid'>('all');
+  const [monthFilter, setMonthFilter] = useState<Date | undefined>();
   
   const { filteredCustomers, completeCount, paidCount, totalRevenue } = useMemo(() => {
     // For regular users, show only their completed applications
@@ -26,8 +32,18 @@ const CompletedCases = () => {
       ? completedApplications 
       : completedApplications.filter(c => c.status === statusFilter);
     
+    // Apply month filter
+    const monthFiltered = monthFilter 
+      ? statusFiltered.filter(customer => {
+          if (!customer.created_at) return false;
+          const customerDate = new Date(customer.created_at);
+          return customerDate.getMonth() === monthFilter.getMonth() && 
+                 customerDate.getFullYear() === monthFilter.getFullYear();
+        })
+      : statusFiltered;
+    
     // Apply search filter
-    const searchFiltered = statusFiltered.filter(customer => 
+    const searchFiltered = monthFiltered.filter(customer => 
       customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
       customer.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -46,7 +62,7 @@ const CompletedCases = () => {
       totalCompleted: completedApplications.length,
       totalRevenue: revenue
     };
-  }, [customers, isAdmin, user?.id, getCustomersByUserId, searchTerm, statusFilter]);
+  }, [customers, isAdmin, user?.id, getCustomersByUserId, searchTerm, statusFilter, monthFilter]);
 
   return (
     <div className="space-y-6">
@@ -76,6 +92,42 @@ const CompletedCases = () => {
                 <SelectItem value="Paid">Paid</SelectItem>
               </SelectContent>
             </Select>
+            
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "w-[200px] justify-start text-left font-normal",
+                    !monthFilter && "text-muted-foreground"
+                  )}
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  {monthFilter ? format(monthFilter, "MMMM yyyy") : "Filter by month"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={monthFilter}
+                  onSelect={setMonthFilter}
+                  initialFocus
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+            
+            {monthFilter && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setMonthFilter(undefined)}
+                className="h-8 px-2 lg:px-3"
+              >
+                Clear month
+                <X className="ml-2 h-4 w-4" />
+              </Button>
+            )}
             
             <div className="flex gap-2">
               <div className="text-sm text-muted-foreground px-3 py-2 bg-muted rounded-md">
