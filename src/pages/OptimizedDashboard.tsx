@@ -31,7 +31,7 @@ const OptimizedDashboard = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   
   // Widget selection state - default to applications
-  const [activeWidget, setActiveWidget] = useState<'applications' | 'completed' | 'pending' | 'revenue'>('applications');
+  const [activeWidget, setActiveWidget] = useState<'applications' | 'revenue'>('applications');
   
   // Enhanced date filtering for admin revenue
   const currentDate = new Date();
@@ -105,11 +105,7 @@ const OptimizedDashboard = () => {
     // Filter based on active widget
     let statusFilteredCustomers = roleBasedCustomers;
     
-    if (activeWidget === 'completed') {
-      statusFilteredCustomers = roleBasedCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
-    } else if (activeWidget === 'pending') {
-      statusFilteredCustomers = roleBasedCustomers.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status));
-    } else if (activeWidget === 'revenue') {
+    if (activeWidget === 'revenue') {
       statusFilteredCustomers = roleBasedCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
     } else {
       // Default applications view - show priority and recent
@@ -146,11 +142,7 @@ const OptimizedDashboard = () => {
     let revenueCustomers = relevantCustomers;
     
     // Filter customers based on active widget for revenue calculation
-    if (activeWidget === 'completed') {
-      revenueCustomers = relevantCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
-    } else if (activeWidget === 'pending') {
-      revenueCustomers = relevantCustomers.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status));
-    } else if (activeWidget === 'revenue') {
+    if (activeWidget === 'revenue') {
       revenueCustomers = relevantCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
     } else {
       // Default applications view - include all completed/paid for revenue
@@ -220,18 +212,6 @@ const OptimizedDashboard = () => {
           title: isAdmin ? 'All Applications' : 'My Applications',
           description: `Showing ${filteredCustomers.length} ${isAdmin ? 'total applications' : 'applications requiring attention'}`,
           icon: Users
-        };
-      case 'completed':
-        return {
-          title: 'Completed Cases',
-          description: `Showing ${filteredCustomers.length} completed applications`,
-          icon: CheckCircle
-        };
-      case 'pending':
-        return {
-          title: 'Active Cases',
-          description: `Showing ${filteredCustomers.length} cases in progress`,
-          icon: Clock
         };
       case 'revenue':
         return {

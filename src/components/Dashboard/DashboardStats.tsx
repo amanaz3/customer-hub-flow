@@ -23,8 +23,8 @@ interface DashboardStatsProps {
   };
   selectedMonths?: number[];
   revenueYear?: number;
-  onWidgetClick?: (widget: 'applications' | 'completed' | 'pending' | 'revenue') => void;
-  activeWidget?: 'applications' | 'completed' | 'pending' | 'revenue';
+  onWidgetClick?: (widget: 'applications' | 'revenue') => void;
+  activeWidget?: 'applications' | 'revenue';
 }
 
 const DashboardStats: React.FC<DashboardStatsProps> = ({ 
@@ -74,7 +74,21 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
       badge: isAdmin ? "Admin View" : "User View"
     },
     {
-      id: 'completed' as const,
+      id: 'revenue' as const,
+      title: isAdmin ? "Total Revenue" : "My Revenue",
+      value: formatCurrency(stats.totalRevenue),
+      icon: DollarSign,
+      description: revenueDescription,
+      color: "text-emerald-600",
+      bgColor: "bg-emerald-50 dark:bg-emerald-950/50",
+      borderColor: "border-emerald-200 dark:border-emerald-800",
+      trend: stats.totalRevenue > 0 ? "up" : null,
+      subtitle: "Revenue generated",
+      badge: isAdmin ? "All Users" : "Personal"
+    },
+    // Keep these stats for display but not as clickable widgets
+    {
+      id: 'completed-display',
       title: "Completed Cases",
       value: stats.completedCases,
       icon: CheckCircle,
@@ -87,7 +101,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
       badge: null
     },
     {
-      id: 'pending' as const,
+      id: 'pending-display',
       title: "Active Cases",
       value: stats.pendingCases,
       icon: Clock,
@@ -98,25 +112,12 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
       trend: stats.pendingCases > 5 ? "attention" : null,
       subtitle: "In progress",
       badge: null
-    },
-    {
-      id: 'revenue' as const,
-      title: isAdmin ? "Total Revenue" : "My Revenue",
-      value: formatCurrency(stats.totalRevenue),
-      icon: DollarSign,
-      description: revenueDescription,
-      color: "text-emerald-600",
-      bgColor: "bg-emerald-50 dark:bg-emerald-950/50",
-      borderColor: "border-emerald-200 dark:border-emerald-800",
-      trend: stats.totalRevenue > 0 ? "up" : null,
-      subtitle: "Revenue generated",
-      badge: isAdmin ? "All Users" : "Personal"
     }
   ];
 
-  const handleCardClick = (cardId: 'applications' | 'completed' | 'pending' | 'revenue') => {
-    if (onWidgetClick) {
-      onWidgetClick(cardId);
+  const handleCardClick = (cardId: string) => {
+    if (onWidgetClick && (cardId === 'applications' || cardId === 'revenue')) {
+      onWidgetClick(cardId as 'applications' | 'revenue');
     }
   };
 
@@ -124,7 +125,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
     <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
       {statCards.map((stat, index) => {
         const isActive = activeWidget === stat.id;
-        const isClickable = onWidgetClick !== undefined;
+        const isClickable = onWidgetClick !== undefined && (stat.id === 'applications' || stat.id === 'revenue');
         
         return (
           <Card 
