@@ -62,7 +62,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
   const statCards = [
     {
       id: 'applications' as const,
-      title: isAdmin ? "Total Applications" : "My Applications",
+      title: isAdmin ? "Total Active Applications" : "My Active Applications",
       value: stats.totalCustomers,
       icon: Users,
       description: isAdmin ? "System-wide applications" : "Applications you submitted",
