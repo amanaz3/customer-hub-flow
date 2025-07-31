@@ -6,20 +6,12 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import {
   LayoutDashboard,
   Users,
-  UserPlus,
-  CheckSquare,
-  XCircle,
-  UserCog,
   Settings,
   FileText,
   ChevronLeft,
   ChevronRight,
-  ChevronDown,
-  ChevronUp,
   Menu,
-  X,
-  FileCheck,
-  FileClock
+  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -27,7 +19,6 @@ import { Button } from '@/components/ui/button';
 const Sidebar: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-  const [myApplicationsExpanded, setMyApplicationsExpanded] = useState(true);
   const { isAdmin } = useAuth();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -62,25 +53,12 @@ const Sidebar: React.FC = () => {
       path: '/customers',
       icon: <FileText className="h-5 w-5" />,
       roles: ['admin', 'user'],
-      hasSubmenu: true,
-      submenu: [
-        {
-          name: 'Applications',
-          path: '/customers',
-          icon: <FileText className="h-4 w-4" />,
-        },
-        {
-          name: 'My Customers',
-          path: '/my-customers',
-          icon: <Users className="h-4 w-4" />,
-        }
-      ]
     },
     {
-      name: 'User Management',
-      path: '/users',
-      icon: <UserCog className="h-5 w-5" />,
-      roles: ['admin'],
+      name: 'My Customers',
+      path: '/my-customers',
+      icon: <Users className="h-5 w-5" />,
+      roles: ['admin', 'user'],
     },
     {
       name: 'Settings',
@@ -166,58 +144,19 @@ const Sidebar: React.FC = () => {
 
                 return (
                   <li key={item.name}>
-                    {item.hasSubmenu ? (
-                      <>
-                        <button
-                          onClick={() => setMyApplicationsExpanded(!myApplicationsExpanded)}
-                          className={cn(
-                            "flex items-center justify-between w-full px-3 py-3 rounded-md text-sm font-medium responsive-transition touch-friendly",
-                            "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                          )}
-                        >
-                          <div className="flex items-center">
-                            {item.icon}
-                            <span className="ml-3">{item.name}</span>
-                          </div>
-                          {myApplicationsExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                        </button>
-                        {myApplicationsExpanded && (
-                          <ul className="ml-6 mt-1 space-y-1">
-                            {item.submenu?.map((subItem) => (
-                              <li key={subItem.name}>
-                                <Link
-                                  to={subItem.path}
-                                  className={cn(
-                                    "flex items-center px-3 py-2 rounded-md text-sm responsive-transition touch-friendly",
-                                    isActiveRoute(subItem.path)
-                                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                                  )}
-                                  onClick={() => setMobileOpen(false)}
-                                >
-                                  {subItem.icon}
-                                  <span className="ml-3">{subItem.name}</span>
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </>
-                    ) : (
-                      <Link
-                        to={item.path}
-                        className={cn(
-                          "flex items-center px-3 py-3 rounded-md text-sm font-medium responsive-transition touch-friendly",
-                          isActiveRoute(item.path)
-                            ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                            : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                        )}
-                        onClick={() => setMobileOpen(false)}
-                      >
-                        {item.icon}
-                        <span className="ml-3">{item.name}</span>
-                      </Link>
-                    )}
+                    <Link
+                      to={item.path}
+                      className={cn(
+                        "flex items-center px-3 py-3 rounded-md text-sm font-medium responsive-transition touch-friendly",
+                        isActiveRoute(item.path)
+                          ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      )}
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {item.icon}
+                      <span className="ml-3">{item.name}</span>
+                    </Link>
                   </li>
                 );
               })}
@@ -275,62 +214,20 @@ const Sidebar: React.FC = () => {
 
             return (
               <li key={item.name}>
-                {item.hasSubmenu ? (
-                  <>
-                    <button
-                      onClick={() => setMyApplicationsExpanded(!myApplicationsExpanded)}
-                      className={cn(
-                        "flex items-center w-full rounded-md text-sm font-medium responsive-transition touch-friendly",
-                        "px-3 py-2.5",
-                        "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                        collapsed ? "justify-center px-2" : "justify-between"
-                      )}
-                    >
-                      <div className="flex items-center">
-                        {item.icon}
-                        {!collapsed && <span className="ml-3">{item.name}</span>}
-                      </div>
-                      {!collapsed && (
-                        myApplicationsExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />
-                      )}
-                    </button>
-                    {myApplicationsExpanded && !collapsed && (
-                      <ul className="ml-6 mt-1 space-y-1">
-                        {item.submenu?.map((subItem) => (
-                          <li key={subItem.name}>
-                            <Link
-                              to={subItem.path}
-                              className={cn(
-                                "flex items-center px-3 py-2 rounded-md text-sm responsive-transition touch-friendly",
-                                isActiveRoute(subItem.path)
-                                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                              )}
-                            >
-                              {subItem.icon}
-                              <span className="ml-3">{subItem.name}</span>
-                            </Link>
-                          </li>
-                        ))}
-                      </ul>
-                    )}
-                  </>
-                ) : (
-                  <Link
-                    to={item.path}
-                    className={cn(
-                      "flex items-center rounded-md text-sm font-medium responsive-transition touch-friendly",
-                      "px-3 py-2.5",
-                      isActiveRoute(item.path)
-                        ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                      collapsed ? "justify-center px-2" : ""
-                    )}
-                  >
-                    {item.icon}
-                    {!collapsed && <span className="ml-3">{item.name}</span>}
-                  </Link>
-                )}
+                <Link
+                  to={item.path}
+                  className={cn(
+                    "flex items-center rounded-md text-sm font-medium responsive-transition touch-friendly",
+                    "px-3 py-2.5",
+                    isActiveRoute(item.path)
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    collapsed ? "justify-center px-2" : ""
+                  )}
+                >
+                  {item.icon}
+                  {!collapsed && <span className="ml-3">{item.name}</span>}
+                </Link>
               </li>
             );
           })}
