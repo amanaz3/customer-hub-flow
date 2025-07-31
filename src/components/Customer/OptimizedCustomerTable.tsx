@@ -1,8 +1,12 @@
 
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Customer } from '@/contexts/CustomerContext';
 import { formatCurrency } from '@/lib/utils';
+import { supabase } from '@/lib/supabase';
+import { useAuth } from '@/contexts/SecureAuthContext';
+import { useToast } from '@/hooks/use-toast';
 import {
   Table,
   TableBody,
@@ -12,8 +16,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
-
-
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 
 
@@ -21,6 +24,111 @@ interface OptimizedCustomerTableProps {
   customers: Customer[];
   onDataChange?: () => void;
 }
+
+// Product selector component for inline editing
+const ProductSelector = memo(({ customer, onUpdate }: { 
+  customer: Customer; 
+  onUpdate: () => void;
+}) => {
+  const { toast } = useToast();
+  const { isAdmin } = useAuth();
+  const queryClient = useQueryClient();
+  
+  // Fetch all active products
+  const { data: products = [] } = useQuery({
+    queryKey: ['products'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('products')
+        .select('id, name, description, is_active')
+        .eq('is_active', true)
+        .order('name', { ascending: true });
+      
+      if (error) throw error;
+      return data || [];
+    }
+  });
+  
+  // Get product name for display
+  const selectedProduct = products.find(p => p.id === customer.product_id);
+  
+  const updateProductMutation = useMutation({
+    mutationFn: async (productId: string | null) => {
+      const { error } = await supabase
+        .from('customers')
+        .update({ 
+          product_id: productId === 'none' ? null : productId,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', customer.id);
+      
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['customers'] });
+      onUpdate();
+      toast({
+        title: "Success",
+        description: "Product updated successfully"
+      });
+    },
+    onError: (error) => {
+      toast({
+        title: "Error",
+        description: `Failed to update product: ${error.message}`,
+        variant: "destructive"
+      });
+    }
+  });
+  
+  const handleProductChange = (value: string) => {
+    updateProductMutation.mutate(value === 'none' ? null : value);
+  };
+  
+  // Stop event propagation to prevent row click
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+  
+  if (!isAdmin) {
+    return (
+      <div className="text-sm">
+        {selectedProduct ? selectedProduct.name : 'No product'}
+      </div>
+    );
+  }
+  
+  return (
+    <div onClick={handleClick} className="min-w-[120px]">
+      <Select
+        value={customer.product_id || 'none'}
+        onValueChange={handleProductChange}
+        disabled={updateProductMutation.isPending}
+      >
+        <SelectTrigger className="h-8 text-xs">
+          <SelectValue placeholder="Select product" />
+        </SelectTrigger>
+        <SelectContent className="bg-popover/95 backdrop-blur-sm border border-border z-50">
+          <SelectItem value="none">No product</SelectItem>
+          {products.map((product) => (
+            <SelectItem key={product.id} value={product.id}>
+              <div className="flex flex-col">
+                <span className="font-medium">{product.name}</span>
+                {product.description && (
+                  <span className="text-xs text-muted-foreground truncate max-w-[200px]">
+                    {product.description}
+                  </span>
+                )}
+              </div>
+            </SelectItem>
+          ))}
+        </SelectContent>
+      </Select>
+    </div>
+  );
+});
+
+ProductSelector.displayName = 'ProductSelector';
 
 // Memoized status badge component
 const StatusBadge = memo(({ status }: { status: string }) => {
@@ -48,9 +156,10 @@ const StatusBadge = memo(({ status }: { status: string }) => {
 StatusBadge.displayName = 'StatusBadge';
 
 // Memoized table row component
-const CustomerRow = memo(({ customer, onClick }: { 
+const CustomerRow = memo(({ customer, onClick, onUpdate }: { 
   customer: Customer; 
   onClick: (id: string) => void;
+  onUpdate: () => void;
 }) => {
   const handleClick = (e: React.MouseEvent) => {
     onClick(customer.id);
@@ -66,6 +175,9 @@ const CustomerRow = memo(({ customer, onClick }: {
       <TableCell>{customer.company}</TableCell>
       <TableCell>{customer.email}</TableCell>
       <TableCell>{customer.leadSource}</TableCell>
+      <TableCell>
+        <ProductSelector customer={customer} onUpdate={onUpdate} />
+      </TableCell>
       <TableCell>
         <StatusBadge status={customer.status} />
       </TableCell>
@@ -103,9 +215,10 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({ custome
         key={customer.id}
         customer={customer}
         onClick={handleRowClick}
+        onUpdate={() => onDataChange && onDataChange()}
       />
     )), 
-    [customers, handleRowClick]
+    [customers, handleRowClick, onDataChange]
   );
 
   return (
@@ -118,6 +231,7 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({ custome
             <TableHead>Company Name</TableHead>
             <TableHead>Email</TableHead>
             <TableHead>Lead Source</TableHead>
+            <TableHead>Product</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Amount</TableHead>
           </TableRow>
@@ -127,7 +241,7 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({ custome
             tableRows
           ) : (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+              <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
                 No customers found
               </TableCell>
             </TableRow>

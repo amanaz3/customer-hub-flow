@@ -22,6 +22,7 @@ export interface Customer extends BaseCustomer {
   jurisdiction?: string;
   customer_notes?: string;
   document_checklist_complete?: boolean;
+  product_id?: string;
   documents?: Document[];
   comments?: Comment[];
   statusHistory?: StatusChange[];
