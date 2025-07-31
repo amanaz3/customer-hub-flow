@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import ResponsiveCustomerTable from '@/components/Customer/ResponsiveCustomerTable';
-import UserAnalytics from '@/components/Analytics/UserAnalytics';
+import AdminDashboard from '@/components/Admin/AdminDashboard';
 import UserPersonalAnalytics from '@/components/Analytics/UserPersonalAnalytics';
 import DashboardStats from '@/components/Dashboard/DashboardStats';
 import DashboardFilters from '@/components/Dashboard/DashboardFilters';
@@ -433,34 +433,9 @@ const OptimizedDashboard = () => {
           </Card>
         )}
 
-        {/* Admin Dashboard - Simple View */}
+        {/* Admin Dashboard - Enhanced View */}
         {isAdmin ? (
-          <div className="space-y-6">
-            {customers.length === 0 ? (
-              <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
-            ) : (
-              <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
-                <CardHeader className="pb-4 border-b border-border/50">
-                  <CardTitle className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <widgetContent.icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <span className="text-xl font-semibold">{widgetContent.title}</span>
-                      <p className="text-sm text-muted-foreground font-normal mt-1">
-                        {widgetContent.description}
-                      </p>
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-6">
-                  <p className="text-muted-foreground">
-                    Welcome to the Admin Dashboard. Use the navigation menu to access specific features.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
+          <AdminDashboard />
         ) : (
           /* Regular User Dashboard with Tabs */
           <Tabs defaultValue="applications" className="space-y-8">
