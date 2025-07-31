@@ -151,7 +151,6 @@ const MyCustomers = () => {
                     <TableHead>Company Name</TableHead>
                     <TableHead>Phone Number</TableHead>
                     <TableHead>Email</TableHead>
-                    <TableHead>Status</TableHead>
                     <TableHead>License Type</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -162,19 +161,6 @@ const MyCustomers = () => {
                       <TableCell>{customer.company}</TableCell>
                       <TableCell>{customer.mobile}</TableCell>
                       <TableCell>{customer.email}</TableCell>
-                      <TableCell>
-                        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                          customer.status === 'Complete' || customer.status === 'Paid'
-                            ? 'bg-green-100 text-green-800'
-                            : customer.status === 'Rejected'
-                            ? 'bg-red-100 text-red-800'
-                            : customer.status === 'Draft'
-                            ? 'bg-gray-100 text-gray-800'
-                            : 'bg-blue-100 text-blue-800'
-                        }`}>
-                          {customer.status}
-                        </span>
-                      </TableCell>
                       <TableCell>{customer.licenseType}</TableCell>
                     </TableRow>
                   ))}
