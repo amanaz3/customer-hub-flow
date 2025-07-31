@@ -88,10 +88,10 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
     },
     {
       id: 'pending' as const,
-      title: "Active Cases",
+      title: "Submitted Cases",
       value: stats.pendingCases,
       icon: Clock,
-      description: "Currently in progress",
+      description: "Submitted and in progress",
       color: "text-orange-600",
       bgColor: "bg-orange-50 dark:bg-orange-950/50",
       borderColor: "border-orange-200 dark:border-orange-800",

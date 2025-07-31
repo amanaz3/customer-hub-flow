@@ -123,9 +123,9 @@ const OptimizedDashboard = () => {
         return customerMonth === currentMonth && customerYear === currentYear;
       });
     } else if (activeWidget === 'pending') {
-      // Show only pending cases (exclude rejected, completed, and paid)
+      // Show only submitted cases (exclude draft, rejected, completed, and paid)
       statusFilteredCustomers = roleBasedCustomers.filter(c => 
-        !['Rejected', 'Complete', 'Paid'].includes(c.status)
+        !['Draft', 'Rejected', 'Complete', 'Paid'].includes(c.status)
       );
     } else if (activeWidget === 'revenue') {
       // Show only completed and paid cases (revenue generating)
@@ -157,7 +157,7 @@ const OptimizedDashboard = () => {
     
     const totalCustomers = relevantCustomers.length;
     const completedCases = relevantCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid').length;
-    const pendingCases = relevantCustomers.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status)).length;
+    const pendingCases = relevantCustomers.filter(c => !['Draft', 'Complete', 'Paid', 'Rejected'].includes(c.status)).length;
     
     // Revenue calculation based on active widget
     let totalRevenue = 0;
@@ -262,8 +262,8 @@ const OptimizedDashboard = () => {
         };
       case 'pending':
         return {
-          title: 'Active Cases',
-          description: `Showing ${filteredCustomers.length} cases in progress`,
+          title: 'Submitted Cases',
+          description: `Showing ${filteredCustomers.length} submitted cases in progress`,
           icon: Clock
         };
       case 'revenue':
