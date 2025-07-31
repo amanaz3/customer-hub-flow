@@ -8,6 +8,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import ResponsiveCustomerTable from '@/components/Customer/ResponsiveCustomerTable';
 import UserAnalytics from '@/components/Analytics/UserAnalytics';
+import UserPersonalAnalytics from '@/components/Analytics/UserPersonalAnalytics';
 import DashboardStats from '@/components/Dashboard/DashboardStats';
 import DashboardFilters from '@/components/Dashboard/DashboardFilters';
 import EmptyDashboardState from '@/components/Dashboard/EmptyDashboardState';
@@ -488,43 +489,62 @@ const OptimizedDashboard = () => {
             </TabsContent>
           </Tabs>
         ) : (
-          /* Regular User Dashboard */
-          customers.length === 0 ? (
-            <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
-          ) : (
-            <div className="space-y-6">
-              <DashboardFilters
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                statusFilter={statusFilter}
-                setStatusFilter={setStatusFilter}
-                onRefresh={handleDataRefresh}
-                isLoading={isLoading}
-              />
-              
-              <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
-                <CardHeader className="pb-4 border-b border-border/50">
-                  <CardTitle className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <widgetContent.icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <span className="text-xl font-semibold">{widgetContent.title}</span>
-                      <p className="text-sm text-muted-foreground font-normal mt-1">
-                        {widgetContent.description}
-                      </p>
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <ResponsiveCustomerTable 
-                    customers={filteredCustomers} 
-                    onDataChange={handleDataRefresh}
+          /* Regular User Dashboard with Tabs */
+          <Tabs defaultValue="applications" className="space-y-8">
+            <TabsList className="grid w-full grid-cols-2 max-w-md h-12 bg-muted/50">
+              <TabsTrigger value="applications" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                <Users className="h-4 w-4" />
+                <span className="font-medium">Active Applications</span>
+              </TabsTrigger>
+              <TabsTrigger value="analytics" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                <BarChart3 className="h-4 w-4" />
+                <span className="font-medium">My Analytics</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="applications" className="space-y-6">
+              {customers.filter(c => c.user_id === user?.id).length === 0 ? (
+                <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
+              ) : (
+                <div className="space-y-6">
+                  <DashboardFilters
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    statusFilter={statusFilter}
+                    setStatusFilter={setStatusFilter}
+                    onRefresh={handleDataRefresh}
+                    isLoading={isLoading}
                   />
-                </CardContent>
-              </Card>
-            </div>
-          )
+                  
+                  <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
+                    <CardHeader className="pb-4 border-b border-border/50">
+                      <CardTitle className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <widgetContent.icon className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-xl font-semibold">{widgetContent.title}</span>
+                          <p className="text-sm text-muted-foreground font-normal mt-1">
+                            {widgetContent.description}
+                          </p>
+                        </div>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <ResponsiveCustomerTable 
+                        customers={filteredCustomers} 
+                        onDataChange={handleDataRefresh}
+                      />
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </TabsContent>
+
+            <TabsContent value="analytics" className="space-y-6">
+              <UserPersonalAnalytics />
+            </TabsContent>
+          </Tabs>
         )}
       </div>
     );
