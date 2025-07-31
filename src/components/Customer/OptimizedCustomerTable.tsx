@@ -25,6 +25,44 @@ interface OptimizedCustomerTableProps {
   onDataChange?: () => void;
 }
 
+// Hook to fetch user information
+const useUserInfo = (userId?: string) => {
+  return useQuery({
+    queryKey: ['user-info', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('name, email')
+        .eq('id', userId)
+        .single();
+      
+      if (error) return null;
+      return data;
+    },
+    enabled: !!userId
+  });
+};
+
+// Component to display submitted by information
+const SubmittedByCell = memo(({ userId }: { userId?: string }) => {
+  const { data: userInfo } = useUserInfo(userId);
+  
+  if (!userInfo) {
+    return <span className="text-muted-foreground text-sm">Unknown</span>;
+  }
+  
+  return (
+    <div className="text-sm">
+      <div className="font-medium">{userInfo.name}</div>
+      <div className="text-muted-foreground text-xs">{userInfo.email}</div>
+    </div>
+  );
+});
+
+SubmittedByCell.displayName = 'SubmittedByCell';
+
 // Product selector component for inline editing
 const ProductSelector = memo(({ customer, onUpdate }: { 
   customer: Customer; 
@@ -171,12 +209,13 @@ const CustomerRow = memo(({ customer, onClick, onUpdate }: {
       onClick={handleClick}
     >
       <TableCell className="font-medium">{customer.name}</TableCell>
-      <TableCell>{customer.mobile}</TableCell>
-      <TableCell>{customer.company}</TableCell>
-      <TableCell>{customer.email}</TableCell>
-      <TableCell>{customer.leadSource}</TableCell>
       <TableCell>
         <ProductSelector customer={customer} onUpdate={onUpdate} />
+      </TableCell>
+      <TableCell>{customer.mobile}</TableCell>
+      <TableCell>{customer.company}</TableCell>
+      <TableCell>
+        <SubmittedByCell userId={customer.user_id} />
       </TableCell>
       <TableCell>
         <StatusBadge status={customer.status} />
@@ -227,11 +266,10 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({ custome
         <TableHeader>
           <TableRow>
             <TableHead>Customer Name</TableHead>
+            <TableHead>Product</TableHead>
             <TableHead>Mobile</TableHead>
             <TableHead>Company Name</TableHead>
-            <TableHead>Email</TableHead>
-            <TableHead>Lead Source</TableHead>
-            <TableHead>Product</TableHead>
+            <TableHead>Submitted by</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Amount</TableHead>
           </TableRow>
@@ -241,7 +279,7 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({ custome
             tableRows
           ) : (
             <TableRow>
-              <TableCell colSpan={8} className="text-center py-6 text-muted-foreground">
+              <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
                 No customers found
               </TableCell>
             </TableRow>
