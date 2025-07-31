@@ -129,11 +129,13 @@ const MobileCustomerCard = memo(({
 const DesktopCustomerRow = memo(({ 
   customer, 
   onClick,
-  submittedBy 
+  submittedBy,
+  isAdmin 
 }: { 
   customer: Customer; 
   onClick: (id: string) => void;
   submittedBy?: string;
+  isAdmin: boolean;
 }) => {
   return (
     <TableRow 
@@ -143,7 +145,7 @@ const DesktopCustomerRow = memo(({
       <TableCell className="font-medium">{customer.name}</TableCell>
       <TableCell>{customer.mobile}</TableCell>
       <TableCell className="max-w-[200px] truncate">{customer.company}</TableCell>
-      <TableCell className="max-w-[180px] truncate">{submittedBy || 'N/A'}</TableCell>
+      {isAdmin && <TableCell className="max-w-[180px] truncate">{submittedBy || 'N/A'}</TableCell>}
       <TableCell>
         <StatusBadge status={customer.status} />
       </TableCell>
@@ -222,6 +224,7 @@ const ResponsiveCustomerTable: React.FC<ResponsiveCustomerTableProps> = ({
         customer={customer}
         onClick={handleItemClick}
         submittedBy={customer.user_id ? userProfiles[customer.user_id]?.name : undefined}
+        isAdmin={isAdmin}
       />
     ));
   }, [customers, handleItemClick, isMobile, userProfiles]);
@@ -259,7 +262,7 @@ const ResponsiveCustomerTable: React.FC<ResponsiveCustomerTableProps> = ({
               <TableHead className="min-w-[120px]">Customer Name</TableHead>
               <TableHead className="min-w-[100px]">Mobile</TableHead>
               <TableHead className="min-w-[150px]">Company Name</TableHead>
-              <TableHead className="min-w-[130px]">Submitted by</TableHead>
+              {isAdmin && <TableHead className="min-w-[130px]">Submitted by</TableHead>}
               <TableHead className="min-w-[80px]">Status</TableHead>
               <TableHead className="text-right min-w-[100px]">Amount</TableHead>
             </TableRow>
