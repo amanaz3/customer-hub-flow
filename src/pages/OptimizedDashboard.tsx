@@ -433,63 +433,34 @@ const OptimizedDashboard = () => {
           </Card>
         )}
 
-        {/* Admin Dashboard with Tabs */}
+        {/* Admin Dashboard - Simple View */}
         {isAdmin ? (
-          <Tabs defaultValue="customers" className="space-y-8">
-            <TabsList className="grid w-full grid-cols-2 max-w-md h-12 bg-muted/50">
-              <TabsTrigger value="customers" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <Users className="h-4 w-4" />
-                <span className="font-medium">Customers</span>
-              </TabsTrigger>
-              <TabsTrigger value="analytics" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <BarChart3 className="h-4 w-4" />
-                <span className="font-medium">Analytics</span>
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="customers" className="space-y-6">
-              {customers.length === 0 ? (
-                <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
-              ) : (
-                <div className="space-y-6">
-                  <DashboardFilters
-                    searchTerm={searchTerm}
-                    setSearchTerm={setSearchTerm}
-                    statusFilter={statusFilter}
-                    setStatusFilter={setStatusFilter}
-                    onRefresh={handleDataRefresh}
-                    isLoading={isLoading}
-                  />
-                  
-                  <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
-                    <CardHeader className="pb-4 border-b border-border/50">
-                      <CardTitle className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <widgetContent.icon className="h-5 w-5 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-xl font-semibold">{widgetContent.title}</span>
-                          <p className="text-sm text-muted-foreground font-normal mt-1">
-                            {widgetContent.description}
-                          </p>
-                        </div>
-                      </CardTitle>
-                    </CardHeader>
-                    <CardContent className="p-0">
-                      <ResponsiveCustomerTable 
-                        customers={filteredCustomers} 
-                        onDataChange={handleDataRefresh}
-                      />
-                    </CardContent>
-                  </Card>
-                </div>
-              )}
-            </TabsContent>
-
-            <TabsContent value="analytics" className="space-y-6">
-              <UserAnalytics />
-            </TabsContent>
-          </Tabs>
+          <div className="space-y-6">
+            {customers.length === 0 ? (
+              <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
+            ) : (
+              <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
+                <CardHeader className="pb-4 border-b border-border/50">
+                  <CardTitle className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <widgetContent.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-xl font-semibold">{widgetContent.title}</span>
+                      <p className="text-sm text-muted-foreground font-normal mt-1">
+                        {widgetContent.description}
+                      </p>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-6">
+                  <p className="text-muted-foreground">
+                    Welcome to the Admin Dashboard. Use the navigation menu to access specific features.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
         ) : (
           /* Regular User Dashboard with Tabs */
           <Tabs defaultValue="applications" className="space-y-8">
