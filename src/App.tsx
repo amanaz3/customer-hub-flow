@@ -13,6 +13,7 @@ import SecureLogin from '@/pages/SecureLogin';
 import {
   LazyOptimizedDashboard,
   LazyCustomerList,
+  LazyMyCustomers,
   LazyCustomerNew,
   LazyCustomerDetail,
   LazySecureUserManagement,
@@ -99,6 +100,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Customer Details">
                           <LazyCustomerDetail />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/my-customers" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="My Customers">
+                          <LazyMyCustomers />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
