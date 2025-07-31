@@ -116,7 +116,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
       case 'mandatory': return 'Mandatory Documents (All Applications)';
       case 'freezone': return 'Required for Freezone Only';
       case 'supporting': return 'Supporting Documents (Optional but Recommended)';
-      case 'signatory': return 'Signatory Documents (For Authorized Signatory Only)';
+      case 'signatory': return 'Shareholder Documents';
       default: return 'Documents';
     }
   };
