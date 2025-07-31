@@ -75,33 +75,23 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const { toast } = useToast();
   const { uploadDocument } = useCustomer();
 
-  // Fetch user's assigned products
-  const { data: userProducts = [], isLoading: productsLoading } = useQuery({
-    queryKey: ['user-products', user?.id],
+  // Fetch all active products for the dropdown
+  const { data: products = [], isLoading: productsLoading } = useQuery({
+    queryKey: ['products'],
     queryFn: async () => {
-      if (!user?.id) return [];
-      
       const { data, error } = await supabase
-        .from('user_products')
-        .select(`
-          product_id,
-          products:product_id (
-            id,
-            name,
-            description,
-            is_active
-          )
-        `)
-        .eq('user_id', user.id);
+        .from('products')
+        .select('id, name, description, is_active')
+        .eq('is_active', true)
+        .order('name', { ascending: true });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching products:', error);
+        throw error;
+      }
       
-      return data
-        .filter(item => item.products?.is_active)
-        .map(item => item.products)
-        .filter(Boolean);
-    },
-    enabled: !!user?.id
+      return data || [];
+    }
   });
 
   const form = useForm<FormData>({
@@ -528,7 +518,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </SelectTrigger>
                       <SelectContent className="bg-popover/95 backdrop-blur-sm border border-border z-50">
                         <SelectItem value="none">No product selected</SelectItem>
-                        {userProducts.map((product: any) => (
+                        {products.map((product) => (
                           <SelectItem key={product.id} value={product.id}>
                             <div className="flex flex-col">
                               <span className="font-medium">{product.name}</span>
@@ -540,8 +530,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         ))}
                       </SelectContent>
                     </Select>
-                    {userProducts.length === 0 && !productsLoading && (
-                      <p className="text-xs text-muted-foreground">No products available. Contact admin to assign products.</p>
+                    {products.length === 0 && !productsLoading && (
+                      <p className="text-xs text-muted-foreground">No products available.</p>
                     )}
                   </div>
 
