@@ -1,8 +1,10 @@
-import React, { memo, useMemo } from 'react';
+import React, { memo, useMemo, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Customer } from '@/types/customer';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useAuth } from '@/contexts/SecureAuthContext';
+import { supabase } from '@/lib/supabase';
 import { cn } from '@/lib/utils';
 import {
   Table,
@@ -28,6 +30,12 @@ import {
 interface ResponsiveCustomerTableProps {
   customers: Customer[];
   onDataChange?: () => void;
+}
+
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
 }
 
 // Status badge component
@@ -120,10 +128,12 @@ const MobileCustomerCard = memo(({
 // Desktop table row component
 const DesktopCustomerRow = memo(({ 
   customer, 
-  onClick 
+  onClick,
+  submittedBy 
 }: { 
   customer: Customer; 
   onClick: (id: string) => void;
+  submittedBy?: string;
 }) => {
   return (
     <TableRow 
@@ -133,8 +143,7 @@ const DesktopCustomerRow = memo(({
       <TableCell className="font-medium">{customer.name}</TableCell>
       <TableCell>{customer.mobile}</TableCell>
       <TableCell className="max-w-[200px] truncate">{customer.company}</TableCell>
-      <TableCell className="max-w-[250px] truncate">{customer.email}</TableCell>
-      <TableCell>{customer.leadSource}</TableCell>
+      <TableCell className="max-w-[180px] truncate">{submittedBy || 'N/A'}</TableCell>
       <TableCell>
         <StatusBadge status={customer.status} />
       </TableCell>
@@ -151,6 +160,34 @@ const ResponsiveCustomerTable: React.FC<ResponsiveCustomerTableProps> = ({
 }) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { isAdmin } = useAuth();
+  const [userProfiles, setUserProfiles] = useState<{[key: string]: UserProfile}>({});
+
+  // Fetch user profiles for admin view
+  useEffect(() => {
+    if (!isAdmin) return;
+    
+    const fetchUserProfiles = async () => {
+      const uniqueUserIds = [...new Set(customers.map(c => c.user_id).filter(Boolean))];
+      
+      if (uniqueUserIds.length > 0) {
+        const { data: profiles } = await supabase
+          .from('profiles')
+          .select('id, name, email')
+          .in('id', uniqueUserIds);
+        
+        if (profiles) {
+          const profileMap = profiles.reduce((acc, profile) => {
+            acc[profile.id] = profile;
+            return acc;
+          }, {} as {[key: string]: UserProfile});
+          setUserProfiles(profileMap);
+        }
+      }
+    };
+
+    fetchUserProfiles();
+  }, [customers, isAdmin]);
 
   const handleItemClick = useMemo(() => 
     (id: string) => navigate(`/customers/${id}`), 
@@ -184,9 +221,10 @@ const ResponsiveCustomerTable: React.FC<ResponsiveCustomerTableProps> = ({
         key={customer.id}
         customer={customer}
         onClick={handleItemClick}
+        submittedBy={customer.user_id ? userProfiles[customer.user_id]?.name : undefined}
       />
     ));
-  }, [customers, handleItemClick, isMobile]);
+  }, [customers, handleItemClick, isMobile, userProfiles]);
 
   if (customers.length === 0) {
     return (
@@ -221,8 +259,7 @@ const ResponsiveCustomerTable: React.FC<ResponsiveCustomerTableProps> = ({
               <TableHead className="min-w-[120px]">Customer Name</TableHead>
               <TableHead className="min-w-[100px]">Mobile</TableHead>
               <TableHead className="min-w-[150px]">Company Name</TableHead>
-              <TableHead className="min-w-[180px]">Email</TableHead>
-              <TableHead className="min-w-[100px]">Lead Source</TableHead>
+              <TableHead className="min-w-[130px]">Submitted by</TableHead>
               <TableHead className="min-w-[80px]">Status</TableHead>
               <TableHead className="text-right min-w-[100px]">Amount</TableHead>
             </TableRow>
