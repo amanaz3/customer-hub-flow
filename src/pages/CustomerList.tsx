@@ -18,7 +18,7 @@ const CustomerList = () => {
   const navigate = useNavigate();
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
 
-  const { userCustomers, activeCustomers, completedCustomers } = useMemo(() => {
+  const { userCustomers, activeCustomers, draftedCustomers, completedCustomers, paidCustomers, rejectedCustomers } = useMemo(() => {
     // For regular users, show only their customers
     // For admins, show filtered customers or all customers
     const baseCustomers = isAdmin ? (filteredCustomers.length > 0 ? filteredCustomers : customers) : getCustomersByUserId(user?.id || '');
@@ -27,16 +27,29 @@ const CustomerList = () => {
     const active = baseCustomers.filter(customer => 
       customer.status !== 'Complete' && 
       customer.status !== 'Paid' && 
-      customer.status !== 'Rejected'
+      customer.status !== 'Rejected' &&
+      customer.status !== 'Draft'
+    );
+    const drafted = baseCustomers.filter(customer => 
+      customer.status === 'Draft'
     );
     const completed = baseCustomers.filter(customer => 
       customer.status === 'Complete'
+    );
+    const paid = baseCustomers.filter(customer => 
+      customer.status === 'Paid'
+    );
+    const rejected = baseCustomers.filter(customer => 
+      customer.status === 'Rejected'
     );
 
     return {
       userCustomers: baseCustomers,
       activeCustomers: active,
-      completedCustomers: completed
+      draftedCustomers: drafted,
+      completedCustomers: completed,
+      paidCustomers: paid,
+      rejectedCustomers: rejected
     };
   }, [customers, filteredCustomers, isAdmin, user?.id, getCustomersByUserId]);
 
@@ -46,15 +59,8 @@ const CustomerList = () => {
     <div className="space-y-6">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold">
-              {isAdmin ? 'All Applications' : 'My Applications'}
-            </h1>
-            <p className="text-muted-foreground">
-              {isAdmin 
-                ? 'Manage all customer applications' 
-                : 'View and manage your applications'
-              }
-            </p>
+            <h1 className="text-3xl font-bold">My Applications</h1>
+            <p className="text-muted-foreground">View and manage your applications</p>
           </div>
           <Button
             onClick={handleNewApplication}
@@ -74,10 +80,13 @@ const CustomerList = () => {
         )}
 
         <LazyWrapper>
-          <Tabs defaultValue="active">
-            <TabsList>
+          <Tabs defaultValue="active" className="w-full">
+            <TabsList className="grid w-full grid-cols-5">
               <TabsTrigger value="active">Active Applications</TabsTrigger>
+              <TabsTrigger value="drafted">Drafted Applications</TabsTrigger>
               <TabsTrigger value="completed">Completed Applications</TabsTrigger>
+              <TabsTrigger value="paid">Paid Applications</TabsTrigger>
+              <TabsTrigger value="rejected">Rejected Applications</TabsTrigger>
             </TabsList>
             
             <TabsContent value="active">
@@ -91,6 +100,17 @@ const CustomerList = () => {
               </Card>
             </TabsContent>
             
+            <TabsContent value="drafted">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Drafted Applications</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <OptimizedCustomerTable customers={draftedCustomers} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
             <TabsContent value="completed">
               <Card>
                 <CardHeader>
@@ -98,6 +118,28 @@ const CustomerList = () => {
                 </CardHeader>
                 <CardContent>
                   <OptimizedCustomerTable customers={completedCustomers} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="paid">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Paid Applications</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <OptimizedCustomerTable customers={paidCustomers} />
+                </CardContent>
+              </Card>
+            </TabsContent>
+            
+            <TabsContent value="rejected">
+              <Card>
+                <CardHeader>
+                  <CardTitle>Rejected Applications</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <OptimizedCustomerTable customers={rejectedCustomers} />
                 </CardContent>
               </Card>
             </TabsContent>
