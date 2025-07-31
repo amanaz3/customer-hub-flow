@@ -39,16 +39,13 @@ const MyCustomers = () => {
     }
 
     // Prepare CSV data
-    const headers = ['Customer Name', 'Company Name', 'Phone Number', 'Email', 'Status', 'Lead Source', 'License Type', 'Amount'];
+    const headers = ['Customer Name', 'Company Name', 'Phone Number', 'Email', 'License Type'];
     const csvData = filteredCustomers.map(customer => [
       customer.name,
       customer.company,
       customer.mobile,
       customer.email,
-      customer.status,
-      customer.leadSource,
-      customer.licenseType,
-      customer.amount?.toString() || '0'
+      customer.licenseType
     ]);
 
     // Create CSV content
