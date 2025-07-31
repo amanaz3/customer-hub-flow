@@ -107,6 +107,9 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
       case 'freezone': return <Shield className="w-5 h-5" />;
       case 'supporting': return <FileText className="w-5 h-5" />;
       case 'signatory': return <Users className="w-5 h-5" />;
+      case 'passport_docs': return <FileText className="w-5 h-5 text-blue-600" />;
+      case 'emirates_id_docs': return <FileText className="w-5 h-5 text-green-600" />;
+      case 'bank_statement_docs': return <FileText className="w-5 h-5 text-purple-600" />;
       default: return <FileText className="w-5 h-5" />;
     }
   };
@@ -117,6 +120,9 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
       case 'freezone': return 'Required for Freezone Only';
       case 'supporting': return 'Supporting Documents (Optional but Recommended)';
       case 'signatory': return 'Shareholder Documents';
+      case 'passport_docs': return 'Passport Documents';
+      case 'emirates_id_docs': return 'Emirates ID Documents';
+      case 'bank_statement_docs': return 'Bank Statement Documents';
       default: return 'Documents';
     }
   };
@@ -127,6 +133,9 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
       case 'freezone': return 'Additional documents required for Freezone license types';
       case 'supporting': return 'Optional documents that can help speed up your application';
       case 'signatory': return 'Documents for the authorized signatory of the company';
+      case 'passport_docs': return 'Passport documents for all shareholders';
+      case 'emirates_id_docs': return 'Emirates ID documents for all shareholders';
+      case 'bank_statement_docs': return 'Bank statement documents for all shareholders';
       default: return '';
     }
   };
@@ -143,7 +152,7 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
     return acc;
   }, {} as Record<string, Document[]>);
 
-  const categoryOrder = ['mandatory', 'freezone', 'supporting', 'signatory'];
+  const categoryOrder = ['mandatory', 'freezone', 'supporting', 'signatory', 'passport_docs', 'emirates_id_docs', 'bank_statement_docs'];
 
   const handleViewFile = (doc: Document) => {
     if (!doc.file_path) return;

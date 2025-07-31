@@ -437,7 +437,14 @@ export type Database = {
         | "Rejected"
         | "Need More Info"
         | "Paid"
-      document_category: "mandatory" | "freezone" | "supporting" | "signatory"
+      document_category:
+        | "mandatory"
+        | "freezone"
+        | "supporting"
+        | "signatory"
+        | "passport_docs"
+        | "emirates_id_docs"
+        | "bank_statement_docs"
       lead_source: "Website" | "Referral" | "Social Media" | "Other"
       license_type: "Mainland" | "Freezone" | "Offshore"
     }
@@ -578,7 +585,15 @@ export const Constants = {
         "Need More Info",
         "Paid",
       ],
-      document_category: ["mandatory", "freezone", "supporting", "signatory"],
+      document_category: [
+        "mandatory",
+        "freezone",
+        "supporting",
+        "signatory",
+        "passport_docs",
+        "emirates_id_docs",
+        "bank_statement_docs",
+      ],
       lead_source: ["Website", "Referral", "Social Media", "Other"],
       license_type: ["Mainland", "Freezone", "Offshore"],
     },
