@@ -19,6 +19,7 @@ import {
   LazyCompletedCases,
   LazyRejectedCases,
   LazySettings,
+  LazyProductManagement,
   LazyNotFound,
   PageLoadingFallback
 } from '@/components/LazyComponents';
@@ -134,6 +135,15 @@ function App() {
                     </ProtectedRoute>
                   } />
                   
+                  <Route path="/products" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Product Management">
+                          <LazyProductManagement />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
                   
                   <Route path="/settings" element={
                     <ProtectedRoute>

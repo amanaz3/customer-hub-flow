@@ -12,6 +12,7 @@ const CompletedCases = React.lazy(() => import('@/pages/CompletedCases'));
 const RejectedCases = React.lazy(() => import('@/pages/RejectedCases'));
 
 const Settings = React.lazy(() => import('@/pages/Settings'));
+const ProductManagement = React.lazy(() => import('@/pages/ProductManagement'));
 const NotFound = React.lazy(() => import('@/pages/NotFound'));
 
 // Heavy components
@@ -68,6 +69,7 @@ export const LazyCompletedCases = withLazyLoading(CompletedCases, "Loading compl
 export const LazyRejectedCases = withLazyLoading(RejectedCases, "Loading rejected cases...");
 
 export const LazySettings = withLazyLoading(Settings, "Loading settings...");
+export const LazyProductManagement = withLazyLoading(ProductManagement, "Loading product management...");
 export const LazyNotFound = withLazyLoading(NotFound, "Loading page...");
 
 export const LazyProductionMonitor = withLazyLoading(ProductionMonitor, "Loading performance monitor...");
