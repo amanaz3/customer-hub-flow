@@ -54,6 +54,10 @@ const formSchema = z.object({
   bank_preference_3: z.string().optional(),
   customer_notes: z.string().optional(),
   product_id: z.string().optional(),
+  no_of_shareholders: z.number()
+    .min(1, "Number of shareholders must be at least 1")
+    .max(10, "Number of shareholders cannot exceed 10")
+    .default(1),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -112,15 +116,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       bank_preference_3: '',
       customer_notes: '',
       product_id: undefined,
+      no_of_shareholders: 1,
       ...initialData
     },
   });
 
   const watchAnySuitableBank = form.watch('any_suitable_bank');
   const watchLicenseType = form.watch('license_type');
+  const watchShareholderCount = form.watch('no_of_shareholders');
 
   // Create default documents when license type changes
-  const createDefaultDocuments = useCallback(async (customerId: string, licenseType: string) => {
+  const createDefaultDocuments = useCallback(async (customerId: string, licenseType: string, shareholderCount: number = 1) => {
     interface DefaultDocument {
       name: string;
       is_mandatory: boolean;
@@ -141,12 +147,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       { name: 'Audited Financial Statements', is_mandatory: false, category: 'supporting' },
       { name: 'Business Plan', is_mandatory: false, category: 'supporting' },
       { name: 'Proof of Address', is_mandatory: false, category: 'supporting' },
-      
-      // Signatory documents
-      { name: 'Authorized Signatory Passport', is_mandatory: false, category: 'signatory' },
-      { name: 'Authorized Signatory Emirates ID', is_mandatory: false, category: 'signatory' },
-      { name: 'Board Resolution', is_mandatory: false, category: 'signatory' },
     ];
+
+    // Generate multiple signatory document sets based on number of shareholders
+    for (let i = 1; i <= shareholderCount; i++) {
+      const shareholderLabel = shareholderCount > 1 ? ` (Shareholder ${i})` : '';
+      defaultDocuments.push(
+        { name: `Authorized Signatory Passport${shareholderLabel}`, is_mandatory: false, category: 'signatory' },
+        { name: `Authorized Signatory Emirates ID${shareholderLabel}`, is_mandatory: false, category: 'signatory' },
+        { name: `Board Resolution${shareholderLabel}`, is_mandatory: false, category: 'signatory' },
+      );
+    }
 
     // Add Freezone-specific documents if applicable
     if (licenseType === 'Freezone') {
@@ -293,7 +304,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       }
 
       // Create default documents
-      const defaultDocs = await createDefaultDocuments(customer.id, data.license_type);
+      const defaultDocs = await createDefaultDocuments(customer.id, data.license_type, data.no_of_shareholders);
       setDocuments(defaultDocs);
       setCreatedCustomerId(customer.id);
 
@@ -587,6 +598,25 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       <option value="Freezone">Freezone</option>
                       <option value="Other">Other</option>
                     </select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
+                    <Input
+                      id="no_of_shareholders"
+                      type="number"
+                      min="1"
+                      max="10"
+                      {...form.register('no_of_shareholders', { valueAsNumber: true })}
+                      disabled={isSubmitting}
+                      required
+                    />
+                    {form.formState.errors.no_of_shareholders && (
+                      <p className="text-sm text-red-600">{form.formState.errors.no_of_shareholders.message}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      Number of shareholders will determine how many signatory document sets are created (1-10)
+                    </p>
                   </div>
                 </div>
               </div>
