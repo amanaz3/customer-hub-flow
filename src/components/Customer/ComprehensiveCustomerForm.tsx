@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -52,6 +53,7 @@ const formSchema = z.object({
   bank_preference_2: z.string().optional(),
   bank_preference_3: z.string().optional(),
   customer_notes: z.string().optional(),
+  product_id: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -72,6 +74,35 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const { user } = useAuth();
   const { toast } = useToast();
   const { uploadDocument } = useCustomer();
+
+  // Fetch user's assigned products
+  const { data: userProducts = [], isLoading: productsLoading } = useQuery({
+    queryKey: ['user-products', user?.id],
+    queryFn: async () => {
+      if (!user?.id) return [];
+      
+      const { data, error } = await supabase
+        .from('user_products')
+        .select(`
+          product_id,
+          products:product_id (
+            id,
+            name,
+            description,
+            is_active
+          )
+        `)
+        .eq('user_id', user.id);
+      
+      if (error) throw error;
+      
+      return data
+        .filter(item => item.products?.is_active)
+        .map(item => item.products)
+        .filter(Boolean);
+    },
+    enabled: !!user?.id
+  });
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -235,6 +266,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           data.bank_preference_3?.trim()
         ].filter(Boolean).join(', ') || null,
         customer_notes: data.customer_notes ? sanitizeInput(data.customer_notes.trim()) : null,
+        product_id: data.product_id || null,
         user_id: user.id,
         status: 'Draft' as const
       };
@@ -481,6 +513,35 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <SelectItem value="Other">Other</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="product">Product</Label>
+                    <Select
+                      value={form.watch('product_id') || ''}
+                      onValueChange={(value) => form.setValue('product_id', value || undefined)}
+                      disabled={isSubmitting || productsLoading}
+                    >
+                      <SelectTrigger className="bg-popover/95 backdrop-blur-sm border border-border z-50">
+                        <SelectValue placeholder={productsLoading ? "Loading products..." : "Select a product (optional)"} />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover/95 backdrop-blur-sm border border-border z-50">
+                        <SelectItem value="">No product selected</SelectItem>
+                        {userProducts.map((product: any) => (
+                          <SelectItem key={product.id} value={product.id}>
+                            <div className="flex flex-col">
+                              <span className="font-medium">{product.name}</span>
+                              {product.description && (
+                                <span className="text-xs text-muted-foreground">{product.description}</span>
+                              )}
+                            </div>
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {userProducts.length === 0 && !productsLoading && (
+                      <p className="text-xs text-muted-foreground">No products available. Contact admin to assign products.</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
