@@ -114,13 +114,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       amount: 0,
       license_type: 'Mainland',
       lead_source: 'Website',
-      annual_turnover: undefined,
+      annual_turnover: 0,
       jurisdiction: '',
       any_suitable_bank: false,
       bank_preference_1: '',
       bank_preference_2: '',
       bank_preference_3: '',
       customer_notes: '',
+      product_id: undefined,
       ...initialData
     },
   });
@@ -518,15 +519,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   <div className="space-y-2">
                     <Label htmlFor="product">Product</Label>
                     <Select
-                      value={form.watch('product_id') || ''}
-                      onValueChange={(value) => form.setValue('product_id', value || undefined)}
+                      value={form.watch('product_id') || undefined}
+                      onValueChange={(value) => form.setValue('product_id', value === 'none' ? undefined : value)}
                       disabled={isSubmitting || productsLoading}
                     >
                       <SelectTrigger className="bg-popover/95 backdrop-blur-sm border border-border z-50">
                         <SelectValue placeholder={productsLoading ? "Loading products..." : "Select a product (optional)"} />
                       </SelectTrigger>
                       <SelectContent className="bg-popover/95 backdrop-blur-sm border border-border z-50">
-                        <SelectItem value="">No product selected</SelectItem>
+                        <SelectItem value="none">No product selected</SelectItem>
                         {userProducts.map((product: any) => (
                           <SelectItem key={product.id} value={product.id}>
                             <div className="flex flex-col">
