@@ -97,13 +97,15 @@ const OptimizedDashboard = () => {
     }
   });
 
-  // Filter customers based on role-based access only
+  // Filter customers based on role-based access and exclude certain statuses
   const filteredCustomers = useMemo(() => {
-    // First filter by role-based access - show all customers regardless of status
+    // First filter by role-based access
     const roleBasedCustomers = isAdmin ? customers : customers.filter(c => c.user_id === user?.id);
     
-    // No status filtering - show all customers
-    let statusFilteredCustomers = roleBasedCustomers;
+    // Exclude rejected, completed, and paid applications
+    let statusFilteredCustomers = roleBasedCustomers.filter(c => 
+      !['Rejected', 'Complete', 'Paid'].includes(c.status)
+    );
     
     return statusFilteredCustomers.filter(customer => {
       const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
