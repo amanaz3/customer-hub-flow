@@ -26,6 +26,7 @@ const Sidebar: React.FC = () => {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [myApplicationsExpanded, setMyApplicationsExpanded] = useState(true);
+  const [allApplicationsExpanded, setAllApplicationsExpanded] = useState(true);
   const { isAdmin } = useAuth();
   const location = useLocation();
   const isMobile = useIsMobile();
@@ -66,21 +67,24 @@ const Sidebar: React.FC = () => {
           name: 'All Applications',
           path: '/customers',
           icon: <Users className="h-4 w-4" />,
+          hasSubmenu: true,
+          submenu: [
+            {
+              name: 'Completed Cases',
+              path: '/completed',
+              icon: <CheckSquare className="h-3 w-3" />,
+            },
+            {
+              name: 'Rejected Cases',
+              path: '/rejected',
+              icon: <XCircle className="h-3 w-3" />,
+            }
+          ]
         },
         {
           name: 'New Application',
           path: '/customers/new',
           icon: <UserPlus className="h-4 w-4" />,
-        },
-        {
-          name: 'Completed Cases',
-          path: '/completed',
-          icon: <CheckSquare className="h-4 w-4" />,
-        },
-        {
-          name: 'Rejected Cases',
-          path: '/rejected',
-          icon: <XCircle className="h-4 w-4" />,
         }
       ]
     },
@@ -189,27 +193,66 @@ const Sidebar: React.FC = () => {
                           </div>
                           {myApplicationsExpanded ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                         </button>
-                        {myApplicationsExpanded && (
-                          <ul className="ml-6 mt-1 space-y-1">
-                            {item.submenu?.map((subItem) => (
-                              <li key={subItem.name}>
-                                <Link
-                                  to={subItem.path}
-                                  className={cn(
-                                    "flex items-center px-3 py-2 rounded-md text-sm responsive-transition touch-friendly",
-                                    isActiveRoute(subItem.path)
-                                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                                  )}
-                                  onClick={() => setMobileOpen(false)}
-                                >
-                                  {subItem.icon}
-                                  <span className="ml-3">{subItem.name}</span>
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
+                         {myApplicationsExpanded && (
+                           <ul className="ml-6 mt-1 space-y-1">
+                             {item.submenu?.map((subItem) => (
+                               <li key={subItem.name}>
+                                 {subItem.hasSubmenu ? (
+                                   <>
+                                     <button
+                                       onClick={() => setAllApplicationsExpanded(!allApplicationsExpanded)}
+                                       className={cn(
+                                         "flex items-center justify-between w-full px-3 py-2 rounded-md text-sm responsive-transition touch-friendly",
+                                         "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                                       )}
+                                     >
+                                       <div className="flex items-center">
+                                         {subItem.icon}
+                                         <span className="ml-3">{subItem.name}</span>
+                                       </div>
+                                       {allApplicationsExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                                     </button>
+                                     {allApplicationsExpanded && (
+                                       <ul className="ml-6 mt-1 space-y-1">
+                                         {subItem.submenu?.map((nestedItem) => (
+                                           <li key={nestedItem.name}>
+                                             <Link
+                                               to={nestedItem.path}
+                                               className={cn(
+                                                 "flex items-center px-3 py-2 rounded-md text-xs responsive-transition touch-friendly",
+                                                 isActiveRoute(nestedItem.path)
+                                                   ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                                                   : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                                               )}
+                                               onClick={() => setMobileOpen(false)}
+                                             >
+                                               {nestedItem.icon}
+                                               <span className="ml-3">{nestedItem.name}</span>
+                                             </Link>
+                                           </li>
+                                         ))}
+                                       </ul>
+                                     )}
+                                   </>
+                                 ) : (
+                                   <Link
+                                     to={subItem.path}
+                                     className={cn(
+                                       "flex items-center px-3 py-2 rounded-md text-sm responsive-transition touch-friendly",
+                                       isActiveRoute(subItem.path)
+                                         ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                                         : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                                     )}
+                                     onClick={() => setMobileOpen(false)}
+                                   >
+                                     {subItem.icon}
+                                     <span className="ml-3">{subItem.name}</span>
+                                   </Link>
+                                 )}
+                               </li>
+                             ))}
+                           </ul>
+                         )}
                       </>
                     ) : (
                       <Link
@@ -306,18 +349,56 @@ const Sidebar: React.FC = () => {
                       <ul className="ml-6 mt-1 space-y-1">
                         {item.submenu?.map((subItem) => (
                           <li key={subItem.name}>
-                            <Link
-                              to={subItem.path}
-                              className={cn(
-                                "flex items-center px-3 py-2 rounded-md text-sm responsive-transition touch-friendly",
-                                isActiveRoute(subItem.path)
-                                  ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                                  : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                              )}
-                            >
-                              {subItem.icon}
-                              <span className="ml-3">{subItem.name}</span>
-                            </Link>
+                            {subItem.hasSubmenu ? (
+                              <>
+                                <button
+                                  onClick={() => setAllApplicationsExpanded(!allApplicationsExpanded)}
+                                  className={cn(
+                                    "flex items-center justify-between w-full px-3 py-2 rounded-md text-sm responsive-transition touch-friendly",
+                                    "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                                  )}
+                                >
+                                  <div className="flex items-center">
+                                    {subItem.icon}
+                                    <span className="ml-3">{subItem.name}</span>
+                                  </div>
+                                  {allApplicationsExpanded ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+                                </button>
+                                {allApplicationsExpanded && (
+                                  <ul className="ml-6 mt-1 space-y-1">
+                                    {subItem.submenu?.map((nestedItem) => (
+                                      <li key={nestedItem.name}>
+                                        <Link
+                                          to={nestedItem.path}
+                                          className={cn(
+                                            "flex items-center px-3 py-2 rounded-md text-xs responsive-transition touch-friendly",
+                                            isActiveRoute(nestedItem.path)
+                                              ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                                              : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                                          )}
+                                        >
+                                          {nestedItem.icon}
+                                          <span className="ml-3">{nestedItem.name}</span>
+                                        </Link>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                )}
+                              </>
+                            ) : (
+                              <Link
+                                to={subItem.path}
+                                className={cn(
+                                  "flex items-center px-3 py-2 rounded-md text-sm responsive-transition touch-friendly",
+                                  isActiveRoute(subItem.path)
+                                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                                )}
+                              >
+                                {subItem.icon}
+                                <span className="ml-3">{subItem.name}</span>
+                              </Link>
+                            )}
                           </li>
                         ))}
                       </ul>
