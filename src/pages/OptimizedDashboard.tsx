@@ -97,29 +97,13 @@ const OptimizedDashboard = () => {
     }
   });
 
-  // Filter customers to show only recent and priority applications
+  // Filter customers based on role-based access only
   const filteredCustomers = useMemo(() => {
-    // First filter by role-based access
+    // First filter by role-based access - show all customers regardless of status
     const roleBasedCustomers = isAdmin ? customers : customers.filter(c => c.user_id === user?.id);
     
-    // Filter based on active widget
+    // No status filtering - show all customers
     let statusFilteredCustomers = roleBasedCustomers;
-    
-    if (activeWidget === 'completed') {
-      statusFilteredCustomers = roleBasedCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
-    } else if (activeWidget === 'pending') {
-      statusFilteredCustomers = roleBasedCustomers.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status));
-    } else if (activeWidget === 'revenue') {
-      statusFilteredCustomers = roleBasedCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
-    } else {
-      // Default applications view - show priority and recent
-      const priorityStatuses = ['Draft', 'Submitted', 'Need More Info', 'Returned', 'Sent to Bank'];
-      statusFilteredCustomers = roleBasedCustomers.filter(customer => {
-        const isPriority = priorityStatuses.includes(customer.status);
-        const isRecent = new Date(customer.created_at || '').getTime() > Date.now() - (30 * 24 * 60 * 60 * 1000); // Last 30 days
-        return isPriority || isRecent;
-      });
-    }
     
     return statusFilteredCustomers.filter(customer => {
       const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -218,25 +202,25 @@ const OptimizedDashboard = () => {
       case 'applications':
         return {
           title: isAdmin ? 'All Applications' : 'My Applications',
-          description: `Showing ${filteredCustomers.length} ${isAdmin ? 'total applications' : 'applications requiring attention'}`,
+          description: `Showing ${filteredCustomers.length} ${isAdmin ? 'total applications' : 'applications'} of all statuses`,
           icon: Users
         };
       case 'completed':
         return {
-          title: 'Completed Cases',
-          description: `Showing ${filteredCustomers.length} completed applications`,
+          title: 'All Cases',
+          description: `Showing ${filteredCustomers.length} applications of all statuses`,
           icon: CheckCircle
         };
       case 'pending':
         return {
-          title: 'Active Cases',
-          description: `Showing ${filteredCustomers.length} cases in progress`,
+          title: 'All Cases',
+          description: `Showing ${filteredCustomers.length} applications of all statuses`,
           icon: Clock
         };
       case 'revenue':
         return {
-          title: 'Revenue Analysis',
-          description: `Showing ${filteredCustomers.length} revenue-generating cases`,
+          title: 'All Cases',
+          description: `Showing ${filteredCustomers.length} applications of all statuses`,
           icon: DollarSign
         };
       default:
