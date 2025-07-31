@@ -155,7 +155,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       defaultDocuments.push(
         { name: `Authorized Signatory Passport${shareholderLabel}`, is_mandatory: false, category: 'signatory' },
         { name: `Authorized Signatory Emirates ID${shareholderLabel}`, is_mandatory: false, category: 'signatory' },
-        { name: `Board Resolution${shareholderLabel}`, is_mandatory: false, category: 'signatory' },
+        { name: `Bank Statement${shareholderLabel}`, is_mandatory: false, category: 'signatory' },
       );
     }
 
