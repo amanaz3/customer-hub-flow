@@ -1,6 +1,7 @@
 
 import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
 import { AuthProvider } from '@/contexts/SecureAuthContext';
 import { CustomerProvider } from '@/contexts/CustomerContext';
@@ -27,6 +28,16 @@ import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
 
+// Create a client
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      retry: 1,
+    },
+  },
+});
+
 function App() {
   useEffect(() => {
     // Initialize monitoring systems
@@ -46,17 +57,18 @@ function App() {
   }, []);
 
   return (
-    <ErrorBoundary
-      onError={(error, errorInfo) => {
-        // Log application-level errors
-        ErrorTracker.captureError(error, { component: 'App', ...errorInfo });
-      }}
-    >
-      <Router>
-        <AuthProvider>
-          <CustomerProvider>
-            <NotificationProvider>
-              <div className="min-h-screen bg-background">
+    <QueryClientProvider client={queryClient}>
+      <ErrorBoundary
+        onError={(error, errorInfo) => {
+          // Log application-level errors
+          ErrorTracker.captureError(error, { component: 'App', ...errorInfo });
+        }}
+      >
+        <Router>
+          <AuthProvider>
+            <CustomerProvider>
+              <NotificationProvider>
+                <div className="min-h-screen bg-background">
                 <Routes>
                   <Route path="/login" element={
                     <PageErrorBoundary pageName="Login">
@@ -160,14 +172,15 @@ function App() {
                       <LazyNotFound />
                     </PageErrorBoundary>
                   } />
-                </Routes>
-              </div>
-            </NotificationProvider>
-          </CustomerProvider>
-        </AuthProvider>
-        <Toaster />
-      </Router>
-    </ErrorBoundary>
+                  </Routes>
+                </div>
+              </NotificationProvider>
+            </CustomerProvider>
+          </AuthProvider>
+          <Toaster />
+        </Router>
+      </ErrorBoundary>
+    </QueryClientProvider>
   );
 }
 
