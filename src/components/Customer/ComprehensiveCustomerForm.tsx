@@ -152,10 +152,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     // Generate multiple signatory document sets based on number of shareholders
     for (let i = 1; i <= shareholderCount; i++) {
       const shareholderLabel = shareholderCount > 1 ? ` (Shareholder ${i})` : '';
+      // Segregate documents into different categories
       defaultDocuments.push(
-        { name: `Authorized Signatory Passport${shareholderLabel}`, is_mandatory: false, category: 'signatory' },
-        { name: `Authorized Signatory Emirates ID${shareholderLabel}`, is_mandatory: false, category: 'signatory' },
-        { name: `Bank Statement${shareholderLabel}`, is_mandatory: false, category: 'signatory' },
+        { name: `Authorized Signatory Passport${shareholderLabel}`, is_mandatory: false, category: 'passport_docs' },
+        { name: `Authorized Signatory Emirates ID${shareholderLabel}`, is_mandatory: false, category: 'emirates_id_docs' },
+        { name: `Bank Statement${shareholderLabel}`, is_mandatory: false, category: 'bank_statement_docs' },
       );
     }
 
