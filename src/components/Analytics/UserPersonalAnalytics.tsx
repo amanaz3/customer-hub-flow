@@ -1,44 +1,38 @@
 import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChartContainer, ChartConfig } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, ResponsiveContainer, Tooltip, LineChart, Line } from 'recharts';
 import { useCustomer } from '@/contexts/CustomerContext';
 import { useAuth } from '@/contexts/SecureAuthContext';
-import { BarChart3, TrendingUp, Clock, CheckCircle, XCircle, Filter, Search } from 'lucide-react';
+import { BarChart3, TrendingUp, Clock, CheckCircle, Filter } from 'lucide-react';
 
 const UserPersonalAnalytics: React.FC = () => {
   const { customers } = useCustomer();
   const { user } = useAuth();
-  const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
-  const [timeRange, setTimeRange] = useState('6months');
+  const [timeRange, setTimeRange] = useState('current');
 
   // Filter user's own customers
   const userCustomers = useMemo(() => {
     return customers.filter(customer => customer.user_id === user?.id);
   }, [customers, user?.id]);
 
-  // Apply search and status filters
+  // Apply status filters only (removed search functionality)
   const filteredCustomers = useMemo(() => {
     return userCustomers.filter(customer => {
-      const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           customer.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                           customer.company.toLowerCase().includes(searchTerm.toLowerCase());
-      
       const matchesStatus = statusFilter === 'all' || customer.status === statusFilter;
-      
-      return matchesSearch && matchesStatus;
+      return matchesStatus;
     });
-  }, [userCustomers, searchTerm, statusFilter]);
+  }, [userCustomers, statusFilter]);
 
   // Calculate time range for filtering
   const getTimeRangeDate = () => {
     const now = new Date();
     switch (timeRange) {
+      case 'current':
+        return new Date(now.getFullYear(), now.getMonth(), 1);
       case '3months':
         return new Date(now.getFullYear(), now.getMonth() - 3, 1);
       case '6months':
@@ -48,7 +42,7 @@ const UserPersonalAnalytics: React.FC = () => {
       case 'ytd':
         return new Date(now.getFullYear(), 0, 1);
       default:
-        return new Date(now.getFullYear(), now.getMonth() - 6, 1);
+        return new Date(now.getFullYear(), now.getMonth(), 1);
     }
   };
 
@@ -130,20 +124,7 @@ const UserPersonalAnalytics: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="space-y-2">
-              <label className="text-sm font-medium">Search Applications</label>
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search by name, email, or company..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-            </div>
-            
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <label className="text-sm font-medium">Status Filter</label>
               <Select value={statusFilter} onValueChange={setStatusFilter}>
@@ -171,6 +152,7 @@ const UserPersonalAnalytics: React.FC = () => {
                   <SelectValue placeholder="Select time range" />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="current">Current Month</SelectItem>
                   <SelectItem value="3months">Last 3 Months</SelectItem>
                   <SelectItem value="6months">Last 6 Months</SelectItem>
                   <SelectItem value="12months">Last 12 Months</SelectItem>
