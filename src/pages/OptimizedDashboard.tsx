@@ -272,14 +272,16 @@ const OptimizedDashboard = () => {
           onCreateCustomer={handleCreateCustomer}
         />
 
-        {/* Statistics Cards */}
-        <DashboardStats 
-          stats={stats} 
-          selectedMonths={isAdmin ? selectedMonths : undefined} 
-          revenueYear={isAdmin ? revenueYear : undefined}
-          onWidgetClick={setActiveWidget}
-          activeWidget={activeWidget}
-        />
+        {/* Statistics Cards - Only show for Admin */}
+        {isAdmin && (
+          <DashboardStats 
+            stats={stats} 
+            selectedMonths={selectedMonths} 
+            revenueYear={revenueYear}
+            onWidgetClick={setActiveWidget}
+            activeWidget={activeWidget}
+          />
+        )}
 
         {/* Conditional Filters - Only show revenue filter when revenue widget is active */}
         {isAdmin && activeWidget === 'revenue' && (
@@ -507,6 +509,13 @@ const OptimizedDashboard = () => {
                 <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
               ) : (
                 <div className="space-y-6">
+                  {/* User Statistics - Applications and Revenue */}
+                  <DashboardStats 
+                    stats={stats} 
+                    onWidgetClick={setActiveWidget}
+                    activeWidget={activeWidget}
+                  />
+                  
                   <DashboardFilters
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}
