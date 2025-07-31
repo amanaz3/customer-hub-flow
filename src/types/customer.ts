@@ -22,9 +22,11 @@ export interface Customer extends BaseCustomer {
   jurisdiction?: string;
   customer_notes?: string;
   document_checklist_complete?: boolean;
+  product_id?: string;
   documents?: Document[];
   comments?: Comment[];
   statusHistory?: StatusChange[];
+  product?: Product;
 }
 
 export interface Application {
@@ -78,6 +80,23 @@ export interface Comment {
   content: string;
   author: string;
   timestamp: string;
+}
+
+export interface Product {
+  id: string;
+  name: string;
+  description?: string;
+  is_active: boolean;
+  created_at?: string;
+  updated_at?: string;
+}
+
+export interface UserProduct {
+  id: string;
+  user_id: string;
+  product_id: string;
+  assigned_at: string;
+  product?: Product;
 }
 
 // Type aliases for compatibility

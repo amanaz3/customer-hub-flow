@@ -16,7 +16,8 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useCustomer } from '@/contexts/CustomerContext';
 import { supabase } from '@/lib/supabase';
-import { Document } from '@/types/customer';
+import { Document, Product } from '@/types/customer';
+import { useProducts } from '@/hooks/useProducts';
 import DocumentUpload from './DocumentUpload';
 import { ProductionRateLimit } from '@/utils/productionRateLimit';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -43,6 +44,7 @@ const formSchema = z.object({
     .max(10000000, "Amount cannot exceed 10,000,000"),
   license_type: z.enum(['Mainland', 'Freezone', 'Offshore']),
   lead_source: z.enum(['Website', 'Referral', 'Social Media', 'Other']),
+      product_id: z.string().min(1, "Product selection is required"),
   annual_turnover: z.number()
     .min(0.01, "Annual turnover must be greater than 0")
     .max(1000000000, "Annual turnover cannot exceed 1,000,000,000"),
@@ -69,9 +71,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [activeTab, setActiveTab] = useState('details');
   const [createdCustomerId, setCreatedCustomerId] = useState<string | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [userAssignedProducts, setUserAssignedProducts] = useState<Product[]>([]);
   const { user } = useAuth();
   const { toast } = useToast();
   const { uploadDocument } = useCustomer();
+  const { getUserAssignedProducts } = useProducts();
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -83,6 +87,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       amount: 0,
       license_type: 'Mainland',
       lead_source: 'Website',
+      product_id: '',
       annual_turnover: undefined,
       jurisdiction: '',
       any_suitable_bank: false,
@@ -235,6 +240,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           data.bank_preference_3?.trim()
         ].filter(Boolean).join(', ') || null,
         customer_notes: data.customer_notes ? sanitizeInput(data.customer_notes.trim()) : null,
+        product_id: data.product_id,
         user_id: user.id,
         status: 'Draft' as const
       };
@@ -355,6 +361,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       description: 'Customer application has been created successfully.',
     });
   }, [onSuccess, toast]);
+
+  // Load user assigned products
+  useEffect(() => {
+    if (user?.id) {
+      getUserAssignedProducts(user.id).then(setUserAssignedProducts);
+    }
+  }, [user?.id, getUserAssignedProducts]);
 
   const mandatoryDocuments = documents.filter(doc => doc.is_mandatory);
   const mandatoryDocumentsUploaded = mandatoryDocuments.every(doc => doc.is_uploaded);
@@ -481,6 +494,29 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <SelectItem value="Other">Other</SelectItem>
                       </SelectContent>
                     </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="product_id">Product *</Label>
+                    <Select
+                      value={form.watch('product_id')}
+                      onValueChange={(value) => form.setValue('product_id', value)}
+                      disabled={isSubmitting}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a product" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {userAssignedProducts.map((product) => (
+                          <SelectItem key={product.id} value={product.id}>
+                            {product.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    {form.formState.errors.product_id && (
+                      <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
