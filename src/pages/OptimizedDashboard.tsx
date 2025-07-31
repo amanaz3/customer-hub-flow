@@ -97,15 +97,47 @@ const OptimizedDashboard = () => {
     }
   });
 
-  // Filter customers based on role-based access and exclude certain statuses
+  // Filter customers based on role-based access and widget selection
   const filteredCustomers = useMemo(() => {
     // First filter by role-based access
     const roleBasedCustomers = isAdmin ? customers : customers.filter(c => c.user_id === user?.id);
     
-    // Exclude rejected, completed, and paid applications
-    let statusFilteredCustomers = roleBasedCustomers.filter(c => 
-      !['Rejected', 'Complete', 'Paid'].includes(c.status)
-    );
+    // Apply widget-specific filtering
+    let statusFilteredCustomers = roleBasedCustomers;
+    
+    if (activeWidget === 'completed') {
+      // Show only completed and paid cases for current month
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+      
+      statusFilteredCustomers = roleBasedCustomers.filter(c => {
+        const isCompletedOrPaid = c.status === 'Complete' || c.status === 'Paid';
+        if (!isCompletedOrPaid) return false;
+        
+        // Filter by current month
+        const customerDate = new Date(c.updated_at || c.created_at || '');
+        const customerMonth = customerDate.getMonth() + 1;
+        const customerYear = customerDate.getFullYear();
+        
+        return customerMonth === currentMonth && customerYear === currentYear;
+      });
+    } else if (activeWidget === 'pending') {
+      // Show only pending cases (exclude rejected, completed, and paid)
+      statusFilteredCustomers = roleBasedCustomers.filter(c => 
+        !['Rejected', 'Complete', 'Paid'].includes(c.status)
+      );
+    } else if (activeWidget === 'revenue') {
+      // Show only completed and paid cases (revenue generating)
+      statusFilteredCustomers = roleBasedCustomers.filter(c => 
+        c.status === 'Complete' || c.status === 'Paid'
+      );
+    } else {
+      // Default applications view - exclude rejected, completed, and paid
+      statusFilteredCustomers = roleBasedCustomers.filter(c => 
+        !['Rejected', 'Complete', 'Paid'].includes(c.status)
+      );
+    }
     
     return statusFilteredCustomers.filter(customer => {
       const matchesSearch = customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -133,9 +165,24 @@ const OptimizedDashboard = () => {
     
     // Filter customers based on active widget for revenue calculation
     if (activeWidget === 'completed') {
-      revenueCustomers = relevantCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
+      // For completed widget, show only current month completed/paid cases for revenue
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+      
+      revenueCustomers = relevantCustomers.filter(c => {
+        const isCompletedOrPaid = c.status === 'Complete' || c.status === 'Paid';
+        if (!isCompletedOrPaid) return false;
+        
+        const customerDate = new Date(c.updated_at || c.created_at || '');
+        const customerMonth = customerDate.getMonth() + 1;
+        const customerYear = customerDate.getFullYear();
+        
+        return customerMonth === currentMonth && customerYear === currentYear;
+      });
     } else if (activeWidget === 'pending') {
-      revenueCustomers = relevantCustomers.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status));
+      // Pending cases don't generate revenue yet
+      revenueCustomers = [];
     } else if (activeWidget === 'revenue') {
       revenueCustomers = relevantCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
     } else {
@@ -155,7 +202,7 @@ const OptimizedDashboard = () => {
         })
         .reduce((sum, c) => sum + c.amount, 0);
     } else {
-      // For other widgets or non-admin users, calculate revenue from filtered customers without date filtering
+      // For other widgets, calculate revenue from the already filtered revenue customers
       totalRevenue = revenueCustomers.reduce((sum, c) => sum + c.amount, 0);
     }
 
@@ -209,20 +256,20 @@ const OptimizedDashboard = () => {
         };
       case 'completed':
         return {
-          title: 'All Cases',
-          description: `Showing ${filteredCustomers.length} applications of all statuses`,
+          title: 'Completed Cases',
+          description: `Showing ${filteredCustomers.length} completed/paid cases from current month`,
           icon: CheckCircle
         };
       case 'pending':
         return {
-          title: 'All Cases',
-          description: `Showing ${filteredCustomers.length} applications of all statuses`,
+          title: 'Active Cases',
+          description: `Showing ${filteredCustomers.length} cases in progress`,
           icon: Clock
         };
       case 'revenue':
         return {
-          title: 'All Cases',
-          description: `Showing ${filteredCustomers.length} applications of all statuses`,
+          title: 'Revenue Cases',
+          description: `Showing ${filteredCustomers.length} revenue-generating cases`,
           icon: DollarSign
         };
       default:
