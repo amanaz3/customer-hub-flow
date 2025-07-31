@@ -69,6 +69,7 @@ export type Database = {
           mobile: string
           name: string
           preferred_bank: string | null
+          product_id: string | null
           status: Database["public"]["Enums"]["customer_status"]
           updated_at: string | null
           user_id: string | null
@@ -88,6 +89,7 @@ export type Database = {
           mobile: string
           name: string
           preferred_bank?: string | null
+          product_id?: string | null
           status?: Database["public"]["Enums"]["customer_status"]
           updated_at?: string | null
           user_id?: string | null
@@ -107,11 +109,19 @@ export type Database = {
           mobile?: string
           name?: string
           preferred_bank?: string | null
+          product_id?: string | null
           status?: Database["public"]["Enums"]["customer_status"]
           updated_at?: string | null
           user_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "customers_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "customers_user_id_fkey"
             columns: ["user_id"]
@@ -214,6 +224,33 @@ export type Database = {
         }
         Relationships: []
       }
+      products: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           created_at: string | null
@@ -295,14 +332,74 @@ export type Database = {
           },
         ]
       }
+      user_products: {
+        Row: {
+          assigned_at: string
+          id: string
+          product_id: string
+          user_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          id?: string
+          product_id: string
+          user_id: string
+        }
+        Update: {
+          assigned_at?: string
+          id?: string
+          product_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
+      create_product: {
+        Args: {
+          product_name: string
+          product_description: string
+          product_is_active: boolean
+        }
+        Returns: undefined
+      }
+      delete_product: {
+        Args: { product_id: string }
+        Returns: undefined
+      }
+      get_products: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          name: string
+          description: string
+          is_active: boolean
+          created_at: string
+          updated_at: string
+        }[]
+      }
       get_secure_document_url: {
         Args: { file_path: string; expires_in_seconds?: number }
         Returns: string
+      }
+      get_user_products: {
+        Args: { user_uuid: string }
+        Returns: {
+          product_id: string
+          product_name: string
+          product_description: string
+        }[]
       }
       get_user_role: {
         Args: { user_id: string }
@@ -318,6 +415,15 @@ export type Database = {
       is_admin: {
         Args: { user_id: string }
         Returns: boolean
+      }
+      update_product: {
+        Args: {
+          product_id: string
+          product_name: string
+          product_description: string
+          product_is_active: boolean
+        }
+        Returns: undefined
       }
     }
     Enums: {

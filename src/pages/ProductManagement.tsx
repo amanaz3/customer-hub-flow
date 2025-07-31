@@ -41,19 +41,25 @@ const ProductManagement: React.FC = () => {
   const { data: products, isLoading } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
-      const { data, error } = await supabase.rpc('get_products');
+      const { data, error } = await supabase
+        .from('products')
+        .select('*')
+        .order('created_at', { ascending: false });
+      
       if (error) throw error;
-      return data as Product[];
+      return data as unknown as Product[];
     }
   });
 
   const createProductMutation = useMutation({
     mutationFn: async (data: ProductFormData) => {
-      const { error } = await supabase.rpc('create_product', {
-        product_name: data.name,
-        product_description: data.description,
-        product_is_active: data.is_active
-      });
+      const { error } = await supabase
+        .from('products')
+        .insert([{
+          name: data.name,
+          description: data.description,
+          is_active: data.is_active
+        }]);
       
       if (error) throw error;
     },
@@ -76,12 +82,15 @@ const ProductManagement: React.FC = () => {
 
   const updateProductMutation = useMutation({
     mutationFn: async ({ id, data }: { id: string; data: ProductFormData }) => {
-      const { error } = await supabase.rpc('update_product', {
-        product_id: id,
-        product_name: data.name,
-        product_description: data.description,
-        product_is_active: data.is_active
-      });
+      const { error } = await supabase
+        .from('products')
+        .update({
+          name: data.name,
+          description: data.description,
+          is_active: data.is_active,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', id);
       
       if (error) throw error;
     },
@@ -104,9 +113,10 @@ const ProductManagement: React.FC = () => {
 
   const deleteProductMutation = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.rpc('delete_product', {
-        product_id: id
-      });
+      const { error } = await supabase
+        .from('products')
+        .delete()
+        .eq('id', id);
       
       if (error) throw error;
     },
