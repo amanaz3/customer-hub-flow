@@ -65,8 +65,12 @@ const CustomerRow = memo(({ customer, onClick }: {
       <TableCell>{customer.mobile}</TableCell>
       <TableCell>{customer.company}</TableCell>
       <TableCell>{customer.email}</TableCell>
+      <TableCell>{customer.leadSource}</TableCell>
       <TableCell>
         <StatusBadge status={customer.status} />
+      </TableCell>
+      <TableCell className="text-right">
+        {formatCurrency(customer.amount)}
       </TableCell>
     </TableRow>
   );
@@ -113,7 +117,9 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({ custome
             <TableHead>Mobile</TableHead>
             <TableHead>Company Name</TableHead>
             <TableHead>Email</TableHead>
+            <TableHead>Lead Source</TableHead>
             <TableHead>Status</TableHead>
+            <TableHead className="text-right">Amount</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -121,7 +127,7 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({ custome
             tableRows
           ) : (
             <TableRow>
-              <TableCell colSpan={5} className="text-center py-6 text-muted-foreground">
+              <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
                 No customers found
               </TableCell>
             </TableRow>

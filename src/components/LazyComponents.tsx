@@ -5,7 +5,6 @@ import { Loader2 } from 'lucide-react';
 // Lazy load components for better performance
 const OptimizedDashboard = React.lazy(() => import('@/pages/OptimizedDashboard'));
 const CustomerList = React.lazy(() => import('@/pages/CustomerList'));
-const MyCustomers = React.lazy(() => import('@/pages/MyCustomers'));
 const CustomerNew = React.lazy(() => import('@/pages/CustomerNew'));
 const CustomerDetail = React.lazy(() => import('@/pages/CustomerDetail'));
 const SecureUserManagement = React.lazy(() => import('@/pages/SecureUserManagement'));
@@ -62,7 +61,6 @@ const withLazyLoading = <P extends object>(
 // Export lazy-loaded components with proper loading states
 export const LazyOptimizedDashboard = withLazyLoading(OptimizedDashboard, "Loading dashboard...");
 export const LazyCustomerList = withLazyLoading(CustomerList, "Loading customer list...");
-export const LazyMyCustomers = withLazyLoading(MyCustomers, "Loading customer directory...");
 export const LazyCustomerNew = withLazyLoading(CustomerNew, "Loading customer form...");
 export const LazyCustomerDetail = withLazyLoading(CustomerDetail, "Loading customer details...");
 export const LazySecureUserManagement = withLazyLoading(SecureUserManagement, "Loading user management...");

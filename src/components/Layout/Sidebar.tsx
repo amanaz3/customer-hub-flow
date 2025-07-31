@@ -6,14 +6,16 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import {
   LayoutDashboard,
   Users,
+  UserPlus,
+  CheckSquare,
+  XCircle,
+  UserCog,
   Settings,
   FileText,
   ChevronLeft,
   ChevronRight,
   Menu,
-  X,
-  UserCheck,
-  Cog
+  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -43,69 +45,54 @@ const Sidebar: React.FC = () => {
   console.log('Sidebar render:', { isAdmin, collapsed, isMobile, mobileOpen, timestamp: new Date().toISOString() });
   console.log('Sidebar DOM mounting check - should only see this once per sidebar');
 
-  // Admin navigation items
-  const adminNavItems = [
+  const navItems = [
     {
       name: 'Dashboard',
       path: '/dashboard',
       icon: <LayoutDashboard className="h-5 w-5" />,
+      roles: ['admin', 'user'],
     },
     {
-      name: 'All Applications',
+      name: 'Customers',
       path: '/customers',
-      icon: <FileText className="h-5 w-5" />,
+      icon: <Users className="h-5 w-5" />,
+      roles: ['admin', 'user'],
     },
     {
-      name: 'All Customers',
-      path: '/my-customers',
-      icon: <Users className="h-5 w-5" />,
+      name: 'New Application',
+      path: '/customers/new',
+      icon: <UserPlus className="h-5 w-5" />,
+      roles: ['admin', 'user'],
+    },
+    {
+      name: 'Completed Cases',
+      path: '/completed',
+      icon: <CheckSquare className="h-5 w-5" />,
+      roles: ['admin', 'user'],
+    },
+    {
+      name: 'Rejected Cases',
+      path: '/rejected',
+      icon: <XCircle className="h-5 w-5" />,
+      roles: ['admin', 'user'],
     },
     {
       name: 'User Management',
       path: '/users',
-      icon: <UserCheck className="h-5 w-5" />,
-    },
-    {
-      name: 'Service Management',
-      path: '/services',
-      icon: <Cog className="h-5 w-5" />,
+      icon: <UserCog className="h-5 w-5" />,
+      roles: ['admin'],
     },
     {
       name: 'Settings',
       path: '/settings',
       icon: <Settings className="h-5 w-5" />,
+      roles: ['admin', 'user'],
     }
   ];
-
-  // User navigation items
-  const userNavItems = [
-    {
-      name: 'Dashboard',
-      path: '/dashboard',
-      icon: <LayoutDashboard className="h-5 w-5" />,
-    },
-    {
-      name: 'My Applications',
-      path: '/customers',
-      icon: <FileText className="h-5 w-5" />,
-    },
-    {
-      name: 'My Customers',
-      path: '/my-customers',
-      icon: <Users className="h-5 w-5" />,
-    },
-    {
-      name: 'Settings',
-      path: '/settings',
-      icon: <Settings className="h-5 w-5" />,
-    }
-  ];
-
-  const navItems = isAdmin ? adminNavItems : userNavItems;
 
   const isActiveRoute = (path: string) => {
     // Exact match for most routes
-    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/my-customers' || path === '/services') {
+    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard') {
       return location.pathname === path;
     }
     
@@ -172,23 +159,29 @@ const Sidebar: React.FC = () => {
           
           <nav className="flex-1 overflow-y-auto py-4">
             <ul className="space-y-1 px-2">
-              {navItems.map((item) => (
-                <li key={item.name}>
-                  <Link
-                    to={item.path}
-                    className={cn(
-                      "flex items-center px-3 py-3 rounded-md text-sm font-medium responsive-transition touch-friendly",
-                      isActiveRoute(item.path)
-                        ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                        : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
-                    )}
-                    onClick={() => setMobileOpen(false)}
-                  >
-                    {item.icon}
-                    <span className="ml-3">{item.name}</span>
-                  </Link>
-                </li>
-              ))}
+              {navItems.map((item) => {
+                if (!isAdmin && item.roles.includes('admin') && !item.roles.includes('user')) {
+                  return null;
+                }
+
+                return (
+                  <li key={item.name}>
+                    <Link
+                      to={item.path}
+                      className={cn(
+                        "flex items-center px-3 py-3 rounded-md text-sm font-medium responsive-transition touch-friendly",
+                        isActiveRoute(item.path)
+                          ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                      )}
+                      onClick={() => setMobileOpen(false)}
+                    >
+                      {item.icon}
+                      <span className="ml-3">{item.name}</span>
+                    </Link>
+                  </li>
+                );
+              })}
             </ul>
           </nav>
         </div>
@@ -235,24 +228,31 @@ const Sidebar: React.FC = () => {
       
       <nav className="flex-1 overflow-y-auto py-4">
         <ul className="space-y-1 px-2">
-          {navItems.map((item) => (
-            <li key={item.name}>
-              <Link
-                to={item.path}
-                className={cn(
-                  "flex items-center rounded-md text-sm font-medium responsive-transition touch-friendly",
-                  "px-3 py-2.5",
-                  isActiveRoute(item.path)
-                    ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                    : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                  collapsed ? "justify-center px-2" : ""
-                )}
-              >
-                {item.icon}
-                {!collapsed && <span className="ml-3">{item.name}</span>}
-              </Link>
-            </li>
-          ))}
+          {navItems.map((item) => {
+            // Skip items that shouldn't be visible to the current user role
+            if (!isAdmin && item.roles.includes('admin') && !item.roles.includes('user')) {
+              return null;
+            }
+
+            return (
+              <li key={item.name}>
+                <Link
+                  to={item.path}
+                  className={cn(
+                    "flex items-center rounded-md text-sm font-medium responsive-transition touch-friendly",
+                    "px-3 py-2.5",
+                    isActiveRoute(item.path)
+                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
+                    collapsed ? "justify-center px-2" : ""
+                  )}
+                >
+                  {item.icon}
+                  {!collapsed && <span className="ml-3">{item.name}</span>}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
       </nav>
     </div>

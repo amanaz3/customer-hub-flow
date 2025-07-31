@@ -7,8 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import ResponsiveCustomerTable from '@/components/Customer/ResponsiveCustomerTable';
-import AdminDashboard from '@/components/Admin/AdminDashboard';
-import UserPersonalAnalytics from '@/components/Analytics/UserPersonalAnalytics';
+import UserAnalytics from '@/components/Analytics/UserAnalytics';
 import DashboardStats from '@/components/Dashboard/DashboardStats';
 import DashboardFilters from '@/components/Dashboard/DashboardFilters';
 import EmptyDashboardState from '@/components/Dashboard/EmptyDashboardState';
@@ -32,7 +31,7 @@ const OptimizedDashboard = () => {
   const [refreshKey, setRefreshKey] = useState(0);
   
   // Widget selection state - default to applications
-  const [activeWidget, setActiveWidget] = useState<'applications' | 'revenue'>('applications');
+  const [activeWidget, setActiveWidget] = useState<'applications' | 'completed' | 'pending' | 'revenue'>('applications');
   
   // Enhanced date filtering for admin revenue
   const currentDate = new Date();
@@ -106,7 +105,11 @@ const OptimizedDashboard = () => {
     // Filter based on active widget
     let statusFilteredCustomers = roleBasedCustomers;
     
-    if (activeWidget === 'revenue') {
+    if (activeWidget === 'completed') {
+      statusFilteredCustomers = roleBasedCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
+    } else if (activeWidget === 'pending') {
+      statusFilteredCustomers = roleBasedCustomers.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status));
+    } else if (activeWidget === 'revenue') {
       statusFilteredCustomers = roleBasedCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
     } else {
       // Default applications view - show priority and recent
@@ -134,9 +137,7 @@ const OptimizedDashboard = () => {
     // For non-admin users, only show their own data
     const relevantCustomers = isAdmin ? customers : customers.filter(c => c.user_id === user?.id);
     
-    // Filter to only active applications (not completed, paid, or rejected)
-    const activeCustomers = relevantCustomers.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status));
-    const totalCustomers = activeCustomers.length;
+    const totalCustomers = relevantCustomers.length;
     const completedCases = relevantCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid').length;
     const pendingCases = relevantCustomers.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status)).length;
     
@@ -145,7 +146,11 @@ const OptimizedDashboard = () => {
     let revenueCustomers = relevantCustomers;
     
     // Filter customers based on active widget for revenue calculation
-    if (activeWidget === 'revenue') {
+    if (activeWidget === 'completed') {
+      revenueCustomers = relevantCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
+    } else if (activeWidget === 'pending') {
+      revenueCustomers = relevantCustomers.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status));
+    } else if (activeWidget === 'revenue') {
       revenueCustomers = relevantCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
     } else {
       // Default applications view - include all completed/paid for revenue
@@ -216,6 +221,18 @@ const OptimizedDashboard = () => {
           description: `Showing ${filteredCustomers.length} ${isAdmin ? 'total applications' : 'applications requiring attention'}`,
           icon: Users
         };
+      case 'completed':
+        return {
+          title: 'Completed Cases',
+          description: `Showing ${filteredCustomers.length} completed applications`,
+          icon: CheckCircle
+        };
+      case 'pending':
+        return {
+          title: 'Active Cases',
+          description: `Showing ${filteredCustomers.length} cases in progress`,
+          icon: Clock
+        };
       case 'revenue':
         return {
           title: 'Revenue Analysis',
@@ -272,16 +289,14 @@ const OptimizedDashboard = () => {
           onCreateCustomer={handleCreateCustomer}
         />
 
-        {/* Statistics Cards - Only show for Admin */}
-        {isAdmin && (
-          <DashboardStats 
-            stats={stats} 
-            selectedMonths={selectedMonths} 
-            revenueYear={revenueYear}
-            onWidgetClick={setActiveWidget}
-            activeWidget={activeWidget}
-          />
-        )}
+        {/* Statistics Cards */}
+        <DashboardStats 
+          stats={stats} 
+          selectedMonths={isAdmin ? selectedMonths : undefined} 
+          revenueYear={isAdmin ? revenueYear : undefined}
+          onWidgetClick={setActiveWidget}
+          activeWidget={activeWidget}
+        />
 
         {/* Conditional Filters - Only show revenue filter when revenue widget is active */}
         {isAdmin && activeWidget === 'revenue' && (
@@ -433,35 +448,25 @@ const OptimizedDashboard = () => {
           </Card>
         )}
 
-        {/* Admin Dashboard - Enhanced View */}
+        {/* Admin Dashboard with Tabs */}
         {isAdmin ? (
-          <AdminDashboard />
-        ) : (
-          /* Regular User Dashboard with Tabs */
-          <Tabs defaultValue="applications" className="space-y-8">
+          <Tabs defaultValue="customers" className="space-y-8">
             <TabsList className="grid w-full grid-cols-2 max-w-md h-12 bg-muted/50">
-              <TabsTrigger value="applications" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+              <TabsTrigger value="customers" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
                 <Users className="h-4 w-4" />
-                <span className="font-medium">Active Applications</span>
+                <span className="font-medium">Customers</span>
               </TabsTrigger>
               <TabsTrigger value="analytics" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
                 <BarChart3 className="h-4 w-4" />
-                <span className="font-medium">My Analytics</span>
+                <span className="font-medium">Analytics</span>
               </TabsTrigger>
             </TabsList>
 
-            <TabsContent value="applications" className="space-y-6">
-              {customers.filter(c => c.user_id === user?.id).length === 0 ? (
+            <TabsContent value="customers" className="space-y-6">
+              {customers.length === 0 ? (
                 <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
               ) : (
                 <div className="space-y-6">
-                  {/* User Statistics - Applications and Revenue */}
-                  <DashboardStats 
-                    stats={stats} 
-                    onWidgetClick={setActiveWidget}
-                    activeWidget={activeWidget}
-                  />
-                  
                   <DashboardFilters
                     searchTerm={searchTerm}
                     setSearchTerm={setSearchTerm}
@@ -497,9 +502,47 @@ const OptimizedDashboard = () => {
             </TabsContent>
 
             <TabsContent value="analytics" className="space-y-6">
-              <UserPersonalAnalytics />
+              <UserAnalytics />
             </TabsContent>
           </Tabs>
+        ) : (
+          /* Regular User Dashboard */
+          customers.length === 0 ? (
+            <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
+          ) : (
+            <div className="space-y-6">
+              <DashboardFilters
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                onRefresh={handleDataRefresh}
+                isLoading={isLoading}
+              />
+              
+              <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
+                <CardHeader className="pb-4 border-b border-border/50">
+                  <CardTitle className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <widgetContent.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-xl font-semibold">{widgetContent.title}</span>
+                      <p className="text-sm text-muted-foreground font-normal mt-1">
+                        {widgetContent.description}
+                      </p>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <ResponsiveCustomerTable 
+                    customers={filteredCustomers} 
+                    onDataChange={handleDataRefresh}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          )
         )}
       </div>
     );
