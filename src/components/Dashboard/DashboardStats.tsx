@@ -129,81 +129,69 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
         return (
           <Card 
             key={`stat-${stat.title.replace(/\s+/g, '-').toLowerCase()}`}
-            className={`group relative overflow-hidden enhanced-card border-0 ${
-              isClickable ? 'cursor-pointer interactive-element' : ''
+            className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 ${stat.borderColor} bg-gradient-to-br from-background to-muted/20 ${
+              isClickable ? 'cursor-pointer hover:scale-105' : ''
             } ${
-              isActive ? 'ring-2 ring-primary ring-offset-2 shadow-xl scale-105 bg-gradient-to-br from-primary/5 to-primary/10' : 'bg-gradient-to-br from-card to-card/90'
+              isActive ? 'ring-2 ring-primary ring-offset-2 shadow-lg scale-105' : ''
             }`}
             onClick={() => isClickable && handleCardClick(stat.id)}
           >
-            {/* Enhanced background gradient */}
-            <div className={`absolute inset-0 bg-gradient-to-br ${stat.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}></div>
-            
-            {/* Animated border */}
-            <div className={`absolute left-0 top-0 bottom-0 w-1 ${stat.borderColor.replace('border-', 'bg-')} transition-all duration-300 group-hover:w-2`}></div>
-            
-            {/* Subtle glow effect */}
-            {isActive && (
-              <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent pointer-events-none"></div>
-            )}
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4 relative z-10">
-            <div className="space-y-2">
-                <div className="flex items-center gap-2 flex-wrap">
-                  <CardTitle className="text-sm font-semibold text-muted-foreground group-hover:text-foreground transition-colors">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
+            <div className="space-y-1">
+                <div className="flex items-center gap-2">
+                  <CardTitle className="text-sm font-medium text-muted-foreground">
                     {stat.title}
                   </CardTitle>
                   {stat.badge && (
-                    <Badge variant="secondary" className="text-xs font-medium">
+                    <Badge variant="secondary" className="text-xs">
                       {stat.badge}
                     </Badge>
                   )}
                   {isActive && (
-                    <Badge className="text-xs font-medium bg-gradient-to-r from-primary to-primary/80 text-primary-foreground">
+                    <Badge variant="default" className="text-xs">
                       Active
                     </Badge>
                   )}
                 </div>
-              <p className="text-xs text-muted-foreground/80 font-medium">
+              <p className="text-xs text-muted-foreground/70">
                 {stat.subtitle}
               </p>
             </div>
-            <div className={`relative p-4 rounded-xl ${stat.bgColor} ring-1 ring-border/30 group-hover:ring-border/50 transition-all duration-300 group-hover:scale-110`}>
-              <stat.icon className={`h-6 w-6 ${stat.color} transition-all duration-300`} />
-              {/* Icon glow effect */}
-              <div className={`absolute inset-0 rounded-xl ${stat.bgColor} blur-sm opacity-0 group-hover:opacity-60 transition-opacity duration-300`}></div>
+            <div className={`p-3 rounded-xl ${stat.bgColor} ring-1 ring-border/20`}>
+              <stat.icon className={`h-5 w-5 ${stat.color}`} />
             </div>
           </CardHeader>
-          <CardContent className="space-y-4 relative z-10">
+          <CardContent className="space-y-3">
             <div className="flex items-center justify-between">
-              <div className="space-y-2 flex-1">
-                <div className="text-3xl lg:text-4xl font-bold tracking-tight bg-gradient-to-r from-foreground to-foreground/80 bg-clip-text text-transparent">
+              <div className="space-y-1">
+                <div className="text-3xl font-bold tracking-tight">
                   {typeof stat.value === 'string' ? stat.value : stat.value.toLocaleString()}
                 </div>
-                <p className="text-sm text-muted-foreground leading-relaxed font-medium">
+                <p className="text-xs text-muted-foreground leading-relaxed">
                   {stat.description}
                 </p>
               </div>
               {stat.trend && (
-                <div className={`flex items-center space-x-2 px-3 py-2 rounded-full text-xs font-semibold shadow-sm ring-1 ring-border/20 transition-all duration-300 ${
+                <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${
                   stat.trend === 'up' 
-                    ? 'text-green-700 bg-gradient-to-r from-green-50 to-green-100 dark:text-green-400 dark:from-green-900/20 dark:to-green-800/20' 
+                    ? 'text-green-700 bg-green-100 dark:text-green-400 dark:bg-green-900/20' 
                     : stat.trend === 'attention'
-                    ? 'text-orange-700 bg-gradient-to-r from-orange-50 to-orange-100 dark:text-orange-400 dark:from-orange-900/20 dark:to-orange-800/20'
-                    : 'text-red-700 bg-gradient-to-r from-red-50 to-red-100 dark:text-red-400 dark:from-red-900/20 dark:to-red-800/20'
+                    ? 'text-orange-700 bg-orange-100 dark:text-orange-400 dark:bg-orange-900/20'
+                    : 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-900/20'
                 }`}>
                   {stat.trend === 'up' ? (
                     <>
-                      <TrendingUp className="h-4 w-4" />
+                      <TrendingUp className="h-3 w-3" />
                       <span>Active</span>
                     </>
                   ) : stat.trend === 'attention' ? (
                     <>
-                      <Clock className="h-4 w-4" />
+                      <Clock className="h-3 w-3" />
                       <span>Review</span>
                     </>
                   ) : (
                     <>
-                      <TrendingDown className="h-4 w-4" />
+                      <TrendingDown className="h-3 w-3" />
                       <span>Down</span>
                     </>
                   )}

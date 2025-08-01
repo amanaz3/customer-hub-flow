@@ -67,18 +67,16 @@ const MobileCustomerCard = memo(({
   onClick: (id: string) => void;
 }) => {
   return (
-    <Card className="group enhanced-card hover:shadow-lg touch-friendly border-0 overflow-hidden">
-      <CardContent className="p-5">
-        <div className="flex items-start justify-between mb-4">
-          <div className="flex items-center space-x-3 flex-1 min-w-0">
-            <div className="p-2 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 ring-1 ring-primary/20 group-hover:ring-primary/30 transition-all duration-300">
-              <User className="h-4 w-4 text-primary flex-shrink-0" />
-            </div>
+    <Card className="responsive-transition hover:shadow-md touch-friendly">
+      <CardContent className="p-4">
+        <div className="flex items-start justify-between mb-3">
+          <div className="flex items-center space-x-2 flex-1 min-w-0">
+            <User className="h-4 w-4 text-muted-foreground flex-shrink-0" />
             <div className="min-w-0 flex-1">
-              <h3 className="font-semibold text-sm text-card-foreground truncate group-hover:text-primary transition-colors">
+              <h3 className="font-medium text-sm text-card-foreground truncate">
                 {customer.name}
               </h3>
-              <p className="text-xs text-muted-foreground truncate font-medium">
+              <p className="text-xs text-muted-foreground truncate">
                 {customer.company}
               </p>
             </div>
@@ -86,40 +84,40 @@ const MobileCustomerCard = memo(({
           <StatusBadge status={customer.status} />
         </div>
 
-        <div className="space-y-3 mb-5">
-          <div className="flex items-center space-x-3 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-            <Phone className="h-4 w-4 flex-shrink-0 text-blue-500" />
-            <span className="truncate font-medium">{customer.mobile}</span>
+        <div className="space-y-2 mb-4">
+          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+            <Phone className="h-3 w-3 flex-shrink-0" />
+            <span className="truncate">{customer.mobile}</span>
           </div>
           
-          <div className="flex items-center space-x-3 text-sm text-muted-foreground group-hover:text-foreground transition-colors">
-            <Mail className="h-4 w-4 flex-shrink-0 text-purple-500" />
-            <span className="truncate font-medium">{customer.email}</span>
+          <div className="flex items-center space-x-2 text-xs text-muted-foreground">
+            <Mail className="h-3 w-3 flex-shrink-0" />
+            <span className="truncate">{customer.email}</span>
           </div>
 
           {customer.amount && (
-            <div className="flex items-center space-x-3 text-sm p-2 rounded-lg bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-900/20 dark:to-emerald-900/20 border border-green-200 dark:border-green-800">
-              <DollarSign className="h-4 w-4 flex-shrink-0 text-green-600" />
-              <span className="font-bold text-green-700 dark:text-green-400">
+            <div className="flex items-center space-x-2 text-xs">
+              <DollarSign className="h-3 w-3 flex-shrink-0 text-green-600" />
+              <span className="font-medium text-green-700">
                 ${customer.amount.toLocaleString()}
               </span>
             </div>
           )}
         </div>
 
-        <div className="flex items-center justify-between pt-2 border-t border-border/50">
+        <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2 text-xs text-muted-foreground">
-            <Calendar className="h-3 w-3 flex-shrink-0 text-indigo-500" />
-            <span className="font-medium">{new Date(customer.created_at || '').toLocaleDateString()}</span>
+            <Calendar className="h-3 w-3 flex-shrink-0" />
+            <span>{new Date(customer.created_at || '').toLocaleDateString()}</span>
           </div>
           
           <Button
             variant="ghost"
             size="sm"
             onClick={() => onClick(customer.id)}
-            className="h-9 w-9 p-0 touch-friendly rounded-lg enhanced-button bg-gradient-to-r from-primary/10 to-primary/5 hover:from-primary/20 hover:to-primary/10 border border-primary/20 group-hover:border-primary/40 transition-all duration-300"
+            className="h-8 w-8 p-0 touch-friendly"
           >
-            <ChevronRight className="h-4 w-4 text-primary group-hover:translate-x-0.5 transition-transform duration-300" />
+            <ChevronRight className="h-4 w-4" />
           </Button>
         </div>
       </CardContent>
@@ -141,34 +139,18 @@ const DesktopCustomerRow = memo(({
 }) => {
   return (
     <TableRow 
-      className="group cursor-pointer hover:bg-gradient-to-r hover:from-muted/30 hover:to-muted/10 responsive-transition border-b border-border/30 hover:border-border/60"
+      className="cursor-pointer hover:bg-muted/50 responsive-transition"
       onClick={() => onClick(customer.id)}
     >
-      <TableCell className="font-semibold text-foreground group-hover:text-primary transition-colors py-4">
-        {customer.name}
-      </TableCell>
-      <TableCell className="font-medium text-muted-foreground group-hover:text-foreground transition-colors">
-        {customer.mobile}
-      </TableCell>
-      <TableCell className="max-w-[200px] truncate font-medium text-muted-foreground group-hover:text-foreground transition-colors">
-        {customer.company}
-      </TableCell>
-      {isAdmin && (
-        <TableCell className="max-w-[180px] truncate font-medium text-muted-foreground group-hover:text-foreground transition-colors">
-          {submittedBy || 'N/A'}
-        </TableCell>
-      )}
+      <TableCell className="font-medium">{customer.name}</TableCell>
+      <TableCell>{customer.mobile}</TableCell>
+      <TableCell className="max-w-[200px] truncate">{customer.company}</TableCell>
+      {isAdmin && <TableCell className="max-w-[180px] truncate">{submittedBy || 'N/A'}</TableCell>}
       <TableCell>
         <StatusBadge status={customer.status} />
       </TableCell>
-      <TableCell className="text-right font-bold text-foreground">
-        {customer.amount ? (
-          <span className="text-green-600 dark:text-green-400">
-            ${customer.amount.toLocaleString()}
-          </span>
-        ) : (
-          <span className="text-muted-foreground">-</span>
-        )}
+      <TableCell className="text-right font-medium">
+        {customer.amount ? `$${customer.amount.toLocaleString()}` : '-'}
       </TableCell>
     </TableRow>
   );
@@ -249,19 +231,14 @@ const ResponsiveCustomerTable: React.FC<ResponsiveCustomerTableProps> = ({
 
   if (customers.length === 0) {
     return (
-      <Card className="enhanced-card border-0 text-center">
-        <CardContent className="p-12">
-          <div className="relative mb-6">
-            <div className="p-4 rounded-2xl bg-gradient-to-br from-muted/50 to-muted/20 mx-auto w-fit">
-              <User className="h-12 w-12 text-muted-foreground" />
-            </div>
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-transparent rounded-2xl blur-xl opacity-50"></div>
-          </div>
-          <h3 className="text-xl font-bold text-card-foreground mb-3">
+      <Card className="responsive-transition">
+        <CardContent className="p-8 text-center">
+          <User className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+          <h3 className="text-lg font-medium text-card-foreground mb-2">
             No customers found
           </h3>
-          <p className="text-muted-foreground font-medium max-w-md mx-auto leading-relaxed">
-            {isMobile ? "Try adjusting your filters or search terms." : "Get started by creating your first customer application to begin managing your business."}
+          <p className="text-muted-foreground">
+            {isMobile ? "Try adjusting your filters." : "Get started by creating your first customer application."}
           </p>
         </CardContent>
       </Card>
@@ -277,17 +254,17 @@ const ResponsiveCustomerTable: React.FC<ResponsiveCustomerTableProps> = ({
   }
 
   return (
-    <div className="enhanced-card rounded-xl border-0 overflow-hidden shadow-md">
+    <div className="rounded-md border bg-card overflow-hidden">
       <div className="overflow-x-auto">
         <Table>
           <TableHeader>
-            <TableRow className="border-b border-border/50 bg-gradient-to-r from-muted/30 to-muted/10">
-              <TableHead className="min-w-[120px] font-semibold text-foreground/80 h-12">Customer Name</TableHead>
-              <TableHead className="min-w-[100px] font-semibold text-foreground/80">Mobile</TableHead>
-              <TableHead className="min-w-[150px] font-semibold text-foreground/80">Company Name</TableHead>
-              {isAdmin && <TableHead className="min-w-[130px] font-semibold text-foreground/80">Submitted by</TableHead>}
-              <TableHead className="min-w-[80px] font-semibold text-foreground/80">Status</TableHead>
-              <TableHead className="text-right min-w-[100px] font-semibold text-foreground/80">Amount</TableHead>
+            <TableRow>
+              <TableHead className="min-w-[120px]">Customer Name</TableHead>
+              <TableHead className="min-w-[100px]">Mobile</TableHead>
+              <TableHead className="min-w-[150px]">Company Name</TableHead>
+              {isAdmin && <TableHead className="min-w-[130px]">Submitted by</TableHead>}
+              <TableHead className="min-w-[80px]">Status</TableHead>
+              <TableHead className="text-right min-w-[100px]">Amount</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
