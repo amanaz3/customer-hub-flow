@@ -141,31 +141,37 @@ const Sidebar: React.FC = () => {
         {/* Mobile Sidebar */}
         <div 
           className={cn(
-            "fixed top-0 left-0 h-screen bg-sidebar border-r border-sidebar-border z-50 lg:hidden responsive-transition",
-            "w-64 transform",
+            "fixed top-0 left-0 h-screen bg-gradient-to-b from-sidebar to-sidebar/95 border-r border-sidebar-border/50 z-50 lg:hidden responsive-transition shadow-2xl",
+            "w-72 transform backdrop-blur-md",
             mobileOpen ? "translate-x-0" : "-translate-x-full"
           )}
         >
-          <div className="flex items-center justify-between h-14 px-4 border-b border-sidebar-border">
-            <div className="flex items-center space-x-2">
-              <img 
-                src="/lovable-uploads/5ccffe54-41ae-4fc6-9a3a-3843049b907b.png" 
-                alt="Amana Corporate" 
-                className="h-8 w-auto"
-              />
+          <div className="flex items-center justify-between h-16 px-6 border-b border-sidebar-border/30">
+            <div className="flex items-center space-x-3">
+              <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 p-2 shadow-md">
+                <img 
+                  src="/lovable-uploads/5ccffe54-41ae-4fc6-9a3a-3843049b907b.png" 
+                  alt="Amana Corporate" 
+                  className="h-full w-full object-contain"
+                />
+              </div>
+              <div>
+                <h2 className="font-bold text-sidebar-foreground text-lg">Amana</h2>
+                <p className="text-xs text-sidebar-foreground/70">Corporate Services</p>
+              </div>
             </div>
             <Button 
               variant="ghost"
               size="sm"
               onClick={() => setMobileOpen(false)}
-              className="touch-friendly"
+              className="touch-friendly hover:bg-sidebar-accent/50 rounded-lg"
             >
-              <X className="h-4 w-4" />
+              <X className="h-5 w-5" />
             </Button>
           </div>
           
-          <nav className="flex-1 overflow-y-auto py-4">
-            <ul className="space-y-1 px-2">
+          <nav className="flex-1 overflow-y-auto py-6">
+            <ul className="space-y-2 px-4">
               {navItems.map((item) => {
                 if (!isAdmin && item.roles.includes('admin') && !item.roles.includes('user')) {
                   return null;
@@ -176,15 +182,23 @@ const Sidebar: React.FC = () => {
                     <Link
                       to={item.path}
                       className={cn(
-                        "flex items-center px-3 py-3 rounded-md text-sm font-medium responsive-transition touch-friendly",
+                        "group flex items-center px-4 py-3.5 rounded-xl text-sm font-medium responsive-transition touch-friendly",
+                        "border border-transparent hover:border-sidebar-border/30",
                         isActiveRoute(item.path)
-                          ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                          : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground"
+                          ? "bg-gradient-to-r from-sidebar-primary to-sidebar-primary/90 text-sidebar-primary-foreground shadow-lg border-sidebar-primary/20"
+                          : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground hover:shadow-md"
                       )}
                       onClick={() => setMobileOpen(false)}
                     >
-                      {item.icon}
-                      <span className="ml-3">{item.name}</span>
+                      <div className={cn(
+                        "p-2 rounded-lg transition-colors",
+                        isActiveRoute(item.path)
+                          ? "bg-sidebar-primary-foreground/10"
+                          : "group-hover:bg-sidebar-accent-foreground/10"
+                      )}>
+                        {React.cloneElement(item.icon, { className: "h-5 w-5" })}
+                      </div>
+                      <span className="ml-3 font-medium">{item.name}</span>
                     </Link>
                   </li>
                 );
@@ -199,42 +213,53 @@ const Sidebar: React.FC = () => {
   return (
     <div 
       className={cn(
-        "h-screen bg-sidebar flex flex-col border-r border-sidebar-border responsive-transition hidden lg:flex",
-        collapsed ? "w-16" : "w-64"
+        "h-screen bg-gradient-to-b from-sidebar to-sidebar/95 flex flex-col border-r border-sidebar-border/50 responsive-transition hidden lg:flex shadow-lg",
+        collapsed ? "w-20" : "w-72"
       )}
     >
-      <div className="flex items-center justify-between h-14 px-4 border-b border-sidebar-border">
+      <div className={cn(
+        "flex items-center h-16 px-6 border-b border-sidebar-border/30",
+        collapsed ? "justify-center px-4" : "justify-between"
+      )}>
         {!collapsed && (
-          <div className="flex items-center space-x-2">
-            <img 
-              src="/lovable-uploads/5ccffe54-41ae-4fc6-9a3a-3843049b907b.png" 
-              alt="Amana Corporate" 
-              className="h-8 w-auto"
-            />
+          <div className="flex items-center space-x-3">
+            <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 p-2 shadow-md">
+              <img 
+                src="/lovable-uploads/5ccffe54-41ae-4fc6-9a3a-3843049b907b.png" 
+                alt="Amana Corporate" 
+                className="h-full w-full object-contain"
+              />
+            </div>
+            <div>
+              <h2 className="font-bold text-sidebar-foreground text-lg">Amana</h2>
+              <p className="text-xs text-sidebar-foreground/70">Corporate Services</p>
+            </div>
           </div>
         )}
         {collapsed && (
-          <img 
-            src="/lovable-uploads/5ccffe54-41ae-4fc6-9a3a-3843049b907b.png" 
-            alt="Amana Corporate" 
-            className="h-8 w-8 object-contain mx-auto"
-          />
+          <div className="h-10 w-10 rounded-xl bg-gradient-to-br from-primary to-primary/80 p-2 shadow-md">
+            <img 
+              src="/lovable-uploads/5ccffe54-41ae-4fc6-9a3a-3843049b907b.png" 
+              alt="Amana Corporate" 
+              className="h-full w-full object-contain"
+            />
+          </div>
         )}
         <Button 
           variant="ghost"
           size="sm"
           onClick={() => setCollapsed(!collapsed)}
           className={cn(
-            "responsive-transition touch-friendly",
+            "responsive-transition touch-friendly hover:bg-sidebar-accent/50 rounded-lg",
             collapsed ? "ml-0" : "ml-auto"
           )}
         >
-          {collapsed ? <ChevronRight className="h-4 w-4" /> : <ChevronLeft className="h-4 w-4" />}
+          {collapsed ? <ChevronRight className="h-5 w-5" /> : <ChevronLeft className="h-5 w-5" />}
         </Button>
       </div>
       
-      <nav className="flex-1 overflow-y-auto py-4">
-        <ul className="space-y-1 px-2">
+      <nav className="flex-1 overflow-y-auto py-6">
+        <ul className={cn("space-y-2", collapsed ? "px-2" : "px-4")}>
           {navItems.map((item) => {
             // Skip items that shouldn't be visible to the current user role
             if (!isAdmin && item.roles.includes('admin') && !item.roles.includes('user')) {
@@ -246,16 +271,24 @@ const Sidebar: React.FC = () => {
                 <Link
                   to={item.path}
                   className={cn(
-                    "flex items-center rounded-md text-sm font-medium responsive-transition touch-friendly",
-                    "px-3 py-2.5",
+                    "group flex items-center rounded-xl text-sm font-medium responsive-transition touch-friendly",
+                    "border border-transparent hover:border-sidebar-border/30",
                     isActiveRoute(item.path)
-                      ? "bg-sidebar-primary text-sidebar-primary-foreground"
-                      : "text-sidebar-foreground hover:bg-sidebar-accent hover:text-sidebar-accent-foreground",
-                    collapsed ? "justify-center px-2" : ""
+                      ? "bg-gradient-to-r from-sidebar-primary to-sidebar-primary/90 text-sidebar-primary-foreground shadow-lg border-sidebar-primary/20"
+                      : "text-sidebar-foreground hover:bg-sidebar-accent/50 hover:text-sidebar-accent-foreground hover:shadow-md",
+                    collapsed ? "justify-center px-3 py-3" : "px-4 py-3.5"
                   )}
+                  title={collapsed ? item.name : undefined}
                 >
-                  {item.icon}
-                  {!collapsed && <span className="ml-3">{item.name}</span>}
+                  <div className={cn(
+                    "p-2 rounded-lg transition-colors",
+                    isActiveRoute(item.path)
+                      ? "bg-sidebar-primary-foreground/10"
+                      : "group-hover:bg-sidebar-accent-foreground/10"
+                  )}>
+                    {React.cloneElement(item.icon, { className: "h-5 w-5" })}
+                  </div>
+                  {!collapsed && <span className="ml-3 font-medium">{item.name}</span>}
                 </Link>
               </li>
             );
