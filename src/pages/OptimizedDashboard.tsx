@@ -129,54 +129,19 @@ const OptimizedDashboard = () => {
         return customerMonth === currentMonth && customerYear === currentYear;
       });
     } else if (activeWidget === 'pending') {
-      // Current month filter helper
-      const currentDate = new Date();
-      const currentMonth = currentDate.getMonth() + 1;
-      const currentYear = currentDate.getFullYear();
-      
-      const isCurrentMonth = (customer: any) => {
-        const customerDate = new Date(customer.updated_at || customer.created_at || '');
-        const customerMonth = customerDate.getMonth() + 1;
-        const customerYear = customerDate.getFullYear();
-        return customerMonth === currentMonth && customerYear === currentYear;
-      };
-      
-      // Both admin and user: Show cases that are not in completed, paid, rejected, and draft statuses from current month
+      // Both admin and user: Show cases that are not in completed, paid, rejected, and draft statuses (no month restriction)
       statusFilteredCustomers = roleBasedCustomers.filter(c => 
-        !['Complete', 'Paid', 'Rejected', 'Draft'].includes(c.status) && isCurrentMonth(c)
+        !['Complete', 'Paid', 'Rejected', 'Draft'].includes(c.status)
       );
     } else if (activeWidget === 'revenue') {
-      // Current month filter helper
-      const currentDate = new Date();
-      const currentMonth = currentDate.getMonth() + 1;
-      const currentYear = currentDate.getFullYear();
-      
-      const isCurrentMonth = (customer: any) => {
-        const customerDate = new Date(customer.updated_at || customer.created_at || '');
-        const customerMonth = customerDate.getMonth() + 1;
-        const customerYear = customerDate.getFullYear();
-        return customerMonth === currentMonth && customerYear === currentYear;
-      };
-      
-      // Show only completed and paid cases (revenue generating) from current month
+      // Show only completed and paid cases (revenue generating) - no month restriction
       statusFilteredCustomers = roleBasedCustomers.filter(c => 
-        (c.status === 'Complete' || c.status === 'Paid') && isCurrentMonth(c)
+        c.status === 'Complete' || c.status === 'Paid'
       );
     } else {
-      // Default applications view - show only draft cases from current month
-      const currentDate = new Date();
-      const currentMonth = currentDate.getMonth() + 1;
-      const currentYear = currentDate.getFullYear();
-      
-      const isCurrentMonth = (customer: any) => {
-        const customerDate = new Date(customer.updated_at || customer.created_at || '');
-        const customerMonth = customerDate.getMonth() + 1;
-        const customerYear = customerDate.getFullYear();
-        return customerMonth === currentMonth && customerYear === currentYear;
-      };
-      
+      // Default applications view - show only draft cases (no month restriction)
       statusFilteredCustomers = roleBasedCustomers.filter(c => 
-        c.status === 'Draft' && isCurrentMonth(c)
+        c.status === 'Draft'
       );
     }
     
@@ -208,26 +173,25 @@ const OptimizedDashboard = () => {
       return customerMonth === currentMonth && customerYear === currentYear;
     };
     
-    // Total applications - filter all cases by current month  
+    // Total applications - all draft cases (no month restriction)
     const totalCustomers = relevantCustomers.filter(c => {
-      // Filter by current month for all statuses including drafts
-      return !['Rejected', 'Complete', 'Paid'].includes(c.status) && isCurrentMonth(c);
+      return c.status === 'Draft';
     }).length;
     
-    // Completed cases - filter by current month for both admin and user
+    // Completed cases - filter by current month for both admin and user (ONLY widget with month restriction)
     const completedCases = relevantCustomers.filter(c => {
       const isCompletedOrPaid = c.status === 'Complete' || c.status === 'Paid';
       return isCompletedOrPaid && isCurrentMonth(c);
     }).length;
     
-    // Pending cases - filter by current month (drafts already handled in totalCustomers)
+    // Pending cases - all submitted cases (no month restriction)
     const pendingCases = relevantCustomers.filter(c => 
-      !['Draft', 'Complete', 'Paid', 'Rejected'].includes(c.status) && isCurrentMonth(c)
+      !['Draft', 'Complete', 'Paid', 'Rejected'].includes(c.status)
     ).length;
     
-    // Revenue calculation - always show current month revenue
+    // Revenue calculation - all revenue generating cases (no month restriction)
     const revenueCustomers = relevantCustomers.filter(c => 
-      (c.status === 'Complete' || c.status === 'Paid') && isCurrentMonth(c)
+      c.status === 'Complete' || c.status === 'Paid'
     );
     const totalRevenue = revenueCustomers.reduce((sum, c) => sum + c.amount, 0);
 
