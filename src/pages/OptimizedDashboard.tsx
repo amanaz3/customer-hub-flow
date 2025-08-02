@@ -141,17 +141,10 @@ const OptimizedDashboard = () => {
         return customerMonth === currentMonth && customerYear === currentYear;
       };
       
-      if (isAdmin) {
-        // Admin: Show submitted cases (exclude draft, rejected, completed, and paid) from current month
-        statusFilteredCustomers = roleBasedCustomers.filter(c => 
-          !['Draft', 'Rejected', 'Complete', 'Paid'].includes(c.status) && isCurrentMonth(c)
-        );
-      } else {
-        // User: Show only "Sent to Bank" status from current month
-        statusFilteredCustomers = roleBasedCustomers.filter(c => 
-          c.status === 'Sent to Bank' && isCurrentMonth(c)
-        );
-      }
+      // Both admin and user: Show cases that are not in completed, paid, rejected, and draft statuses from current month
+      statusFilteredCustomers = roleBasedCustomers.filter(c => 
+        !['Complete', 'Paid', 'Rejected', 'Draft'].includes(c.status) && isCurrentMonth(c)
+      );
     } else if (activeWidget === 'revenue') {
       // Current month filter helper
       const currentDate = new Date();
