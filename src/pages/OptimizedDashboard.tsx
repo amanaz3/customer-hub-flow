@@ -153,14 +153,37 @@ const OptimizedDashboard = () => {
         );
       }
     } else if (activeWidget === 'revenue') {
-      // Show only completed and paid cases (revenue generating)
+      // Current month filter helper
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+      
+      const isCurrentMonth = (customer: any) => {
+        const customerDate = new Date(customer.updated_at || customer.created_at || '');
+        const customerMonth = customerDate.getMonth() + 1;
+        const customerYear = customerDate.getFullYear();
+        return customerMonth === currentMonth && customerYear === currentYear;
+      };
+      
+      // Show only completed and paid cases (revenue generating) from current month
       statusFilteredCustomers = roleBasedCustomers.filter(c => 
-        c.status === 'Complete' || c.status === 'Paid'
+        (c.status === 'Complete' || c.status === 'Paid') && isCurrentMonth(c)
       );
     } else {
-      // Default applications view - show only draft cases (all drafts regardless of date)
+      // Default applications view - show only draft cases from current month
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+      
+      const isCurrentMonth = (customer: any) => {
+        const customerDate = new Date(customer.updated_at || customer.created_at || '');
+        const customerMonth = customerDate.getMonth() + 1;
+        const customerYear = customerDate.getFullYear();
+        return customerMonth === currentMonth && customerYear === currentYear;
+      };
+      
       statusFilteredCustomers = roleBasedCustomers.filter(c => 
-        c.status === 'Draft'
+        c.status === 'Draft' && isCurrentMonth(c)
       );
     }
     
@@ -192,12 +215,9 @@ const OptimizedDashboard = () => {
       return customerMonth === currentMonth && customerYear === currentYear;
     };
     
-    // Total applications - include drafts (no date filter) and current month non-drafts
+    // Total applications - filter all cases by current month  
     const totalCustomers = relevantCustomers.filter(c => {
-      if (c.status === 'Draft') {
-        return true; // Include all drafts regardless of date
-      }
-      // For non-draft statuses, exclude rejected, completed, and paid AND filter by current month
+      // Filter by current month for all statuses including drafts
       return !['Rejected', 'Complete', 'Paid'].includes(c.status) && isCurrentMonth(c);
     }).length;
     
