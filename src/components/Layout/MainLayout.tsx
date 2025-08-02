@@ -38,17 +38,16 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   }
 
   return (
-    <div className="flex h-screen bg-background responsive-transition">
+    <div className="flex h-screen bg-background transition-all duration-300 overflow-hidden">
       <Sidebar />
-      <div className="flex flex-col flex-1 overflow-hidden w-full">
+      <div className="flex flex-col flex-1 overflow-hidden w-full min-w-0">
         <Navbar />
         <main className={cn(
-          "flex-1 overflow-y-auto bg-background responsive-transition",
-          "container-responsive",
-          "p-3 xs:p-4 sm:p-5 md:p-6 lg:p-8",
-          isMobile ? "pt-16" : "pt-4" // Account for mobile menu button
+          "flex-1 overflow-y-auto bg-background transition-all duration-300",
+          "p-3 sm:p-4 md:p-6 lg:p-8 xl:p-10",
+          isMobile ? "pt-4" : "pt-2"
         )}>
-          <div className="max-w-full mx-auto">
+          <div className="max-w-full mx-auto min-h-0">
             {children}
           </div>
         </main>

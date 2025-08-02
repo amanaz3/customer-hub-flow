@@ -35,42 +35,43 @@ const Navbar: React.FC = () => {
 
   return (
     <header className={cn(
-      "bg-card border-b border-border responsive-transition",
-      "sticky top-0 z-30 backdrop-blur-sm bg-card/80"
+      "bg-card/95 backdrop-blur-md border-b border-border/50 transition-all duration-300",
+      "sticky top-0 z-30 shadow-sm"
     )}>
       <div className={cn(
-        "h-14 px-3 xs:px-4 sm:px-6 flex items-center justify-between",
-        isMobile ? "ml-12" : ""
+        "h-14 sm:h-16 px-4 sm:px-6 lg:px-8 flex items-center justify-between transition-all duration-300",
+        isMobile ? "ml-12 sm:ml-14" : ""
       )}>
-        <div className="flex items-center space-x-2 xs:space-x-4 overflow-hidden">
+        <div className="flex items-center space-x-3 sm:space-x-4 overflow-hidden min-w-0 flex-1">
           <h2 className={cn(
-            "font-semibold text-card-foreground responsive-transition",
-            "text-base xs:text-lg sm:text-xl",
+            "font-semibold text-card-foreground transition-all duration-300",
+            "text-sm sm:text-base md:text-lg lg:text-xl",
             "truncate"
           )}>
             {isAdmin ? 'Admin Portal' : 'User Portal'}
           </h2>
         </div>
         
-        <div className="flex items-center space-x-2 xs:space-x-3 sm:space-x-4 flex-shrink-0">
+        <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0">
           <NotificationDropdown />
           
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" className={cn(
-                "relative rounded-full touch-friendly responsive-transition",
-                "h-8 w-8 xs:h-9 xs:w-9"
+                "relative rounded-full transition-all duration-200 hover:scale-105",
+                "h-8 w-8 sm:h-9 sm:w-9 lg:h-10 lg:w-10",
+                "touch-friendly"
               )}>
-                <Avatar className="h-8 w-8 xs:h-9 xs:w-9">
-                  <AvatarFallback className="text-xs xs:text-sm">
+                <Avatar className="h-8 w-8 sm:h-9 sm:w-9 lg:h-10 lg:w-10">
+                  <AvatarFallback className="text-xs sm:text-sm lg:text-base font-medium">
                     {user?.profile?.name ? getInitials(user.profile.name) : 'U'}
                   </AvatarFallback>
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent className={cn(
-              "w-48 xs:w-56 responsive-transition",
-              "bg-popover/95 backdrop-blur-sm border border-border"
+              "w-56 sm:w-64 lg:w-72 transition-all duration-200",
+              "bg-popover/95 backdrop-blur-md border border-border/50 shadow-lg"
             )} align="end" forceMount>
               <DropdownMenuLabel className="font-normal p-3">
                 <div className="flex flex-col space-y-1">

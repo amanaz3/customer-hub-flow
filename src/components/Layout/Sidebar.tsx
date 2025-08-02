@@ -28,10 +28,13 @@ const Sidebar: React.FC = () => {
   const location = useLocation();
   const isMobile = useIsMobile();
   
-  // Auto-collapse on mobile
+  // Auto-collapse on mobile and handle desktop responsive behavior
   useEffect(() => {
     if (isMobile) {
       setCollapsed(true);
+      setMobileOpen(false);
+    } else {
+      // Auto-expand on desktop if collapsed was due to mobile
       setMobileOpen(false);
     }
   }, [isMobile]);
@@ -125,7 +128,7 @@ const Sidebar: React.FC = () => {
           variant="ghost"
           size="sm"
           onClick={() => setMobileOpen(!mobileOpen)}
-          className="fixed top-4 left-4 z-50 lg:hidden bg-background/80 backdrop-blur-sm border shadow-md"
+          className="fixed top-3 left-3 z-50 md:hidden bg-background/95 backdrop-blur-sm border shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-105"
         >
           {mobileOpen ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </Button>
@@ -141,8 +144,8 @@ const Sidebar: React.FC = () => {
         {/* Mobile Sidebar */}
         <div 
           className={cn(
-            "fixed top-0 left-0 h-screen bg-sidebar border-r border-sidebar-border z-50 lg:hidden responsive-transition",
-            "w-64 transform",
+            "fixed top-0 left-0 h-screen bg-sidebar/95 backdrop-blur-md border-r border-sidebar-border z-50 md:hidden transition-transform duration-300 ease-in-out",
+            "w-72 sm:w-80 transform shadow-2xl",
             mobileOpen ? "translate-x-0" : "-translate-x-full"
           )}
         >
@@ -199,8 +202,8 @@ const Sidebar: React.FC = () => {
   return (
     <div 
       className={cn(
-        "h-screen bg-sidebar flex flex-col border-r border-sidebar-border responsive-transition hidden lg:flex",
-        collapsed ? "w-16" : "w-64"
+        "h-screen bg-sidebar/95 backdrop-blur-sm flex flex-col border-r border-sidebar-border transition-all duration-300 ease-in-out hidden md:flex",
+        collapsed ? "w-16 xl:w-20" : "w-64 lg:w-72 xl:w-80"
       )}
     >
       <div className="flex items-center justify-between h-14 px-4 border-b border-sidebar-border">
