@@ -18,6 +18,7 @@ interface DashboardFiltersProps {
   setStatusFilter: (status: string) => void;
   onRefresh?: () => void;
   isLoading?: boolean;
+  activeWidget?: 'applications' | 'completed' | 'pending' | 'revenue';
 }
 
 const DashboardFilters: React.FC<DashboardFiltersProps> = ({
@@ -26,9 +27,11 @@ const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   statusFilter,
   setStatusFilter,
   onRefresh,
-  isLoading = false
+  isLoading = false,
+  activeWidget = 'applications'
 }) => {
-  const statusOptions = [
+  // Base status options
+  const allStatusOptions = [
     { value: 'all', label: 'All Status', color: 'text-gray-600' },
     { value: 'Draft', label: 'Draft', color: 'text-gray-600' },
     { value: 'Submitted', label: 'Submitted', color: 'text-blue-600' },
@@ -39,6 +42,44 @@ const DashboardFilters: React.FC<DashboardFiltersProps> = ({
     { value: 'Need More Info', label: 'Need More Info', color: 'text-orange-600' },
     { value: 'Paid', label: 'Paid', color: 'text-emerald-600' }
   ];
+
+  // Filter status options based on active widget
+  const getStatusOptionsForWidget = () => {
+    switch (activeWidget) {
+      case 'applications':
+        // Active applications - exclude rejected, completed, and paid
+        return allStatusOptions.filter(option => 
+          option.value === 'all' || !['Rejected', 'Complete', 'Paid'].includes(option.value)
+        );
+      
+      case 'completed':
+        // Completed cases - only complete and paid
+        return [
+          allStatusOptions[0], // 'all'
+          allStatusOptions.find(opt => opt.value === 'Complete')!,
+          allStatusOptions.find(opt => opt.value === 'Paid')!
+        ];
+      
+      case 'pending':
+        // Pending cases - exclude draft, complete, paid, and rejected
+        return allStatusOptions.filter(option => 
+          option.value === 'all' || !['Draft', 'Complete', 'Paid', 'Rejected'].includes(option.value)
+        );
+      
+      case 'revenue':
+        // Revenue cases - only complete and paid (revenue generating)
+        return [
+          allStatusOptions[0], // 'all'
+          allStatusOptions.find(opt => opt.value === 'Complete')!,
+          allStatusOptions.find(opt => opt.value === 'Paid')!
+        ];
+      
+      default:
+        return allStatusOptions;
+    }
+  };
+
+  const statusOptions = getStatusOptionsForWidget();
 
   const clearFilters = () => {
     setSearchTerm('');

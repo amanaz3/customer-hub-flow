@@ -33,6 +33,12 @@ const OptimizedDashboard = () => {
   // Widget selection state - default to applications
   const [activeWidget, setActiveWidget] = useState<'applications' | 'completed' | 'pending' | 'revenue'>('applications');
   
+  // Reset status filter when widget changes to avoid showing incorrect data
+  const handleWidgetChange = (widget: 'applications' | 'completed' | 'pending' | 'revenue') => {
+    setActiveWidget(widget);
+    setStatusFilter('all'); // Reset status filter when widget changes
+  };
+  
   // Enhanced date filtering for admin revenue
   const currentDate = new Date();
   const [selectedMonths, setSelectedMonths] = useState<number[]>([currentDate.getMonth() + 1]); // 1-based months
@@ -497,7 +503,7 @@ const OptimizedDashboard = () => {
                 stats={stats} 
                 selectedMonths={selectedMonths} 
                 revenueYear={revenueYear}
-                onWidgetClick={setActiveWidget}
+                onWidgetClick={handleWidgetChange}
                 activeWidget={activeWidget}
               />
 
@@ -512,6 +518,7 @@ const OptimizedDashboard = () => {
                     setStatusFilter={setStatusFilter}
                     onRefresh={handleDataRefresh}
                     isLoading={isLoading}
+                    activeWidget={activeWidget}
                   />
                   
                   <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
@@ -557,7 +564,7 @@ const OptimizedDashboard = () => {
               {/* Statistics Cards inside Customers tab */}
               <DashboardStats 
                 stats={stats} 
-                onWidgetClick={setActiveWidget}
+                onWidgetClick={handleWidgetChange}
                 activeWidget={activeWidget}
               />
 
@@ -572,6 +579,7 @@ const OptimizedDashboard = () => {
                     setStatusFilter={setStatusFilter}
                     onRefresh={handleDataRefresh}
                     isLoading={isLoading}
+                    activeWidget={activeWidget}
                   />
                   
                   <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
