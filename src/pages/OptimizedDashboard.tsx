@@ -144,9 +144,9 @@ const OptimizedDashboard = () => {
         c.status === 'Complete' || c.status === 'Paid'
       );
     } else {
-      // Default applications view - show active applications (exclude rejected, completed, and paid)
+      // Default applications view - show only draft cases (all drafts regardless of date)
       statusFilteredCustomers = roleBasedCustomers.filter(c => 
-        !['Rejected', 'Complete', 'Paid'].includes(c.status)
+        c.status === 'Draft'
       );
     }
     
