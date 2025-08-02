@@ -75,15 +75,15 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
     },
     {
       id: 'completed' as const,
-      title: "Completed Cases",
+      title: isAdmin ? "Completed Cases" : "Drafts",
       value: stats.completedCases,
       icon: CheckCircle,
-      description: `${completionRate.toFixed(1)}% completion rate`,
+      description: isAdmin ? `${completionRate.toFixed(1)}% completion rate` : "Draft applications",
       color: "text-green-600",
       bgColor: "bg-green-50 dark:bg-green-950/50",
       borderColor: "border-green-200 dark:border-green-800",
       trend: stats.completedCases > 0 ? "up" : null,
-      subtitle: "Successfully processed",
+      subtitle: isAdmin ? "Successfully processed" : "Draft status",
       badge: null
     },
     {
