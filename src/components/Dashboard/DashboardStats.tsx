@@ -129,18 +129,18 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
         return (
           <Card 
             key={`stat-${stat.title.replace(/\s+/g, '-').toLowerCase()}`}
-            className={`group relative overflow-hidden transition-all duration-500 ease-out border-0 shadow-sm hover:shadow-xl bg-gradient-to-br from-background via-background to-muted/10 ${
-              isClickable ? 'cursor-pointer hover:-translate-y-1' : ''
+            className={`group relative overflow-hidden transition-all duration-300 ease-out border ${stat.borderColor} shadow-sm hover:shadow-lg bg-gradient-to-br from-background to-muted/5 ${
+              isClickable ? 'cursor-pointer hover:-translate-y-1 hover:shadow-xl' : ''
             } ${
-              isActive ? 'ring-2 ring-primary/50 ring-offset-2 shadow-xl -translate-y-1 bg-gradient-to-br from-primary/5 via-background to-primary/10' : ''
+              isActive ? 'ring-2 ring-primary/50 ring-offset-2 shadow-lg -translate-y-1 border-primary/50' : ''
             }`}
             onClick={() => isClickable && handleCardClick(stat.id)}
           >
             {/* Animated gradient overlay */}
-            <div className={`absolute inset-0 bg-gradient-to-r ${stat.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+            <div className={`absolute inset-0 ${stat.bgColor} opacity-0 group-hover:opacity-30 transition-opacity duration-300`} />
             
             {/* Left accent border */}
-            <div className={`absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-${stat.color.replace('text-', '')} to-${stat.color.replace('text-', '')}/50 transition-all duration-300 ${
+            <div className={`absolute left-0 top-0 w-1 h-full ${stat.bgColor.replace('bg-', 'bg-').replace('/50', '')} transition-all duration-300 ${
               isActive ? 'w-2' : 'group-hover:w-2'
             }`} />
           <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-4">
