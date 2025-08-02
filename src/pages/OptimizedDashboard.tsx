@@ -134,10 +134,23 @@ const OptimizedDashboard = () => {
         !['Complete', 'Paid', 'Rejected', 'Draft'].includes(c.status)
       );
     } else if (activeWidget === 'revenue') {
-      // Show only completed and paid cases (revenue generating) - no month restriction
-      statusFilteredCustomers = roleBasedCustomers.filter(c => 
-        c.status === 'Complete' || c.status === 'Paid'
-      );
+      // Show only completed and paid cases (revenue generating) with advanced filtering
+      statusFilteredCustomers = roleBasedCustomers.filter(c => {
+        const isRevenueGenerating = c.status === 'Complete' || c.status === 'Paid';
+        if (!isRevenueGenerating) return false;
+        
+        // For admin with advanced filtering enabled
+        if (isAdmin && selectedMonths.length > 0) {
+          const customerDate = new Date(c.updated_at || c.created_at || '');
+          const customerMonth = customerDate.getMonth() + 1;
+          const customerYear = customerDate.getFullYear();
+          
+          return selectedMonths.includes(customerMonth) && customerYear === revenueYear;
+        }
+        
+        // For regular users or when no advanced filtering, show all revenue cases
+        return true;
+      });
     } else {
       // Default applications view - show only draft cases (no month restriction)
       statusFilteredCustomers = roleBasedCustomers.filter(c => 
@@ -154,7 +167,7 @@ const OptimizedDashboard = () => {
       
       return matchesSearch && matchesStatus;
     });
-  }, [customers, searchTerm, statusFilter, refreshKey, isAdmin, user?.id, activeWidget]);
+  }, [customers, searchTerm, statusFilter, refreshKey, isAdmin, user?.id, activeWidget, selectedMonths, revenueYear]);
 
   // Calculate statistics from real data with role-based filtering
   const stats = useMemo(() => {
@@ -189,10 +202,26 @@ const OptimizedDashboard = () => {
       !['Draft', 'Complete', 'Paid', 'Rejected'].includes(c.status)
     ).length;
     
-    // Revenue calculation - all revenue generating cases (no month restriction)
-    const revenueCustomers = relevantCustomers.filter(c => 
-      c.status === 'Complete' || c.status === 'Paid'
-    );
+    // Revenue calculation - use advanced filtering when admin has revenue widget active
+    let revenueCustomers;
+    if (isAdmin && activeWidget === 'revenue' && selectedMonths.length > 0) {
+      // Apply advanced filtering for admin revenue widget
+      revenueCustomers = relevantCustomers.filter(c => {
+        const isRevenueGenerating = c.status === 'Complete' || c.status === 'Paid';
+        if (!isRevenueGenerating) return false;
+        
+        const customerDate = new Date(c.updated_at || c.created_at || '');
+        const customerMonth = customerDate.getMonth() + 1;
+        const customerYear = customerDate.getFullYear();
+        
+        return selectedMonths.includes(customerMonth) && customerYear === revenueYear;
+      });
+    } else {
+      // For regular users or when advanced filtering is not active, show all revenue cases
+      revenueCustomers = relevantCustomers.filter(c => 
+        c.status === 'Complete' || c.status === 'Paid'
+      );
+    }
     const totalRevenue = revenueCustomers.reduce((sum, c) => sum + c.amount, 0);
 
     return {
@@ -256,9 +285,12 @@ const OptimizedDashboard = () => {
           icon: Clock
         };
       case 'revenue':
+        const revenueDesc = isAdmin && selectedMonths.length > 0 
+          ? `Showing ${filteredCustomers.length} revenue cases from ${selectedMonths.length} selected month(s) of ${revenueYear}` 
+          : `Showing ${filteredCustomers.length} revenue-generating cases with advanced filtering available`;
         return {
-          title: 'Revenue Cases',
-          description: `Showing ${filteredCustomers.length} revenue-generating cases`,
+          title: isAdmin ? 'Total Revenue (Advanced)' : 'My Revenue',
+          description: revenueDesc,
           icon: DollarSign
         };
       default:
