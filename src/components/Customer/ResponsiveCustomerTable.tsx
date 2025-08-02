@@ -229,6 +229,11 @@ const ResponsiveCustomerTable: React.FC<ResponsiveCustomerTableProps> = ({
     ));
   }, [customers, handleItemClick, isMobile, userProfiles]);
 
+  // Calculate total amount
+  const totalAmount = useMemo(() => {
+    return customers.reduce((sum, customer) => sum + (customer.amount || 0), 0);
+  }, [customers]);
+
   if (customers.length === 0) {
     return (
       <Card className="responsive-transition">
@@ -249,29 +254,60 @@ const ResponsiveCustomerTable: React.FC<ResponsiveCustomerTableProps> = ({
     return (
       <div className="space-y-3">
         {renderedItems}
+        {/* Total Amount Card for Mobile */}
+        <Card className="bg-muted/30">
+          <CardContent className="p-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <DollarSign className="h-4 w-4 text-green-600" />
+                <span className="font-medium text-foreground">Total Amount</span>
+              </div>
+              <span className="font-bold text-lg text-green-700">
+                ${totalAmount.toLocaleString()}
+              </span>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
 
   return (
-    <div className="rounded-md border bg-card overflow-hidden">
-      <div className="overflow-x-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="min-w-[120px]">Customer Name</TableHead>
-              <TableHead className="min-w-[100px]">Mobile</TableHead>
-              <TableHead className="min-w-[150px]">Company Name</TableHead>
-              {isAdmin && <TableHead className="min-w-[130px]">Submitted by</TableHead>}
-              <TableHead className="min-w-[80px]">Status</TableHead>
-              <TableHead className="text-right min-w-[100px]">Amount</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {renderedItems}
-          </TableBody>
-        </Table>
+    <div className="space-y-4">
+      <div className="rounded-md border bg-card overflow-hidden">
+        <div className="overflow-x-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="min-w-[120px]">Customer Name</TableHead>
+                <TableHead className="min-w-[100px]">Mobile</TableHead>
+                <TableHead className="min-w-[150px]">Company Name</TableHead>
+                {isAdmin && <TableHead className="min-w-[130px]">Submitted by</TableHead>}
+                <TableHead className="min-w-[80px]">Status</TableHead>
+                <TableHead className="text-right min-w-[100px]">Amount</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {renderedItems}
+            </TableBody>
+          </Table>
+        </div>
       </div>
+      
+      {/* Total Amount Section for Desktop */}
+      <Card className="bg-muted/30">
+        <CardContent className="p-4">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-2">
+              <DollarSign className="h-5 w-5 text-green-600" />
+              <span className="font-medium text-foreground text-lg">Total Amount</span>
+            </div>
+            <span className="font-bold text-xl text-green-700">
+              ${totalAmount.toLocaleString()}
+            </span>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
