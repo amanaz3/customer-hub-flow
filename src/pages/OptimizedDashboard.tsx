@@ -133,7 +133,7 @@ const OptimizedDashboard = () => {
         c.status === 'Complete' || c.status === 'Paid'
       );
     } else {
-      // Default applications view - exclude rejected, completed, and paid
+      // Default applications view - show active applications (exclude rejected, completed, and paid)
       statusFilteredCustomers = roleBasedCustomers.filter(c => 
         !['Rejected', 'Complete', 'Paid'].includes(c.status)
       );
