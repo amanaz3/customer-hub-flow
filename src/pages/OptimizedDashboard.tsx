@@ -129,14 +129,28 @@ const OptimizedDashboard = () => {
         return customerMonth === currentMonth && customerYear === currentYear;
       });
     } else if (activeWidget === 'pending') {
+      // Current month filter helper
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+      
+      const isCurrentMonth = (customer: any) => {
+        const customerDate = new Date(customer.updated_at || customer.created_at || '');
+        const customerMonth = customerDate.getMonth() + 1;
+        const customerYear = customerDate.getFullYear();
+        return customerMonth === currentMonth && customerYear === currentYear;
+      };
+      
       if (isAdmin) {
-        // Admin: Show submitted cases (exclude draft, rejected, completed, and paid)
+        // Admin: Show submitted cases (exclude draft, rejected, completed, and paid) from current month
         statusFilteredCustomers = roleBasedCustomers.filter(c => 
-          !['Draft', 'Rejected', 'Complete', 'Paid'].includes(c.status)
+          !['Draft', 'Rejected', 'Complete', 'Paid'].includes(c.status) && isCurrentMonth(c)
         );
       } else {
-        // User: Show only "Sent to Bank" status
-        statusFilteredCustomers = roleBasedCustomers.filter(c => c.status === 'Sent to Bank');
+        // User: Show only "Sent to Bank" status from current month
+        statusFilteredCustomers = roleBasedCustomers.filter(c => 
+          c.status === 'Sent to Bank' && isCurrentMonth(c)
+        );
       }
     } else if (activeWidget === 'revenue') {
       // Show only completed and paid cases (revenue generating)
