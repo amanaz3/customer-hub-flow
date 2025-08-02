@@ -121,7 +121,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
   };
 
   return (
-    <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+    <div className="grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
       {statCards.map((stat, index) => {
         const isActive = activeWidget === stat.id;
         const isClickable = onWidgetClick !== undefined;
@@ -129,55 +129,69 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
         return (
           <Card 
             key={`stat-${stat.title.replace(/\s+/g, '-').toLowerCase()}`}
-            className={`relative overflow-hidden transition-all duration-300 hover:shadow-lg border-l-4 ${stat.borderColor} bg-gradient-to-br from-background to-muted/20 ${
-              isClickable ? 'cursor-pointer hover:scale-105' : ''
+            className={`group relative overflow-hidden transition-all duration-500 ease-out border-0 shadow-sm hover:shadow-xl bg-gradient-to-br from-background via-background to-muted/10 ${
+              isClickable ? 'cursor-pointer hover:-translate-y-1' : ''
             } ${
-              isActive ? 'ring-2 ring-primary ring-offset-2 shadow-lg scale-105' : ''
+              isActive ? 'ring-2 ring-primary/50 ring-offset-2 shadow-xl -translate-y-1 bg-gradient-to-br from-primary/5 via-background to-primary/10' : ''
             }`}
             onClick={() => isClickable && handleCardClick(stat.id)}
           >
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-3">
-            <div className="space-y-1">
-                <div className="flex items-center gap-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">
+            {/* Animated gradient overlay */}
+            <div className={`absolute inset-0 bg-gradient-to-r ${stat.bgColor} opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
+            
+            {/* Left accent border */}
+            <div className={`absolute left-0 top-0 w-1 h-full bg-gradient-to-b from-${stat.color.replace('text-', '')} to-${stat.color.replace('text-', '')}/50 transition-all duration-300 ${
+              isActive ? 'w-2' : 'group-hover:w-2'
+            }`} />
+          <CardHeader className="relative z-10 flex flex-row items-center justify-between space-y-0 pb-4">
+            <div className="space-y-2 flex-1">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <CardTitle className="text-sm font-semibold text-foreground group-hover:text-primary transition-colors duration-300">
                     {stat.title}
                   </CardTitle>
                   {stat.badge && (
-                    <Badge variant="secondary" className="text-xs">
+                    <Badge variant="secondary" className="text-xs px-2 py-1 bg-muted/80 text-muted-foreground">
                       {stat.badge}
                     </Badge>
                   )}
                   {isActive && (
-                    <Badge variant="default" className="text-xs">
+                    <Badge variant="default" className="text-xs px-2 py-1 bg-primary/20 text-primary animate-pulse">
                       Active
                     </Badge>
                   )}
                 </div>
-              <p className="text-xs text-muted-foreground/70">
+              <p className="text-xs text-muted-foreground/80 font-medium">
                 {stat.subtitle}
               </p>
             </div>
-            <div className={`p-3 rounded-xl ${stat.bgColor} ring-1 ring-border/20`}>
-              <stat.icon className={`h-5 w-5 ${stat.color}`} />
+            <div className={`relative p-3 rounded-xl ${stat.bgColor.replace('/50', '/80')} ring-1 ring-border/30 transition-all duration-300 group-hover:scale-110 group-hover:ring-2 ${
+              isActive ? 'ring-2 ring-primary/50' : ''
+            }`}>
+              <stat.icon className={`h-6 w-6 ${stat.color} transition-all duration-300 group-hover:scale-105`} />
+              {isActive && (
+                <div className="absolute -top-1 -right-1 w-3 h-3 bg-primary rounded-full animate-ping" />
+              )}
             </div>
           </CardHeader>
-          <CardContent className="space-y-3">
-            <div className="flex items-center justify-between">
-              <div className="space-y-1">
-                <div className="text-3xl font-bold tracking-tight">
+          <CardContent className="relative z-10 space-y-4 pt-2">
+            <div className="flex items-start justify-between">
+              <div className="space-y-2 flex-1">
+                <div className={`text-3xl sm:text-4xl font-bold tracking-tight transition-all duration-300 ${
+                  isActive ? 'text-primary' : 'text-foreground group-hover:text-primary'
+                }`}>
                   {typeof stat.value === 'string' ? stat.value : stat.value.toLocaleString()}
                 </div>
-                <p className="text-xs text-muted-foreground leading-relaxed">
+                <p className="text-xs text-muted-foreground/90 leading-relaxed font-medium max-w-[200px]">
                   {stat.description}
                 </p>
               </div>
               {stat.trend && (
-                <div className={`flex items-center space-x-1 px-2 py-1 rounded-full text-xs font-medium ${
+                <div className={`flex items-center space-x-1 px-3 py-2 rounded-full text-xs font-semibold transition-all duration-300 group-hover:scale-105 ${
                   stat.trend === 'up' 
-                    ? 'text-green-700 bg-green-100 dark:text-green-400 dark:bg-green-900/20' 
+                    ? 'text-green-700 bg-green-100/80 dark:text-green-400 dark:bg-green-900/30 border border-green-200/50 dark:border-green-800/50' 
                     : stat.trend === 'attention'
-                    ? 'text-orange-700 bg-orange-100 dark:text-orange-400 dark:bg-orange-900/20'
-                    : 'text-red-700 bg-red-100 dark:text-red-400 dark:bg-red-900/20'
+                    ? 'text-orange-700 bg-orange-100/80 dark:text-orange-400 dark:bg-orange-900/30 border border-orange-200/50 dark:border-orange-800/50'
+                    : 'text-red-700 bg-red-100/80 dark:text-red-400 dark:bg-red-900/30 border border-red-200/50 dark:border-red-800/50'
                 }`}>
                   {stat.trend === 'up' ? (
                     <>
@@ -197,6 +211,22 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
                   )}
                 </div>
               )}
+            </div>
+            
+            {/* Interactive bottom section */}
+            <div className={`pt-2 border-t border-border/20 transition-all duration-300 ${
+              isActive ? 'border-primary/30' : 'group-hover:border-primary/20'
+            }`}>
+              <div className="flex items-center justify-between">
+                <div className="text-xs text-muted-foreground/70 font-medium">
+                  {isClickable ? 'Click to view details' : 'Widget data'}
+                </div>
+                {isClickable && (
+                  <div className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                    isActive ? 'bg-primary animate-pulse' : 'bg-muted-foreground/30 group-hover:bg-primary'
+                  }`} />
+                )}
+              </div>
             </div>
             </CardContent>
           </Card>
