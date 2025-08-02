@@ -317,15 +317,6 @@ const OptimizedDashboard = () => {
           onCreateCustomer={handleCreateCustomer}
         />
 
-        {/* Statistics Cards */}
-        <DashboardStats 
-          stats={stats} 
-          selectedMonths={isAdmin ? selectedMonths : undefined} 
-          revenueYear={isAdmin ? revenueYear : undefined}
-          onWidgetClick={setActiveWidget}
-          activeWidget={activeWidget}
-        />
-
         {/* Conditional Filters - Only show revenue filter when revenue widget is active */}
         {isAdmin && activeWidget === 'revenue' && (
           <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
@@ -491,6 +482,15 @@ const OptimizedDashboard = () => {
             </TabsList>
 
             <TabsContent value="customers" className="space-y-6">
+              {/* Statistics Cards inside Customers tab */}
+              <DashboardStats 
+                stats={stats} 
+                selectedMonths={selectedMonths} 
+                revenueYear={revenueYear}
+                onWidgetClick={setActiveWidget}
+                activeWidget={activeWidget}
+              />
+
               {customers.length === 0 ? (
                 <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
               ) : (
@@ -534,43 +534,61 @@ const OptimizedDashboard = () => {
             </TabsContent>
           </Tabs>
         ) : (
-          /* Regular User Dashboard */
-          customers.length === 0 ? (
-            <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
-          ) : (
-            <div className="space-y-6">
-              <DashboardFilters
-                searchTerm={searchTerm}
-                setSearchTerm={setSearchTerm}
-                statusFilter={statusFilter}
-                setStatusFilter={setStatusFilter}
-                onRefresh={handleDataRefresh}
-                isLoading={isLoading}
+          /* Regular User Dashboard with Tabs */
+          <Tabs defaultValue="customers" className="space-y-8">
+            <TabsList className="grid w-full grid-cols-1 max-w-md h-12 bg-muted/50">
+              <TabsTrigger value="customers" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                <Users className="h-4 w-4" />
+                <span className="font-medium">Customers</span>
+              </TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="customers" className="space-y-6">
+              {/* Statistics Cards inside Customers tab */}
+              <DashboardStats 
+                stats={stats} 
+                onWidgetClick={setActiveWidget}
+                activeWidget={activeWidget}
               />
-              
-              <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
-                <CardHeader className="pb-4 border-b border-border/50">
-                  <CardTitle className="flex items-center gap-3">
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      <widgetContent.icon className="h-5 w-5 text-primary" />
-                    </div>
-                    <div className="flex-1">
-                      <span className="text-xl font-semibold">{widgetContent.title}</span>
-                      <p className="text-sm text-muted-foreground font-normal mt-1">
-                        {widgetContent.description}
-                      </p>
-                    </div>
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="p-0">
-                  <ResponsiveCustomerTable 
-                    customers={filteredCustomers} 
-                    onDataChange={handleDataRefresh}
+
+              {customers.length === 0 ? (
+                <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
+              ) : (
+                <div className="space-y-6">
+                  <DashboardFilters
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    statusFilter={statusFilter}
+                    setStatusFilter={setStatusFilter}
+                    onRefresh={handleDataRefresh}
+                    isLoading={isLoading}
                   />
-                </CardContent>
-              </Card>
-            </div>
-          )
+                  
+                  <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
+                    <CardHeader className="pb-4 border-b border-border/50">
+                      <CardTitle className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <widgetContent.icon className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-xl font-semibold">{widgetContent.title}</span>
+                          <p className="text-sm text-muted-foreground font-normal mt-1">
+                            {widgetContent.description}
+                          </p>
+                        </div>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <ResponsiveCustomerTable 
+                        customers={filteredCustomers} 
+                        onDataChange={handleDataRefresh}
+                      />
+                    </CardContent>
+                  </Card>
+                </div>
+              )}
+            </TabsContent>
+          </Tabs>
         )}
       </div>
     );
