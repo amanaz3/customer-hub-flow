@@ -194,11 +194,11 @@ const OptimizedDashboard = () => {
       !['Draft', 'Complete', 'Paid', 'Rejected'].includes(c.status) && isCurrentMonth(c)
     ).length;
     
-    // Revenue calculation - filter by current month for all widgets
+    // Revenue calculation - filter by current month unless in revenue widget with custom selection
     let totalRevenue = 0;
     
     if (isAdmin && activeWidget === 'revenue') {
-      // For admin revenue widget, apply date filtering to completed/paid cases
+      // For admin revenue widget, apply custom date filtering to completed/paid cases
       const revenueCustomers = relevantCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid');
       totalRevenue = revenueCustomers
         .filter(c => {
@@ -210,7 +210,7 @@ const OptimizedDashboard = () => {
         })
         .reduce((sum, c) => sum + c.amount, 0);
     } else {
-      // For all other widgets, calculate revenue from current month completed/paid cases only
+      // For all other widgets (including revenue in non-admin), show current month revenue only
       const revenueCustomers = relevantCustomers.filter(c => 
         (c.status === 'Complete' || c.status === 'Paid') && isCurrentMonth(c)
       );
