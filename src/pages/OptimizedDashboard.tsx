@@ -178,10 +178,14 @@ const OptimizedDashboard = () => {
       return customerMonth === currentMonth && customerYear === currentYear;
     };
     
-    // Total applications - exclude rejected, completed, and paid AND filter by current month
-    const totalCustomers = relevantCustomers.filter(c => 
-      !['Rejected', 'Complete', 'Paid'].includes(c.status) && isCurrentMonth(c)
-    ).length;
+    // Total applications - include drafts (no date filter) and current month non-drafts
+    const totalCustomers = relevantCustomers.filter(c => {
+      if (c.status === 'Draft') {
+        return true; // Include all drafts regardless of date
+      }
+      // For non-draft statuses, exclude rejected, completed, and paid AND filter by current month
+      return !['Rejected', 'Complete', 'Paid'].includes(c.status) && isCurrentMonth(c);
+    }).length;
     
     // Completed cases - filter by current month for both admin and user
     const completedCases = relevantCustomers.filter(c => {
@@ -189,7 +193,7 @@ const OptimizedDashboard = () => {
       return isCompletedOrPaid && isCurrentMonth(c);
     }).length;
     
-    // Pending cases - filter by current month
+    // Pending cases - filter by current month (drafts already handled in totalCustomers)
     const pendingCases = relevantCustomers.filter(c => 
       !['Draft', 'Complete', 'Paid', 'Rejected'].includes(c.status) && isCurrentMonth(c)
     ).length;
