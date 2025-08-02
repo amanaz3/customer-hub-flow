@@ -218,7 +218,7 @@ const UserAnalytics = () => {
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(overallStats.totalRevenue)}</div>
             <p className="text-xs text-muted-foreground">
-              From completed cases
+              From completed applications
             </p>
           </CardContent>
         </Card>

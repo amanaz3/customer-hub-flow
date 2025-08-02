@@ -69,13 +69,13 @@ const Sidebar: React.FC = () => {
       roles: ['admin', 'user'],
     },
     {
-      name: 'Completed Cases',
+      name: 'Completed Applications',
       path: '/completed',
       icon: <CheckSquare className="h-5 w-5" />,
       roles: ['admin', 'user'],
     },
     {
-      name: 'Rejected Cases',
+      name: 'Rejected Applications',
       path: '/rejected',
       icon: <XCircle className="h-5 w-5" />,
       roles: ['admin', 'user'],

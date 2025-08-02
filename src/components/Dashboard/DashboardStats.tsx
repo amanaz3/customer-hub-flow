@@ -17,8 +17,8 @@ import {
 interface DashboardStatsProps {
   stats: {
     totalCustomers: number;
-    completedCases: number;
-    pendingCases: number;
+    completedApplications: number;
+    submittedApplications: number;
     totalRevenue: number;
   };
   selectedMonths?: number[];
@@ -35,11 +35,11 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
   activeWidget = 'applications'
 }) => {
   const { isAdmin } = useAuth();
-  const completionRate = stats.totalCustomers > 0 ? (stats.completedCases / stats.totalCustomers) * 100 : 0;
+  const completionRate = stats.totalCustomers > 0 ? (stats.completedApplications / stats.totalCustomers) * 100 : 0;
   
   // Generate description for admin revenue based on selected months
   const getRevenueDescription = () => {
-    if (!isAdmin) return "From your completed cases only";
+    if (!isAdmin) return "From your completed applications only";
     
     if (!selectedMonths || selectedMonths.length === 0) {
       return "No months selected";
@@ -47,7 +47,7 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
     
     if (selectedMonths.length === 1) {
       const monthName = new Date(2000, selectedMonths[0] - 1).toLocaleString('default', { month: 'long' });
-      return `${monthName} ${revenueYear} completed cases`;
+      return `${monthName} ${revenueYear} completed applications`;
     }
     
     if (selectedMonths.length === 12) {
@@ -75,27 +75,27 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
     },
     {
       id: 'completed' as const,
-      title: "Completed Cases",
-      value: stats.completedCases,
+      title: "Completed Applications",
+      value: stats.completedApplications,
       icon: CheckCircle,
       description: `${completionRate.toFixed(1)}% completion rate`,
       color: "text-green-600",
       bgColor: "bg-green-50 dark:bg-green-950/50",
       borderColor: "border-green-200 dark:border-green-800",
-      trend: stats.completedCases > 0 ? "up" : null,
+      trend: stats.completedApplications > 0 ? "up" : null,
       subtitle: "Successfully processed",
       badge: null
     },
     {
       id: 'pending' as const,
-      title: "Submitted Cases",
-      value: stats.pendingCases,
+      title: "Submitted Applications",
+      value: stats.submittedApplications,
       icon: Clock,
       description: "Submitted and in progress",
       color: "text-orange-600",
       bgColor: "bg-orange-50 dark:bg-orange-950/50",
       borderColor: "border-orange-200 dark:border-orange-800",
-      trend: stats.pendingCases > 5 ? "attention" : null,
+      trend: stats.submittedApplications > 5 ? "attention" : null,
       subtitle: "In progress",
       badge: null
     },

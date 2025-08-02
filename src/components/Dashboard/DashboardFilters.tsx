@@ -53,7 +53,7 @@ const DashboardFilters: React.FC<DashboardFiltersProps> = ({
         );
       
       case 'completed':
-        // Completed cases - only complete and paid
+        // Completed applications - only complete and paid
         return [
           allStatusOptions[0], // 'all'
           allStatusOptions.find(opt => opt.value === 'Complete')!,
@@ -61,13 +61,13 @@ const DashboardFilters: React.FC<DashboardFiltersProps> = ({
         ];
       
       case 'pending':
-        // Pending cases - exclude draft, complete, paid, and rejected
+        // Submitted applications - exclude draft, complete, paid, and rejected
         return allStatusOptions.filter(option => 
           option.value === 'all' || !['Draft', 'Complete', 'Paid', 'Rejected'].includes(option.value)
         );
       
       case 'revenue':
-        // Revenue cases - only complete and paid (revenue generating)
+        // Revenue applications - only complete and paid (revenue generating)
         return [
           allStatusOptions[0], // 'all'
           allStatusOptions.find(opt => opt.value === 'Complete')!,

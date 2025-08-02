@@ -13,7 +13,7 @@ import { CalendarIcon, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
-const CompletedCases = () => {
+const CompletedApplications = () => {
   const { user, isAdmin } = useAuth();
   const { customers, getCustomersByUserId } = useCustomers();
   const [searchTerm, setSearchTerm] = useState('');
@@ -100,7 +100,7 @@ const CompletedCases = () => {
   return (
     <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Completed Cases</h1>
+          <h1 className="text-3xl font-bold">Completed Applications</h1>
           <p className="text-muted-foreground">
             View completed applications {!isAdmin && 'you submitted'} (Revenue: {new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED' }).format(totalRevenue)})
           </p>
@@ -202,4 +202,4 @@ const CompletedCases = () => {
     );
   };
 
-export default memo(CompletedCases);
+export default memo(CompletedApplications);

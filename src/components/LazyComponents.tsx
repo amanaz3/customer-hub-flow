@@ -8,8 +8,8 @@ const CustomerList = React.lazy(() => import('@/pages/CustomerList'));
 const CustomerNew = React.lazy(() => import('@/pages/CustomerNew'));
 const CustomerDetail = React.lazy(() => import('@/pages/CustomerDetail'));
 const SecureUserManagement = React.lazy(() => import('@/pages/SecureUserManagement'));
-const CompletedCases = React.lazy(() => import('@/pages/CompletedCases'));
-const RejectedCases = React.lazy(() => import('@/pages/RejectedCases'));
+const CompletedApplications = React.lazy(() => import('@/pages/CompletedApplications'));
+const RejectedApplications = React.lazy(() => import('@/pages/RejectedApplications'));
 
 const Settings = React.lazy(() => import('@/pages/Settings'));
 const ProductManagement = React.lazy(() => import('@/pages/ProductManagement'));
@@ -65,8 +65,8 @@ export const LazyCustomerList = withLazyLoading(CustomerList, "Loading customer 
 export const LazyCustomerNew = withLazyLoading(CustomerNew, "Loading customer form...");
 export const LazyCustomerDetail = withLazyLoading(CustomerDetail, "Loading customer details...");
 export const LazySecureUserManagement = withLazyLoading(SecureUserManagement, "Loading user management...");
-export const LazyCompletedCases = withLazyLoading(CompletedCases, "Loading completed cases...");
-export const LazyRejectedCases = withLazyLoading(RejectedCases, "Loading rejected cases...");
+export const LazyCompletedApplications = withLazyLoading(CompletedApplications, "Loading completed applications...");
+export const LazyRejectedApplications = withLazyLoading(RejectedApplications, "Loading rejected applications...");
 
 export const LazySettings = withLazyLoading(Settings, "Loading settings...");
 export const LazyProductManagement = withLazyLoading(ProductManagement, "Loading product management...");

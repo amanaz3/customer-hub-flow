@@ -248,10 +248,10 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
         <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
           <div className="flex items-center gap-2 text-gray-600">
             <CheckCircle className="w-4 h-4" />
-            <span className="text-sm font-medium">Case Completed</span>
+            <span className="text-sm font-medium">Application Completed</span>
           </div>
           <p className="text-xs text-gray-500 mt-1">
-            Document uploads are locked for completed cases
+            Document uploads are locked for completed applications
           </p>
         </div>
       );

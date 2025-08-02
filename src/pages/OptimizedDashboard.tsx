@@ -112,7 +112,7 @@ const OptimizedDashboard = () => {
     let statusFilteredCustomers = roleBasedCustomers;
     
     if (activeWidget === 'completed') {
-      // Both admin and user: Show only completed and paid cases for current month
+      // Both admin and user: Show only completed and paid applications for current month
       const currentDate = new Date();
       const currentMonth = currentDate.getMonth() + 1;
       const currentYear = currentDate.getFullYear();
@@ -129,12 +129,12 @@ const OptimizedDashboard = () => {
         return customerMonth === currentMonth && customerYear === currentYear;
       });
     } else if (activeWidget === 'pending') {
-      // Both admin and user: Show cases that are not in completed, paid, rejected, and draft statuses (no month restriction)
+      // Both admin and user: Show applications that are not in completed, paid, rejected, and draft statuses (no month restriction)
       statusFilteredCustomers = roleBasedCustomers.filter(c => 
         !['Complete', 'Paid', 'Rejected', 'Draft'].includes(c.status)
       );
     } else if (activeWidget === 'revenue') {
-      // Show only completed and paid cases (revenue generating) with advanced filtering
+      // Show only completed and paid applications (revenue generating) with advanced filtering
       statusFilteredCustomers = roleBasedCustomers.filter(c => {
         const isRevenueGenerating = c.status === 'Complete' || c.status === 'Paid';
         if (!isRevenueGenerating) return false;
@@ -148,11 +148,11 @@ const OptimizedDashboard = () => {
           return selectedMonths.includes(customerMonth) && customerYear === revenueYear;
         }
         
-        // For regular users or when no advanced filtering, show all revenue cases
+        // For regular users or when no advanced filtering, show all revenue applications
         return true;
       });
     } else {
-      // Default applications view - show only draft cases (no month restriction)
+      // Default applications view - show only draft applications (no month restriction)
       statusFilteredCustomers = roleBasedCustomers.filter(c => 
         c.status === 'Draft'
       );
@@ -186,19 +186,19 @@ const OptimizedDashboard = () => {
       return customerMonth === currentMonth && customerYear === currentYear;
     };
     
-    // Total applications - all draft cases (no month restriction)
+    // Total applications - all draft applications (no month restriction)
     const totalCustomers = relevantCustomers.filter(c => {
       return c.status === 'Draft';
     }).length;
     
-    // Completed cases - filter by current month for both admin and user (ONLY widget with month restriction)
-    const completedCases = relevantCustomers.filter(c => {
+    // Completed applications - filter by current month for both admin and user (ONLY widget with month restriction)
+    const completedApplications = relevantCustomers.filter(c => {
       const isCompletedOrPaid = c.status === 'Complete' || c.status === 'Paid';
       return isCompletedOrPaid && isCurrentMonth(c);
     }).length;
     
-    // Pending cases - all submitted cases (no month restriction)
-    const pendingCases = relevantCustomers.filter(c => 
+    // Submitted applications - all submitted applications (no month restriction)
+    const submittedApplications = relevantCustomers.filter(c => 
       !['Draft', 'Complete', 'Paid', 'Rejected'].includes(c.status)
     ).length;
     
@@ -217,7 +217,7 @@ const OptimizedDashboard = () => {
         return selectedMonths.includes(customerMonth) && customerYear === revenueYear;
       });
     } else {
-      // For regular users or when advanced filtering is not active, show all revenue cases
+      // For regular users or when advanced filtering is not active, show all revenue applications
       revenueCustomers = relevantCustomers.filter(c => 
         c.status === 'Complete' || c.status === 'Paid'
       );
@@ -226,8 +226,8 @@ const OptimizedDashboard = () => {
 
     return {
       totalCustomers,
-      completedCases,
-      pendingCases,
+      completedApplications,
+      submittedApplications,
       totalRevenue
     };
   }, [customers, refreshKey, isAdmin, user?.id, selectedMonths, revenueYear, activeWidget, filteredCustomers]);
@@ -274,20 +274,20 @@ const OptimizedDashboard = () => {
         };
       case 'completed':
         return {
-          title: 'Completed Cases',
-          description: `Showing ${filteredCustomers.length} completed/paid cases from current month`,
+          title: 'Completed Applications',
+          description: `Showing ${filteredCustomers.length} completed/paid applications from current month`,
           icon: CheckCircle
         };
       case 'pending':
         return {
-          title: 'Submitted Cases',
-          description: `Showing ${filteredCustomers.length} submitted cases in progress`,
+          title: 'Submitted Applications',
+          description: `Showing ${filteredCustomers.length} submitted applications in progress`,
           icon: Clock
         };
       case 'revenue':
         const revenueDesc = isAdmin && selectedMonths.length > 0 
-          ? `Showing ${filteredCustomers.length} revenue cases from ${selectedMonths.length} selected month(s) of ${revenueYear}` 
-          : `Showing ${filteredCustomers.length} revenue-generating cases with advanced filtering available`;
+          ? `Showing ${filteredCustomers.length} revenue applications from ${selectedMonths.length} selected month(s) of ${revenueYear}` 
+          : `Showing ${filteredCustomers.length} revenue-generating applications with advanced filtering available`;
         return {
           title: isAdmin ? 'Total Revenue (Advanced)' : 'My Revenue',
           description: revenueDesc,

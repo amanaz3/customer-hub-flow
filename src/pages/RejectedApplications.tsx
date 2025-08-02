@@ -12,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Calendar, ChevronDown, X, RotateCcw } from 'lucide-react';
 
-const RejectedCases = () => {
+const RejectedApplications = () => {
   const { user, isAdmin } = useAuth();
   const { customers, getCustomersByUserId } = useCustomers();
   const [searchTerm, setSearchTerm] = useState('');
@@ -89,7 +89,7 @@ const RejectedCases = () => {
   return (
     <div className="space-y-6">
         <div>
-          <h1 className="text-3xl font-bold">Rejected Cases</h1>
+          <h1 className="text-3xl font-bold">Rejected Applications</h1>
           <p className="text-muted-foreground">
             View rejected applications {!isAdmin && 'you submitted'}
           </p>
@@ -123,7 +123,7 @@ const RejectedCases = () => {
                 <div>
                   <CardTitle className="text-lg">Filter by Month</CardTitle>
                   <p className="text-sm text-muted-foreground">
-                    Filter rejected cases by selecting specific months and year
+                    Filter rejected applications by selecting specific months and year
                   </p>
                 </div>
               </div>
@@ -240,4 +240,4 @@ const RejectedCases = () => {
     );
   };
 
-export default memo(RejectedCases);
+export default memo(RejectedApplications);
