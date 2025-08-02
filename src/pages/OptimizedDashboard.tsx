@@ -160,7 +160,10 @@ const OptimizedDashboard = () => {
     // For non-admin users, only show their own data
     const relevantCustomers = isAdmin ? customers : customers.filter(c => c.user_id === user?.id);
     
-    const totalCustomers = relevantCustomers.length;
+    // Total applications - exclude rejected, completed, and paid (show only active applications)
+    const totalCustomers = relevantCustomers.filter(c => 
+      !['Rejected', 'Complete', 'Paid'].includes(c.status)
+    ).length;
     
     // Completed cases - filter by current month for both admin and user
     const currentDate = new Date();
