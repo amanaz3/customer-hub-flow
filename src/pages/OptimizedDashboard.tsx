@@ -128,10 +128,15 @@ const OptimizedDashboard = () => {
         statusFilteredCustomers = roleBasedCustomers.filter(c => c.status === 'Draft');
       }
     } else if (activeWidget === 'pending') {
-      // Show only submitted cases (exclude draft, rejected, completed, and paid)
-      statusFilteredCustomers = roleBasedCustomers.filter(c => 
-        !['Draft', 'Rejected', 'Complete', 'Paid'].includes(c.status)
-      );
+      if (isAdmin) {
+        // Admin: Show submitted cases (exclude draft, rejected, completed, and paid)
+        statusFilteredCustomers = roleBasedCustomers.filter(c => 
+          !['Draft', 'Rejected', 'Complete', 'Paid'].includes(c.status)
+        );
+      } else {
+        // User: Show only "Sent to Bank" status
+        statusFilteredCustomers = roleBasedCustomers.filter(c => c.status === 'Sent to Bank');
+      }
     } else if (activeWidget === 'revenue') {
       // Show only completed and paid cases (revenue generating)
       statusFilteredCustomers = roleBasedCustomers.filter(c => 
