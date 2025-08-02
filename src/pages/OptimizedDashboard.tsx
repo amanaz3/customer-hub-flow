@@ -106,27 +106,22 @@ const OptimizedDashboard = () => {
     let statusFilteredCustomers = roleBasedCustomers;
     
     if (activeWidget === 'completed') {
-      if (isAdmin) {
-        // Admin: Show only completed and paid cases for current month
-        const currentDate = new Date();
-        const currentMonth = currentDate.getMonth() + 1;
-        const currentYear = currentDate.getFullYear();
+      // Both admin and user: Show only completed and paid cases for current month
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth() + 1;
+      const currentYear = currentDate.getFullYear();
+      
+      statusFilteredCustomers = roleBasedCustomers.filter(c => {
+        const isCompletedOrPaid = c.status === 'Complete' || c.status === 'Paid';
+        if (!isCompletedOrPaid) return false;
         
-        statusFilteredCustomers = roleBasedCustomers.filter(c => {
-          const isCompletedOrPaid = c.status === 'Complete' || c.status === 'Paid';
-          if (!isCompletedOrPaid) return false;
-          
-          // Filter by current month
-          const customerDate = new Date(c.updated_at || c.created_at || '');
-          const customerMonth = customerDate.getMonth() + 1;
-          const customerYear = customerDate.getFullYear();
-          
-          return customerMonth === currentMonth && customerYear === currentYear;
-        });
-      } else {
-        // User: Show only Draft status
-        statusFilteredCustomers = roleBasedCustomers.filter(c => c.status === 'Draft');
-      }
+        // Filter by current month
+        const customerDate = new Date(c.updated_at || c.created_at || '');
+        const customerMonth = customerDate.getMonth() + 1;
+        const customerYear = customerDate.getFullYear();
+        
+        return customerMonth === currentMonth && customerYear === currentYear;
+      });
     } else if (activeWidget === 'pending') {
       if (isAdmin) {
         // Admin: Show submitted cases (exclude draft, rejected, completed, and paid)
@@ -166,7 +161,24 @@ const OptimizedDashboard = () => {
     const relevantCustomers = isAdmin ? customers : customers.filter(c => c.user_id === user?.id);
     
     const totalCustomers = relevantCustomers.length;
-    const completedCases = relevantCustomers.filter(c => c.status === 'Complete' || c.status === 'Paid').length;
+    
+    // Completed cases - filter by current month for both admin and user
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth() + 1;
+    const currentYear = currentDate.getFullYear();
+    
+    const completedCases = relevantCustomers.filter(c => {
+      const isCompletedOrPaid = c.status === 'Complete' || c.status === 'Paid';
+      if (!isCompletedOrPaid) return false;
+      
+      // Filter by current month
+      const customerDate = new Date(c.updated_at || c.created_at || '');
+      const customerMonth = customerDate.getMonth() + 1;
+      const customerYear = customerDate.getFullYear();
+      
+      return customerMonth === currentMonth && customerYear === currentYear;
+    }).length;
+    
     const pendingCases = relevantCustomers.filter(c => !['Draft', 'Complete', 'Paid', 'Rejected'].includes(c.status)).length;
     
     // Revenue calculation - sum amounts from the exact customers shown in the table
