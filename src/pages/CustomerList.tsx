@@ -5,6 +5,7 @@ import { Customer } from '@/types/customer';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useCustomers } from '@/contexts/CustomerContext';
 import AdminFilters from '@/components/Admin/AdminFilters';
+import CustomerStatusFilter from '@/components/Customer/CustomerStatusFilter';
 import OptimizedCustomerTable from '@/components/Customer/OptimizedCustomerTable';
 import LazyWrapper from '@/components/Performance/LazyWrapper';
 import { Button } from '@/components/ui/button';
@@ -17,13 +18,22 @@ const CustomerList = () => {
   const { customers, getCustomersByUserId } = useCustomers();
   const navigate = useNavigate();
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
+  const [userFilteredCustomers, setUserFilteredCustomers] = useState<Customer[]>([]);
 
   const { userCustomers, activeCustomers, completedCustomers } = useMemo(() => {
-    // For regular users, show only their customers
-    // For admins, show filtered customers or all customers
-    const baseCustomers = isAdmin ? (filteredCustomers.length > 0 ? filteredCustomers : customers) : getCustomersByUserId(user?.id || '');
+    let baseCustomers: Customer[];
     
-    // Filter customers by status
+    if (isAdmin) {
+      // For admins, use admin-filtered customers or all customers
+      baseCustomers = filteredCustomers.length > 0 ? filteredCustomers : customers;
+    } else {
+      // For regular users, get their own customers first
+      const ownCustomers = getCustomersByUserId(user?.id || '');
+      // Then apply user status filter if any
+      baseCustomers = userFilteredCustomers.length > 0 ? userFilteredCustomers : ownCustomers;
+    }
+    
+    // Filter customers by status for tabs
     const active = baseCustomers.filter(customer => 
       customer.status !== 'Complete' && 
       customer.status !== 'Paid' && 
@@ -38,7 +48,7 @@ const CustomerList = () => {
       activeCustomers: active,
       completedCustomers: completed
     };
-  }, [customers, filteredCustomers, isAdmin, user?.id, getCustomersByUserId]);
+  }, [customers, filteredCustomers, userFilteredCustomers, isAdmin, user?.id, getCustomersByUserId]);
 
   const handleNewApplication = () => navigate('/customers/new');
 
@@ -70,6 +80,14 @@ const CustomerList = () => {
           <AdminFilters
             customers={customers}
             onFilteredCustomers={setFilteredCustomers}
+          />
+        )}
+
+        {/* User Status Filter - only for non-admin users */}
+        {!isAdmin && (
+          <CustomerStatusFilter
+            customers={getCustomersByUserId(user?.id || '')}
+            onFilteredCustomers={setUserFilteredCustomers}
           />
         )}
 
