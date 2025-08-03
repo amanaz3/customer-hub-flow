@@ -248,12 +248,8 @@ const CustomerRow = memo(({
       <TableCell>
         <ProductSelector customer={customer} onUpdate={onUpdate} />
       </TableCell>
-      <TableCell>
-        <div className="space-y-1">
-          <div className="font-medium">{customer.mobile}</div>
-          <div className="text-sm text-muted-foreground">{customer.company}</div>
-        </div>
-      </TableCell>
+      <TableCell>{customer.mobile}</TableCell>
+      <TableCell>{customer.company}</TableCell>
       <TableCell>
         <SubmittedByCell userId={customer.user_id} />
       </TableCell>
@@ -331,7 +327,8 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({
             )}
             <TableHead>Customer Name</TableHead>
             <TableHead>Product</TableHead>
-            <TableHead>Phone & Company</TableHead>
+            <TableHead>Mobile</TableHead>
+            <TableHead>Company Name</TableHead>
             <TableHead>Submitted by</TableHead>
             <TableHead>Status</TableHead>
             <TableHead className="text-right">Amount</TableHead>
@@ -343,7 +340,7 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({
           ) : (
             <TableRow>
               <TableCell 
-                colSpan={enableBulkSelection && isAdmin ? 7 : 6} 
+                colSpan={enableBulkSelection && isAdmin ? 8 : 7} 
                 className="text-center py-6 text-muted-foreground"
               >
                 No customers found
