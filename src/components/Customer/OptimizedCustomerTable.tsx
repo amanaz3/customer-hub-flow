@@ -244,20 +244,26 @@ const CustomerRow = memo(({
           </div>
         </TableCell>
       )}
-      <TableCell className="font-medium">{customer.name}</TableCell>
+      <TableCell className="font-medium">
+        <div className="space-y-1">
+          <div className="font-medium">{customer.name}</div>
+          <div className="text-sm text-muted-foreground">{customer.mobile}</div>
+          {customer.company && (
+            <div className="text-sm text-muted-foreground">{customer.company}</div>
+          )}
+        </div>
+      </TableCell>
       <TableCell>
         <ProductSelector customer={customer} onUpdate={onUpdate} />
       </TableCell>
-      <TableCell>{customer.mobile}</TableCell>
-      <TableCell>{customer.company}</TableCell>
       <TableCell>
         <SubmittedByCell userId={customer.user_id} />
       </TableCell>
-      <TableCell>
-        <StatusBadge status={customer.status} />
-      </TableCell>
       <TableCell className="text-right">
         {formatCurrency(customer.amount)}
+      </TableCell>
+      <TableCell>
+        <StatusBadge status={customer.status} />
       </TableCell>
     </TableRow>
   );
@@ -325,13 +331,11 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({
                 </div>
               </TableHead>
             )}
-            <TableHead>Customer Name</TableHead>
+            <TableHead>Customer Info</TableHead>
             <TableHead>Product</TableHead>
-            <TableHead>Mobile</TableHead>
-            <TableHead>Company Name</TableHead>
             <TableHead>Submitted by</TableHead>
-            <TableHead>Status</TableHead>
             <TableHead className="text-right">Amount</TableHead>
+            <TableHead>Status</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -340,7 +344,7 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({
           ) : (
             <TableRow>
               <TableCell 
-                colSpan={enableBulkSelection && isAdmin ? 8 : 7} 
+                colSpan={enableBulkSelection && isAdmin ? 6 : 5} 
                 className="text-center py-6 text-muted-foreground"
               >
                 No customers found
