@@ -7,6 +7,7 @@ import { formatCurrency } from '@/lib/utils';
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useTableSelection } from '@/hooks/useTableSelection';
 import {
   Table,
   TableBody,
@@ -16,6 +17,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 
@@ -23,6 +25,8 @@ import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 interface OptimizedCustomerTableProps {
   customers: Customer[];
   onDataChange?: () => void;
+  enableBulkSelection?: boolean;
+  selection?: ReturnType<typeof useTableSelection>;
 }
 
 // Hook to fetch user information
@@ -194,13 +198,35 @@ const StatusBadge = memo(({ status }: { status: string }) => {
 StatusBadge.displayName = 'StatusBadge';
 
 // Memoized table row component
-const CustomerRow = memo(({ customer, onClick, onUpdate }: { 
+const CustomerRow = memo(({ 
+  customer, 
+  onClick, 
+  onUpdate, 
+  enableBulkSelection, 
+  isSelected, 
+  onToggleSelection 
+}: { 
   customer: Customer; 
   onClick: (id: string) => void;
   onUpdate: () => void;
+  enableBulkSelection?: boolean;
+  isSelected?: boolean;
+  onToggleSelection?: (id: string) => void;
 }) => {
   const handleClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on checkbox or select elements
+    if (e.target instanceof HTMLElement && 
+        (e.target.closest('input[type="checkbox"]') || 
+         e.target.closest('.select-trigger') ||
+         e.target.closest('[role="combobox"]'))) {
+      return;
+    }
     onClick(customer.id);
+  };
+
+  const handleCheckboxChange = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    onToggleSelection?.(customer.id);
   };
   
   return (
@@ -208,6 +234,16 @@ const CustomerRow = memo(({ customer, onClick, onUpdate }: {
       className="cursor-pointer hover:bg-slate-50"
       onClick={handleClick}
     >
+      {enableBulkSelection && (
+        <TableCell className="w-12">
+          <div onClick={handleCheckboxChange}>
+            <Checkbox
+              checked={isSelected}
+              onChange={() => onToggleSelection?.(customer.id)}
+            />
+          </div>
+        </TableCell>
+      )}
       <TableCell className="font-medium">{customer.name}</TableCell>
       <TableCell>
         <ProductSelector customer={customer} onUpdate={onUpdate} />
@@ -229,8 +265,14 @@ const CustomerRow = memo(({ customer, onClick, onUpdate }: {
 
 CustomerRow.displayName = 'CustomerRow';
 
-const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({ customers, onDataChange }) => {
+const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({ 
+  customers, 
+  onDataChange, 
+  enableBulkSelection = false, 
+  selection 
+}) => {
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   const handleRowClick = useMemo(() => 
     (id: string) => navigate(`/customers/${id}`), 
@@ -255,16 +297,34 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({ custome
         customer={customer}
         onClick={handleRowClick}
         onUpdate={() => onDataChange && onDataChange()}
+        enableBulkSelection={enableBulkSelection}
+        isSelected={selection?.isSelected(customer.id)}
+        onToggleSelection={selection?.toggleItem}
       />
     )), 
-    [customers, handleRowClick, onDataChange]
+    [customers, handleRowClick, onDataChange, enableBulkSelection, selection]
   );
+
+  const handleSelectAllChange = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    selection?.toggleAll();
+  };
 
   return (
     <div className="rounded-md border bg-white">
       <Table>
         <TableHeader>
           <TableRow>
+            {enableBulkSelection && isAdmin && (
+              <TableHead className="w-12">
+                <div onClick={handleSelectAllChange}>
+                  <Checkbox
+                    checked={selection?.isAllSelected || selection?.isPartialSelection}
+                    onChange={selection?.toggleAll}
+                  />
+                </div>
+              </TableHead>
+            )}
             <TableHead>Customer Name</TableHead>
             <TableHead>Product</TableHead>
             <TableHead>Mobile</TableHead>
@@ -279,7 +339,10 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({ custome
             tableRows
           ) : (
             <TableRow>
-              <TableCell colSpan={7} className="text-center py-6 text-muted-foreground">
+              <TableCell 
+                colSpan={enableBulkSelection && isAdmin ? 8 : 7} 
+                className="text-center py-6 text-muted-foreground"
+              >
                 No customers found
               </TableCell>
             </TableRow>
