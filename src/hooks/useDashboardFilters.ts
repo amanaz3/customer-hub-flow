@@ -53,8 +53,8 @@ export const useDashboardFilters = (customers: Customer[], activeWidget: string)
     } else if (activeWidget === 'revenue') {
       result = result.filter(c => c.status === 'Complete' || c.status === 'Paid');
     } else if (activeWidget === 'applications') {
-      // Show all applications except rejected for the applications widget
-      result = result.filter(c => c.status !== 'Rejected');
+      // Show only active applications - exclude completed, paid, and rejected
+      result = result.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status));
     }
 
     // Apply status filter
