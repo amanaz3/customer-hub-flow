@@ -6,6 +6,8 @@ import { useAuth } from '@/contexts/SecureAuthContext';
 import { useTableSelection } from '@/hooks/useTableSelection';
 import { useBulkReassignment } from '@/hooks/useBulkReassignment';
 import { cn } from '@/lib/utils';
+import { DataValidator, ValidationError } from '@/utils/dataValidation';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Table,
   TableBody,
@@ -26,12 +28,17 @@ import {
   Calendar, 
   DollarSign,
   ChevronRight,
-  User
+  User,
+  AlertTriangle
 } from 'lucide-react';
 
 interface EnhancedCustomerTableProps {
   customers: Customer[];
   onDataChange?: () => void;
+}
+
+interface CustomerWithValidation extends Customer {
+  validationErrors?: ValidationError[];
 }
 
 // Status badge component
@@ -245,12 +252,36 @@ const EnhancedCustomerTable: React.FC<EnhancedCustomerTableProps> = ({
   const isMobile = useIsMobile();
   const { isAdmin } = useAuth();
   
+  // Data validation state
+  const [validationErrors, setValidationErrors] = useState<Record<string, ValidationError[]>>({});
+  
+  // Validate data consistency
+  React.useEffect(() => {
+    const errors: Record<string, ValidationError[]> = {};
+    
+    customers.forEach(customer => {
+      const customerErrors = DataValidator.validateAll(customer);
+      if (customerErrors.length > 0) {
+        errors[customer.id] = customerErrors;
+      }
+    });
+    
+    setValidationErrors(errors);
+  }, [customers]);
+  
   // Selection management - only for admin users
   const selection = isAdmin ? useTableSelection(customers) : null;
   const { reassignCustomers, isLoading: isReassigning } = useBulkReassignment();
   
   // Dialog state
   const [isReassignDialogOpen, setIsReassignDialogOpen] = useState(false);
+  
+  // Calculate validation stats
+  const totalErrors = Object.values(validationErrors).reduce((sum, errors) => sum + errors.length, 0);
+  const criticalErrors = Object.values(validationErrors).reduce(
+    (sum, errors) => sum + errors.filter(e => e.severity === 'error').length, 
+    0
+  );
 
   const handleRowClick = (customerId: string, event: React.MouseEvent) => {
     // Don't navigate if clicking on checkbox or other interactive elements
@@ -275,6 +306,19 @@ const EnhancedCustomerTable: React.FC<EnhancedCustomerTableProps> = ({
   if (isMobile) {
     return (
       <div className="space-y-4">
+        {/* Data consistency alerts */}
+        {totalErrors > 0 && (
+          <Alert variant={criticalErrors > 0 ? "destructive" : "default"}>
+            <AlertTriangle className="h-4 w-4" />
+            <AlertDescription>
+              {criticalErrors > 0 
+                ? `${criticalErrors} critical data consistency errors found across ${Object.keys(validationErrors).length} applications.`
+                : `${totalErrors} data validation warnings found. Review applications for potential issues.`
+              }
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Mobile bulk actions */}
         {isAdmin && selection && (
           <BulkActionsToolbar
@@ -312,6 +356,19 @@ const EnhancedCustomerTable: React.FC<EnhancedCustomerTableProps> = ({
 
   return (
     <div className="space-y-4">
+      {/* Data consistency alerts */}
+      {totalErrors > 0 && (
+        <Alert variant={criticalErrors > 0 ? "destructive" : "default"}>
+          <AlertTriangle className="h-4 w-4" />
+          <AlertDescription>
+            {criticalErrors > 0 
+              ? `${criticalErrors} critical data consistency errors found across ${Object.keys(validationErrors).length} applications.`
+              : `${totalErrors} data validation warnings found. Review applications for potential issues.`
+            }
+          </AlertDescription>
+        </Alert>
+      )}
+
       {/* Bulk Actions Toolbar */}
       {isAdmin && selection && (
         <BulkActionsToolbar

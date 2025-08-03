@@ -363,9 +363,12 @@ export class OptimizedCustomerService {
     return result;
   }
 
-  // Update customer with cache invalidation
+  // Update customer with cache invalidation and transaction support
   static async updateCustomer(customerId: string, updates: Partial<Customer>) {
     console.log('Updating customer with optimized service:', customerId, updates);
+    
+    // Get current data for rollback if needed
+    const currentData = await this.fetchCustomerById(customerId);
     
     // Clear related cache
     this.clearCache(`customer_${customerId}`);
@@ -391,19 +394,30 @@ export class OptimizedCustomerService {
     // Always update the updated_at timestamp
     updateData.updated_at = new Date().toISOString();
 
-    const { data, error } = await supabase
-      .from('customers')
-      .update(updateData)
-      .eq('id', customerId)
-      .select()
-      .single();
+    try {
+      const { data, error } = await supabase
+        .from('customers')
+        .update(updateData)
+        .eq('id', customerId)
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error updating customer:', error);
+      if (error) {
+        console.error('Error updating customer:', error);
+        throw error;
+      }
+
+      // Validate the update was successful
+      if (!data) {
+        throw new Error('Update operation did not return data');
+      }
+
+      return data;
+    } catch (error) {
+      // On error, restore cache with current data to maintain consistency
+      this.setCacheData(`customer_${customerId}`, currentData);
       throw error;
     }
-
-    return data;
   }
 
   // Bulk reassignment method

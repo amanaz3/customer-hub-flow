@@ -3,6 +3,7 @@ import { Customer } from '@/types/customer';
 import { OptimizedCustomerService } from '@/services/optimizedCustomerService';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { useDataConsistency } from '@/hooks/useDataConsistency';
 
 export interface PaginationState {
   page: number;
@@ -40,6 +41,16 @@ export const useOptimizedCustomerData = (pageSize: number = 50) => {
   
   // Ref to track if we're currently fetching to prevent duplicate requests
   const fetchingRef = useRef(false);
+  
+  // Data consistency hook for real-time updates and validation
+  const { optimisticUpdate, validateDataConsistency, refreshData: consistencyRefresh } = useDataConsistency({
+    onDataChange: () => {
+      fetchCustomers(pagination.page, false, true);
+      fetchDashboardStats(true);
+    },
+    userId: user?.id,
+    isAdmin
+  });
 
   const fetchCustomers = useCallback(async (
     page: number = 1, 
@@ -166,6 +177,9 @@ export const useOptimizedCustomerData = (pageSize: number = 50) => {
     loadNextPage,
     loadPreviousPage,
     hasNextPage: pagination.page < pagination.totalPages,
-    hasPreviousPage: pagination.page > 1
+    hasPreviousPage: pagination.page > 1,
+    optimisticUpdate,
+    validateDataConsistency,
+    consistencyRefresh
   };
 };
