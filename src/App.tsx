@@ -9,7 +9,7 @@ import { NotificationProvider } from '@/contexts/NotificationContext';
 import ErrorBoundary from '@/components/ErrorBoundary';
 import PageErrorBoundary from '@/components/PageErrorBoundary';
 import ProtectedRoute from '@/components/Security/ProtectedRoute';
-import { AppLayout } from '@/components/Layout/AppLayout';
+import MainLayout from '@/components/Layout/MainLayout';
 import SecureLogin from '@/pages/SecureLogin';
 import {
   LazyOptimizedDashboard,
@@ -79,91 +79,91 @@ function App() {
                   
                   <Route path="/dashboard" element={
                     <ProtectedRoute>
-                      <AppLayout>
+                      <MainLayout>
                         <PageErrorBoundary pageName="Dashboard">
                           <LazyOptimizedDashboard />
                         </PageErrorBoundary>
-                      </AppLayout>
+                      </MainLayout>
                     </ProtectedRoute>
                   } />
                   
                   <Route path="/customers" element={
                     <ProtectedRoute>
-                      <AppLayout>
+                      <MainLayout>
                         <PageErrorBoundary pageName="Customer List">
                           <LazyCustomerList />
                         </PageErrorBoundary>
-                      </AppLayout>
+                      </MainLayout>
                     </ProtectedRoute>
                   } />
                   
                   <Route path="/customers/new" element={
                     <ProtectedRoute>
-                      <AppLayout>
+                      <MainLayout>
                         <PageErrorBoundary pageName="New Customer">
                           <LazyCustomerNew />
                         </PageErrorBoundary>
-                      </AppLayout>
+                      </MainLayout>
                     </ProtectedRoute>
                   } />
                   
                   <Route path="/customers/:id" element={
                     <ProtectedRoute>
-                      <AppLayout>
+                      <MainLayout>
                         <PageErrorBoundary pageName="Customer Details">
                           <LazyCustomerDetail />
                         </PageErrorBoundary>
-                      </AppLayout>
+                      </MainLayout>
                     </ProtectedRoute>
                   } />
                   
                   <Route path="/users" element={
                     <ProtectedRoute requireAdmin>
-                      <AppLayout requiredRole="admin">
+                      <MainLayout>
                         <PageErrorBoundary pageName="User Management">
                           <LazySecureUserManagement />
                         </PageErrorBoundary>
-                      </AppLayout>
+                      </MainLayout>
                     </ProtectedRoute>
                   } />
                   
                   <Route path="/completed" element={
                     <ProtectedRoute>
-                      <AppLayout>
+                      <MainLayout>
                         <PageErrorBoundary pageName="Completed Applications">
                           <LazyCompletedApplications />
                         </PageErrorBoundary>
-                      </AppLayout>
+                      </MainLayout>
                     </ProtectedRoute>
                   } />
                   
                   <Route path="/rejected" element={
                     <ProtectedRoute>
-                      <AppLayout>
+                      <MainLayout>
                         <PageErrorBoundary pageName="Rejected Applications">
                           <LazyRejectedApplications />
                         </PageErrorBoundary>
-                      </AppLayout>
+                      </MainLayout>
                     </ProtectedRoute>
                   } />
                   
                   <Route path="/products" element={
                     <ProtectedRoute requireAdmin>
-                      <AppLayout requiredRole="admin">
+                      <MainLayout>
                         <PageErrorBoundary pageName="Product Management">
                           <LazyProductManagement />
                         </PageErrorBoundary>
-                      </AppLayout>
+                      </MainLayout>
                     </ProtectedRoute>
                   } />
                   
                   <Route path="/settings" element={
                     <ProtectedRoute>
-                      <AppLayout>
+                      <MainLayout>
                         <PageErrorBoundary pageName="Settings">
                           <LazySettings />
                         </PageErrorBoundary>
-                      </AppLayout>
+                      </MainLayout>
                     </ProtectedRoute>
                   } />
                   
