@@ -9,7 +9,7 @@ interface AvailableMonth {
   month: number;
 }
 
-export const useDashboardFilters = (customers: Customer[], activeWidget: string) => {
+export const useDashboardFilters = (customers: Customer[], activeWidget: string, revenueSelectedMonths?: string[]) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
@@ -64,7 +64,22 @@ export const useDashboardFilters = (customers: Customer[], activeWidget: string)
         !['Complete', 'Paid', 'Rejected', 'Draft'].includes(c.status)
       );
     } else if (activeWidget === 'revenue') {
-      result = result.filter(c => c.status === 'Complete' || c.status === 'Paid');
+      result = result.filter(c => {
+        const isRevenueGenerating = c.status === 'Complete' || c.status === 'Paid';
+        if (!isRevenueGenerating) return false;
+        
+        // Apply revenue month filter if provided
+        if (revenueSelectedMonths && revenueSelectedMonths.length > 0) {
+          const dateField = c.updated_at || c.created_at;
+          if (!dateField) return false;
+          
+          const customerDate = new Date(dateField);
+          const monthKey = `${customerDate.getFullYear()}-${customerDate.getMonth()}`;
+          return revenueSelectedMonths.includes(monthKey);
+        }
+        
+        return true;
+      });
     } else if (activeWidget === 'applications') {
       // Show only active applications - exclude completed, paid, and rejected
       result = result.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status));
@@ -97,7 +112,7 @@ export const useDashboardFilters = (customers: Customer[], activeWidget: string)
     }
 
     return result;
-  }, [customers, activeWidget, statusFilter, selectedMonths, searchTerm]);
+  }, [customers, activeWidget, statusFilter, selectedMonths, searchTerm, revenueSelectedMonths]);
 
   const toggleMonth = (monthKey: string) => {
     setSelectedMonths(prev => 
