@@ -1,12 +1,13 @@
 import React, { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useQuery } from '@tanstack/react-query';
 import { Customer } from '@/types/customer';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useTableSelection } from '@/hooks/useTableSelection';
 import { useBulkReassignment } from '@/hooks/useBulkReassignment';
 import { cn } from '@/lib/utils';
-import { DataValidator, ValidationError } from '@/utils/dataValidation';
+import { supabase } from '@/lib/supabase';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Table,
@@ -37,9 +38,43 @@ interface EnhancedCustomerTableProps {
   onDataChange?: () => void;
 }
 
-interface CustomerWithValidation extends Customer {
-  validationErrors?: ValidationError[];
-}
+// Hook to fetch user information
+const useUserInfo = (userId?: string) => {
+  return useQuery({
+    queryKey: ['user-info', userId],
+    queryFn: async () => {
+      if (!userId) return null;
+      
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('name, email')
+        .eq('id', userId)
+        .single();
+      
+      if (error) return null;
+      return data;
+    },
+    enabled: !!userId
+  });
+};
+
+// Component to display submitted by information
+const SubmittedByCell = memo(({ userId }: { userId?: string }) => {
+  const { data: userInfo } = useUserInfo(userId);
+  
+  if (!userInfo) {
+    return <span className="text-muted-foreground text-sm">Unknown</span>;
+  }
+  
+  return (
+    <div className="text-sm">
+      <div className="font-medium">{userInfo.name}</div>
+      <div className="text-muted-foreground text-xs">{userInfo.email}</div>
+    </div>
+  );
+});
+
+SubmittedByCell.displayName = 'SubmittedByCell';
 
 // Status badge component
 const StatusBadge = memo(({ status }: { status: string }) => {
@@ -121,13 +156,20 @@ const CustomerMobileCard = memo(({
           {/* Content */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">{customer.company}</span>
-            </div>
-
-            <div className="flex items-center gap-2">
               <Phone className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm">{customer.mobile}</span>
+            </div>
+
+            {customer.company && (
+              <div className="flex items-center gap-2">
+                <Building2 className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm">{customer.company}</span>
+              </div>
+            )}
+
+            <div className="space-y-2">
+              <div className="text-xs text-muted-foreground">Submitted by:</div>
+              <SubmittedByCell userId={customer.user_id} />
             </div>
 
             <div className="flex items-center justify-between">
@@ -136,11 +178,6 @@ const CustomerMobileCard = memo(({
                 <DollarSign className="h-3 w-3" />
                 <span>{customer.amount?.toLocaleString() || '0'}</span>
               </div>
-            </div>
-
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Calendar className="h-3 w-3" />
-              <span>Created {new Date(customer.created_at || '').toLocaleDateString()}</span>
             </div>
           </div>
         </div>
@@ -185,37 +222,23 @@ const CustomerRow = memo(({
       
       {/* Customer Info */}
       <TableCell>
-        <div className="space-y-2">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <User className="h-4 w-4 text-primary" />
-            </div>
-            <div>
-              <p className="font-medium text-foreground">{customer.name}</p>
-              <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                <Mail className="h-3 w-3" />
-                <span>{customer.email}</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-center gap-1 text-sm text-muted-foreground ml-11">
-            <Phone className="h-3 w-3" />
-            <span>{customer.mobile}</span>
-          </div>
+        <div className="space-y-1">
+          <div className="font-medium">{customer.name}</div>
+          <div className="text-sm text-muted-foreground">{customer.mobile}</div>
+          {customer.company && (
+            <div className="text-sm text-muted-foreground">{customer.company}</div>
+          )}
         </div>
       </TableCell>
 
-      {/* Company */}
+      {/* Product */}
       <TableCell>
-        <div className="flex items-center gap-2">
-          <Building2 className="h-4 w-4 text-muted-foreground" />
-          <span className="font-medium">{customer.company}</span>
-        </div>
+        <span className="text-sm">No product</span>
       </TableCell>
 
-      {/* Status */}
+      {/* Submitted by */}
       <TableCell>
-        <StatusBadge status={customer.status} />
+        <SubmittedByCell userId={customer.user_id} />
       </TableCell>
 
       {/* Amount */}
@@ -226,17 +249,9 @@ const CustomerRow = memo(({
         </div>
       </TableCell>
 
-      {/* Created Date */}
+      {/* Status */}
       <TableCell>
-        <div className="flex items-center gap-1 text-sm text-muted-foreground">
-          <Calendar className="h-3 w-3" />
-          <span>{new Date(customer.created_at || '').toLocaleDateString()}</span>
-        </div>
-      </TableCell>
-
-      {/* Action Arrow */}
-      <TableCell>
-        <ChevronRight className="h-4 w-4 text-muted-foreground" />
+        <StatusBadge status={customer.status} />
       </TableCell>
     </TableRow>
   );
@@ -252,36 +267,12 @@ const EnhancedCustomerTable: React.FC<EnhancedCustomerTableProps> = ({
   const isMobile = useIsMobile();
   const { isAdmin } = useAuth();
   
-  // Data validation state
-  const [validationErrors, setValidationErrors] = useState<Record<string, ValidationError[]>>({});
-  
-  // Validate data consistency
-  React.useEffect(() => {
-    const errors: Record<string, ValidationError[]> = {};
-    
-    customers.forEach(customer => {
-      const customerErrors = DataValidator.validateAll(customer);
-      if (customerErrors.length > 0) {
-        errors[customer.id] = customerErrors;
-      }
-    });
-    
-    setValidationErrors(errors);
-  }, [customers]);
-  
   // Selection management - only for admin users
   const selection = isAdmin ? useTableSelection(customers) : null;
   const { reassignCustomers, isLoading: isReassigning } = useBulkReassignment();
   
   // Dialog state
   const [isReassignDialogOpen, setIsReassignDialogOpen] = useState(false);
-  
-  // Calculate validation stats
-  const totalErrors = Object.values(validationErrors).reduce((sum, errors) => sum + errors.length, 0);
-  const criticalErrors = Object.values(validationErrors).reduce(
-    (sum, errors) => sum + errors.filter(e => e.severity === 'error').length, 
-    0
-  );
 
   const handleRowClick = (customerId: string, event: React.MouseEvent) => {
     // Don't navigate if clicking on checkbox or other interactive elements
@@ -306,19 +297,6 @@ const EnhancedCustomerTable: React.FC<EnhancedCustomerTableProps> = ({
   if (isMobile) {
     return (
       <div className="space-y-4">
-        {/* Data consistency alerts */}
-        {totalErrors > 0 && (
-          <Alert variant={criticalErrors > 0 ? "destructive" : "default"}>
-            <AlertTriangle className="h-4 w-4" />
-            <AlertDescription>
-              {criticalErrors > 0 
-                ? `${criticalErrors} critical data consistency errors found across ${Object.keys(validationErrors).length} applications.`
-                : `${totalErrors} data validation warnings found. Review applications for potential issues.`
-              }
-            </AlertDescription>
-          </Alert>
-        )}
-
         {/* Mobile bulk actions */}
         {isAdmin && selection && (
           <BulkActionsToolbar
@@ -356,19 +334,6 @@ const EnhancedCustomerTable: React.FC<EnhancedCustomerTableProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Data consistency alerts */}
-      {totalErrors > 0 && (
-        <Alert variant={criticalErrors > 0 ? "destructive" : "default"}>
-          <AlertTriangle className="h-4 w-4" />
-          <AlertDescription>
-            {criticalErrors > 0 
-              ? `${criticalErrors} critical data consistency errors found across ${Object.keys(validationErrors).length} applications.`
-              : `${totalErrors} data validation warnings found. Review applications for potential issues.`
-            }
-          </AlertDescription>
-        </Alert>
-      )}
-
       {/* Bulk Actions Toolbar */}
       {isAdmin && selection && (
         <BulkActionsToolbar
@@ -396,11 +361,10 @@ const EnhancedCustomerTable: React.FC<EnhancedCustomerTableProps> = ({
                   </TableHead>
                 )}
                 <TableHead className="min-w-[200px]">Customer Info</TableHead>
-                <TableHead className="min-w-[150px]">Company</TableHead>
-                <TableHead className="min-w-[120px]">Status</TableHead>
+                <TableHead className="min-w-[120px]">Product</TableHead>
+                <TableHead className="min-w-[150px]">Submitted by</TableHead>
                 <TableHead className="min-w-[100px] text-right">Amount</TableHead>
-                <TableHead className="min-w-[100px]">Created</TableHead>
-                <TableHead className="w-12"></TableHead>
+                <TableHead className="min-w-[100px]">Status</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
