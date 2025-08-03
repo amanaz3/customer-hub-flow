@@ -45,7 +45,20 @@ export const useDashboardFilters = (customers: Customer[], activeWidget: string)
 
     // Apply widget-specific filtering first
     if (activeWidget === 'completed') {
-      result = result.filter(c => c.status === 'Complete' || c.status === 'Paid');
+      const currentDate = new Date();
+      const currentMonth = currentDate.getMonth();
+      const currentYear = currentDate.getFullYear();
+      
+      result = result.filter(c => {
+        const isCompletedOrPaid = c.status === 'Complete' || c.status === 'Paid';
+        if (!isCompletedOrPaid) return false;
+        
+        const customerDate = new Date(c.updated_at || c.created_at || '');
+        const customerMonth = customerDate.getMonth();
+        const customerYear = customerDate.getFullYear();
+        
+        return customerMonth === currentMonth && customerYear === currentYear;
+      });
     } else if (activeWidget === 'pending') {
       result = result.filter(c => 
         !['Complete', 'Paid', 'Rejected', 'Draft'].includes(c.status)
