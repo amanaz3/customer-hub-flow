@@ -232,156 +232,6 @@ const OptimizedDashboard = () => {
           onCreateCustomer={handleCreateCustomer}
         />
 
-        {/* Conditional Filters - Only show revenue filter when revenue widget is active */}
-        {isAdmin && activeWidget === 'revenue' && (
-          <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
-            <CardHeader className="pb-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 rounded-lg bg-primary/10">
-                    <Calendar className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-lg">Revenue Filter</CardTitle>
-                    <p className="text-sm text-muted-foreground">
-                      Filter total revenue by selecting multiple months or auto-populate from start date
-                    </p>
-                  </div>
-                </div>
-                <Button 
-                  variant="outline" 
-                  size="sm" 
-                  onClick={resetToCurrentMonth}
-                  className="flex items-center gap-2"
-                >
-                  <RotateCcw className="h-4 w-4" />
-                  Reset
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm font-medium">Year:</label>
-                    <Select value={revenueYear.toString()} onValueChange={(value) => setRevenueYear(parseInt(value))}>
-                      <SelectTrigger className="w-[100px]">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent className="bg-background border shadow-lg z-50">
-                        {Array.from({ length: 10 }, (_, i) => {
-                          const year = currentDate.getFullYear() - 5 + i;
-                          return (
-                            <SelectItem key={year} value={year.toString()}>
-                              {year}
-                            </SelectItem>
-                          );
-                        })}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <Checkbox 
-                      id="auto-range" 
-                      checked={isAutoRange}
-                      onCheckedChange={(checked) => setIsAutoRange(checked as boolean)}
-                    />
-                    <label htmlFor="auto-range" className="text-sm font-medium cursor-pointer">
-                      Auto-populate from start date to current
-                    </label>
-                  </div>
-                </div>
-              </div>
-              
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <label className="text-sm font-medium">
-                    Selected Months ({legacySelectedMonths.length}/12):
-                  </label>
-                  {!isAutoRange && (
-                    <div className="flex items-center gap-2">
-                      <Button variant="outline" size="sm" onClick={selectAllMonths}>
-                        Select All
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={clearAllLegacyMonths}>
-                        Clear All
-                      </Button>
-                    </div>
-                  )}
-                </div>
-                
-                {/* Month Selection */}
-                <div className="space-y-2">
-                  {legacySelectedMonths.length > 0 ? (
-                    <div className="flex flex-wrap gap-2">
-                      {legacySelectedMonths.map(month => (
-                        <Badge 
-                          key={month} 
-                          variant="secondary" 
-                          className="flex items-center gap-1 px-3 py-1"
-                        >
-                          {getMonthName(month)}
-                          {!isAutoRange && (
-                            <button
-                              onClick={() => toggleLegacyMonth(month)}
-                              className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
-                            >
-                              <X className="h-3 w-3" />
-                            </button>
-                          )}
-                        </Badge>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No months selected</p>
-                  )}
-                  
-                  {!isAutoRange && (
-                    <Popover>
-                      <PopoverTrigger asChild>
-                        <Button variant="outline" className="w-full justify-start">
-                          <ChevronDown className="h-4 w-4 mr-2" />
-                          Add Months
-                        </Button>
-                      </PopoverTrigger>
-                      <PopoverContent className="w-80 p-4 bg-background border shadow-lg z-50">
-                        <div className="grid grid-cols-3 gap-2">
-                          {Array.from({ length: 12 }, (_, i) => {
-                            const month = i + 1;
-                            const isSelected = legacySelectedMonths.includes(month);
-                            return (
-                              <Button
-                                key={month}
-                                variant={isSelected ? "default" : "outline"}
-                                size="sm"
-                                onClick={() => toggleLegacyMonth(month)}
-                                className="justify-start"
-                              >
-                                {getMonthName(month)}
-                              </Button>
-                            );
-                          })}
-                        </div>
-                      </PopoverContent>
-                    </Popover>
-                  )}
-                  
-                  {isAutoRange && autoGeneratedMonths.length > 0 && (
-                    <p className="text-xs text-muted-foreground">
-                      Auto-populated {autoGeneratedMonths.length} months from earliest customer ({customers.length > 0 ? new Date(customers.reduce((earliest, customer) => {
-                        const customerDate = new Date(customer.created_at || '');
-                        const earliestDate = new Date(earliest.created_at || '');
-                        return customerDate < earliestDate ? customer : earliest;
-                      }, customers[0]).created_at || '').toLocaleDateString() : 'N/A'}) to current date
-                    </p>
-                  )}
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Admin Dashboard with Tabs */}
         {isAdmin ? (
           <Tabs defaultValue="customers" className="space-y-8">
@@ -405,6 +255,156 @@ const OptimizedDashboard = () => {
                 onWidgetClick={handleWidgetChange}
                 activeWidget={activeWidget}
               />
+
+              {/* Revenue Filter - Only show when revenue widget is active */}
+              {activeWidget === 'revenue' && (
+                <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
+                  <CardHeader className="pb-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <Calendar className="h-5 w-5 text-primary" />
+                        </div>
+                        <div>
+                          <CardTitle className="text-lg">Revenue Filter</CardTitle>
+                          <p className="text-sm text-muted-foreground">
+                            Filter total revenue by selecting multiple months or auto-populate from start date
+                          </p>
+                        </div>
+                      </div>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={resetToCurrentMonth}
+                        className="flex items-center gap-2"
+                      >
+                        <RotateCcw className="h-4 w-4" />
+                        Reset
+                      </Button>
+                    </div>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-2">
+                          <label className="text-sm font-medium">Year:</label>
+                          <Select value={revenueYear.toString()} onValueChange={(value) => setRevenueYear(parseInt(value))}>
+                            <SelectTrigger className="w-[100px]">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent className="bg-background border shadow-lg z-50">
+                              {Array.from({ length: 10 }, (_, i) => {
+                                const year = currentDate.getFullYear() - 5 + i;
+                                return (
+                                  <SelectItem key={year} value={year.toString()}>
+                                    {year}
+                                  </SelectItem>
+                                );
+                              })}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                        
+                        <div className="flex items-center space-x-2">
+                          <Checkbox 
+                            id="auto-range" 
+                            checked={isAutoRange}
+                            onCheckedChange={(checked) => setIsAutoRange(checked as boolean)}
+                          />
+                          <label htmlFor="auto-range" className="text-sm font-medium cursor-pointer">
+                            Auto-populate from start date to current
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <div className="flex items-center justify-between">
+                        <label className="text-sm font-medium">
+                          Selected Months ({legacySelectedMonths.length}/12):
+                        </label>
+                        {!isAutoRange && (
+                          <div className="flex items-center gap-2">
+                            <Button variant="outline" size="sm" onClick={selectAllMonths}>
+                              Select All
+                            </Button>
+                            <Button variant="outline" size="sm" onClick={clearAllLegacyMonths}>
+                              Clear All
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Month Selection */}
+                      <div className="space-y-2">
+                        {legacySelectedMonths.length > 0 ? (
+                          <div className="flex flex-wrap gap-2">
+                            {legacySelectedMonths.map(month => (
+                              <Badge 
+                                key={month} 
+                                variant="secondary" 
+                                className="flex items-center gap-1 px-3 py-1"
+                              >
+                                {getMonthName(month)}
+                                {!isAutoRange && (
+                                  <button
+                                    onClick={() => toggleLegacyMonth(month)}
+                                    className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
+                                  >
+                                    <X className="h-3 w-3" />
+                                  </button>
+                                )}
+                              </Badge>
+                            ))}
+                          </div>
+                        ) : (
+                          <p className="text-sm text-muted-foreground">No months selected</p>
+                        )}
+                        
+                        {!isAutoRange && (
+                          <Popover>
+                            <PopoverTrigger asChild>
+                              <Button variant="outline" className="w-full justify-start">
+                                <ChevronDown className="h-4 w-4 mr-2" />
+                                Add Months
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-80 p-4 bg-background border shadow-lg z-50">
+                              <div className="grid grid-cols-3 gap-2">
+                                {Array.from({ length: 12 }, (_, i) => {
+                                  const month = i + 1;
+                                  const isSelected = legacySelectedMonths.includes(month);
+                                  return (
+                                    <Button
+                                      key={month}
+                                      variant={isSelected ? "default" : "outline"}
+                                      size="sm"
+                                      onClick={() => toggleLegacyMonth(month)}
+                                      className="justify-start"
+                                    >
+                                      {getMonthName(month)}
+                                    </Button>
+                                  );
+                                })}
+                              </div>
+                            </PopoverContent>
+                          </Popover>
+                        )}
+                        
+                        {isAutoRange && autoGeneratedMonths.length > 0 && (
+                          <p className="text-xs text-muted-foreground">
+                            Auto-populated {autoGeneratedMonths.length} months from earliest customer ({customers.length > 0 ? new Date(customers.reduce((earliest, customer) => {
+                              const customerDate = new Date(customer.created_at || '');
+                              const earliestDate = new Date(earliest.created_at || '');
+                              return customerDate < earliestDate ? customer : earliest;
+                            }, customers[0]).created_at || '').toLocaleDateString() : 'N/A'}) to current date
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {customers.length === 0 ? (
                 <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
