@@ -2,6 +2,8 @@
 import React from 'react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import {
   Select,
   SelectContent,
@@ -9,13 +11,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Search, Filter, RefreshCw, X } from 'lucide-react';
+import { Search, Filter, RefreshCw, X, Calendar } from 'lucide-react';
+import { cn } from '@/lib/utils';
+
+interface AvailableMonth {
+  key: string;
+  label: string;
+}
 
 interface DashboardFiltersProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   statusFilter: string;
   setStatusFilter: (status: string) => void;
+  selectedMonths: string[];
+  availableMonths: AvailableMonth[];
+  onMonthToggle: (monthKey: string) => void;
+  onClearAllMonths: () => void;
+  onClearAllFilters: () => void;
   onRefresh?: () => void;
   isLoading?: boolean;
   activeWidget?: 'applications' | 'completed' | 'pending' | 'revenue';
@@ -26,6 +39,11 @@ const DashboardFilters: React.FC<DashboardFiltersProps> = ({
   setSearchTerm,
   statusFilter,
   setStatusFilter,
+  selectedMonths,
+  availableMonths,
+  onMonthToggle,
+  onClearAllMonths,
+  onClearAllFilters,
   onRefresh,
   isLoading = false,
   activeWidget = 'applications'
@@ -81,12 +99,7 @@ const DashboardFilters: React.FC<DashboardFiltersProps> = ({
 
   const statusOptions = getStatusOptionsForWidget();
 
-  const clearFilters = () => {
-    setSearchTerm('');
-    setStatusFilter('all');
-  };
-
-  const hasActiveFilters = searchTerm || statusFilter !== 'all';
+  const hasActiveFilters = searchTerm || statusFilter !== 'all' || selectedMonths.length > 0;
 
   return (
     <div className="bg-card rounded-lg border p-4 space-y-4">
@@ -142,6 +155,61 @@ const DashboardFilters: React.FC<DashboardFiltersProps> = ({
             </SelectContent>
           </Select>
         </div>
+
+        {/* Month Filter */}
+        {availableMonths.length > 0 && (
+          <div className="w-full sm:w-48">
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className={cn(
+                    "h-11 w-full justify-start bg-background/50 border-border/50",
+                    selectedMonths.length === 0 && "text-muted-foreground"
+                  )}
+                >
+                  <Calendar className="h-4 w-4 mr-2" />
+                  {selectedMonths.length > 0 
+                    ? `${selectedMonths.length} month${selectedMonths.length > 1 ? 's' : ''}`
+                    : "Filter by months"}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80 p-4" align="start">
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <div className="text-sm font-medium">Select months:</div>
+                    {selectedMonths.length > 0 && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={onClearAllMonths}
+                      >
+                        Clear all
+                      </Button>
+                    )}
+                  </div>
+                  <div className="max-h-48 overflow-y-auto space-y-2">
+                    {availableMonths.map((month) => (
+                      <div key={month.key} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={month.key}
+                          checked={selectedMonths.includes(month.key)}
+                          onCheckedChange={() => onMonthToggle(month.key)}
+                        />
+                        <label
+                          htmlFor={month.key}
+                          className="text-sm font-normal leading-none cursor-pointer flex-1"
+                        >
+                          {month.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
+          </div>
+        )}
         
         {/* Action Buttons */}
         <div className="flex gap-2">
@@ -149,7 +217,7 @@ const DashboardFilters: React.FC<DashboardFiltersProps> = ({
             <Button 
               variant="outline" 
               size="sm" 
-              onClick={clearFilters}
+              onClick={onClearAllFilters}
               className="h-11 px-4 text-muted-foreground hover:text-foreground"
             >
               <X className="h-4 w-4 mr-2" />
@@ -205,6 +273,23 @@ const DashboardFilters: React.FC<DashboardFiltersProps> = ({
                 </Button>
               </div>
             )}
+            {selectedMonths.length > 0 && selectedMonths.map(monthKey => {
+              const month = availableMonths.find(m => m.key === monthKey);
+              return month ? (
+                <div key={monthKey} className="inline-flex items-center gap-1 px-2 py-1 bg-primary/10 text-primary text-xs rounded-md">
+                  <Calendar className="h-3 w-3" />
+                  <span>{month.label}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => onMonthToggle(monthKey)}
+                    className="h-4 w-4 p-0 hover:bg-primary/20"
+                  >
+                    <X className="h-2 w-2" />
+                  </Button>
+                </div>
+              ) : null;
+            })}
           </div>
         </div>
       )}
