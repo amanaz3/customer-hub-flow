@@ -386,6 +386,7 @@ export class OptimizedCustomerService {
     if (updates.jurisdiction !== undefined) updateData.jurisdiction = updates.jurisdiction;
     if (updates.customer_notes !== undefined) updateData.customer_notes = updates.customer_notes;
     if (updates.status !== undefined) updateData.status = updates.status;
+    if (updates.user_id !== undefined) updateData.user_id = updates.user_id;
     
     // Always update the updated_at timestamp
     updateData.updated_at = new Date().toISOString();
@@ -403,5 +404,68 @@ export class OptimizedCustomerService {
     }
 
     return data;
+  }
+
+  // Bulk reassignment method
+  static async reassignCustomers(
+    customerIds: string[], 
+    newUserId: string, 
+    reason: string, 
+    adminId: string
+  ) {
+    console.log('Bulk reassigning customers:', { customerIds, newUserId, reason, adminId });
+    
+    // Clear all related cache
+    this.clearCache();
+    
+    try {
+      // Get current customer data for status logging
+      const { data: customers, error: fetchError } = await supabase
+        .from('customers')
+        .select('id, user_id, name')
+        .in('id', customerIds);
+
+      if (fetchError) throw fetchError;
+
+      // Update all customers with new user_id
+      const { error: updateError } = await supabase
+        .from('customers')
+        .update({ 
+          user_id: newUserId,
+          updated_at: new Date().toISOString()
+        })
+        .in('id', customerIds);
+
+      if (updateError) throw updateError;
+
+      // Create status change entries for audit trail
+      const statusChangeEntries = (customers || []).map(customer => ({
+        customer_id: customer.id,
+        previous_status: 'Draft' as const, // Keep same status, just track reassignment
+        new_status: 'Draft' as const,
+        changed_by: adminId,
+        changed_by_role: 'admin' as const,
+        comment: `Application reassigned from user ${customer.user_id || 'unassigned'} to user ${newUserId}. Reason: ${reason}`,
+        created_at: new Date().toISOString()
+      }));
+
+      if (statusChangeEntries.length > 0) {
+        const { error: statusError } = await supabase
+          .from('status_changes')
+          .insert(statusChangeEntries);
+
+        if (statusError) {
+          console.error('Error logging status changes:', statusError);
+          // Don't throw - reassignment was successful, logging is secondary
+        }
+      }
+
+      console.log(`Successfully reassigned ${customerIds.length} customers to user ${newUserId}`);
+      return { success: true, count: customerIds.length };
+
+    } catch (error) {
+      console.error('Error in bulk reassignment:', error);
+      throw error;
+    }
   }
 }

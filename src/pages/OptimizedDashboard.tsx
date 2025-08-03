@@ -22,6 +22,7 @@ import { LazyLoadingBoundary } from '@/components/Performance/LazyLoadingBoundar
 
 // Lazy load heavy components
 const ResponsiveCustomerTable = React.lazy(() => import('@/components/Customer/ResponsiveCustomerTable'));
+const EnhancedCustomerTable = React.lazy(() => import('@/components/Customer/EnhancedCustomerTable'));
 const UserAnalytics = React.lazy(() => import('@/components/Analytics/UserAnalytics'));
 
 const OptimizedDashboard = () => {
@@ -472,7 +473,7 @@ const OptimizedDashboard = () => {
                     </CardHeader>
                      <CardContent className="p-0">
                        <LazyLoadingBoundary>
-                         <ResponsiveCustomerTable 
+                         <EnhancedCustomerTable 
                            customers={filteredCustomers} 
                            onDataChange={handleDataRefresh}
                          />
@@ -537,7 +538,7 @@ const OptimizedDashboard = () => {
                     </CardHeader>
                      <CardContent className="p-0">
                        <LazyLoadingBoundary>
-                         <ResponsiveCustomerTable 
+                         <EnhancedCustomerTable 
                            customers={filteredCustomers} 
                            onDataChange={handleDataRefresh}
                          />
