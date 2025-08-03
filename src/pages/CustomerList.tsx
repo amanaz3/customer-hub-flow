@@ -14,7 +14,6 @@ import { ReassignBulkDialog } from '@/components/Customer/ReassignBulkDialog';
 import LazyWrapper from '@/components/Performance/LazyWrapper';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Plus } from 'lucide-react';
 
 const CustomerList = () => {
@@ -28,7 +27,7 @@ const CustomerList = () => {
   // Initialize bulk reassignment functionality for admins only
   const { reassignCustomers, isLoading: isBulkLoading } = useBulkReassignment();
 
-  const { userCustomers, activeCustomers, completedCustomers } = useMemo(() => {
+  const { userCustomers, activeCustomers } = useMemo(() => {
     let baseCustomers: Customer[];
     
     if (isAdmin) {
@@ -41,26 +40,19 @@ const CustomerList = () => {
       baseCustomers = userFilteredCustomers.length > 0 ? userFilteredCustomers : ownCustomers;
     }
     
-    // Filter customers by status for tabs
+    // Filter customers to exclude rejected applications
     const active = baseCustomers.filter(customer => 
-      customer.status !== 'Complete' && 
-      customer.status !== 'Paid' && 
       customer.status !== 'Rejected'
-    );
-    const completed = baseCustomers.filter(customer => 
-      customer.status === 'Complete'
     );
 
     return {
       userCustomers: baseCustomers,
-      activeCustomers: active,
-      completedCustomers: completed
+      activeCustomers: active
     };
   }, [customers, filteredCustomers, userFilteredCustomers, isAdmin, user?.id, getCustomersByUserId]);
 
   // Table selection for bulk operations (admin only)
   const activeSelection = useTableSelection(activeCustomers);
-  const completedSelection = useTableSelection(completedCustomers);
 
   const handleNewApplication = () => navigate('/customers/new');
 
@@ -68,7 +60,6 @@ const CustomerList = () => {
     await reassignCustomers(customerIds, newUserId, reason);
     // Clear selections after successful reassignment
     activeSelection.clearSelection();
-    completedSelection.clearSelection();
     setShowBulkDialog(false);
   };
 
@@ -112,53 +103,28 @@ const CustomerList = () => {
         )}
 
         <LazyWrapper>
-          <Tabs defaultValue="active">
-            <TabsList>
-              <TabsTrigger value="active">Active Applications</TabsTrigger>
-              <TabsTrigger value="completed">Completed Applications</TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="active">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Active Applications</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <OptimizedCustomerTable 
-                    customers={activeCustomers} 
-                    enableBulkSelection={isAdmin}
-                    selection={activeSelection}
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-            
-            <TabsContent value="completed">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Completed Applications</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <OptimizedCustomerTable 
-                    customers={completedCustomers} 
-                    enableBulkSelection={isAdmin}
-                    selection={completedSelection}
-                  />
-                </CardContent>
-              </Card>
-            </TabsContent>
-          </Tabs>
+          <Card>
+            <CardHeader>
+              <CardTitle>Applications</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <OptimizedCustomerTable 
+                customers={activeCustomers} 
+                enableBulkSelection={isAdmin}
+                selection={activeSelection}
+              />
+            </CardContent>
+          </Card>
         </LazyWrapper>
 
         {/* Bulk Actions Toolbar - Only for admins */}
         {isAdmin && (
           <>
             <BulkActionsToolbar
-              selectedCount={activeSelection.selectedCount + completedSelection.selectedCount}
-              isVisible={(activeSelection.selectedCount + completedSelection.selectedCount) > 0}
+              selectedCount={activeSelection.selectedCount}
+              isVisible={activeSelection.selectedCount > 0}
               onClearSelection={() => {
                 activeSelection.clearSelection();
-                completedSelection.clearSelection();
               }}
               onReassignSelected={() => setShowBulkDialog(true)}
               isLoading={isBulkLoading}
@@ -167,10 +133,7 @@ const CustomerList = () => {
             <ReassignBulkDialog
               isOpen={showBulkDialog}
               onClose={() => setShowBulkDialog(false)}
-              selectedCustomers={[
-                ...activeSelection.getSelectedItems(),
-                ...completedSelection.getSelectedItems()
-              ]}
+              selectedCustomers={activeSelection.getSelectedItems()}
               onReassign={handleBulkReassign}
             />
           </>
