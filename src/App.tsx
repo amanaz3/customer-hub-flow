@@ -24,6 +24,7 @@ import {
   LazyNotFound,
   PageLoadingFallback
 } from '@/components/LazyComponents';
+import CRMIntegration from '@/pages/CRMIntegration';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -152,6 +153,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Product Management">
                           <LazyProductManagement />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/crm" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="CRM Integration">
+                          <CRMIntegration />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>

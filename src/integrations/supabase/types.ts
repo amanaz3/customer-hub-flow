@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -52,6 +52,179 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      crm_api_keys: {
+        Row: {
+          created_at: string
+          created_by: string
+          expires_at: string | null
+          id: string
+          is_active: boolean
+          key_hash: string
+          key_name: string
+          last_used_at: string | null
+          permissions: string[]
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          key_hash: string
+          key_name: string
+          last_used_at?: string | null
+          permissions?: string[]
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean
+          key_hash?: string
+          key_name?: string
+          last_used_at?: string | null
+          permissions?: string[]
+        }
+        Relationships: []
+      }
+      crm_configurations: {
+        Row: {
+          api_endpoint: string
+          api_key_hash: string
+          created_at: string
+          created_by: string
+          crm_type: string
+          field_mappings: Json | null
+          id: string
+          is_active: boolean
+          last_sync_at: string | null
+          name: string
+          sync_settings: Json | null
+          updated_at: string
+          webhook_secret: string | null
+        }
+        Insert: {
+          api_endpoint: string
+          api_key_hash: string
+          created_at?: string
+          created_by: string
+          crm_type: string
+          field_mappings?: Json | null
+          id?: string
+          is_active?: boolean
+          last_sync_at?: string | null
+          name: string
+          sync_settings?: Json | null
+          updated_at?: string
+          webhook_secret?: string | null
+        }
+        Update: {
+          api_endpoint?: string
+          api_key_hash?: string
+          created_at?: string
+          created_by?: string
+          crm_type?: string
+          field_mappings?: Json | null
+          id?: string
+          is_active?: boolean
+          last_sync_at?: string | null
+          name?: string
+          sync_settings?: Json | null
+          updated_at?: string
+          webhook_secret?: string | null
+        }
+        Relationships: []
+      }
+      crm_sync_logs: {
+        Row: {
+          completed_at: string | null
+          crm_config_id: string
+          entity_type: string
+          error_message: string | null
+          id: string
+          records_failed: number | null
+          records_processed: number | null
+          records_success: number | null
+          started_at: string
+          status: string
+          sync_data: Json | null
+          sync_type: string
+        }
+        Insert: {
+          completed_at?: string | null
+          crm_config_id: string
+          entity_type: string
+          error_message?: string | null
+          id?: string
+          records_failed?: number | null
+          records_processed?: number | null
+          records_success?: number | null
+          started_at?: string
+          status?: string
+          sync_data?: Json | null
+          sync_type: string
+        }
+        Update: {
+          completed_at?: string | null
+          crm_config_id?: string
+          entity_type?: string
+          error_message?: string | null
+          id?: string
+          records_failed?: number | null
+          records_processed?: number | null
+          records_success?: number | null
+          started_at?: string
+          status?: string
+          sync_data?: Json | null
+          sync_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "crm_sync_logs_crm_config_id_fkey"
+            columns: ["crm_config_id"]
+            isOneToOne: false
+            referencedRelation: "crm_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      crm_webhooks: {
+        Row: {
+          api_key_hash: string
+          created_at: string
+          events: string[]
+          id: string
+          is_active: boolean
+          last_triggered_at: string | null
+          secret_token: string
+          updated_at: string
+          webhook_url: string
+        }
+        Insert: {
+          api_key_hash: string
+          created_at?: string
+          events: string[]
+          id?: string
+          is_active?: boolean
+          last_triggered_at?: string | null
+          secret_token: string
+          updated_at?: string
+          webhook_url: string
+        }
+        Update: {
+          api_key_hash?: string
+          created_at?: string
+          events?: string[]
+          id?: string
+          is_active?: boolean
+          last_triggered_at?: string | null
+          secret_token?: string
+          updated_at?: string
+          webhook_url?: string
+        }
+        Relationships: []
       }
       customers: {
         Row: {
@@ -368,9 +541,9 @@ export type Database = {
     Functions: {
       create_product: {
         Args: {
-          product_name: string
           product_description: string
           product_is_active: boolean
+          product_name: string
         }
         Returns: undefined
       }
@@ -381,24 +554,24 @@ export type Database = {
       get_products: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
-          name: string
-          description: string
-          is_active: boolean
           created_at: string
+          description: string
+          id: string
+          is_active: boolean
+          name: string
           updated_at: string
         }[]
       }
       get_secure_document_url: {
-        Args: { file_path: string; expires_in_seconds?: number }
+        Args: { expires_in_seconds?: number; file_path: string }
         Returns: string
       }
       get_user_products: {
         Args: { user_uuid: string }
         Returns: {
+          product_description: string
           product_id: string
           product_name: string
-          product_description: string
         }[]
       }
       get_user_role: {
@@ -407,8 +580,8 @@ export type Database = {
       }
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
@@ -418,10 +591,10 @@ export type Database = {
       }
       update_product: {
         Args: {
-          product_id: string
-          product_name: string
           product_description: string
+          product_id: string
           product_is_active: boolean
+          product_name: string
         }
         Returns: undefined
       }
