@@ -2,7 +2,7 @@ import React, { createContext, useContext, useMemo, useState, useEffect } from '
 import { User, Session } from '@supabase/supabase-js';
 import { supabase, getFunctionUrl } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
-import { useAuthOptimized } from '@/hooks/useAuthOptimized';
+// Removed useAuthOptimized import
 import ErrorTracker from '@/utils/errorTracking';
 import FeatureAnalytics from '@/utils/featureAnalytics';
 import { ProductionRateLimit } from '@/utils/productionRateLimit';
@@ -37,10 +37,60 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export type { UserRole };
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user: authUser, session, isLoading, isAuthenticated } = useAuthOptimized();
   const { toast } = useToast();
+  const [authUser, setAuthUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [profile, setProfile] = useState<{ role: UserRole; name: string } | null>(null);
   const [profileLoading, setProfileLoading] = useState(false);
+
+  // Initialize auth state
+  useEffect(() => {
+    let mounted = true;
+
+    // Set up auth state listener
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        if (!mounted) return;
+        
+        console.log('Auth state changed:', event);
+        setSession(session);
+        setAuthUser(session?.user ?? null);
+        setIsLoading(false);
+      }
+    );
+
+    // Get initial session
+    const initializeAuth = async () => {
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
+        
+        if (!mounted) return;
+        
+        if (error) {
+          console.error('Auth initialization error:', error);
+        } else {
+          setSession(session);
+          setAuthUser(session?.user ?? null);
+        }
+      } catch (error) {
+        console.error('Auth initialization failed:', error);
+      } finally {
+        if (mounted) {
+          setIsLoading(false);
+        }
+      }
+    };
+
+    initializeAuth();
+
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
+  }, []);
+
+  const isAuthenticated = useMemo(() => !!session && !!authUser, [session, authUser]);
 
   // Fetch profile data when user changes
   useEffect(() => {
