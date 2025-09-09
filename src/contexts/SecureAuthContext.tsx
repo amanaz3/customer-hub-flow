@@ -1,13 +1,13 @@
 import React, { createContext, useContext, useMemo, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase, getFunctionUrl } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 // Removed useAuthOptimized import
 import ErrorTracker from '@/utils/errorTracking';
 import FeatureAnalytics from '@/utils/featureAnalytics';
 import { ProductionRateLimit } from '@/utils/productionRateLimit';
 
-type UserRole = 'admin' | 'user';
+type UserRole = 'admin' | 'manager';
 
 export interface AuthUser extends User {
   profile?: {
