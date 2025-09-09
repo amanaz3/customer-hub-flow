@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useMemo, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { getFunctionUrl } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 // Removed useAuthOptimized import
 import ErrorTracker from '@/utils/errorTracking';
@@ -114,7 +115,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           setProfile(null);
         } else {
           console.log('Profile loaded:', data);
-          setProfile(data);
+          setProfile(data as { role: UserRole; name: string });
         }
       } catch (error) {
         console.error('Profile fetch error:', error);
@@ -271,7 +272,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             id: data.user.id,
             email,
             name,
-            role
+            role: role as any
           });
 
         if (profileError) {
@@ -312,7 +313,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const { error } = await supabase
         .from('profiles')
-        .update({ role, updated_at: new Date().toISOString() })
+        .update({ role: role as any, updated_at: new Date().toISOString() })
         .eq('id', userId);
 
       if (!error) {

@@ -19,7 +19,7 @@ interface UserProfile {
   id: string;
   name: string;
   email: string;
-  role: 'admin' | 'user';
+  role: 'admin' | 'manager';
 }
 
 interface PasswordManagementDialogProps {

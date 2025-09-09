@@ -38,7 +38,7 @@ import PasswordManagementDialog from '@/components/Admin/PasswordManagementDialo
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Enter a valid email address"),
-  role: z.enum(['admin', 'user']),
+  role: z.enum(['admin', 'manager']),
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -47,7 +47,7 @@ interface UserProfile {
   id: string;
   email: string;
   name: string;
-  role: 'admin' | 'user';
+  role: 'admin' | 'manager';
   created_at: string;
 }
 
@@ -67,7 +67,7 @@ const SecureUserManagement = () => {
     defaultValues: {
       name: '',
       email: '',
-      role: 'user',
+      role: 'manager',
     },
   });
 
@@ -237,14 +237,14 @@ const SecureUserManagement = () => {
                     <div>
                       <Label htmlFor="role">Role</Label>
                       <Select
-                        defaultValue="user"
-                        onValueChange={(value) => form.setValue('role', value as 'admin' | 'user')}
+                        defaultValue="manager"
+                        onValueChange={(value) => form.setValue('role', value as 'admin' | 'manager')}
                       >
                         <SelectTrigger className="mt-1">
                           <SelectValue placeholder="Select role" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="user">User</SelectItem>
+                          <SelectItem value="manager">Manager</SelectItem>
                           <SelectItem value="admin">Admin</SelectItem>
                         </SelectContent>
                       </Select>
