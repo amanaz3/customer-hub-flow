@@ -245,7 +245,7 @@ export type Database = {
           product_id: string | null
           status: Database["public"]["Enums"]["customer_status"]
           updated_at: string | null
-          user_id: string | null
+          user_id: string
         }
         Insert: {
           amount: number
@@ -265,7 +265,7 @@ export type Database = {
           product_id?: string | null
           status?: Database["public"]["Enums"]["customer_status"]
           updated_at?: string | null
-          user_id?: string | null
+          user_id: string
         }
         Update: {
           amount?: number
@@ -285,7 +285,7 @@ export type Database = {
           product_id?: string | null
           status?: Database["public"]["Enums"]["customer_status"]
           updated_at?: string | null
-          user_id?: string | null
+          user_id?: string
         }
         Relationships: [
           {
