@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -39,11 +38,25 @@ const SignInForm: React.FC<SignInFormProps> = ({ isLoading, setIsLoading }) => {
       
       if (error) {
         console.error('Sign in failed:', error);
-        toast({
-          title: 'Sign In Failed',
-          description: error.message || 'Invalid email or password',
-          variant: 'destructive',
-        });
+        
+        // Check for CORS-related errors
+        const isCorsError = error.name === 'TypeError' && 
+          (error.message?.includes('fetch') || error.message?.includes('network')) ||
+          error.status === 0;
+          
+        if (isCorsError) {
+          toast({
+            title: 'Connection Error',
+            description: 'Origin not allowed (CORS). Please contact your administrator to whitelist this domain.',
+            variant: 'destructive',
+          });
+        } else {
+          toast({
+            title: 'Sign In Failed',
+            description: error.message || 'Invalid email or password',
+            variant: 'destructive',
+          });
+        }
       } else {
         console.log('Sign in successful');
         toast({
@@ -52,13 +65,28 @@ const SignInForm: React.FC<SignInFormProps> = ({ isLoading, setIsLoading }) => {
         });
         // Navigation will be handled by the auth state change
       }
-    } catch (error) {
+    } catch (error: any) {
       console.error('Sign in error:', error);
-      toast({
-        title: 'Error',
-        description: 'An unexpected error occurred',
-        variant: 'destructive',
-      });
+      
+      // Check for CORS-related network errors
+      const isCorsError = error.name === 'TypeError' || 
+        error.message?.includes('fetch') || 
+        error.message?.includes('network') ||
+        error.message?.includes('Failed to fetch');
+        
+      if (isCorsError) {
+        toast({
+          title: 'Connection Error',
+          description: 'Origin not allowed (CORS). Please contact your administrator to whitelist this domain.',
+          variant: 'destructive',
+        });
+      } else {
+        toast({
+          title: 'Error', 
+          description: 'An unexpected error occurred',
+          variant: 'destructive',
+        });
+      }
     } finally {
       setIsLoading(false);
     }

@@ -5,6 +5,7 @@ import { useAuth } from '@/contexts/SecureAuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Shield } from 'lucide-react';
 import SignInForm from '@/components/Auth/SignInForm';
+import CorsCheckBanner from '@/components/Auth/CorsCheckBanner';
 
 const SecureLogin = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -53,7 +54,9 @@ const SecureLogin = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <Card className="w-[400px]">
+      <div className="w-[400px]">
+        <CorsCheckBanner />
+        <Card className="w-full">
         <CardHeader className="space-y-1">
           <div className="flex items-center justify-center mb-4">
             <Shield className="h-8 w-8 text-blue-600 mr-2" />
@@ -71,7 +74,8 @@ const SecureLogin = () => {
             </p>
           </div>
         </CardContent>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };

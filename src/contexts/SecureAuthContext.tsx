@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useMemo, useState, useEffect } from 'react';
 import { User, Session } from '@supabase/supabase-js';
-import { supabase } from '@/integrations/supabase/client';
-import { getFunctionUrl } from '@/lib/supabase';
+import { supabase, getFunctionUrl } from '@/lib/supabase';
 import { useToast } from '@/hooks/use-toast';
 // Removed useAuthOptimized import
 import ErrorTracker from '@/utils/errorTracking';
