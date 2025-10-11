@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect, useCallback } fr
 import { supabase } from '@/lib/supabase';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { shouldSendEmailForNotificationType, sendNotificationEmail } from '@/services/emailNotificationService';
 
 export interface Notification {
   id: string;
@@ -34,7 +35,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // Generate unique notification ID
   const generateNotificationId = () => `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
-  const addNotification = useCallback((notification: Omit<Notification, 'id' | 'isRead' | 'createdAt'>) => {
+  const addNotification = useCallback(async (notification: Omit<Notification, 'id' | 'isRead' | 'createdAt'>) => {
     const newNotification: Notification = {
       ...notification,
       id: generateNotificationId(),
@@ -50,7 +51,50 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       description: notification.message,
       variant: notification.type === 'error' ? 'destructive' : 'default',
     });
-  }, [toast]);
+
+    // Send email notification if enabled
+    if (user) {
+      try {
+        // Determine notification type for preference check
+        let notificationType = 'info';
+        if (notification.title.includes('Status Updated')) {
+          notificationType = 'status_change';
+        } else if (notification.title.includes('Comment')) {
+          notificationType = 'comment';
+        } else if (notification.title.includes('Document')) {
+          notificationType = 'document';
+        } else if (notification.type === 'error' || notification.type === 'warning') {
+          notificationType = 'system';
+        }
+
+        const shouldSendEmail = await shouldSendEmailForNotificationType(user.id, notificationType);
+        
+        if (shouldSendEmail) {
+          // Get user profile for email
+          const { data: profile } = await supabase
+            .from('profiles')
+            .select('email, name')
+            .eq('id', user.id)
+            .single();
+
+          if (profile?.email) {
+            await sendNotificationEmail({
+              recipientEmail: profile.email,
+              recipientName: profile.name || 'User',
+              title: notification.title,
+              message: notification.message,
+              type: notificationType,
+              actionUrl: notification.actionUrl ? `${window.location.origin}${notification.actionUrl}` : undefined,
+              customerName: notification.customerName,
+            });
+          }
+        }
+      } catch (error) {
+        console.error('Error sending email notification:', error);
+        // Don't throw - email failures shouldn't block in-app notifications
+      }
+    }
+  }, [toast, user]);
 
   const markAsRead = useCallback((notificationId: string) => {
     setNotifications(prev => 

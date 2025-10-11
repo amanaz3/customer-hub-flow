@@ -14,6 +14,191 @@ export type Database = {
   }
   public: {
     Tables: {
+      account_applications: {
+        Row: {
+          application_data: Json | null
+          application_type: string | null
+          created_at: string
+          customer_id: string | null
+          id: string
+          status: string
+          submission_source: string | null
+          updated_at: string
+        }
+        Insert: {
+          application_data?: Json | null
+          application_type?: string | null
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          status?: string
+          submission_source?: string | null
+          updated_at?: string
+        }
+        Update: {
+          application_data?: Json | null
+          application_type?: string | null
+          created_at?: string
+          customer_id?: string | null
+          id?: string
+          status?: string
+          submission_source?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "account_applications_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      application_documents: {
+        Row: {
+          application_id: string | null
+          created_at: string
+          document_type: string
+          file_path: string | null
+          id: string
+          is_uploaded: boolean | null
+        }
+        Insert: {
+          application_id?: string | null
+          created_at?: string
+          document_type: string
+          file_path?: string | null
+          id?: string
+          is_uploaded?: boolean | null
+        }
+        Update: {
+          application_id?: string | null
+          created_at?: string
+          document_type?: string
+          file_path?: string | null
+          id?: string
+          is_uploaded?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_documents_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "account_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      application_messages: {
+        Row: {
+          application_id: string | null
+          created_at: string
+          id: string
+          is_read: boolean | null
+          message: string
+          sender_id: string | null
+          sender_type: string
+        }
+        Insert: {
+          application_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message: string
+          sender_id?: string | null
+          sender_type?: string
+        }
+        Update: {
+          application_id?: string | null
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          message?: string
+          sender_id?: string | null
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_messages_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "account_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      application_owners: {
+        Row: {
+          application_id: string | null
+          created_at: string
+          id: string
+          name: string
+          nationality: string | null
+          ownership_percentage: number | null
+          passport_number: string | null
+        }
+        Insert: {
+          application_id?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          nationality?: string | null
+          ownership_percentage?: number | null
+          passport_number?: string | null
+        }
+        Update: {
+          application_id?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          nationality?: string | null
+          ownership_percentage?: number | null
+          passport_number?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_owners_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "account_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      banks: {
+        Row: {
+          code: string
+          country: string
+          created_at: string
+          id: string
+          is_active: boolean
+          name: string
+          processing_time_days: number | null
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name: string
+          processing_time_days?: number | null
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          country?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          processing_time_days?: number | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       comments: {
         Row: {
           comment: string
@@ -230,6 +415,7 @@ export type Database = {
         Row: {
           amount: number
           annual_turnover: number | null
+          any_suitable_bank: boolean | null
           company: string
           created_at: string | null
           customer_notes: string | null
@@ -242,14 +428,17 @@ export type Database = {
           mobile: string
           name: string
           preferred_bank: string | null
+          preferred_bank_2: string | null
+          preferred_bank_3: string | null
           product_id: string | null
           status: Database["public"]["Enums"]["customer_status"]
           updated_at: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           amount: number
           annual_turnover?: number | null
+          any_suitable_bank?: boolean | null
           company: string
           created_at?: string | null
           customer_notes?: string | null
@@ -262,14 +451,17 @@ export type Database = {
           mobile: string
           name: string
           preferred_bank?: string | null
+          preferred_bank_2?: string | null
+          preferred_bank_3?: string | null
           product_id?: string | null
           status?: Database["public"]["Enums"]["customer_status"]
           updated_at?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           amount?: number
           annual_turnover?: number | null
+          any_suitable_bank?: boolean | null
           company?: string
           created_at?: string | null
           customer_notes?: string | null
@@ -282,10 +474,12 @@ export type Database = {
           mobile?: string
           name?: string
           preferred_bank?: string | null
+          preferred_bank_2?: string | null
+          preferred_bank_3?: string | null
           product_id?: string | null
           status?: Database["public"]["Enums"]["customer_status"]
           updated_at?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
@@ -364,6 +558,51 @@ export type Database = {
           },
         ]
       }
+      domains: {
+        Row: {
+          created_at: string
+          dns_configured: boolean
+          domain_name: string
+          id: string
+          last_checked_at: string | null
+          partner_id: string | null
+          ssl_status: string
+          status: string
+          updated_at: string
+          user_id: string | null
+          verification_token: string | null
+          verified_at: string | null
+        }
+        Insert: {
+          created_at?: string
+          dns_configured?: boolean
+          domain_name: string
+          id?: string
+          last_checked_at?: string | null
+          partner_id?: string | null
+          ssl_status?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          verification_token?: string | null
+          verified_at?: string | null
+        }
+        Update: {
+          created_at?: string
+          dns_configured?: boolean
+          domain_name?: string
+          id?: string
+          last_checked_at?: string | null
+          partner_id?: string | null
+          ssl_status?: string
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+          verification_token?: string | null
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       logs: {
         Row: {
           component: string | null
@@ -394,6 +633,137 @@ export type Database = {
           stack_trace?: string | null
           user_email?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          email_notifications_enabled: boolean
+          id: string
+          notify_document_uploads: boolean
+          notify_new_comments: boolean
+          notify_status_updates: boolean
+          notify_system_alerts: boolean
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_notifications_enabled?: boolean
+          id?: string
+          notify_document_uploads?: boolean
+          notify_new_comments?: boolean
+          notify_status_updates?: boolean
+          notify_system_alerts?: boolean
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_notifications_enabled?: boolean
+          id?: string
+          notify_document_uploads?: boolean
+          notify_new_comments?: boolean
+          notify_status_updates?: boolean
+          notify_system_alerts?: boolean
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notification_preferences_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      notifications: {
+        Row: {
+          created_at: string
+          id: string
+          is_read: boolean
+          message: string
+          title: string
+          type: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message: string
+          title: string
+          type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_read?: boolean
+          message?: string
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      partner_signup_requests: {
+        Row: {
+          business_description: string | null
+          company_name: string | null
+          created_at: string
+          email: string
+          email_verified: boolean
+          first_name: string
+          id: string
+          last_name: string
+          otp_code: string | null
+          otp_expires_at: string | null
+          partner_type: string
+          phone_number: string
+          role_at_company: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          business_description?: string | null
+          company_name?: string | null
+          created_at?: string
+          email: string
+          email_verified?: boolean
+          first_name: string
+          id?: string
+          last_name: string
+          otp_code?: string | null
+          otp_expires_at?: string | null
+          partner_type?: string
+          phone_number: string
+          role_at_company?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          business_description?: string | null
+          company_name?: string | null
+          created_at?: string
+          email?: string
+          email_verified?: boolean
+          first_name?: string
+          id?: string
+          last_name?: string
+          otp_code?: string | null
+          otp_expires_at?: string | null
+          partner_type?: string
+          phone_number?: string
+          role_at_company?: string | null
+          status?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -429,31 +799,73 @@ export type Database = {
           created_at: string | null
           deleted_at: string | null
           email: string
+          full_name: string | null
           id: string
           is_active: boolean
+          must_change_password: boolean | null
           name: string
           role: Database["public"]["Enums"]["app_role"]
+          temporary_password_expires_at: string | null
           updated_at: string | null
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
           deleted_at?: string | null
           email: string
+          full_name?: string | null
           id: string
           is_active?: boolean
+          must_change_password?: boolean | null
           name: string
           role?: Database["public"]["Enums"]["app_role"]
+          temporary_password_expires_at?: string | null
           updated_at?: string | null
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
           deleted_at?: string | null
           email?: string
+          full_name?: string | null
           id?: string
           is_active?: boolean
+          must_change_password?: boolean | null
           name?: string
           role?: Database["public"]["Enums"]["app_role"]
+          temporary_password_expires_at?: string | null
           updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      security_audit_log: {
+        Row: {
+          created_at: string | null
+          details: Json | null
+          event_type: string
+          id: string
+          ip_address: unknown | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          details?: Json | null
+          event_type: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          details?: Json | null
+          event_type?: string
+          id?: string
+          ip_address?: unknown | null
+          user_agent?: string | null
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -539,6 +951,22 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      create_anonymous_customer: {
+        Args: {
+          customer_any_suitable_bank?: boolean
+          customer_company: string
+          customer_email: string
+          customer_jurisdiction?: string
+          customer_license_type: string
+          customer_mobile: string
+          customer_name: string
+          customer_notes?: string
+          customer_preferred_bank?: string
+          customer_preferred_bank_2?: string
+          customer_preferred_bank_3?: string
+        }
+        Returns: string
+      }
       create_product: {
         Args: {
           product_description: string
@@ -589,6 +1017,18 @@ export type Database = {
         Args: { user_id: string }
         Returns: boolean
       }
+      log_api_access: {
+        Args: {
+          action_type: string
+          api_key_id: string
+          resource_accessed: string
+        }
+        Returns: undefined
+      }
+      log_failed_login: {
+        Args: { _email: string; _reason: string }
+        Returns: undefined
+      }
       update_product: {
         Args: {
           product_description: string
@@ -597,6 +1037,14 @@ export type Database = {
           product_name: string
         }
         Returns: undefined
+      }
+      validate_api_key_access: {
+        Args: { key_hash: string; required_permission: string }
+        Returns: boolean
+      }
+      validate_session_security: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
     }
     Enums: {
@@ -610,6 +1058,7 @@ export type Database = {
         | "Rejected"
         | "Need More Info"
         | "Paid"
+        | "Ready for Bank"
       document_category:
         | "mandatory"
         | "freezone"
@@ -757,6 +1206,7 @@ export const Constants = {
         "Rejected",
         "Need More Info",
         "Paid",
+        "Ready for Bank",
       ],
       document_category: [
         "mandatory",
