@@ -14,7 +14,10 @@ const handler = async (req: Request): Promise<Response> => {
   }
 
   try {
-    console.log('Sending test email to support@amanafinanz.com');
+    const { recipients } = await req.json().catch(() => ({}));
+    const emailList = recipients || ["support@amanafinanz.com"];
+    
+    console.log('Sending test email to:', emailList);
 
     const htmlContent = `
       <!DOCTYPE html>
@@ -73,7 +76,7 @@ const handler = async (req: Request): Promise<Response> => {
     
     const emailResponse = await resend.emails.send({
       from: "Test <onboarding@resend.dev>",
-      to: ["support@amanafinanz.com"],
+      to: emailList,
       subject: "Test Email - Notification System",
       html: htmlContent,
     });
@@ -83,7 +86,8 @@ const handler = async (req: Request): Promise<Response> => {
     return new Response(
       JSON.stringify({ 
         success: true, 
-        message: "Test email sent to support@amanafinanz.com",
+        message: `Test email sent to ${emailList.join(', ')}`,
+        recipients: emailList,
         data: emailResponse 
       }),
       {
