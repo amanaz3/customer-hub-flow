@@ -186,9 +186,17 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
                 }`}>
                   {typeof stat.value === 'string' ? stat.value : stat.value.toLocaleString()}
                 </div>
-                <p className="text-xs text-muted-foreground/90 leading-relaxed font-medium max-w-[200px]">
-                  {stat.description}
-                </p>
+                <div className="space-y-1">
+                  <p className="text-xs text-muted-foreground/90 leading-relaxed font-medium max-w-[200px]">
+                    {stat.description}
+                  </p>
+                  {(stat.id === 'completed' || stat.id === 'revenue') && (
+                    <div className="flex items-center gap-1 text-[10px] text-muted-foreground/70">
+                      <Clock className="h-3 w-3" />
+                      <span>{new Date().toLocaleString('default', { month: 'short', year: 'numeric' })}</span>
+                    </div>
+                  )}
+                </div>
               </div>
               {stat.trend && (
                 <div className={`flex items-center space-x-1 px-3 py-2 rounded-full text-xs font-semibold transition-all duration-300 group-hover:scale-105 ${
