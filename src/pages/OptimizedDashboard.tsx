@@ -27,6 +27,13 @@ const EnhancedCustomerTable = React.lazy(() => import('@/components/Customer/Enh
 const UserAnalytics = React.lazy(() => import('@/components/Analytics/UserAnalytics'));
 
 const OptimizedDashboard = () => {
+  const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
+  const isMobile = useIsMobile();
+  
+  // Widget selection state - default to applications
+  const [activeWidget, setActiveWidget] = useState<'applications' | 'completed' | 'pending' | 'revenue'>('applications');
+  
   const { 
     customers, 
     dashboardStats, 
@@ -37,13 +44,7 @@ const OptimizedDashboard = () => {
     loadPreviousPage,
     hasNextPage,
     hasPreviousPage
-  } = useOptimizedCustomerData(50);
-  const { user, isAdmin } = useAuth();
-  const navigate = useNavigate();
-  const isMobile = useIsMobile();
-  
-  // Widget selection state - default to applications
-  const [activeWidget, setActiveWidget] = useState<'applications' | 'completed' | 'pending' | 'revenue'>('applications');
+  } = useOptimizedCustomerData(50, activeWidget);
   
   // Revenue filter state - simple month selection like Completed Applications
   const [revenueSelectedMonths, setRevenueSelectedMonths] = useState<string[]>([]);

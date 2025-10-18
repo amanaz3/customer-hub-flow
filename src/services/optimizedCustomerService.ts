@@ -39,9 +39,10 @@ export class OptimizedCustomerService {
     page: number = 1,
     pageSize: number = 50,
     userId?: string,
-    includeDetails: boolean = false
+    includeDetails: boolean = false,
+    sortBy: 'created_at' | 'updated_at' = 'created_at'
   ) {
-    const cacheKey = `customers_${page}_${pageSize}_${userId || 'admin'}_${includeDetails}`;
+    const cacheKey = `customers_${page}_${pageSize}_${userId || 'admin'}_${includeDetails}_${sortBy}`;
     
     // Try cache first
     const cached = this.getCachedData(cacheKey);
@@ -50,7 +51,7 @@ export class OptimizedCustomerService {
       return cached;
     }
 
-    console.log('Fetching customers with pagination:', { page, pageSize, userId, includeDetails });
+    console.log('Fetching customers with pagination:', { page, pageSize, userId, includeDetails, sortBy });
     
     const offset = (page - 1) * pageSize;
     
@@ -60,7 +61,7 @@ export class OptimizedCustomerService {
         *,
         product:products(id, name, description)
       `, { count: 'exact' })
-      .order('created_at', { ascending: false })
+      .order(sortBy, { ascending: false })
       .range(offset, offset + pageSize - 1);
 
     // Apply user filter if not admin

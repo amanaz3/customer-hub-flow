@@ -12,7 +12,10 @@ export interface PaginationState {
   totalPages: number;
 }
 
-export const useOptimizedCustomerData = (pageSize: number = 50) => {
+export const useOptimizedCustomerData = (
+  pageSize: number = 50,
+  activeWidget?: string
+) => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [pagination, setPagination] = useState<PaginationState>({
     page: 1,
@@ -70,14 +73,18 @@ export const useOptimizedCustomerData = (pageSize: number = 50) => {
     setIsLoading(true);
     
     try {
-      console.log('Fetching customers with optimization:', { page, includeDetails, isAdmin });
+      console.log('Fetching customers with optimization:', { page, includeDetails, isAdmin, activeWidget });
       
       const userId = isAdmin ? undefined : user.id;
+      // Sort by updated_at when viewing completed applications, otherwise by created_at
+      const sortBy = activeWidget === 'completed' ? 'updated_at' : 'created_at';
+      
       const result = await OptimizedCustomerService.fetchCustomersPaginated(
         page,
         pageSize,
         userId,
-        includeDetails
+        includeDetails,
+        sortBy
       );
       
       setCustomers(result.customers);
@@ -99,7 +106,7 @@ export const useOptimizedCustomerData = (pageSize: number = 50) => {
       setIsLoading(false);
       fetchingRef.current = false;
     }
-  }, [isAuthenticated, user, isAdmin, pageSize, toast]);
+  }, [isAuthenticated, user, isAdmin, pageSize, toast, activeWidget]);
 
   const fetchDashboardStats = useCallback(async (forceRefresh: boolean = false) => {
     if (!isAuthenticated || !user) {
@@ -130,7 +137,7 @@ export const useOptimizedCustomerData = (pageSize: number = 50) => {
       fetchCustomers(pagination.page, false, true),
       fetchDashboardStats(true)
     ]);
-  }, [fetchCustomers, fetchDashboardStats, pagination.page]);
+  }, [fetchCustomers, fetchDashboardStats, pagination.page, activeWidget]);
 
   const loadPage = useCallback(async (page: number) => {
     await fetchCustomers(page, false);
@@ -153,6 +160,14 @@ export const useOptimizedCustomerData = (pageSize: number = 50) => {
     console.log('Admin status changed, clearing cache:', isAdmin);
     OptimizedCustomerService.clearCache();
   }, [isAdmin]);
+
+  // Refetch data when active widget changes to use correct sort order
+  useEffect(() => {
+    if (isAuthenticated && user && activeWidget) {
+      console.log('Active widget changed, refetching with new sort order:', activeWidget);
+      fetchCustomers(1, false, true);
+    }
+  }, [activeWidget]); // Only depend on activeWidget to avoid infinite loops
 
   // Initial data fetch
   useEffect(() => {
