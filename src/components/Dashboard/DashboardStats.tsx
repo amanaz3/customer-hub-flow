@@ -75,15 +75,15 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
     },
     {
       id: 'completed' as const,
-      title: "Completed Applications",
+      title: "This Month's Completed",
       value: stats.completedApplications,
       icon: CheckCircle,
-      description: `${completionRate.toFixed(1)}% completion rate`,
+      description: `${completionRate.toFixed(1)}% completion rate this month`,
       color: "text-green-600",
       bgColor: "bg-green-50 dark:bg-green-950/50",
       borderColor: "border-green-200 dark:border-green-800",
       trend: stats.completedApplications > 0 ? "up" : null,
-      subtitle: "Successfully processed",
+      subtitle: "This month only",
       badge: null
     },
     {

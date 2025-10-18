@@ -142,9 +142,10 @@ const OptimizedDashboard = () => {
           icon: Users
         };
       case 'completed':
+        const currentMonth = format(new Date(), 'MMMM yyyy');
         return {
-          title: 'Completed Applications',
-          description: `Showing ${filteredCustomers.length} completed/paid applications from current month`,
+          title: "This Month's Completed Applications",
+          description: `Showing ${filteredCustomers.length} completed/paid applications from ${currentMonth}`,
           icon: CheckCircle
         };
       case 'pending':
