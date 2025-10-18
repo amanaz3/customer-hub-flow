@@ -9,7 +9,7 @@ interface AvailableMonth {
   month: number;
 }
 
-export const useDashboardFilters = (customers: Customer[], activeWidget: string, revenueSelectedMonths?: string[]) => {
+export const useDashboardFilters = (customers: Customer[], activeWidget: string, revenueSelectedMonths?: string[], isAdmin?: boolean) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
@@ -57,8 +57,22 @@ export const useDashboardFilters = (customers: Customer[], activeWidget: string,
         return customerMonth === currentMonth && customerYear === currentYear;
       });
     } else if (activeWidget === 'revenue') {
-      // Apply revenue month filter if provided
-      if (revenueSelectedMonths && revenueSelectedMonths.length > 0) {
+      // For regular users: ALWAYS filter to current month
+      if (!isAdmin) {
+        const currentDate = new Date();
+        const currentMonth = currentDate.getUTCMonth();
+        const currentYear = currentDate.getUTCFullYear();
+        
+        result = result.filter(c => {
+          const customerDate = new Date(c.updated_at || c.created_at || '');
+          const customerMonth = customerDate.getUTCMonth();
+          const customerYear = customerDate.getUTCFullYear();
+          
+          return customerMonth === currentMonth && customerYear === currentYear;
+        });
+      }
+      // For admins: Apply selected months filter if provided
+      else if (revenueSelectedMonths && revenueSelectedMonths.length > 0) {
         result = result.filter(c => {
           const dateField = c.updated_at || c.created_at;
           if (!dateField) return false;
@@ -68,6 +82,7 @@ export const useDashboardFilters = (customers: Customer[], activeWidget: string,
           return revenueSelectedMonths.includes(monthKey);
         });
       }
+      // For admins with no selection: show all-time (no additional filtering)
     }
 
     // Apply status filter

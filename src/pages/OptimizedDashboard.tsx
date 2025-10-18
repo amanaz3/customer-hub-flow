@@ -75,7 +75,7 @@ const OptimizedDashboard = () => {
     clearAllMonths,
     clearAllFilters,
     hasActiveFilters
-  } = useDashboardFilters(customers, activeWidget, revenueSelectedMonths);
+  } = useDashboardFilters(customers, activeWidget, revenueSelectedMonths, isAdmin);
   
   const handleWidgetChange = (widget: 'applications' | 'completed' | 'pending' | 'revenue') => {
     setActiveWidget(widget);
