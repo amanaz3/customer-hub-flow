@@ -22,7 +22,7 @@ export const useDashboardFilters = (customers: Customer[], activeWidget: string,
       const dateField = customer.updated_at || customer.created_at;
       if (dateField) {
         const date = new Date(dateField);
-        const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+        const monthKey = `${date.getUTCFullYear()}-${date.getUTCMonth()}`;
         months.add(monthKey);
       }
     });
@@ -45,17 +45,17 @@ export const useDashboardFilters = (customers: Customer[], activeWidget: string,
 
     // Apply widget-specific filtering first
     if (activeWidget === 'completed') {
-      const currentDate = new Date();
-      const currentMonth = currentDate.getMonth();
-      const currentYear = currentDate.getFullYear();
+    const currentDate = new Date();
+    const currentMonth = currentDate.getUTCMonth();
+    const currentYear = currentDate.getUTCFullYear();
       
       result = result.filter(c => {
         const isCompletedOrPaid = c.status === 'Complete' || c.status === 'Paid';
         if (!isCompletedOrPaid) return false;
         
         const customerDate = new Date(c.updated_at || c.created_at || '');
-        const customerMonth = customerDate.getMonth();
-        const customerYear = customerDate.getFullYear();
+        const customerMonth = customerDate.getUTCMonth();
+        const customerYear = customerDate.getUTCFullYear();
         
         return customerMonth === currentMonth && customerYear === currentYear;
       });
@@ -74,7 +74,7 @@ export const useDashboardFilters = (customers: Customer[], activeWidget: string,
           if (!dateField) return false;
           
           const customerDate = new Date(dateField);
-          const monthKey = `${customerDate.getFullYear()}-${customerDate.getMonth()}`;
+          const monthKey = `${customerDate.getUTCFullYear()}-${customerDate.getUTCMonth()}`;
           return revenueSelectedMonths.includes(monthKey);
         }
         
@@ -97,7 +97,7 @@ export const useDashboardFilters = (customers: Customer[], activeWidget: string,
         if (!dateField) return false;
         
         const customerDate = new Date(dateField);
-        const monthKey = `${customerDate.getFullYear()}-${customerDate.getMonth()}`;
+        const monthKey = `${customerDate.getUTCFullYear()}-${customerDate.getUTCMonth()}`;
         return selectedMonths.includes(monthKey);
       });
     }

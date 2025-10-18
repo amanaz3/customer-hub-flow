@@ -78,7 +78,7 @@ const OptimizedDashboard = () => {
       const dateField = customer.updated_at || customer.created_at;
       if (dateField) {
         const date = new Date(dateField);
-        const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
+        const monthKey = `${date.getUTCFullYear()}-${date.getUTCMonth()}`;
         months.add(monthKey);
       }
     });
