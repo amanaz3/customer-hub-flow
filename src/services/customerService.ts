@@ -55,23 +55,44 @@ export class CustomerService {
     }
 
     // Batch fetch all comments at once with user profiles
-    const { data: allComments, error: commentsError } = await supabase
-      .from('comments')
-      .select(`
-        id,
-        customer_id,
-        comment,
-        created_by,
-        created_at,
-        profiles:created_by (
-          name
-        )
-      `)
-      .in('customer_id', customerIds)
-      .order('created_at', { ascending: false });
+    // Using maybeSingle pattern for better error handling
+    let allComments = [];
+    try {
+      const { data: commentsData, error: commentsError } = await supabase
+        .from('comments')
+        .select(`
+          id,
+          customer_id,
+          comment,
+          created_by,
+          created_at,
+          profiles:created_by (
+            name
+          )
+        `)
+        .in('customer_id', customerIds)
+        .order('created_at', { ascending: false });
 
-    if (commentsError) {
-      console.error('Error fetching comments:', commentsError);
+      if (commentsError) {
+        console.error('Error fetching comments with profiles:', commentsError);
+        // Fallback: fetch comments without profiles
+        const { data: fallbackComments, error: fallbackError } = await supabase
+          .from('comments')
+          .select('id, customer_id, comment, created_by, created_at')
+          .in('customer_id', customerIds)
+          .order('created_at', { ascending: false });
+        
+        if (fallbackError) {
+          console.error('Error fetching comments (fallback):', fallbackError);
+        } else {
+          allComments = fallbackComments || [];
+        }
+      } else {
+        allComments = commentsData || [];
+      }
+    } catch (error) {
+      console.error('Unexpected error fetching comments:', error);
+      allComments = [];
     }
 
     // Group data by customer_id for efficient lookup
@@ -414,23 +435,44 @@ export class CustomerService {
       throw docsError;
     }
 
-    const { data: comments, error: commentsError } = await supabase
-      .from('comments')
-      .select(`
-        id,
-        customer_id,
-        comment,
-        created_by,
-        created_at,
-        profiles:created_by (
-          name
-        )
-      `)
-      .eq('customer_id', customerId)
-      .order('created_at', { ascending: false });
+    // Fetch comments with improved error handling
+    let comments = [];
+    try {
+      const { data: commentsData, error: commentsError } = await supabase
+        .from('comments')
+        .select(`
+          id,
+          customer_id,
+          comment,
+          created_by,
+          created_at,
+          profiles:created_by (
+            name
+          )
+        `)
+        .eq('customer_id', customerId)
+        .order('created_at', { ascending: false });
 
-    if (commentsError) {
-      console.error('Error fetching comments:', commentsError);
+      if (commentsError) {
+        console.error('Error fetching comments with profiles:', commentsError);
+        // Fallback: fetch comments without profiles
+        const { data: fallbackComments, error: fallbackError } = await supabase
+          .from('comments')
+          .select('id, customer_id, comment, created_by, created_at')
+          .eq('customer_id', customerId)
+          .order('created_at', { ascending: false });
+        
+        if (fallbackError) {
+          console.error('Error fetching comments (fallback):', fallbackError);
+        } else {
+          comments = fallbackComments || [];
+        }
+      } else {
+        comments = commentsData || [];
+      }
+    } catch (error) {
+      console.error('Unexpected error fetching comments:', error);
+      comments = [];
     }
 
     // Fetch status history with proper field mapping
