@@ -76,8 +76,8 @@ export const useOptimizedCustomerData = (
       console.log('Fetching customers with optimization:', { page, includeDetails, isAdmin, activeWidget });
       
       const userId = isAdmin ? undefined : user.id;
-      // Sort by updated_at when viewing completed applications, otherwise by created_at
-      const sortBy = activeWidget === 'completed' ? 'updated_at' : 'created_at';
+      // Sort by updated_at when viewing completed or submitted applications, otherwise by created_at
+      const sortBy = (activeWidget === 'completed' || activeWidget === 'pending') ? 'updated_at' : 'created_at';
       
       const result = await OptimizedCustomerService.fetchCustomersPaginated(
         page,
