@@ -172,6 +172,11 @@ const CustomerMobileCard = memo(({
               <SubmittedByCell userId={customer.user_id} />
             </div>
 
+            <div className="space-y-2">
+              <div className="text-xs text-muted-foreground">Lead Source:</div>
+              <span className="text-sm">{customer.leadSource || 'N/A'}</span>
+            </div>
+
             <div className="flex items-center justify-between">
               <StatusBadge status={customer.status} />
               <div className="flex items-center gap-1 text-sm font-medium">
@@ -233,12 +238,19 @@ const CustomerRow = memo(({
 
       {/* Product */}
       <TableCell>
-        <span className="text-sm">No product</span>
+        <span className="text-sm">
+          {customer.product_id ? 'Product assigned' : 'No product'}
+        </span>
       </TableCell>
 
       {/* Submitted by */}
       <TableCell>
         <SubmittedByCell userId={customer.user_id} />
+      </TableCell>
+
+      {/* Lead Source */}
+      <TableCell>
+        <span className="text-sm">{customer.leadSource || 'N/A'}</span>
       </TableCell>
 
       {/* Amount */}
@@ -363,6 +375,7 @@ const EnhancedCustomerTable: React.FC<EnhancedCustomerTableProps> = ({
                 <TableHead className="min-w-[200px]">Customer Info</TableHead>
                 <TableHead className="min-w-[120px]">Product</TableHead>
                 <TableHead className="min-w-[150px]">Submitted by</TableHead>
+                <TableHead className="min-w-[120px]">Lead Source</TableHead>
                 <TableHead className="min-w-[100px] text-right">Amount</TableHead>
                 <TableHead className="min-w-[100px]">Status</TableHead>
               </TableRow>
