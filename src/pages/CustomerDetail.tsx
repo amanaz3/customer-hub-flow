@@ -7,6 +7,7 @@ import CustomerDetailsForm from '@/components/Customer/CustomerDetailsForm';
 import CustomerActionButtons from '@/components/Customer/CustomerActionButtons';
 import StatusHistoryCard from '@/components/Customer/StatusHistoryCard';
 import DocumentCompleteCheckbox from '@/components/Customer/DocumentCompleteCheckbox';
+import PendingStatusRequests from '@/components/Customer/PendingStatusRequests';
 import { useCustomer } from '@/contexts/CustomerContext';
 import { Status } from '@/types/customer';
 import { useAuth } from '@/contexts/SecureAuthContext';
@@ -238,6 +239,8 @@ const CustomerDetail = () => {
             </CardContent>
           </Card>
         )}
+
+        <PendingStatusRequests customer={customer} />
         
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           <div className="col-span-1 md:col-span-1 space-y-4">
