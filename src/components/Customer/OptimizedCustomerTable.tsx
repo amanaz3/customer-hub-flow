@@ -262,6 +262,9 @@ const CustomerRow = memo(({
       <TableCell>
         <SubmittedByCell userId={customer.user_id} />
       </TableCell>
+      <TableCell>
+        <span className="text-sm">{customer.leadSource || 'N/A'}</span>
+      </TableCell>
       <TableCell className="text-right">
         {formatCurrency(customer.amount)}
       </TableCell>
@@ -337,6 +340,7 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({
             <TableHead>Customer Info</TableHead>
             <TableHead>Product</TableHead>
             <TableHead>Submitted by</TableHead>
+            <TableHead>Lead Source</TableHead>
             <TableHead className="text-right">Amount</TableHead>
             <TableHead>Status</TableHead>
           </TableRow>
@@ -347,7 +351,7 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({
           ) : (
             <TableRow>
               <TableCell 
-                colSpan={enableBulkSelection && isAdmin ? 6 : 5} 
+                colSpan={enableBulkSelection && isAdmin ? 7 : 6} 
                 className="text-center py-6 text-muted-foreground"
               >
                 No customers found
