@@ -72,11 +72,18 @@ export class OptimizedCustomerService {
 
     // Apply status filter based on widget
     if (statusFilter === 'pending') {
-      query = query.not('status', 'in', ['Draft', 'Complete', 'Paid', 'Rejected']);
+      query = query
+        .neq('status', 'Draft')
+        .neq('status', 'Complete')
+        .neq('status', 'Paid')
+        .neq('status', 'Rejected');
     } else if (statusFilter === 'completed') {
       query = query.in('status', ['Complete', 'Paid']);
     } else if (statusFilter === 'applications') {
-      query = query.not('status', 'in', ['Complete', 'Paid', 'Rejected']);
+      query = query
+        .neq('status', 'Complete')
+        .neq('status', 'Paid')
+        .neq('status', 'Rejected');
     } else if (statusFilter !== 'all') {
       // Specific status filter (cast to any since statusFilter can be any string)
       query = query.eq('status', statusFilter as any);
