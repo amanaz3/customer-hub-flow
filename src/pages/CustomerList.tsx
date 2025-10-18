@@ -40,10 +40,33 @@ const CustomerList = () => {
       baseCustomers = userFilteredCustomers.length > 0 ? userFilteredCustomers : ownCustomers;
     }
     
-    // Filter customers to exclude rejected applications
-    const active = baseCustomers.filter(customer => 
-      customer.status !== 'Rejected'
-    );
+    // Get current month and year for comparison
+    const currentDate = new Date();
+    const currentMonth = currentDate.getMonth();
+    const currentYear = currentDate.getFullYear();
+    
+    // Filter customers to exclude:
+    // 1. All rejected applications
+    // 2. Paid/Complete from previous months (keep current month)
+    const active = baseCustomers.filter(customer => {
+      // Always exclude rejected
+      if (customer.status === 'Rejected') {
+        return false;
+      }
+      
+      // For Paid and Complete status, check if it's from current month
+      if (customer.status === 'Paid' || customer.status === 'Complete') {
+        const customerDate = new Date(customer.updated_at || customer.created_at || '');
+        const customerMonth = customerDate.getMonth();
+        const customerYear = customerDate.getFullYear();
+        
+        // Only show if it's from current month
+        return customerMonth === currentMonth && customerYear === currentYear;
+      }
+      
+      // Show all other statuses (Draft, Submitted, In Progress, etc.)
+      return true;
+    });
 
     return {
       userCustomers: baseCustomers,
