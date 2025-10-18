@@ -196,12 +196,12 @@ export class OptimizedCustomerService {
 
     // Calculate stats
     const currentDate = new Date();
-    const currentMonth = currentDate.getMonth() + 1;
+    const currentMonth = currentDate.getMonth();
     const currentYear = currentDate.getFullYear();
 
     const isCurrentMonth = (customer: any) => {
       const customerDate = new Date(customer.updated_at || customer.created_at || '');
-      const customerMonth = customerDate.getMonth() + 1;
+      const customerMonth = customerDate.getMonth();
       const customerYear = customerDate.getFullYear();
       return customerMonth === currentMonth && customerYear === currentYear;
     };
