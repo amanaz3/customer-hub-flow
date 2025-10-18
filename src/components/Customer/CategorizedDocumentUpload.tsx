@@ -334,20 +334,18 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
                       onChange={(e) => handleReplaceFileSelect(doc, e)}
                       disabled={isReplacing}
                     />
-                    <label htmlFor={`replace-${doc.id}`}>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        className="px-2"
-                        title="Replace file"
-                        disabled={isReplacing}
-                        asChild
-                      >
-                        <span>
-                          <RefreshCw className={`w-3 h-3 ${isReplacing && documentToReplace?.id === doc.id ? 'animate-spin' : ''}`} />
-                        </span>
-                      </Button>
-                    </label>
+                            <label htmlFor={`replace-${doc.id}`} className="cursor-pointer">
+                              <Button 
+                                variant="outline" 
+                                size="sm"
+                                className="px-2"
+                                title="Replace file"
+                                disabled={isReplacing}
+                                type="button"
+                              >
+                                <RefreshCw className={`w-3 h-3 ${isReplacing && documentToReplace?.id === doc.id ? 'animate-spin' : ''}`} />
+                              </Button>
+                            </label>
                     <Button 
                       variant="destructive" 
                       size="sm"
