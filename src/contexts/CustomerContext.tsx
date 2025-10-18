@@ -19,8 +19,9 @@ interface CustomerContextType {
   refreshData: () => Promise<void>;
   uploadDocument: (customerId: string, documentId: string, filePath: string) => Promise<void>;
   updateCustomerStatus: (customerId: string, status: string, comment: string, changedBy: string, role: string) => void;
-  // markPaymentReceived removed - payment tracking out of scope
   submitToAdmin: (customerId: string, userId: string, userName: string) => void;
+  deleteDocument: (customerId: string, documentId: string, filePath: string) => Promise<void>;
+  replaceDocument: (customerId: string, documentId: string, oldFilePath: string, newFile: File) => Promise<void>;
   isLoading: boolean;
 }
 
@@ -46,8 +47,9 @@ export const CustomerProvider: React.FC<{ children: ReactNode }> = ({ children }
     getCustomersByUserId,
     uploadDocument,
     updateCustomerStatus,
-    // markPaymentReceived removed
-    submitToAdmin
+    submitToAdmin,
+    deleteDocument,
+    replaceDocument
   } = useCustomerActions(customers, setCustomers, setDocuments, refreshData);
 
   return (
@@ -66,8 +68,9 @@ export const CustomerProvider: React.FC<{ children: ReactNode }> = ({ children }
       refreshData,
       uploadDocument,
       updateCustomerStatus,
-      // markPaymentReceived removed
       submitToAdmin,
+      deleteDocument,
+      replaceDocument,
       isLoading
     }}>
       {children}

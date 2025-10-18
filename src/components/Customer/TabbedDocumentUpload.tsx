@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Document } from '@/types/customer';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/SecureAuthContext';
+import { useCustomer } from '@/contexts/CustomerContext';
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
@@ -11,14 +12,25 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { validateFile, uploadFile, SUPPORTED_FILE_TYPES, MAX_FILE_SIZE, formatFileSize, getFileIcon, getFileName, getFileViewLink, getFileDownloadLink } from '@/utils/fileUpload';
-import { Upload, CheckCircle, Eye, AlertCircle, FileText, Building, Users, Shield, ExternalLink, Download, DollarSign, Info } from 'lucide-react';
+import { Upload, CheckCircle, Eye, AlertCircle, FileText, Building, Users, Shield, ExternalLink, Download, DollarSign, Info, Trash2, RefreshCw } from 'lucide-react';
 
 interface TabbedDocumentUploadProps {
   documents: Document[];
   customerId: string;
   customerLicenseType: string;
+  customerStatus: string;
   onUpload: (documentId: string, filePath: string) => void;
 }
 
@@ -26,12 +38,18 @@ const TabbedDocumentUpload: React.FC<TabbedDocumentUploadProps> = ({
   documents,
   customerId,
   customerLicenseType,
+  customerStatus,
   onUpload,
 }) => {
   const { toast } = useToast();
   const { user } = useAuth();
+  const { deleteDocument, replaceDocument } = useCustomer();
   const [uploading, setUploading] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
+  const [documentToDelete, setDocumentToDelete] = useState<Document | null>(null);
+  const [documentToReplace, setDocumentToReplace] = useState<Document | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isReplacing, setIsReplacing] = useState(false);
 
   const handleFileChange = (documentId: string) => async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -119,6 +137,73 @@ const TabbedDocumentUpload: React.FC<TabbedDocumentUploadProps> = ({
     }
   };
 
+  const canModifyDocument = () => {
+    return customerStatus === 'Draft';
+  };
+
+  const handleDeleteDocument = async () => {
+    if (!documentToDelete || !documentToDelete.file_path) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteDocument(customerId, documentToDelete.id, documentToDelete.file_path);
+      
+      toast({
+        title: "Document deleted",
+        description: `${documentToDelete.name} has been deleted successfully.`,
+      });
+      
+      setDocumentToDelete(null);
+    } catch (error) {
+      toast({
+        title: "Delete failed",
+        description: error instanceof Error ? error.message : "Failed to delete document",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleReplaceFileSelect = async (doc: Document, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !doc.file_path) return;
+
+    const validation = validateFile(file);
+    if (!validation.isValid) {
+      toast({
+        title: "Invalid file",
+        description: validation.error,
+        variant: "destructive",
+      });
+      event.target.value = '';
+      return;
+    }
+
+    setDocumentToReplace(doc);
+    setIsReplacing(true);
+
+    try {
+      await replaceDocument(customerId, doc.id, doc.file_path, file);
+      
+      toast({
+        title: "Document replaced",
+        description: `${doc.name} has been replaced successfully.`,
+      });
+      
+      setDocumentToReplace(null);
+    } catch (error) {
+      toast({
+        title: "Replace failed",
+        description: error instanceof Error ? error.message : "Failed to replace document",
+        variant: "destructive",
+      });
+    } finally {
+      setIsReplacing(false);
+      event.target.value = '';
+    }
+  };
+
   const renderDocumentItem = (doc: Document) => {
     return (
       <div 
@@ -169,6 +254,42 @@ const TabbedDocumentUpload: React.FC<TabbedDocumentUploadProps> = ({
                 >
                   <Download className="w-3 h-3" />
                 </Button>
+                {canModifyDocument() && (
+                  <>
+                    <input
+                      type="file"
+                      id={`replace-${doc.id}`}
+                      className="hidden"
+                      accept={Object.keys(SUPPORTED_FILE_TYPES).join(',')}
+                      onChange={(e) => handleReplaceFileSelect(doc, e)}
+                      disabled={isReplacing}
+                    />
+                    <label htmlFor={`replace-${doc.id}`}>
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        className="px-2"
+                        title="Replace file"
+                        disabled={isReplacing}
+                        asChild
+                      >
+                        <span>
+                          <RefreshCw className={`w-3 h-3 ${isReplacing && documentToReplace?.id === doc.id ? 'animate-spin' : ''}`} />
+                        </span>
+                      </Button>
+                    </label>
+                    <Button 
+                      variant="destructive" 
+                      size="sm"
+                      onClick={() => setDocumentToDelete(doc)}
+                      className="px-2"
+                      title="Delete document"
+                      disabled={isDeleting}
+                    >
+                      <Trash2 className="w-3 h-3" />
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>
@@ -236,7 +357,25 @@ const TabbedDocumentUpload: React.FC<TabbedDocumentUploadProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <>
+      <AlertDialog open={!!documentToDelete} onOpenChange={(open) => !open && setDocumentToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Document?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{documentToDelete?.name}"? This action cannot be undone and the file will be permanently removed from storage.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteDocument} disabled={isDeleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <div className="space-y-6">
       <div className="text-sm text-muted-foreground">
         <p>Supported formats: {Object.values(SUPPORTED_FILE_TYPES).join(', ')}</p>
         <p>Maximum file size: {formatFileSize(MAX_FILE_SIZE)}</p>
@@ -354,7 +493,8 @@ const TabbedDocumentUpload: React.FC<TabbedDocumentUploadProps> = ({
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 };
 

@@ -217,6 +217,112 @@ export const useCustomerActions = (
     }
   };
 
+  const deleteDocument = async (customerId: string, documentId: string, filePath: string): Promise<void> => {
+    const customer = customers.find(c => c.id === customerId);
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+
+    // Only allow deletion in Draft status
+    if (customer.status !== 'Draft') {
+      throw new Error('Documents can only be deleted when application is in Draft status');
+    }
+
+    try {
+      console.log('Deleting document:', { customerId, documentId, filePath });
+      
+      // First delete from storage
+      const { deleteFile } = await import('@/utils/fileUpload');
+      const storageDeleted = await deleteFile(filePath);
+      
+      if (!storageDeleted) {
+        throw new Error('Failed to delete file from storage');
+      }
+
+      // Then delete from database
+      const { error } = await supabase
+        .from('documents')
+        .delete()
+        .eq('id', documentId);
+
+      if (error) {
+        console.error('Error deleting document from database:', error);
+        throw new Error('Failed to delete document from database');
+      }
+
+      // Update local state
+      setDocuments(prev => prev.filter(doc => doc.id !== documentId));
+
+      console.log('Document deleted successfully');
+    } catch (error) {
+      console.error('Error deleting document:', error);
+      throw error;
+    }
+  };
+
+  const replaceDocument = async (customerId: string, documentId: string, oldFilePath: string, newFile: File): Promise<void> => {
+    const customer = customers.find(c => c.id === customerId);
+    if (!customer) {
+      throw new Error('Customer not found');
+    }
+
+    // Only allow replacement in Draft status
+    if (customer.status !== 'Draft') {
+      throw new Error('Documents can only be replaced when application is in Draft status');
+    }
+
+    if (!user) {
+      throw new Error('User not authenticated');
+    }
+
+    try {
+      console.log('Replacing document:', { customerId, documentId, oldFilePath });
+      
+      // Delete old file from storage
+      const { deleteFile, uploadFile } = await import('@/utils/fileUpload');
+      const storageDeleted = await deleteFile(oldFilePath);
+      
+      if (!storageDeleted) {
+        console.warn('Failed to delete old file from storage, continuing with upload');
+      }
+
+      // Upload new file
+      const newFilePath = await uploadFile(newFile, customerId, documentId, user.id);
+
+      // Update document record with new file path
+      const { error } = await supabase
+        .from('documents')
+        .update({
+          file_path: newFilePath,
+          is_uploaded: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', documentId);
+
+      if (error) {
+        console.error('Error updating document in database:', error);
+        throw new Error('Failed to update document in database');
+      }
+
+      // Update local state
+      setDocuments(prev => 
+        prev.map(doc => 
+          doc.id === documentId 
+            ? { ...doc, file_path: newFilePath, is_uploaded: true }
+            : doc
+        )
+      );
+
+      // Refresh data to get updated status history
+      await refreshData();
+
+      console.log('Document replaced successfully');
+    } catch (error) {
+      console.error('Error replacing document:', error);
+      throw error;
+    }
+  };
+
   return {
     addCustomer,
     updateCustomer,
@@ -225,6 +331,8 @@ export const useCustomerActions = (
     getCustomersByUserId,
     uploadDocument,
     updateCustomerStatus,
-    submitToAdmin
+    submitToAdmin,
+    deleteDocument,
+    replaceDocument
   };
 };

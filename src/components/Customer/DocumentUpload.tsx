@@ -4,6 +4,7 @@ import { Document } from '@/types/customer';
 import { useToast } from '@/hooks/use-toast';
 import { useErrorHandler } from '@/hooks/useErrorHandler';
 import { useAuth } from '@/contexts/SecureAuthContext';
+import { useCustomer } from '@/contexts/CustomerContext';
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -11,6 +12,16 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { 
@@ -27,7 +38,7 @@ import {
   getFileSize
 } from '@/utils/fileUpload';
 import type { UploadProgress } from '@/utils/fileUpload';
-import { Upload, CheckCircle, Eye, AlertCircle, X, Download, RefreshCw, ExternalLink } from 'lucide-react';
+import { Upload, CheckCircle, Eye, AlertCircle, X, Download, RefreshCw, ExternalLink, Trash2, Replace } from 'lucide-react';
 
 interface DocumentUploadProps {
   documents: Document[];
@@ -45,10 +56,15 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   const { toast } = useToast();
   const { handleError } = useErrorHandler();
   const { user } = useAuth();
+  const { deleteDocument, replaceDocument } = useCustomer();
   const [uploading, setUploading] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   const [verifyingFiles, setVerifyingFiles] = useState<Set<string>>(new Set());
   const [fileAccessStatus, setFileAccessStatus] = useState<Record<string, boolean>>({});
+  const [documentToDelete, setDocumentToDelete] = useState<Document | null>(null);
+  const [documentToReplace, setDocumentToReplace] = useState<Document | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isReplacing, setIsReplacing] = useState(false);
 
   useEffect(() => {
     const verifyAllFiles = async () => {
@@ -211,6 +227,61 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
     }
   };
 
+  const canModifyDocument = () => {
+    return customerStatus === 'Draft';
+  };
+
+  const handleDeleteDocument = async () => {
+    if (!documentToDelete || !documentToDelete.file_path) return;
+
+    setIsDeleting(true);
+    try {
+      await deleteDocument(customerId, documentToDelete.id, documentToDelete.file_path);
+      
+      toast({
+        title: "Document deleted",
+        description: `${documentToDelete.name} has been deleted successfully.`,
+      });
+      
+      setDocumentToDelete(null);
+    } catch (error) {
+      handleError(error, 'Document Delete');
+    } finally {
+      setIsDeleting(false);
+    }
+  };
+
+  const handleReplaceFileSelect = async (doc: Document, event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file || !doc.file_path) return;
+
+    const validation = validateFile(file);
+    if (!validation.isValid) {
+      handleError(new Error(validation.error || 'File validation failed'), 'File Validation');
+      event.target.value = '';
+      return;
+    }
+
+    setDocumentToReplace(doc);
+    setIsReplacing(true);
+
+    try {
+      await replaceDocument(customerId, doc.id, doc.file_path, file);
+      
+      toast({
+        title: "Document replaced",
+        description: `${doc.name} has been replaced successfully.`,
+      });
+      
+      setDocumentToReplace(null);
+    } catch (error) {
+      handleError(error, 'Document Replace');
+    } finally {
+      setIsReplacing(false);
+      event.target.value = '';
+    }
+  };
+
   const getSupportedTypesText = () => {
     return Object.keys(SUPPORTED_FILE_TYPES).join(', ');
   };
@@ -337,6 +408,43 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
               <Eye className="w-3 h-3" />
               <span className="text-xs">View</span>
             </Button>
+
+            {canModifyDocument() && (
+              <>
+                <input
+                  type="file"
+                  id={`replace-${doc.id}`}
+                  className="hidden"
+                  accept={Object.keys(SUPPORTED_FILE_TYPES).join(',')}
+                  onChange={(e) => handleReplaceFileSelect(doc, e)}
+                  disabled={isReplacing}
+                />
+                <label htmlFor={`replace-${doc.id}`}>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    className="px-2 h-8"
+                    title="Replace file"
+                    disabled={isReplacing}
+                    asChild
+                  >
+                    <span>
+                      <Replace className={`w-3 h-3 ${isReplacing && documentToReplace?.id === doc.id ? 'animate-spin' : ''}`} />
+                    </span>
+                  </Button>
+                </label>
+                <Button 
+                  variant="destructive" 
+                  size="sm"
+                  onClick={() => setDocumentToDelete(doc)}
+                  className="px-2 h-8"
+                  title="Delete document"
+                  disabled={isDeleting}
+                >
+                  <Trash2 className="w-3 h-3" />
+                </Button>
+              </>
+            )}
           </div>
         </div>
         
@@ -369,7 +477,25 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
   }
 
   return (
-    <Card>
+    <>
+      <AlertDialog open={!!documentToDelete} onOpenChange={(open) => !open && setDocumentToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Document?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete "{documentToDelete?.name}"? This action cannot be undone and the file will be permanently removed from storage.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteDocument} disabled={isDeleting} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              {isDeleting ? 'Deleting...' : 'Delete'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Upload className="w-5 h-5" />
@@ -424,7 +550,8 @@ const DocumentUpload: React.FC<DocumentUploadProps> = ({
           </div>
         </div>
       </CardContent>
-    </Card>
+      </Card>
+    </>
   );
 };
 
