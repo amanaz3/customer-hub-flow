@@ -148,6 +148,12 @@ export const useOptimizedCustomerData = (pageSize: number = 50) => {
     }
   }, [pagination.page, loadPage]);
 
+  // Clear cache when admin status changes to prevent stale data
+  useEffect(() => {
+    console.log('Admin status changed, clearing cache:', isAdmin);
+    OptimizedCustomerService.clearCache();
+  }, [isAdmin]);
+
   // Initial data fetch
   useEffect(() => {
     if (isAuthenticated && user) {

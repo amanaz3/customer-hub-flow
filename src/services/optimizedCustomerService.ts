@@ -41,7 +41,7 @@ export class OptimizedCustomerService {
     userId?: string,
     includeDetails: boolean = false
   ) {
-    const cacheKey = `customers_${page}_${pageSize}_${userId}_${includeDetails}`;
+    const cacheKey = `customers_${page}_${pageSize}_${userId || 'admin'}_${includeDetails}`;
     
     // Try cache first
     const cached = this.getCachedData(cacheKey);

@@ -101,6 +101,12 @@ const OptimizedDashboard = () => {
     );
   };
 
+  // Force refresh on dashboard mount to ensure fresh data
+  useEffect(() => {
+    console.log('Dashboard mounted, forcing refresh');
+    refreshData();
+  }, []); // Empty dependency - only run on mount
+
   // Optimized real-time subscription - only listen to customer changes
   useEffect(() => {
     const channel = supabase
