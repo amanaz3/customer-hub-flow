@@ -79,6 +79,9 @@ export interface Comment {
   content: string;
   author: string;
   timestamp: string;
+  created_by_id?: string;
+  is_status_request?: boolean;
+  requested_status?: string;
 }
 
 // Type aliases for compatibility

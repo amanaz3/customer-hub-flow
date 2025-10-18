@@ -245,7 +245,9 @@ const CustomerDetail = () => {
               status={customer.status} 
               amount={customer.amount} 
               comments={customer.comments || []}
+              customerId={customer.id}
               onStatusChange={handleStatusChange}
+              onCommentAdded={refreshData}
             />
             
             <StatusHistoryCard statusHistory={customer.statusHistory || []} />

@@ -54,10 +54,19 @@ export class CustomerService {
       console.error('Error fetching status history:', statusError);
     }
 
-    // Batch fetch all comments at once
+    // Batch fetch all comments at once with user profiles
     const { data: allComments, error: commentsError } = await supabase
       .from('comments')
-      .select('*')
+      .select(`
+        id,
+        customer_id,
+        comment,
+        created_by,
+        created_at,
+        profiles:created_by (
+          name
+        )
+      `)
       .in('customer_id', customerIds)
       .order('created_at', { ascending: false });
 
@@ -96,13 +105,17 @@ export class CustomerService {
         licenseType: customer.license_type,
         documents: customerDocuments,
         statusHistory: customerStatusHistory,
-        comments: customerComments.map(comment => ({
-          id: comment.id,
-          customer_id: comment.customer_id,
-          content: comment.comment,
-          author: comment.created_by,
-          timestamp: comment.created_at || new Date().toISOString()
-        }))
+        comments: customerComments.map(comment => {
+          const profile = Array.isArray(comment.profiles) ? comment.profiles[0] : comment.profiles;
+          return {
+            id: comment.id,
+            customer_id: comment.customer_id,
+            content: comment.comment,
+            author: profile?.name || 'Unknown User',
+            timestamp: comment.created_at || new Date().toISOString(),
+            created_by_id: comment.created_by
+          };
+        })
       };
     });
 
@@ -403,7 +416,16 @@ export class CustomerService {
 
     const { data: comments, error: commentsError } = await supabase
       .from('comments')
-      .select('*')
+      .select(`
+        id,
+        customer_id,
+        comment,
+        created_by,
+        created_at,
+        profiles:created_by (
+          name
+        )
+      `)
       .eq('customer_id', customerId)
       .order('created_at', { ascending: false });
 
@@ -438,7 +460,17 @@ export class CustomerService {
       leadSource: customer.lead_source,
       licenseType: customer.license_type,
       documents: documents || [],
-      comments: comments || [],
+      comments: (comments || []).map(comment => {
+        const profile = Array.isArray(comment.profiles) ? comment.profiles[0] : comment.profiles;
+        return {
+          id: comment.id,
+          customer_id: comment.customer_id,
+          content: comment.comment,
+          author: profile?.name || 'Unknown User',
+          timestamp: comment.created_at,
+          created_by_id: comment.created_by
+        };
+      }),
       statusHistory: statusHistory || []
     };
 

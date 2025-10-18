@@ -181,18 +181,37 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
           if (!customer) return;
 
+          // Check if this is a status change request
+          const commentText = payload.new.comment || '';
+          const isStatusRequest = commentText.startsWith('[STATUS REQUEST:');
+          const statusMatch = commentText.match(/\[STATUS REQUEST: (.+?)\]/);
+          const requestedStatus = statusMatch ? statusMatch[1] : null;
+
           // Show notification if it's relevant to current user and not their own comment
           const isRelevant = (isAdmin || customer.user_id === user.id) && payload.new.created_by !== user.id;
           
           if (isRelevant) {
-            addNotification({
-              title: `New Comment: ${customer.name}`,
-              message: `A comment was added to ${customer.company}`,
-              type: 'info',
-              customerName: customer.name,
-              customerId: payload.new.customer_id,
-              actionUrl: `/customers/${payload.new.customer_id}`,
-            });
+            // Special notification for status requests to admins
+            if (isStatusRequest && isAdmin) {
+              addNotification({
+                title: `Status Change Request: ${customer.name}`,
+                message: `User requests status change to "${requestedStatus}" for ${customer.company}`,
+                type: 'warning',
+                customerName: customer.name,
+                customerId: payload.new.customer_id,
+                actionUrl: `/customers/${payload.new.customer_id}`,
+              });
+            } else {
+              // Regular comment notification
+              addNotification({
+                title: `New Comment: ${customer.name}`,
+                message: `A comment was added to ${customer.company}`,
+                type: 'info',
+                customerName: customer.name,
+                customerId: payload.new.customer_id,
+                actionUrl: `/customers/${payload.new.customer_id}`,
+              });
+            }
           }
         }
       )
