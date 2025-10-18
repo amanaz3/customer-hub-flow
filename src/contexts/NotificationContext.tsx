@@ -96,21 +96,86 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     }
   }, [toast, user]);
 
-  const markAsRead = useCallback((notificationId: string) => {
+  const markAsRead = useCallback(async (notificationId: string) => {
+    // Update local state immediately
     setNotifications(prev => 
       prev.map(notif => 
         notif.id === notificationId ? { ...notif, isRead: true } : notif
       )
     );
-  }, []);
+    
+    // Persist to database
+    if (user) {
+      await supabase
+        .from('notifications')
+        .update({ is_read: true, updated_at: new Date().toISOString() })
+        .eq('id', notificationId)
+        .eq('user_id', user.id);
+    }
+  }, [user]);
 
-  const markAllAsRead = useCallback(() => {
+  const markAllAsRead = useCallback(async () => {
+    // Update local state immediately
     setNotifications(prev => prev.map(notif => ({ ...notif, isRead: true })));
-  }, []);
+    
+    // Persist to database
+    if (user) {
+      await supabase
+        .from('notifications')
+        .update({ is_read: true, updated_at: new Date().toISOString() })
+        .eq('user_id', user.id)
+        .eq('is_read', false);
+    }
+  }, [user]);
 
-  const clearNotifications = useCallback(() => {
+  const clearNotifications = useCallback(async () => {
+    // Clear local state immediately
     setNotifications([]);
-  }, []);
+    
+    // Delete from database
+    if (user) {
+      await supabase
+        .from('notifications')
+        .delete()
+        .eq('user_id', user.id);
+    }
+  }, [user]);
+
+  // Load notifications from database on mount
+  useEffect(() => {
+    const loadNotificationsFromDB = async () => {
+      if (!user) return;
+      
+      const { data, error } = await supabase
+        .from('notifications')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      
+      if (error) {
+        console.error('Error loading notifications:', error);
+        return;
+      }
+      
+      if (data) {
+        const mappedNotifications: Notification[] = data.map(notif => ({
+          id: notif.id,
+          title: notif.title,
+          message: notif.message,
+          type: notif.type as 'info' | 'warning' | 'success' | 'error',
+          isRead: notif.is_read,
+          createdAt: notif.created_at,
+          customerId: notif.customer_id || undefined,
+          actionUrl: notif.action_url || undefined,
+        }));
+        
+        setNotifications(mappedNotifications);
+      }
+    };
+    
+    loadNotificationsFromDB();
+  }, [user]);
 
   // Set up real-time subscriptions for status changes and comments
   useEffect(() => {
@@ -257,12 +322,51 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
       )
       .subscribe();
 
+    // Notifications table subscription (for database-created notifications)
+    const notificationsSubscription = supabase
+      .channel('notifications_realtime')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'notifications',
+          filter: `user_id=eq.${user.id}`
+        },
+        async (payload) => {
+          console.log('New notification from database:', payload);
+          
+          const dbNotif = payload.new;
+          const newNotification: Notification = {
+            id: dbNotif.id,
+            title: dbNotif.title,
+            message: dbNotif.message,
+            type: dbNotif.type as 'info' | 'warning' | 'success' | 'error',
+            isRead: dbNotif.is_read,
+            createdAt: dbNotif.created_at,
+            customerId: dbNotif.customer_id || undefined,
+            actionUrl: dbNotif.action_url || undefined,
+          };
+          
+          setNotifications(prev => [newNotification, ...prev].slice(0, 50));
+          
+          // Show toast for the notification
+          toast({
+            title: dbNotif.title,
+            description: dbNotif.message,
+            variant: dbNotif.type === 'error' ? 'destructive' : 'default',
+          });
+        }
+      )
+      .subscribe();
+
     // Cleanup function
     return () => {
       console.log('Cleaning up notification subscriptions...');
       supabase.removeChannel(statusChangesSubscription);
       supabase.removeChannel(commentsSubscription);
       supabase.removeChannel(documentsSubscription);
+      supabase.removeChannel(notificationsSubscription);
     };
   }, [user, isAdmin, addNotification]);
 

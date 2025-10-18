@@ -682,7 +682,9 @@ export type Database = {
       }
       notifications: {
         Row: {
+          action_url: string | null
           created_at: string
+          customer_id: string | null
           id: string
           is_read: boolean
           message: string
@@ -692,7 +694,9 @@ export type Database = {
           user_id: string | null
         }
         Insert: {
+          action_url?: string | null
           created_at?: string
+          customer_id?: string | null
           id?: string
           is_read?: boolean
           message: string
@@ -702,7 +706,9 @@ export type Database = {
           user_id?: string | null
         }
         Update: {
+          action_url?: string | null
           created_at?: string
+          customer_id?: string | null
           id?: string
           is_read?: boolean
           message?: string
@@ -711,7 +717,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "notifications_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       partner_signup_requests: {
         Row: {
