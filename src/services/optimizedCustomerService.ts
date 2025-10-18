@@ -190,8 +190,11 @@ export class OptimizedCustomerService {
   }
 
   // Fetch dashboard stats efficiently
-  static async fetchDashboardStats(userId?: string) {
-    const cacheKey = `dashboard_stats_${userId}`;
+  static async fetchDashboardStats(userId?: string, options?: {
+    revenueMonthKeys?: string[], // e.g., ["2025-9", "2025-8"]
+    revenueCurrentMonthOnly?: boolean // For regular users
+  }) {
+    const cacheKey = `dashboard_stats_${userId}_${JSON.stringify(options || {})}`;
     
     // Try cache first
     const cached = this.getCachedData(cacheKey);
@@ -200,7 +203,7 @@ export class OptimizedCustomerService {
       return cached;
     }
 
-    console.log('Fetching dashboard stats for user:', userId);
+    console.log('Fetching dashboard stats for user:', userId, 'with options:', options);
     
     let query = supabase.from('customers').select('status, amount, created_at, updated_at');
     
@@ -227,6 +230,27 @@ export class OptimizedCustomerService {
       return customerMonth === currentMonth && customerYear === currentYear;
     };
 
+    // Filter revenue customers by time
+    let revenueCustomers = (customers || []).filter(c => 
+      c.status === 'Complete' || c.status === 'Paid'
+    );
+    
+    // Apply time filtering for revenue
+    if (options?.revenueCurrentMonthOnly) {
+      // Regular users: current month only
+      revenueCustomers = revenueCustomers.filter(isCurrentMonth);
+    } else if (options?.revenueMonthKeys && options.revenueMonthKeys.length > 0) {
+      // Admins: selected months
+      revenueCustomers = revenueCustomers.filter(c => {
+        const dateField = c.updated_at || c.created_at;
+        if (!dateField) return false;
+        const customerDate = new Date(dateField);
+        const monthKey = `${customerDate.getUTCFullYear()}-${customerDate.getUTCMonth()}`;
+        return options.revenueMonthKeys!.includes(monthKey);
+      });
+    }
+    // If no filters provided, calculate all-time revenue (existing behavior for admins)
+
     const stats = {
       totalCustomers: (customers || []).filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status)).length,
       completedApplications: (customers || []).filter(c => 
@@ -235,9 +259,7 @@ export class OptimizedCustomerService {
       submittedApplications: (customers || []).filter(c => 
         !['Draft', 'Complete', 'Paid', 'Rejected'].includes(c.status)
       ).length,
-      totalRevenue: (customers || [])
-        .filter(c => c.status === 'Complete' || c.status === 'Paid')
-        .reduce((sum, c) => sum + (c.amount || 0), 0)
+      totalRevenue: revenueCustomers.reduce((sum, c) => sum + (c.amount || 0), 0)
     };
 
     // Cache the result

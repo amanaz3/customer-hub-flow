@@ -39,10 +39,15 @@ const DashboardStats: React.FC<DashboardStatsProps> = ({
   
   // Generate description for admin revenue based on selected months
   const getRevenueDescription = () => {
-    if (!isAdmin) return "From your completed applications only";
+    if (!isAdmin) {
+      // Regular users now see CURRENT MONTH only
+      const currentMonth = new Date().toLocaleString('default', { month: 'long', year: 'numeric' });
+      return `From ${currentMonth} completed applications`;
+    }
     
+    // Admins see dynamic description based on selected months
     if (!selectedMonths || selectedMonths.length === 0) {
-      return "No months selected";
+      return "All-time completed applications";
     }
     
     if (selectedMonths.length === 1) {

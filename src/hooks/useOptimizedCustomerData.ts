@@ -14,7 +14,11 @@ export interface PaginationState {
 
 export const useOptimizedCustomerData = (
   pageSize: number = 50,
-  activeWidget?: string
+  activeWidget?: string,
+  revenueOptions?: {
+    revenueMonthKeys?: string[],
+    revenueCurrentMonthOnly?: boolean
+  }
 ) => {
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [pagination, setPagination] = useState<PaginationState>({
@@ -130,7 +134,7 @@ export const useOptimizedCustomerData = (
     
     try {
       const userId = isAdmin ? undefined : user.id;
-      const stats = await OptimizedCustomerService.fetchDashboardStats(userId);
+      const stats = await OptimizedCustomerService.fetchDashboardStats(userId, revenueOptions);
       setDashboardStats(stats);
     } catch (error) {
       console.error('Error fetching dashboard stats:', error);
@@ -140,7 +144,7 @@ export const useOptimizedCustomerData = (
         variant: "destructive",
       });
     }
-  }, [isAuthenticated, user, isAdmin, toast]);
+  }, [isAuthenticated, user, isAdmin, toast, revenueOptions]);
 
   const refreshData = useCallback(async () => {
     console.log('Refreshing optimized customer data...');

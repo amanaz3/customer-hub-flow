@@ -34,6 +34,22 @@ const OptimizedDashboard = () => {
   // Widget selection state - default to applications
   const [activeWidget, setActiveWidget] = useState<'applications' | 'completed' | 'pending' | 'revenue'>('applications');
   
+  // Revenue filter state - simple month selection like Completed Applications
+  const [revenueSelectedMonths, setRevenueSelectedMonths] = useState<string[]>([]);
+  
+  // Determine revenue options based on user role
+  const revenueFilterOptions = useMemo(() => {
+    if (isAdmin) {
+      // Admins: use selected months (if any)
+      return revenueSelectedMonths.length > 0 
+        ? { revenueMonthKeys: revenueSelectedMonths }
+        : undefined; // No filter = all-time
+    } else {
+      // Regular users: always current month only
+      return { revenueCurrentMonthOnly: true };
+    }
+  }, [isAdmin, revenueSelectedMonths]);
+  
   const { 
     customers, 
     dashboardStats, 
@@ -44,10 +60,7 @@ const OptimizedDashboard = () => {
     loadPreviousPage,
     hasNextPage,
     hasPreviousPage
-  } = useOptimizedCustomerData(50, activeWidget);
-  
-  // Revenue filter state - simple month selection like Completed Applications
-  const [revenueSelectedMonths, setRevenueSelectedMonths] = useState<string[]>([]);
+  } = useOptimizedCustomerData(50, activeWidget, revenueFilterOptions);
   
   // Initialize dashboard filters
   const {
