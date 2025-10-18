@@ -77,7 +77,7 @@ const ProductSelector = memo(({ customer, onUpdate }: {
   const queryClient = useQueryClient();
   
   // Fetch all active products
-  const { data: products = [] } = useQuery({
+  const { data: products = [], isLoading: productsLoading } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -133,9 +133,12 @@ const ProductSelector = memo(({ customer, onUpdate }: {
   };
   
   if (!isAdmin) {
+    if (productsLoading) {
+      return <div className="text-sm text-muted-foreground">Loading...</div>;
+    }
     return (
       <div className="text-sm">
-        {selectedProduct ? selectedProduct.name : 'No product'}
+        {selectedProduct ? selectedProduct.name : (customer.product_id ? 'Unknown product' : 'No product')}
       </div>
     );
   }

@@ -56,7 +56,10 @@ export class OptimizedCustomerService {
     
     let query = supabase
       .from('customers')
-      .select('*', { count: 'exact' })
+      .select(`
+        *,
+        product:products(id, name, description)
+      `, { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(offset, offset + pageSize - 1);
 
