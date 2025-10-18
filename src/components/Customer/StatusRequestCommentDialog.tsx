@@ -50,7 +50,7 @@ const StatusRequestCommentDialog: React.FC<StatusRequestCommentDialogProps> = ({
     if (!selectedStatus || !reason.trim()) {
       toast({
         title: "Invalid Input",
-        description: "Please select a status and provide a reason (at least 10 characters).",
+        description: "Please select a status and provide a reason (at least 5 characters).",
         variant: "destructive",
       });
       return;
@@ -134,7 +134,7 @@ const StatusRequestCommentDialog: React.FC<StatusRequestCommentDialogProps> = ({
               maxLength={500}
             />
             <p className="text-xs text-muted-foreground">
-              {reason.length}/500 characters
+              {reason.length}/500 characters • Minimum 5 characters required
             </p>
           </div>
 
@@ -161,7 +161,7 @@ const StatusRequestCommentDialog: React.FC<StatusRequestCommentDialogProps> = ({
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!selectedStatus || !reason.trim() || reason.trim().length < 10 || isSubmitting}
+            disabled={!selectedStatus || !reason.trim() || reason.trim().length < 5 || isSubmitting}
           >
             {isSubmitting ? (
               'Sending...'
