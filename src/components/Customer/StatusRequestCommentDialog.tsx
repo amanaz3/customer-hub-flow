@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { AlertCircle, Send } from 'lucide-react';
 import { Status } from '@/types/customer';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useToast } from '@/hooks/use-toast';
 
 interface StatusRequestCommentDialogProps {
   currentStatus: Status;
@@ -37,6 +38,7 @@ const StatusRequestCommentDialog: React.FC<StatusRequestCommentDialogProps> = ({
   onSubmit,
   trigger
 }) => {
+  const { toast } = useToast();
   const [open, setOpen] = useState(false);
   const [selectedStatus, setSelectedStatus] = useState<Status | ''>('');
   const [reason, setReason] = useState('');
@@ -45,16 +47,32 @@ const StatusRequestCommentDialog: React.FC<StatusRequestCommentDialogProps> = ({
   const availableStatuses = ALL_STATUSES.filter(status => status !== currentStatus);
 
   const handleSubmit = async () => {
-    if (!selectedStatus || !reason.trim()) return;
+    if (!selectedStatus || !reason.trim()) {
+      toast({
+        title: "Invalid Input",
+        description: "Please select a status and provide a reason (at least 10 characters).",
+        variant: "destructive",
+      });
+      return;
+    }
 
     setIsSubmitting(true);
     try {
       await onSubmit(selectedStatus as Status, reason);
+      toast({
+        title: "Request Sent",
+        description: "Your status change request has been sent to the admin.",
+      });
       setOpen(false);
       setSelectedStatus('');
       setReason('');
     } catch (error) {
       console.error('Error submitting status request:', error);
+      toast({
+        title: "Error",
+        description: error instanceof Error ? error.message : "Failed to send request. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsSubmitting(false);
     }
