@@ -43,46 +43,31 @@ export const useDashboardFilters = (customers: Customer[], activeWidget: string,
   const filteredCustomers = useMemo(() => {
     let result = customers;
 
-    // Apply widget-specific filtering first
+    // Additional filtering for completed widget (current month only)
     if (activeWidget === 'completed') {
-    const currentDate = new Date();
-    const currentMonth = currentDate.getUTCMonth();
-    const currentYear = currentDate.getUTCFullYear();
+      const currentDate = new Date();
+      const currentMonth = currentDate.getUTCMonth();
+      const currentYear = currentDate.getUTCFullYear();
       
       result = result.filter(c => {
-        const isCompletedOrPaid = c.status === 'Complete' || c.status === 'Paid';
-        if (!isCompletedOrPaid) return false;
-        
         const customerDate = new Date(c.updated_at || c.created_at || '');
         const customerMonth = customerDate.getUTCMonth();
         const customerYear = customerDate.getUTCFullYear();
         
         return customerMonth === currentMonth && customerYear === currentYear;
       });
-    } else if (activeWidget === 'pending') {
-      result = result.filter(c => 
-        !['Complete', 'Paid', 'Rejected', 'Draft'].includes(c.status)
-      );
     } else if (activeWidget === 'revenue') {
-      result = result.filter(c => {
-        const isRevenueGenerating = c.status === 'Complete' || c.status === 'Paid';
-        if (!isRevenueGenerating) return false;
-        
-        // Apply revenue month filter if provided
-        if (revenueSelectedMonths && revenueSelectedMonths.length > 0) {
+      // Apply revenue month filter if provided
+      if (revenueSelectedMonths && revenueSelectedMonths.length > 0) {
+        result = result.filter(c => {
           const dateField = c.updated_at || c.created_at;
           if (!dateField) return false;
           
           const customerDate = new Date(dateField);
           const monthKey = `${customerDate.getUTCFullYear()}-${customerDate.getUTCMonth()}`;
           return revenueSelectedMonths.includes(monthKey);
-        }
-        
-        return true;
-      });
-    } else if (activeWidget === 'applications') {
-      // Show only active applications - exclude completed, paid, and rejected
-      result = result.filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status));
+        });
+      }
     }
 
     // Apply status filter

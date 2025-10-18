@@ -40,9 +40,10 @@ export class OptimizedCustomerService {
     pageSize: number = 50,
     userId?: string,
     includeDetails: boolean = false,
-    sortBy: 'created_at' | 'updated_at' = 'created_at'
+    sortBy: 'created_at' | 'updated_at' = 'created_at',
+    statusFilter: 'all' | 'pending' | 'completed' | 'applications' | string = 'all'
   ) {
-    const cacheKey = `customers_${page}_${pageSize}_${userId || 'admin'}_${includeDetails}_${sortBy}`;
+    const cacheKey = `customers_${page}_${pageSize}_${userId || 'admin'}_${includeDetails}_${sortBy}_${statusFilter}`;
     
     // Try cache first
     const cached = this.getCachedData(cacheKey);
@@ -51,7 +52,7 @@ export class OptimizedCustomerService {
       return cached;
     }
 
-    console.log('Fetching customers with pagination:', { page, pageSize, userId, includeDetails, sortBy });
+    console.log('Fetching customers with pagination:', { page, pageSize, userId, includeDetails, sortBy, statusFilter });
     
     const offset = (page - 1) * pageSize;
     
@@ -67,6 +68,18 @@ export class OptimizedCustomerService {
     // Apply user filter if not admin
     if (userId) {
       query = query.eq('user_id', userId);
+    }
+
+    // Apply status filter based on widget
+    if (statusFilter === 'pending') {
+      query = query.not('status', 'in', ['Draft', 'Complete', 'Paid', 'Rejected']);
+    } else if (statusFilter === 'completed') {
+      query = query.in('status', ['Complete', 'Paid']);
+    } else if (statusFilter === 'applications') {
+      query = query.not('status', 'in', ['Complete', 'Paid', 'Rejected']);
+    } else if (statusFilter !== 'all') {
+      // Specific status filter (cast to any since statusFilter can be any string)
+      query = query.eq('status', statusFilter as any);
     }
 
     const { data: customers, error, count } = await query;

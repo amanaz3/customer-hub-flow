@@ -79,12 +79,23 @@ export const useOptimizedCustomerData = (
       // Sort by updated_at when viewing completed or submitted applications, otherwise by created_at
       const sortBy = (activeWidget === 'completed' || activeWidget === 'pending') ? 'updated_at' : 'created_at';
       
+      // Map activeWidget to status filter
+      let statusFilter: 'all' | 'pending' | 'completed' | 'applications' | string = 'all';
+      if (activeWidget === 'pending') {
+        statusFilter = 'pending';
+      } else if (activeWidget === 'completed' || activeWidget === 'revenue') {
+        statusFilter = 'completed';
+      } else if (activeWidget === 'applications') {
+        statusFilter = 'applications';
+      }
+      
       const result = await OptimizedCustomerService.fetchCustomersPaginated(
         page,
         pageSize,
         userId,
         includeDetails,
-        sortBy
+        sortBy,
+        statusFilter
       );
       
       setCustomers(result.customers);
