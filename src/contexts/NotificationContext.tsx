@@ -67,30 +67,53 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
           notificationType = 'system';
         }
 
+        console.log('[Email Notification] Checking if email should be sent for type:', notificationType);
         const shouldSendEmail = await shouldSendEmailForNotificationType(user.id, notificationType);
+        console.log('[Email Notification] Should send email:', shouldSendEmail);
         
         if (shouldSendEmail) {
           // Get user profile for email
-          const { data: profile } = await supabase
+          console.log('[Email Notification] Fetching user profile for email...');
+          const { data: profile, error: profileError } = await supabase
             .from('profiles')
             .select('email, name')
             .eq('id', user.id)
             .single();
 
-          if (profile?.email) {
-            await sendNotificationEmail({
-              recipientEmail: profile.email,
-              recipientName: profile.name || 'User',
+          if (profileError) {
+            console.error('[Email Notification] Error fetching profile:', profileError);
+          }
+
+          console.log('[Email Notification] Profile data:', { 
+            hasProfile: !!profile, 
+            hasEmail: !!profile?.email,
+            name: profile?.name 
+          });
+
+          // Use profile email or fallback to user.email from auth
+          const recipientEmail = profile?.email || user.email;
+          const recipientName = profile?.name || user.email?.split('@')[0] || 'User';
+
+          if (recipientEmail) {
+            console.log('[Email Notification] Sending email to:', recipientEmail);
+            const emailResult = await sendNotificationEmail({
+              recipientEmail,
+              recipientName,
               title: notification.title,
               message: notification.message,
               type: notificationType,
               actionUrl: notification.actionUrl ? `${window.location.origin}${notification.actionUrl}` : undefined,
               customerName: notification.customerName,
             });
+            console.log('[Email Notification] Email send result:', emailResult);
+          } else {
+            console.warn('[Email Notification] No email address found for user:', user.id);
           }
+        } else {
+          console.log('[Email Notification] Email sending skipped due to user preferences');
         }
       } catch (error) {
-        console.error('Error sending email notification:', error);
+        console.error('[Email Notification] Error in email notification flow:', error);
         // Don't throw - email failures shouldn't block in-app notifications
       }
     }
