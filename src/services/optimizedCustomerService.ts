@@ -207,7 +207,7 @@ export class OptimizedCustomerService {
     };
 
     const stats = {
-      totalCustomers: (customers || []).filter(c => c.status === 'Draft').length,
+      totalCustomers: (customers || []).filter(c => !['Complete', 'Paid', 'Rejected'].includes(c.status)).length,
       completedApplications: (customers || []).filter(c => 
         (c.status === 'Complete' || c.status === 'Paid') && isCurrentMonth(c)
       ).length,
