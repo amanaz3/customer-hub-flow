@@ -23,7 +23,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { validateFile, uploadFile, SUPPORTED_FILE_TYPES, MAX_FILE_SIZE, formatFileSize, getFileIcon, getFileName, getFileViewLink, getFileDownloadLink } from '@/utils/fileUpload';
-import { Upload, CheckCircle, Eye, AlertCircle, FileText, Building, Users, Shield, ExternalLink, Download, Trash2, RefreshCw } from 'lucide-react';
+import { Upload, CheckCircle, Eye, AlertCircle, FileText, Building, Users, Shield, ExternalLink, Download, Trash2 } from 'lucide-react';
 
 interface CategorizedDocumentUploadProps {
   documents: Document[];
@@ -42,13 +42,11 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
 }) => {
   const { toast } = useToast();
   const { user } = useAuth();
-  const { deleteDocument, replaceDocument } = useCustomer();
+  const { deleteDocument } = useCustomer();
   const [uploading, setUploading] = useState<string | null>(null);
   const [uploadProgress, setUploadProgress] = useState<Record<string, number>>({});
   const [documentToDelete, setDocumentToDelete] = useState<Document | null>(null);
-  const [documentToReplace, setDocumentToReplace] = useState<Document | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [isReplacing, setIsReplacing] = useState(false);
 
   const handleFileChange = (documentId: string) => async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -234,44 +232,6 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
     }
   };
 
-  const handleReplaceFileSelect = async (doc: Document, event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (!file || !doc.file_path) return;
-
-    const validation = validateFile(file);
-    if (!validation.isValid) {
-      toast({
-        title: "Upload Failed",
-        description: validation.error,
-        variant: "destructive",
-      });
-      event.target.value = '';
-      return;
-    }
-
-    setDocumentToReplace(doc);
-    setIsReplacing(true);
-
-    try {
-      await replaceDocument(customerId, doc.id, doc.file_path, file);
-      
-      toast({
-        title: "Document replaced",
-        description: `${doc.name} has been replaced successfully.`,
-      });
-      
-      setDocumentToReplace(null);
-    } catch (error) {
-      toast({
-        title: "Replace Failed",
-        description: error instanceof Error ? error.message : "Failed to replace document.",
-        variant: "destructive",
-      });
-    } finally {
-      setIsReplacing(false);
-      event.target.value = '';
-    }
-  };
 
   const renderDocumentItem = (doc: Document) => {
     return (
@@ -325,38 +285,16 @@ const CategorizedDocumentUpload: React.FC<CategorizedDocumentUploadProps> = ({
                 </Button>
                 
                 {canModifyDocument() && (
-                  <>
-                    <input
-                      type="file"
-                      id={`replace-${doc.id}`}
-                      className="hidden"
-                      accept={Object.keys(SUPPORTED_FILE_TYPES).join(',')}
-                      onChange={(e) => handleReplaceFileSelect(doc, e)}
-                      disabled={isReplacing}
-                    />
-                            <label htmlFor={`replace-${doc.id}`} className="cursor-pointer">
-                              <Button 
-                                variant="outline" 
-                                size="sm"
-                                className="px-2"
-                                title="Replace file"
-                                disabled={isReplacing}
-                                type="button"
-                              >
-                                <RefreshCw className={`w-3 h-3 ${isReplacing && documentToReplace?.id === doc.id ? 'animate-spin' : ''}`} />
-                              </Button>
-                            </label>
-                    <Button 
-                      variant="destructive" 
-                      size="sm"
-                      onClick={() => setDocumentToDelete(doc)}
-                      className="px-2"
-                      title="Delete document"
-                      disabled={isDeleting}
-                    >
-                      <Trash2 className="w-3 h-3" />
-                    </Button>
-                  </>
+                  <Button 
+                    variant="destructive" 
+                    size="sm"
+                    onClick={() => setDocumentToDelete(doc)}
+                    className="px-2"
+                    title="Delete document"
+                    disabled={isDeleting}
+                  >
+                    <Trash2 className="w-3 h-3" />
+                  </Button>
                 )}
               </div>
             </div>
