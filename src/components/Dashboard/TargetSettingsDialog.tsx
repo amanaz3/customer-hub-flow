@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -31,6 +31,19 @@ export const TargetSettingsDialog = ({
   const [revenueDisplay, setRevenueDisplay] = useState(
     currentTargets?.target_revenue?.toLocaleString('en-US') || '0'
   );
+
+  // Update state when dialog opens or currentTargets change
+  useEffect(() => {
+    if (open && currentTargets) {
+      setApplications(currentTargets.target_applications || 0);
+      setRevenue(currentTargets.target_revenue || 0);
+      setRevenueDisplay(
+        currentTargets.target_revenue 
+          ? currentTargets.target_revenue.toLocaleString('en-US') 
+          : '0'
+      );
+    }
+  }, [open, currentTargets]);
 
   const handleSave = () => {
     onSave({
