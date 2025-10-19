@@ -65,3 +65,6 @@ verify_jwt = true
 
 [functions.test-email]
 verify_jwt = false
+
+[functions.monthly-digest-email]
+verify_jwt = false

@@ -11,9 +11,15 @@ import EmptyDashboardState from '@/components/Dashboard/EmptyDashboardState';
 import DashboardHeader from '@/components/Dashboard/DashboardHeader';
 import { MonthComparisonWidget } from '@/components/Dashboard/MonthComparisonWidget';
 import { TrendChart } from '@/components/Dashboard/TrendChart';
+import { ForecastWidget } from '@/components/Dashboard/ForecastWidget';
+import { TeamLeaderboard } from '@/components/Dashboard/TeamLeaderboard';
+import { InsightsBanner } from '@/components/Dashboard/InsightsBanner';
+import { ConversionFunnel } from '@/components/Dashboard/ConversionFunnel';
 import { useOptimizedCustomerData } from '@/hooks/useOptimizedCustomerData';
 import { useDashboardFilters } from '@/hooks/useDashboardFilters';
 import { useMonthComparison } from '@/hooks/useMonthComparison';
+import { useMonthlyTargets } from '@/hooks/useMonthlyTargets';
+import { useForecast } from '@/hooks/useForecast';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { supabase } from '@/lib/supabase';
 import { BarChart3, Users, Calendar, ChevronDown, X, CheckCircle, Clock, DollarSign, Loader2 } from 'lucide-react';
@@ -89,6 +95,23 @@ const OptimizedDashboard = () => {
     isAdmin ? null : user?.id || null,
     currentMonth,
     currentYear
+  );
+  
+  // Get monthly targets for forecast
+  const { target, performance } = useMonthlyTargets(
+    user?.id,
+    currentMonth,
+    currentYear
+  );
+  
+  // Calculate forecast
+  const forecast = useForecast(
+    performance?.actual_applications || 0,
+    performance?.actual_completed || 0,
+    Number(performance?.actual_revenue || 0),
+    target?.target_applications || 0,
+    target?.target_completed || 0,
+    target?.target_revenue || 0
   );
   
   const handleWidgetChange = (widget: 'applications' | 'completed' | 'pending' | 'revenue') => {
@@ -258,6 +281,11 @@ const OptimizedDashboard = () => {
                 userId={user?.id}
               />
 
+              {/* Insights Banner */}
+              {(forecast || comparison) && (
+                <InsightsBanner forecast={forecast || undefined} comparison={comparison || undefined} />
+              )}
+
               {/* Month-over-Month Comparison */}
               {comparison && !isComparisonLoading && (
                 <MonthComparisonWidget comparison={comparison} />
@@ -266,6 +294,11 @@ const OptimizedDashboard = () => {
               {/* 6-Month Trend Chart */}
               {trend && trend.length > 0 && !isComparisonLoading && (
                 <TrendChart data={trend} />
+              )}
+
+              {/* Forecast Widget */}
+              {forecast && (
+                <ForecastWidget forecast={forecast} />
               )}
 
               {/* Revenue Filter - Only show when revenue widget is active */}
@@ -432,6 +465,13 @@ const OptimizedDashboard = () => {
             </TabsContent>
 
              <TabsContent value="analytics" className="space-y-6">
+               {/* Team Performance & Leaderboard */}
+               {isAdmin && <TeamLeaderboard />}
+               
+               {/* Conversion Funnel */}
+               <ConversionFunnel />
+               
+               {/* Existing Analytics */}
                <LazyLoadingBoundary>
                  <UserAnalytics />
                </LazyLoadingBoundary>
@@ -456,6 +496,11 @@ const OptimizedDashboard = () => {
                 userId={user?.id}
               />
 
+              {/* Insights Banner */}
+              {(forecast || comparison) && (
+                <InsightsBanner forecast={forecast || undefined} comparison={comparison || undefined} />
+              )}
+
               {/* Month-over-Month Comparison */}
               {comparison && !isComparisonLoading && (
                 <MonthComparisonWidget comparison={comparison} />
@@ -464,6 +509,11 @@ const OptimizedDashboard = () => {
               {/* 6-Month Trend Chart */}
               {trend && trend.length > 0 && !isComparisonLoading && (
                 <TrendChart data={trend} />
+              )}
+
+              {/* Forecast Widget */}
+              {forecast && (
+                <ForecastWidget forecast={forecast} />
               )}
 
               {customers.length === 0 ? (
