@@ -24,10 +24,14 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, requireAdmin 
   // Show loading state
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-2 text-gray-600">Loading...</p>
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <div className="text-center space-y-4">
+          <div className="animate-pulse space-y-3">
+            <div className="h-12 w-12 rounded-full bg-muted mx-auto" />
+            <div className="h-4 w-48 bg-muted rounded mx-auto" />
+            <div className="h-3 w-32 bg-muted/60 rounded mx-auto" />
+          </div>
+          <p className="text-sm text-muted-foreground">Verifying access...</p>
         </div>
       </div>
     );

@@ -196,11 +196,13 @@ const OptimizedDashboard = () => {
     navigate('/customers/new');
   };
 
-  // Simplified loading state
+  // Enhanced loading state with skeleton
   const LoadingSpinner = () => (
     <div className="flex items-center justify-center p-8">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-      <span className="ml-2 text-sm text-muted-foreground">Loading...</span>
+      <div className="text-center space-y-3">
+        <div className="h-8 w-8 rounded-full bg-muted animate-pulse mx-auto" />
+        <p className="text-sm text-muted-foreground">Loading data...</p>
+      </div>
     </div>
   );
 
