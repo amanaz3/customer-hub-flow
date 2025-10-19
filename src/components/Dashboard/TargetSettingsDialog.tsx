@@ -11,10 +11,12 @@ interface TargetSettingsDialogProps {
   currentTargets?: {
     target_applications: number;
     target_revenue: number;
+    target_completed?: number;
   };
   onSave: (targets: {
     target_applications: number;
     target_revenue: number;
+    target_completed?: number;
   }) => void;
   isLoading?: boolean;
 }
@@ -27,6 +29,7 @@ export const TargetSettingsDialog = ({
   isLoading,
 }: TargetSettingsDialogProps) => {
   const [applications, setApplications] = useState(currentTargets?.target_applications || 0);
+  const [completed, setCompleted] = useState(currentTargets?.target_completed || 0);
   const [revenue, setRevenue] = useState(currentTargets?.target_revenue || 0);
   const [revenueDisplay, setRevenueDisplay] = useState(
     currentTargets?.target_revenue?.toLocaleString('en-US') || '0'
@@ -36,6 +39,7 @@ export const TargetSettingsDialog = ({
   useEffect(() => {
     if (open && currentTargets) {
       setApplications(currentTargets.target_applications || 0);
+      setCompleted(currentTargets.target_completed || 0);
       setRevenue(currentTargets.target_revenue || 0);
       setRevenueDisplay(
         currentTargets.target_revenue 
@@ -48,6 +52,7 @@ export const TargetSettingsDialog = ({
   const handleSave = () => {
     onSave({
       target_applications: applications,
+      target_completed: completed,
       target_revenue: revenue,
     });
     onOpenChange(false);
@@ -86,8 +91,28 @@ export const TargetSettingsDialog = ({
               min="0"
               value={applications}
               onChange={(e) => setApplications(parseInt(e.target.value) || 0)}
-              placeholder="e.g., 20"
+              placeholder="e.g., 30"
             />
+            <p className="text-xs text-muted-foreground">
+              Total number of applications to create/submit this month
+            </p>
+          </div>
+
+          <div className="grid gap-2">
+            <Label htmlFor="target-completed">
+              Completed Applications Target
+            </Label>
+            <Input
+              id="target-completed"
+              type="number"
+              min="0"
+              value={completed}
+              onChange={(e) => setCompleted(parseInt(e.target.value) || 0)}
+              placeholder="e.g., 25"
+            />
+            <p className="text-xs text-muted-foreground">
+              Number of applications to complete this month
+            </p>
           </div>
 
           <div className="grid gap-2">

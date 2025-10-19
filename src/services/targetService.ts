@@ -64,9 +64,7 @@ export const targetService = {
           year,
           target_applications: targets.target_applications,
           target_revenue: targets.target_revenue,
-          // Set target_completed equal to target_applications by default
-          // This ensures database integrity while UI calculates completion rate differently
-          target_completed: targets.target_applications,
+          target_completed: targets.target_completed || 0,
         },
         { onConflict: 'user_id,month,year' }
       )

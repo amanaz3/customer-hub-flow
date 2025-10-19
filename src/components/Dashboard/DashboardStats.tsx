@@ -179,7 +179,7 @@ const DashboardStats = ({
           <TargetProgressCard
             title="Completed"
             current={performance?.actual_completed || 0}
-            target={target.target_applications}
+            target={target.target_completed || target.target_applications}
             icon={CheckCircle}
             description="Successfully completed applications"
             progress={progress.completedProgress}
@@ -191,11 +191,11 @@ const DashboardStats = ({
           <TargetProgressCard
             title="Submitted"
             current={stats.submittedApplications}
-            target={Math.max(target.target_applications - target.target_completed, 1)}
+            target={target.target_applications}
             icon={Clock}
             description="Applications in progress"
-            progress={stats.submittedApplications > 0 ? ((stats.submittedApplications / Math.max(target.target_applications - target.target_completed, 1)) * 100) : 0}
-            status="gray"
+            progress={progress.applicationsProgress}
+            status={progress.applicationsStatus}
             onClick={() => onWidgetClick?.('pending')}
             isActive={activeWidget === 'pending'}
           />
