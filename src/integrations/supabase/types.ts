@@ -636,6 +636,94 @@ export type Database = {
         }
         Relationships: []
       }
+      monthly_performance: {
+        Row: {
+          actual_applications: number | null
+          actual_completed: number | null
+          actual_revenue: number | null
+          completion_rate: number | null
+          created_at: string
+          id: string
+          month: number
+          user_id: string | null
+          year: number
+        }
+        Insert: {
+          actual_applications?: number | null
+          actual_completed?: number | null
+          actual_revenue?: number | null
+          completion_rate?: number | null
+          created_at?: string
+          id?: string
+          month: number
+          user_id?: string | null
+          year: number
+        }
+        Update: {
+          actual_applications?: number | null
+          actual_completed?: number | null
+          actual_revenue?: number | null
+          completion_rate?: number | null
+          created_at?: string
+          id?: string
+          month?: number
+          user_id?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_performance_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      monthly_targets: {
+        Row: {
+          created_at: string
+          id: string
+          month: number
+          target_applications: number | null
+          target_completed: number | null
+          target_revenue: number | null
+          updated_at: string
+          user_id: string | null
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          month: number
+          target_applications?: number | null
+          target_completed?: number | null
+          target_revenue?: number | null
+          updated_at?: string
+          user_id?: string | null
+          year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          month?: number
+          target_applications?: number | null
+          target_completed?: number | null
+          target_revenue?: number | null
+          updated_at?: string
+          user_id?: string | null
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "monthly_targets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_preferences: {
         Row: {
           created_at: string
@@ -965,6 +1053,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_monthly_performance: {
+        Args: { p_month: number; p_user_id: string; p_year: number }
+        Returns: {
+          actual_applications: number
+          actual_completed: number
+          actual_revenue: number
+          completion_rate: number
+        }[]
+      }
       cleanup_deleted_users: {
         Args: Record<PropertyKey, never>
         Returns: {
@@ -998,6 +1095,10 @@ export type Database = {
       delete_product: {
         Args: { product_id: string }
         Returns: undefined
+      }
+      get_or_create_monthly_target: {
+        Args: { p_month: number; p_user_id: string; p_year: number }
+        Returns: string
       }
       get_products: {
         Args: Record<PropertyKey, never>

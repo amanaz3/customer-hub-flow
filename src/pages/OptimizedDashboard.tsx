@@ -241,6 +241,7 @@ const OptimizedDashboard = () => {
                 revenueYear={new Date().getFullYear()}
                 onWidgetClick={handleWidgetChange}
                 activeWidget={activeWidget}
+                userId={user?.id}
               />
 
               {/* Revenue Filter - Only show when revenue widget is active */}
@@ -428,6 +429,7 @@ const OptimizedDashboard = () => {
                 stats={stats} 
                 onWidgetClick={handleWidgetChange}
                 activeWidget={activeWidget}
+                userId={user?.id}
               />
 
               {customers.length === 0 ? (
