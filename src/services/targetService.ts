@@ -57,12 +57,15 @@ export const targetService = {
   ) {
     const { data, error } = await supabase
       .from('monthly_targets')
-      .upsert({
-        user_id: userId,
-        month,
-        year,
-        ...targets,
-      })
+      .upsert(
+        {
+          user_id: userId,
+          month,
+          year,
+          ...targets,
+        },
+        { onConflict: 'user_id,month,year' }
+      )
       .select()
       .single();
 
