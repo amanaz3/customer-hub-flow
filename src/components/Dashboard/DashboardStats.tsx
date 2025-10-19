@@ -191,7 +191,7 @@ const DashboardStats = ({
           <TargetProgressCard
             title="Submitted"
             current={stats.submittedApplications}
-            target={target.target_applications}
+            target={Math.max(target.target_applications - (performance?.actual_completed || 0), 0)}
             icon={Clock}
             description="Applications in progress"
             progress={progress.applicationsProgress}
