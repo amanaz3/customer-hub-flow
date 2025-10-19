@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { targetService } from "@/services/targetService";
 import { useToast } from "@/hooks/use-toast";
@@ -10,6 +11,17 @@ export const useMonthlyTargets = (userId: string | undefined, month: number, yea
 
   // Check if current user is admin
   const isAdmin = user?.user_metadata?.role === 'admin';
+
+  // Force refetch for admins to ensure fresh aggregated data
+  useEffect(() => {
+    if (isAdmin && userId) {
+      const timer = setTimeout(() => {
+        queryClient.invalidateQueries({ queryKey: ['monthly-target', userId, month, year, isAdmin] });
+        queryClient.invalidateQueries({ queryKey: ['monthly-performance', userId, month, year, isAdmin] });
+      }, 100);
+      return () => clearTimeout(timer);
+    }
+  }, [isAdmin, userId, month, year, queryClient]);
 
   const targetQuery = useQuery({
     queryKey: ['monthly-target', userId, month, year, isAdmin],
