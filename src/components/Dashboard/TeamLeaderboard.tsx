@@ -127,7 +127,7 @@ export const TeamLeaderboard = () => {
           </div>
           <Progress value={teamProgress} className="h-3" />
           <p className="text-xs text-muted-foreground mt-1">
-            {teamProgress.toFixed(1)}% of team target achieved
+            {teamProgress.toFixed(2)}% of team target achieved
           </p>
         </div>
       </CardHeader>

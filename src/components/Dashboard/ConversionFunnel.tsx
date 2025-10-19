@@ -106,7 +106,7 @@ export const ConversionFunnel = () => {
                     <div>
                       <p className="font-semibold">{stage.stage}</p>
                       <p className="text-xs text-muted-foreground">
-                        {stage.count} applications ({stage.percentage.toFixed(1)}%)
+                        {stage.count} applications ({stage.percentage.toFixed(2)}%)
                       </p>
                     </div>
                   </div>

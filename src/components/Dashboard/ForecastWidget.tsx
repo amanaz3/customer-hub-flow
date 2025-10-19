@@ -51,7 +51,7 @@ export const ForecastWidget = ({ forecast }: ForecastWidgetProps) => {
               <TrendingUp className="h-4 w-4 text-blue-600" />
               <p className="text-sm font-medium text-muted-foreground">Current Pace</p>
             </div>
-            <p className="text-2xl font-bold">{forecast.currentPace.toFixed(1)}</p>
+            <p className="text-2xl font-bold">{forecast.currentPace.toFixed(2)}</p>
             <p className="text-xs text-muted-foreground">applications/day</p>
           </div>
 
@@ -69,7 +69,7 @@ export const ForecastWidget = ({ forecast }: ForecastWidgetProps) => {
               <Target className="h-4 w-4 text-emerald-600" />
               <p className="text-sm font-medium text-muted-foreground">Required Pace</p>
             </div>
-            <p className="text-2xl font-bold">{forecast.requiredPaceApplications.toFixed(1)}</p>
+            <p className="text-2xl font-bold">{forecast.requiredPaceApplications.toFixed(2)}</p>
             <p className="text-xs text-muted-foreground">applications/day needed</p>
           </div>
         </div>

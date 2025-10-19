@@ -13,8 +13,8 @@ export const TrendChart = ({ data }: TrendChartProps) => {
     name: format(new Date(month.year, month.month - 1, 1), "MMM yy"),
     Applications: month.applications,
     Completed: month.completed,
-    Revenue: Number((month.revenue / 1000).toFixed(1)), // Convert to thousands for better chart scale
-    "Completion %": Number(month.completionRate.toFixed(1)),
+    Revenue: Number((month.revenue / 1000).toFixed(2)), // Convert to thousands for better chart scale
+    "Completion %": Number(month.completionRate.toFixed(2)),
   }));
 
   return (

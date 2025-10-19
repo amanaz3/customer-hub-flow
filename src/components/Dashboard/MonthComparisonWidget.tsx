@@ -36,7 +36,7 @@ export const MonthComparisonWidget = ({ comparison }: MonthComparisonWidgetProps
 
   const formatPercent = (percent: number) => {
     const sign = percent > 0 ? "+" : "";
-    return `${sign}${percent.toFixed(1)}%`;
+    return `${sign}${percent.toFixed(2)}%`;
   };
 
   const metrics = [
@@ -125,7 +125,7 @@ export const MonthComparisonWidget = ({ comparison }: MonthComparisonWidgetProps
                     {metric.change > 0 ? "+" : ""}
                     {metric.isRevenue
                       ? `AED ${metric.change.toLocaleString()}`
-                      : metric.change.toFixed(metric.suffix ? 1 : 0)}
+                      : metric.change.toFixed(metric.suffix ? 2 : 0)}
                     {metric.suffix || ""}
                   </p>
                 </div>
