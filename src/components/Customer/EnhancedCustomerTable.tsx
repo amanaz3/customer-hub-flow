@@ -104,7 +104,7 @@ const StatusBadge = memo(({ status }: { status: string }) => {
 
 StatusBadge.displayName = 'StatusBadge';
 
-// Enhanced mobile card with selection
+// Enhanced mobile card with selection and better touch targets
 const CustomerMobileCard = memo(({ 
   customer, 
   isSelected = false,
@@ -121,66 +121,87 @@ const CustomerMobileCard = memo(({
   return (
     <Card 
       className={cn(
-        "cursor-pointer hover:shadow-md transition-all duration-200",
-        isSelected && "ring-2 ring-primary/50 bg-muted/30"
+        "cursor-pointer transition-all duration-200 active:scale-[0.98]",
+        "hover:shadow-lg hover:border-primary/20",
+        isSelected && "ring-2 ring-primary bg-accent/30 shadow-md"
       )}
       onClick={onClick}
     >
-      <CardContent className="p-4">
+      <CardContent className="p-4 sm:p-5">
         <div className="space-y-4">
-          {/* Header with selection */}
-          <div className="flex items-start justify-between">
-            <div className="flex items-center gap-3 flex-1">
-              {showSelection && (
-                <div onClick={(e) => e.stopPropagation()}>
-                  <Checkbox
-                    checked={isSelected}
-                    onCheckedChange={onToggleSelection}
-                  />
-                </div>
-              )}
-              <div className="p-2 rounded-lg bg-primary/10">
-                <User className="h-4 w-4 text-primary" />
+          {/* Header with selection - touch-friendly */}
+          <div className="flex items-start gap-3">
+            {showSelection && (
+              <div 
+                onClick={(e) => e.stopPropagation()}
+                className="pt-1 min-h-[44px] flex items-center"
+              >
+                <Checkbox
+                  checked={isSelected}
+                  onCheckedChange={onToggleSelection}
+                  className="h-5 w-5"
+                />
               </div>
-              <div className="flex-1">
-                <h3 className="font-medium text-foreground">{customer.name}</h3>
-                <div className="flex items-center gap-1 text-sm text-muted-foreground">
-                  <Mail className="h-3 w-3" />
-                  <span className="truncate">{customer.email}</span>
+            )}
+            <div className="flex-1 min-w-0 space-y-2">
+              <div className="flex items-start gap-3">
+                <div className="p-2.5 rounded-lg bg-primary/10 flex-shrink-0">
+                  <User className="h-5 w-5 text-primary" />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <h3 className="font-semibold text-base text-foreground leading-tight">
+                    {customer.name}
+                  </h3>
+                  <div className="flex items-center gap-1.5 mt-1 text-sm text-muted-foreground">
+                    <Mail className="h-3.5 w-3.5 flex-shrink-0" />
+                    <span className="truncate">{customer.email}</span>
+                  </div>
                 </div>
               </div>
             </div>
-            <ChevronRight className="h-4 w-4 text-muted-foreground flex-shrink-0 mt-1" />
+            <ChevronRight className="h-5 w-5 text-muted-foreground flex-shrink-0 mt-2" />
           </div>
 
-          {/* Content */}
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Phone className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">{customer.mobile}</span>
+          {/* Content with improved spacing */}
+          <div className="space-y-3 pl-0">
+            <div className="flex items-center gap-2.5 min-h-[44px]">
+              <Phone className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+              <span className="text-sm font-medium">{customer.mobile}</span>
             </div>
 
             {customer.company && (
-              <div className="flex items-center gap-2">
-                <Building2 className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center gap-2.5 min-h-[44px]">
+                <Building2 className="h-4 w-4 text-muted-foreground flex-shrink-0" />
                 <span className="text-sm">{customer.company}</span>
               </div>
             )}
 
-            <div className="space-y-2">
-              <div className="text-xs text-muted-foreground">Submitted by:</div>
-              <SubmittedByCell userId={customer.user_id} />
+            {/* Info grid for better mobile layout */}
+            <div className="grid grid-cols-2 gap-3 pt-2">
+              <div className="space-y-1.5">
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Submitted by
+                </div>
+                <div className="min-h-[40px] flex items-center">
+                  <SubmittedByCell userId={customer.user_id} />
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  Lead Source
+                </div>
+                <div className="min-h-[40px] flex items-center">
+                  <span className="text-sm font-medium">{customer.leadSource || 'N/A'}</span>
+                </div>
+              </div>
             </div>
 
-            <div className="space-y-2">
-              <div className="text-xs text-muted-foreground">Lead Source:</div>
-              <span className="text-sm">{customer.leadSource || 'N/A'}</span>
-            </div>
-
-            <div className="flex items-center justify-between">
+            {/* Status and Amount - prominent display */}
+            <div className="flex items-center justify-between pt-2 border-t border-border/50">
               <StatusBadge status={customer.status} />
-              <div className="flex items-center gap-1 text-sm font-medium">
-                <DollarSign className="h-3 w-3" />
+              <div className="flex items-center gap-1.5 text-base font-semibold">
+                <DollarSign className="h-4 w-4 text-muted-foreground" />
                 <span>{customer.amount?.toLocaleString() || '0'}</span>
               </div>
             </div>
@@ -308,28 +329,46 @@ const EnhancedCustomerTable: React.FC<EnhancedCustomerTableProps> = ({
 
   if (isMobile) {
     return (
-      <div className="space-y-4">
-        {/* Mobile bulk actions */}
-        {isAdmin && selection && (
-          <BulkActionsToolbar
-            selectedCount={selection.selectedCount}
-            isVisible={selection.selectedCount > 0}
-            onClearSelection={selection.clearSelection}
-            onReassignSelected={() => setIsReassignDialogOpen(true)}
-            isLoading={isReassigning}
-          />
+      <div className="space-y-3 pb-safe">
+        {/* Mobile bulk actions - sticky */}
+        {isAdmin && selection && selection.selectedCount > 0 && (
+          <div className="sticky top-14 z-30 -mx-4 px-4 pb-3 bg-background/95 backdrop-blur-sm">
+            <BulkActionsToolbar
+              selectedCount={selection.selectedCount}
+              isVisible={true}
+              onClearSelection={selection.clearSelection}
+              onReassignSelected={() => setIsReassignDialogOpen(true)}
+              isLoading={isReassigning}
+            />
+          </div>
         )}
 
-        {customers.map((customer) => (
-          <CustomerMobileCard 
-            key={customer.id} 
-            customer={customer}
-            isSelected={selection?.isSelected(customer.id) || false}
-            onToggleSelection={() => selection?.toggleItem(customer.id)}
-            showSelection={isAdmin}
-            onClick={(e) => handleRowClick(customer.id, e)}
-          />
-        ))}
+        {/* Customer cards with touch-optimized spacing */}
+        <div className="space-y-3">
+          {customers.map((customer) => (
+            <CustomerMobileCard 
+              key={customer.id} 
+              customer={customer}
+              isSelected={selection?.isSelected(customer.id) || false}
+              onToggleSelection={() => selection?.toggleItem(customer.id)}
+              showSelection={isAdmin}
+              onClick={(e) => handleRowClick(customer.id, e)}
+            />
+          ))}
+        </div>
+
+        {/* Empty state for mobile */}
+        {customers.length === 0 && (
+          <Card className="border-dashed">
+            <CardContent className="p-8 text-center">
+              <User className="h-12 w-12 mx-auto text-muted-foreground mb-3 opacity-50" />
+              <h3 className="font-semibold text-foreground mb-2">No customers found</h3>
+              <p className="text-sm text-muted-foreground">
+                Try adjusting your filters or create a new customer
+              </p>
+            </CardContent>
+          </Card>
+        )}
 
         {/* Reassignment Dialog */}
         {isAdmin && (
@@ -346,53 +385,80 @@ const EnhancedCustomerTable: React.FC<EnhancedCustomerTableProps> = ({
 
   return (
     <div className="space-y-4">
-      {/* Bulk Actions Toolbar */}
-      {isAdmin && selection && (
-        <BulkActionsToolbar
-          selectedCount={selection.selectedCount}
-          isVisible={selection.selectedCount > 0}
-          onClearSelection={selection.clearSelection}
-          onReassignSelected={() => setIsReassignDialogOpen(true)}
-          isLoading={isReassigning}
-        />
+      {/* Bulk Actions Toolbar - sticky on desktop */}
+      {isAdmin && selection && selection.selectedCount > 0 && (
+        <div className="sticky top-16 z-30 -mx-4 px-4 pb-3 bg-background/95 backdrop-blur-sm">
+          <BulkActionsToolbar
+            selectedCount={selection.selectedCount}
+            isVisible={true}
+            onClearSelection={selection.clearSelection}
+            onReassignSelected={() => setIsReassignDialogOpen(true)}
+            isLoading={isReassigning}
+          />
+        </div>
       )}
 
-      {/* Desktop Table */}
-      <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
+      {/* Desktop Table with horizontal scroll */}
+      <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50 overflow-hidden">
         <CardContent className="p-0">
-          <Table>
-            <TableHeader>
-              <TableRow className="border-b border-border/50">
-                {/* Selection checkbox for admin */}
-                {isAdmin && selection && (
-                  <TableHead className="w-12">
-                    <Checkbox
-                      checked={selection.isAllSelected}
-                      onCheckedChange={selection.toggleAll}
+          <div className="overflow-x-auto">
+            <Table>
+              <TableHeader className="sticky top-0 bg-card z-10 shadow-sm">
+                <TableRow className="border-b border-border/50">
+                  {/* Selection checkbox for admin */}
+                  {isAdmin && selection && (
+                    <TableHead className="w-12 bg-card">
+                      <Checkbox
+                        checked={selection.isAllSelected}
+                        onCheckedChange={selection.toggleAll}
+                        className="h-4 w-4"
+                      />
+                    </TableHead>
+                  )}
+                  <TableHead className="min-w-[200px] bg-card">Customer Info</TableHead>
+                  <TableHead className="min-w-[120px] bg-card">Product</TableHead>
+                  <TableHead className="min-w-[150px] bg-card">Submitted by</TableHead>
+                  <TableHead className="min-w-[120px] bg-card">Lead Source</TableHead>
+                  <TableHead className="min-w-[100px] text-right bg-card">Amount</TableHead>
+                  <TableHead className="min-w-[100px] bg-card">Status</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {customers.length > 0 ? (
+                  customers.map((customer) => (
+                    <CustomerRow 
+                      key={customer.id} 
+                      customer={customer}
+                      isSelected={selection?.isSelected(customer.id) || false}
+                      onToggleSelection={() => selection?.toggleItem(customer.id)}
+                      showSelection={isAdmin}
+                      onClick={(e) => handleRowClick(customer.id, e)}
                     />
-                  </TableHead>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-12">
+                      <User className="h-12 w-12 mx-auto text-muted-foreground mb-3 opacity-50" />
+                      <h3 className="font-semibold text-foreground mb-2">No customers found</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Try adjusting your filters or create a new customer
+                      </p>
+                    </TableCell>
+                  </TableRow>
                 )}
-                <TableHead className="min-w-[200px]">Customer Info</TableHead>
-                <TableHead className="min-w-[120px]">Product</TableHead>
-                <TableHead className="min-w-[150px]">Submitted by</TableHead>
-                <TableHead className="min-w-[120px]">Lead Source</TableHead>
-                <TableHead className="min-w-[100px] text-right">Amount</TableHead>
-                <TableHead className="min-w-[100px]">Status</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {customers.map((customer) => (
-                <CustomerRow 
-                  key={customer.id} 
-                  customer={customer}
-                  isSelected={selection?.isSelected(customer.id) || false}
-                  onToggleSelection={() => selection?.toggleItem(customer.id)}
-                  showSelection={isAdmin}
-                  onClick={(e) => handleRowClick(customer.id, e)}
-                />
-              ))}
-            </TableBody>
-          </Table>
+              </TableBody>
+            </Table>
+          </div>
+          
+          {/* Scroll indicator for narrow viewports */}
+          {customers.length > 0 && (
+            <div className="lg:hidden px-4 py-2 text-center text-xs text-muted-foreground border-t bg-muted/30">
+              <span className="inline-flex items-center gap-1">
+                <ChevronRight className="h-3 w-3" />
+                Scroll horizontally to view all columns
+              </span>
+            </div>
+          )}
         </CardContent>
       </Card>
 

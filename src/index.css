@@ -90,6 +90,16 @@
   }
 }
 
+/* Mobile-specific safe area padding */
+@supports (padding: env(safe-area-inset-bottom)) {
+  .pb-safe {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+  .pt-safe {
+    padding-top: env(safe-area-inset-top);
+  }
+}
+
 @layer base {
   * {
     @apply border-border;
@@ -157,6 +167,16 @@
     
     button, .clickable {
       @apply touch-friendly;
+    }
+    
+    /* Better tap highlight */
+    * {
+      -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+    }
+    
+    /* Smoother scrolling on mobile */
+    * {
+      -webkit-overflow-scrolling: touch;
     }
   }
 
