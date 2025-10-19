@@ -61,7 +61,7 @@ const NotificationDropdown: React.FC = () => {
         </Button>
       </DropdownMenuTrigger>
       
-      <DropdownMenuContent align="end" className="w-96 p-0">
+      <DropdownMenuContent align="end" className="w-96 p-0 bg-popover border shadow-lg">
         <div className="flex items-center justify-between px-4 py-3 border-b">
           <DropdownMenuLabel className="p-0 font-semibold">
             Notifications
@@ -90,7 +90,7 @@ const NotificationDropdown: React.FC = () => {
                 variant="ghost"
                 size="sm"
                 onClick={clearNotifications}
-                className="h-6 px-2 text-xs text-red-600 hover:text-red-700"
+                className="h-6 px-2 text-xs text-destructive hover:text-destructive/90"
               >
                 <Trash2 className="w-3 h-3 mr-1" />
                 Clear
@@ -111,7 +111,7 @@ const NotificationDropdown: React.FC = () => {
               {notifications.map((notification, index) => (
                 <div key={notification.id}>
                   <DropdownMenuItem
-                    className={`p-0 cursor-pointer ${!notification.isRead ? 'bg-blue-50 hover:bg-blue-100' : ''}`}
+                    className={`p-0 cursor-pointer ${!notification.isRead ? 'bg-accent/50 hover:bg-accent' : ''}`}
                     onClick={() => handleNotificationClick(notification)}
                   >
                     <div className="flex items-start gap-3 p-3 w-full">
@@ -121,25 +121,25 @@ const NotificationDropdown: React.FC = () => {
                       
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between gap-2">
-                          <h4 className={`text-sm font-medium leading-tight ${!notification.isRead ? 'text-blue-900' : 'text-gray-900'}`}>
+                          <h4 className={`text-sm font-medium leading-tight ${!notification.isRead ? 'text-accent-foreground' : 'text-foreground'}`}>
                             {notification.title}
                           </h4>
                           {!notification.isRead && (
-                            <div className="w-2 h-2 bg-blue-600 rounded-full flex-shrink-0 mt-1"></div>
+                            <div className="w-2 h-2 bg-primary rounded-full flex-shrink-0 mt-1"></div>
                           )}
                         </div>
                         
-                        <p className="text-xs text-gray-600 mt-1 line-clamp-2">
+                        <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                           {notification.message}
                         </p>
                         
                         <div className="flex items-center justify-between mt-2">
-                          <span className="text-xs text-gray-500">
+                          <span className="text-xs text-muted-foreground">
                             {formatDistanceToNow(new Date(notification.createdAt), { addSuffix: true })}
                           </span>
                           
                           {notification.actionUrl && (
-                            <ExternalLink className="w-3 h-3 text-gray-400" />
+                            <ExternalLink className="w-3 h-3 text-muted-foreground" />
                           )}
                         </div>
                       </div>
