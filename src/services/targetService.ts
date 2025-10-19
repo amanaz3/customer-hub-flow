@@ -119,9 +119,9 @@ export const targetService = {
     // Aggregate all users' targets
     const aggregated = data.reduce(
       (acc, target) => ({
-        target_applications: acc.target_applications + (target.target_applications || 0),
-        target_revenue: acc.target_revenue + (target.target_revenue || 0),
-        target_completed: acc.target_completed + (target.target_completed || 0),
+        target_applications: acc.target_applications + (Number(target.target_applications) || 0),
+        target_revenue: acc.target_revenue + (Number(target.target_revenue) || 0),
+        target_completed: acc.target_completed + (Number(target.target_completed) || 0),
       }),
       { target_applications: 0, target_revenue: 0, target_completed: 0 }
     );
