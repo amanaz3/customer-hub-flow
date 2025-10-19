@@ -21,7 +21,6 @@ export const useMonthlyTargets = (userId: string | undefined, month: number, yea
   const setTargetMutation = useMutation({
     mutationFn: (targets: {
       target_applications: number;
-      target_completed: number;
       target_revenue: number;
     }) => {
       if (!userId) throw new Error('User ID is required');
@@ -68,7 +67,8 @@ export const useMonthlyTargets = (userId: string | undefined, month: number, yea
     };
 
     const applicationsProgress = calcProgress(performance.actual_applications, target.target_applications);
-    const completedProgress = calcProgress(performance.actual_completed, target.target_completed);
+    // Calculate completion progress as percentage of target applications that are completed
+    const completedProgress = calcProgress(performance.actual_completed, target.target_applications);
     const revenueProgress = calcProgress(Number(performance.actual_revenue), target.target_revenue);
 
     return {

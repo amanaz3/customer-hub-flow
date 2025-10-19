@@ -10,12 +10,10 @@ interface TargetSettingsDialogProps {
   onOpenChange: (open: boolean) => void;
   currentTargets?: {
     target_applications: number;
-    target_completed: number;
     target_revenue: number;
   };
   onSave: (targets: {
     target_applications: number;
-    target_completed: number;
     target_revenue: number;
   }) => void;
   isLoading?: boolean;
@@ -29,16 +27,26 @@ export const TargetSettingsDialog = ({
   isLoading,
 }: TargetSettingsDialogProps) => {
   const [applications, setApplications] = useState(currentTargets?.target_applications || 0);
-  const [completed, setCompleted] = useState(currentTargets?.target_completed || 0);
   const [revenue, setRevenue] = useState(currentTargets?.target_revenue || 0);
+  const [revenueDisplay, setRevenueDisplay] = useState(
+    currentTargets?.target_revenue?.toLocaleString('en-US') || '0'
+  );
 
   const handleSave = () => {
     onSave({
       target_applications: applications,
-      target_completed: completed,
       target_revenue: revenue,
     });
     onOpenChange(false);
+  };
+
+  const handleRevenueChange = (value: string) => {
+    // Remove commas and parse
+    const numericValue = value.replace(/,/g, '');
+    const parsed = parseFloat(numericValue) || 0;
+    setRevenue(parsed);
+    // Update display with formatted value
+    setRevenueDisplay(parsed > 0 ? parsed.toLocaleString('en-US') : '');
   };
 
   return (
@@ -70,32 +78,19 @@ export const TargetSettingsDialog = ({
           </div>
 
           <div className="grid gap-2">
-            <Label htmlFor="target-completed">
-              Completed Applications Target
-            </Label>
-            <Input
-              id="target-completed"
-              type="number"
-              min="0"
-              value={completed}
-              onChange={(e) => setCompleted(parseInt(e.target.value) || 0)}
-              placeholder="e.g., 15"
-            />
-          </div>
-
-          <div className="grid gap-2">
             <Label htmlFor="target-revenue">
               Revenue Target (AED)
             </Label>
             <Input
               id="target-revenue"
-              type="number"
-              min="0"
-              step="100"
-              value={revenue}
-              onChange={(e) => setRevenue(parseFloat(e.target.value) || 0)}
-              placeholder="e.g., 50000"
+              type="text"
+              value={revenueDisplay}
+              onChange={(e) => handleRevenueChange(e.target.value)}
+              placeholder="e.g., 100,000"
             />
+            <p className="text-xs text-muted-foreground">
+              Enter amount with commas for easier reading (e.g., 100,000)
+            </p>
           </div>
         </div>
 

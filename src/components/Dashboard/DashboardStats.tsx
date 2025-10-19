@@ -179,7 +179,7 @@ const DashboardStats = ({
           <TargetProgressCard
             title="Completed"
             current={performance?.actual_completed || 0}
-            target={target.target_completed}
+            target={target.target_applications}
             icon={CheckCircle}
             description="Successfully completed applications"
             progress={progress.completedProgress}

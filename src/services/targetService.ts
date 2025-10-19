@@ -51,8 +51,8 @@ export const targetService = {
     year: number,
     targets: {
       target_applications: number;
-      target_completed: number;
       target_revenue: number;
+      target_completed?: number;
     }
   ) {
     const { data, error } = await supabase
@@ -62,7 +62,11 @@ export const targetService = {
           user_id: userId,
           month,
           year,
-          ...targets,
+          target_applications: targets.target_applications,
+          target_revenue: targets.target_revenue,
+          // Set target_completed equal to target_applications by default
+          // This ensures database integrity while UI calculates completion rate differently
+          target_completed: targets.target_applications,
         },
         { onConflict: 'user_id,month,year' }
       )
