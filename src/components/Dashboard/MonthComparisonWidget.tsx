@@ -29,9 +29,10 @@ export const MonthComparisonWidget = ({ comparison }: MonthComparisonWidgetProps
 
   const formatValue = (value: number, isRevenue: boolean = false) => {
     if (isRevenue) {
-      return `AED ${value.toLocaleString()}`;
+      return `AED ${value.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 })}`;
     }
-    return value.toString();
+    // Format numbers with max 2 decimal places, remove trailing zeros
+    return Number(value.toFixed(2)).toString();
   };
 
   const formatPercent = (percent: number) => {
