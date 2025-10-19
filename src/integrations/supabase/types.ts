@@ -965,6 +965,12 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      cleanup_deleted_users: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          deleted_count: number
+        }[]
+      }
       create_anonymous_customer: {
         Args: {
           customer_any_suitable_bank?: boolean
