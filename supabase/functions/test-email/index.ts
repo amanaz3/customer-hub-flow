@@ -75,7 +75,7 @@ const handler = async (req: Request): Promise<Response> => {
     `;
     
     const emailResponse = await resend.emails.send({
-      from: "Test <onboarding@resend.dev>",
+      from: "Amana Corporate <info@amanacorporate.com>",
       to: emailList,
       subject: "Test Email - Notification System",
       html: htmlContent,

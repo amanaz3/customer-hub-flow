@@ -117,7 +117,7 @@ const handler = async (req: Request): Promise<Response> => {
     const htmlContent = getEmailTemplate(emailData);
     
     const emailResponse = await resend.emails.send({
-      from: "Notifications <onboarding@resend.dev>",
+      from: "Amana Corporate <info@amanacorporate.com>",
       to: [emailData.recipientEmail],
       subject: emailData.title,
       html: htmlContent,
