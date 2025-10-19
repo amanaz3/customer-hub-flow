@@ -9,8 +9,11 @@ import DashboardStats from '@/components/Dashboard/DashboardStats';
 import DashboardFilters from '@/components/Dashboard/DashboardFilters';
 import EmptyDashboardState from '@/components/Dashboard/EmptyDashboardState';
 import DashboardHeader from '@/components/Dashboard/DashboardHeader';
+import { MonthComparisonWidget } from '@/components/Dashboard/MonthComparisonWidget';
+import { TrendChart } from '@/components/Dashboard/TrendChart';
 import { useOptimizedCustomerData } from '@/hooks/useOptimizedCustomerData';
 import { useDashboardFilters } from '@/hooks/useDashboardFilters';
+import { useMonthComparison } from '@/hooks/useMonthComparison';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { supabase } from '@/lib/supabase';
 import { BarChart3, Users, Calendar, ChevronDown, X, CheckCircle, Clock, DollarSign, Loader2 } from 'lucide-react';
@@ -76,6 +79,17 @@ const OptimizedDashboard = () => {
     clearAllFilters,
     hasActiveFilters
   } = useDashboardFilters(customers, activeWidget, revenueSelectedMonths, isAdmin);
+  
+  // Month-over-month comparison data
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentYear = currentDate.getFullYear();
+  
+  const { comparison, trend, isLoading: isComparisonLoading } = useMonthComparison(
+    isAdmin ? null : user?.id || null,
+    currentMonth,
+    currentYear
+  );
   
   const handleWidgetChange = (widget: 'applications' | 'completed' | 'pending' | 'revenue') => {
     setActiveWidget(widget);
@@ -243,6 +257,16 @@ const OptimizedDashboard = () => {
                 activeWidget={activeWidget}
                 userId={user?.id}
               />
+
+              {/* Month-over-Month Comparison */}
+              {comparison && !isComparisonLoading && (
+                <MonthComparisonWidget comparison={comparison} />
+              )}
+
+              {/* 6-Month Trend Chart */}
+              {trend && trend.length > 0 && !isComparisonLoading && (
+                <TrendChart data={trend} />
+              )}
 
               {/* Revenue Filter - Only show when revenue widget is active */}
               {activeWidget === 'revenue' && (
@@ -431,6 +455,16 @@ const OptimizedDashboard = () => {
                 activeWidget={activeWidget}
                 userId={user?.id}
               />
+
+              {/* Month-over-Month Comparison */}
+              {comparison && !isComparisonLoading && (
+                <MonthComparisonWidget comparison={comparison} />
+              )}
+
+              {/* 6-Month Trend Chart */}
+              {trend && trend.length > 0 && !isComparisonLoading && (
+                <TrendChart data={trend} />
+              )}
 
               {customers.length === 0 ? (
                 <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
