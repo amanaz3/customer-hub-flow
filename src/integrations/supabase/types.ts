@@ -166,6 +166,139 @@ export type Database = {
           },
         ]
       }
+      arr_performance: {
+        Row: {
+          actual_new_arr: number
+          actual_total_arr: number
+          actual_upsell_arr: number
+          checkins_completed: number
+          churn_arr: number
+          created_at: string
+          deals_closed: number
+          id: string
+          meetings_held: number
+          month: number
+          new_clients_count: number
+          pipeline_value: number
+          proposals_sent: number
+          retention_rate: number
+          updated_at: string
+          upsell_deals_count: number
+          user_id: string
+          year: number
+        }
+        Insert: {
+          actual_new_arr?: number
+          actual_total_arr?: number
+          actual_upsell_arr?: number
+          checkins_completed?: number
+          churn_arr?: number
+          created_at?: string
+          deals_closed?: number
+          id?: string
+          meetings_held?: number
+          month: number
+          new_clients_count?: number
+          pipeline_value?: number
+          proposals_sent?: number
+          retention_rate?: number
+          updated_at?: string
+          upsell_deals_count?: number
+          user_id: string
+          year: number
+        }
+        Update: {
+          actual_new_arr?: number
+          actual_total_arr?: number
+          actual_upsell_arr?: number
+          checkins_completed?: number
+          churn_arr?: number
+          created_at?: string
+          deals_closed?: number
+          id?: string
+          meetings_held?: number
+          month?: number
+          new_clients_count?: number
+          pipeline_value?: number
+          proposals_sent?: number
+          retention_rate?: number
+          updated_at?: string
+          upsell_deals_count?: number
+          user_id?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "arr_performance_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      arr_targets: {
+        Row: {
+          created_at: string
+          id: string
+          month: number
+          target_checkins: number
+          target_closes: number
+          target_meetings: number
+          target_new_arr: number
+          target_new_clients: number
+          target_proposals: number
+          target_total_arr: number
+          target_upsell_arr: number
+          target_upsell_deals: number
+          updated_at: string
+          user_id: string
+          year: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          month: number
+          target_checkins?: number
+          target_closes?: number
+          target_meetings?: number
+          target_new_arr?: number
+          target_new_clients?: number
+          target_proposals?: number
+          target_total_arr?: number
+          target_upsell_arr?: number
+          target_upsell_deals?: number
+          updated_at?: string
+          user_id: string
+          year: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          month?: number
+          target_checkins?: number
+          target_closes?: number
+          target_meetings?: number
+          target_new_arr?: number
+          target_new_clients?: number
+          target_proposals?: number
+          target_total_arr?: number
+          target_upsell_arr?: number
+          target_upsell_deals?: number
+          updated_at?: string
+          user_id?: string
+          year?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "arr_targets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       banks: {
         Row: {
           code: string
@@ -411,6 +544,70 @@ export type Database = {
         }
         Relationships: []
       }
+      customer_services: {
+        Row: {
+          arr_contribution: number
+          assigned_user_id: string | null
+          created_at: string
+          customer_id: string
+          end_date: string | null
+          id: string
+          next_billing_date: string | null
+          service_type_id: string
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          arr_contribution?: number
+          assigned_user_id?: string | null
+          created_at?: string
+          customer_id: string
+          end_date?: string | null
+          id?: string
+          next_billing_date?: string | null
+          service_type_id: string
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          arr_contribution?: number
+          assigned_user_id?: string | null
+          created_at?: string
+          customer_id?: string
+          end_date?: string | null
+          id?: string
+          next_billing_date?: string | null
+          service_type_id?: string
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customer_services_assigned_user_id_fkey"
+            columns: ["assigned_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_services_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "customer_services_service_type_id_fkey"
+            columns: ["service_type_id"]
+            isOneToOne: false
+            referencedRelation: "service_types"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customers: {
         Row: {
           amount: number
@@ -501,6 +698,69 @@ export type Database = {
             columns: ["user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      deals: {
+        Row: {
+          actual_close_date: string | null
+          arr_value: number
+          assigned_user_id: string
+          created_at: string
+          customer_id: string
+          deal_stage: string
+          deal_type: string
+          expected_close_date: string | null
+          id: string
+          notes: string | null
+          probability: number
+          services: Json
+          updated_at: string
+        }
+        Insert: {
+          actual_close_date?: string | null
+          arr_value?: number
+          assigned_user_id: string
+          created_at?: string
+          customer_id: string
+          deal_stage?: string
+          deal_type: string
+          expected_close_date?: string | null
+          id?: string
+          notes?: string | null
+          probability?: number
+          services?: Json
+          updated_at?: string
+        }
+        Update: {
+          actual_close_date?: string | null
+          arr_value?: number
+          assigned_user_id?: string
+          created_at?: string
+          customer_id?: string
+          deal_stage?: string
+          deal_type?: string
+          expected_close_date?: string | null
+          id?: string
+          notes?: string | null
+          probability?: number
+          services?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_assigned_user_id_fkey"
+            columns: ["assigned_user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
             referencedColumns: ["id"]
           },
         ]
@@ -971,6 +1231,48 @@ export type Database = {
         }
         Relationships: []
       }
+      service_types: {
+        Row: {
+          arr_value: number
+          billing_period: string
+          created_at: string
+          frequency: string
+          id: string
+          is_active: boolean
+          is_recurring: boolean
+          service_code: string
+          service_name: string
+          unit_price: number
+          updated_at: string
+        }
+        Insert: {
+          arr_value?: number
+          billing_period: string
+          created_at?: string
+          frequency: string
+          id?: string
+          is_active?: boolean
+          is_recurring?: boolean
+          service_code: string
+          service_name: string
+          unit_price: number
+          updated_at?: string
+        }
+        Update: {
+          arr_value?: number
+          billing_period?: string
+          created_at?: string
+          frequency?: string
+          id?: string
+          is_active?: boolean
+          is_recurring?: boolean
+          service_code?: string
+          service_name?: string
+          unit_price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       status_changes: {
         Row: {
           changed_by: string
@@ -1048,6 +1350,61 @@ export type Database = {
           },
         ]
       }
+      weekly_activities: {
+        Row: {
+          activity_type: string
+          created_at: string
+          customer_id: string | null
+          deal_id: string | null
+          id: string
+          notes: string | null
+          user_id: string
+          week_start_date: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          customer_id?: string | null
+          deal_id?: string | null
+          id?: string
+          notes?: string | null
+          user_id: string
+          week_start_date: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          customer_id?: string | null
+          deal_id?: string | null
+          id?: string
+          notes?: string | null
+          user_id?: string
+          week_start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_activities_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "weekly_activities_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "weekly_activities_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -1060,6 +1417,18 @@ export type Database = {
           actual_completed: number
           actual_revenue: number
           completion_rate: number
+        }[]
+      }
+      calculate_arr_performance: {
+        Args: { p_month: number; p_user_id: string; p_year: number }
+        Returns: {
+          actual_new_arr: number
+          actual_total_arr: number
+          actual_upsell_arr: number
+          churn_arr: number
+          new_clients_count: number
+          pipeline_value: number
+          upsell_deals_count: number
         }[]
       }
       calculate_monthly_performance: {
@@ -1113,6 +1482,10 @@ export type Database = {
       delete_product: {
         Args: { product_id: string }
         Returns: undefined
+      }
+      get_or_create_arr_target: {
+        Args: { p_month: number; p_user_id: string; p_year: number }
+        Returns: string
       }
       get_or_create_monthly_target: {
         Args: { p_month: number; p_user_id: string; p_year: number }
