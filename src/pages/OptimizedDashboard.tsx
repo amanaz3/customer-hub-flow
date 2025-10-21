@@ -12,9 +12,7 @@ import DashboardHeader from '@/components/Dashboard/DashboardHeader';
 import { MonthComparisonWidget } from '@/components/Dashboard/MonthComparisonWidget';
 import { TrendChart } from '@/components/Dashboard/TrendChart';
 import { ForecastWidget } from '@/components/Dashboard/ForecastWidget';
-import { TeamLeaderboard } from '@/components/Dashboard/TeamLeaderboard';
 import { InsightsBanner } from '@/components/Dashboard/InsightsBanner';
-import { ConversionFunnel } from '@/components/Dashboard/ConversionFunnel';
 import { useOptimizedCustomerData } from '@/hooks/useOptimizedCustomerData';
 import { useDashboardFilters } from '@/hooks/useDashboardFilters';
 import { useMonthComparison } from '@/hooks/useMonthComparison';
@@ -22,11 +20,9 @@ import { useMonthlyTargets } from '@/hooks/useMonthlyTargets';
 import { useForecast } from '@/hooks/useForecast';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { supabase } from '@/lib/supabase';
-import { BarChart3, Users, Calendar, ChevronDown, X, CheckCircle, Clock, DollarSign, Loader2, Target } from 'lucide-react';
+import { Calendar, X, CheckCircle, Clock, DollarSign, Users } from 'lucide-react';
 import { format } from 'date-fns';
-import { AdminTargetManagement } from '@/components/Dashboard/AdminTargetManagement';
 import { useNavigate } from 'react-router-dom';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
 import { LazyLoadingBoundary } from '@/components/Performance/LazyLoadingBoundary';
@@ -34,7 +30,6 @@ import { LazyLoadingBoundary } from '@/components/Performance/LazyLoadingBoundar
 // Lazy load heavy components
 const ResponsiveCustomerTable = React.lazy(() => import('@/components/Customer/ResponsiveCustomerTable'));
 const EnhancedCustomerTable = React.lazy(() => import('@/components/Customer/EnhancedCustomerTable'));
-const UserAnalytics = React.lazy(() => import('@/components/Analytics/UserAnalytics'));
 
 const OptimizedDashboard = () => {
   const { user, isAdmin } = useAuth();
@@ -257,26 +252,11 @@ const OptimizedDashboard = () => {
           onCreateCustomer={handleCreateCustomer}
         />
 
-        {/* Admin Dashboard with Tabs */}
+        {/* Admin Dashboard */}
         {isAdmin ? (
-          <Tabs defaultValue="customers" className="space-y-8">
-            <TabsList className="grid w-full grid-cols-3 max-w-2xl h-12 bg-muted/50">
-              <TabsTrigger value="customers" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <Users className="h-4 w-4" />
-                <span className="font-medium">Customers</span>
-              </TabsTrigger>
-              <TabsTrigger value="analytics" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <BarChart3 className="h-4 w-4" />
-                <span className="font-medium">Analytics</span>
-              </TabsTrigger>
-              <TabsTrigger value="targets" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <Target className="h-4 w-4" />
-                <span className="font-medium">Target Management</span>
-              </TabsTrigger>
-            </TabsList>
+          <div className="space-y-6">
 
-            <TabsContent value="customers" className="space-y-6">
-              {/* Statistics Cards inside Customers tab */}
+              {/* Statistics Cards */}
               <DashboardStats 
                 stats={stats} 
                 selectedMonths={[]} // Remove legacy support
@@ -465,39 +445,13 @@ const OptimizedDashboard = () => {
                        </LazyLoadingBoundary>
                      </CardContent>
                   </Card>
-                </div>
-              )}
-            </TabsContent>
-
-             <TabsContent value="analytics" className="space-y-6">
-               {/* Team Performance & Leaderboard */}
-               {isAdmin && <TeamLeaderboard />}
-               
-               {/* Conversion Funnel */}
-               <ConversionFunnel />
-               
-               {/* Existing Analytics */}
-               <LazyLoadingBoundary>
-                 <UserAnalytics />
-               </LazyLoadingBoundary>
-             </TabsContent>
-
-             <TabsContent value="targets" className="space-y-6">
-               <AdminTargetManagement />
-             </TabsContent>
-          </Tabs>
+                 </div>
+               )}
+          </div>
         ) : (
-          /* Regular User Dashboard with Tabs */
-          <Tabs defaultValue="customers" className="space-y-8">
-            <TabsList className="grid w-full grid-cols-1 max-w-md h-12 bg-muted/50">
-              <TabsTrigger value="customers" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
-                <Users className="h-4 w-4" />
-                <span className="font-medium">Customers</span>
-              </TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="customers" className="space-y-6">
-              {/* Statistics Cards inside Customers tab */}
+          /* Regular User Dashboard */
+          <div className="space-y-6">
+              {/* Statistics Cards */}
               <DashboardStats 
                 stats={stats} 
                 onWidgetClick={handleWidgetChange}
@@ -569,8 +523,7 @@ const OptimizedDashboard = () => {
                   </Card>
                 </div>
               )}
-            </TabsContent>
-          </Tabs>
+          </div>
         )}
       </div>
     );

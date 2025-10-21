@@ -17,7 +17,9 @@ import {
   Menu,
   X,
   Package,
-  Database
+  Database,
+  BarChart3,
+  Target
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -56,6 +58,18 @@ const Sidebar: React.FC = () => {
       path: '/dashboard',
       icon: <LayoutDashboard className="h-5 w-5" />,
       roles: ['admin', 'user'],
+    },
+    {
+      name: 'Analytics',
+      path: '/analytics',
+      icon: <BarChart3 className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
+      name: 'Target Management',
+      path: '/targets',
+      icon: <Target className="h-5 w-5" />,
+      roles: ['admin'],
     },
     {
       name: 'Customers',
@@ -103,7 +117,7 @@ const Sidebar: React.FC = () => {
 
   const isActiveRoute = (path: string) => {
     // Exact match for most routes
-    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products') {
+    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/analytics' || path === '/targets') {
       return location.pathname === path;
     }
     

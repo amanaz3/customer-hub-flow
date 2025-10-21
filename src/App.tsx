@@ -25,6 +25,8 @@ import {
   PageLoadingFallback
 } from '@/components/LazyComponents';
 import CRMIntegration from '@/pages/CRMIntegration';
+import Analytics from '@/pages/Analytics';
+import TargetManagement from '@/pages/TargetManagement';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -83,6 +85,26 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Dashboard">
                           <LazyOptimizedDashboard />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/analytics" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Analytics">
+                          <Analytics />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/targets" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Target Management">
+                          <TargetManagement />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
