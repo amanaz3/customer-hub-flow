@@ -109,25 +109,30 @@ export const TargetManagementTable = ({
   };
 
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead className="w-[50px]">
+            <TableHead rowSpan={2} className="w-[50px]">
               <Checkbox
                 checked={selectedUserIds.length === data.length && data.length > 0}
                 onCheckedChange={handleSelectAll}
               />
             </TableHead>
-            <TableHead>User</TableHead>
-            <TableHead className="text-right">Target Apps</TableHead>
-            <TableHead className="text-right">Target Complete</TableHead>
-            <TableHead className="text-right">Target Revenue</TableHead>
-            <TableHead className="text-right">Actual Apps</TableHead>
-            <TableHead className="text-right">Actual Complete</TableHead>
-            <TableHead className="text-right">Actual Revenue</TableHead>
-            <TableHead className="text-right">Progress</TableHead>
-            <TableHead className="text-right">Actions</TableHead>
+            <TableHead rowSpan={2} className="min-w-[180px]">User</TableHead>
+            <TableHead colSpan={2} className="text-center border-l bg-muted/30">Applications</TableHead>
+            <TableHead colSpan={2} className="text-center border-l bg-muted/30">Completed</TableHead>
+            <TableHead colSpan={2} className="text-center border-l bg-muted/30">Revenue</TableHead>
+            <TableHead rowSpan={2} className="text-center border-l">Progress</TableHead>
+            <TableHead rowSpan={2} className="text-center border-l">Actions</TableHead>
+          </TableRow>
+          <TableRow>
+            <TableHead className="text-right bg-primary/5 border-l">Target</TableHead>
+            <TableHead className="text-right bg-secondary/10">Actual</TableHead>
+            <TableHead className="text-right bg-primary/5 border-l">Target</TableHead>
+            <TableHead className="text-right bg-secondary/10">Actual</TableHead>
+            <TableHead className="text-right bg-primary/5 border-l">Target</TableHead>
+            <TableHead className="text-right bg-secondary/10">Actual</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -142,13 +147,13 @@ export const TargetManagementTable = ({
                     onCheckedChange={(checked) => handleSelectUser(user.user_id, checked as boolean)}
                   />
                 </TableCell>
-                <TableCell className="font-medium">
+                <TableCell className="font-medium sticky left-0 bg-background">
                   <div>
                     <div>{user.user_name}</div>
                     <div className="text-xs text-muted-foreground">{user.user_email}</div>
                   </div>
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right bg-primary/5 border-l">
                   {isEditing ? (
                     <Input
                       type="number"
@@ -162,7 +167,12 @@ export const TargetManagementTable = ({
                     user.target_applications
                   )}
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right bg-secondary/10">
+                  <span className={user.actual_applications >= user.target_applications ? 'text-green-600 dark:text-green-400 font-semibold' : ''}>
+                    {user.actual_applications}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right bg-primary/5 border-l">
                   {isEditing ? (
                     <Input
                       type="number"
@@ -176,7 +186,12 @@ export const TargetManagementTable = ({
                     user.target_completed
                   )}
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right bg-secondary/10">
+                  <span className={user.actual_completed >= user.target_completed ? 'text-green-600 dark:text-green-400 font-semibold' : ''}>
+                    {user.actual_completed}
+                  </span>
+                </TableCell>
+                <TableCell className="text-right bg-primary/5 border-l">
                   {isEditing ? (
                     <Input
                       type="number"
@@ -190,9 +205,11 @@ export const TargetManagementTable = ({
                     formatCurrency(user.target_revenue)
                   )}
                 </TableCell>
-                <TableCell className="text-right">{user.actual_applications}</TableCell>
-                <TableCell className="text-right">{user.actual_completed}</TableCell>
-                <TableCell className="text-right">{formatCurrency(user.actual_revenue)}</TableCell>
+                <TableCell className="text-right bg-secondary/10">
+                  <span className={user.actual_revenue >= user.target_revenue ? 'text-green-600 dark:text-green-400 font-semibold' : ''}>
+                    {formatCurrency(user.actual_revenue)}
+                  </span>
+                </TableCell>
                 <TableCell className="text-right">
                   <Badge className={getStatusColor(user.progress_percentage)}>
                     {user.progress_percentage.toFixed(0)}%
