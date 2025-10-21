@@ -1053,8 +1053,26 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      calculate_annual_performance: {
+        Args: { p_user_id: string; p_year: number }
+        Returns: {
+          actual_applications: number
+          actual_completed: number
+          actual_revenue: number
+          completion_rate: number
+        }[]
+      }
       calculate_monthly_performance: {
         Args: { p_month: number; p_user_id: string; p_year: number }
+        Returns: {
+          actual_applications: number
+          actual_completed: number
+          actual_revenue: number
+          completion_rate: number
+        }[]
+      }
+      calculate_quarterly_performance: {
+        Args: { p_quarter: number; p_user_id: string; p_year: number }
         Returns: {
           actual_applications: number
           actual_completed: number

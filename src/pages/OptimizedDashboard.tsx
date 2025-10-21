@@ -22,8 +22,9 @@ import { useMonthlyTargets } from '@/hooks/useMonthlyTargets';
 import { useForecast } from '@/hooks/useForecast';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { supabase } from '@/lib/supabase';
-import { BarChart3, Users, Calendar, ChevronDown, X, CheckCircle, Clock, DollarSign, Loader2 } from 'lucide-react';
+import { BarChart3, Users, Calendar, ChevronDown, X, CheckCircle, Clock, DollarSign, Loader2, Target } from 'lucide-react';
 import { format } from 'date-fns';
+import { AdminTargetManagement } from '@/components/Dashboard/AdminTargetManagement';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -259,7 +260,7 @@ const OptimizedDashboard = () => {
         {/* Admin Dashboard with Tabs */}
         {isAdmin ? (
           <Tabs defaultValue="customers" className="space-y-8">
-            <TabsList className="grid w-full grid-cols-2 max-w-md h-12 bg-muted/50">
+            <TabsList className="grid w-full grid-cols-3 max-w-2xl h-12 bg-muted/50">
               <TabsTrigger value="customers" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
                 <Users className="h-4 w-4" />
                 <span className="font-medium">Customers</span>
@@ -267,6 +268,10 @@ const OptimizedDashboard = () => {
               <TabsTrigger value="analytics" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
                 <BarChart3 className="h-4 w-4" />
                 <span className="font-medium">Analytics</span>
+              </TabsTrigger>
+              <TabsTrigger value="targets" className="flex items-center gap-2 h-10 data-[state=active]:bg-background data-[state=active]:shadow-sm">
+                <Target className="h-4 w-4" />
+                <span className="font-medium">Target Management</span>
               </TabsTrigger>
             </TabsList>
 
@@ -475,6 +480,10 @@ const OptimizedDashboard = () => {
                <LazyLoadingBoundary>
                  <UserAnalytics />
                </LazyLoadingBoundary>
+             </TabsContent>
+
+             <TabsContent value="targets" className="space-y-6">
+               <AdminTargetManagement />
              </TabsContent>
           </Tabs>
         ) : (
