@@ -60,18 +60,6 @@ const Sidebar: React.FC = () => {
       roles: ['admin', 'user'],
     },
     {
-      name: 'Analytics',
-      path: '/analytics',
-      icon: <BarChart3 className="h-5 w-5" />,
-      roles: ['admin'],
-    },
-    {
-      name: 'Target Management',
-      path: '/targets',
-      icon: <Target className="h-5 w-5" />,
-      roles: ['admin'],
-    },
-    {
       name: 'Customers',
       path: '/customers',
       icon: <Users className="h-5 w-5" />,
@@ -105,6 +93,18 @@ const Sidebar: React.FC = () => {
       name: 'Product Management',
       path: '/products',
       icon: <Package className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
+      name: 'Analytics',
+      path: '/analytics',
+      icon: <BarChart3 className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
+      name: 'Target Management',
+      path: '/targets',
+      icon: <Target className="h-5 w-5" />,
       roles: ['admin'],
     },
     {
