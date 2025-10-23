@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        // Create application record
+        // Create application record (license_type stays with customer)
         const { error: insertError } = await supabaseClient
           .from('account_applications')
           .insert({
@@ -69,7 +69,6 @@ Deno.serve(async (req) => {
             status: customer.status || 'draft',
             submission_source: 'web_form',
             application_data: {
-              license_type: customer.license_type,
               lead_source: customer.lead_source,
               amount: customer.amount,
               preferred_bank: customer.preferred_bank,

@@ -6,6 +6,7 @@ export interface BaseCustomer {
   email: string;
   mobile: string;
   company: string;
+  licenseType: string;
   created_at?: string;
   updated_at?: string;
 }
@@ -32,7 +33,6 @@ export interface Application {
   id: string;
   customer_id: string;
   leadSource: string;
-  licenseType: string;
   status: string;
   amount: number;
   user_id?: string;
@@ -45,7 +45,7 @@ export interface Application {
   documents?: Document[];
   comments?: Comment[];
   statusHistory?: StatusChange[];
-  // Include customer data for convenience in UI
+  // Include customer data for convenience in UI (includes licenseType)
   customer?: Customer;
 }
 
