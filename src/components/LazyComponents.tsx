@@ -12,7 +12,7 @@ const CustomerDetail = React.lazy(() => import('@/pages/CustomerDetail'));
 const ApplicationDetail = React.lazy(() => import('@/pages/ApplicationDetail'));
 const SecureUserManagement = React.lazy(() => import('@/pages/SecureUserManagement'));
 const CompletedApplications = React.lazy(() => import('@/pages/CompletedApplications'));
-const RejectedApplications = React.lazy(() => import('@/pages/RejectedApplications'));
+const Rejected = React.lazy(() => import('@/pages/Rejected'));
 
 const Settings = React.lazy(() => import('@/pages/Settings'));
 const ProductManagement = React.lazy(() => import('@/pages/ProductManagement'));
@@ -72,7 +72,7 @@ export const LazyCustomerDetail = withLazyLoading(CustomerDetail, "Loading custo
 export const LazyApplicationDetail = withLazyLoading(ApplicationDetail, "Loading application details...");
 export const LazySecureUserManagement = withLazyLoading(SecureUserManagement, "Loading user management...");
 export const LazyCompletedApplications = withLazyLoading(CompletedApplications, "Loading completed applications...");
-export const LazyRejectedApplications = withLazyLoading(RejectedApplications, "Loading rejected applications...");
+export const LazyRejected = withLazyLoading(Rejected, "Loading rejected items...");
 
 export const LazySettings = withLazyLoading(Settings, "Loading settings...");
 export const LazyProductManagement = withLazyLoading(ProductManagement, "Loading product management...");

@@ -21,7 +21,7 @@ import {
   LazyApplicationDetail,
   LazySecureUserManagement,
   LazyCompletedApplications,
-  LazyRejectedApplications,
+  LazyRejected,
   LazySettings,
   LazyProductManagement,
   LazyNotFound,
@@ -188,8 +188,8 @@ function App() {
                   <Route path="/rejected" element={
                     <ProtectedRoute>
                       <MainLayout>
-                        <PageErrorBoundary pageName="Rejected Applications">
-                          <LazyRejectedApplications />
+                        <PageErrorBoundary pageName="Rejected Items">
+                          <LazyRejected />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
