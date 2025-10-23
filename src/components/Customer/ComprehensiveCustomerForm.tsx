@@ -24,6 +24,9 @@ import FeatureAnalytics from '@/utils/featureAnalytics';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
+import { CreateCompanyDialog } from './CreateCompanyDialog';
+import { Building2, Plus, Users } from 'lucide-react';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 // Form validation schema
 const formSchema = z.object({
@@ -75,7 +78,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [activeTab, setActiveTab] = useState('details');
   const [createdCustomerId, setCreatedCustomerId] = useState<string | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
-  const { user } = useAuth();
+  const [customerMode, setCustomerMode] = useState<'new' | 'existing'>('new');
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [existingCustomers, setExistingCustomers] = useState<any[]>([]);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
+  const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const { uploadDocument } = useCustomer();
 
@@ -124,6 +131,59 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const watchAnySuitableBank = form.watch('any_suitable_bank');
   const watchLicenseType = form.watch('license_type');
   const watchShareholderCount = form.watch('no_of_shareholders');
+
+  // Fetch existing customers for selection
+  useEffect(() => {
+    const fetchCustomers = async () => {
+      try {
+        let query = supabase
+          .from('customers')
+          .select('id, company, name, email, mobile')
+          .order('company', { ascending: true });
+
+        // Non-admin users can only see their own customers
+        if (!isAdmin && user?.id) {
+          query = query.eq('user_id', user.id);
+        }
+
+        const { data, error } = await query;
+        if (error) throw error;
+        setExistingCustomers(data || []);
+      } catch (error) {
+        console.error('Error fetching customers:', error);
+      }
+    };
+
+    if (user?.id) {
+      fetchCustomers();
+    }
+  }, [user?.id, isAdmin]);
+
+  // Handle existing customer selection
+  const handleCustomerSelect = useCallback((customerId: string) => {
+    setSelectedCustomerId(customerId);
+    const customer = existingCustomers.find(c => c.id === customerId);
+    if (customer) {
+      form.setValue('company', customer.company);
+      form.setValue('name', customer.name);
+      form.setValue('email', customer.email);
+      form.setValue('mobile', customer.mobile);
+    }
+  }, [existingCustomers, form]);
+
+  // Handle new company creation from dialog
+  const handleCompanyCreated = useCallback((customer: any) => {
+    setExistingCustomers(prev => [...prev, customer]);
+    setSelectedCustomerId(customer.id);
+    form.setValue('company', customer.company);
+    form.setValue('name', customer.name);
+    form.setValue('email', customer.email);
+    form.setValue('mobile', customer.mobile);
+    toast({
+      title: 'Success',
+      description: 'Company added to the list',
+    });
+  }, [form, toast]);
 
   // Create default documents when license type changes
   const createDefaultDocuments = useCallback(async (customerId: string, licenseType: string, shareholderCount: number = 1) => {
@@ -401,6 +461,95 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         <CardTitle>New Application</CardTitle>
       </CardHeader>
       <CardContent>
+        {/* Customer Selection Section */}
+        <div className="mb-6 p-4 border rounded-lg bg-muted/50">
+          <div className="space-y-4">
+            <div>
+              <Label className="text-base font-semibold">Customer Selection</Label>
+              <p className="text-sm text-muted-foreground mt-1">
+                Choose to create a new company or select an existing one
+              </p>
+            </div>
+
+            <RadioGroup
+              value={customerMode}
+              onValueChange={(value) => {
+                setCustomerMode(value as 'new' | 'existing');
+                if (value === 'new') {
+                  setSelectedCustomerId('');
+                  form.reset();
+                }
+              }}
+              className="flex flex-col space-y-3"
+            >
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="new" id="new" />
+                <Label htmlFor="new" className="cursor-pointer flex items-center gap-2">
+                  <Building2 className="h-4 w-4" />
+                  Create New Company
+                </Label>
+              </div>
+              <div className="flex items-center space-x-2">
+                <RadioGroupItem value="existing" id="existing" />
+                <Label htmlFor="existing" className="cursor-pointer flex items-center gap-2">
+                  <Users className="h-4 w-4" />
+                  Select Existing Customer
+                </Label>
+              </div>
+            </RadioGroup>
+
+            {customerMode === 'existing' && (
+              <div className="space-y-3 pt-2">
+                <div className="flex gap-2">
+                  <div className="flex-1">
+                    <Select value={selectedCustomerId} onValueChange={handleCustomerSelect}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select a customer..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {existingCustomers.length === 0 ? (
+                          <div className="p-2 text-sm text-muted-foreground">
+                            No customers found
+                          </div>
+                        ) : (
+                          existingCustomers.map((customer) => (
+                            <SelectItem key={customer.id} value={customer.id}>
+                              {customer.company} - {customer.name}
+                            </SelectItem>
+                          ))
+                        )}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setShowCreateDialog(true)}
+                    title="Create new company"
+                  >
+                    <Plus className="h-4 w-4" />
+                  </Button>
+                </div>
+                {selectedCustomerId && (
+                  <div className="p-3 bg-background rounded-md border">
+                    <p className="text-sm font-medium">Selected Customer</p>
+                    <p className="text-sm text-muted-foreground">
+                      {existingCustomers.find(c => c.id === selectedCustomerId)?.company}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+
+        <CreateCompanyDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+          onCompanyCreated={handleCompanyCreated}
+        />
+
         <Tabs value={activeTab} onValueChange={setActiveTab}>
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="details">Customer Details</TabsTrigger>
