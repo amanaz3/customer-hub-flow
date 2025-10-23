@@ -29,20 +29,39 @@ const DataMigration = () => {
     setResult(null);
 
     try {
+      console.log('Getting auth session...');
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (!session) {
+        throw new Error('No active session - please log in again');
+      }
+
+      console.log('Invoking migration function...');
       const { data, error: funcError } = await supabase.functions.invoke(
-        'migrate-customer-applications'
+        'migrate-customer-applications',
+        {
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+        }
       );
 
-      if (funcError) throw funcError;
+      console.log('Migration response:', data);
+
+      if (funcError) {
+        console.error('Function error:', funcError);
+        throw funcError;
+      }
       
       setResult(data);
       
-      if (data.success) {
-        toast.success('Migration completed successfully!');
+      if (data?.success) {
+        toast.success(`Migration completed! ${data.migrated} records migrated, ${data.skipped} skipped`);
       } else {
-        toast.error('Migration failed');
+        toast.error(data?.error || 'Migration failed');
       }
     } catch (err: any) {
+      console.error('Migration error:', err);
       setError(err.message);
       toast.error(`Migration error: ${err.message}`);
     } finally {
