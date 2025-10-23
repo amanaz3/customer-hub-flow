@@ -14,8 +14,11 @@ import SecureLogin from '@/pages/SecureLogin';
 import {
   LazyOptimizedDashboard,
   LazyCustomerList,
+  LazyApplicationsList,
+  LazyCustomersList,
   LazyCustomerNew,
   LazyCustomerDetail,
+  LazyApplicationDetail,
   LazySecureUserManagement,
   LazyCompletedApplications,
   LazyRejectedApplications,
@@ -110,25 +113,47 @@ function App() {
                     </ProtectedRoute>
                   } />
                   
-                  <Route path="/customers" element={
+                  <Route path="/applications" element={
                     <ProtectedRoute>
                       <MainLayout>
-                        <PageErrorBoundary pageName="Customer List">
-                          <LazyCustomerList />
+                        <PageErrorBoundary pageName="Applications List">
+                          <LazyApplicationsList />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
                   } />
                   
-                  <Route path="/customers/new" element={
+                  <Route path="/applications/new" element={
                     <ProtectedRoute>
                       <MainLayout>
-                        <PageErrorBoundary pageName="New Customer">
+                        <PageErrorBoundary pageName="New Application">
                           <LazyCustomerNew />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
                   } />
+                  
+                  <Route path="/applications/:id" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Application Details">
+                          <LazyApplicationDetail />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/customers" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Customers List">
+                          <LazyCustomersList />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/customers/new" element={<Navigate to="/applications/new" replace />} />
                   
                   <Route path="/customers/:id" element={
                     <ProtectedRoute>

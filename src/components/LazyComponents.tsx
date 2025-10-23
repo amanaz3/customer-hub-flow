@@ -5,8 +5,11 @@ import { Loader2 } from 'lucide-react';
 // Lazy load components for better performance
 const OptimizedDashboard = React.lazy(() => import('@/pages/OptimizedDashboard'));
 const CustomerList = React.lazy(() => import('@/pages/CustomerList'));
+const ApplicationsList = React.lazy(() => import('@/pages/ApplicationsList'));
+const CustomersList = React.lazy(() => import('@/pages/CustomersList'));
 const CustomerNew = React.lazy(() => import('@/pages/CustomerNew'));
 const CustomerDetail = React.lazy(() => import('@/pages/CustomerDetail'));
+const ApplicationDetail = React.lazy(() => import('@/pages/ApplicationDetail'));
 const SecureUserManagement = React.lazy(() => import('@/pages/SecureUserManagement'));
 const CompletedApplications = React.lazy(() => import('@/pages/CompletedApplications'));
 const RejectedApplications = React.lazy(() => import('@/pages/RejectedApplications'));
@@ -62,8 +65,11 @@ const withLazyLoading = <P extends object>(
 // Export lazy-loaded components with proper loading states
 export const LazyOptimizedDashboard = withLazyLoading(OptimizedDashboard, "Loading dashboard...");
 export const LazyCustomerList = withLazyLoading(CustomerList, "Loading customer list...");
+export const LazyApplicationsList = withLazyLoading(ApplicationsList, "Loading applications...");
+export const LazyCustomersList = withLazyLoading(CustomersList, "Loading customers...");
 export const LazyCustomerNew = withLazyLoading(CustomerNew, "Loading customer form...");
 export const LazyCustomerDetail = withLazyLoading(CustomerDetail, "Loading customer details...");
+export const LazyApplicationDetail = withLazyLoading(ApplicationDetail, "Loading application details...");
 export const LazySecureUserManagement = withLazyLoading(SecureUserManagement, "Loading user management...");
 export const LazyCompletedApplications = withLazyLoading(CompletedApplications, "Loading completed applications...");
 export const LazyRejectedApplications = withLazyLoading(RejectedApplications, "Loading rejected applications...");

@@ -19,7 +19,9 @@ import {
   Package,
   Database,
   BarChart3,
-  Target
+  Target,
+  Link2,
+  Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -60,39 +62,51 @@ const Sidebar: React.FC = () => {
       roles: ['admin', 'user'],
     },
     {
+      name: 'Applications',
+      path: '/applications',
+      icon: <FileText className="h-5 w-5" />,
+      roles: ['admin', 'user'],
+    },
+    {
+      name: 'New Application',
+      path: '/applications/new',
+      icon: <UserPlus className="h-5 w-5" />,
+      roles: ['admin', 'user'],
+    },
+    {
+      name: 'Completed',
+      path: '/completed',
+      icon: <CheckSquare className="h-5 w-5" />,
+      roles: ['admin', 'user'],
+    },
+    {
+      name: 'Rejected',
+      path: '/rejected',
+      icon: <XCircle className="h-5 w-5" />,
+      roles: ['admin', 'user'],
+    },
+    {
       name: 'Customers',
       path: '/customers',
       icon: <Users className="h-5 w-5" />,
       roles: ['admin', 'user'],
     },
     {
-      name: 'New Application',
-      path: '/customers/new',
-      icon: <UserPlus className="h-5 w-5" />,
-      roles: ['admin', 'user'],
-    },
-    {
-      name: 'Completed Applications',
-      path: '/completed',
-      icon: <CheckSquare className="h-5 w-5" />,
-      roles: ['admin', 'user'],
-    },
-    {
-      name: 'Rejected Applications',
-      path: '/rejected',
-      icon: <XCircle className="h-5 w-5" />,
-      roles: ['admin', 'user'],
+      name: 'Product Management',
+      path: '/products',
+      icon: <Package className="h-5 w-5" />,
+      roles: ['admin'],
     },
     {
       name: 'User Management',
       path: '/users',
-      icon: <UserCog className="h-5 w-5" />,
+      icon: <Shield className="h-5 w-5" />,
       roles: ['admin'],
     },
     {
-      name: 'Product Management',
-      path: '/products',
-      icon: <Package className="h-5 w-5" />,
+      name: 'CRM Integration',
+      path: '/crm',
+      icon: <Link2 className="h-5 w-5" />,
       roles: ['admin'],
     },
     {
@@ -117,21 +131,25 @@ const Sidebar: React.FC = () => {
 
   const isActiveRoute = (path: string) => {
     // Exact match for most routes
-    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/analytics' || path === '/targets') {
+    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/analytics' || path === '/targets' || path === '/crm') {
       return location.pathname === path;
     }
     
-    // Special handling for customers - only active when exactly on /customers
+    // Special handling for applications
+    if (path === '/applications/new') {
+      return location.pathname === '/applications/new';
+    }
+    if (path === '/applications') {
+      return location.pathname === '/applications' || 
+             (location.pathname.startsWith('/applications/') && location.pathname !== '/applications/new');
+    }
+    
+    // Special handling for customers
     if (path === '/customers') {
-      return location.pathname === '/customers';
+      return location.pathname === '/customers' || 
+             (location.pathname.startsWith('/customers/') && location.pathname !== '/customers/new');
     }
     
-    // Special handling for new application - only active when on /customers/new
-    if (path === '/customers/new') {
-      return location.pathname === '/customers/new';
-    }
-    
-    // For customer detail pages, don't highlight any sidebar item to avoid confusion
     return false;
   };
 
