@@ -155,7 +155,7 @@ const ApplicationDetail = () => {
               <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                 <div>
                   <p className="text-sm text-muted-foreground">License Type</p>
-                  <p className="font-medium">{application.application_data.license_type || '-'}</p>
+                  <p className="font-medium">{application.customer?.license_type || '-'}</p>
                 </div>
                 <div>
                   <p className="text-sm text-muted-foreground">Amount</p>

@@ -65,7 +65,8 @@ export class ApplicationService {
           name,
           email,
           mobile,
-          company
+          company,
+          license_type
         )
       `)
       .eq('id', applicationId)

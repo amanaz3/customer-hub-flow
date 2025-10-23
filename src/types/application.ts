@@ -37,6 +37,7 @@ export interface Application {
     email: string;
     mobile: string;
     company: string;
+    license_type?: string;
   };
   documents?: ApplicationDocument[];
   messages?: ApplicationMessage[];

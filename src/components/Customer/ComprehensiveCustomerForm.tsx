@@ -274,7 +274,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     if (!user) {
       toast({
         title: 'Authentication Required',
-        description: 'Please log in to create customers.',
+        description: 'Please log in to create applications.',
         variant: 'destructive',
       });
       return;
@@ -285,7 +285,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     if (!rateLimitResult.allowed) {
       toast({
         title: 'Rate Limited',
-        description: `Too many customer creation attempts. Please wait before trying again.`,
+        description: `Too many creation attempts. Please wait before trying again.`,
         variant: 'destructive',
       });
       return;
@@ -303,94 +303,148 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
 
     setIsSubmitting(true);
-    PerformanceMonitor.startTiming('customer-create');
+    PerformanceMonitor.startTiming('application-create');
 
     try {
-      FeatureAnalytics.trackUserAction('customer_create_attempt', {
+      FeatureAnalytics.trackUserAction('application_create_attempt', {
         license_type: data.license_type,
         lead_source: data.lead_source,
         amount: data.amount
       }, user.id);
 
-      // Sanitize inputs
-      const sanitizedData = {
-        name: sanitizeInput(data.name.trim()),
-        email: data.email.toLowerCase().trim(),
-        mobile: data.mobile.replace(/\s/g, ''),
-        company: sanitizeInput(data.company.trim()),
-        amount: data.amount,
-        license_type: data.license_type,
-        lead_source: data.lead_source,
-        annual_turnover: data.annual_turnover,
-        jurisdiction: data.jurisdiction ? sanitizeInput(data.jurisdiction.trim()) : null,
-        preferred_bank: data.any_suitable_bank ? 'Any Suitable Bank' : [
-          data.bank_preference_1?.trim(),
-          data.bank_preference_2?.trim(), 
-          data.bank_preference_3?.trim()
-        ].filter(Boolean).join(', ') || null,
-        customer_notes: data.customer_notes ? sanitizeInput(data.customer_notes.trim()) : null,
-        product_id: data.product_id || null,
-        user_id: user.id,
-        status: 'Draft' as const
-      };
+      // Step 1: Find or create customer
+      let customerId = selectedCustomerId;
+      
+      if (customerMode === 'new' || !selectedCustomerId) {
+        // Create new customer with basic info + license_type
+        const { data: customer, error: customerError } = await supabase
+          .from('customers')
+          .insert([{
+            name: sanitizeInput(data.name.trim()),
+            email: data.email.toLowerCase().trim(),
+            mobile: data.mobile.replace(/\s/g, ''),
+            company: sanitizeInput(data.company.trim()),
+            license_type: data.license_type, // license_type stays with customer
+            user_id: user.id,
+            lead_source: 'Website', // Default value
+            amount: 0, // Default value, actual amount goes to application
+            status: 'Draft',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          }])
+          .select()
+          .single();
 
-      const { data: customer, error } = await supabase
-        .from('customers')
-        .insert([sanitizedData])
+        if (customerError) {
+          console.error('Customer creation error:', customerError);
+          throw customerError;
+        }
+
+        customerId = customer.id;
+      }
+
+      // Step 2: Create application with application-specific data
+      const { data: application, error: appError } = await supabase
+        .from('account_applications')
+        .insert([{
+          customer_id: customerId,
+          application_type: 'license',
+          submission_source: 'web_form',
+          status: 'draft',
+          application_data: {
+            lead_source: data.lead_source,
+            amount: data.amount,
+            preferred_bank: data.any_suitable_bank ? 'Any Suitable Bank' : [
+              data.bank_preference_1?.trim(),
+              data.bank_preference_2?.trim(), 
+              data.bank_preference_3?.trim()
+            ].filter(Boolean).join(', ') || null,
+            annual_turnover: data.annual_turnover,
+            jurisdiction: data.jurisdiction ? sanitizeInput(data.jurisdiction.trim()) : null,
+            customer_notes: data.customer_notes ? sanitizeInput(data.customer_notes.trim()) : null,
+            product_id: data.product_id || null,
+            user_id: user.id,
+          }
+        }])
         .select()
         .single();
 
-      if (error) {
-        console.error('Customer creation error:', error);
-        ErrorTracker.captureError(error, {
-          userId: user.id,
-          userRole: user.profile?.role,
-          page: 'customer_create',
-          customerContext: {
-            action: 'create',
-            company: data.company
-          }
-        });
-
-        FeatureAnalytics.trackUserAction('customer_create_failed', {
-          error: error.message
-        }, user.id);
-
-        toast({
-          title: 'Error Creating Customer',
-          description: error.message || 'Failed to create customer. Please try again.',
-          variant: 'destructive',
-        });
-        return;
+      if (appError) {
+        console.error('Application creation error:', appError);
+        throw appError;
       }
 
-      // Create default documents
-      const defaultDocs = await createDefaultDocuments(customer.id, data.license_type, data.no_of_shareholders);
-      setDocuments(defaultDocs);
-      setCreatedCustomerId(customer.id);
+      // Step 3: Create default application documents
+      const defaultDocTypes = [
+        'Passport Copy',
+        'Emirates ID Copy',
+        'Trade License Copy',
+        'Memorandum of Association (MOA)',
+        'Bank Statements (Last 6 months)',
+        'Company Profile',
+        'Audited Financial Statements',
+        'Business Plan',
+        'Proof of Address'
+      ];
 
-      PerformanceMonitor.endTiming('customer-create');
+      // Add shareholder documents
+      for (let i = 1; i <= data.no_of_shareholders; i++) {
+        const shareholderLabel = data.no_of_shareholders > 1 ? ` (Shareholder ${i})` : '';
+        defaultDocTypes.push(
+          `Authorized Signatory Passport${shareholderLabel}`,
+          `Authorized Signatory Emirates ID${shareholderLabel}`,
+          `Bank Statement${shareholderLabel}`
+        );
+      }
+
+      // Add Freezone-specific documents
+      if (data.license_type === 'Freezone') {
+        defaultDocTypes.push(
+          'Freezone License Copy',
+          'Lease Agreement (Freezone)',
+          'No Objection Certificate'
+        );
+      }
+
+      const documentsToInsert = defaultDocTypes.map(docType => ({
+        application_id: application.id,
+        document_type: docType,
+        is_uploaded: false,
+        file_path: null
+      }));
+
+      const { data: appDocs, error: docsError } = await supabase
+        .from('application_documents')
+        .insert(documentsToInsert)
+        .select();
+
+      if (docsError) {
+        console.error('Error creating application documents:', docsError);
+        // Don't fail the whole process if documents fail
+      }
+
+      // Note: appDocs are application_documents, not customer documents
+      // Store application ID for later reference
+      setCreatedCustomerId(application.id); // Store application ID for document upload
+
+      PerformanceMonitor.endTiming('application-create');
       
-      FeatureAnalytics.trackUserAction('customer_create_success', {
-        customer_id: customer.id,
+      FeatureAnalytics.trackUserAction('application_create_success', {
+        application_id: application.id,
+        customer_id: customerId,
         license_type: data.license_type,
         lead_source: data.lead_source
       }, user.id);
 
-      FeatureAnalytics.trackCustomerWorkflow('created', customer.id, {
-        license_type: data.license_type,
-        amount: data.amount
-      });
-
       toast({
-        title: 'Customer Created',
-        description: `${data.name} has been successfully created. You can now upload documents.`,
+        title: 'Application Created',
+        description: `Application for ${data.company} has been successfully created.`,
       });
 
-      // Move to documents tab and refresh parent component
+      // Move to documents tab
       setActiveTab('documents');
       
-      // Trigger refresh in parent to update customer list
+      // Trigger refresh in parent
       if (onSuccess) {
         onSuccess();
       }
@@ -400,22 +454,22 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       ErrorTracker.captureError(error as Error, {
         userId: user.id,
         userRole: user.profile?.role,
-        page: 'customer_create'
+        page: 'application_create'
       });
 
-      FeatureAnalytics.trackUserAction('customer_create_failed', {
+      FeatureAnalytics.trackUserAction('application_create_failed', {
         error: 'Unexpected error'
       }, user.id);
 
       toast({
-        title: 'Unexpected Error',
-        description: 'An unexpected error occurred. Please try again.',
+        title: 'Error',
+        description: 'Failed to create application. Please try again.',
         variant: 'destructive',
       });
     } finally {
       setIsSubmitting(false);
     }
-  }, [user, toast, validateForm, createDefaultDocuments]);
+  }, [user, toast, validateForm, customerMode, selectedCustomerId]);
 
   const handleDocumentUpload = useCallback(async (documentId: string, filePath: string) => {
     if (!createdCustomerId) return;

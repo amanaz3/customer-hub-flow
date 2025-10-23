@@ -159,7 +159,7 @@ function App() {
                   <Route path="/customers/:id" element={
                     <ProtectedRoute>
                       <MainLayout>
-                        <PageErrorBoundary pageName="Customer Details">
+                        <PageErrorBoundary pageName="Customer Profile">
                           <LazyCustomerDetail />
                         </PageErrorBoundary>
                       </MainLayout>
