@@ -2,6 +2,43 @@ import { supabase } from '@/lib/supabase';
 import { Customer } from '@/types/customer';
 
 export class CustomerService {
+  /**
+   * Fetch customers for a specific user (lightweight version for dropdowns)
+   */
+  static async fetchUserCustomers(userId: string): Promise<Partial<Customer>[]> {
+    const { data, error } = await supabase
+      .from('customers')
+      .select('id, name, email, mobile, company, created_at')
+      .eq('user_id', userId)
+      .order('company', { ascending: true });
+
+    if (error) {
+      console.error('Error fetching user customers:', error);
+      throw error;
+    }
+
+    return (data || []) as Partial<Customer>[];
+  }
+
+  /**
+   * Check for duplicate customers by email or company
+   */
+  static async checkDuplicateCustomer(email: string, company: string): Promise<Customer | null> {
+    const { data, error } = await supabase
+      .from('customers')
+      .select('*')
+      .or(`email.eq.${email},company.ilike.${company}`)
+      .limit(1)
+      .maybeSingle();
+
+    if (error) {
+      console.error('Error checking for duplicate:', error);
+      return null;
+    }
+
+    return data as any as Customer | null;
+  }
+
   static async fetchCustomers(userId?: string) {
     console.log('Fetching customers for user:', userId);
     
