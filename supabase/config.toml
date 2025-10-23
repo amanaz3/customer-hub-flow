@@ -68,3 +68,6 @@ verify_jwt = false
 
 [functions.monthly-digest-email]
 verify_jwt = false
+
+[functions.migrate-customer-applications]
+verify_jwt = true

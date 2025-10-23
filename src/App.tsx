@@ -24,6 +24,7 @@ import {
   LazyRejected,
   LazySettings,
   LazyProductManagement,
+  LazyDataMigration,
   LazyNotFound,
   PageLoadingFallback
 } from '@/components/LazyComponents';
@@ -220,6 +221,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Settings">
                           <LazySettings />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/admin/migrate" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Data Migration">
+                          <LazyDataMigration />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
