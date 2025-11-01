@@ -1,5 +1,5 @@
-import { Label } from '@/components/ui/label';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { UserPlus, Users } from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface CustomerTypeSelectorProps {
   value: 'new' | 'existing';
@@ -8,7 +8,7 @@ interface CustomerTypeSelectorProps {
 
 export const CustomerTypeSelector = ({ value, onChange }: CustomerTypeSelectorProps) => {
   return (
-    <div className="space-y-4 p-4 border rounded-lg bg-card">
+    <div className="space-y-3">
       <div>
         <h3 className="text-lg font-semibold">Customer Type</h3>
         <p className="text-sm text-muted-foreground">
@@ -16,31 +16,30 @@ export const CustomerTypeSelector = ({ value, onChange }: CustomerTypeSelectorPr
         </p>
       </div>
       
-      <RadioGroup value={value} onValueChange={onChange} className="space-y-3">
-        <div className="flex items-start space-x-3 space-y-0 rounded-md border p-4 hover:bg-accent/50 transition-colors">
-          <RadioGroupItem value="new" id="new-customer" />
-          <div className="space-y-1 leading-none">
-            <Label htmlFor="new-customer" className="font-medium cursor-pointer">
-              New Customer
-            </Label>
-            <p className="text-sm text-muted-foreground">
-              Create a new customer record and application together
-            </p>
-          </div>
-        </div>
-        
-        <div className="flex items-start space-x-3 space-y-0 rounded-md border p-4 hover:bg-accent/50 transition-colors">
-          <RadioGroupItem value="existing" id="existing-customer" />
-          <div className="space-y-1 leading-none">
-            <Label htmlFor="existing-customer" className="font-medium cursor-pointer">
-              Existing Customer
-            </Label>
-            <p className="text-sm text-muted-foreground">
-              Create an application for a customer that already exists in the system
-            </p>
-          </div>
-        </div>
-      </RadioGroup>
+      <Tabs value={value} onValueChange={onChange} className="w-full">
+        <TabsList className="grid w-full grid-cols-2 h-auto">
+          <TabsTrigger 
+            value="new" 
+            className="flex items-center gap-2 py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
+            <UserPlus className="h-4 w-4" />
+            <div className="flex flex-col items-start">
+              <span className="font-medium">New Customer</span>
+              <span className="text-xs opacity-80 hidden sm:inline">Create new record</span>
+            </div>
+          </TabsTrigger>
+          <TabsTrigger 
+            value="existing" 
+            className="flex items-center gap-2 py-3 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground"
+          >
+            <Users className="h-4 w-4" />
+            <div className="flex flex-col items-start">
+              <span className="font-medium">Existing Customer</span>
+              <span className="text-xs opacity-80 hidden sm:inline">Select from list</span>
+            </div>
+          </TabsTrigger>
+        </TabsList>
+      </Tabs>
     </div>
   );
 };
