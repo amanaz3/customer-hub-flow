@@ -10,7 +10,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
@@ -148,7 +147,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   initialData
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [activeTab, setActiveTab] = useState('details');
+  const [currentStage, setCurrentStage] = useState<'details' | 'documents'>('details');
   const [createdCustomerId, setCreatedCustomerId] = useState<string | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [customerMode, setCustomerMode] = useState<'new' | 'existing'>('new');
@@ -649,8 +648,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         description: `Application for ${data.company} has been successfully created.`,
       });
 
-      // Move to documents tab
-      setActiveTab('documents');
+      // Move to documents stage
+      setCurrentStage('documents');
       
       // Trigger refresh in parent
       if (onSuccess) {
@@ -813,20 +812,59 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           onCompanyCreated={handleCompanyCreated}
         />
 
-        <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="details">Customer Details</TabsTrigger>
-            <TabsTrigger value="documents" disabled={!createdCustomerId}>
-              Documents 
+        {/* Stage Indicator */}
+        <div className="flex items-center justify-center gap-2 mb-6">
+          <div className="flex items-center gap-2">
+            <div className={cn(
+              "flex items-center justify-center w-8 h-8 rounded-full font-medium text-sm",
+              currentStage === 'details' 
+                ? "bg-primary text-primary-foreground" 
+                : "bg-muted text-muted-foreground"
+            )}>
+              1
+            </div>
+            <span className={cn(
+              "text-sm font-medium",
+              currentStage === 'details' ? "text-foreground" : "text-muted-foreground"
+            )}>
+              Application Details
+            </span>
+          </div>
+          
+          <div className={cn(
+            "w-12 h-0.5",
+            createdCustomerId ? "bg-primary" : "bg-muted"
+          )} />
+          
+          <div className="flex items-center gap-2">
+            <div className={cn(
+              "flex items-center justify-center w-8 h-8 rounded-full font-medium text-sm",
+              currentStage === 'documents' && createdCustomerId
+                ? "bg-primary text-primary-foreground" 
+                : createdCustomerId 
+                ? "bg-muted-foreground/20 text-muted-foreground"
+                : "bg-muted text-muted-foreground"
+            )}>
+              2
+            </div>
+            <span className={cn(
+              "text-sm font-medium",
+              currentStage === 'documents' && createdCustomerId 
+                ? "text-foreground" 
+                : "text-muted-foreground"
+            )}>
+              Documents
               {createdCustomerId && (
                 <Badge variant={allMandatoryUploaded ? "default" : "secondary"} className="ml-2">
                   {documents.filter(doc => doc.is_uploaded).length}/{documents.length}
                 </Badge>
               )}
-            </TabsTrigger>
-          </TabsList>
+            </span>
+          </div>
+        </div>
 
-          <TabsContent value="details" className="space-y-4 mt-4">
+        {currentStage === 'details' && (
+          <div className="space-y-4">
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               {/* Basic Information */}
               <div>
@@ -2476,14 +2514,22 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               </div>
 
               <div className="flex justify-end space-x-4 pt-4 pb-2">
-                {/* Placeholder to maintain form spacing */}
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="min-w-[150px]"
+                >
+                  {isSubmitting ? 'Creating Application...' : 'Create Application'}
+                </Button>
               </div>
             </form>
-          </TabsContent>
+          </div>
+        )}
 
-          <TabsContent value="documents" className="space-y-6">
-            {createdCustomerId && documents.length > 0 ? (
-              <div className="space-y-6">
+        {currentStage === 'documents' && createdCustomerId && (
+          <div className="space-y-6">
+            {documents.length > 0 ? (
+              <>
                 <div className="flex items-center justify-between">
                   <div>
                     <h3 className="text-lg font-medium">Document Upload</h3>
@@ -2505,7 +2551,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 <div className="flex justify-between">
                   <Button
                     variant="outline"
-                    onClick={() => setActiveTab('details')}
+                    onClick={() => setCurrentStage('details')}
                     disabled={isSubmitting}
                   >
                     Back to Details
@@ -2518,33 +2564,20 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     {allMandatoryUploaded ? 'Complete Application' : 'Save & Continue Later'}
                   </Button>
                 </div>
-              </div>
+              </>
             ) : (
               <div className="text-center py-8 text-muted-foreground">
                 <p>Please create the customer first to upload documents.</p>
                 <Button
                   variant="outline"
-                  onClick={() => setActiveTab('details')}
+                  onClick={() => setCurrentStage('details')}
                   className="mt-4"
                 >
                   Go to Customer Details
                 </Button>
               </div>
             )}
-          </TabsContent>
-        </Tabs>
-
-        {/* Floating Submit Button */}
-        {activeTab === 'details' && !createdCustomerId && (
-          <Button
-            type="button"
-            onClick={form.handleSubmit(handleSubmit)}
-            disabled={isSubmitting}
-            className="fixed bottom-6 right-6 w-12 h-12 p-0 bg-green-700 hover:bg-green-800 text-white font-semibold shadow-lg border-2 border-green-600 rounded-full z-50 transition-all hover:shadow-xl flex items-center justify-center"
-            title="Create Customer"
-          >
-            {isSubmitting ? '...' : <Plus className="h-5 w-5" />}
-          </Button>
+          </div>
         )}
       </CardContent>
     </Card>
