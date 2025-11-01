@@ -27,6 +27,7 @@ import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput 
 import { CreateCompanyDialog } from './CreateCompanyDialog';
 import { Building2, Plus, Users } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { cn } from '@/lib/utils';
 
 // Form validation schema
 const formSchema = z.object({
@@ -780,35 +781,63 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     ) : products.length === 0 ? (
                       <p className="text-sm text-muted-foreground">No products available.</p>
                     ) : (
-                      <RadioGroup
-                        value={watchProductId}
-                        onValueChange={(value) => form.setValue('product_id', value)}
-                        disabled={isSubmitting}
-                      >
-                        <div className="space-y-3 p-4 border border-border rounded-lg bg-card">
-                          {products.map((product) => (
-                            <div key={product.id} className="flex items-start space-x-3">
-                              <RadioGroupItem
-                                value={product.id}
-                                id={`product-${product.id}`}
-                              />
-                              <div className="flex-1">
-                                <Label 
-                                  htmlFor={`product-${product.id}`}
-                                  className="font-medium cursor-pointer"
-                                >
-                                  {product.name}
-                                </Label>
-                                {product.description && (
-                                  <p className="text-sm text-muted-foreground mt-1">
-                                    {product.description}
-                                  </p>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        {products.map((product) => {
+                          const isSelected = watchProductId === product.id;
+                          return (
+                            <div
+                              key={product.id}
+                              onClick={() => !isSubmitting && form.setValue('product_id', product.id)}
+                              className={cn(
+                                "relative p-4 rounded-lg border-2 cursor-pointer transition-all duration-200",
+                                "hover:shadow-md",
+                                isSelected
+                                  ? "border-primary bg-primary/5 shadow-sm"
+                                  : "border-border bg-card hover:border-primary/50",
+                                isSubmitting && "opacity-50 cursor-not-allowed"
+                              )}
+                            >
+                              <div className="flex items-start justify-between gap-3">
+                                <div className="flex-1">
+                                  <h4 className={cn(
+                                    "font-semibold text-base",
+                                    isSelected && "text-primary"
+                                  )}>
+                                    {product.name}
+                                  </h4>
+                                  {product.description && (
+                                    <p className="text-sm text-muted-foreground mt-1">
+                                      {product.description}
+                                    </p>
+                                  )}
+                                </div>
+                                {isSelected && (
+                                  <div className="flex-shrink-0">
+                                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                                      <svg
+                                        className="w-4 h-4 text-primary-foreground"
+                                        fill="none"
+                                        strokeWidth="2.5"
+                                        stroke="currentColor"
+                                        viewBox="0 0 24 24"
+                                      >
+                                        <path
+                                          strokeLinecap="round"
+                                          strokeLinejoin="round"
+                                          d="M5 13l4 4L19 7"
+                                        />
+                                      </svg>
+                                    </div>
+                                  </div>
                                 )}
                               </div>
+                              {isSelected && (
+                                <div className="absolute inset-0 rounded-lg ring-2 ring-primary ring-offset-2 pointer-events-none" />
+                              )}
                             </div>
-                          ))}
-                        </div>
-                      </RadioGroup>
+                          );
+                        })}
+                      </div>
                     )}
                     {form.formState.errors.product_id && (
                       <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>
