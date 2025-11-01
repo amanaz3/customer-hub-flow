@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Building2, Mail, Phone, FileText, Plus } from 'lucide-react';
+import { ArrowLeft, Building2, Mail, Phone, FileText, Plus, Upload } from 'lucide-react';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,11 +8,14 @@ import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import type { BaseCustomer } from '@/types/customer';
+import type { BaseCustomer, Document } from '@/types/customer';
 import type { Application } from '@/types/application';
+import CustomDocumentUpload from '@/components/Customer/CustomDocumentUpload';
 
 interface CustomerWithApplications extends BaseCustomer {
   applications?: Application[];
+  documents?: Document[];
+  status?: string;
 }
 
 const CustomerDetailNew = () => {
@@ -23,54 +26,70 @@ const CustomerDetailNew = () => {
   const [customer, setCustomer] = useState<CustomerWithApplications | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchCustomer = async () => {
-      if (!id) return;
+  const fetchCustomerData = async () => {
+    if (!id) return;
+    
+    try {
+      setLoading(true);
       
-      try {
-        setLoading(true);
-        
-        // Fetch customer
-        const { data: customerData, error: customerError } = await supabase
-          .from('customers')
-          .select('id, name, email, mobile, company, license_type, created_at, updated_at')
-          .eq('id', id)
-          .single();
+      // Fetch customer with status from latest application
+      const { data: customerData, error: customerError } = await supabase
+        .from('customers')
+        .select('id, name, email, mobile, company, license_type, created_at, updated_at')
+        .eq('id', id)
+        .single();
 
-        if (customerError) throw customerError;
+      if (customerError) throw customerError;
 
-        // Map license_type to licenseType for consistency
-        const mappedCustomer = {
-          ...customerData,
-          licenseType: customerData.license_type,
-        };
+      // Map license_type to licenseType for consistency
+      const mappedCustomer = {
+        ...customerData,
+        licenseType: customerData.license_type,
+      };
 
-        // Fetch applications for this customer
-        const { data: applicationsData, error: appsError } = await supabase
-          .from('account_applications')
-          .select('*')
-          .eq('customer_id', id)
-          .order('created_at', { ascending: false });
+      // Fetch applications for this customer
+      const { data: applicationsData, error: appsError } = await supabase
+        .from('account_applications')
+        .select('*')
+        .eq('customer_id', id)
+        .order('created_at', { ascending: false });
 
-        if (appsError) throw appsError;
+      if (appsError) throw appsError;
 
-        setCustomer({
-          ...mappedCustomer,
-          applications: applicationsData as Application[]
-        });
-      } catch (error) {
-        console.error('Error fetching customer:', error);
-        toast({
-          title: 'Error',
-          description: 'Failed to load customer',
-          variant: 'destructive',
-        });
-      } finally {
-        setLoading(false);
-      }
-    };
+      // Fetch documents
+      const { data: documentsData, error: docsError } = await supabase
+        .from('documents')
+        .select('*')
+        .eq('customer_id', id)
+        .order('created_at', { ascending: false });
 
-    fetchCustomer();
+      if (docsError) throw docsError;
+
+      // Get status from latest application or default to 'Draft'
+      const latestStatus = applicationsData && applicationsData.length > 0 
+        ? applicationsData[0].status 
+        : 'Draft';
+
+      setCustomer({
+        ...mappedCustomer,
+        applications: applicationsData as Application[],
+        documents: documentsData as Document[],
+        status: latestStatus
+      });
+    } catch (error) {
+      console.error('Error fetching customer:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load customer',
+        variant: 'destructive',
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchCustomerData();
   }, [id, toast]);
 
   if (loading) {
@@ -227,6 +246,31 @@ const CustomerDetailNew = () => {
               </TableBody>
             </Table>
           )}
+        </CardContent>
+      </Card>
+
+      {/* Documents Section - Always visible for admins */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Upload className="h-5 w-5" />
+            Documents
+            {isAdmin && (
+              <Badge variant="secondary" className="ml-2">Admin Access</Badge>
+            )}
+          </CardTitle>
+          <p className="text-sm text-muted-foreground">
+            {isAdmin 
+              ? 'As admin, you can upload documents at any time'
+              : 'Upload supporting documents for this customer'}
+          </p>
+        </CardHeader>
+        <CardContent>
+          <CustomDocumentUpload
+            customerId={id!}
+            customerStatus={isAdmin ? 'Draft' : customer.status}
+            onDocumentAdded={fetchCustomerData}
+          />
         </CardContent>
       </Card>
     </div>
