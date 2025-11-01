@@ -585,7 +585,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       <CardHeader className="pb-3">
         <CardTitle className="text-xl">New Application</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-4 pb-2">
         {/* Customer Selection Section */}
         <div className="p-3 border rounded-lg bg-muted/30">
           <div className="space-y-3">
