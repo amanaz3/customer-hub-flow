@@ -1112,12 +1112,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             <TabsTrigger 
                               value="all"
                               disabled={isSubmitting || serviceCategoriesLoading}
-                              className="relative flex items-center justify-center gap-2 py-3 px-4 rounded-none border-b-4 border-transparent data-[state=active]:border-b-green-500 data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-950/30 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-400 transition-all"
+                              className="relative flex items-center justify-center gap-2 py-3 px-4 rounded-none border-b-4 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-950/30 data-[state=active]:text-blue-700 dark:data-[state=active]:text-blue-400 transition-all"
                             >
                               <span className="font-medium text-sm">All Products</span>
                               <Badge variant="secondary" className={cn(
                                 "text-xs",
-                                categoryFilter === 'all' && "bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-200"
+                                categoryFilter === 'all' && "bg-blue-200 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
                               )}>
                                 {allProducts.length}
                               </Badge>
@@ -1129,12 +1129,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                   key={category.id}
                                   value={category.id}
                                   disabled={isSubmitting || serviceCategoriesLoading}
-                                  className="relative flex items-center justify-center gap-2 py-3 px-4 rounded-none border-b-4 border-transparent data-[state=active]:border-b-green-500 data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-950/30 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-400 transition-all"
+                                  className="relative flex items-center justify-center gap-2 py-3 px-4 rounded-none border-b-4 border-transparent data-[state=active]:border-b-blue-500 data-[state=active]:bg-blue-50 dark:data-[state=active]:bg-blue-950/30 data-[state=active]:text-blue-700 dark:data-[state=active]:text-blue-400 transition-all"
                                 >
                                   <span className="font-medium text-sm">{category.category_name}</span>
                                   <Badge variant="secondary" className={cn(
                                     "text-xs",
-                                    categoryFilter === category.id && "bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-200"
+                                    categoryFilter === category.id && "bg-blue-200 dark:bg-blue-900 text-blue-800 dark:text-blue-200"
                                   )}>
                                     {count}
                                   </Badge>
@@ -1169,8 +1169,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                      "relative p-3 rounded-md border-2 cursor-pointer transition-all duration-200",
                                      "hover:shadow-sm",
                                      isSelected
-                                       ? "border-green-600 bg-green-50 dark:bg-green-950/30 shadow-md"
-                                       : "border-border bg-card hover:border-green-300",
+                                       ? "border-blue-600 bg-blue-50 dark:bg-blue-950/30 shadow-md"
+                                       : "border-border bg-card hover:border-blue-300",
                                      isSubmitting && "opacity-50 cursor-not-allowed"
                                    )}
                                  >
@@ -1178,14 +1178,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                     <div className="flex-1 min-w-0">
                                       <h4 className={cn(
                                         "font-medium text-sm truncate",
-                                        isSelected && "text-green-700 dark:text-green-400"
+                                        isSelected && "text-blue-700 dark:text-blue-400"
                                       )}>
                                         {product.name}
                                       </h4>
                                     </div>
                                     {isSelected && (
                                        <div className="flex-shrink-0">
-                                         <div className="w-5 h-5 rounded-full bg-green-600 flex items-center justify-center">
+                                         <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center">
                                            <svg
                                              className="w-3 h-3 text-white"
                                              fill="none"
