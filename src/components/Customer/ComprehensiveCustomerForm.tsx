@@ -1711,7 +1711,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </p>
                     <Accordion type="single" collapsible className="w-full">
                       <AccordionItem value="goaml-docs" className="border-0">
-                        <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm flex justify-between items-center w-full">
+                        <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm justify-start gap-2">
                           <span className="text-muted-foreground">View document checklist</span>
                         </AccordionTrigger>
                       <AccordionContent className="px-4 pb-4">
@@ -2095,7 +2095,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </p>
                       <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="home-finance-docs" className="border-0">
-                          <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm flex justify-between items-center w-full">
+                          <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm justify-start gap-2">
                             <span className="text-muted-foreground">View document checklist</span>
                           </AccordionTrigger>
                         <AccordionContent className="px-4 pb-4">
@@ -2355,7 +2355,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </p>
                       <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="vat-reg-docs" className="border-0">
-                          <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm flex justify-between items-center w-full">
+                          <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm justify-start gap-2">
                             <span className="text-muted-foreground">View document checklist</span>
                           </AccordionTrigger>
                         <AccordionContent className="px-4 pb-4">
@@ -2501,7 +2501,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </p>
                       <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="corp-tax-reg-docs" className="border-0">
-                          <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm flex justify-between items-center w-full">
+                          <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm justify-start gap-2">
                             <span className="text-muted-foreground">View document checklist</span>
                           </AccordionTrigger>
                         <AccordionContent className="px-4 pb-4">
@@ -2669,7 +2669,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </p>
                       <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="required-docs" className="border-0">
-                          <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm flex justify-between items-center w-full">
+                          <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm justify-start gap-2">
                             <span className="text-muted-foreground">View document checklist</span>
                           </AccordionTrigger>
                           <AccordionContent className="px-4 pb-4">
