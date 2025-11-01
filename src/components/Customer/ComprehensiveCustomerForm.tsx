@@ -2721,9 +2721,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
         ) : (
           <>
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
-            </svg>
+            <Plus className="w-8 h-8" />
             <span className="absolute -top-10 right-0 bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
               Create Application
             </span>
