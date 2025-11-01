@@ -1274,6 +1274,60 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </div>
                       </>
                     )}
+
+                    {/* Banking Preferences - shown for bank account products */}
+                    {hasBankAccount && (
+                      <>
+                        <div className="col-span-full mt-2">
+                          <h5 className="text-sm font-medium mb-2">Banking Preferences</h5>
+                        </div>
+                        <div className="col-span-full">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="any_suitable_bank"
+                              checked={watchAnySuitableBank}
+                              onCheckedChange={(checked) => form.setValue('any_suitable_bank', !!checked)}
+                              disabled={isSubmitting}
+                            />
+                            <Label htmlFor="any_suitable_bank">Any Suitable Bank</Label>
+                          </div>
+                        </div>
+
+                        {!watchAnySuitableBank && (
+                          <>
+                            <div className="space-y-2">
+                              <Label htmlFor="bank_preference_1">First Preference</Label>
+                              <Input
+                                id="bank_preference_1"
+                                {...form.register('bank_preference_1')}
+                                placeholder="Enter first preference bank"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="bank_preference_2">Second Preference</Label>
+                              <Input
+                                id="bank_preference_2"
+                                {...form.register('bank_preference_2')}
+                                placeholder="Enter second preference bank"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="bank_preference_3">Third Preference</Label>
+                              <Input
+                                id="bank_preference_3"
+                                {...form.register('bank_preference_3')}
+                                placeholder="Enter third preference bank"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+                          </>
+                        )}
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -2624,57 +2678,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </AccordionItem>
               )}
 
-              {/* Banking Preferences - shown for bank account products or company formation */}
-              {(hasBankAccount || hasCompanyFormation) && (
-                <div>
-                  <h3 className="text-base font-medium mb-3">Banking Preferences</h3>
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <Checkbox
-                        id="any_suitable_bank"
-                        checked={watchAnySuitableBank}
-                        onCheckedChange={(checked) => form.setValue('any_suitable_bank', !!checked)}
-                        disabled={isSubmitting}
-                      />
-                      <Label htmlFor="any_suitable_bank">Any Suitable Bank</Label>
-                    </div>
-
-                    {!watchAnySuitableBank && (
-                      <div className="space-y-3">
-                        <div className="space-y-2">
-                          <Label htmlFor="bank_preference_1">First Preference</Label>
-                          <Input
-                            id="bank_preference_1"
-                            {...form.register('bank_preference_1')}
-                            placeholder="Enter first preference bank"
-                            disabled={isSubmitting}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="bank_preference_2">Second Preference</Label>
-                          <Input
-                            id="bank_preference_2"
-                            {...form.register('bank_preference_2')}
-                            placeholder="Enter second preference bank"
-                            disabled={isSubmitting}
-                          />
-                        </div>
-                        
-                        <div className="space-y-2">
-                          <Label htmlFor="bank_preference_3">Third Preference</Label>
-                          <Input
-                            id="bank_preference_3"
-                            {...form.register('bank_preference_3')}
-                            placeholder="Enter third preference bank"
-                            disabled={isSubmitting}
-                          />
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              )}
 
               </Accordion>
 
