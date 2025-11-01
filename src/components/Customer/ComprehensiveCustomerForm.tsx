@@ -61,6 +61,15 @@ const formSchema = z.object({
     .min(1, "Number of shareholders must be at least 1")
     .max(10, "Number of shareholders cannot exceed 10")
     .default(1),
+  // Bookkeeping-specific fields
+  accounting_software: z.string().optional(),
+  monthly_transactions: z.string().optional(),
+  vat_registered: z.boolean().optional(),
+  bank_accounts_count: z.number().optional(),
+  employees_count: z.number().optional(),
+  service_start_date: z.string().optional(),
+  has_previous_records: z.boolean().optional(),
+  reporting_frequency: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -124,6 +133,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       customer_notes: '',
       product_ids: [],
       no_of_shareholders: 1,
+      // Bookkeeping defaults
+      accounting_software: '',
+      monthly_transactions: '',
+      vat_registered: false,
+      bank_accounts_count: 1,
+      employees_count: 0,
+      service_start_date: '',
+      has_previous_records: false,
+      reporting_frequency: 'Monthly',
       ...initialData
     },
   });
@@ -131,6 +149,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const watchAnySuitableBank = form.watch('any_suitable_bank');
   const watchLicenseType = form.watch('license_type');
   const watchShareholderCount = form.watch('no_of_shareholders');
+  const watchProductIds = form.watch('product_ids');
+
+  // Check which product types are selected
+  const selectedProducts = products.filter(p => watchProductIds?.includes(p.id));
+  const hasBookkeeping = selectedProducts.some(p => p.name.toLowerCase().includes('bookkeeping') || p.name.toLowerCase().includes('accounting'));
+  const hasCompanyFormation = selectedProducts.some(p => p.name.toLowerCase().includes('company') || p.name.toLowerCase().includes('formation') || p.name.toLowerCase().includes('license'));
+  const hasBankAccount = selectedProducts.some(p => p.name.toLowerCase().includes('bank'));
 
   // Fetch existing customers for selection
   useEffect(() => {
@@ -364,6 +389,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             customer_notes: data.customer_notes ? sanitizeInput(data.customer_notes.trim()) : null,
             product_ids: data.product_ids || [],
             user_id: user.id,
+            // Bookkeeping-specific fields
+            ...(data.accounting_software && { accounting_software: data.accounting_software }),
+            ...(data.monthly_transactions && { monthly_transactions: data.monthly_transactions }),
+            ...(data.vat_registered !== undefined && { vat_registered: data.vat_registered }),
+            ...(data.bank_accounts_count && { bank_accounts_count: data.bank_accounts_count }),
+            ...(data.employees_count !== undefined && { employees_count: data.employees_count }),
+            ...(data.service_start_date && { service_start_date: data.service_start_date }),
+            ...(data.has_previous_records !== undefined && { has_previous_records: data.has_previous_records }),
+            ...(data.reporting_frequency && { reporting_frequency: data.reporting_frequency }),
           }
         }])
         .select()
@@ -685,24 +719,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 <h3 className="text-lg font-medium mb-4">Business Details</h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="license_type">License Type *</Label>
-                    <Select
-                      value={form.watch('license_type')}
-                      onValueChange={(value) => form.setValue('license_type', value as any)}
-                      disabled={isSubmitting}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Mainland">Mainland</SelectItem>
-                        <SelectItem value="Freezone">Freezone</SelectItem>
-                        <SelectItem value="Offshore">Offshore</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
                     <Label htmlFor="lead_source">Lead Source *</Label>
                     <Select
                       value={form.watch('lead_source')}
@@ -721,8 +737,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </Select>
                   </div>
 
-                  <div className="space-y-3">
-                    <Label>Products / Services</Label>
+                  <div className="space-y-3 md:col-span-2">
+                    <Label>Products / Services *</Label>
                     {productsLoading ? (
                       <p className="text-sm text-muted-foreground">Loading products...</p>
                     ) : products.length === 0 ? (
@@ -771,6 +787,71 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </p>
                   </div>
 
+                  {/* Conditional fields based on selected products */}
+                  
+                  {hasCompanyFormation && (
+                    <>
+                      <div className="space-y-2">
+                        <Label htmlFor="license_type">License Type *</Label>
+                        <Select
+                          value={form.watch('license_type')}
+                          onValueChange={(value) => form.setValue('license_type', value as any)}
+                          disabled={isSubmitting}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Mainland">Mainland</SelectItem>
+                            <SelectItem value="Freezone">Freezone</SelectItem>
+                            <SelectItem value="Offshore">Offshore</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="jurisdiction">Jurisdiction</Label>
+                        <select
+                          id="jurisdiction"
+                          {...form.register('jurisdiction')}
+                          disabled={isSubmitting}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <option value="">Select jurisdiction (optional)</option>
+                          <option value="Dubai">Dubai</option>
+                          <option value="Abu Dhabi">Abu Dhabi</option>
+                          <option value="Sharjah">Sharjah</option>
+                          <option value="Ajman">Ajman</option>
+                          <option value="Ras Al Khaimah">Ras Al Khaimah</option>
+                          <option value="Fujairah">Fujairah</option>
+                          <option value="Umm Al Quwain">Umm Al Quwain</option>
+                          <option value="Mainland">Mainland</option>
+                          <option value="Freezone">Freezone</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
+                        <Input
+                          id="no_of_shareholders"
+                          type="number"
+                          min="1"
+                          max="10"
+                          {...form.register('no_of_shareholders', { valueAsNumber: true })}
+                          disabled={isSubmitting}
+                          required
+                        />
+                        {form.formState.errors.no_of_shareholders && (
+                          <p className="text-sm text-red-600">{form.formState.errors.no_of_shareholders.message}</p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          Number of shareholders will determine how many signatory document sets are created (1-10)
+                        </p>
+                      </div>
+                    </>
+                  )}
+
                   <div className="space-y-2">
                     <Label htmlFor="amount">Amount (AED) *</Label>
                     <Input
@@ -802,101 +883,189 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       <p className="text-sm text-red-600">{form.formState.errors.annual_turnover.message}</p>
                     )}
                   </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="jurisdiction">Jurisdiction</Label>
-                    <select
-                      id="jurisdiction"
-                      {...form.register('jurisdiction')}
-                      disabled={isSubmitting}
-                      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    >
-                      <option value="">Select jurisdiction (optional)</option>
-                      <option value="Dubai">Dubai</option>
-                      <option value="Abu Dhabi">Abu Dhabi</option>
-                      <option value="Sharjah">Sharjah</option>
-                      <option value="Ajman">Ajman</option>
-                      <option value="Ras Al Khaimah">Ras Al Khaimah</option>
-                      <option value="Fujairah">Fujairah</option>
-                      <option value="Umm Al Quwain">Umm Al Quwain</option>
-                      <option value="Mainland">Mainland</option>
-                      <option value="Freezone">Freezone</option>
-                      <option value="Other">Other</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
-                    <Input
-                      id="no_of_shareholders"
-                      type="number"
-                      min="1"
-                      max="10"
-                      {...form.register('no_of_shareholders', { valueAsNumber: true })}
-                      disabled={isSubmitting}
-                      required
-                    />
-                    {form.formState.errors.no_of_shareholders && (
-                      <p className="text-sm text-red-600">{form.formState.errors.no_of_shareholders.message}</p>
-                    )}
-                    <p className="text-xs text-muted-foreground">
-                      Number of shareholders will determine how many signatory document sets are created (1-10)
-                    </p>
-                  </div>
                 </div>
               </div>
 
               <Separator />
 
-              {/* Banking Preferences */}
-              <div>
-                <h3 className="text-lg font-medium mb-4">Banking Preferences</h3>
-                <div className="space-y-4">
-                  <div className="flex items-center space-x-2">
-                    <Checkbox
-                      id="any_suitable_bank"
-                      checked={watchAnySuitableBank}
-                      onCheckedChange={(checked) => form.setValue('any_suitable_bank', !!checked)}
-                      disabled={isSubmitting}
-                    />
-                    <Label htmlFor="any_suitable_bank">Any Suitable Bank</Label>
-                  </div>
+              {/* Bookkeeping-Specific Information */}
+              {hasBookkeeping && (
+                <>
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Bookkeeping Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="accounting_software">Current Accounting Software</Label>
+                        <Select
+                          value={form.watch('accounting_software') || ''}
+                          onValueChange={(value) => form.setValue('accounting_software', value)}
+                          disabled={isSubmitting}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select software" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="none">None</SelectItem>
+                            <SelectItem value="xero">Xero</SelectItem>
+                            <SelectItem value="quickbooks">QuickBooks</SelectItem>
+                            <SelectItem value="zoho">Zoho Books</SelectItem>
+                            <SelectItem value="sage">Sage</SelectItem>
+                            <SelectItem value="other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
 
-                  {!watchAnySuitableBank && (
-                    <div className="space-y-3">
                       <div className="space-y-2">
-                        <Label htmlFor="bank_preference_1">First Preference</Label>
+                        <Label htmlFor="monthly_transactions">Monthly Transaction Volume</Label>
+                        <Select
+                          value={form.watch('monthly_transactions') || ''}
+                          onValueChange={(value) => form.setValue('monthly_transactions', value)}
+                          disabled={isSubmitting}
+                        >
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select volume" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="0-50">0-50 transactions</SelectItem>
+                            <SelectItem value="51-100">51-100 transactions</SelectItem>
+                            <SelectItem value="101-250">101-250 transactions</SelectItem>
+                            <SelectItem value="251-500">251-500 transactions</SelectItem>
+                            <SelectItem value="500+">500+ transactions</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="bank_accounts_count">Number of Bank Accounts</Label>
                         <Input
-                          id="bank_preference_1"
-                          {...form.register('bank_preference_1')}
-                          placeholder="Enter first preference bank"
+                          id="bank_accounts_count"
+                          type="number"
+                          min="1"
+                          max="20"
+                          {...form.register('bank_accounts_count', { valueAsNumber: true })}
+                          disabled={isSubmitting}
+                          placeholder="How many bank accounts to reconcile?"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="employees_count">Number of Employees (for Payroll)</Label>
+                        <Input
+                          id="employees_count"
+                          type="number"
+                          min="0"
+                          max="1000"
+                          {...form.register('employees_count', { valueAsNumber: true })}
+                          disabled={isSubmitting}
+                          placeholder="Enter number of employees"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="service_start_date">Preferred Service Start Date</Label>
+                        <Input
+                          id="service_start_date"
+                          type="date"
+                          {...form.register('service_start_date')}
                           disabled={isSubmitting}
                         />
                       </div>
-                      
+
                       <div className="space-y-2">
-                        <Label htmlFor="bank_preference_2">Second Preference</Label>
-                        <Input
-                          id="bank_preference_2"
-                          {...form.register('bank_preference_2')}
-                          placeholder="Enter second preference bank"
+                        <Label htmlFor="reporting_frequency">Reporting Frequency</Label>
+                        <Select
+                          value={form.watch('reporting_frequency') || 'Monthly'}
+                          onValueChange={(value) => form.setValue('reporting_frequency', value)}
                           disabled={isSubmitting}
-                        />
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Monthly">Monthly</SelectItem>
+                            <SelectItem value="Quarterly">Quarterly</SelectItem>
+                            <SelectItem value="Annual">Annual</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </div>
-                      
-                      <div className="space-y-2">
-                        <Label htmlFor="bank_preference_3">Third Preference</Label>
-                        <Input
-                          id="bank_preference_3"
-                          {...form.register('bank_preference_3')}
-                          placeholder="Enter third preference bank"
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="vat_registered"
+                          checked={form.watch('vat_registered') || false}
+                          onCheckedChange={(checked) => form.setValue('vat_registered', !!checked)}
                           disabled={isSubmitting}
                         />
+                        <Label htmlFor="vat_registered">VAT Registered</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="has_previous_records"
+                          checked={form.watch('has_previous_records') || false}
+                          onCheckedChange={(checked) => form.setValue('has_previous_records', !!checked)}
+                          disabled={isSubmitting}
+                        />
+                        <Label htmlFor="has_previous_records">Has Previous Accounting Records</Label>
                       </div>
                     </div>
-                  )}
+                  </div>
+
+                  <Separator />
+                </>
+              )}
+
+              {/* Banking Preferences - shown for bank account products or company formation */}
+              {(hasBankAccount || hasCompanyFormation) && (
+                <div>
+                  <h3 className="text-lg font-medium mb-4">Banking Preferences</h3>
+                  <div className="space-y-4">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox
+                        id="any_suitable_bank"
+                        checked={watchAnySuitableBank}
+                        onCheckedChange={(checked) => form.setValue('any_suitable_bank', !!checked)}
+                        disabled={isSubmitting}
+                      />
+                      <Label htmlFor="any_suitable_bank">Any Suitable Bank</Label>
+                    </div>
+
+                    {!watchAnySuitableBank && (
+                      <div className="space-y-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="bank_preference_1">First Preference</Label>
+                          <Input
+                            id="bank_preference_1"
+                            {...form.register('bank_preference_1')}
+                            placeholder="Enter first preference bank"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="bank_preference_2">Second Preference</Label>
+                          <Input
+                            id="bank_preference_2"
+                            {...form.register('bank_preference_2')}
+                            placeholder="Enter second preference bank"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="bank_preference_3">Third Preference</Label>
+                          <Input
+                            id="bank_preference_3"
+                            {...form.register('bank_preference_3')}
+                            placeholder="Enter third preference bank"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
-              </div>
+              )}
 
               <Separator />
 
