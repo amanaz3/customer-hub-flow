@@ -22,6 +22,11 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { 
@@ -36,7 +41,7 @@ import {
   getFileDownloadLink
 } from '@/utils/fileUpload';
 import type { UploadProgress } from '@/utils/fileUpload';
-import { Upload, CheckCircle, Eye, Download, X, Plus, FileText, Trash2, Replace } from 'lucide-react';
+import { Upload, CheckCircle, Eye, Download, X, Plus, FileText, Trash2, Replace, ChevronDown } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 
 interface CustomDocument {
@@ -73,6 +78,7 @@ const CustomDocumentUpload: React.FC<CustomDocumentUploadProps> = ({
   const [documentToReplace, setDocumentToReplace] = useState<CustomDocument | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReplacing, setIsReplacing] = useState(false);
+  const [showGuidelines, setShowGuidelines] = useState(false);
 
   // Load custom documents on component mount
   React.useEffect(() => {
@@ -609,17 +615,31 @@ const CustomDocumentUpload: React.FC<CustomDocumentUploadProps> = ({
           </div>
         )}
         
-        <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
-          <div className="text-blue-800 text-sm">
-            <p className="font-medium">Additional Documents:</p>
-            <ul className="mt-1 space-y-1 text-xs">
-              <li>• Upload any additional documents with custom names</li>
-              <li>• Supported formats: {Object.keys(SUPPORTED_FILE_TYPES).join(', ')}</li>
-              <li>• Maximum file size: {formatFileSize(MAX_FILE_SIZE)}</li>
-              <li>• Files are stored securely in Supabase Storage</li>
-            </ul>
-          </div>
-        </div>
+        <Collapsible open={showGuidelines} onOpenChange={setShowGuidelines}>
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full mt-4 flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
+            >
+              <span className="text-blue-800 text-sm font-medium">Upload Guidelines</span>
+              <ChevronDown className={`h-4 w-4 text-blue-800 transition-transform duration-200 ${showGuidelines ? 'rotate-180' : ''}`} />
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent className="mt-2">
+            <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+              <div className="text-blue-800 text-sm">
+                <p className="font-medium">Additional Documents:</p>
+                <ul className="mt-1 space-y-1 text-xs">
+                  <li>• Upload any additional documents with custom names</li>
+                  <li>• Supported formats: {Object.keys(SUPPORTED_FILE_TYPES).join(', ')}</li>
+                  <li>• Maximum file size: {formatFileSize(MAX_FILE_SIZE)}</li>
+                  <li>• Files are stored securely in Supabase Storage</li>
+                </ul>
+              </div>
+            </div>
+          </CollapsibleContent>
+        </Collapsible>
       </CardContent>
       </Card>
     </>
