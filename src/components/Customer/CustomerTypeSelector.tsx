@@ -20,7 +20,7 @@ export const CustomerTypeSelector = ({ value, onChange }: CustomerTypeSelectorPr
         <TabsList className="grid w-full grid-cols-2 h-auto bg-muted/50 p-1 border">
           <TabsTrigger 
             value="new" 
-            className="flex items-center justify-center gap-2 py-3 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md"
+            className="flex items-center justify-center gap-2 py-3 border-2 border-transparent text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary data-[state=active]:shadow-md"
           >
             <UserPlus className="h-4 w-4" />
             <div className="flex flex-col items-start">
@@ -30,7 +30,7 @@ export const CustomerTypeSelector = ({ value, onChange }: CustomerTypeSelectorPr
           </TabsTrigger>
           <TabsTrigger 
             value="existing" 
-            className="flex items-center justify-center gap-2 py-3 text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:shadow-md"
+            className="flex items-center justify-center gap-2 py-3 border-2 border-transparent text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary data-[state=active]:shadow-md"
           >
             <Users className="h-4 w-4" />
             <div className="flex flex-col items-start">
