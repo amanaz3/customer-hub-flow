@@ -155,17 +155,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [existingCustomers, setExistingCustomers] = useState<any[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const { uploadDocument } = useCustomer();
 
   // Fetch all active products for the dropdown
-  const { data: products = [], isLoading: productsLoading } = useQuery({
+  const { data: allProducts = [], isLoading: productsLoading } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('products')
-        .select('id, name, description, is_active')
+        .select('id, name, description, is_active, service_category_id')
         .eq('is_active', true)
         .order('name', { ascending: true });
       
@@ -177,6 +178,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       return data || [];
     }
   });
+
+  // Filter products based on selected category
+  const products = selectedCategoryId 
+    ? allProducts.filter(p => p.service_category_id === selectedCategoryId)
+    : allProducts;
 
   // Fetch all active service categories for the dropdown
   const { data: serviceCategories = [], isLoading: serviceCategoriesLoading } = useQuery({
@@ -912,20 +918,24 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="service_type">Type of Service *</Label>
+                    <Label htmlFor="service_type">Service Category *</Label>
                     <Select
-                      value={form.watch('service_type_id')}
-                      onValueChange={(value) => form.setValue('service_type_id', value)}
+                      value={selectedCategoryId}
+                      onValueChange={(value) => {
+                        setSelectedCategoryId(value);
+                        // Clear product selection when category changes
+                        form.setValue('product_id', '');
+                      }}
                       disabled={isSubmitting || serviceCategoriesLoading}
                     >
                       <SelectTrigger className="bg-background">
-                        <SelectValue placeholder="Select service type" />
+                        <SelectValue placeholder="Select service category" />
                       </SelectTrigger>
                       <SelectContent className="bg-popover z-50">
                         {serviceCategoriesLoading ? (
-                          <SelectItem value="loading" disabled>Loading services...</SelectItem>
+                          <SelectItem value="loading" disabled>Loading categories...</SelectItem>
                         ) : serviceCategories.length === 0 ? (
-                          <SelectItem value="empty" disabled>No services available</SelectItem>
+                          <SelectItem value="empty" disabled>No categories available</SelectItem>
                         ) : (
                           serviceCategories.map((category) => (
                             <SelectItem key={category.id} value={category.id}>
@@ -939,10 +949,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                   <div className="space-y-3 md:col-span-2">
                     <Label>Product / Service *</Label>
-                    {productsLoading ? (
+                    {!selectedCategoryId ? (
+                      <p className="text-sm text-muted-foreground">Please select a service category first</p>
+                    ) : productsLoading ? (
                       <p className="text-sm text-muted-foreground">Loading products...</p>
                     ) : products.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">No products available.</p>
+                      <p className="text-sm text-muted-foreground">No products available for this category.</p>
                     ) : (
                       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
                         {products.map((product) => {

@@ -1136,6 +1136,7 @@ export type Database = {
           id: string
           is_active: boolean
           name: string
+          service_category_id: string | null
           updated_at: string
         }
         Insert: {
@@ -1144,6 +1145,7 @@ export type Database = {
           id?: string
           is_active?: boolean
           name: string
+          service_category_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -1152,9 +1154,18 @@ export type Database = {
           id?: string
           is_active?: boolean
           name?: string
+          service_category_id?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "products_service_category_id_fkey"
+            columns: ["service_category_id"]
+            isOneToOne: false
+            referencedRelation: "service_category"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       profiles: {
         Row: {
