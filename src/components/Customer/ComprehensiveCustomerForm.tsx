@@ -582,16 +582,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
   return (
     <Card className="w-full max-w-4xl mx-auto">
-      <CardHeader>
-        <CardTitle>New Application</CardTitle>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-xl">New Application</CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="space-y-4">
         {/* Customer Selection Section */}
-        <div className="mb-6 p-4 border rounded-lg bg-muted/50">
-          <div className="space-y-4">
+        <div className="p-3 border rounded-lg bg-muted/50">
+          <div className="space-y-3">
             <div>
-              <Label className="text-base font-semibold">Customer Selection</Label>
-              <p className="text-sm text-muted-foreground mt-1">
+              <Label className="text-base font-medium">Customer Selection</Label>
+              <p className="text-xs text-muted-foreground mt-0.5">
                 Choose to create a new company or select an existing one
               </p>
             </div>
@@ -605,7 +605,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   form.reset();
                 }
               }}
-              className="flex flex-col space-y-3"
+              className="flex flex-col space-y-2"
             >
               <div className="flex items-center space-x-2">
                 <RadioGroupItem value="new" id="new" />
@@ -688,12 +688,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="details" className="space-y-6">
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-6">
+          <TabsContent value="details" className="space-y-4 mt-4">
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               {/* Basic Information */}
               <div>
-                <h3 className="text-lg font-medium mb-4">Basic Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h3 className="text-base font-medium mb-3">Basic Information</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label htmlFor="name">Full Name *</Label>
                     <Input
@@ -749,12 +749,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </div>
               </div>
 
-              <Separator />
+              <Separator className="my-3" />
 
               {/* Business Details */}
               <div>
-                <h3 className="text-lg font-medium mb-4">Business Details</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <h3 className="text-base font-medium mb-3">Business Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <div className="space-y-2">
                     <Label htmlFor="lead_source">Lead Source *</Label>
                     <Select
@@ -935,14 +935,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </div>
               </div>
 
-              <Separator />
+              <Separator className="my-3" />
 
               {/* Bookkeeping-Specific Information */}
               {hasBookkeeping && (
                 <>
                   <div>
-                    <h3 className="text-lg font-medium mb-4">Bookkeeping Details</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <h3 className="text-base font-medium mb-3">Bookkeeping Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <Label htmlFor="accounting_software">Current Accounting Software</Label>
                         <Select
@@ -1060,7 +1060,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </div>
                   </div>
 
-                  <Separator />
+                  <Separator className="my-3" />
                 </>
               )}
 
@@ -1068,8 +1068,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               {hasTaxFiling && (
                 <>
                   <div>
-                    <h3 className="text-lg font-medium mb-4">Corporate Tax Filing Details</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <h3 className="text-base font-medium mb-3">Corporate Tax Filing Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <Label htmlFor="tax_year_period">Tax Year/Period</Label>
                         <Input
@@ -1153,15 +1153,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </div>
                   </div>
 
-                  <Separator />
+                  <Separator className="my-3" />
                 </>
               )}
 
               {/* Banking Preferences - shown for bank account products or company formation */}
               {(hasBankAccount || hasCompanyFormation) && (
                 <div>
-                  <h3 className="text-lg font-medium mb-4">Banking Preferences</h3>
-                  <div className="space-y-4">
+                  <h3 className="text-base font-medium mb-3">Banking Preferences</h3>
+                  <div className="space-y-3">
                     <div className="flex items-center space-x-2">
                       <Checkbox
                         id="any_suitable_bank"
@@ -1209,11 +1209,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </div>
               )}
 
-              <Separator />
+              <Separator className="my-3" />
 
               {/* Additional Notes */}
               <div>
-                <h3 className="text-lg font-medium mb-4">Additional Information</h3>
+                <h3 className="text-base font-medium mb-3">Additional Information</h3>
                 <div className="space-y-2">
                   <Label htmlFor="customer_notes">Notes</Label>
                   <Textarea
