@@ -2292,10 +2292,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
               {/* Corporate Tax Registration Details */}
               {hasTaxRegistration && (
-                <>
-                  <div>
-                    <h3 className="text-base font-medium mb-3">Corporate Tax Registration Details</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <AccordionItem value="tax-registration" className="border rounded-lg">
+                  <AccordionTrigger className="px-4 hover:no-underline">
+                    <h3 className="text-base font-medium">Corporate Tax Registration Details</h3>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <Label htmlFor="company">Trade License Number *</Label>
                         <Input
@@ -2362,67 +2364,67 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <Label htmlFor="has_foreign_operations">Has foreign shareholders or operations</Label>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Required Documents List */}
-                  <div className="mt-4 p-4 bg-muted/50 rounded-lg">
-                    <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                      <span className="text-indigo-600">📋</span>
-                      Required Documents for Corporate Tax Registration
-                    </h4>
-                    <ul className="text-sm space-y-1.5 text-muted-foreground">
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-600 mt-0.5">•</span>
-                        <span>Trade License Copy (certified)</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-600 mt-0.5">•</span>
-                        <span>Passport Copies of all Shareholders/Partners</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-600 mt-0.5">•</span>
-                        <span>Emirates ID Copies of all Shareholders/Partners</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-600 mt-0.5">•</span>
-                        <span>Memorandum of Association (MOA)</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-600 mt-0.5">•</span>
-                        <span>Tenancy Contract / Ejari</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-600 mt-0.5">•</span>
-                        <span>Financial Year End Confirmation Letter</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-600 mt-0.5">•</span>
-                        <span>Bank Account Details</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-green-600 mt-0.5">•</span>
-                        <span>Company Organization Chart</span>
-                      </li>
-                      <li className="flex items-start gap-2">
-                        <span className="text-orange-600 mt-0.5">•</span>
-                        <span><strong>If foreign operations:</strong> Details of foreign entities and cross-border transactions</span>
-                      </li>
-                    </ul>
-                    <p className="text-xs text-muted-foreground mt-3 italic">
-                      Note: Documents will be collected during the registration process.
-                    </p>
-                  </div>
-
-                  <Separator className="my-3" />
-                </>
+                    {/* Required Documents List */}
+                    <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+                      <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                        <span className="text-indigo-600">📋</span>
+                        Required Documents for Corporate Tax Registration
+                      </h4>
+                      <ul className="text-sm space-y-1.5 text-muted-foreground">
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span>Trade License Copy (certified)</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span>Passport Copies of all Shareholders/Partners</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span>Emirates ID Copies of all Shareholders/Partners</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span>Memorandum of Association (MOA)</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span>Tenancy Contract / Ejari</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span>Financial Year End Confirmation Letter</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span>Bank Account Details</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span>Company Organization Chart</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-orange-600 mt-0.5">•</span>
+                          <span><strong>If foreign operations:</strong> Details of foreign entities and cross-border transactions</span>
+                        </li>
+                      </ul>
+                      <p className="text-xs text-muted-foreground mt-3 italic">
+                        Note: Documents will be collected during the registration process.
+                      </p>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
               )}
 
               {/* Corporate Tax Filing Details */}
               {hasTaxFiling && (
-                <>
-                  <div>
-                    <h3 className="text-base font-medium mb-3">Corporate Tax Filing Details</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <AccordionItem value="tax-filing" className="border rounded-lg">
+                  <AccordionTrigger className="px-4 hover:no-underline">
+                    <h3 className="text-base font-medium">Corporate Tax Filing Details</h3>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <Label htmlFor="tax_registration_number">Tax Registration Number (TRN) *</Label>
                         <Input
@@ -2517,76 +2519,74 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <Label htmlFor="has_foreign_operations">Has foreign operations/transactions</Label>
                       </div>
                     </div>
-                  </div>
 
-                  {/* Required Documents Info */}
-                  <div className="mt-4">
-                    <Accordion type="single" collapsible className="w-full">
-                      <AccordionItem value="required-docs">
-                        <AccordionTrigger className="text-sm hover:no-underline">
-                          <div className="flex items-center gap-2">
-                            <ClipboardList className="h-4 w-4" />
-                            <span>Required Documents for Corporate Tax Filing</span>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent>
-                          <ul className="text-sm space-y-2.5 pl-6">
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 mt-0.5">•</span>
-                              <span>Tax Registration Number (TRN) Certificate</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 mt-0.5">•</span>
-                              <span>Financial Statements (Balance Sheet, P&L, Cash Flow)</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 mt-0.5">•</span>
-                              <span>Trial Balance for the tax period</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 mt-0.5">•</span>
-                              <span>General Ledger (detailed transactions)</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 mt-0.5">•</span>
-                              <span>Bank Statements (entire tax period)</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 mt-0.5">•</span>
-                              <span>Schedule of Fixed Assets & Depreciation</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 mt-0.5">•</span>
-                              <span>Details of Related Party Transactions</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 mt-0.5">•</span>
-                              <span>Payroll Records (if applicable)</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-green-600 mt-0.5">•</span>
-                              <span>VAT Returns (if registered)</span>
-                            </li>
-                            <li className="flex items-start gap-2 mt-4 pt-4 border-t">
-                              <span className="text-orange-600 mt-0.5">•</span>
-                              <span><strong>If first time filing:</strong> Opening balance sheet and incorporation documents</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-orange-600 mt-0.5">•</span>
-                              <span><strong>If foreign operations:</strong> Foreign subsidiary financials and transfer pricing documentation</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-orange-600 mt-0.5">•</span>
-                              <span><strong>If switching consultant:</strong> Previous tax returns and correspondence with FTA</span>
-                            </li>
-                          </ul>
-                        </AccordionContent>
-                      </AccordionItem>
-                    </Accordion>
-                  </div>
-
-                  <Separator className="my-3" />
-                </>
+                    {/* Required Documents Info */}
+                    <div className="mt-4">
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="required-docs">
+                          <AccordionTrigger className="text-sm hover:no-underline">
+                            <div className="flex items-center gap-2">
+                              <ClipboardList className="h-4 w-4" />
+                              <span>Required Documents for Corporate Tax Filing</span>
+                            </div>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <ul className="text-sm space-y-2.5 pl-6">
+                              <li className="flex items-start gap-2">
+                                <span className="text-green-600 mt-0.5">•</span>
+                                <span>Tax Registration Number (TRN) Certificate</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-green-600 mt-0.5">•</span>
+                                <span>Financial Statements (Balance Sheet, P&L, Cash Flow)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-green-600 mt-0.5">•</span>
+                                <span>Trial Balance for the tax period</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-green-600 mt-0.5">•</span>
+                                <span>General Ledger (detailed transactions)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-green-600 mt-0.5">•</span>
+                                <span>Bank Statements (entire tax period)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-green-600 mt-0.5">•</span>
+                                <span>Schedule of Fixed Assets & Depreciation</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-green-600 mt-0.5">•</span>
+                                <span>Details of Related Party Transactions</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-green-600 mt-0.5">•</span>
+                                <span>Payroll Records (if applicable)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-green-600 mt-0.5">•</span>
+                                <span>VAT Returns (if registered)</span>
+                              </li>
+                              <li className="flex items-start gap-2 mt-4 pt-4 border-t">
+                                <span className="text-orange-600 mt-0.5">•</span>
+                                <span><strong>If first time filing:</strong> Opening balance sheet and incorporation documents</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-orange-600 mt-0.5">•</span>
+                                <span><strong>If foreign operations:</strong> Foreign subsidiary financials and transfer pricing documentation</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-orange-600 mt-0.5">•</span>
+                                <span><strong>If switching consultant:</strong> Previous tax returns and correspondence with FTA</span>
+                              </li>
+                            </ul>
+                          </AccordionContent>
+                        </AccordionItem>
+                      </Accordion>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
               )}
 
               {/* Banking Preferences - shown for bank account products or company formation */}
