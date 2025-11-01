@@ -581,7 +581,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const allMandatoryUploaded = mandatoryDocuments.length > 0 && mandatoryDocumentsUploaded;
 
   return (
-    <Card className="w-full max-w-4xl mx-auto">
+    <Card className="w-full max-w-4xl mx-auto overflow-visible">
       <CardHeader className="pb-3">
         <CardTitle className="text-xl">New Application</CardTitle>
       </CardHeader>

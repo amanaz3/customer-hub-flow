@@ -47,7 +47,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
           "px-3 sm:px-4 md:px-6 pb-2",
           isMobile ? "pt-4" : "pt-2"
         )}>
-          <div className="max-w-full mx-auto min-h-0">
+          <div className="w-full mx-auto">
             {children}
           </div>
         </main>
