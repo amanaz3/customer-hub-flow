@@ -704,7 +704,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <Label className="text-base font-medium">Customer Selection</Label>
             </div>
 
-            <div className="flex gap-2 p-1 bg-muted rounded-lg">
+            <div className="grid grid-cols-2 w-full bg-background border-b-2 border-border">
               <button
                 type="button"
                 onClick={() => {
@@ -713,11 +713,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   form.reset();
                 }}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md transition-all font-medium",
+                  "relative flex items-center justify-center gap-2 py-4 px-4 rounded-none border-b-4 transition-all font-medium",
                   customerMode === 'new'
-                    ? "bg-background shadow-sm text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "border-b-green-500 bg-green-50 text-green-700"
+                    : "border-b-transparent text-muted-foreground hover:text-foreground"
                 )}
+                aria-selected={customerMode === 'new'}
               >
                 <Building2 className="h-4 w-4" />
                 Create New Company
@@ -727,11 +728,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 type="button"
                 onClick={() => setCustomerMode('existing')}
                 className={cn(
-                  "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md transition-all font-medium",
+                  "relative flex items-center justify-center gap-2 py-4 px-4 rounded-none border-b-4 transition-all font-medium",
                   customerMode === 'existing'
-                    ? "bg-background shadow-sm text-foreground"
-                    : "text-muted-foreground hover:text-foreground"
+                    ? "border-b-green-500 bg-green-50 text-green-700"
+                    : "border-b-transparent text-muted-foreground hover:text-foreground"
                 )}
+                aria-selected={customerMode === 'existing'}
               >
                 <Users className="h-4 w-4" />
                 Select Existing
