@@ -1224,10 +1224,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </AccordionContent>
                 </AccordionItem>
 
-            {/* Application Details & Business Financial */}
+            {/* Deal Information */}
             <AccordionItem value="application" className="border rounded-lg">
               <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
-                <h3 className="text-base font-medium">Application & Financial Details</h3>
+                <h3 className="text-base font-medium">Deal Information</h3>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4 space-y-4">
                 {/* Application Information */}
