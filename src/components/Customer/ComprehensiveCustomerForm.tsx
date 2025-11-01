@@ -25,10 +25,10 @@ import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
-import { Building2, Plus, Users, Info } from 'lucide-react';
+import { Building2, Plus, Users, ClipboardList } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 // Form validation schema
 const formSchema = z.object({
@@ -2266,31 +2266,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </div>
 
                   {/* Required Documents Info */}
-                  <div className="mt-4 flex items-center gap-2">
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="gap-2"
-                        >
-                          <Info className="h-4 w-4" />
-                          View Required Documents
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-                        <DialogHeader>
-                          <DialogTitle className="flex items-center gap-2">
-                            <span className="text-cyan-600">📋</span>
-                            Required Documents for Corporate Tax Filing
-                          </DialogTitle>
-                          <DialogDescription>
-                            These documents will be requested during the tax filing process
-                          </DialogDescription>
-                        </DialogHeader>
-                        <div className="space-y-4">
-                          <ul className="text-sm space-y-2.5">
+                  <div className="mt-4">
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem value="required-docs">
+                        <AccordionTrigger className="text-sm hover:no-underline">
+                          <div className="flex items-center gap-2">
+                            <ClipboardList className="h-4 w-4" />
+                            <span>Required Documents for Corporate Tax Filing</span>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <ul className="text-sm space-y-2.5 pl-6">
                             <li className="flex items-start gap-2">
                               <span className="text-green-600 mt-0.5">•</span>
                               <span>Tax Registration Number (TRN) Certificate</span>
@@ -2321,6 +2307,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             </li>
                             <li className="flex items-start gap-2">
                               <span className="text-green-600 mt-0.5">•</span>
+                              <span>Payroll Records (if applicable)</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 mt-0.5">•</span>
                               <span>VAT Returns (if registered)</span>
                             </li>
                             <li className="flex items-start gap-2 mt-4 pt-4 border-t">
@@ -2336,10 +2326,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               <span><strong>If switching consultant:</strong> Previous tax returns and correspondence with FTA</span>
                             </li>
                           </ul>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-                    <span className="text-xs text-muted-foreground">Click to see complete document requirements</span>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
                   </div>
 
                   <Separator className="my-3" />
