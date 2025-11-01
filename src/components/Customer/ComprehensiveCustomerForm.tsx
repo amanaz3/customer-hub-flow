@@ -1098,7 +1098,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                 {/* Service Selection */}
                 <AccordionItem value="service" className="border rounded-lg">
-                  <AccordionTrigger className="px-4 hover:no-underline">
+                  <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
                     <h3 className="text-base font-medium">Service Selection</h3>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
@@ -1226,7 +1226,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
             {/* Application Details & Business Financial */}
             <AccordionItem value="application" className="border rounded-lg">
-              <AccordionTrigger className="px-4 hover:no-underline">
+              <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
                 <h3 className="text-base font-medium">Application & Financial Details</h3>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4 space-y-4">
