@@ -2086,57 +2086,72 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </div>
 
                     {/* Required Documents List */}
-                    <div className="mt-4 p-4 bg-muted/50 rounded-lg">
-                      <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                        <span className="text-blue-600">📋</span>
-                        Supporting Documents Required for Home Finance
-                      </h4>
-                      <ul className="text-sm space-y-1.5 text-muted-foreground">
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Passport Copy with valid UAE Visa</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Emirates ID Copy (both sides)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Salary Certificate (last 3 months)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Bank Statements (last 6 months)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Property Valuation Report</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Property Documents (Title Deed / MOU / Sale Agreement)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Proof of Down Payment (Bank Statement showing available funds)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Credit Report Authorization Form</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-orange-600 mt-0.5">•</span>
-                          <span><strong>If Self-Employed:</strong> Trade License, MOA, Audited Financials (last 2 years)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-orange-600 mt-0.5">•</span>
-                          <span><strong>If Co-Applicant:</strong> All above documents for co-applicant as well</span>
-                        </li>
-                      </ul>
-                      <p className="text-xs text-muted-foreground mt-3 italic">
-                        Note: Documents will be requested during the mortgage processing stage.
-                      </p>
-                    </div>
+                    <Accordion type="single" collapsible className="mt-4">
+                      <AccordionItem value="home-finance-docs" className="border border-blue-200 dark:border-blue-800 rounded-lg bg-blue-50/50 dark:bg-blue-950/20">
+                        <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                          <div className="flex items-center gap-2">
+                            <span className="text-blue-600 dark:text-blue-400 text-base">ℹ️</span>
+                            <div className="flex flex-col items-start gap-0.5">
+                              <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Document Checklist (For Reference Only)</h4>
+                              <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">Documents will be requested during mortgage processing</p>
+                            </div>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4">
+                          <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
+                            <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Supporting Documents Required:</p>
+                            <ul className="text-sm space-y-1.5 text-muted-foreground">
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Passport Copy with valid UAE Visa</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Emirates ID Copy (both sides)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Salary Certificate (last 3 months)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Bank Statements (last 6 months)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Property Valuation Report</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Property Documents (Title Deed / MOU / Sale Agreement)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Proof of Down Payment (Bank Statement showing available funds)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Credit Report Authorization Form</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-orange-600 mt-0.5">•</span>
+                                <span><strong>If Self-Employed:</strong> Trade License, MOA, Audited Financials (last 2 years)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-orange-600 mt-0.5">•</span>
+                                <span><strong>If Co-Applicant:</strong> All above documents for co-applicant as well</span>
+                              </li>
+                            </ul>
+                            <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
+                              <p className="text-xs text-blue-600 dark:text-blue-400 italic flex items-start gap-1.5">
+                                <span className="text-base leading-none">💡</span>
+                                <span>This is an informational checklist only. Documents will be requested during the mortgage processing stage.</span>
+                              </p>
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
                   </div>
 
                   <Separator className="my-3" />
@@ -2333,57 +2348,72 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </div>
 
                     {/* Required Documents List */}
-                    <div className="mt-4 p-4 bg-muted/50 rounded-lg">
-                      <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                        <span className="text-purple-600">📋</span>
-                        Required Documents for VAT Registration
-                      </h4>
-                      <ul className="text-sm space-y-1.5 text-muted-foreground">
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Trade License Copy (certified)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Passport Copies of all Partners/Shareholders</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Emirates ID Copies of all Partners/Shareholders</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Memorandum of Association (MOA)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Tenancy Contract / Ejari</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Bank Account Details & Bank Statements (last 6 months)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Financial Statements (if available)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Customs Registration (if importing/exporting)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-orange-600 mt-0.5">•</span>
-                          <span><strong>If already VAT registered:</strong> Previous VAT returns and TRN certificate</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-orange-600 mt-0.5">•</span>
-                          <span><strong>If multiple locations:</strong> Details and documents for all branches</span>
-                        </li>
-                      </ul>
-                      <p className="text-xs text-muted-foreground mt-3 italic">
-                        Note: Documents will be collected during the VAT registration process.
-                      </p>
-                    </div>
+                    <Accordion type="single" collapsible className="mt-4">
+                      <AccordionItem value="vat-reg-docs" className="border border-blue-200 dark:border-blue-800 rounded-lg bg-blue-50/50 dark:bg-blue-950/20">
+                        <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                          <div className="flex items-center gap-2">
+                            <span className="text-blue-600 dark:text-blue-400 text-base">ℹ️</span>
+                            <div className="flex flex-col items-start gap-0.5">
+                              <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Document Checklist (For Reference Only)</h4>
+                              <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">Documents will be collected during VAT registration</p>
+                            </div>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4">
+                          <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
+                            <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Required Documents:</p>
+                            <ul className="text-sm space-y-1.5 text-muted-foreground">
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Trade License Copy (certified)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Passport Copies of all Partners/Shareholders</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Emirates ID Copies of all Partners/Shareholders</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Memorandum of Association (MOA)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Tenancy Contract / Ejari</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Bank Account Details & Bank Statements (last 6 months)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Financial Statements (if available)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Customs Registration (if importing/exporting)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-orange-600 mt-0.5">•</span>
+                                <span><strong>If already VAT registered:</strong> Previous VAT returns and TRN certificate</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-orange-600 mt-0.5">•</span>
+                                <span><strong>If multiple locations:</strong> Details and documents for all branches</span>
+                              </li>
+                            </ul>
+                            <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
+                              <p className="text-xs text-blue-600 dark:text-blue-400 italic flex items-start gap-1.5">
+                                <span className="text-base leading-none">💡</span>
+                                <span>This is an informational checklist only. Documents will be collected during the VAT registration process.</span>
+                              </p>
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
                   </div>
 
                   <Separator className="my-3" />
@@ -2466,53 +2496,68 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </div>
 
                     {/* Required Documents List */}
-                    <div className="mt-4 p-4 bg-muted/50 rounded-lg">
-                      <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
-                        <span className="text-indigo-600">📋</span>
-                        Required Documents for Corporate Tax Registration
-                      </h4>
-                      <ul className="text-sm space-y-1.5 text-muted-foreground">
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Trade License Copy (certified)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Passport Copies of all Shareholders/Partners</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Emirates ID Copies of all Shareholders/Partners</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Memorandum of Association (MOA)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Tenancy Contract / Ejari</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Financial Year End Confirmation Letter</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Bank Account Details</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Company Organization Chart</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-orange-600 mt-0.5">•</span>
-                          <span><strong>If foreign operations:</strong> Details of foreign entities and cross-border transactions</span>
-                        </li>
-                      </ul>
-                      <p className="text-xs text-muted-foreground mt-3 italic">
-                        Note: Documents will be collected during the registration process.
-                      </p>
-                    </div>
+                    <Accordion type="single" collapsible className="mt-4">
+                      <AccordionItem value="corp-tax-reg-docs" className="border border-blue-200 dark:border-blue-800 rounded-lg bg-blue-50/50 dark:bg-blue-950/20">
+                        <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                          <div className="flex items-center gap-2">
+                            <span className="text-blue-600 dark:text-blue-400 text-base">ℹ️</span>
+                            <div className="flex flex-col items-start gap-0.5">
+                              <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Document Checklist (For Reference Only)</h4>
+                              <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">Documents will be collected during registration</p>
+                            </div>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4">
+                          <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
+                            <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Required Documents:</p>
+                            <ul className="text-sm space-y-1.5 text-muted-foreground">
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Trade License Copy (certified)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Passport Copies of all Shareholders/Partners</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Emirates ID Copies of all Shareholders/Partners</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Memorandum of Association (MOA)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Tenancy Contract / Ejari</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Financial Year End Confirmation Letter</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Bank Account Details</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Company Organization Chart</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-orange-600 mt-0.5">•</span>
+                                <span><strong>If foreign operations:</strong> Details of foreign entities and cross-border transactions</span>
+                              </li>
+                            </ul>
+                            <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
+                              <p className="text-xs text-blue-600 dark:text-blue-400 italic flex items-start gap-1.5">
+                                <span className="text-base leading-none">💡</span>
+                                <span>This is an informational checklist only. Documents will be collected during the registration process.</span>
+                              </p>
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
                   </AccordionContent>
                 </AccordionItem>
               )}
@@ -2623,64 +2668,76 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     {/* Required Documents Info */}
                     <div className="mt-4">
                       <Accordion type="single" collapsible className="w-full">
-                        <AccordionItem value="required-docs">
-                          <AccordionTrigger className="text-sm hover:no-underline">
+                        <AccordionItem value="required-docs" className="border border-blue-200 dark:border-blue-800 rounded-lg bg-blue-50/50 dark:bg-blue-950/20">
+                          <AccordionTrigger className="px-4 py-3 hover:no-underline">
                             <div className="flex items-center gap-2">
-                              <ClipboardList className="h-4 w-4" />
-                              <span>Required Documents for Corporate Tax Filing</span>
+                              <span className="text-blue-600 dark:text-blue-400 text-base">ℹ️</span>
+                              <div className="flex flex-col items-start gap-0.5">
+                                <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Document Checklist (For Reference Only)</h4>
+                                <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">Documents will be collected during filing process</p>
+                              </div>
                             </div>
                           </AccordionTrigger>
-                          <AccordionContent>
-                            <ul className="text-sm space-y-2.5 pl-6">
-                              <li className="flex items-start gap-2">
-                                <span className="text-green-600 mt-0.5">•</span>
-                                <span>Tax Registration Number (TRN) Certificate</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-green-600 mt-0.5">•</span>
-                                <span>Financial Statements (Balance Sheet, P&L, Cash Flow)</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-green-600 mt-0.5">•</span>
-                                <span>Trial Balance for the tax period</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-green-600 mt-0.5">•</span>
-                                <span>General Ledger (detailed transactions)</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-green-600 mt-0.5">•</span>
-                                <span>Bank Statements (entire tax period)</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-green-600 mt-0.5">•</span>
-                                <span>Schedule of Fixed Assets & Depreciation</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-green-600 mt-0.5">•</span>
-                                <span>Details of Related Party Transactions</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-green-600 mt-0.5">•</span>
-                                <span>Payroll Records (if applicable)</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-green-600 mt-0.5">•</span>
-                                <span>VAT Returns (if registered)</span>
-                              </li>
-                              <li className="flex items-start gap-2 mt-4 pt-4 border-t">
-                                <span className="text-orange-600 mt-0.5">•</span>
-                                <span><strong>If first time filing:</strong> Opening balance sheet and incorporation documents</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-orange-600 mt-0.5">•</span>
-                                <span><strong>If foreign operations:</strong> Foreign subsidiary financials and transfer pricing documentation</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-orange-600 mt-0.5">•</span>
-                                <span><strong>If switching consultant:</strong> Previous tax returns and correspondence with FTA</span>
-                              </li>
-                            </ul>
+                          <AccordionContent className="px-4 pb-4">
+                            <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
+                              <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Required Documents:</p>
+                              <ul className="text-sm space-y-1.5 text-muted-foreground">
+                                <li className="flex items-start gap-2">
+                                  <span className="text-blue-500 mt-0.5">•</span>
+                                  <span>Tax Registration Number (TRN) Certificate</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-blue-500 mt-0.5">•</span>
+                                  <span>Financial Statements (Balance Sheet, P&L, Cash Flow)</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-blue-500 mt-0.5">•</span>
+                                  <span>Trial Balance for the tax period</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-blue-500 mt-0.5">•</span>
+                                  <span>General Ledger (detailed transactions)</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-blue-500 mt-0.5">•</span>
+                                  <span>Bank Statements (entire tax period)</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-blue-500 mt-0.5">•</span>
+                                  <span>Schedule of Fixed Assets & Depreciation</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-blue-500 mt-0.5">•</span>
+                                  <span>Details of Related Party Transactions</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-blue-500 mt-0.5">•</span>
+                                  <span>Payroll Records (if applicable)</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-blue-500 mt-0.5">•</span>
+                                  <span>VAT Returns (if registered)</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-orange-600 mt-0.5">•</span>
+                                  <span><strong>If first time filing:</strong> Opening balance sheet and incorporation documents</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-orange-600 mt-0.5">•</span>
+                                  <span><strong>If foreign operations:</strong> Foreign subsidiary financials and transfer pricing documentation</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-orange-600 mt-0.5">•</span>
+                                  <span><strong>If switching consultant:</strong> Previous tax returns and correspondence with FTA</span>
+                                </li>
+                              </ul>
+                              <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
+                                <p className="text-xs text-blue-600 dark:text-blue-400 italic flex items-start gap-1.5">
+                                  <span className="text-base leading-none">💡</span>
+                                  <span>This is an informational checklist only. Documents will be collected during the filing process.</span>
+                                </p>
+                              </div>
+                            </div>
                           </AccordionContent>
                         </AccordionItem>
                       </Accordion>
