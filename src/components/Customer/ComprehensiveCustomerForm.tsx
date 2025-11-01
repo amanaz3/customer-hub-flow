@@ -1706,8 +1706,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <div className="flex items-center gap-2">
                           <span className="text-blue-600 dark:text-blue-400 text-base">ℹ️</span>
                           <div className="flex flex-col items-start gap-0.5">
-                            <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Document Checklist (For Reference Only)</h4>
-                            <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">Documents will be collected later - no upload needed now</p>
+                            <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Required Documents</h4>
+                            <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">For reference only - will be collected later</p>
                           </div>
                         </div>
                       </AccordionTrigger>
@@ -2092,8 +2092,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           <div className="flex items-center gap-2">
                             <span className="text-blue-600 dark:text-blue-400 text-base">ℹ️</span>
                             <div className="flex flex-col items-start gap-0.5">
-                              <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Document Checklist (For Reference Only)</h4>
-                              <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">Documents will be requested during mortgage processing</p>
+                              <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Required Documents</h4>
+                              <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">For reference only - will be requested during mortgage processing</p>
                             </div>
                           </div>
                         </AccordionTrigger>
@@ -2354,8 +2354,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           <div className="flex items-center gap-2">
                             <span className="text-blue-600 dark:text-blue-400 text-base">ℹ️</span>
                             <div className="flex flex-col items-start gap-0.5">
-                              <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Document Checklist (For Reference Only)</h4>
-                              <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">Documents will be collected during VAT registration</p>
+                              <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Required Documents</h4>
+                              <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">For reference only - will be collected during registration</p>
                             </div>
                           </div>
                         </AccordionTrigger>
@@ -2502,8 +2502,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           <div className="flex items-center gap-2">
                             <span className="text-blue-600 dark:text-blue-400 text-base">ℹ️</span>
                             <div className="flex flex-col items-start gap-0.5">
-                              <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Document Checklist (For Reference Only)</h4>
-                              <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">Documents will be collected during registration</p>
+                              <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Required Documents</h4>
+                              <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">For reference only - will be collected during registration</p>
                             </div>
                           </div>
                         </AccordionTrigger>
@@ -2673,8 +2673,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             <div className="flex items-center gap-2">
                               <span className="text-blue-600 dark:text-blue-400 text-base">ℹ️</span>
                               <div className="flex flex-col items-start gap-0.5">
-                                <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Document Checklist (For Reference Only)</h4>
-                                <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">Documents will be collected during filing process</p>
+                                <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Required Documents</h4>
+                                <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">For reference only - will be collected during filing</p>
                               </div>
                             </div>
                           </AccordionTrigger>
