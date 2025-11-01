@@ -1202,20 +1202,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         {form.formState.errors.product_id && (
                           <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>
                         )}
-                      </div>
-
-                      {/* Auto-display category when product is selected (read-only, for info) */}
-                      {selectedCategory && (
-                        <div className="space-y-2 pt-2">
-                          <Label className="text-muted-foreground">Service Category</Label>
-                          <div className="flex items-center gap-2 p-3 rounded-md border bg-muted/50">
-                            <Badge variant="secondary" className="font-normal">
-                              {selectedCategory.category_name}
-                            </Badge>
-                            <span className="text-xs text-muted-foreground">(Informational)</span>
-                          </div>
-                        </div>
-                      )}
+                       </div>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
