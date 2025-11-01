@@ -2353,8 +2353,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             type="button"
             onClick={form.handleSubmit(handleSubmit)}
             disabled={isSubmitting || !!createdCustomerId}
-            className="fixed bottom-6 right-6 min-w-[140px] h-14 bg-green-700 hover:bg-green-800 text-white font-semibold shadow-2xl border-2 border-green-600 rounded-full z-50 transition-all hover:scale-105"
-            size="lg"
+            className="fixed bottom-6 right-6 px-6 py-3 bg-green-700 hover:bg-green-800 text-white font-semibold shadow-lg border-2 border-green-600 rounded-md z-50 transition-all hover:shadow-xl"
           >
             {isSubmitting ? 'Creating...' : createdCustomerId ? '✓ Created' : 'Create Customer'}
           </Button>
