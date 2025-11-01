@@ -1098,7 +1098,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       {/* Category Filter Tabs */}
                       <div className="space-y-2">
                         <Label className="text-sm text-muted-foreground">Filter by Category (Optional)</Label>
-                        <Tabs value={categoryFilter} onValueChange={setCategoryFilter} className="w-full">
+                        <Tabs 
+                          value={categoryFilter} 
+                          onValueChange={(value) => {
+                            setCategoryFilter(value);
+                            if (value === 'all') {
+                              form.setValue('product_id', '');
+                            }
+                          }} 
+                          className="w-full"
+                        >
                           <TabsList className="grid w-full h-auto bg-background border-b-2 border-border p-0" style={{ gridTemplateColumns: `repeat(${serviceCategories.length + 1}, minmax(0, 1fr))` }}>
                             <TabsTrigger 
                               value="all"
