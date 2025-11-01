@@ -1100,11 +1100,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <div className="flex flex-wrap gap-2">
                           <Button
                             type="button"
-                            variant={categoryFilter === 'all' ? 'default' : 'outline'}
+                            variant="outline"
                             size="sm"
                             onClick={() => setCategoryFilter('all')}
                             disabled={isSubmitting || serviceCategoriesLoading}
-                            className="h-9"
+                            className={cn(
+                              "h-9 transition-all",
+                              categoryFilter === 'all' && "bg-green-600 hover:bg-green-700 text-white border-green-600"
+                            )}
                           >
                             All Products
                             {categoryFilter === 'all' && (
@@ -1119,11 +1122,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               <Button
                                 key={category.id}
                                 type="button"
-                                variant={categoryFilter === category.id ? 'default' : 'outline'}
+                                variant="outline"
                                 size="sm"
                                 onClick={() => setCategoryFilter(category.id)}
                                 disabled={isSubmitting || serviceCategoriesLoading}
-                                className="h-9"
+                                className={cn(
+                                  "h-9 transition-all",
+                                  categoryFilter === category.id && "bg-green-600 hover:bg-green-700 text-white border-green-600"
+                                )}
                               >
                                 {category.category_name}
                                 {categoryFilter === category.id && (
@@ -1149,18 +1155,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             {products.map((product) => {
                               const isSelected = watchProductId === product.id;
                               return (
-                                <div
-                                  key={product.id}
-                                  onClick={() => !isSubmitting && form.setValue('product_id', product.id)}
-                                  className={cn(
-                                    "relative p-3 rounded-md border-2 cursor-pointer transition-all duration-200",
-                                    "hover:shadow-sm",
-                                    isSelected
-                                      ? "border-green-500 bg-green-50 dark:bg-green-950"
-                                      : "border-border bg-card hover:border-green-300",
-                                    isSubmitting && "opacity-50 cursor-not-allowed"
-                                  )}
-                                >
+                                 <div
+                                   key={product.id}
+                                   onClick={() => !isSubmitting && form.setValue('product_id', product.id)}
+                                   className={cn(
+                                     "relative p-3 rounded-md border-2 cursor-pointer transition-all duration-200",
+                                     "hover:shadow-sm",
+                                     isSelected
+                                       ? "border-green-600 bg-green-50 dark:bg-green-950/30 shadow-md"
+                                       : "border-border bg-card hover:border-green-300",
+                                     isSubmitting && "opacity-50 cursor-not-allowed"
+                                   )}
+                                 >
                                   <div className="flex items-center gap-2">
                                     <div className="flex-1 min-w-0">
                                       <h4 className={cn(
@@ -1171,23 +1177,23 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                       </h4>
                                     </div>
                                     {isSelected && (
-                                      <div className="flex-shrink-0">
-                                        <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                                          <svg
-                                            className="w-3 h-3 text-white"
-                                            fill="none"
-                                            strokeWidth="2.5"
-                                            stroke="currentColor"
-                                            viewBox="0 0 24 24"
-                                          >
-                                            <path
-                                              strokeLinecap="round"
-                                              strokeLinejoin="round"
-                                              d="M5 13l4 4L19 7"
-                                            />
-                                          </svg>
-                                        </div>
-                                      </div>
+                                       <div className="flex-shrink-0">
+                                         <div className="w-5 h-5 rounded-full bg-green-600 flex items-center justify-center">
+                                           <svg
+                                             className="w-3 h-3 text-white"
+                                             fill="none"
+                                             strokeWidth="2.5"
+                                             stroke="currentColor"
+                                             viewBox="0 0 24 24"
+                                           >
+                                             <path
+                                               strokeLinecap="round"
+                                               strokeLinejoin="round"
+                                               d="M5 13l4 4L19 7"
+                                             />
+                                           </svg>
+                                         </div>
+                                       </div>
                                     )}
                                   </div>
                                 </div>
