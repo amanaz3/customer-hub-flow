@@ -70,6 +70,15 @@ const formSchema = z.object({
   service_start_date: z.string().optional(),
   has_previous_records: z.boolean().optional(),
   reporting_frequency: z.string().optional(),
+  // Corporate tax filing fields
+  tax_year_period: z.string().optional(),
+  first_time_filing: z.boolean().optional(),
+  tax_registration_number: z.string().optional(),
+  financial_year_end_date: z.string().optional(),
+  has_foreign_operations: z.boolean().optional(),
+  tax_exemptions: z.string().optional(),
+  previous_tax_consultant: z.string().optional(),
+  filing_deadline: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -142,6 +151,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       service_start_date: '',
       has_previous_records: false,
       reporting_frequency: 'Monthly',
+      // Tax filing defaults
+      tax_year_period: '',
+      first_time_filing: false,
+      tax_registration_number: '',
+      financial_year_end_date: '',
+      has_foreign_operations: false,
+      tax_exemptions: '',
+      previous_tax_consultant: '',
+      filing_deadline: '',
       ...initialData
     },
   });
@@ -162,6 +180,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     return name.includes('company') || name.includes('formation') || name.includes('license');
   });
   const hasBankAccount = selectedProducts.some(p => p.name.toLowerCase().includes('bank'));
+  const hasTaxFiling = selectedProducts.some(p => {
+    const name = p.name.toLowerCase();
+    return name.includes('tax') || name.includes('filing');
+  });
 
   // Fetch existing customers for selection
   useEffect(() => {
@@ -404,6 +426,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             ...(data.service_start_date && { service_start_date: data.service_start_date }),
             ...(data.has_previous_records !== undefined && { has_previous_records: data.has_previous_records }),
             ...(data.reporting_frequency && { reporting_frequency: data.reporting_frequency }),
+            // Corporate tax filing fields
+            ...(data.tax_year_period && { tax_year_period: data.tax_year_period }),
+            ...(data.first_time_filing !== undefined && { first_time_filing: data.first_time_filing }),
+            ...(data.tax_registration_number && { tax_registration_number: data.tax_registration_number }),
+            ...(data.financial_year_end_date && { financial_year_end_date: data.financial_year_end_date }),
+            ...(data.has_foreign_operations !== undefined && { has_foreign_operations: data.has_foreign_operations }),
+            ...(data.tax_exemptions && { tax_exemptions: data.tax_exemptions }),
+            ...(data.previous_tax_consultant && { previous_tax_consultant: data.previous_tax_consultant }),
+            ...(data.filing_deadline && { filing_deadline: data.filing_deadline }),
           }
         }])
         .select()
@@ -1013,6 +1044,99 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           disabled={isSubmitting}
                         />
                         <Label htmlFor="has_previous_records">Has Previous Accounting Records</Label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator />
+                </>
+              )}
+
+              {/* Corporate Tax Filing Details */}
+              {hasTaxFiling && (
+                <>
+                  <div>
+                    <h3 className="text-lg font-medium mb-4">Corporate Tax Filing Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="tax_year_period">Tax Year/Period</Label>
+                        <Input
+                          id="tax_year_period"
+                          {...form.register('tax_year_period')}
+                          placeholder="e.g., 2024"
+                          disabled={isSubmitting}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="tax_registration_number">Tax Registration Number (TRN)</Label>
+                        <Input
+                          id="tax_registration_number"
+                          {...form.register('tax_registration_number')}
+                          placeholder="Enter TRN if already registered"
+                          disabled={isSubmitting}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="financial_year_end_date">Financial Year End Date</Label>
+                        <Input
+                          id="financial_year_end_date"
+                          type="date"
+                          {...form.register('financial_year_end_date')}
+                          disabled={isSubmitting}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="filing_deadline">Filing Deadline</Label>
+                        <Input
+                          id="filing_deadline"
+                          type="date"
+                          {...form.register('filing_deadline')}
+                          disabled={isSubmitting}
+                        />
+                      </div>
+
+                      <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="previous_tax_consultant">Previous Tax Consultant</Label>
+                        <Input
+                          id="previous_tax_consultant"
+                          {...form.register('previous_tax_consultant')}
+                          placeholder="If switching from another consultant"
+                          disabled={isSubmitting}
+                        />
+                      </div>
+
+                      <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="tax_exemptions">Tax Exemptions or Special Status</Label>
+                        <Textarea
+                          id="tax_exemptions"
+                          {...form.register('tax_exemptions')}
+                          placeholder="Describe any tax exemptions or special status"
+                          disabled={isSubmitting}
+                          rows={3}
+                        />
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="first_time_filing"
+                          checked={form.watch('first_time_filing') || false}
+                          onCheckedChange={(checked) => form.setValue('first_time_filing', !!checked)}
+                          disabled={isSubmitting}
+                        />
+                        <Label htmlFor="first_time_filing">First time filing</Label>
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="has_foreign_operations"
+                          checked={form.watch('has_foreign_operations') || false}
+                          onCheckedChange={(checked) => form.setValue('has_foreign_operations', !!checked)}
+                          disabled={isSubmitting}
+                        />
+                        <Label htmlFor="has_foreign_operations">Has foreign operations/transactions</Label>
                       </div>
                     </div>
                   </div>
