@@ -1230,33 +1230,58 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 <h3 className="text-base font-medium">Application & Financial Details</h3>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4 space-y-4">
-                {/* Application Details */}
+                {/* Application Information */}
                 <div>
-                  <h4 className="text-sm font-medium mb-3 text-muted-foreground">Application Details</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <h4 className="text-sm font-medium mb-3 text-muted-foreground">Application Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {hasCompanyFormation && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="license_type">License Type *</Label>
+                          <Select
+                            value={form.watch('license_type')}
+                            onValueChange={(value) => form.setValue('license_type', value as any)}
+                            disabled={isSubmitting}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Mainland">Mainland</SelectItem>
+                              <SelectItem value="Freezone">Freezone</SelectItem>
+                              <SelectItem value="Offshore">Offshore</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-                  {/* Conditional fields based on selected products */}
-                  
-                  {hasCompanyFormation && (
-                    <>
-                      <div className="space-y-2">
-                        <Label htmlFor="license_type">License Type *</Label>
-                        <Select
-                          value={form.watch('license_type')}
-                          onValueChange={(value) => form.setValue('license_type', value as any)}
-                          disabled={isSubmitting}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Mainland">Mainland</SelectItem>
-                            <SelectItem value="Freezone">Freezone</SelectItem>
-                            <SelectItem value="Offshore">Offshore</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                        <div className="space-y-2">
+                          <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
+                          <Input
+                            id="no_of_shareholders"
+                            type="number"
+                            min="1"
+                            max="10"
+                            {...form.register('no_of_shareholders', { valueAsNumber: true })}
+                            disabled={isSubmitting}
+                            required
+                          />
+                          {form.formState.errors.no_of_shareholders && (
+                            <p className="text-sm text-red-600">{form.formState.errors.no_of_shareholders.message}</p>
+                          )}
+                          <p className="text-xs text-muted-foreground">
+                            Number of shareholders will determine how many signatory document sets are created (1-10)
+                          </p>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                </div>
 
+                {/* Business Information */}
+                {hasCompanyFormation && (
+                  <div className="mt-4">
+                    <h4 className="text-sm font-medium mb-3 text-muted-foreground">Business Information</h4>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <Label htmlFor="jurisdiction">Jurisdiction</Label>
                         <select
@@ -1278,68 +1303,47 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           <option value="Other">Other</option>
                         </select>
                       </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
-                        <Input
-                          id="no_of_shareholders"
-                          type="number"
-                          min="1"
-                          max="10"
-                          {...form.register('no_of_shareholders', { valueAsNumber: true })}
-                          disabled={isSubmitting}
-                          required
-                        />
-                        {form.formState.errors.no_of_shareholders && (
-                          <p className="text-sm text-red-600">{form.formState.errors.no_of_shareholders.message}</p>
-                        )}
-                        <p className="text-xs text-muted-foreground">
-                          Number of shareholders will determine how many signatory document sets are created (1-10)
-                        </p>
-                      </div>
-                    </>
-                  )}
-
-                </div>
-              </div>
-
-              {/* Business Financial Details */}
-              <div className="mt-4">
-                <h4 className="text-sm font-medium mb-3 text-muted-foreground">Financial Information</h4>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="amount">Amount (AED) *</Label>
-                    <Input
-                      id="amount"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      {...form.register('amount', { valueAsNumber: true })}
-                      disabled={isSubmitting}
-                      required
-                    />
-                    {form.formState.errors.amount && (
-                      <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>
-                    )}
+                    </div>
                   </div>
+                )}
 
-                  <div className="space-y-2">
-                    <Label htmlFor="annual_turnover">Annual Turnover (AED) *</Label>
-                    <Input
-                      id="annual_turnover"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      {...form.register('annual_turnover', { valueAsNumber: true })}
-                      disabled={isSubmitting}
-                      required
-                    />
-                    {form.formState.errors.annual_turnover && (
-                      <p className="text-sm text-red-600">{form.formState.errors.annual_turnover.message}</p>
-                    )}
+                {/* Financial Information */}
+                <div className="mt-4">
+                  <h4 className="text-sm font-medium mb-3 text-muted-foreground">Financial Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="amount">Amount (AED) *</Label>
+                      <Input
+                        id="amount"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        {...form.register('amount', { valueAsNumber: true })}
+                        disabled={isSubmitting}
+                        required
+                      />
+                      {form.formState.errors.amount && (
+                        <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="annual_turnover">Annual Turnover (AED) *</Label>
+                      <Input
+                        id="annual_turnover"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        {...form.register('annual_turnover', { valueAsNumber: true })}
+                        disabled={isSubmitting}
+                        required
+                      />
+                      {form.formState.errors.annual_turnover && (
+                        <p className="text-sm text-red-600">{form.formState.errors.annual_turnover.message}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
-              </div>
             </AccordionContent>
           </AccordionItem>
 
