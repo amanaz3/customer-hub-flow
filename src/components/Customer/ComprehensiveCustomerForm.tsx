@@ -1709,7 +1709,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       <span className="text-base leading-none">💡</span>
                       <span>This is an informational checklist only. Documents will be collected in subsequent registration steps.</span>
                     </p>
-                    <Accordion type="single" collapsible className="w-full">
+                    <Accordion type="single" collapsible className="w-full ml-3 border-l-2 border-muted pl-2">
                       <AccordionItem value="goaml-docs" className="border-0">
                         <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm justify-start gap-2">
                           <span className="text-muted-foreground">View document checklist</span>
@@ -2093,7 +2093,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <span className="text-base leading-none">💡</span>
                         <span>This is an informational checklist only. Documents will be requested during the mortgage processing stage.</span>
                       </p>
-                      <Accordion type="single" collapsible className="w-full">
+                      <Accordion type="single" collapsible className="w-full ml-3 border-l-2 border-muted pl-2">
                         <AccordionItem value="home-finance-docs" className="border-0">
                           <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm justify-start gap-2">
                             <span className="text-muted-foreground">View document checklist</span>
@@ -2353,7 +2353,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <span className="text-base leading-none">💡</span>
                         <span>This is an informational checklist only. Documents will be collected during the VAT registration process.</span>
                       </p>
-                      <Accordion type="single" collapsible className="w-full">
+                      <Accordion type="single" collapsible className="w-full ml-3 border-l-2 border-muted pl-2">
                         <AccordionItem value="vat-reg-docs" className="border-0">
                           <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm justify-start gap-2">
                             <span className="text-muted-foreground">View document checklist</span>
@@ -2499,7 +2499,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <span className="text-base leading-none">💡</span>
                         <span>This is an informational checklist only. Documents will be collected during the registration process.</span>
                       </p>
-                      <Accordion type="single" collapsible className="w-full">
+                      <Accordion type="single" collapsible className="w-full ml-3 border-l-2 border-muted pl-2">
                         <AccordionItem value="corp-tax-reg-docs" className="border-0">
                           <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm justify-start gap-2">
                             <span className="text-muted-foreground">View document checklist</span>
@@ -2667,7 +2667,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <span className="text-base leading-none">💡</span>
                         <span>This is an informational checklist only. Documents will be collected during the filing process.</span>
                       </p>
-                      <Accordion type="single" collapsible className="w-full">
+                      <Accordion type="single" collapsible className="w-full ml-3 border-l-2 border-muted pl-2">
                         <AccordionItem value="required-docs" className="border-0">
                           <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm justify-start gap-2">
                             <span className="text-muted-foreground">View document checklist</span>
