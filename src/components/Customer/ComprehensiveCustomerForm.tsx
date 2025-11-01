@@ -1332,10 +1332,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     {/* Bookkeeping Details - shown for bookkeeping products */}
                     {hasBookkeeping && (
                       <>
-                        <div className="col-span-full mt-2">
-                          <h5 className="text-sm font-medium mb-2">Bookkeeping Details</h5>
-                        </div>
-                        
                         <div className="space-y-2">
                           <Label htmlFor="accounting_software">Current Accounting Software</Label>
                           <Select
