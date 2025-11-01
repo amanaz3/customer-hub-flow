@@ -1230,7 +1230,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 <Button
                   type="submit"
                   disabled={isSubmitting || !!createdCustomerId}
-                  className="min-w-[120px] bg-green-600 hover:bg-green-700 text-white font-semibold shadow-md"
+                  className="min-w-[120px] bg-green-700 hover:bg-green-800 text-white font-semibold shadow-lg border-2 border-green-600"
                   size="lg"
                 >
                   {isSubmitting ? 'Creating...' : createdCustomerId ? 'Customer Created' : 'Create Customer'}
