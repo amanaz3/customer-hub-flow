@@ -1113,69 +1113,69 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </Select>
                   </div>
 
-                  <div className="space-y-3">
-                    <Label>Product / Service *</Label>
-                    {!selectedCategoryId ? (
-                      <p className="text-sm text-muted-foreground">Please select a service category first</p>
-                    ) : productsLoading ? (
-                      <p className="text-sm text-muted-foreground">Loading products...</p>
-                    ) : products.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">No products available for this category.</p>
-                    ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                        {products.map((product) => {
-                          const isSelected = watchProductId === product.id;
-                          return (
-                            <div
-                              key={product.id}
-                              onClick={() => !isSubmitting && form.setValue('product_id', product.id)}
-                              className={cn(
-                                "relative p-3 rounded-md border-2 cursor-pointer transition-all duration-200",
-                                "hover:shadow-sm",
-                                isSelected
-                                  ? "border-green-500 bg-green-50 dark:bg-green-950"
-                                  : "border-border bg-card hover:border-green-300",
-                                isSubmitting && "opacity-50 cursor-not-allowed"
-                              )}
-                            >
-                              <div className="flex items-center gap-2">
-                                <div className="flex-1 min-w-0">
-                                  <h4 className={cn(
-                                    "font-medium text-sm truncate",
-                                    isSelected && "text-green-700 dark:text-green-400"
-                                  )}>
-                                    {product.name}
-                                  </h4>
-                                </div>
-                                {isSelected && (
-                                  <div className="flex-shrink-0">
-                                    <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                                      <svg
-                                        className="w-3 h-3 text-white"
-                                        fill="none"
-                                        strokeWidth="2.5"
-                                        stroke="currentColor"
-                                        viewBox="0 0 24 24"
-                                      >
-                                        <path
-                                          strokeLinecap="round"
-                                          strokeLinejoin="round"
-                                          d="M5 13l4 4L19 7"
-                                        />
-                                      </svg>
-                                    </div>
-                                  </div>
+                  {selectedCategoryId && (
+                    <div className="space-y-3">
+                      <Label>Product / Service *</Label>
+                      {productsLoading ? (
+                        <p className="text-sm text-muted-foreground">Loading products...</p>
+                      ) : products.length === 0 ? (
+                        <p className="text-sm text-muted-foreground">No products available for this category.</p>
+                      ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                          {products.map((product) => {
+                            const isSelected = watchProductId === product.id;
+                            return (
+                              <div
+                                key={product.id}
+                                onClick={() => !isSubmitting && form.setValue('product_id', product.id)}
+                                className={cn(
+                                  "relative p-3 rounded-md border-2 cursor-pointer transition-all duration-200",
+                                  "hover:shadow-sm",
+                                  isSelected
+                                    ? "border-green-500 bg-green-50 dark:bg-green-950"
+                                    : "border-border bg-card hover:border-green-300",
+                                  isSubmitting && "opacity-50 cursor-not-allowed"
                                 )}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <div className="flex-1 min-w-0">
+                                    <h4 className={cn(
+                                      "font-medium text-sm truncate",
+                                      isSelected && "text-green-700 dark:text-green-400"
+                                    )}>
+                                      {product.name}
+                                    </h4>
+                                  </div>
+                                  {isSelected && (
+                                    <div className="flex-shrink-0">
+                                      <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                                        <svg
+                                          className="w-3 h-3 text-white"
+                                          fill="none"
+                                          strokeWidth="2.5"
+                                          stroke="currentColor"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            d="M5 13l4 4L19 7"
+                                          />
+                                        </svg>
+                                      </div>
+                                    </div>
+                                  )}
+                                </div>
                               </div>
-                            </div>
-                          );
-                        })}
-                      </div>
-                    )}
-                    {form.formState.errors.product_id && (
-                      <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>
-                    )}
-                  </div>
+                            );
+                          })}
+                        </div>
+                      )}
+                      {form.formState.errors.product_id && (
+                        <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>
+                      )}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
