@@ -813,53 +813,127 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         />
 
         {/* Stage Indicator */}
-        <div className="flex items-center justify-center gap-2 mb-6">
-          <div className="flex items-center gap-2">
-            <div className={cn(
-              "flex items-center justify-center w-8 h-8 rounded-full font-medium text-sm",
-              currentStage === 'details' 
-                ? "bg-primary text-primary-foreground" 
-                : "bg-muted text-muted-foreground"
-            )}>
-              1
+        <div className="relative mb-8">
+          <div className="flex items-center justify-between max-w-md mx-auto">
+            {/* Stage 1: Application Details */}
+            <div className="flex flex-col items-center gap-3 flex-1">
+              <div className={cn(
+                "flex items-center justify-center w-14 h-14 rounded-full font-semibold text-lg transition-all duration-300 border-4",
+                currentStage === 'details' 
+                  ? "bg-primary text-primary-foreground border-primary shadow-lg scale-110" 
+                  : createdCustomerId
+                  ? "bg-green-500 text-white border-green-500"
+                  : "bg-muted text-muted-foreground border-muted"
+              )}>
+                {createdCustomerId ? (
+                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <ClipboardList className="w-6 h-6" />
+                )}
+              </div>
+              <div className="text-center">
+                <div className={cn(
+                  "text-sm font-semibold transition-colors",
+                  currentStage === 'details' || createdCustomerId
+                    ? "text-foreground" 
+                    : "text-muted-foreground"
+                )}>
+                  Application Details
+                </div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  Customer & Service Info
+                </div>
+              </div>
             </div>
-            <span className={cn(
-              "text-sm font-medium",
-              currentStage === 'details' ? "text-foreground" : "text-muted-foreground"
-            )}>
-              Application Details
-            </span>
-          </div>
-          
-          <div className={cn(
-            "w-12 h-0.5",
-            createdCustomerId ? "bg-primary" : "bg-muted"
-          )} />
-          
-          <div className="flex items-center gap-2">
-            <div className={cn(
-              "flex items-center justify-center w-8 h-8 rounded-full font-medium text-sm",
-              currentStage === 'documents' && createdCustomerId
-                ? "bg-primary text-primary-foreground" 
-                : createdCustomerId 
-                ? "bg-muted-foreground/20 text-muted-foreground"
-                : "bg-muted text-muted-foreground"
-            )}>
-              2
+
+            {/* Connecting Line */}
+            <div className="flex-1 relative" style={{ maxWidth: '120px', margin: '0 16px' }}>
+              <div className={cn(
+                "h-1 rounded-full transition-all duration-500",
+                createdCustomerId ? "bg-green-500" : "bg-muted"
+              )} />
+              <div className={cn(
+                "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 rounded-full transition-all duration-300",
+                createdCustomerId ? "bg-green-500 scale-100" : "bg-muted scale-75"
+              )} />
             </div>
-            <span className={cn(
-              "text-sm font-medium",
-              currentStage === 'documents' && createdCustomerId 
-                ? "text-foreground" 
-                : "text-muted-foreground"
-            )}>
-              Documents
-              {createdCustomerId && (
-                <Badge variant={allMandatoryUploaded ? "default" : "secondary"} className="ml-2">
-                  {documents.filter(doc => doc.is_uploaded).length}/{documents.length}
-                </Badge>
+            
+            {/* Stage 2: Documents */}
+            <div className="flex flex-col items-center gap-3 flex-1">
+              <div className={cn(
+                "flex items-center justify-center w-14 h-14 rounded-full font-semibold text-lg transition-all duration-300 border-4 relative",
+                currentStage === 'documents' && createdCustomerId
+                  ? "bg-primary text-primary-foreground border-primary shadow-lg scale-110" 
+                  : createdCustomerId 
+                  ? "bg-background text-foreground border-primary/30 hover:border-primary cursor-pointer"
+                  : "bg-muted text-muted-foreground border-muted opacity-50"
               )}
-            </span>
+              onClick={() => createdCustomerId && setCurrentStage('documents')}
+              >
+                <Building2 className="w-6 h-6" />
+                {createdCustomerId && documents.length > 0 && (
+                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-background">
+                    {documents.filter(doc => doc.is_uploaded).length}
+                  </div>
+                )}
+              </div>
+              <div className="text-center">
+                <div className={cn(
+                  "text-sm font-semibold transition-colors",
+                  currentStage === 'documents' && createdCustomerId
+                    ? "text-foreground" 
+                    : createdCustomerId
+                    ? "text-foreground/70"
+                    : "text-muted-foreground"
+                )}>
+                  Documents
+                </div>
+                <div className="text-xs text-muted-foreground mt-0.5">
+                  {createdCustomerId ? (
+                    <span>{documents.filter(doc => doc.is_uploaded).length}/{documents.length} Uploaded</span>
+                  ) : (
+                    <span>Upload Files</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Stage Description Banner */}
+          <div className={cn(
+            "mt-6 p-4 rounded-lg border-2 transition-all duration-300",
+            currentStage === 'details' 
+              ? "bg-primary/5 border-primary/20" 
+              : "bg-muted/30 border-border"
+          )}>
+            <div className="flex items-start gap-3 max-w-2xl mx-auto">
+              <div className={cn(
+                "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0",
+                currentStage === 'details' ? "bg-primary/10" : "bg-muted"
+              )}>
+                {currentStage === 'details' ? (
+                  <ClipboardList className={cn("w-5 h-5", "text-primary")} />
+                ) : (
+                  <Building2 className="w-5 h-5 text-foreground" />
+                )}
+              </div>
+              <div>
+                <h3 className="font-semibold text-sm mb-1">
+                  {currentStage === 'details' 
+                    ? 'Step 1: Fill Application Details' 
+                    : 'Step 2: Upload Documents'
+                  }
+                </h3>
+                <p className="text-sm text-muted-foreground">
+                  {currentStage === 'details'
+                    ? 'Select the customer, choose service type, and provide all required business information.'
+                    : 'Upload all required documents for the application. Mandatory documents must be uploaded before completion.'
+                  }
+                </p>
+              </div>
+            </div>
           </div>
         </div>
 
