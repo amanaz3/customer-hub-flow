@@ -150,6 +150,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [currentStage, setCurrentStage] = useState<'details' | 'documents'>('details');
   const [createdCustomerId, setCreatedCustomerId] = useState<string | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
+  const [showSuccessTransition, setShowSuccessTransition] = useState(false);
   const [customerMode, setCustomerMode] = useState<'new' | 'existing'>('new');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [existingCustomers, setExistingCustomers] = useState<any[]>([]);
@@ -648,8 +649,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         description: `Application for ${data.company} has been successfully created.`,
       });
 
-      // Move to documents stage
-      setCurrentStage('documents');
+      // Show success transition animation
+      setShowSuccessTransition(true);
+      
+      // Wait for animation then move to documents stage
+      setTimeout(() => {
+        setShowSuccessTransition(false);
+        setCurrentStage('documents');
+      }, 2000);
       
       // Trigger refresh in parent
       if (onSuccess) {
@@ -717,7 +724,49 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const allMandatoryUploaded = mandatoryDocuments.length > 0 && mandatoryDocumentsUploaded;
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 relative">
+      {/* Success Transition Overlay */}
+      {showSuccessTransition && (
+        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in">
+          <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md mx-4 shadow-2xl animate-scale-in">
+            <div className="text-center space-y-4">
+              {/* Success Checkmark */}
+              <div className="w-20 h-20 bg-green-100 dark:bg-green-900 rounded-full flex items-center justify-center mx-auto animate-bounce">
+                <svg className="w-12 h-12 text-green-600 dark:text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              
+              <div>
+                <h3 className="text-2xl font-bold text-gray-900 dark:text-white mb-2">
+                  Application Created! 🎉
+                </h3>
+                <p className="text-gray-600 dark:text-gray-300">
+                  Moving to document upload...
+                </p>
+              </div>
+
+              {/* Animated Arrow */}
+              <div className="flex items-center justify-center gap-3 pt-4">
+                <div className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  <ClipboardList className="w-5 h-5 text-green-600" />
+                  Details
+                </div>
+                <div className="flex gap-1 animate-pulse">
+                  <div className="w-2 h-2 rounded-full bg-green-500"></div>
+                  <div className="w-2 h-2 rounded-full bg-green-500 animation-delay-100"></div>
+                  <div className="w-2 h-2 rounded-full bg-green-500 animation-delay-200"></div>
+                </div>
+                <div className="flex items-center gap-2 text-sm font-semibold text-gray-700 dark:text-gray-300">
+                  <Building2 className="w-5 h-5 text-blue-600" />
+                  Documents
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Stage Indicator */}
       <Card className="bg-card border-2">
         <CardContent className="py-6">
