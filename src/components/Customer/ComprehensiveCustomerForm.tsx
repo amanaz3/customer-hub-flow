@@ -2348,14 +2348,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </Tabs>
 
         {/* Floating Submit Button */}
-        {activeTab === 'details' && (
+        {activeTab === 'details' && !createdCustomerId && (
           <Button
             type="button"
             onClick={form.handleSubmit(handleSubmit)}
-            disabled={isSubmitting || !!createdCustomerId}
-            className="fixed bottom-6 right-6 px-4 py-2 text-sm bg-green-700 hover:bg-green-800 text-white font-semibold shadow-lg border-2 border-green-600 rounded z-50 transition-all hover:shadow-xl"
+            disabled={isSubmitting}
+            className="fixed bottom-6 right-6 w-12 h-12 p-0 bg-green-700 hover:bg-green-800 text-white font-semibold shadow-lg border-2 border-green-600 rounded-full z-50 transition-all hover:shadow-xl flex items-center justify-center"
+            title="Create Customer"
           >
-            {isSubmitting ? 'Creating...' : createdCustomerId ? '✓ Created' : 'Create Customer'}
+            {isSubmitting ? '...' : <Plus className="h-5 w-5" />}
           </Button>
         )}
       </CardContent>
