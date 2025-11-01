@@ -28,7 +28,7 @@ const CustomerNew = () => {
   const { refreshData } = useCustomer();
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-4 pb-6">
         <CustomerNewHeader 
           title="New Application" 
           description="Create a new customer application" 

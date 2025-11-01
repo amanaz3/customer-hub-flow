@@ -43,11 +43,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({
       <div className="flex flex-col flex-1 overflow-hidden w-full min-w-0">
         <Navbar />
         <main className={cn(
-          "flex-1 overflow-y-auto bg-background transition-all duration-300",
-          "px-3 sm:px-4 md:px-6 pb-2",
+          "flex-1 overflow-y-auto bg-background",
+          "px-3 sm:px-4 md:px-6",
           isMobile ? "pt-4" : "pt-2"
         )}>
-          <div className="w-full mx-auto">
+          <div className="w-full mx-auto min-h-full">
             {children}
           </div>
         </main>
