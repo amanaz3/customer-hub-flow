@@ -1277,11 +1277,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </div>
                 </div>
 
-                {/* Business Information */}
-                {hasCompanyFormation && (
-                  <div className="mt-4">
-                    <h4 className="text-sm font-medium mb-3 text-muted-foreground">Business Information</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {/* Business & Financial Information */}
+                <div className="mt-4">
+                  <h4 className="text-sm font-medium mb-3 text-muted-foreground">Business & Financial Information</h4>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {hasCompanyFormation && (
                       <div className="space-y-2">
                         <Label htmlFor="jurisdiction">Jurisdiction</Label>
                         <select
@@ -1303,29 +1303,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           <option value="Other">Other</option>
                         </select>
                       </div>
-                    </div>
-                  </div>
-                )}
-
-                {/* Financial Information */}
-                <div className="mt-4">
-                  <h4 className="text-sm font-medium mb-3 text-muted-foreground">Financial Information</h4>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="amount">Amount (AED) *</Label>
-                      <Input
-                        id="amount"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        {...form.register('amount', { valueAsNumber: true })}
-                        disabled={isSubmitting}
-                        required
-                      />
-                      {form.formState.errors.amount && (
-                        <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>
-                      )}
-                    </div>
+                    )}
 
                     <div className="space-y-2">
                       <Label htmlFor="annual_turnover">Annual Turnover (AED) *</Label>
@@ -1340,6 +1318,22 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       />
                       {form.formState.errors.annual_turnover && (
                         <p className="text-sm text-red-600">{form.formState.errors.annual_turnover.message}</p>
+                      )}
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="amount">Deal Value (AED) *</Label>
+                      <Input
+                        id="amount"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        {...form.register('amount', { valueAsNumber: true })}
+                        disabled={isSubmitting}
+                        required
+                      />
+                      {form.formState.errors.amount && (
+                        <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>
                       )}
                     </div>
                   </div>
