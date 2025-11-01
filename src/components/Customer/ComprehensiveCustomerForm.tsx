@@ -1005,7 +1005,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <Accordion type="multiple" defaultValue={["basic", "service"]} className="space-y-4">
                 {/* Basic Information */}
                 <AccordionItem value="basic" className="border rounded-lg">
-                  <AccordionTrigger className="px-4 hover:no-underline">
+                  <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
                     <h3 className="text-base font-medium">Basic Information</h3>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
