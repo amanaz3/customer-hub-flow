@@ -1207,7 +1207,7 @@ export type Database = {
           details: Json | null
           event_type: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           user_agent: string | null
           user_id: string | null
         }
@@ -1216,7 +1216,7 @@ export type Database = {
           details?: Json | null
           event_type: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
           user_id?: string | null
         }
@@ -1225,9 +1225,33 @@ export type Database = {
           details?: Json | null
           event_type?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      service_category: {
+        Row: {
+          category_name: string
+          created_at: string
+          id: string
+          is_active: boolean
+          updated_at: string
+        }
+        Insert: {
+          category_name: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+        }
+        Update: {
+          category_name?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
         }
         Relationships: []
       }
@@ -1450,7 +1474,7 @@ export type Database = {
         }[]
       }
       cleanup_deleted_users: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           deleted_count: number
         }[]
@@ -1479,10 +1503,7 @@ export type Database = {
         }
         Returns: undefined
       }
-      delete_product: {
-        Args: { product_id: string }
-        Returns: undefined
-      }
+      delete_product: { Args: { product_id: string }; Returns: undefined }
       get_or_create_arr_target: {
         Args: { p_month: number; p_user_id: string; p_year: number }
         Returns: string
@@ -1492,7 +1513,7 @@ export type Database = {
         Returns: string
       }
       get_products: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           description: string
@@ -1525,10 +1546,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      is_admin: {
-        Args: { user_id: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { user_id: string }; Returns: boolean }
       log_api_access: {
         Args: {
           action_type: string
@@ -1554,10 +1572,7 @@ export type Database = {
         Args: { key_hash: string; required_permission: string }
         Returns: boolean
       }
-      validate_session_security: {
-        Args: Record<PropertyKey, never>
-        Returns: boolean
-      }
+      validate_session_security: { Args: never; Returns: boolean }
     }
     Enums: {
       app_role: "admin" | "user" | "manager"

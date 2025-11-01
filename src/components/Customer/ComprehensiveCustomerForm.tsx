@@ -178,18 +178,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   });
 
-  // Fetch all active service types for the dropdown
-  const { data: serviceTypes = [], isLoading: serviceTypesLoading } = useQuery({
-    queryKey: ['service_types'],
+  // Fetch all active service categories for the dropdown
+  const { data: serviceCategories = [], isLoading: serviceCategoriesLoading } = useQuery({
+    queryKey: ['service_categories'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('service_types')
+        .from('service_category')
         .select('*')
         .eq('is_active', true)
-        .order('service_name');
+        .order('category_name');
       
       if (error) {
-        console.error('Error fetching service types:', error);
+        console.error('Error fetching service categories:', error);
         throw error;
       }
       return data;
@@ -916,20 +916,20 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     <Select
                       value={form.watch('service_type_id')}
                       onValueChange={(value) => form.setValue('service_type_id', value)}
-                      disabled={isSubmitting || serviceTypesLoading}
+                      disabled={isSubmitting || serviceCategoriesLoading}
                     >
                       <SelectTrigger className="bg-background">
                         <SelectValue placeholder="Select service type" />
                       </SelectTrigger>
                       <SelectContent className="bg-popover z-50">
-                        {serviceTypesLoading ? (
+                        {serviceCategoriesLoading ? (
                           <SelectItem value="loading" disabled>Loading services...</SelectItem>
-                        ) : serviceTypes.length === 0 ? (
+                        ) : serviceCategories.length === 0 ? (
                           <SelectItem value="empty" disabled>No services available</SelectItem>
                         ) : (
-                          serviceTypes.map((service) => (
-                            <SelectItem key={service.id} value={service.id}>
-                              {service.service_name}
+                          serviceCategories.map((category) => (
+                            <SelectItem key={category.id} value={category.id}>
+                              {category.category_name}
                             </SelectItem>
                           ))
                         )}
