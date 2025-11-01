@@ -1701,51 +1701,60 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 {/* GoAML Required Documents Info Box */}
                 {hasGoAML && (
                   <Accordion type="single" collapsible className="mt-4">
-                    <AccordionItem value="goaml-docs" className="border rounded-lg bg-muted/50">
+                    <AccordionItem value="goaml-docs" className="border border-blue-200 dark:border-blue-800 rounded-lg bg-blue-50/50 dark:bg-blue-950/20">
                       <AccordionTrigger className="px-4 py-3 hover:no-underline">
                         <div className="flex items-center gap-2">
-                          <span className="text-orange-600">📋</span>
-                          <h4 className="text-sm font-medium">Required Documents for GoAML Registration</h4>
+                          <span className="text-blue-600 dark:text-blue-400 text-base">ℹ️</span>
+                          <div className="flex flex-col items-start gap-0.5">
+                            <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Document Checklist (For Reference Only)</h4>
+                            <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">Documents will be collected later - no upload needed now</p>
+                          </div>
                         </div>
                       </AccordionTrigger>
                       <AccordionContent className="px-4 pb-4">
-                        <ul className="text-sm space-y-1.5 text-muted-foreground">
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 mt-0.5">•</span>
-                            <span>Trade License Copy (certified)</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 mt-0.5">•</span>
-                            <span>Passport Copies of all Beneficial Owners (UBOs)</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 mt-0.5">•</span>
-                            <span>Emirates ID Copies of all UBOs</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 mt-0.5">•</span>
-                            <span>Proof of Address for all UBOs</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 mt-0.5">•</span>
-                            <span>Memorandum of Association (MOA)</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 mt-0.5">•</span>
-                            <span>Board Resolution appointing Compliance Officer</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 mt-0.5">•</span>
-                            <span>Company Organization Chart</span>
-                          </li>
-                          <li className="flex items-start gap-2">
-                            <span className="text-green-600 mt-0.5">•</span>
-                            <span>Bank Account Details & Statements (Last 6 months)</span>
-                          </li>
-                        </ul>
-                        <p className="text-xs text-muted-foreground mt-3 italic">
-                          Note: All documents will be collected in the next steps of the registration process.
-                        </p>
+                        <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
+                          <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Required Documents:</p>
+                          <ul className="text-sm space-y-1.5 text-muted-foreground">
+                            <li className="flex items-start gap-2">
+                              <span className="text-blue-500 mt-0.5">•</span>
+                              <span>Trade License Copy (certified)</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-blue-500 mt-0.5">•</span>
+                              <span>Passport Copies of all Beneficial Owners (UBOs)</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-blue-500 mt-0.5">•</span>
+                              <span>Emirates ID Copies of all UBOs</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-blue-500 mt-0.5">•</span>
+                              <span>Proof of Address for all UBOs</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-blue-500 mt-0.5">•</span>
+                              <span>Memorandum of Association (MOA)</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-blue-500 mt-0.5">•</span>
+                              <span>Board Resolution appointing Compliance Officer</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-blue-500 mt-0.5">•</span>
+                              <span>Company Organization Chart</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-blue-500 mt-0.5">•</span>
+                              <span>Bank Account Details & Statements (Last 6 months)</span>
+                            </li>
+                          </ul>
+                          <div className="mt-3 pt-3 border-t border-blue-200 dark:border-blue-800">
+                            <p className="text-xs text-blue-600 dark:text-blue-400 italic flex items-start gap-1.5">
+                              <span className="text-base leading-none">💡</span>
+                              <span>This is an informational checklist only. Documents will be collected in subsequent registration steps.</span>
+                            </p>
+                          </div>
+                        </div>
                       </AccordionContent>
                     </AccordionItem>
                   </Accordion>
