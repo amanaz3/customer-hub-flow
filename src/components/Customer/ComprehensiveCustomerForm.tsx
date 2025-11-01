@@ -768,7 +768,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       )}
 
       {/* Stage Indicator */}
-      <div className="relative">
+      <div className="relative w-full max-w-4xl mx-auto">
         <div className="flex items-center justify-between max-w-md mx-auto">
             {/* Stage 1: Application Details */}
             <div className="flex flex-col items-center gap-3 flex-1">
