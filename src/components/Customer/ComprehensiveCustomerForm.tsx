@@ -1332,6 +1332,75 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </>
                     )}
 
+                    {/* GoAML Application Fields */}
+                    {hasGoAML && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="trade_license_number">Trade License Number *</Label>
+                          <Input
+                            id="trade_license_number"
+                            {...form.register('trade_license_number')}
+                            placeholder="Enter trade license number"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="date_of_incorporation">Date of Incorporation</Label>
+                          <Input
+                            id="date_of_incorporation"
+                            type="date"
+                            {...form.register('date_of_incorporation')}
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="compliance_officer_name">Compliance Officer Name *</Label>
+                          <Input
+                            id="compliance_officer_name"
+                            {...form.register('compliance_officer_name')}
+                            placeholder="Full name"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="compliance_officer_position">Officer Position</Label>
+                          <Input
+                            id="compliance_officer_position"
+                            {...form.register('compliance_officer_position')}
+                            placeholder="e.g., Chief Compliance Officer"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="compliance_officer_email">Officer Email</Label>
+                          <Input
+                            id="compliance_officer_email"
+                            type="email"
+                            {...form.register('compliance_officer_email')}
+                            placeholder="officer@company.com"
+                            disabled={isSubmitting}
+                          />
+                          {form.formState.errors.compliance_officer_email && (
+                            <p className="text-sm text-red-600">{form.formState.errors.compliance_officer_email.message}</p>
+                          )}
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="compliance_officer_phone">Officer Phone</Label>
+                          <Input
+                            id="compliance_officer_phone"
+                            {...form.register('compliance_officer_phone')}
+                            placeholder="+971 XX XXX XXXX"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                      </>
+                    )}
+
                     {/* Bookkeeping Details - shown for bookkeeping products */}
                     {hasBookkeeping && (
                       <>
@@ -1483,6 +1552,65 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           <option value="Other">Other</option>
                         </select>
                       </div>
+
+                      {/* GoAML Business Fields */}
+                      {hasGoAML && (
+                        <>
+                          <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor="registered_office_address">Registered Office Address</Label>
+                            <Textarea
+                              id="registered_office_address"
+                              {...form.register('registered_office_address')}
+                              placeholder="Full registered address"
+                              disabled={isSubmitting}
+                              rows={2}
+                            />
+                          </div>
+
+                          <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor="nature_of_business">Nature of Business Operations</Label>
+                            <Textarea
+                              id="nature_of_business"
+                              {...form.register('nature_of_business')}
+                              placeholder="Describe business activities in detail"
+                              disabled={isSubmitting}
+                              rows={2}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="number_of_ubos">Number of Beneficial Owners (UBOs)</Label>
+                            <Input
+                              id="number_of_ubos"
+                              type="number"
+                              min="1"
+                              {...form.register('number_of_ubos', { valueAsNumber: true })}
+                              disabled={isSubmitting}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="customer_types">Customer Types</Label>
+                            <Input
+                              id="customer_types"
+                              {...form.register('customer_types')}
+                              placeholder="e.g., Individual, Corporate"
+                              disabled={isSubmitting}
+                            />
+                          </div>
+
+                          <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor="high_risk_countries">High-Risk Countries (if any)</Label>
+                            <Textarea
+                              id="high_risk_countries"
+                              {...form.register('high_risk_countries')}
+                              placeholder="List any high-risk jurisdictions"
+                              disabled={isSubmitting}
+                              rows={2}
+                            />
+                          </div>
+                        </>
+                      )}
                     </div>
                   </div>
                 )}
@@ -1525,198 +1653,53 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>
                       )}
                     </div>
+
+                    {/* GoAML Financial Fields */}
+                    {hasGoAML && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="expected_annual_transaction_volume">Expected Annual Transaction Volume</Label>
+                          <select
+                            id="expected_annual_transaction_volume"
+                            {...form.register('expected_annual_transaction_volume')}
+                            disabled={isSubmitting}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="">Select volume range</option>
+                            <option value="0-100k">0 - 100,000 AED</option>
+                            <option value="100k-500k">100,000 - 500,000 AED</option>
+                            <option value="500k-1m">500,000 - 1,000,000 AED</option>
+                            <option value="1m-5m">1,000,000 - 5,000,000 AED</option>
+                            <option value="5m+">5,000,000+ AED</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="transaction_types">Expected Transaction Types</Label>
+                          <Input
+                            id="transaction_types"
+                            {...form.register('transaction_types')}
+                            placeholder="e.g., Wire Transfer, Cash, Cheques"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2">
+                          <Label htmlFor="source_of_funds">Primary Source of Funds</Label>
+                          <Input
+                            id="source_of_funds"
+                            {...form.register('source_of_funds')}
+                            placeholder="e.g., Trading revenue, Investment income"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
-            </AccordionContent>
-          </AccordionItem>
 
-
-              {/* GoAML Registration Details - Integrated into Application/Business/Financial sections */}
-              {hasGoAML && (
-                <>
-                  {/* Application Information - GoAML Fields */}
-                  <div className="mt-3">
-                    <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
-                      <span className="text-xs">📋</span>
-                      <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">GoAML - Application Information</h4>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="space-y-2">
-                        <Label htmlFor="trade_license_number">Trade License Number *</Label>
-                        <Input
-                          id="trade_license_number"
-                          {...form.register('trade_license_number')}
-                          placeholder="Enter trade license number"
-                          disabled={isSubmitting}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="date_of_incorporation">Date of Incorporation</Label>
-                        <Input
-                          id="date_of_incorporation"
-                          type="date"
-                          {...form.register('date_of_incorporation')}
-                          disabled={isSubmitting}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="compliance_officer_name">Compliance Officer Name *</Label>
-                        <Input
-                          id="compliance_officer_name"
-                          {...form.register('compliance_officer_name')}
-                          placeholder="Full name"
-                          disabled={isSubmitting}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="compliance_officer_position">Officer Position</Label>
-                        <Input
-                          id="compliance_officer_position"
-                          {...form.register('compliance_officer_position')}
-                          placeholder="e.g., Chief Compliance Officer"
-                          disabled={isSubmitting}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="compliance_officer_email">Officer Email</Label>
-                        <Input
-                          id="compliance_officer_email"
-                          type="email"
-                          {...form.register('compliance_officer_email')}
-                          placeholder="officer@company.com"
-                          disabled={isSubmitting}
-                        />
-                        {form.formState.errors.compliance_officer_email && (
-                          <p className="text-sm text-red-600">{form.formState.errors.compliance_officer_email.message}</p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="compliance_officer_phone">Officer Phone</Label>
-                        <Input
-                          id="compliance_officer_phone"
-                          {...form.register('compliance_officer_phone')}
-                          placeholder="+971 XX XXX XXXX"
-                          disabled={isSubmitting}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Business Information - GoAML Fields */}
-                  <div className="mt-3">
-                    <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
-                      <span className="text-xs">🏢</span>
-                      <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">GoAML - Business Information</h4>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="registered_office_address">Registered Office Address</Label>
-                        <Textarea
-                          id="registered_office_address"
-                          {...form.register('registered_office_address')}
-                          placeholder="Full registered address"
-                          disabled={isSubmitting}
-                          rows={2}
-                        />
-                      </div>
-
-                      <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="nature_of_business">Nature of Business Operations</Label>
-                        <Textarea
-                          id="nature_of_business"
-                          {...form.register('nature_of_business')}
-                          placeholder="Describe business activities in detail"
-                          disabled={isSubmitting}
-                          rows={2}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="number_of_ubos">Number of Beneficial Owners (UBOs)</Label>
-                        <Input
-                          id="number_of_ubos"
-                          type="number"
-                          min="1"
-                          {...form.register('number_of_ubos', { valueAsNumber: true })}
-                          disabled={isSubmitting}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="customer_types">Customer Types</Label>
-                        <Input
-                          id="customer_types"
-                          {...form.register('customer_types')}
-                          placeholder="e.g., Individual, Corporate"
-                          disabled={isSubmitting}
-                        />
-                      </div>
-
-                      <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="high_risk_countries">High-Risk Countries (if any)</Label>
-                        <Textarea
-                          id="high_risk_countries"
-                          {...form.register('high_risk_countries')}
-                          placeholder="List any high-risk jurisdictions"
-                          disabled={isSubmitting}
-                          rows={2}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Financial Information - GoAML Fields */}
-                  <div className="mt-3">
-                    <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
-                      <span className="text-xs">💰</span>
-                      <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">GoAML - Financial Information</h4>
-                    </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="space-y-2">
-                        <Label htmlFor="expected_annual_transaction_volume">Expected Annual Transaction Volume</Label>
-                        <select
-                          id="expected_annual_transaction_volume"
-                          {...form.register('expected_annual_transaction_volume')}
-                          disabled={isSubmitting}
-                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        >
-                          <option value="">Select volume range</option>
-                          <option value="0-100k">0 - 100,000 AED</option>
-                          <option value="100k-500k">100,000 - 500,000 AED</option>
-                          <option value="500k-1m">500,000 - 1,000,000 AED</option>
-                          <option value="1m-5m">1,000,000 - 5,000,000 AED</option>
-                          <option value="5m+">5,000,000+ AED</option>
-                        </select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="transaction_types">Expected Transaction Types</Label>
-                        <Input
-                          id="transaction_types"
-                          {...form.register('transaction_types')}
-                          placeholder="e.g., Wire Transfer, Cash, Cheques"
-                          disabled={isSubmitting}
-                        />
-                      </div>
-
-                      <div className="space-y-2 md:col-span-2">
-                        <Label htmlFor="source_of_funds">Primary Source of Funds</Label>
-                        <Input
-                          id="source_of_funds"
-                          {...form.register('source_of_funds')}
-                          placeholder="e.g., Trading revenue, Investment income"
-                          disabled={isSubmitting}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Required Documents Info Box */}
+                {/* GoAML Required Documents Info Box */}
+                {hasGoAML && (
                   <div className="mt-4 p-4 bg-muted/50 rounded-lg">
                     <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
                       <span className="text-orange-600">📋</span>
@@ -1760,10 +1743,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       Note: All documents will be collected in the next steps of the registration process.
                     </p>
                   </div>
-
-                  <Separator className="my-3" />
-                </>
-              )}
+                )}
+            </AccordionContent>
+          </AccordionItem>
 
               {/* Home Finance Application Details */}
               {hasHomeFinance && (
