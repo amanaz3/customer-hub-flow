@@ -1705,7 +1705,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       <span className="text-xs">ℹ️</span>
                       <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Required Documents</h4>
                     </div>
-                    <p className="text-xs text-muted-foreground italic mb-2 px-2 flex items-start gap-1.5">
+                    <p className="text-xs text-foreground/70 italic mb-2 px-2 flex items-start gap-1.5">
                       <span className="text-base leading-none">💡</span>
                       <span>This is an informational checklist only. Documents will be collected in subsequent registration steps.</span>
                     </p>
@@ -2089,7 +2089,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <span className="text-xs">ℹ️</span>
                         <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Required Documents</h4>
                       </div>
-                      <p className="text-xs text-muted-foreground italic mb-2 px-2 flex items-start gap-1.5">
+                      <p className="text-xs text-foreground/70 italic mb-2 px-2 flex items-start gap-1.5">
                         <span className="text-base leading-none">💡</span>
                         <span>This is an informational checklist only. Documents will be requested during the mortgage processing stage.</span>
                       </p>
@@ -2349,7 +2349,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <span className="text-xs">ℹ️</span>
                         <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Required Documents</h4>
                       </div>
-                      <p className="text-xs text-muted-foreground italic mb-2 px-2 flex items-start gap-1.5">
+                      <p className="text-xs text-foreground/70 italic mb-2 px-2 flex items-start gap-1.5">
                         <span className="text-base leading-none">💡</span>
                         <span>This is an informational checklist only. Documents will be collected during the VAT registration process.</span>
                       </p>
@@ -2495,7 +2495,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <span className="text-xs">ℹ️</span>
                         <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Required Documents</h4>
                       </div>
-                      <p className="text-xs text-muted-foreground italic mb-2 px-2 flex items-start gap-1.5">
+                      <p className="text-xs text-foreground/70 italic mb-2 px-2 flex items-start gap-1.5">
                         <span className="text-base leading-none">💡</span>
                         <span>This is an informational checklist only. Documents will be collected during the registration process.</span>
                       </p>
