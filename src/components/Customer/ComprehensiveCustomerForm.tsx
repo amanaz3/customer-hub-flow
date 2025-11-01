@@ -219,7 +219,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       company: '',
       amount: 0,
       license_type: 'Mainland',
-      lead_source: 'Website',
+      lead_source: 'Referral',
       annual_turnover: 0,
       jurisdiction: '',
       any_suitable_bank: false,
