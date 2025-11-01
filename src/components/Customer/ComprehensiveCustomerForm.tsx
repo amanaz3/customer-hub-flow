@@ -781,7 +781,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     ) : products.length === 0 ? (
                       <p className="text-sm text-muted-foreground">No products available.</p>
                     ) : (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
                         {products.map((product) => {
                           const isSelected = watchProductId === product.id;
                           return (
@@ -789,33 +789,28 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               key={product.id}
                               onClick={() => !isSubmitting && form.setValue('product_id', product.id)}
                               className={cn(
-                                "relative p-4 rounded-lg border-2 cursor-pointer transition-all duration-200",
-                                "hover:shadow-md",
+                                "relative p-3 rounded-md border-2 cursor-pointer transition-all duration-200",
+                                "hover:shadow-sm",
                                 isSelected
-                                  ? "border-primary bg-primary/5 shadow-sm"
+                                  ? "border-primary bg-primary/10"
                                   : "border-border bg-card hover:border-primary/50",
                                 isSubmitting && "opacity-50 cursor-not-allowed"
                               )}
                             >
-                              <div className="flex items-start justify-between gap-3">
-                                <div className="flex-1">
+                              <div className="flex items-center gap-2">
+                                <div className="flex-1 min-w-0">
                                   <h4 className={cn(
-                                    "font-semibold text-base",
+                                    "font-medium text-sm truncate",
                                     isSelected && "text-primary"
                                   )}>
                                     {product.name}
                                   </h4>
-                                  {product.description && (
-                                    <p className="text-sm text-muted-foreground mt-1">
-                                      {product.description}
-                                    </p>
-                                  )}
                                 </div>
                                 {isSelected && (
                                   <div className="flex-shrink-0">
-                                    <div className="w-6 h-6 rounded-full bg-primary flex items-center justify-center">
+                                    <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
                                       <svg
-                                        className="w-4 h-4 text-primary-foreground"
+                                        className="w-3 h-3 text-primary-foreground"
                                         fill="none"
                                         strokeWidth="2.5"
                                         stroke="currentColor"
@@ -831,9 +826,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                   </div>
                                 )}
                               </div>
-                              {isSelected && (
-                                <div className="absolute inset-0 rounded-lg ring-2 ring-primary ring-offset-2 pointer-events-none" />
-                              )}
                             </div>
                           );
                         })}
@@ -842,9 +834,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     {form.formState.errors.product_id && (
                       <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>
                     )}
-                    <p className="text-xs text-muted-foreground">
-                      Select the product/service for this application
-                    </p>
                   </div>
 
                   {/* Conditional fields based on selected products */}
