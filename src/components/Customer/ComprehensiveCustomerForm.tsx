@@ -1230,7 +1230,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </div>
               </div>
 
-              <div className="flex justify-end space-x-4 pt-6 pb-8">
+              <div className="flex justify-end space-x-4 pt-4 pb-2">
                 <Button
                   type="submit"
                   disabled={isSubmitting || !!createdCustomerId}
