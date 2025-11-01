@@ -2154,6 +2154,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </AccordionItem>
                     </Accordion>
                   </div>
+                </div>
 
                   <Separator className="my-3" />
                 </>
@@ -2416,6 +2417,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </AccordionItem>
                     </Accordion>
                   </div>
+                </div>
 
                   <Separator className="my-3" />
                 </>
