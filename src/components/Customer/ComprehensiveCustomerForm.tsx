@@ -1376,7 +1376,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="amount">Deal Value (AED) *</Label>
+                      <Label htmlFor="amount">Amount (AED) *</Label>
                       <Input
                         id="amount"
                         type="number"
