@@ -59,6 +59,7 @@ const formSchema = z.object({
   bank_preference_3: z.string().optional(),
   customer_notes: z.string().optional(),
   product_id: z.string().min(1, "Please select a product/service"),
+  service_type_id: z.string().optional(),
   no_of_shareholders: z.number()
     .min(1, "Number of shareholders must be at least 1")
     .max(10, "Number of shareholders cannot exceed 10")
@@ -177,6 +178,24 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   });
 
+  // Fetch all active service types for the dropdown
+  const { data: serviceTypes = [], isLoading: serviceTypesLoading } = useQuery({
+    queryKey: ['service_types'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('service_types')
+        .select('*')
+        .eq('is_active', true)
+        .order('service_name');
+      
+      if (error) {
+        console.error('Error fetching service types:', error);
+        throw error;
+      }
+      return data;
+    }
+  });
+
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -195,6 +214,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       bank_preference_3: '',
       customer_notes: '',
       product_id: '',
+      service_type_id: '',
       no_of_shareholders: 1,
       // Bookkeeping defaults
       accounting_software: '',
@@ -887,6 +907,32 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <SelectItem value="Referral">Referral</SelectItem>
                         <SelectItem value="Social Media">Social Media</SelectItem>
                         <SelectItem value="Other">Other</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="service_type">Type of Service *</Label>
+                    <Select
+                      value={form.watch('service_type_id')}
+                      onValueChange={(value) => form.setValue('service_type_id', value)}
+                      disabled={isSubmitting || serviceTypesLoading}
+                    >
+                      <SelectTrigger className="bg-background">
+                        <SelectValue placeholder="Select service type" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        {serviceTypesLoading ? (
+                          <SelectItem value="loading" disabled>Loading services...</SelectItem>
+                        ) : serviceTypes.length === 0 ? (
+                          <SelectItem value="empty" disabled>No services available</SelectItem>
+                        ) : (
+                          serviceTypes.map((service) => (
+                            <SelectItem key={service.id} value={service.id}>
+                              {service.service_name}
+                            </SelectItem>
+                          ))
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
