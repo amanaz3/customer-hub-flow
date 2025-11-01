@@ -44,7 +44,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         <Navbar />
         <main className={cn(
           "flex-1 overflow-y-auto bg-background transition-all duration-300",
-          "p-3 sm:p-4 md:p-6 lg:p-8 xl:p-10",
+          "p-3 sm:p-4 md:p-6",
           isMobile ? "pt-4" : "pt-2"
         )}>
           <div className="max-w-full mx-auto min-h-0">
