@@ -917,6 +917,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </Select>
                   </div>
 
+                </div>
+              </div>
+
+              {/* Service Selection */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-base">Service Selection</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="service_type">Service Category *</Label>
                     <Select
@@ -947,7 +956,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </Select>
                   </div>
 
-                  <div className="space-y-3 md:col-span-2">
+                  <div className="space-y-3">
                     <Label>Product / Service *</Label>
                     {!selectedCategoryId ? (
                       <p className="text-sm text-muted-foreground">Please select a service category first</p>
@@ -1010,6 +1019,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>
                     )}
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Application Details */}
+              <div>
+                <h3 className="text-base font-medium mb-3">Application Details</h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 
                   {/* Conditional fields based on selected products */}
                   
