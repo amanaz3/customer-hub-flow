@@ -182,8 +182,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               selectedProductName.includes('formation') || 
                               selectedProductName.includes('license');
   const hasBankAccount = selectedProductName.includes('bank');
-  const hasTaxFiling = selectedProductName.includes('tax') || 
-                       selectedProductName.includes('filing');
+  
+  // Differentiate between tax registration and tax filing
+  const hasTaxRegistration = selectedProductName.includes('registration');
+  const hasTaxFiling = (selectedProductName.includes('filing') || selectedProductName.includes('filling')) && 
+                       !hasTaxRegistration;
 
   // Fetch existing customers for selection
   useEffect(() => {
@@ -1068,6 +1071,84 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </>
               )}
 
+              {/* Corporate Tax Registration Details */}
+              {hasTaxRegistration && (
+                <>
+                  <div>
+                    <h3 className="text-base font-medium mb-3">Corporate Tax Registration Details</h3>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="company">Trade License Number *</Label>
+                        <Input
+                          id="trade_license_number"
+                          {...form.register('customer_notes')}
+                          placeholder="Enter trade license number"
+                          disabled={isSubmitting}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="annual_turnover">Expected Annual Revenue (AED) *</Label>
+                        <Input
+                          id="annual_turnover"
+                          type="number"
+                          step="0.01"
+                          {...form.register('annual_turnover', { valueAsNumber: true })}
+                          disabled={isSubmitting}
+                          required
+                        />
+                        {form.formState.errors.annual_turnover && (
+                          <p className="text-sm text-red-600">{form.formState.errors.annual_turnover.message}</p>
+                        )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="financial_year_end_date">Financial Year End Date</Label>
+                        <Input
+                          id="financial_year_end_date"
+                          type="date"
+                          {...form.register('financial_year_end_date')}
+                          disabled={isSubmitting}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="jurisdiction">Business Activity/Sector</Label>
+                        <Input
+                          id="jurisdiction"
+                          {...form.register('jurisdiction')}
+                          placeholder="e.g., Trading, Consulting, Manufacturing"
+                          disabled={isSubmitting}
+                        />
+                      </div>
+
+                      <div className="space-y-2 md:col-span-2">
+                        <Label htmlFor="customer_notes">Additional Registration Notes</Label>
+                        <Textarea
+                          id="customer_notes"
+                          {...form.register('customer_notes')}
+                          placeholder="Any special requirements or information for registration"
+                          disabled={isSubmitting}
+                          rows={3}
+                        />
+                      </div>
+
+                      <div className="flex items-center space-x-2">
+                        <Checkbox
+                          id="has_foreign_operations"
+                          checked={form.watch('has_foreign_operations') || false}
+                          onCheckedChange={(checked) => form.setValue('has_foreign_operations', !!checked)}
+                          disabled={isSubmitting}
+                        />
+                        <Label htmlFor="has_foreign_operations">Has foreign shareholders or operations</Label>
+                      </div>
+                    </div>
+                  </div>
+
+                  <Separator className="my-3" />
+                </>
+              )}
+
               {/* Corporate Tax Filing Details */}
               {hasTaxFiling && (
                 <>
@@ -1075,22 +1156,24 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     <h3 className="text-base font-medium mb-3">Corporate Tax Filing Details</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-2">
-                        <Label htmlFor="tax_year_period">Tax Year/Period</Label>
+                        <Label htmlFor="tax_registration_number">Tax Registration Number (TRN) *</Label>
+                        <Input
+                          id="tax_registration_number"
+                          {...form.register('tax_registration_number')}
+                          placeholder="Enter your TRN"
+                          disabled={isSubmitting}
+                          required
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="tax_year_period">Tax Year/Period *</Label>
                         <Input
                           id="tax_year_period"
                           {...form.register('tax_year_period')}
                           placeholder="e.g., 2024"
                           disabled={isSubmitting}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="tax_registration_number">Tax Registration Number (TRN)</Label>
-                        <Input
-                          id="tax_registration_number"
-                          {...form.register('tax_registration_number')}
-                          placeholder="Enter TRN if already registered"
-                          disabled={isSubmitting}
+                          required
                         />
                       </div>
 
@@ -1114,7 +1197,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         />
                       </div>
 
-                      <div className="space-y-2 md:col-span-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="annual_turnover">Annual Revenue (AED)</Label>
+                        <Input
+                          id="annual_turnover"
+                          type="number"
+                          step="0.01"
+                          {...form.register('annual_turnover', { valueAsNumber: true })}
+                          disabled={isSubmitting}
+                        />
+                      </div>
+
+                      <div className="space-y-2">
                         <Label htmlFor="previous_tax_consultant">Previous Tax Consultant</Label>
                         <Input
                           id="previous_tax_consultant"
