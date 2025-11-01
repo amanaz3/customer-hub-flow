@@ -587,41 +587,45 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Customer Selection Section */}
-        <div className="p-3 border rounded-lg bg-muted/50">
+        <div className="p-3 border rounded-lg bg-muted/30">
           <div className="space-y-3">
             <div>
               <Label className="text-base font-medium">Customer Selection</Label>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                Choose to create a new company or select an existing one
-              </p>
             </div>
 
-            <RadioGroup
-              value={customerMode}
-              onValueChange={(value) => {
-                setCustomerMode(value as 'new' | 'existing');
-                if (value === 'new') {
+            <div className="flex gap-2 p-1 bg-muted rounded-lg">
+              <button
+                type="button"
+                onClick={() => {
+                  setCustomerMode('new');
                   setSelectedCustomerId('');
                   form.reset();
-                }
-              }}
-              className="flex flex-col space-y-2"
-            >
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="new" id="new" />
-                <Label htmlFor="new" className="cursor-pointer flex items-center gap-2">
-                  <Building2 className="h-4 w-4" />
-                  Create New Company
-                </Label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <RadioGroupItem value="existing" id="existing" />
-                <Label htmlFor="existing" className="cursor-pointer flex items-center gap-2">
-                  <Users className="h-4 w-4" />
-                  Select Existing Customer
-                </Label>
-              </div>
-            </RadioGroup>
+                }}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md transition-all font-medium",
+                  customerMode === 'new'
+                    ? "bg-background shadow-sm text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Building2 className="h-4 w-4" />
+                Create New Company
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => setCustomerMode('existing')}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-2 px-4 py-2.5 rounded-md transition-all font-medium",
+                  customerMode === 'existing'
+                    ? "bg-background shadow-sm text-foreground"
+                    : "text-muted-foreground hover:text-foreground"
+                )}
+              >
+                <Users className="h-4 w-4" />
+                Select Existing
+              </button>
+            </div>
 
             {customerMode === 'existing' && (
               <div className="space-y-3 pt-2">
