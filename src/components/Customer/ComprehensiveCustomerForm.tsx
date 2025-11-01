@@ -792,8 +792,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 "relative p-3 rounded-md border-2 cursor-pointer transition-all duration-200",
                                 "hover:shadow-sm",
                                 isSelected
-                                  ? "border-primary bg-primary/10"
-                                  : "border-border bg-card hover:border-primary/50",
+                                  ? "border-green-500 bg-green-50 dark:bg-green-950"
+                                  : "border-border bg-card hover:border-green-300",
                                 isSubmitting && "opacity-50 cursor-not-allowed"
                               )}
                             >
@@ -801,16 +801,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 <div className="flex-1 min-w-0">
                                   <h4 className={cn(
                                     "font-medium text-sm truncate",
-                                    isSelected && "text-primary"
+                                    isSelected && "text-green-700 dark:text-green-400"
                                   )}>
                                     {product.name}
                                   </h4>
                                 </div>
                                 {isSelected && (
                                   <div className="flex-shrink-0">
-                                    <div className="w-5 h-5 rounded-full bg-primary flex items-center justify-center">
+                                    <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
                                       <svg
-                                        className="w-3 h-3 text-primary-foreground"
+                                        className="w-3 h-3 text-white"
                                         fill="none"
                                         strokeWidth="2.5"
                                         stroke="currentColor"
