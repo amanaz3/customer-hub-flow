@@ -56,7 +56,7 @@ const formSchema = z.object({
   bank_preference_2: z.string().optional(),
   bank_preference_3: z.string().optional(),
   customer_notes: z.string().optional(),
-  product_id: z.string().optional(),
+  product_ids: z.array(z.string()).default([]),
   no_of_shareholders: z.number()
     .min(1, "Number of shareholders must be at least 1")
     .max(10, "Number of shareholders cannot exceed 10")
@@ -122,7 +122,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       bank_preference_2: '',
       bank_preference_3: '',
       customer_notes: '',
-      product_id: undefined,
+      product_ids: [],
       no_of_shareholders: 1,
       ...initialData
     },
@@ -362,7 +362,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             annual_turnover: data.annual_turnover,
             jurisdiction: data.jurisdiction ? sanitizeInput(data.jurisdiction.trim()) : null,
             customer_notes: data.customer_notes ? sanitizeInput(data.customer_notes.trim()) : null,
-            product_id: data.product_id || null,
+            product_ids: data.product_ids || [],
             user_id: user.id,
           }
         }])
@@ -721,33 +721,54 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </Select>
                   </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="product">Product</Label>
-                    <Select
-                      value={form.watch('product_id') || undefined}
-                      onValueChange={(value) => form.setValue('product_id', value === 'none' ? undefined : value)}
-                      disabled={isSubmitting || productsLoading}
-                    >
-                      <SelectTrigger className="bg-popover/95 backdrop-blur-sm border border-border z-50">
-                        <SelectValue placeholder={productsLoading ? "Loading products..." : "Select a product (optional)"} />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover/95 backdrop-blur-sm border border-border z-50">
-                        <SelectItem value="none">No product selected</SelectItem>
-                        {products.map((product) => (
-                          <SelectItem key={product.id} value={product.id}>
-                            <div className="flex flex-col">
-                              <span className="font-medium">{product.name}</span>
-                              {product.description && (
-                                <span className="text-xs text-muted-foreground">{product.description}</span>
-                              )}
+                  <div className="space-y-3">
+                    <Label>Products / Services</Label>
+                    {productsLoading ? (
+                      <p className="text-sm text-muted-foreground">Loading products...</p>
+                    ) : products.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">No products available.</p>
+                    ) : (
+                      <div className="space-y-3 p-4 border border-border rounded-lg bg-card">
+                        {products.map((product) => {
+                          const selectedIds = form.watch('product_ids') || [];
+                          const isChecked = selectedIds.includes(product.id);
+                          
+                          return (
+                            <div key={product.id} className="flex items-start space-x-3">
+                              <Checkbox
+                                id={`product-${product.id}`}
+                                checked={isChecked}
+                                onCheckedChange={(checked) => {
+                                  const currentIds = form.watch('product_ids') || [];
+                                  if (checked) {
+                                    form.setValue('product_ids', [...currentIds, product.id]);
+                                  } else {
+                                    form.setValue('product_ids', currentIds.filter(id => id !== product.id));
+                                  }
+                                }}
+                                disabled={isSubmitting}
+                              />
+                              <div className="flex-1">
+                                <Label 
+                                  htmlFor={`product-${product.id}`}
+                                  className="font-medium cursor-pointer"
+                                >
+                                  {product.name}
+                                </Label>
+                                {product.description && (
+                                  <p className="text-sm text-muted-foreground mt-1">
+                                    {product.description}
+                                  </p>
+                                )}
+                              </div>
                             </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {products.length === 0 && !productsLoading && (
-                      <p className="text-xs text-muted-foreground">No products available.</p>
+                          );
+                        })}
+                      </div>
                     )}
+                    <p className="text-xs text-muted-foreground">
+                      Select all applicable products/services for this application
+                    </p>
                   </div>
 
                   <div className="space-y-2">
