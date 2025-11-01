@@ -155,12 +155,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [existingCustomers, setExistingCustomers] = useState<any[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
+  const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const { uploadDocument } = useCustomer();
 
   // Fetch all active products for the dropdown
-  const { data: products = [], isLoading: productsLoading } = useQuery({
+  const { data: allProducts = [], isLoading: productsLoading } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -177,6 +178,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       return data || [];
     }
   });
+
+  // Filter products based on category filter
+  const products = categoryFilter === 'all' 
+    ? allProducts 
+    : allProducts.filter(p => p.service_category_id === categoryFilter);
 
   // Fetch all active service categories for the dropdown
   const { data: serviceCategories = [], isLoading: serviceCategoriesLoading } = useQuery({
@@ -1088,12 +1094,56 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
                     <div className="pt-2 space-y-4">
+                      {/* Category Filter Tabs */}
+                      <div className="space-y-2">
+                        <Label className="text-sm text-muted-foreground">Filter by Category (Optional)</Label>
+                        <div className="flex flex-wrap gap-2">
+                          <Button
+                            type="button"
+                            variant={categoryFilter === 'all' ? 'default' : 'outline'}
+                            size="sm"
+                            onClick={() => setCategoryFilter('all')}
+                            disabled={isSubmitting || serviceCategoriesLoading}
+                            className="h-9"
+                          >
+                            All Products
+                            {categoryFilter === 'all' && (
+                              <Badge variant="secondary" className="ml-2 bg-white/20">
+                                {allProducts.length}
+                              </Badge>
+                            )}
+                          </Button>
+                          {serviceCategories.map((category) => {
+                            const count = allProducts.filter(p => p.service_category_id === category.id).length;
+                            return (
+                              <Button
+                                key={category.id}
+                                type="button"
+                                variant={categoryFilter === category.id ? 'default' : 'outline'}
+                                size="sm"
+                                onClick={() => setCategoryFilter(category.id)}
+                                disabled={isSubmitting || serviceCategoriesLoading}
+                                className="h-9"
+                              >
+                                {category.category_name}
+                                {categoryFilter === category.id && (
+                                  <Badge variant="secondary" className="ml-2 bg-white/20">
+                                    {count}
+                                  </Badge>
+                                )}
+                              </Button>
+                            );
+                          })}
+                        </div>
+                      </div>
+
+                      {/* Products Grid */}
                       <div className="space-y-3">
                         <Label>Product / Service *</Label>
                         {productsLoading ? (
                           <p className="text-sm text-muted-foreground">Loading products...</p>
                         ) : products.length === 0 ? (
-                          <p className="text-sm text-muted-foreground">No products available.</p>
+                          <p className="text-sm text-muted-foreground">No products available in this category.</p>
                         ) : (
                           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
                             {products.map((product) => {
