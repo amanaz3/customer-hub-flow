@@ -180,10 +180,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   });
 
-  // Filter products based on category filter
-  const products = categoryFilter === 'all' 
+  // Filter products based on category filter and sort "Others" to the end
+  const products = (categoryFilter === 'all' 
     ? allProducts 
-    : allProducts.filter(p => p.service_category_id === categoryFilter);
+    : allProducts.filter(p => p.service_category_id === categoryFilter))
+    .sort((a, b) => {
+      const aIsOther = a.name?.toLowerCase().includes('other');
+      const bIsOther = b.name?.toLowerCase().includes('other');
+      if (aIsOther && !bIsOther) return 1;
+      if (!aIsOther && bIsOther) return -1;
+      return 0;
+    });
 
   // Fetch all active service categories for the dropdown
   const { data: serviceCategories = [], isLoading: serviceCategoriesLoading } = useQuery({
