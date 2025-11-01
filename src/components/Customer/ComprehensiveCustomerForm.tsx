@@ -155,13 +155,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [existingCustomers, setExistingCustomers] = useState<any[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
-  const [selectedCategoryId, setSelectedCategoryId] = useState<string>('');
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const { uploadDocument } = useCustomer();
 
   // Fetch all active products for the dropdown
-  const { data: allProducts = [], isLoading: productsLoading } = useQuery({
+  const { data: products = [], isLoading: productsLoading } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -178,11 +177,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       return data || [];
     }
   });
-
-  // Filter products based on selected category
-  const products = selectedCategoryId 
-    ? allProducts.filter(p => p.service_category_id === selectedCategoryId)
-    : allProducts;
 
   // Fetch all active service categories for the dropdown
   const { data: serviceCategories = [], isLoading: serviceCategoriesLoading } = useQuery({
@@ -304,6 +298,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   // Check which product type is selected
   const selectedProduct = products.find(p => p.id === watchProductId);
   const selectedProductName = selectedProduct?.name.toLowerCase() || '';
+  const selectedProductCategoryId = selectedProduct?.service_category_id || '';
+  
+  // Find the category name for the selected product
+  const selectedCategory = serviceCategories.find(cat => cat.id === selectedProductCategoryId);
   const selectedProductNameNoSpaces = selectedProductName.replace(/\s+/g, '');
   
   const hasBookkeeping = selectedProductNameNoSpaces.includes('bookkeeping') || 
@@ -1090,102 +1088,83 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
                     <div className="pt-2 space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="service_type">Service Category *</Label>
-                    <Select
-                      value={selectedCategoryId}
-                      onValueChange={(value) => {
-                        setSelectedCategoryId(value);
-                        // Clear product selection when category changes
-                        form.setValue('product_id', '');
-                      }}
-                      disabled={isSubmitting || serviceCategoriesLoading}
-                    >
-                      <SelectTrigger className="bg-background">
-                        <SelectValue placeholder="Select service category" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover z-50">
-                        {serviceCategoriesLoading ? (
-                          <SelectItem value="loading" disabled>Loading categories...</SelectItem>
-                        ) : serviceCategories.length === 0 ? (
-                          <SelectItem value="empty" disabled>No categories available</SelectItem>
+                      <div className="space-y-3">
+                        <Label>Product / Service *</Label>
+                        {productsLoading ? (
+                          <p className="text-sm text-muted-foreground">Loading products...</p>
+                        ) : products.length === 0 ? (
+                          <p className="text-sm text-muted-foreground">No products available.</p>
                         ) : (
-                          serviceCategories.map((category) => (
-                            <SelectItem key={category.id} value={category.id}>
-                              {category.category_name}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  {selectedCategoryId && (
-                    <div className="space-y-3">
-                      <Label>Product / Service *</Label>
-                      {productsLoading ? (
-                        <p className="text-sm text-muted-foreground">Loading products...</p>
-                      ) : products.length === 0 ? (
-                        <p className="text-sm text-muted-foreground">No products available for this category.</p>
-                      ) : (
-                        <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                          {products.map((product) => {
-                            const isSelected = watchProductId === product.id;
-                            return (
-                              <div
-                                key={product.id}
-                                onClick={() => !isSubmitting && form.setValue('product_id', product.id)}
-                                className={cn(
-                                  "relative p-3 rounded-md border-2 cursor-pointer transition-all duration-200",
-                                  "hover:shadow-sm",
-                                  isSelected
-                                    ? "border-green-500 bg-green-50 dark:bg-green-950"
-                                    : "border-border bg-card hover:border-green-300",
-                                  isSubmitting && "opacity-50 cursor-not-allowed"
-                                )}
-                              >
-                                <div className="flex items-center gap-2">
-                                  <div className="flex-1 min-w-0">
-                                    <h4 className={cn(
-                                      "font-medium text-sm truncate",
-                                      isSelected && "text-green-700 dark:text-green-400"
-                                    )}>
-                                      {product.name}
-                                    </h4>
-                                  </div>
-                                  {isSelected && (
-                                    <div className="flex-shrink-0">
-                                      <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
-                                        <svg
-                                          className="w-3 h-3 text-white"
-                                          fill="none"
-                                          strokeWidth="2.5"
-                                          stroke="currentColor"
-                                          viewBox="0 0 24 24"
-                                        >
-                                          <path
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                            d="M5 13l4 4L19 7"
-                                          />
-                                        </svg>
-                                      </div>
-                                    </div>
+                          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                            {products.map((product) => {
+                              const isSelected = watchProductId === product.id;
+                              return (
+                                <div
+                                  key={product.id}
+                                  onClick={() => !isSubmitting && form.setValue('product_id', product.id)}
+                                  className={cn(
+                                    "relative p-3 rounded-md border-2 cursor-pointer transition-all duration-200",
+                                    "hover:shadow-sm",
+                                    isSelected
+                                      ? "border-green-500 bg-green-50 dark:bg-green-950"
+                                      : "border-border bg-card hover:border-green-300",
+                                    isSubmitting && "opacity-50 cursor-not-allowed"
                                   )}
+                                >
+                                  <div className="flex items-center gap-2">
+                                    <div className="flex-1 min-w-0">
+                                      <h4 className={cn(
+                                        "font-medium text-sm truncate",
+                                        isSelected && "text-green-700 dark:text-green-400"
+                                      )}>
+                                        {product.name}
+                                      </h4>
+                                    </div>
+                                    {isSelected && (
+                                      <div className="flex-shrink-0">
+                                        <div className="w-5 h-5 rounded-full bg-green-500 flex items-center justify-center">
+                                          <svg
+                                            className="w-3 h-3 text-white"
+                                            fill="none"
+                                            strokeWidth="2.5"
+                                            stroke="currentColor"
+                                            viewBox="0 0 24 24"
+                                          >
+                                            <path
+                                              strokeLinecap="round"
+                                              strokeLinejoin="round"
+                                              d="M5 13l4 4L19 7"
+                                            />
+                                          </svg>
+                                        </div>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
-                              </div>
-                            );
-                          })}
+                              );
+                            })}
+                          </div>
+                        )}
+                        {form.formState.errors.product_id && (
+                          <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>
+                        )}
+                      </div>
+
+                      {/* Auto-display category when product is selected (read-only, for info) */}
+                      {selectedCategory && (
+                        <div className="space-y-2 pt-2">
+                          <Label className="text-muted-foreground">Service Category</Label>
+                          <div className="flex items-center gap-2 p-3 rounded-md border bg-muted/50">
+                            <Badge variant="secondary" className="font-normal">
+                              {selectedCategory.category_name}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">(Informational)</span>
+                          </div>
                         </div>
                       )}
-                      {form.formState.errors.product_id && (
-                        <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>
-                      )}
                     </div>
-                  )}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
+                  </AccordionContent>
+                </AccordionItem>
 
             {/* Application Details & Business Financial */}
             <AccordionItem value="application" className="border rounded-lg">
