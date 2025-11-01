@@ -2707,6 +2707,30 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         )}
       </CardContent>
     </Card>
+
+    {/* Floating Submit Button - Only show on details stage before submission */}
+    {currentStage === 'details' && !createdCustomerId && (
+      <button
+        type="button"
+        onClick={form.handleSubmit(handleSubmit)}
+        disabled={isSubmitting}
+        className="fixed bottom-8 right-8 w-16 h-16 bg-green-600 hover:bg-green-700 text-white font-bold shadow-2xl border-4 border-white rounded-full z-50 transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
+        title="Create Application"
+      >
+        {isSubmitting ? (
+          <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+        ) : (
+          <>
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M5 13l4 4L19 7" />
+            </svg>
+            <span className="absolute -top-10 right-0 bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
+              Create Application
+            </span>
+          </>
+        )}
+      </button>
+    )}
     </div>
   );
 };
