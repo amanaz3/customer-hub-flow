@@ -1701,10 +1701,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 {/* Required Documents Section */}
                 {hasGoAML && (
                   <div className="mt-3">
-                    <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-blue-50/50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
+                    <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
                       <span className="text-xs">ℹ️</span>
-                      <h4 className="text-xs font-semibold text-blue-900 dark:text-blue-100 uppercase tracking-wide">Required Documents</h4>
-                      <span className="text-xs text-blue-600 dark:text-blue-400 ml-auto">(For Reference Only)</span>
+                      <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Required Documents</h4>
                     </div>
                     <Accordion type="single" collapsible className="w-full">
                       <AccordionItem value="goaml-docs" className="border-0">
@@ -2088,10 +2087,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                     {/* Required Documents Section */}
                     <div className="mt-3">
-                      <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-blue-50/50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
                         <span className="text-xs">ℹ️</span>
-                        <h4 className="text-xs font-semibold text-blue-900 dark:text-blue-100 uppercase tracking-wide">Required Documents</h4>
-                        <span className="text-xs text-blue-600 dark:text-blue-400 ml-auto">(For Reference Only)</span>
+                        <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Required Documents</h4>
                       </div>
                       <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="home-finance-docs" className="border-0">
@@ -2351,10 +2349,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                     {/* Required Documents Section */}
                     <div className="mt-3">
-                      <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-blue-50/50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
                         <span className="text-xs">ℹ️</span>
-                        <h4 className="text-xs font-semibold text-blue-900 dark:text-blue-100 uppercase tracking-wide">Required Documents</h4>
-                        <span className="text-xs text-blue-600 dark:text-blue-400 ml-auto">(For Reference Only)</span>
+                        <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Required Documents</h4>
                       </div>
                       <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="vat-reg-docs" className="border-0">
@@ -2500,10 +2497,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                     {/* Required Documents Section */}
                     <div className="mt-3">
-                      <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-blue-50/50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
                         <span className="text-xs">ℹ️</span>
-                        <h4 className="text-xs font-semibold text-blue-900 dark:text-blue-100 uppercase tracking-wide">Required Documents</h4>
-                        <span className="text-xs text-blue-600 dark:text-blue-400 ml-auto">(For Reference Only)</span>
+                        <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Required Documents</h4>
                       </div>
                       <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="corp-tax-reg-docs" className="border-0">
@@ -2671,10 +2667,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                     {/* Required Documents Section */}
                     <div className="mt-3">
-                      <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-blue-50/50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
+                      <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
                         <span className="text-xs">ℹ️</span>
-                        <h4 className="text-xs font-semibold text-blue-900 dark:text-blue-100 uppercase tracking-wide">Required Documents</h4>
-                        <span className="text-xs text-blue-600 dark:text-blue-400 ml-auto">(For Reference Only)</span>
+                        <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Required Documents</h4>
                       </div>
                       <Accordion type="single" collapsible className="w-full">
                         <AccordionItem value="required-docs" className="border-0">
