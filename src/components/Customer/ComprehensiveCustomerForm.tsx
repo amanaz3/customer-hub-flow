@@ -2289,14 +2289,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               </div>
 
               <div className="flex justify-end space-x-4 pt-4 pb-2">
-                <Button
-                  type="submit"
-                  disabled={isSubmitting || !!createdCustomerId}
-                  className="min-w-[120px] bg-green-700 hover:bg-green-800 text-white font-semibold shadow-lg border-2 border-green-600"
-                  size="lg"
-                >
-                  {isSubmitting ? 'Creating...' : createdCustomerId ? 'Customer Created' : 'Create Customer'}
-                </Button>
+                {/* Placeholder to maintain form spacing */}
               </div>
             </form>
           </TabsContent>
@@ -2353,6 +2346,19 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             )}
           </TabsContent>
         </Tabs>
+
+        {/* Floating Submit Button */}
+        {activeTab === 'details' && (
+          <Button
+            type="button"
+            onClick={form.handleSubmit(handleSubmit)}
+            disabled={isSubmitting || !!createdCustomerId}
+            className="fixed bottom-6 right-6 min-w-[140px] h-14 bg-green-700 hover:bg-green-800 text-white font-semibold shadow-2xl border-2 border-green-600 rounded-full z-50 transition-all hover:scale-105"
+            size="lg"
+          >
+            {isSubmitting ? 'Creating...' : createdCustomerId ? '✓ Created' : 'Create Customer'}
+          </Button>
+        )}
       </CardContent>
     </Card>
   );
