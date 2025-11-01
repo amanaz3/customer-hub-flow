@@ -1698,19 +1698,19 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </div>
                 </div>
 
-                {/* GoAML Required Documents Info Box */}
+                {/* Required Documents Section */}
                 {hasGoAML && (
-                  <Accordion type="single" collapsible className="mt-4">
-                    <AccordionItem value="goaml-docs" className="border border-blue-200 dark:border-blue-800 rounded-lg bg-blue-50/50 dark:bg-blue-950/20">
-                      <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                        <div className="flex items-center gap-2">
-                          <span className="text-blue-600 dark:text-blue-400 text-base">ℹ️</span>
-                          <div className="flex flex-col items-start gap-0.5">
-                            <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Required Documents</h4>
-                            <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">For reference only - will be collected later</p>
-                          </div>
-                        </div>
-                      </AccordionTrigger>
+                  <div className="mt-3">
+                    <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-blue-50/50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
+                      <span className="text-xs">ℹ️</span>
+                      <h4 className="text-xs font-semibold text-blue-900 dark:text-blue-100 uppercase tracking-wide">Required Documents</h4>
+                      <span className="text-xs text-blue-600 dark:text-blue-400 ml-auto">(For Reference Only)</span>
+                    </div>
+                    <Accordion type="single" collapsible className="w-full">
+                      <AccordionItem value="goaml-docs" className="border-0">
+                        <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm">
+                          <span className="text-muted-foreground">View document checklist</span>
+                        </AccordionTrigger>
                       <AccordionContent className="px-4 pb-4">
                         <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
                           <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Required Documents:</p>
@@ -1758,6 +1758,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </AccordionContent>
                     </AccordionItem>
                   </Accordion>
+                </div>
                 )}
             </AccordionContent>
           </AccordionItem>
@@ -2085,18 +2086,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </div>
                     </div>
 
-                    {/* Required Documents List */}
-                    <Accordion type="single" collapsible className="mt-4">
-                      <AccordionItem value="home-finance-docs" className="border border-blue-200 dark:border-blue-800 rounded-lg bg-blue-50/50 dark:bg-blue-950/20">
-                        <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                          <div className="flex items-center gap-2">
-                            <span className="text-blue-600 dark:text-blue-400 text-base">ℹ️</span>
-                            <div className="flex flex-col items-start gap-0.5">
-                              <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Required Documents</h4>
-                              <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">For reference only - will be requested during mortgage processing</p>
-                            </div>
-                          </div>
-                        </AccordionTrigger>
+                    {/* Required Documents Section */}
+                    <div className="mt-3">
+                      <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-blue-50/50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
+                        <span className="text-xs">ℹ️</span>
+                        <h4 className="text-xs font-semibold text-blue-900 dark:text-blue-100 uppercase tracking-wide">Required Documents</h4>
+                        <span className="text-xs text-blue-600 dark:text-blue-400 ml-auto">(For Reference Only)</span>
+                      </div>
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="home-finance-docs" className="border-0">
+                          <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm">
+                            <span className="text-muted-foreground">View document checklist</span>
+                          </AccordionTrigger>
                         <AccordionContent className="px-4 pb-4">
                           <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
                             <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Supporting Documents Required:</p>
@@ -2347,18 +2348,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </div>
                     </div>
 
-                    {/* Required Documents List */}
-                    <Accordion type="single" collapsible className="mt-4">
-                      <AccordionItem value="vat-reg-docs" className="border border-blue-200 dark:border-blue-800 rounded-lg bg-blue-50/50 dark:bg-blue-950/20">
-                        <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                          <div className="flex items-center gap-2">
-                            <span className="text-blue-600 dark:text-blue-400 text-base">ℹ️</span>
-                            <div className="flex flex-col items-start gap-0.5">
-                              <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Required Documents</h4>
-                              <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">For reference only - will be collected during registration</p>
-                            </div>
-                          </div>
-                        </AccordionTrigger>
+                    {/* Required Documents Section */}
+                    <div className="mt-3">
+                      <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-blue-50/50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
+                        <span className="text-xs">ℹ️</span>
+                        <h4 className="text-xs font-semibold text-blue-900 dark:text-blue-100 uppercase tracking-wide">Required Documents</h4>
+                        <span className="text-xs text-blue-600 dark:text-blue-400 ml-auto">(For Reference Only)</span>
+                      </div>
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="vat-reg-docs" className="border-0">
+                          <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm">
+                            <span className="text-muted-foreground">View document checklist</span>
+                          </AccordionTrigger>
                         <AccordionContent className="px-4 pb-4">
                           <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
                             <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Required Documents:</p>
@@ -2495,18 +2496,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </div>
                     </div>
 
-                    {/* Required Documents List */}
-                    <Accordion type="single" collapsible className="mt-4">
-                      <AccordionItem value="corp-tax-reg-docs" className="border border-blue-200 dark:border-blue-800 rounded-lg bg-blue-50/50 dark:bg-blue-950/20">
-                        <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                          <div className="flex items-center gap-2">
-                            <span className="text-blue-600 dark:text-blue-400 text-base">ℹ️</span>
-                            <div className="flex flex-col items-start gap-0.5">
-                              <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Required Documents</h4>
-                              <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">For reference only - will be collected during registration</p>
-                            </div>
-                          </div>
-                        </AccordionTrigger>
+                    {/* Required Documents Section */}
+                    <div className="mt-3">
+                      <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-blue-50/50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
+                        <span className="text-xs">ℹ️</span>
+                        <h4 className="text-xs font-semibold text-blue-900 dark:text-blue-100 uppercase tracking-wide">Required Documents</h4>
+                        <span className="text-xs text-blue-600 dark:text-blue-400 ml-auto">(For Reference Only)</span>
+                      </div>
+                      <Accordion type="single" collapsible className="w-full">
+                        <AccordionItem value="corp-tax-reg-docs" className="border-0">
+                          <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm">
+                            <span className="text-muted-foreground">View document checklist</span>
+                          </AccordionTrigger>
                         <AccordionContent className="px-4 pb-4">
                           <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
                             <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Required Documents:</p>
@@ -2558,6 +2559,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </AccordionContent>
                       </AccordionItem>
                     </Accordion>
+                  </div>
                   </AccordionContent>
                 </AccordionItem>
               )}
@@ -2665,18 +2667,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </div>
                     </div>
 
-                    {/* Required Documents Info */}
-                    <div className="mt-4">
+                    {/* Required Documents Section */}
+                    <div className="mt-3">
+                      <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-blue-50/50 dark:bg-blue-950/20 rounded border border-blue-200 dark:border-blue-800">
+                        <span className="text-xs">ℹ️</span>
+                        <h4 className="text-xs font-semibold text-blue-900 dark:text-blue-100 uppercase tracking-wide">Required Documents</h4>
+                        <span className="text-xs text-blue-600 dark:text-blue-400 ml-auto">(For Reference Only)</span>
+                      </div>
                       <Accordion type="single" collapsible className="w-full">
-                        <AccordionItem value="required-docs" className="border border-blue-200 dark:border-blue-800 rounded-lg bg-blue-50/50 dark:bg-blue-950/20">
-                          <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                            <div className="flex items-center gap-2">
-                              <span className="text-blue-600 dark:text-blue-400 text-base">ℹ️</span>
-                              <div className="flex flex-col items-start gap-0.5">
-                                <h4 className="text-sm font-medium text-blue-900 dark:text-blue-100">Required Documents</h4>
-                                <p className="text-xs text-blue-600 dark:text-blue-400 font-normal">For reference only - will be collected during filing</p>
-                              </div>
-                            </div>
+                        <AccordionItem value="required-docs" className="border-0">
+                          <AccordionTrigger className="px-3 py-2 hover:no-underline text-sm">
+                            <span className="text-muted-foreground">View document checklist</span>
                           </AccordionTrigger>
                           <AccordionContent className="px-4 pb-4">
                             <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
