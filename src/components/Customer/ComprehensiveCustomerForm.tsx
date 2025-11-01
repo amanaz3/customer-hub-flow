@@ -1232,9 +1232,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <AccordionContent className="px-4 pb-4 space-y-4">
                 {/* Application Information */}
                 <div>
-                  <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-primary/5 rounded-md">
-                    <span className="text-primary">📋</span>
-                    <h4 className="text-sm font-semibold text-foreground">Application Information</h4>
+                  <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
+                    <span className="text-xs">📋</span>
+                    <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Application Information</h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {hasCompanyFormation && (
@@ -1456,10 +1456,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                 {/* Business Information */}
                 {hasCompanyFormation && (
-                  <div className="mt-4">
-                    <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-primary/5 rounded-md">
-                      <span className="text-primary">🏢</span>
-                      <h4 className="text-sm font-semibold text-foreground">Business Information</h4>
+                  <div className="mt-3">
+                    <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
+                      <span className="text-xs">🏢</span>
+                      <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Business Information</h4>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -1488,10 +1488,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 )}
 
                 {/* Financial Information */}
-                <div className="mt-4">
-                  <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-primary/5 rounded-md">
-                    <span className="text-primary">💰</span>
-                    <h4 className="text-sm font-semibold text-foreground">Financial Information</h4>
+                <div className="mt-3">
+                  <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
+                    <span className="text-xs">💰</span>
+                    <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Financial Information</h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
