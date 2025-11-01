@@ -990,99 +990,106 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         {currentStage === 'details' && (
           <div className="space-y-4">
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-              {/* Basic Information */}
-              <div>
-                <h3 className="text-base font-medium mb-3">Basic Information</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Full Name *</Label>
-                    <Input
-                      id="name"
-                      {...form.register('name')}
-                      disabled={isSubmitting}
-                      required
-                    />
-                    {form.formState.errors.name && (
-                      <p className="text-sm text-red-600">{form.formState.errors.name.message}</p>
-                    )}
-                  </div>
+              <Accordion type="multiple" defaultValue={["basic", "service"]} className="space-y-4">
+                {/* Basic Information */}
+                <AccordionItem value="basic" className="border rounded-lg">
+                  <AccordionTrigger className="px-4 hover:no-underline">
+                    <h3 className="text-base font-medium">Basic Information</h3>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="name">Full Name *</Label>
+                        <Input
+                          id="name"
+                          {...form.register('name')}
+                          disabled={isSubmitting}
+                          required
+                        />
+                        {form.formState.errors.name && (
+                          <p className="text-sm text-red-600">{form.formState.errors.name.message}</p>
+                        )}
+                      </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      {...form.register('email')}
-                      disabled={isSubmitting}
-                      required
-                    />
-                    {form.formState.errors.email && (
-                      <p className="text-sm text-red-600">{form.formState.errors.email.message}</p>
-                    )}
-                  </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="email">Email *</Label>
+                        <Input
+                          id="email"
+                          type="email"
+                          {...form.register('email')}
+                          disabled={isSubmitting}
+                          required
+                        />
+                        {form.formState.errors.email && (
+                          <p className="text-sm text-red-600">{form.formState.errors.email.message}</p>
+                        )}
+                      </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="mobile">Mobile *</Label>
-                    <Input
-                      id="mobile"
-                      {...form.register('mobile')}
-                      disabled={isSubmitting}
-                      required
-                    />
-                    {form.formState.errors.mobile && (
-                      <p className="text-sm text-red-600">{form.formState.errors.mobile.message}</p>
-                    )}
-                  </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="mobile">Mobile *</Label>
+                        <Input
+                          id="mobile"
+                          {...form.register('mobile')}
+                          disabled={isSubmitting}
+                          required
+                        />
+                        {form.formState.errors.mobile && (
+                          <p className="text-sm text-red-600">{form.formState.errors.mobile.message}</p>
+                        )}
+                      </div>
 
-                  <div className="space-y-2">
-                    <Label htmlFor="company">Company *</Label>
-                    <Input
-                      id="company"
-                      {...form.register('company')}
-                      disabled={isSubmitting}
-                      required
-                    />
-                    {form.formState.errors.company && (
-                      <p className="text-sm text-red-600">{form.formState.errors.company.message}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="company">Company *</Label>
+                        <Input
+                          id="company"
+                          {...form.register('company')}
+                          disabled={isSubmitting}
+                          required
+                        />
+                        {form.formState.errors.company && (
+                          <p className="text-sm text-red-600">{form.formState.errors.company.message}</p>
+                        )}
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
 
-              <Separator className="my-3" />
+                {/* Lead Source */}
+                <AccordionItem value="lead" className="border rounded-lg">
+                  <AccordionTrigger className="px-4 hover:no-underline">
+                    <h3 className="text-base font-medium">Lead Source</h3>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-3">
+                      <div className="space-y-2">
+                        <Label htmlFor="lead_source">Lead Source *</Label>
+                        <Select
+                          value={form.watch('lead_source')}
+                          onValueChange={(value) => form.setValue('lead_source', value as any)}
+                          disabled={isSubmitting}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Website">Website</SelectItem>
+                            <SelectItem value="Referral">Referral</SelectItem>
+                            <SelectItem value="Social Media">Social Media</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
 
-              {/* Business Details */}
-              <div>
-                <h3 className="text-base font-medium mb-3">Business Details</h3>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  <div className="space-y-2">
-                    <Label htmlFor="lead_source">Lead Source *</Label>
-                    <Select
-                      value={form.watch('lead_source')}
-                      onValueChange={(value) => form.setValue('lead_source', value as any)}
-                      disabled={isSubmitting}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="Website">Website</SelectItem>
-                        <SelectItem value="Referral">Referral</SelectItem>
-                        <SelectItem value="Social Media">Social Media</SelectItem>
-                        <SelectItem value="Other">Other</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                </div>
-              </div>
-
-              {/* Service Selection */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Service Selection</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
+                {/* Service Selection */}
+                <AccordionItem value="service" className="border rounded-lg">
+                  <AccordionTrigger className="px-4 hover:no-underline">
+                    <h3 className="text-base font-medium">Service Selection</h3>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="pt-2 space-y-4">
                   <div className="space-y-2">
                     <Label htmlFor="service_type">Service Category *</Label>
                     <Select
@@ -1176,12 +1183,19 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       )}
                     </div>
                   )}
-                </CardContent>
-              </Card>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
 
-              {/* Application Details */}
-              <div>
-                <h3 className="text-base font-medium mb-3">Application Details</h3>
+            {/* Application Details & Business Financial */}
+            <AccordionItem value="application" className="border rounded-lg">
+              <AccordionTrigger className="px-4 hover:no-underline">
+                <h3 className="text-base font-medium">Application & Financial Details</h3>
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4 space-y-4">
+                {/* Application Details */}
+                <div>
+                  <h4 className="text-sm font-medium mb-3 text-muted-foreground">Application Details</h4>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
 
                   {/* Conditional fields based on selected products */}
@@ -1252,49 +1266,45 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </div>
               </div>
 
-              {/* Business Details */}
-              <Card>
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-base">Business Details</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="amount">Amount (AED) *</Label>
-                      <Input
-                        id="amount"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        {...form.register('amount', { valueAsNumber: true })}
-                        disabled={isSubmitting}
-                        required
-                      />
-                      {form.formState.errors.amount && (
-                        <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="annual_turnover">Annual Turnover (AED) *</Label>
-                      <Input
-                        id="annual_turnover"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        {...form.register('annual_turnover', { valueAsNumber: true })}
-                        disabled={isSubmitting}
-                        required
-                      />
-                      {form.formState.errors.annual_turnover && (
-                        <p className="text-sm text-red-600">{form.formState.errors.annual_turnover.message}</p>
-                      )}
-                    </div>
+              {/* Business Financial Details */}
+              <div className="mt-4">
+                <h4 className="text-sm font-medium mb-3 text-muted-foreground">Financial Information</h4>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="amount">Amount (AED) *</Label>
+                    <Input
+                      id="amount"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      {...form.register('amount', { valueAsNumber: true })}
+                      disabled={isSubmitting}
+                      required
+                    />
+                    {form.formState.errors.amount && (
+                      <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>
+                    )}
                   </div>
-                </CardContent>
-              </Card>
 
-              <Separator className="my-3" />
+                  <div className="space-y-2">
+                    <Label htmlFor="annual_turnover">Annual Turnover (AED) *</Label>
+                    <Input
+                      id="annual_turnover"
+                      type="number"
+                      min="0"
+                      step="0.01"
+                      {...form.register('annual_turnover', { valueAsNumber: true })}
+                      disabled={isSubmitting}
+                      required
+                    />
+                    {form.formState.errors.annual_turnover && (
+                      <p className="text-sm text-red-600">{form.formState.errors.annual_turnover.message}</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </AccordionContent>
+          </AccordionItem>
 
               {/* Bookkeeping-Specific Information */}
               {hasBookkeeping && (
@@ -2631,10 +2641,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </div>
               )}
 
-              <Separator className="my-3" />
+              </Accordion>
 
               {/* Additional Notes */}
-              <div>
+              <div className="mt-4">
                 <h3 className="text-base font-medium mb-3">Additional Information</h3>
                 <div className="space-y-2">
                   <Label htmlFor="customer_notes">Notes</Label>
