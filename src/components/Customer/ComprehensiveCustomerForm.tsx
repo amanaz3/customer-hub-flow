@@ -2266,71 +2266,75 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </div>
 
                   {/* Required Documents List */}
-                  <Collapsible defaultOpen={false} className="mt-4">
-                    <CollapsibleTrigger asChild>
-                      <button
-                        type="button"
-                        className="w-full flex items-center justify-between p-4 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors text-left group"
-                      >
-                        <h4 className="text-sm font-medium flex items-center gap-2">
-                          <span className="text-cyan-600">📋</span>
-                          Required Documents for Corporate Tax Filing
-                        </h4>
-                        <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                      </button>
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="px-4 pb-4 bg-muted/50 rounded-b-lg">
-                      <ul className="text-sm space-y-1.5 text-muted-foreground mt-2">
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Tax Registration Number (TRN) Certificate</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Financial Statements (Balance Sheet, P&L, Cash Flow)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Trial Balance for the tax period</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>General Ledger (detailed transactions)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Bank Statements (entire tax period)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Schedule of Fixed Assets & Depreciation</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>Details of Related Party Transactions</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-green-600 mt-0.5">•</span>
-                          <span>VAT Returns (if registered)</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-orange-600 mt-0.5">•</span>
-                          <span><strong>If first time filing:</strong> Opening balance sheet and incorporation documents</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-orange-600 mt-0.5">•</span>
-                          <span><strong>If foreign operations:</strong> Foreign subsidiary financials and transfer pricing documentation</span>
-                        </li>
-                        <li className="flex items-start gap-2">
-                          <span className="text-orange-600 mt-0.5">•</span>
-                          <span><strong>If switching consultant:</strong> Previous tax returns and correspondence with FTA</span>
-                        </li>
-                      </ul>
-                      <p className="text-xs text-muted-foreground mt-3 italic">
-                        Note: Documents will be requested during the tax filing process.
-                      </p>
-                    </CollapsibleContent>
-                  </Collapsible>
+                  <Card className="mt-4 bg-background shadow-sm">
+                    <Collapsible defaultOpen={false}>
+                      <CollapsibleTrigger asChild>
+                        <button
+                          type="button"
+                          className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors text-left group rounded-t-lg"
+                        >
+                          <h4 className="text-sm font-semibold flex items-center gap-2">
+                            <span className="text-cyan-600">📋</span>
+                            Required Documents for Corporate Tax Filing
+                          </h4>
+                          <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                        </button>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent>
+                        <div className="px-4 pb-4 pt-2 border-t">
+                          <ul className="text-sm space-y-2 text-foreground">
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 mt-0.5">•</span>
+                              <span>Tax Registration Number (TRN) Certificate</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 mt-0.5">•</span>
+                              <span>Financial Statements (Balance Sheet, P&L, Cash Flow)</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 mt-0.5">•</span>
+                              <span>Trial Balance for the tax period</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 mt-0.5">•</span>
+                              <span>General Ledger (detailed transactions)</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 mt-0.5">•</span>
+                              <span>Bank Statements (entire tax period)</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 mt-0.5">•</span>
+                              <span>Schedule of Fixed Assets & Depreciation</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 mt-0.5">•</span>
+                              <span>Details of Related Party Transactions</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-green-600 mt-0.5">•</span>
+                              <span>VAT Returns (if registered)</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-orange-600 mt-0.5">•</span>
+                              <span><strong>If first time filing:</strong> Opening balance sheet and incorporation documents</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-orange-600 mt-0.5">•</span>
+                              <span><strong>If foreign operations:</strong> Foreign subsidiary financials and transfer pricing documentation</span>
+                            </li>
+                            <li className="flex items-start gap-2">
+                              <span className="text-orange-600 mt-0.5">•</span>
+                              <span><strong>If switching consultant:</strong> Previous tax returns and correspondence with FTA</span>
+                            </li>
+                          </ul>
+                          <p className="text-xs text-muted-foreground mt-4 p-2 bg-blue-50 rounded border border-blue-100">
+                            <strong>Note:</strong> Documents will be requested during the tax filing process.
+                          </p>
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </Card>
 
                   <Separator className="my-3" />
                 </>
