@@ -3,10 +3,21 @@
 export type ApplicationStatus = 
   | 'draft' 
   | 'submitted' 
+  | 'returned'
+  | 'paid'
+  | 'rejected'
+  // Legacy statuses (for existing applications only)
   | 'under_review' 
   | 'approved' 
-  | 'rejected' 
   | 'completed';
+
+export const NewApplicationStatuses = [
+  'draft',
+  'submitted',
+  'returned',
+  'paid',
+  'rejected'
+] as const;
 
 export type ApplicationType = 
   | 'bank_account' 
