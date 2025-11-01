@@ -153,8 +153,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
   // Check which product types are selected
   const selectedProducts = products.filter(p => watchProductIds?.includes(p.id));
-  const hasBookkeeping = selectedProducts.some(p => p.name.toLowerCase().includes('bookkeeping') || p.name.toLowerCase().includes('accounting'));
-  const hasCompanyFormation = selectedProducts.some(p => p.name.toLowerCase().includes('company') || p.name.toLowerCase().includes('formation') || p.name.toLowerCase().includes('license'));
+  const hasBookkeeping = selectedProducts.some(p => {
+    const name = p.name.toLowerCase().replace(/\s+/g, '');
+    return name.includes('bookkeeping') || name.includes('book') || p.name.toLowerCase().includes('accounting');
+  });
+  const hasCompanyFormation = selectedProducts.some(p => {
+    const name = p.name.toLowerCase();
+    return name.includes('company') || name.includes('formation') || name.includes('license');
+  });
   const hasBankAccount = selectedProducts.some(p => p.name.toLowerCase().includes('bank'));
 
   // Fetch existing customers for selection
