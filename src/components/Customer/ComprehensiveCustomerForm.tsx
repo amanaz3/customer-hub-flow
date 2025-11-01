@@ -1068,7 +1068,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                 {/* Source & Channel */}
                 <AccordionItem value="lead" className="border rounded-lg">
-                  <AccordionTrigger className="px-4 hover:no-underline">
+                  <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
                     <h3 className="text-base font-medium">Source & Channel Information</h3>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
