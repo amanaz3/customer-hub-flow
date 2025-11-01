@@ -1328,6 +1328,130 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         )}
                       </>
                     )}
+
+                    {/* Bookkeeping Details - shown for bookkeeping products */}
+                    {hasBookkeeping && (
+                      <>
+                        <div className="col-span-full mt-2">
+                          <h5 className="text-sm font-medium mb-2">Bookkeeping Details</h5>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <Label htmlFor="accounting_software">Current Accounting Software</Label>
+                          <Select
+                            value={form.watch('accounting_software') || ''}
+                            onValueChange={(value) => form.setValue('accounting_software', value)}
+                            disabled={isSubmitting}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select software" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="none">None</SelectItem>
+                              <SelectItem value="xero">Xero</SelectItem>
+                              <SelectItem value="quickbooks">QuickBooks</SelectItem>
+                              <SelectItem value="zoho">Zoho Books</SelectItem>
+                              <SelectItem value="sage">Sage</SelectItem>
+                              <SelectItem value="other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="monthly_transactions">Monthly Transaction Volume</Label>
+                          <Select
+                            value={form.watch('monthly_transactions') || ''}
+                            onValueChange={(value) => form.setValue('monthly_transactions', value)}
+                            disabled={isSubmitting}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select volume" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="0-50">0-50 transactions</SelectItem>
+                              <SelectItem value="51-100">51-100 transactions</SelectItem>
+                              <SelectItem value="101-250">101-250 transactions</SelectItem>
+                              <SelectItem value="251-500">251-500 transactions</SelectItem>
+                              <SelectItem value="500+">500+ transactions</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="bank_accounts_count">Number of Bank Accounts</Label>
+                          <Input
+                            id="bank_accounts_count"
+                            type="number"
+                            min="1"
+                            max="20"
+                            {...form.register('bank_accounts_count', { valueAsNumber: true })}
+                            disabled={isSubmitting}
+                            placeholder="How many bank accounts to reconcile?"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="employees_count">Number of Employees (for Payroll)</Label>
+                          <Input
+                            id="employees_count"
+                            type="number"
+                            min="0"
+                            max="1000"
+                            {...form.register('employees_count', { valueAsNumber: true })}
+                            disabled={isSubmitting}
+                            placeholder="Enter number of employees"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="service_start_date">Preferred Service Start Date</Label>
+                          <Input
+                            id="service_start_date"
+                            type="date"
+                            {...form.register('service_start_date')}
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="reporting_frequency">Reporting Frequency</Label>
+                          <Select
+                            value={form.watch('reporting_frequency') || 'Monthly'}
+                            onValueChange={(value) => form.setValue('reporting_frequency', value)}
+                            disabled={isSubmitting}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Monthly">Monthly</SelectItem>
+                              <SelectItem value="Quarterly">Quarterly</SelectItem>
+                              <SelectItem value="Annual">Annual</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="vat_registered"
+                            checked={form.watch('vat_registered') || false}
+                            onCheckedChange={(checked) => form.setValue('vat_registered', !!checked)}
+                            disabled={isSubmitting}
+                          />
+                          <Label htmlFor="vat_registered">VAT Registered</Label>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="has_previous_records"
+                            checked={form.watch('has_previous_records') || false}
+                            onCheckedChange={(checked) => form.setValue('has_previous_records', !!checked)}
+                            disabled={isSubmitting}
+                          />
+                          <Label htmlFor="has_previous_records">Has Previous Accounting Records</Label>
+                        </div>
+                      </>
+                    )}
                   </div>
                 </div>
 
@@ -1401,132 +1525,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             </AccordionContent>
           </AccordionItem>
 
-              {/* Bookkeeping-Specific Information */}
-              {hasBookkeeping && (
-                <>
-                  <div>
-                    <h3 className="text-base font-medium mb-3">Bookkeeping Details</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      <div className="space-y-2">
-                        <Label htmlFor="accounting_software">Current Accounting Software</Label>
-                        <Select
-                          value={form.watch('accounting_software') || ''}
-                          onValueChange={(value) => form.setValue('accounting_software', value)}
-                          disabled={isSubmitting}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select software" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="none">None</SelectItem>
-                            <SelectItem value="xero">Xero</SelectItem>
-                            <SelectItem value="quickbooks">QuickBooks</SelectItem>
-                            <SelectItem value="zoho">Zoho Books</SelectItem>
-                            <SelectItem value="sage">Sage</SelectItem>
-                            <SelectItem value="other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="monthly_transactions">Monthly Transaction Volume</Label>
-                        <Select
-                          value={form.watch('monthly_transactions') || ''}
-                          onValueChange={(value) => form.setValue('monthly_transactions', value)}
-                          disabled={isSubmitting}
-                        >
-                          <SelectTrigger>
-                            <SelectValue placeholder="Select volume" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="0-50">0-50 transactions</SelectItem>
-                            <SelectItem value="51-100">51-100 transactions</SelectItem>
-                            <SelectItem value="101-250">101-250 transactions</SelectItem>
-                            <SelectItem value="251-500">251-500 transactions</SelectItem>
-                            <SelectItem value="500+">500+ transactions</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="bank_accounts_count">Number of Bank Accounts</Label>
-                        <Input
-                          id="bank_accounts_count"
-                          type="number"
-                          min="1"
-                          max="20"
-                          {...form.register('bank_accounts_count', { valueAsNumber: true })}
-                          disabled={isSubmitting}
-                          placeholder="How many bank accounts to reconcile?"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="employees_count">Number of Employees (for Payroll)</Label>
-                        <Input
-                          id="employees_count"
-                          type="number"
-                          min="0"
-                          max="1000"
-                          {...form.register('employees_count', { valueAsNumber: true })}
-                          disabled={isSubmitting}
-                          placeholder="Enter number of employees"
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="service_start_date">Preferred Service Start Date</Label>
-                        <Input
-                          id="service_start_date"
-                          type="date"
-                          {...form.register('service_start_date')}
-                          disabled={isSubmitting}
-                        />
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="reporting_frequency">Reporting Frequency</Label>
-                        <Select
-                          value={form.watch('reporting_frequency') || 'Monthly'}
-                          onValueChange={(value) => form.setValue('reporting_frequency', value)}
-                          disabled={isSubmitting}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Monthly">Monthly</SelectItem>
-                            <SelectItem value="Quarterly">Quarterly</SelectItem>
-                            <SelectItem value="Annual">Annual</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="vat_registered"
-                          checked={form.watch('vat_registered') || false}
-                          onCheckedChange={(checked) => form.setValue('vat_registered', !!checked)}
-                          disabled={isSubmitting}
-                        />
-                        <Label htmlFor="vat_registered">VAT Registered</Label>
-                      </div>
-
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="has_previous_records"
-                          checked={form.watch('has_previous_records') || false}
-                          onCheckedChange={(checked) => form.setValue('has_previous_records', !!checked)}
-                          disabled={isSubmitting}
-                        />
-                        <Label htmlFor="has_previous_records">Has Previous Accounting Records</Label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <Separator className="my-3" />
-                </>
-              )}
 
               {/* GoAML Registration Details */}
               {hasGoAML && (
