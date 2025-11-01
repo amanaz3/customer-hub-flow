@@ -1232,7 +1232,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <AccordionContent className="px-4 pb-4 space-y-4">
                 {/* Application Information */}
                 <div>
-                  <h4 className="text-sm font-medium mb-3 text-muted-foreground">Application Information</h4>
+                  <div className="flex items-center gap-2 mb-3 pb-2 border-b">
+                    <span className="text-primary">📋</span>
+                    <h4 className="text-sm font-semibold text-foreground">Application Information</h4>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {hasCompanyFormation && (
                       <>
@@ -1454,7 +1457,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 {/* Business Information */}
                 {hasCompanyFormation && (
                   <div className="mt-4">
-                    <h4 className="text-sm font-medium mb-3 text-muted-foreground">Business Information</h4>
+                    <div className="flex items-center gap-2 mb-3 pb-2 border-b">
+                      <span className="text-primary">🏢</span>
+                      <h4 className="text-sm font-semibold text-foreground">Business Information</h4>
+                    </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="jurisdiction">Jurisdiction</Label>
@@ -1483,7 +1489,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                 {/* Financial Information */}
                 <div className="mt-4">
-                  <h4 className="text-sm font-medium mb-3 text-muted-foreground">Financial Information</h4>
+                  <div className="flex items-center gap-2 mb-3 pb-2 border-b">
+                    <span className="text-primary">💰</span>
+                    <h4 className="text-sm font-semibold text-foreground">Financial Information</h4>
+                  </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <Label htmlFor="annual_turnover">Annual Turnover (AED) *</Label>
