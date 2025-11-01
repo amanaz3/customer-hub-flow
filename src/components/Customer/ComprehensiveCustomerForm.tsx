@@ -25,10 +25,10 @@ import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
-import { Building2, Plus, Users, ChevronDown } from 'lucide-react';
+import { Building2, Plus, Users, Info } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 
 // Form validation schema
 const formSchema = z.object({
@@ -2265,24 +2265,32 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </div>
                   </div>
 
-                  {/* Required Documents List */}
-                  <Card className="mt-4 bg-background shadow-sm">
-                    <Collapsible defaultOpen={false}>
-                      <CollapsibleTrigger asChild>
-                        <button
+                  {/* Required Documents Info */}
+                  <div className="mt-4 flex items-center gap-2">
+                    <Dialog>
+                      <DialogTrigger asChild>
+                        <Button
                           type="button"
-                          className="w-full flex items-center justify-between p-4 hover:bg-accent/50 transition-colors text-left group rounded-t-lg"
+                          variant="outline"
+                          size="sm"
+                          className="gap-2"
                         >
-                          <h4 className="text-sm font-semibold flex items-center gap-2">
+                          <Info className="h-4 w-4" />
+                          View Required Documents
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center gap-2">
                             <span className="text-cyan-600">📋</span>
                             Required Documents for Corporate Tax Filing
-                          </h4>
-                          <ChevronDown className="h-5 w-5 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                        </button>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <div className="px-4 pb-4 pt-2 border-t">
-                          <ul className="text-sm space-y-2 text-foreground">
+                          </DialogTitle>
+                          <DialogDescription>
+                            These documents will be requested during the tax filing process
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <ul className="text-sm space-y-2.5">
                             <li className="flex items-start gap-2">
                               <span className="text-green-600 mt-0.5">•</span>
                               <span>Tax Registration Number (TRN) Certificate</span>
@@ -2315,7 +2323,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               <span className="text-green-600 mt-0.5">•</span>
                               <span>VAT Returns (if registered)</span>
                             </li>
-                            <li className="flex items-start gap-2">
+                            <li className="flex items-start gap-2 mt-4 pt-4 border-t">
                               <span className="text-orange-600 mt-0.5">•</span>
                               <span><strong>If first time filing:</strong> Opening balance sheet and incorporation documents</span>
                             </li>
@@ -2328,13 +2336,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               <span><strong>If switching consultant:</strong> Previous tax returns and correspondence with FTA</span>
                             </li>
                           </ul>
-                          <p className="text-xs text-muted-foreground mt-4 p-2 bg-blue-50 rounded border border-blue-100">
-                            <strong>Note:</strong> Documents will be requested during the tax filing process.
-                          </p>
                         </div>
-                      </CollapsibleContent>
-                    </Collapsible>
-                  </Card>
+                      </DialogContent>
+                    </Dialog>
+                    <span className="text-xs text-muted-foreground">Click to see complete document requirements</span>
+                  </div>
 
                   <Separator className="my-3" />
                 </>
