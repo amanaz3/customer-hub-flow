@@ -719,10 +719,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
   return (
     <Card className="w-full max-w-4xl mx-auto overflow-visible">
-      <CardHeader className="pb-3">
-        <CardTitle className="text-xl">New Application</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4 pb-2">
+      <CardContent className="space-y-4 pb-6 pt-6">
         {/* Customer Selection Section */}
         <div className="space-y-3">
           <div>
