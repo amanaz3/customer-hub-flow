@@ -768,9 +768,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       )}
 
       {/* Stage Indicator */}
-      <Card className="bg-card border-2">
-        <CardContent className="py-6">
-          <div className="flex items-center justify-between max-w-md mx-auto">
+      <div className="relative">
+        <div className="flex items-center justify-between max-w-md mx-auto">
             {/* Stage 1: Application Details */}
             <div className="flex flex-col items-center gap-3 flex-1">
               <div className={cn(
@@ -854,10 +853,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   )}
                 </div>
               </div>
-            </div>
           </div>
+        </div>
 
-          {/* Stage Description Banner */}
+        {/* Stage Description Banner */}
           <div className={cn(
             "mt-6 p-4 rounded-lg border-2 transition-all duration-300",
             currentStage === 'details' 
@@ -888,11 +887,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     : 'Upload all required documents for the application. Mandatory documents must be uploaded before completion.'
                   }
                 </p>
-              </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       <Card className="w-full max-w-4xl mx-auto overflow-visible">
         <CardContent className="space-y-4 pb-6 pt-6">
