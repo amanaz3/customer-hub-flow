@@ -615,18 +615,19 @@ const CustomDocumentUpload: React.FC<CustomDocumentUploadProps> = ({
           </div>
         )}
         
-        <Collapsible open={showGuidelines} onOpenChange={setShowGuidelines}>
+        <Collapsible open={showGuidelines} onOpenChange={setShowGuidelines} className="mt-4">
           <CollapsibleTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full mt-4 flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors"
+            <button
+              type="button"
+              className="w-full flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-md hover:bg-blue-100 transition-colors text-left"
             >
-              <span className="text-blue-800 text-sm font-medium">Upload Guidelines</span>
+              <span className="text-blue-800 text-sm font-medium">
+                {showGuidelines ? '▼' : '▶'} Upload Guidelines
+              </span>
               <ChevronDown className={`h-4 w-4 text-blue-800 transition-transform duration-200 ${showGuidelines ? 'rotate-180' : ''}`} />
-            </Button>
+            </button>
           </CollapsibleTrigger>
-          <CollapsibleContent className="mt-2">
+          <CollapsibleContent className="mt-2 animate-accordion-down">
             <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
               <div className="text-blue-800 text-sm">
                 <p className="font-medium">Additional Documents:</p>
