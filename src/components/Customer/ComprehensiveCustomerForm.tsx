@@ -119,6 +119,19 @@ const formSchema = z.object({
   co_applicant_name: z.string().optional(),
   co_applicant_income: z.number().optional(),
   co_applicant_relationship: z.string().optional(),
+  // VAT Registration fields
+  vat_registration_type: z.string().optional(),
+  already_registered_vat: z.boolean().optional(),
+  existing_trn: z.string().optional(),
+  business_activity_description: z.string().optional(),
+  import_activities: z.boolean().optional(),
+  export_activities: z.boolean().optional(),
+  import_countries: z.string().optional(),
+  export_countries: z.string().optional(),
+  previous_tax_period: z.string().optional(),
+  vat_accounting_software: z.string().optional(),
+  multiple_business_locations: z.boolean().optional(),
+  number_of_locations: z.number().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -239,6 +252,19 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       co_applicant_name: '',
       co_applicant_income: 0,
       co_applicant_relationship: '',
+      // VAT defaults
+      vat_registration_type: '',
+      already_registered_vat: false,
+      existing_trn: '',
+      business_activity_description: '',
+      import_activities: false,
+      export_activities: false,
+      import_countries: '',
+      export_countries: '',
+      previous_tax_period: '',
+      vat_accounting_software: '',
+      multiple_business_locations: false,
+      number_of_locations: 1,
       ...initialData
     },
   });
@@ -262,6 +288,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const hasBankAccount = selectedProductName.includes('bank');
   const hasGoAML = selectedProductName.includes('goaml');
   const hasHomeFinance = selectedProductName.includes('home') && selectedProductName.includes('finance');
+  const hasVAT = selectedProductName.includes('vat');
   
   // Differentiate between tax registration and tax filing
   const hasTaxRegistration = selectedProductName.includes('registration') && !hasGoAML;
@@ -1753,6 +1780,253 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </ul>
                       <p className="text-xs text-muted-foreground mt-3 italic">
                         Note: Documents will be requested during the mortgage processing stage.
+                      </p>
+                    </div>
+                  </div>
+
+                  <Separator className="my-3" />
+                </>
+              )}
+
+              {/* VAT Registration Details */}
+              {hasVAT && (
+                <>
+                  <div>
+                    <h3 className="text-base font-medium mb-3">VAT Registration Details</h3>
+                    
+                    {/* Registration Type & Status */}
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium mb-3 text-muted-foreground">Registration Information</h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="vat_registration_type">Registration Type *</Label>
+                          <select
+                            id="vat_registration_type"
+                            {...form.register('vat_registration_type')}
+                            disabled={isSubmitting}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="">Select type</option>
+                            <option value="Mandatory">Mandatory Registration (Turnover &gt; AED 375,000)</option>
+                            <option value="Voluntary">Voluntary Registration (Turnover &lt; AED 375,000)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="annual_turnover">Expected Annual Turnover (AED) *</Label>
+                          <Input
+                            id="annual_turnover"
+                            type="number"
+                            step="0.01"
+                            {...form.register('annual_turnover', { valueAsNumber: true })}
+                            placeholder="Total annual revenue"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2 md:col-span-2">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="already_registered_vat"
+                              checked={form.watch('already_registered_vat') || false}
+                              onCheckedChange={(checked) => form.setValue('already_registered_vat', !!checked)}
+                              disabled={isSubmitting}
+                            />
+                            <Label htmlFor="already_registered_vat">Already registered for VAT (need to update/amend)</Label>
+                          </div>
+                        </div>
+
+                        {form.watch('already_registered_vat') && (
+                          <div className="space-y-2 md:col-span-2">
+                            <Label htmlFor="existing_trn">Existing Tax Registration Number (TRN)</Label>
+                            <Input
+                              id="existing_trn"
+                              {...form.register('existing_trn')}
+                              placeholder="Enter your TRN"
+                              disabled={isSubmitting}
+                            />
+                          </div>
+                        )}
+
+                        <div className="space-y-2">
+                          <Label htmlFor="financial_year_end_date">Financial Year End Date</Label>
+                          <Input
+                            id="financial_year_end_date"
+                            type="date"
+                            {...form.register('financial_year_end_date')}
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="vat_accounting_software">Accounting Software Used</Label>
+                          <Input
+                            id="vat_accounting_software"
+                            {...form.register('vat_accounting_software')}
+                            placeholder="e.g., Zoho Books, QuickBooks, Tally"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Business Activity Details */}
+                    <div className="mb-4">
+                      <h4 className="text-sm font-medium mb-3 text-muted-foreground">Business Activity Details</h4>
+                      <div className="grid grid-cols-1 gap-3">
+                        <div className="space-y-2">
+                          <Label htmlFor="business_activity_description">Detailed Business Activity Description *</Label>
+                          <Textarea
+                            id="business_activity_description"
+                            {...form.register('business_activity_description')}
+                            placeholder="Describe all business activities (trading, services, manufacturing, etc.)"
+                            disabled={isSubmitting}
+                            rows={3}
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id="import_activities"
+                                checked={form.watch('import_activities') || false}
+                                onCheckedChange={(checked) => form.setValue('import_activities', !!checked)}
+                                disabled={isSubmitting}
+                              />
+                              <Label htmlFor="import_activities">Business involves imports</Label>
+                            </div>
+                          </div>
+
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id="export_activities"
+                                checked={form.watch('export_activities') || false}
+                                onCheckedChange={(checked) => form.setValue('export_activities', !!checked)}
+                                disabled={isSubmitting}
+                              />
+                              <Label htmlFor="export_activities">Business involves exports</Label>
+                            </div>
+                          </div>
+                        </div>
+
+                        {form.watch('import_activities') && (
+                          <div className="space-y-2">
+                            <Label htmlFor="import_countries">Main Countries for Imports</Label>
+                            <Input
+                              id="import_countries"
+                              {...form.register('import_countries')}
+                              placeholder="e.g., China, India, Germany"
+                              disabled={isSubmitting}
+                            />
+                          </div>
+                        )}
+
+                        {form.watch('export_activities') && (
+                          <div className="space-y-2">
+                            <Label htmlFor="export_countries">Main Countries for Exports</Label>
+                            <Input
+                              id="export_countries"
+                              {...form.register('export_countries')}
+                              placeholder="e.g., Saudi Arabia, Kuwait, Oman"
+                              disabled={isSubmitting}
+                            />
+                          </div>
+                        )}
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="space-y-2">
+                            <div className="flex items-center space-x-2">
+                              <Checkbox
+                                id="multiple_business_locations"
+                                checked={form.watch('multiple_business_locations') || false}
+                                onCheckedChange={(checked) => form.setValue('multiple_business_locations', !!checked)}
+                                disabled={isSubmitting}
+                              />
+                              <Label htmlFor="multiple_business_locations">Multiple business locations/branches</Label>
+                            </div>
+                          </div>
+
+                          {form.watch('multiple_business_locations') && (
+                            <div className="space-y-2">
+                              <Label htmlFor="number_of_locations">Number of Locations</Label>
+                              <Input
+                                id="number_of_locations"
+                                type="number"
+                                min="1"
+                                {...form.register('number_of_locations', { valueAsNumber: true })}
+                                placeholder="Total branches/locations"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+                          )}
+                        </div>
+
+                        {form.watch('already_registered_vat') && (
+                          <div className="space-y-2">
+                            <Label htmlFor="previous_tax_period">Previous Tax Period Filed</Label>
+                            <Input
+                              id="previous_tax_period"
+                              {...form.register('previous_tax_period')}
+                              placeholder="e.g., Q4 2024, Jan-Mar 2024"
+                              disabled={isSubmitting}
+                            />
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Required Documents List */}
+                    <div className="mt-4 p-4 bg-muted/50 rounded-lg">
+                      <h4 className="text-sm font-medium mb-2 flex items-center gap-2">
+                        <span className="text-purple-600">📋</span>
+                        Required Documents for VAT Registration
+                      </h4>
+                      <ul className="text-sm space-y-1.5 text-muted-foreground">
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span>Trade License Copy (certified)</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span>Passport Copies of all Partners/Shareholders</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span>Emirates ID Copies of all Partners/Shareholders</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span>Memorandum of Association (MOA)</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span>Tenancy Contract / Ejari</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span>Bank Account Details & Bank Statements (last 6 months)</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span>Financial Statements (if available)</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-green-600 mt-0.5">•</span>
+                          <span>Customs Registration (if importing/exporting)</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-orange-600 mt-0.5">•</span>
+                          <span><strong>If already VAT registered:</strong> Previous VAT returns and TRN certificate</span>
+                        </li>
+                        <li className="flex items-start gap-2">
+                          <span className="text-orange-600 mt-0.5">•</span>
+                          <span><strong>If multiple locations:</strong> Details and documents for all branches</span>
+                        </li>
+                      </ul>
+                      <p className="text-xs text-muted-foreground mt-3 italic">
+                        Note: Documents will be collected during the VAT registration process.
                       </p>
                     </div>
                   </div>
