@@ -48,7 +48,7 @@ const formSchema = z.object({
     .min(0.01, "Amount must be greater than 0")
     .max(10000000, "Amount cannot exceed 10,000,000"),
   license_type: z.enum(['Mainland', 'Freezone', 'Offshore']),
-  lead_source: z.enum(['Website', 'Referral', 'Social Media', 'Other']),
+  lead_source: z.enum(['Website', 'Referral', 'Social Media', 'WhatsApp', 'Other']),
   annual_turnover: z.number()
     .min(0.01, "Annual turnover must be greater than 0")
     .max(1000000000, "Annual turnover cannot exceed 1,000,000,000"),
@@ -1087,6 +1087,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             <SelectItem value="Website">Website</SelectItem>
                             <SelectItem value="Referral">Referral</SelectItem>
                             <SelectItem value="Social Media">Social Media</SelectItem>
+                            <SelectItem value="WhatsApp">WhatsApp</SelectItem>
                             <SelectItem value="Other">Other</SelectItem>
                           </SelectContent>
                         </Select>
