@@ -1150,7 +1150,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               return (
                                  <div
                                    key={product.id}
-                                   onClick={() => !isSubmitting && form.setValue('product_id', product.id)}
+                                   onClick={() => {
+                                     if (!isSubmitting) {
+                                       form.setValue('product_id', product.id);
+                                       setCategoryFilter(product.service_category_id || 'all');
+                                     }
+                                   }}
                                    className={cn(
                                      "relative p-3 rounded-md border-2 cursor-pointer transition-all duration-200",
                                      "hover:shadow-sm",
