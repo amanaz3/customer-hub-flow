@@ -56,7 +56,7 @@ const formSchema = z.object({
   bank_preference_2: z.string().optional(),
   bank_preference_3: z.string().optional(),
   customer_notes: z.string().optional(),
-  product_ids: z.array(z.string()).default([]),
+  product_id: z.string().min(1, "Please select a product/service"),
   no_of_shareholders: z.number()
     .min(1, "Number of shareholders must be at least 1")
     .max(10, "Number of shareholders cannot exceed 10")
@@ -140,7 +140,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       bank_preference_2: '',
       bank_preference_3: '',
       customer_notes: '',
-      product_ids: [],
+      product_id: '',
       no_of_shareholders: 1,
       // Bookkeeping defaults
       accounting_software: '',
@@ -167,23 +167,22 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const watchAnySuitableBank = form.watch('any_suitable_bank');
   const watchLicenseType = form.watch('license_type');
   const watchShareholderCount = form.watch('no_of_shareholders');
-  const watchProductIds = form.watch('product_ids');
+  const watchProductId = form.watch('product_id');
 
-  // Check which product types are selected
-  const selectedProducts = products.filter(p => watchProductIds?.includes(p.id));
-  const hasBookkeeping = selectedProducts.some(p => {
-    const name = p.name.toLowerCase().replace(/\s+/g, '');
-    return name.includes('bookkeeping') || name.includes('book') || p.name.toLowerCase().includes('accounting');
-  });
-  const hasCompanyFormation = selectedProducts.some(p => {
-    const name = p.name.toLowerCase();
-    return name.includes('company') || name.includes('formation') || name.includes('license');
-  });
-  const hasBankAccount = selectedProducts.some(p => p.name.toLowerCase().includes('bank'));
-  const hasTaxFiling = selectedProducts.some(p => {
-    const name = p.name.toLowerCase();
-    return name.includes('tax') || name.includes('filing');
-  });
+  // Check which product type is selected
+  const selectedProduct = products.find(p => p.id === watchProductId);
+  const selectedProductName = selectedProduct?.name.toLowerCase() || '';
+  const selectedProductNameNoSpaces = selectedProductName.replace(/\s+/g, '');
+  
+  const hasBookkeeping = selectedProductNameNoSpaces.includes('bookkeeping') || 
+                         selectedProductNameNoSpaces.includes('book') || 
+                         selectedProductName.includes('accounting');
+  const hasCompanyFormation = selectedProductName.includes('company') || 
+                              selectedProductName.includes('formation') || 
+                              selectedProductName.includes('license');
+  const hasBankAccount = selectedProductName.includes('bank');
+  const hasTaxFiling = selectedProductName.includes('tax') || 
+                       selectedProductName.includes('filing');
 
   // Fetch existing customers for selection
   useEffect(() => {
@@ -415,7 +414,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             annual_turnover: data.annual_turnover,
             jurisdiction: data.jurisdiction ? sanitizeInput(data.jurisdiction.trim()) : null,
             customer_notes: data.customer_notes ? sanitizeInput(data.customer_notes.trim()) : null,
-            product_ids: data.product_ids || [],
+            product_id: data.product_id,
             user_id: user.id,
             // Bookkeeping-specific fields
             ...(data.accounting_software && { accounting_software: data.accounting_software }),
@@ -775,31 +774,23 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </div>
 
                   <div className="space-y-3 md:col-span-2">
-                    <Label>Products / Services *</Label>
+                    <Label>Product / Service *</Label>
                     {productsLoading ? (
                       <p className="text-sm text-muted-foreground">Loading products...</p>
                     ) : products.length === 0 ? (
                       <p className="text-sm text-muted-foreground">No products available.</p>
                     ) : (
-                      <div className="space-y-3 p-4 border border-border rounded-lg bg-card">
-                        {products.map((product) => {
-                          const selectedIds = form.watch('product_ids') || [];
-                          const isChecked = selectedIds.includes(product.id);
-                          
-                          return (
+                      <RadioGroup
+                        value={watchProductId}
+                        onValueChange={(value) => form.setValue('product_id', value)}
+                        disabled={isSubmitting}
+                      >
+                        <div className="space-y-3 p-4 border border-border rounded-lg bg-card">
+                          {products.map((product) => (
                             <div key={product.id} className="flex items-start space-x-3">
-                              <Checkbox
+                              <RadioGroupItem
+                                value={product.id}
                                 id={`product-${product.id}`}
-                                checked={isChecked}
-                                onCheckedChange={(checked) => {
-                                  const currentIds = form.watch('product_ids') || [];
-                                  if (checked) {
-                                    form.setValue('product_ids', [...currentIds, product.id]);
-                                  } else {
-                                    form.setValue('product_ids', currentIds.filter(id => id !== product.id));
-                                  }
-                                }}
-                                disabled={isSubmitting}
                               />
                               <div className="flex-1">
                                 <Label 
@@ -815,12 +806,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 )}
                               </div>
                             </div>
-                          );
-                        })}
-                      </div>
+                          ))}
+                        </div>
+                      </RadioGroup>
+                    )}
+                    {form.formState.errors.product_id && (
+                      <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>
                     )}
                     <p className="text-xs text-muted-foreground">
-                      Select all applicable products/services for this application
+                      Select the product/service for this application
                     </p>
                   </div>
 
