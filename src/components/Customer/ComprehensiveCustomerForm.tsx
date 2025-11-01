@@ -1232,7 +1232,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <AccordionContent className="px-4 pb-4 space-y-4">
                 {/* Application Information */}
                 <div>
-                  <div className="flex items-center gap-2 mb-3 pb-2 border-b">
+                  <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-primary/5 rounded-md">
                     <span className="text-primary">📋</span>
                     <h4 className="text-sm font-semibold text-foreground">Application Information</h4>
                   </div>
@@ -1457,7 +1457,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 {/* Business Information */}
                 {hasCompanyFormation && (
                   <div className="mt-4">
-                    <div className="flex items-center gap-2 mb-3 pb-2 border-b">
+                    <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-primary/5 rounded-md">
                       <span className="text-primary">🏢</span>
                       <h4 className="text-sm font-semibold text-foreground">Business Information</h4>
                     </div>
@@ -1489,7 +1489,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                 {/* Financial Information */}
                 <div className="mt-4">
-                  <div className="flex items-center gap-2 mb-3 pb-2 border-b">
+                  <div className="flex items-center gap-2 mb-3 px-3 py-2 bg-primary/5 rounded-md">
                     <span className="text-primary">💰</span>
                     <h4 className="text-sm font-semibold text-foreground">Financial Information</h4>
                   </div>
