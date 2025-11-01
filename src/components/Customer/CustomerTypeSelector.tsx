@@ -1,4 +1,4 @@
-import { UserPlus, Users } from 'lucide-react';
+import { UserPlus, Users, CheckCircle2 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 interface CustomerTypeSelectorProps {
@@ -20,23 +20,29 @@ export const CustomerTypeSelector = ({ value, onChange }: CustomerTypeSelectorPr
         <TabsList className="grid w-full grid-cols-2 h-auto bg-muted/50 p-1 border">
           <TabsTrigger 
             value="new" 
-            className="flex items-center justify-center gap-2 py-3 border-2 border-transparent text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-white data-[state=active]:shadow-md"
+            className="relative flex items-center justify-center gap-2 py-3 border-2 border-transparent text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary data-[state=active]:shadow-md"
           >
             <UserPlus className="h-4 w-4" />
             <div className="flex flex-col items-start">
               <span className="font-medium">New Customer</span>
               <span className="text-xs opacity-70 hidden sm:inline">Create new record</span>
             </div>
+            {value === 'new' && (
+              <CheckCircle2 className="h-5 w-5 absolute top-2 right-2" />
+            )}
           </TabsTrigger>
           <TabsTrigger 
             value="existing" 
-            className="flex items-center justify-center gap-2 py-3 border-2 border-transparent text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-white data-[state=active]:shadow-md"
+            className="relative flex items-center justify-center gap-2 py-3 border-2 border-transparent text-muted-foreground data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=active]:border-primary data-[state=active]:shadow-md"
           >
             <Users className="h-4 w-4" />
             <div className="flex flex-col items-start">
               <span className="font-medium">Existing Customer</span>
               <span className="text-xs opacity-70 hidden sm:inline">Select from list</span>
             </div>
+            {value === 'existing' && (
+              <CheckCircle2 className="h-5 w-5 absolute top-2 right-2" />
+            )}
           </TabsTrigger>
         </TabsList>
       </Tabs>
