@@ -724,92 +724,90 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </CardHeader>
       <CardContent className="space-y-4 pb-2">
         {/* Customer Selection Section */}
-        <div className="p-3 border rounded-lg bg-muted/30">
-          <div className="space-y-3">
-            <div>
-              <Label className="text-base font-medium">Customer Selection</Label>
-            </div>
-
-            <div className="grid grid-cols-2 w-full bg-background border-b-2 border-border">
-              <button
-                type="button"
-                onClick={() => {
-                  setCustomerMode('new');
-                  setSelectedCustomerId('');
-                  form.reset();
-                }}
-                className={cn(
-                  "relative flex items-center justify-center gap-2 py-4 px-4 rounded-none border-b-4 transition-all font-medium",
-                  customerMode === 'new'
-                    ? "border-b-green-500 bg-green-50 text-green-700"
-                    : "border-b-transparent text-muted-foreground hover:text-foreground"
-                )}
-                aria-selected={customerMode === 'new'}
-              >
-                <Building2 className="h-4 w-4" />
-                Create New Company
-              </button>
-              
-              <button
-                type="button"
-                onClick={() => setCustomerMode('existing')}
-                className={cn(
-                  "relative flex items-center justify-center gap-2 py-4 px-4 rounded-none border-b-4 transition-all font-medium",
-                  customerMode === 'existing'
-                    ? "border-b-green-500 bg-green-50 text-green-700"
-                    : "border-b-transparent text-muted-foreground hover:text-foreground"
-                )}
-                aria-selected={customerMode === 'existing'}
-              >
-                <Users className="h-4 w-4" />
-                Select Existing
-              </button>
-            </div>
-
-            {customerMode === 'existing' && (
-              <div className="space-y-3 pt-2">
-                <div className="flex gap-2">
-                  <div className="flex-1">
-                    <Select value={selectedCustomerId} onValueChange={handleCustomerSelect}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select a customer..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {existingCustomers.length === 0 ? (
-                          <div className="p-2 text-sm text-muted-foreground">
-                            No customers found
-                          </div>
-                        ) : (
-                          existingCustomers.map((customer) => (
-                            <SelectItem key={customer.id} value={customer.id}>
-                              {customer.company} - {customer.name}
-                            </SelectItem>
-                          ))
-                        )}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="icon"
-                    onClick={() => setShowCreateDialog(true)}
-                    title="Create new company"
-                  >
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                {selectedCustomerId && (
-                  <div className="p-3 bg-background rounded-md border">
-                    <p className="text-sm font-medium">Selected Customer</p>
-                    <p className="text-sm text-muted-foreground">
-                      {existingCustomers.find(c => c.id === selectedCustomerId)?.company}
-                    </p>
-                  </div>
-                )}
-              </div>
-            )}
+        <div className="space-y-3">
+          <div>
+            <Label className="text-base font-medium">Customer Selection</Label>
           </div>
+
+          <div className="grid grid-cols-2 w-full bg-background border-b-2 border-border">
+            <button
+              type="button"
+              onClick={() => {
+                setCustomerMode('new');
+                setSelectedCustomerId('');
+                form.reset();
+              }}
+              className={cn(
+                "relative flex items-center justify-center gap-2 py-4 px-4 rounded-none border-b-4 transition-all font-medium",
+                customerMode === 'new'
+                  ? "border-b-green-500 bg-green-50 text-green-700"
+                  : "border-b-transparent text-muted-foreground hover:text-foreground"
+              )}
+              aria-selected={customerMode === 'new'}
+            >
+              <Building2 className="h-4 w-4" />
+              Create New Company
+            </button>
+            
+            <button
+              type="button"
+              onClick={() => setCustomerMode('existing')}
+              className={cn(
+                "relative flex items-center justify-center gap-2 py-4 px-4 rounded-none border-b-4 transition-all font-medium",
+                customerMode === 'existing'
+                  ? "border-b-green-500 bg-green-50 text-green-700"
+                  : "border-b-transparent text-muted-foreground hover:text-foreground"
+              )}
+              aria-selected={customerMode === 'existing'}
+            >
+              <Users className="h-4 w-4" />
+              Select Existing
+            </button>
+          </div>
+
+          {customerMode === 'existing' && (
+            <div className="space-y-3 pt-2">
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Select value={selectedCustomerId} onValueChange={handleCustomerSelect}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select a customer..." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {existingCustomers.length === 0 ? (
+                        <div className="p-2 text-sm text-muted-foreground">
+                          No customers found
+                        </div>
+                      ) : (
+                        existingCustomers.map((customer) => (
+                          <SelectItem key={customer.id} value={customer.id}>
+                            {customer.company} - {customer.name}
+                          </SelectItem>
+                        ))
+                      )}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setShowCreateDialog(true)}
+                  title="Create new company"
+                >
+                  <Plus className="h-4 w-4" />
+                </Button>
+              </div>
+              {selectedCustomerId && (
+                <div className="p-3 bg-background rounded-md border">
+                  <p className="text-sm font-medium">Selected Customer</p>
+                  <p className="text-sm text-muted-foreground">
+                    {existingCustomers.find(c => c.id === selectedCustomerId)?.company}
+                  </p>
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
         <CreateCompanyDialog
