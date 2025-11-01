@@ -12,6 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useCustomer } from '@/contexts/CustomerContext';
@@ -1097,50 +1098,42 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       {/* Category Filter Tabs */}
                       <div className="space-y-2">
                         <Label className="text-sm text-muted-foreground">Filter by Category (Optional)</Label>
-                        <div className="flex flex-wrap gap-2">
-                          <Button
-                            type="button"
-                            variant="outline"
-                            size="sm"
-                            onClick={() => setCategoryFilter('all')}
-                            disabled={isSubmitting || serviceCategoriesLoading}
-                            className={cn(
-                              "h-9 transition-all",
-                              categoryFilter === 'all' && "bg-green-600 hover:bg-green-700 text-white border-green-600"
-                            )}
-                          >
-                            All Products
-                            {categoryFilter === 'all' && (
-                              <Badge variant="secondary" className="ml-2 bg-white/20">
+                        <Tabs value={categoryFilter} onValueChange={setCategoryFilter} className="w-full">
+                          <TabsList className="grid w-full h-auto bg-background border-b-2 border-border p-0" style={{ gridTemplateColumns: `repeat(${serviceCategories.length + 1}, minmax(0, 1fr))` }}>
+                            <TabsTrigger 
+                              value="all"
+                              disabled={isSubmitting || serviceCategoriesLoading}
+                              className="relative flex items-center justify-center gap-2 py-3 px-4 rounded-none border-b-4 border-transparent data-[state=active]:border-b-green-500 data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-950/30 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-400 transition-all"
+                            >
+                              <span className="font-medium text-sm">All Products</span>
+                              <Badge variant="secondary" className={cn(
+                                "text-xs",
+                                categoryFilter === 'all' && "bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-200"
+                              )}>
                                 {allProducts.length}
                               </Badge>
-                            )}
-                          </Button>
-                          {serviceCategories.map((category) => {
-                            const count = allProducts.filter(p => p.service_category_id === category.id).length;
-                            return (
-                              <Button
-                                key={category.id}
-                                type="button"
-                                variant="outline"
-                                size="sm"
-                                onClick={() => setCategoryFilter(category.id)}
-                                disabled={isSubmitting || serviceCategoriesLoading}
-                                className={cn(
-                                  "h-9 transition-all",
-                                  categoryFilter === category.id && "bg-green-600 hover:bg-green-700 text-white border-green-600"
-                                )}
-                              >
-                                {category.category_name}
-                                {categoryFilter === category.id && (
-                                  <Badge variant="secondary" className="ml-2 bg-white/20">
+                            </TabsTrigger>
+                            {serviceCategories.map((category) => {
+                              const count = allProducts.filter(p => p.service_category_id === category.id).length;
+                              return (
+                                <TabsTrigger 
+                                  key={category.id}
+                                  value={category.id}
+                                  disabled={isSubmitting || serviceCategoriesLoading}
+                                  className="relative flex items-center justify-center gap-2 py-3 px-4 rounded-none border-b-4 border-transparent data-[state=active]:border-b-green-500 data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-950/30 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-400 transition-all"
+                                >
+                                  <span className="font-medium text-sm">{category.category_name}</span>
+                                  <Badge variant="secondary" className={cn(
+                                    "text-xs",
+                                    categoryFilter === category.id && "bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-200"
+                                  )}>
                                     {count}
                                   </Badge>
-                                )}
-                              </Button>
-                            );
-                          })}
-                        </div>
+                                </TabsTrigger>
+                              );
+                            })}
+                          </TabsList>
+                        </Tabs>
                       </div>
 
                       {/* Products Grid */}
