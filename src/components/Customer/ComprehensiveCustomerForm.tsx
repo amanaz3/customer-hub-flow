@@ -1211,7 +1211,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         <CardContent className="space-y-4 pb-6 pt-6">
         {/* Customer Selection Section */}
         <div className="space-y-3">
-          <div>
+          <div className="sticky top-[140px] z-20 bg-background/95 backdrop-blur-sm py-2 -mx-6 px-6 border-b">
             <Label className="text-base font-medium">Customer Selection</Label>
           </div>
 
@@ -1310,7 +1310,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
                 <AccordionItem value="basic" className="border rounded-lg" data-section-id="basic">
-                  <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
+                  <AccordionTrigger className="sticky top-[180px] z-20 bg-card/95 backdrop-blur-sm px-4 hover:no-underline justify-start gap-2 border-b">
                     <h3 className="text-base font-medium">Basic Information</h3>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
@@ -1374,7 +1374,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             {/* Source & Channel - Shown when basic info complete OR clicked in nav */}
             {(isBasicInfoComplete || accordionValue.includes('lead')) && (
             <AccordionItem value="lead" className="border rounded-lg" data-section-id="lead">
-                  <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
+                  <AccordionTrigger className="sticky top-[180px] z-20 bg-card/95 backdrop-blur-sm px-4 hover:no-underline justify-start gap-2 border-b">
                     <h3 className="text-base font-medium">Source & Channel Information</h3>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
@@ -1406,7 +1406,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         {/* Service Selection - Shown when basic info complete OR clicked in nav */}
         {(isBasicInfoComplete || accordionValue.includes('service')) && (
         <AccordionItem value="service" className="border rounded-lg" data-section-id="service">
-              <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
+              <AccordionTrigger className="sticky top-[180px] z-20 bg-card/95 backdrop-blur-sm px-4 hover:no-underline justify-start gap-2 border-b">
                 <h3 className="text-base font-medium">Service Selection</h3>
               </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
@@ -1544,7 +1544,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           data-section="deal-information"
           data-section-id="application"
         >
-              <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
+              <AccordionTrigger className="sticky top-[180px] z-20 bg-card/95 backdrop-blur-sm px-4 hover:no-underline justify-start gap-2 border-b">
                 <h3 className={cn(
                   "text-base font-medium transition-colors",
                   highlightDealInfo && "text-blue-600 dark:text-blue-400"
@@ -2090,8 +2090,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               {/* Home Finance Application Details */}
               {hasHomeFinance && (
                 <>
+                  <div className="sticky top-[180px] z-20 bg-card/95 backdrop-blur-sm -mx-4 px-4 py-2 border-b">
+                    <h3 className="text-base font-medium">Home Finance Draft Details</h3>
+                  </div>
                   <div>
-                    <h3 className="text-base font-medium mb-3">Home Finance Draft Details</h3>
                     
                     {/* Personal Financial Information */}
                     <div className="mb-4">
@@ -2484,8 +2486,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               {/* VAT Registration Details */}
               {hasVAT && (
                 <>
+                  <div className="sticky top-[180px] z-20 bg-card/95 backdrop-blur-sm -mx-4 px-4 py-2 border-b">
+                    <h3 className="text-base font-medium">VAT Registration Details</h3>
+                  </div>
                   <div>
-                    <h3 className="text-base font-medium mb-3">VAT Registration Details</h3>
                     
                     {/* Registration Type & Status */}
                     <div className="mb-4">
