@@ -33,6 +33,8 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { NavigationBlocker } from '@/components/Navigation/NavigationBlocker';
 import { StickyFormNavigation } from './StickyFormNavigation';
+import transitionArrowActive from '@/assets/transition-arrow-active.png';
+import transitionArrowInactive from '@/assets/transition-arrow-inactive.png';
 
 // Form validation schema
 const formSchema = z.object({
@@ -1115,23 +1117,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   )}
                 </div>
                 <div className={cn(
-                  "absolute -right-3 w-10 h-10 rounded-full transition-all duration-500 flex items-center justify-center",
+                  "absolute -right-3 w-10 h-10 rounded-full transition-all duration-500 flex items-center justify-center overflow-hidden bg-background",
                   currentStage === 'preview' || currentStage === 'documents'
-                    ? "bg-gradient-to-br from-blue-500 to-blue-700 shadow-2xl shadow-blue-500/70 animate-pulse ring-4 ring-blue-400/50 ring-offset-2 ring-offset-background" 
-                    : "bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700 shadow-lg"
+                    ? "shadow-2xl shadow-blue-500/70 animate-pulse ring-4 ring-blue-400/50 ring-offset-2 ring-offset-background" 
+                    : "shadow-lg"
                 )}>
-                  <svg 
-                    className={cn(
-                      "w-6 h-6 transition-all duration-300",
-                      currentStage === 'preview' || currentStage === 'documents'
-                        ? "text-white drop-shadow-lg"
-                        : "text-white/70"
-                    )}
-                    fill="currentColor" 
-                    viewBox="0 0 20 20"
-                  >
-                    <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
+                  <img 
+                    src={currentStage === 'preview' || currentStage === 'documents' ? transitionArrowActive : transitionArrowInactive}
+                    alt="Transition arrow"
+                    className="w-8 h-8 object-contain"
+                  />
                 </div>
               </div>
             </div>
@@ -1191,23 +1186,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   )}
                 </div>
                 <div className={cn(
-                  "absolute -right-3 w-10 h-10 rounded-full transition-all duration-500 flex items-center justify-center",
+                  "absolute -right-3 w-10 h-10 rounded-full transition-all duration-500 flex items-center justify-center overflow-hidden bg-background",
                   createdCustomerId
-                    ? "bg-gradient-to-br from-purple-500 to-purple-700 shadow-2xl shadow-purple-500/70 animate-pulse ring-4 ring-purple-400/50 ring-offset-2 ring-offset-background" 
-                    : "bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700 shadow-lg"
+                    ? "shadow-2xl shadow-purple-500/70 animate-pulse ring-4 ring-purple-400/50 ring-offset-2 ring-offset-background" 
+                    : "shadow-lg"
                 )}>
-                  <svg 
-                    className={cn(
-                      "w-6 h-6 transition-all duration-300",
-                      createdCustomerId
-                        ? "text-white drop-shadow-lg"
-                        : "text-white/70"
-                    )}
-                    fill="currentColor" 
-                    viewBox="0 0 20 20"
-                  >
-                    <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                  </svg>
+                  <img 
+                    src={createdCustomerId ? transitionArrowActive : transitionArrowInactive}
+                    alt="Transition arrow"
+                    className="w-8 h-8 object-contain"
+                  />
                 </div>
               </div>
             </div>
