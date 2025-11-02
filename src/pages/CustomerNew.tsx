@@ -24,17 +24,17 @@ const CustomerNew = () => {
 
   return (
     <div className="min-h-screen bg-gradient-subtle">
-      <div className="max-w-5xl mx-auto px-4 py-8 space-y-6">
+      <div className="max-w-5xl mx-auto px-4 py-4 space-y-3">
         {/* Page Header */}
         <Card className="border-primary/20 shadow-elegant">
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-3 rounded-lg bg-primary/10">
-                <ClipboardList className="h-6 w-6 text-primary" />
+          <CardHeader className="py-3 px-4">
+            <div className="flex items-center gap-2.5">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <ClipboardList className="h-5 w-5 text-primary" />
               </div>
               <div>
-                <CardTitle className="text-3xl">New Application</CardTitle>
-                <CardDescription className="text-base mt-1">
+                <CardTitle className="text-xl">New Application</CardTitle>
+                <CardDescription className="text-sm mt-0.5">
                   Complete this multi-step form to create a new customer application
                 </CardDescription>
               </div>
