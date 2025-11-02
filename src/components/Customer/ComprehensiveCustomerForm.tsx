@@ -2860,35 +2860,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   />
                 </div>
               </div>
-
-              <div className="pt-4 pb-2">
-                <p className="text-sm text-muted-foreground text-center mb-3">
-                  Review is optional - you can save directly or preview first
-                </p>
-                <div className="flex justify-end space-x-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={async () => {
-                      const isValid = await form.trigger();
-                      if (isValid) {
-                        setCurrentStage('preview');
-                      }
-                    }}
-                    disabled={isSubmitting}
-                    className="min-w-[150px]"
-                  >
-                    Preview Draft
-                  </Button>
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="min-w-[150px]"
-                  >
-                    {isSubmitting ? 'Saving Draft...' : 'Save as Draft'}
-                  </Button>
-                </div>
-              </div>
             </form>
           </div>
         )}
