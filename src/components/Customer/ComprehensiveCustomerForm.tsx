@@ -25,7 +25,7 @@ import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
-import { Building2, Plus, Save, Users, ClipboardList } from 'lucide-react';
+import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -1209,9 +1209,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
       <Card className="w-full overflow-visible mt-3 relative z-10">
         <CardContent className="space-y-4 pb-6 pt-6">
-        {/* Customer Selection Section */}
-        <div className="space-y-3">
-          <div className="sticky top-[140px] z-20 bg-background/95 backdrop-blur-sm py-2 -mx-6 px-6 border-b">
+        {/* Customer Selection Section - Sticky */}
+        <div className="sticky top-[140px] z-20 bg-background/95 backdrop-blur-sm -mx-6 px-6 border-b">
+          <div className="py-2">
             <Label className="text-base font-medium">Customer Selection</Label>
           </div>
 
@@ -1246,6 +1246,44 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               Select Existing
             </button>
           </div>
+          
+          {/* Form Navigation inside sticky container */}
+          {currentStage === 'details' && (
+            <div className="bg-background/95">
+              <div className="flex items-center gap-1 overflow-x-auto py-1.5">
+                {navigationSections.filter(s => s.isVisible !== false).map((section, index) => (
+                  <button
+                    key={section.id}
+                    type="button"
+                    onClick={() => handleSectionNavigation(section.id)}
+                    className={cn(
+                      "flex items-center gap-1.5 px-2 py-1 rounded-none border-b-3 text-xs font-medium transition-all whitespace-nowrap",
+                      "hover:bg-accent hover:text-accent-foreground",
+                      section.isActive 
+                        ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400" 
+                        : section.isComplete
+                        ? "border-b-green-300 bg-green-50/50 text-green-600 dark:bg-green-950/50 dark:text-green-500"
+                        : "border-b-transparent text-muted-foreground"
+                    )}
+                  >
+                    {section.isComplete ? (
+                      <Check className="h-3 w-3 flex-shrink-0" />
+                    ) : section.isActive ? (
+                      <CircleDot className="h-3 w-3 flex-shrink-0" />
+                    ) : (
+                      <Circle className="h-3 w-3 flex-shrink-0" />
+                    )}
+                    <span className="hidden sm:inline">{section.label}</span>
+                    <span className="sm:hidden">{index + 1}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Customer Selection Content - Not Sticky */}
+        <div className="space-y-3">
 
           {customerMode === 'existing' && (
             <div className="space-y-3 pt-2">
@@ -1300,12 +1338,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
         {currentStage === 'details' && (
           <div className="space-y-4">
-            {/* Sticky Section Navigation */}
-            <StickyFormNavigation 
-              sections={navigationSections}
-              onSectionClick={handleSectionNavigation}
-            />
-            
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
