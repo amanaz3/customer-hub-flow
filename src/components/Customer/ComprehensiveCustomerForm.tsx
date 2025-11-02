@@ -1224,7 +1224,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </AccordionContent>
                 </AccordionItem>
 
-            {/* Deal Information */}
+            {/* Deal Information - Only shown when a product/service is selected */}
+            {form.watch('product_id') && (
             <AccordionItem value="application" className="border rounded-lg">
               <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
                 <h3 className="text-base font-medium">Deal Information</h3>
@@ -1759,6 +1760,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 )}
             </AccordionContent>
           </AccordionItem>
+            )}
 
               {/* Home Finance Application Details */}
               {hasHomeFinance && (
