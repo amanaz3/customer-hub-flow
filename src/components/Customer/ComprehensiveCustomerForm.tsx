@@ -992,7 +992,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const allMandatoryUploaded = mandatoryDocuments.length > 0 && mandatoryDocumentsUploaded;
 
   return (
-    <div className="space-y-6 relative max-w-5xl mx-auto px-4 pb-6">
+    <div className="relative max-w-5xl mx-auto px-4 pb-6">
       {/* Navigation Blocker - prevents navigation when there's unsaved data */}
       <NavigationBlocker 
         when={hasUnsavedData() && !createdCustomerId} 
@@ -1243,7 +1243,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </Card>
 
       
-      <Card className="w-full overflow-hidden mb-8 relative z-10 border-0 shadow-2xl rounded-2xl bg-background">
+      <Card className="w-full overflow-hidden mb-8 mt-6 relative z-10 border-0 shadow-2xl rounded-2xl bg-background">
         {/* Customer Selection Tabs - At Top */}
         <div className="grid grid-cols-2 w-full bg-background border-b border-border">
           {customerMode === 'existing' ? (
