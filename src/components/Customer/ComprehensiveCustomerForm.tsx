@@ -1102,10 +1102,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             </div>
 
             {/* Connecting Line 1 with Enhanced Gradient */}
-            <div className="flex-1 relative px-3" style={{ maxWidth: '60px' }}>
-              <div className="relative h-1.5 flex items-center">
+            <div className="flex-1 relative px-2" style={{ maxWidth: '80px' }}>
+              <div className="relative h-2 flex items-center">
                 <div className={cn(
-                  "h-1.5 rounded-full transition-all duration-700 flex-1 relative overflow-hidden",
+                  "h-2 rounded-full transition-all duration-700 flex-1 relative overflow-hidden",
                   currentStage === 'preview' || currentStage === 'documents' 
                     ? "bg-gradient-to-r from-emerald-400 via-blue-400 to-blue-500 shadow-md shadow-blue-500/30" 
                     : "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-700"
@@ -1115,16 +1115,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   )}
                 </div>
                 <div className={cn(
-                  "absolute -right-2 w-6 h-6 rounded-full transition-all duration-500 flex items-center justify-center",
+                  "absolute -right-3 w-10 h-10 rounded-full transition-all duration-500 flex items-center justify-center",
                   currentStage === 'preview' || currentStage === 'documents'
-                    ? "bg-gradient-to-br from-blue-500 to-blue-700 shadow-xl shadow-blue-500/70 animate-pulse ring-2 ring-blue-400 ring-offset-2 ring-offset-background" 
-                    : "bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700 shadow-md"
+                    ? "bg-gradient-to-br from-blue-500 to-blue-700 shadow-2xl shadow-blue-500/70 animate-pulse ring-4 ring-blue-400/50 ring-offset-2 ring-offset-background" 
+                    : "bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700 shadow-lg"
                 )}>
                   <svg 
                     className={cn(
-                      "w-4 h-4 transition-all duration-300",
+                      "w-6 h-6 transition-all duration-300",
                       currentStage === 'preview' || currentStage === 'documents'
-                        ? "text-white drop-shadow-md"
+                        ? "text-white drop-shadow-lg"
                         : "text-white/70"
                     )}
                     fill="currentColor" 
@@ -1178,10 +1178,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             </div>
 
             {/* Connecting Line 2 with Enhanced Gradient */}
-            <div className="flex-1 relative px-3" style={{ maxWidth: '60px' }}>
-              <div className="relative h-1.5 flex items-center">
+            <div className="flex-1 relative px-2" style={{ maxWidth: '80px' }}>
+              <div className="relative h-2 flex items-center">
                 <div className={cn(
-                  "h-1.5 rounded-full transition-all duration-700 flex-1 relative overflow-hidden",
+                  "h-2 rounded-full transition-all duration-700 flex-1 relative overflow-hidden",
                   createdCustomerId 
                     ? "bg-gradient-to-r from-blue-400 via-purple-400 to-purple-500 shadow-md shadow-purple-500/30" 
                     : "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-700"
@@ -1191,16 +1191,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   )}
                 </div>
                 <div className={cn(
-                  "absolute -right-2 w-6 h-6 rounded-full transition-all duration-500 flex items-center justify-center",
+                  "absolute -right-3 w-10 h-10 rounded-full transition-all duration-500 flex items-center justify-center",
                   createdCustomerId
-                    ? "bg-gradient-to-br from-purple-500 to-purple-700 shadow-xl shadow-purple-500/70 animate-pulse ring-2 ring-purple-400 ring-offset-2 ring-offset-background" 
-                    : "bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700 shadow-md"
+                    ? "bg-gradient-to-br from-purple-500 to-purple-700 shadow-2xl shadow-purple-500/70 animate-pulse ring-4 ring-purple-400/50 ring-offset-2 ring-offset-background" 
+                    : "bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700 shadow-lg"
                 )}>
                   <svg 
                     className={cn(
-                      "w-4 h-4 transition-all duration-300",
+                      "w-6 h-6 transition-all duration-300",
                       createdCustomerId
-                        ? "text-white drop-shadow-md"
+                        ? "text-white drop-shadow-lg"
                         : "text-white/70"
                     )}
                     fill="currentColor" 
