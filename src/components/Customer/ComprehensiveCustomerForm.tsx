@@ -3031,21 +3031,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
 
               </Accordion>
-
-              {/* Additional Notes */}
-              <div className="mt-4">
-                <h3 className="text-base font-medium mb-3">Additional Information</h3>
-                <div className="space-y-2">
-                  <Label htmlFor="customer_notes">Notes</Label>
-                  <Textarea
-                    id="customer_notes"
-                    {...form.register('customer_notes')}
-                    disabled={isSubmitting}
-                    rows={3}
-                    placeholder="Any additional notes or requirements..."
-                  />
-                </div>
-              </div>
             </form>
           </div>
         )}
