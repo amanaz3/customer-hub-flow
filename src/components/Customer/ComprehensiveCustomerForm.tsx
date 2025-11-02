@@ -33,8 +33,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { NavigationBlocker } from '@/components/Navigation/NavigationBlocker';
 import { StickyFormNavigation } from './StickyFormNavigation';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Info, X } from 'lucide-react';
 
 // Form validation schema
 const formSchema = z.object({
@@ -1002,44 +1000,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const mandatoryDocumentsUploaded = mandatoryDocuments.every(doc => doc.is_uploaded);
   const allMandatoryUploaded = mandatoryDocuments.length > 0 && mandatoryDocumentsUploaded;
 
-  const [showIntroBanner, setShowIntroBanner] = useState(!createdCustomerId);
-
   return (
-    <TooltipProvider delayDuration={200}>
-      <div className="relative max-w-5xl mx-auto px-4 pb-6">
-        {/* Navigation Blocker - prevents navigation when there's unsaved data */}
-        <NavigationBlocker 
-          when={hasUnsavedData() && !createdCustomerId} 
-          message="You have unsaved changes in the application form. Leaving this page will discard all your progress. Are you sure you want to continue?"
-        />
-        
-        {/* Intro Banner */}
-        {showIntroBanner && !createdCustomerId && (
-          <div className="mb-6 bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 rounded-lg p-4 shadow-md animate-fade-in">
-            <div className="flex items-start gap-3">
-              <div className="flex-shrink-0 mt-0.5">
-                <Info className="h-5 w-5 text-primary" />
-              </div>
-              <div className="flex-1">
-                <h4 className="font-semibold text-sm text-foreground mb-1">
-                  How to Complete This Application
-                </h4>
-                <p className="text-sm text-muted-foreground">
-                  Follow the progress indicator at the top to complete each step. Start by selecting or creating a company below, then fill in the details and upload documents.
-                </p>
-              </div>
-              <button
-                onClick={() => setShowIntroBanner(false)}
-                className="flex-shrink-0 text-muted-foreground hover:text-foreground transition-colors"
-                aria-label="Dismiss"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
-          </div>
-        )}
-        
-        {/* Success Transition Overlay */}
+    <div className="relative max-w-5xl mx-auto px-4 pb-6">
+      {/* Navigation Blocker - prevents navigation when there's unsaved data */}
+      <NavigationBlocker 
+        when={hasUnsavedData() && !createdCustomerId} 
+        message="You have unsaved changes in the application form. Leaving this page will discard all your progress. Are you sure you want to continue?"
+      />
+      
+      {/* Success Transition Overlay */}
       {showSuccessTransition && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in">
           <div className="bg-white dark:bg-gray-800 rounded-2xl p-8 max-w-md mx-4 shadow-2xl animate-scale-in">
@@ -1087,57 +1056,48 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         <CardContent className="relative py-3 px-4">
           <div className="flex items-center justify-between">
             {/* Stage 1 */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex flex-col items-center gap-1.5 flex-1 group">
-                  <div className={cn(
-                    "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-500 relative",
-                    currentStage === 'details' 
-                      ? "bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-500/40 scale-110 rotate-3" 
-                      : createdCustomerId
-                      ? "bg-gradient-to-br from-green-400 to-green-500 text-white shadow-md shadow-green-400/30"
-                      : "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 text-gray-400 dark:text-gray-600"
-                  )}>
-                    <div className={cn(
-                      "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
-                      currentStage === 'details' && "opacity-100 bg-green-500"
-                    )} />
-                    {createdCustomerId ? (
-                      <svg className="w-5 h-5 relative z-10 animate-scale-in" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                      </svg>
-                    ) : (
-                      <ClipboardList className="w-5 h-5 relative z-10" />
-                    )}
-                  </div>
-                  <div className="text-center space-y-0.5">
-                    <div className={cn(
-                      "text-xs font-bold tracking-tight",
-                      currentStage === 'details' 
-                        ? "text-green-600 dark:text-green-400" 
-                        : createdCustomerId
-                        ? "text-gray-900 dark:text-gray-100"
-                        : "text-gray-500 dark:text-gray-500"
-                    )}>
-                      Step 1
-                    </div>
-                    <div className={cn(
-                      "text-2xs font-medium",
-                      currentStage === 'details' || createdCustomerId
-                        ? "text-gray-700 dark:text-gray-300" 
-                        : "text-gray-400 dark:text-gray-600"
-                    )}>
-                      Save Draft
-                    </div>
-                  </div>
+            <div className="flex flex-col items-center gap-1.5 flex-1 group">
+              <div className={cn(
+                "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-500 relative",
+                currentStage === 'details' 
+                  ? "bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-500/40 scale-110 rotate-3" 
+                  : createdCustomerId
+                  ? "bg-gradient-to-br from-green-400 to-green-500 text-white shadow-md shadow-green-400/30"
+                  : "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 text-gray-400 dark:text-gray-600"
+              )}>
+                <div className={cn(
+                  "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
+                  currentStage === 'details' && "opacity-100 bg-green-500"
+                )} />
+                {createdCustomerId ? (
+                  <svg className="w-5 h-5 relative z-10 animate-scale-in" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <ClipboardList className="w-5 h-5 relative z-10" />
+                )}
+              </div>
+              <div className="text-center space-y-0.5">
+                <div className={cn(
+                  "text-xs font-bold tracking-tight",
+                  currentStage === 'details' 
+                    ? "text-green-600 dark:text-green-400" 
+                    : createdCustomerId
+                    ? "text-gray-900 dark:text-gray-100"
+                    : "text-gray-500 dark:text-gray-500"
+                )}>
+                  Step 1
                 </div>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="max-w-xs">
-                <p className="text-xs">
-                  {createdCustomerId ? "Draft saved successfully" : "Fill in the form below and save your draft"}
-                </p>
-              </TooltipContent>
-            </Tooltip>
+                <div className={cn(
+                  "text-2xs font-medium",
+                  currentStage === 'details' || createdCustomerId
+                    ? "text-gray-700 dark:text-gray-300" 
+                    : "text-gray-400 dark:text-gray-600"
+                )}>
+                  Save Draft
+                </div>
+              </div>
+            </div>
 
             {/* Connecting Line 1 with Gradient */}
             <div className="flex-1 relative px-2" style={{ maxWidth: '50px' }}>
@@ -1170,58 +1130,45 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             </div>
             
             {/* Stage 2 */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex flex-col items-center gap-1.5 flex-1 group">
-                  <div className={cn(
-                    "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-500 relative",
-                    currentStage === 'preview' 
-                      ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/40 scale-110 -rotate-3" 
-                      : currentStage === 'documents'
-                      ? "bg-gradient-to-br from-green-400 to-green-500 text-white shadow-md shadow-green-400/30"
-                      : "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 text-gray-400 dark:text-gray-600 opacity-50 cursor-not-allowed"
-                  )}>
-                    <div className={cn(
-                      "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
-                      currentStage === 'preview' && "opacity-100 bg-blue-500"
-                    )} />
-                    <svg className="w-5 h-5 relative z-10" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                    </svg>
-                  </div>
-                  <div className="text-center space-y-0.5">
-                    <div className={cn(
-                      "text-xs font-bold tracking-tight",
-                      currentStage === 'preview' 
-                        ? "text-blue-600 dark:text-blue-400" 
-                        : currentStage === 'documents'
-                        ? "text-gray-900 dark:text-gray-100"
-                        : "text-gray-500 dark:text-gray-500"
-                    )}>
-                      Step 2
-                    </div>
-                    <div className={cn(
-                      "text-2xs font-medium",
-                      currentStage === 'preview' || currentStage === 'documents'
-                        ? "text-gray-700 dark:text-gray-300" 
-                        : "text-gray-400 dark:text-gray-600"
-                    )}>
-                      Preview
-                    </div>
-                  </div>
-                </div>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="max-w-xs">
-                <p className="text-xs">
-                  {!createdCustomerId 
-                    ? "Complete Step 1 first to preview your application" 
+            <div className="flex flex-col items-center gap-1.5 flex-1 group">
+              <div className={cn(
+                "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-500 relative",
+                currentStage === 'preview' 
+                  ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/40 scale-110 -rotate-3" 
+                  : currentStage === 'documents'
+                  ? "bg-gradient-to-br from-green-400 to-green-500 text-white shadow-md shadow-green-400/30"
+                  : "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 text-gray-400 dark:text-gray-600"
+              )}>
+                <div className={cn(
+                  "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
+                  currentStage === 'preview' && "opacity-100 bg-blue-500"
+                )} />
+                <svg className="w-5 h-5 relative z-10" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </div>
+              <div className="text-center space-y-0.5">
+                <div className={cn(
+                  "text-xs font-bold tracking-tight",
+                  currentStage === 'preview' 
+                    ? "text-blue-600 dark:text-blue-400" 
                     : currentStage === 'documents'
-                    ? "Preview completed - proceed to documents"
-                    : "Review your application details"}
-                </p>
-              </TooltipContent>
-            </Tooltip>
+                    ? "text-gray-900 dark:text-gray-100"
+                    : "text-gray-500 dark:text-gray-500"
+                )}>
+                  Step 2
+                </div>
+                <div className={cn(
+                  "text-2xs font-medium",
+                  currentStage === 'preview' || currentStage === 'documents'
+                    ? "text-gray-700 dark:text-gray-300" 
+                    : "text-gray-400 dark:text-gray-600"
+                )}>
+                  Preview
+                </div>
+              </div>
+            </div>
 
             {/* Connecting Line 2 with Gradient */}
             <div className="flex-1 relative px-2" style={{ maxWidth: '50px' }}>
@@ -1254,80 +1201,59 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             </div>
             
             {/* Stage 3 */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <div className="flex flex-col items-center gap-1.5 flex-1 group">
-                  <div 
-                    className={cn(
-                      "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-500 relative",
-                      currentStage === 'documents' && createdCustomerId
-                        ? "bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/40 scale-110 rotate-3" 
-                        : createdCustomerId 
-                        ? "bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 text-green-600 dark:text-green-400 border-2 border-green-500/30 hover:border-green-500 cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-green-500/20"
-                        : "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 text-gray-400 dark:text-gray-600 opacity-50 cursor-not-allowed"
-                    )}
-                    onClick={() => createdCustomerId && setCurrentStage('documents')}
-                  >
-                    <div className={cn(
-                      "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
-                      currentStage === 'documents' && createdCustomerId && "opacity-100 bg-purple-500"
-                    )} />
-                    <Building2 className="w-5 h-5 relative z-10" />
-                    {createdCustomerId && documents.length > 0 && (
-                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center text-white text-2xs font-bold border-2 border-background shadow-lg shadow-green-500/50 animate-scale-in">
-                         {documents.filter(doc => doc.is_uploaded).length}
-                      </div>
-                    )}
+            <div className="flex flex-col items-center gap-1.5 flex-1 group">
+              <div 
+                className={cn(
+                  "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-500 relative",
+                  currentStage === 'documents' && createdCustomerId
+                    ? "bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/40 scale-110 rotate-3" 
+                    : createdCustomerId 
+                    ? "bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 text-green-600 dark:text-green-400 border-2 border-green-500/30 hover:border-green-500 cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-green-500/20"
+                    : "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 text-gray-400 dark:text-gray-600 opacity-50"
+                )}
+                onClick={() => createdCustomerId && setCurrentStage('documents')}
+              >
+                <div className={cn(
+                  "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
+                  currentStage === 'documents' && createdCustomerId && "opacity-100 bg-purple-500"
+                )} />
+                <Building2 className="w-5 h-5 relative z-10" />
+                {createdCustomerId && documents.length > 0 && (
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center text-white text-2xs font-bold border-2 border-background shadow-lg shadow-green-500/50 animate-scale-in">
+                     {documents.filter(doc => doc.is_uploaded).length}
                   </div>
-                  <div className="text-center space-y-0.5">
-                    <div className={cn(
-                      "text-xs font-bold tracking-tight",
-                      currentStage === 'documents' && createdCustomerId
-                        ? "text-purple-600 dark:text-purple-400" 
-                        : createdCustomerId
-                        ? "text-gray-900 dark:text-gray-100"
-                        : "text-gray-500 dark:text-gray-500"
-                    )}>
-                      Step 3
-                    </div>
-                    <div className={cn(
-                      "text-2xs font-medium",
-                      currentStage === 'documents' && createdCustomerId
-                        ? "text-gray-700 dark:text-gray-300" 
-                        : createdCustomerId
-                        ? "text-gray-600 dark:text-gray-400"
-                        : "text-gray-400 dark:text-gray-600"
-                    )}>
-                      Docs
-                    </div>
-                  </div>
+                )}
+              </div>
+              <div className="text-center space-y-0.5">
+                <div className={cn(
+                  "text-xs font-bold tracking-tight",
+                  currentStage === 'documents' && createdCustomerId
+                    ? "text-purple-600 dark:text-purple-400" 
+                    : createdCustomerId
+                    ? "text-gray-900 dark:text-gray-100"
+                    : "text-gray-500 dark:text-gray-500"
+                )}>
+                  Step 3
                 </div>
-              </TooltipTrigger>
-              <TooltipContent side="bottom" className="max-w-xs">
-                <p className="text-xs">
-                  {!createdCustomerId 
-                    ? "Complete Step 1 first to upload documents" 
-                    : currentStage === 'documents'
-                    ? `Upload required documents (${documents.filter(doc => doc.is_uploaded).length}/${documents.length} uploaded)`
-                    : "Click to upload required documents"}
-                </p>
-              </TooltipContent>
-            </Tooltip>
+                <div className={cn(
+                  "text-2xs font-medium",
+                  currentStage === 'documents' && createdCustomerId
+                    ? "text-gray-700 dark:text-gray-300" 
+                    : createdCustomerId
+                    ? "text-gray-600 dark:text-gray-400"
+                    : "text-gray-400 dark:text-gray-600"
+                )}>
+                  Docs
+                </div>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>
       
-      {/* Helper Text for First-Time Users */}
-      <div className="mt-6 mb-3 px-1">
-        <p className="text-sm text-muted-foreground flex items-center gap-2">
-          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold">1</span>
-          Start by selecting an existing company or creating a new one below
-        </p>
-      </div>
-      
       {/* Customer Selection Card - Sticky */}
-      <div className="sticky z-40 animate-pulse-subtle" style={{ top: `${stageHeight + 12}px` }}>
-        <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
+      <div className="sticky z-40" style={{ top: `${stageHeight + 12}px` }}>
+        <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
         <div className="grid grid-cols-2 w-full">
           {customerMode === 'existing' ? (
             <>
@@ -3924,9 +3850,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             )}
           </div>
         )}
-        </CardContent>
-      </Card>
-      
+      </CardContent>
+    </Card>
+
     {/* Floating Action Buttons - Only show on details stage before submission */}
     {false && currentStage === 'details' && !createdCustomerId && (
       <div className="fixed bottom-8 right-8 flex gap-3 z-50">
@@ -3989,8 +3915,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
-      </div>
-    </TooltipProvider>
+    </div>
   );
 };
 
