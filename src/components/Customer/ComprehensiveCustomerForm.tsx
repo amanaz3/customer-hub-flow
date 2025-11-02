@@ -1810,6 +1810,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                      if (!isSubmitting) {
                                        form.setValue('product_id', product.id);
                                        setCategoryFilter(product.service_category_id || 'all');
+                                       // Auto-open Deal Information section
+                                       if (!accordionValue.includes('application')) {
+                                         setAccordionValue([...accordionValue, 'application']);
+                                       }
                                      }
                                    }}
                                    className={cn(
