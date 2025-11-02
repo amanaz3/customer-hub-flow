@@ -31,6 +31,7 @@ import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { NavigationBlocker } from '@/components/Navigation/NavigationBlocker';
+import { StickyFormNavigation } from './StickyFormNavigation';
 
 // Form validation schema
 const formSchema = z.object({
@@ -483,6 +484,57 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     setPendingMode(null);
     setShowSwitchConfirm(false);
   }, []);
+
+  // Handle section navigation
+  const handleSectionNavigation = useCallback((sectionId: string) => {
+    // Expand the section if not already expanded
+    setAccordionValue(prev => {
+      if (!prev.includes(sectionId)) {
+        return [...prev, sectionId];
+      }
+      return prev;
+    });
+
+    // Scroll to the section
+    setTimeout(() => {
+      const sectionElement = document.querySelector(`[data-section-id="${sectionId}"]`);
+      if (sectionElement) {
+        sectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }, 100);
+  }, []);
+
+  // Define sections for navigation
+  const navigationSections = [
+    {
+      id: 'basic',
+      label: 'Basic Info',
+      isComplete: !!isBasicInfoComplete,
+      isActive: accordionValue.includes('basic'),
+      isVisible: true,
+    },
+    {
+      id: 'lead',
+      label: 'Source & Channel',
+      isComplete: !!isSourceChannelComplete,
+      isActive: accordionValue.includes('lead'),
+      isVisible: !!isBasicInfoComplete,
+    },
+    {
+      id: 'service',
+      label: 'Service',
+      isComplete: !!isServiceSelectionComplete,
+      isActive: accordionValue.includes('service'),
+      isVisible: !!isSourceChannelComplete,
+    },
+    {
+      id: 'application',
+      label: 'Deal Info',
+      isComplete: false, // Add logic for deal info completion if needed
+      isActive: accordionValue.includes('application'),
+      isVisible: !!isServiceSelectionComplete,
+    },
+  ];
 
   // Create default documents when license type changes
   const createDefaultDocuments = useCallback(async (customerId: string, licenseType: string, shareholderCount: number = 1) => {
@@ -1149,10 +1201,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
         {currentStage === 'details' && (
           <div className="space-y-4">
+            {/* Sticky Section Navigation */}
+            <StickyFormNavigation 
+              sections={navigationSections}
+              onSectionClick={handleSectionNavigation}
+            />
+            
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
-                <AccordionItem value="basic" className="border rounded-lg">
+                <AccordionItem value="basic" className="border rounded-lg" data-section-id="basic">
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
                     <h3 className="text-base font-medium">Basic Information</h3>
                   </AccordionTrigger>
@@ -1214,9 +1272,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </AccordionContent>
                 </AccordionItem>
 
-                {/* Source & Channel - Only shown when basic info is complete */}
-                {isBasicInfoComplete && (
-                <AccordionItem value="lead" className="border rounded-lg">
+            {/* Source & Channel - Only shown when basic info is complete */}
+            {isBasicInfoComplete && (
+            <AccordionItem value="lead" className="border rounded-lg" data-section-id="lead">
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
                     <h3 className="text-base font-medium">Source & Channel Information</h3>
                   </AccordionTrigger>
@@ -1246,9 +1304,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </AccordionItem>
                 )}
 
-            {/* Service Selection - Only shown when source & channel is complete */}
-            {isSourceChannelComplete && (
-            <AccordionItem value="service" className="border rounded-lg">
+        {/* Service Selection - Only shown when source & channel is complete */}
+        {isSourceChannelComplete && (
+        <AccordionItem value="service" className="border rounded-lg" data-section-id="service">
               <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
                 <h3 className="text-base font-medium">Service Selection</h3>
               </AccordionTrigger>
@@ -1376,16 +1434,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </AccordionItem>
                 )}
 
-            {/* Deal Information - Only shown when service selection is complete */}
-            {isServiceSelectionComplete && (
-            <AccordionItem 
-              value="application" 
-              className={cn(
-                "border rounded-lg transition-all duration-500",
-                highlightDealInfo && "ring-4 ring-blue-400 shadow-lg shadow-blue-200 dark:shadow-blue-900"
-              )}
-              data-section="deal-information"
-            >
+        {/* Deal Information - Only shown when service selection is complete */}
+        {isServiceSelectionComplete && (
+        <AccordionItem 
+          value="application" 
+          className={cn(
+            "border rounded-lg transition-all duration-500",
+            highlightDealInfo && "ring-4 ring-blue-400 shadow-lg shadow-blue-200 dark:shadow-blue-900"
+          )}
+          data-section="deal-information"
+          data-section-id="application"
+        >
               <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
                 <h3 className={cn(
                   "text-base font-medium transition-colors",
