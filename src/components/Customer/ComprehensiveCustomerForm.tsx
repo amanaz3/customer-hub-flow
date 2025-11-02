@@ -1213,7 +1213,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       <Card className="w-full overflow-visible mt-3 relative z-10">
         <CardContent className="space-y-4 pb-6 pt-6">
         {/* Customer Selection Section - Sticky Compact */}
-        <div className="sticky top-[140px] z-30 bg-background backdrop-blur-sm -mx-6 px-6 pb-2 border-b shadow-sm">
+        <div className="sticky top-[140px] z-30 bg-background -mx-6 px-6 pb-2 border-b shadow-sm">
           <div className="grid grid-cols-2 w-full bg-background border-b border-border">
             <button
               type="button"
@@ -1338,7 +1338,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         />
 
         {currentStage === 'details' && (
-          <div className="space-y-4">
+          <div className="space-y-4 pt-2">
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
