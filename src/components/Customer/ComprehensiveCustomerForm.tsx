@@ -1563,14 +1563,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                   {products.map((product) => {
                                     const isSelected = watchProductId === product.id;
                                     return (
-                                      <div
-                                        key={product.id}
-                                        onClick={() => {
-                                          if (!isSubmitting) {
-                                            form.setValue('product_id', product.id);
-                                            setCategoryFilter(product.service_category_id || 'all');
-                                          }
-                                        }}
+                                       <div
+                                         key={product.id}
+                                         onClick={() => {
+                                           if (!isSubmitting) {
+                                             form.setValue('product_id', product.id);
+                                             setCategoryFilter(product.service_category_id || 'all');
+                                             // Auto-open Deal Information section
+                                             if (!accordionValue.includes('application')) {
+                                               setAccordionValue([...accordionValue, 'application']);
+                                             }
+                                           }
+                                         }}
                                         className={cn(
                                           "relative p-3 rounded-md border-2 cursor-pointer transition-all duration-200",
                                           "hover:shadow-sm",
@@ -1620,7 +1624,36 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             </div>
                           </div>
                         </AccordionContent>
+                       </AccordionItem>
+
+                      {/* Deal Information - Only shown when product is selected */}
+                      {(accordionValue.includes('service') && watchProductId) && (
+                      <AccordionItem
+                        value="application" 
+                        className={cn(
+                          "border rounded-lg bg-background shadow-sm transition-all duration-500",
+                          highlightDealInfo && "ring-4 ring-blue-400 shadow-lg shadow-blue-200 dark:shadow-blue-900"
+                        )}
+                        data-section="deal-information"
+                        data-section-id="application"
+                        style={{ scrollMarginTop: totalStickyOffset }}
+                      >
+                        <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
+                          <h3 className={cn(
+                            "text-base font-medium transition-colors",
+                            highlightDealInfo && "text-blue-600 dark:text-blue-400"
+                          )}>
+                            Deal Information
+                            {highlightDealInfo && (
+                              <span className="ml-2 inline-block animate-pulse">✨</span>
+                            )}
+                          </h3>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4">
+                          <p className="text-sm text-muted-foreground">Deal information fields will appear here when product is selected.</p>
+                        </AccordionContent>
                       </AccordionItem>
+                      )}
                     </Accordion>
                   </form>
                 </div>
