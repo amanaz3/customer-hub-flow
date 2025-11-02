@@ -25,13 +25,13 @@ import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
-import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, ChevronUp, List } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { NavigationBlocker } from '@/components/Navigation/NavigationBlocker';
-import { StickyFormNavigation } from './StickyFormNavigation';
 
 // Form validation schema
 const formSchema = z.object({
@@ -164,6 +164,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [highlightDealInfo, setHighlightDealInfo] = useState(false);
   const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
+  const [showJumpMenu, setShowJumpMenu] = useState(false);
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const { uploadDocument } = useCustomer();
@@ -1285,39 +1286,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             )}
           </div>
           
-          {/* Form Navigation inside sticky container */}
-          {currentStage === 'details' && (
-            <div className="bg-background border-t border-border">
-              <div className="flex items-center gap-0.5 overflow-x-auto py-1">
-                {navigationSections.filter(s => s.isVisible !== false).map((section, index) => (
-                  <button
-                    key={section.id}
-                    type="button"
-                    onClick={() => handleSectionNavigation(section.id)}
-                    className={cn(
-                      "flex items-center gap-1 px-2 py-0.5 rounded-none border-b-2 text-xs font-medium transition-all whitespace-nowrap",
-                      "hover:bg-accent hover:text-accent-foreground",
-                      section.isActive 
-                        ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400" 
-                        : section.isComplete
-                        ? "border-b-green-300 bg-green-50/50 text-green-600 dark:bg-green-950/50 dark:text-green-500"
-                        : "border-b-transparent text-muted-foreground"
-                    )}
-                  >
-                    {section.isComplete ? (
-                      <Check className="h-2.5 w-2.5 flex-shrink-0" />
-                    ) : section.isActive ? (
-                      <CircleDot className="h-2.5 w-2.5 flex-shrink-0" />
-                    ) : (
-                      <Circle className="h-2.5 w-2.5 flex-shrink-0" />
-                    )}
-                    <span className="hidden sm:inline">{section.label}</span>
-                    <span className="sm:hidden">{index + 1}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          )}
         </div>
         
         {/* Customer Selection Content - Not Sticky */}
@@ -1371,7 +1339,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                     <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                       {/* Basic Information */}
-                      <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm scroll-mt-[280px]" data-section-id="basic">
+                      <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm scroll-mt-[200px]" data-section-id="basic">
                         <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                           <h3 className="text-base font-medium">Basic Information</h3>
                         </AccordionTrigger>
@@ -1434,7 +1402,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </AccordionItem>
 
                       {/* Source & Channel */}
-                      <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm scroll-mt-[280px]" data-section-id="lead">
+                      <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm scroll-mt-[200px]" data-section-id="lead">
                         <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                           <h3 className="text-base font-medium">Source & Channel Information</h3>
                         </AccordionTrigger>
@@ -1464,7 +1432,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </AccordionItem>
 
                       {/* Service Selection */}
-                      <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm scroll-mt-[280px]" data-section-id="service">
+                      <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm scroll-mt-[200px]" data-section-id="service">
                         <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                           <h3 className="text-base font-medium">Service Selection</h3>
                         </AccordionTrigger>
@@ -1609,7 +1577,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
-                <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm scroll-mt-[280px]" data-section-id="basic">
+                <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm scroll-mt-[200px]" data-section-id="basic">
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                     <h3 className="text-base font-medium">Basic Information</h3>
                   </AccordionTrigger>
@@ -1673,7 +1641,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
             {/* Source & Channel - Shown when basic info complete OR clicked in nav */}
             {(isBasicInfoComplete || accordionValue.includes('lead')) && (
-            <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm scroll-mt-[280px]" data-section-id="lead">
+            <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm scroll-mt-[200px]" data-section-id="lead">
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                     <h3 className="text-base font-medium">Source & Channel Information</h3>
                   </AccordionTrigger>
@@ -1705,7 +1673,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
         {/* Service Selection - Shown when basic info complete OR clicked in nav */}
         {(isBasicInfoComplete || accordionValue.includes('service')) && (
-        <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm scroll-mt-[280px]" data-section-id="service">
+        <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm scroll-mt-[200px]" data-section-id="service">
               <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                 <h3 className="text-base font-medium">Service Selection</h3>
               </AccordionTrigger>
@@ -3047,7 +3015,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
               {/* Corporate Tax Registration Details */}
               {hasTaxRegistration && (
-                <AccordionItem value="tax-registration" className="border rounded-lg bg-background shadow-sm scroll-mt-[280px]">
+                <AccordionItem value="tax-registration" className="border rounded-lg bg-background shadow-sm scroll-mt-[200px]">
                   <AccordionTrigger className="px-4 hover:no-underline">
                     <h3 className="text-base font-medium">Corporate Tax Registration Details</h3>
                   </AccordionTrigger>
@@ -3187,7 +3155,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
               {/* Corporate Tax Filing Details */}
               {hasTaxFiling && (
-                <AccordionItem value="tax-filing" className="border rounded-lg bg-background shadow-sm scroll-mt-[280px]">
+                <AccordionItem value="tax-filing" className="border rounded-lg bg-background shadow-sm scroll-mt-[200px]">
                   <AccordionTrigger className="px-4 hover:no-underline">
                     <h3 className="text-base font-medium">Corporate Tax Filing Details</h3>
                   </AccordionTrigger>
@@ -3631,6 +3599,61 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           )}
         </button>
       </div>
+    )}
+    
+    {/* Floating "Jump to" button */}
+    {currentStage === 'details' && (
+      <Popover open={showJumpMenu} onOpenChange={setShowJumpMenu}>
+        <PopoverTrigger asChild>
+          <button
+            type="button"
+            className="fixed bottom-24 right-6 z-40 w-14 h-14 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg transition-all hover:scale-110 flex items-center justify-center group"
+            title="Jump to section"
+          >
+            <List className="w-6 h-6" />
+            <span className="absolute -top-12 right-0 bg-popover text-popover-foreground text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border">
+              Jump to Section
+            </span>
+          </button>
+        </PopoverTrigger>
+        <PopoverContent align="end" side="top" className="w-56 p-2">
+          <div className="space-y-1">
+            <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">
+              Quick Navigation
+            </div>
+            {navigationSections
+              .filter(s => s.isVisible !== false)
+              .map((section) => (
+                <button
+                  key={section.id}
+                  type="button"
+                  onClick={() => {
+                    handleSectionNavigation(section.id);
+                    setShowJumpMenu(false);
+                  }}
+                  className={cn(
+                    "w-full flex items-center gap-2 px-3 py-2 rounded-md text-sm font-medium transition-colors text-left",
+                    "hover:bg-accent hover:text-accent-foreground",
+                    section.isActive 
+                      ? "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400" 
+                      : section.isComplete
+                      ? "text-green-600 dark:text-green-500"
+                      : "text-muted-foreground"
+                  )}
+                >
+                  {section.isComplete ? (
+                    <Check className="h-4 w-4 flex-shrink-0" />
+                  ) : section.isActive ? (
+                    <CircleDot className="h-4 w-4 flex-shrink-0" />
+                  ) : (
+                    <Circle className="h-4 w-4 flex-shrink-0" />
+                  )}
+                  <span>{section.label}</span>
+                </button>
+              ))}
+          </div>
+        </PopoverContent>
+      </Popover>
     )}
     
     {/* Confirmation Dialog for switching tabs with unsaved data */}
