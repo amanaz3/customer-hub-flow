@@ -1633,18 +1633,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
         {currentStage === 'details' && customerMode === 'new' && (
           <div className="space-y-4 pt-0">
-            {/* Sub-tabs under Create New Company */}
-            <Tabs defaultValue="details" className="w-full">
-              <TabsList className="grid w-full grid-cols-3 bg-muted rounded-none border-b">
-                <TabsTrigger value="details" className="rounded-none data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-primary">
-                </TabsTrigger>
-                <TabsTrigger value="service" className="rounded-none data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-primary">
-                </TabsTrigger>
-                <TabsTrigger value="application" className="rounded-none data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-primary">
-                </TabsTrigger>
-              </TabsList>
-              
-              <TabsContent value="details" className="mt-4">
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
@@ -3422,8 +3410,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </div>
               </div>
             </form>
-              </TabsContent>
-            </Tabs>
           </div>
         )}
 
