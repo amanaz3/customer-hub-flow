@@ -1212,75 +1212,77 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
       <Card className="w-full overflow-visible mt-3 relative z-10">
         <CardContent className="space-y-4 pb-6 pt-6">
-        {/* Customer Selection Section - Sticky Compact */}
-        <div className="sticky top-[140px] z-20 bg-background/95 backdrop-blur-sm -mx-6 px-6 border-b">
-          <div className="grid grid-cols-2 w-full bg-background border-b border-border">
-            <button
-              type="button"
-              onClick={() => handleModeSwitch('new')}
-              className={cn(
-                "relative flex items-center justify-center gap-1.5 py-2 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
-                customerMode === 'new'
-                  ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                  : "border-b-transparent text-muted-foreground hover:text-foreground"
-              )}
-              aria-selected={customerMode === 'new'}
-            >
-              <Building2 className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Create New Company</span>
-              <span className="sm:hidden">New</span>
-            </button>
-            
-            <button
-              type="button"
-              onClick={() => handleModeSwitch('existing')}
-              className={cn(
-                "relative flex items-center justify-center gap-1.5 py-2 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
-                customerMode === 'existing'
-                  ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                  : "border-b-transparent text-muted-foreground hover:text-foreground"
-              )}
-              aria-selected={customerMode === 'existing'}
-            >
-              <Users className="h-3.5 w-3.5" />
-              <span className="hidden sm:inline">Select Existing</span>
-              <span className="sm:hidden">Existing</span>
-            </button>
-          </div>
-          
-          {/* Form Navigation inside sticky container */}
-          {currentStage === 'details' && (
-            <div className="bg-background/95 border-t border-border/50">
-              <div className="flex items-center gap-0.5 overflow-x-auto py-1">
-                {navigationSections.filter(s => s.isVisible !== false).map((section, index) => (
-                  <button
-                    key={section.id}
-                    type="button"
-                    onClick={() => handleSectionNavigation(section.id)}
-                    className={cn(
-                      "flex items-center gap-1 px-2 py-0.5 rounded-none border-b-2 text-xs font-medium transition-all whitespace-nowrap",
-                      "hover:bg-accent hover:text-accent-foreground",
-                      section.isActive 
-                        ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400" 
-                        : section.isComplete
-                        ? "border-b-green-300 bg-green-50/50 text-green-600 dark:bg-green-950/50 dark:text-green-500"
-                        : "border-b-transparent text-muted-foreground"
-                    )}
-                  >
-                    {section.isComplete ? (
-                      <Check className="h-2.5 w-2.5 flex-shrink-0" />
-                    ) : section.isActive ? (
-                      <CircleDot className="h-2.5 w-2.5 flex-shrink-0" />
-                    ) : (
-                      <Circle className="h-2.5 w-2.5 flex-shrink-0" />
-                    )}
-                    <span className="hidden sm:inline">{section.label}</span>
-                    <span className="sm:hidden">{index + 1}</span>
-                  </button>
-                ))}
-              </div>
+        {/* Customer Selection Section - Fixed at Bottom */}
+        <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-t shadow-2xl">
+          <div className="max-w-7xl mx-auto px-6">
+            <div className="grid grid-cols-2 w-full bg-background border-b border-border">
+              <button
+                type="button"
+                onClick={() => handleModeSwitch('new')}
+                className={cn(
+                  "relative flex items-center justify-center gap-1.5 py-2 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
+                  customerMode === 'new'
+                    ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
+                    : "border-b-transparent text-muted-foreground hover:text-foreground"
+                )}
+                aria-selected={customerMode === 'new'}
+              >
+                <Building2 className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Create New Company</span>
+                <span className="sm:hidden">New</span>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => handleModeSwitch('existing')}
+                className={cn(
+                  "relative flex items-center justify-center gap-1.5 py-2 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
+                  customerMode === 'existing'
+                    ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
+                    : "border-b-transparent text-muted-foreground hover:text-foreground"
+                )}
+                aria-selected={customerMode === 'existing'}
+              >
+                <Users className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Select Existing</span>
+                <span className="sm:hidden">Existing</span>
+              </button>
             </div>
-          )}
+            
+            {/* Form Navigation inside fixed container */}
+            {currentStage === 'details' && (
+              <div className="bg-background/95 border-t border-border/50">
+                <div className="flex items-center gap-0.5 overflow-x-auto py-1">
+                  {navigationSections.filter(s => s.isVisible !== false).map((section, index) => (
+                    <button
+                      key={section.id}
+                      type="button"
+                      onClick={() => handleSectionNavigation(section.id)}
+                      className={cn(
+                        "flex items-center gap-1 px-2 py-0.5 rounded-none border-b-2 text-xs font-medium transition-all whitespace-nowrap",
+                        "hover:bg-accent hover:text-accent-foreground",
+                        section.isActive 
+                          ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400" 
+                          : section.isComplete
+                          ? "border-b-green-300 bg-green-50/50 text-green-600 dark:bg-green-950/50 dark:text-green-500"
+                          : "border-b-transparent text-muted-foreground"
+                      )}
+                    >
+                      {section.isComplete ? (
+                        <Check className="h-2.5 w-2.5 flex-shrink-0" />
+                      ) : section.isActive ? (
+                        <CircleDot className="h-2.5 w-2.5 flex-shrink-0" />
+                      ) : (
+                        <Circle className="h-2.5 w-2.5 flex-shrink-0" />
+                      )}
+                      <span className="hidden sm:inline">{section.label}</span>
+                      <span className="sm:hidden">{index + 1}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
         
         {/* Customer Selection Content - Not Sticky */}
