@@ -1208,12 +1208,68 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </Card>
 
       <Card className="w-full overflow-visible mt-3 relative z-10">
+        {/* Unified Sticky Section Navigation */}
+        <div className="sticky top-[140px] z-20 bg-card/95 backdrop-blur-sm border-b shadow-sm">
+          <div className="flex items-center gap-1 overflow-x-auto px-4 py-2">
+            <button
+              type="button"
+              onClick={() => {
+                document.querySelector('[data-section="customer-selection"]')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all whitespace-nowrap hover:bg-accent"
+            >
+              <Users className="h-3 w-3" />
+              <span>Customer</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSectionNavigation('basic')}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all whitespace-nowrap hover:bg-accent",
+                accordionValue.includes('basic') && "bg-green-50 text-green-700 dark:bg-green-950"
+              )}
+            >
+              <ClipboardList className="h-3 w-3" />
+              <span>Basic Info</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSectionNavigation('lead')}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all whitespace-nowrap hover:bg-accent",
+                accordionValue.includes('lead') && "bg-green-50 text-green-700 dark:bg-green-950"
+              )}
+            >
+              <span>Source & Channel</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => handleSectionNavigation('service')}
+              className={cn(
+                "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all whitespace-nowrap hover:bg-accent",
+                accordionValue.includes('service') && "bg-green-50 text-green-700 dark:bg-green-950"
+              )}
+            >
+              <span>Service</span>
+            </button>
+            {watchProductId && (
+              <button
+                type="button"
+                onClick={() => handleSectionNavigation('application')}
+                className={cn(
+                  "flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-medium transition-all whitespace-nowrap hover:bg-accent",
+                  accordionValue.includes('application') && "bg-green-50 text-green-700 dark:bg-green-950"
+                )}
+              >
+                <span>Deal Info</span>
+              </button>
+            )}
+          </div>
+        </div>
+        
         <CardContent className="space-y-4 pb-6 pt-6">
         {/* Customer Selection Section */}
-        <div className="space-y-3">
-          <div className="sticky top-[140px] z-20 bg-background/95 backdrop-blur-sm py-2 -mx-6 px-6 border-b">
-            <Label className="text-base font-medium">Customer Selection</Label>
-          </div>
+        <div className="space-y-3" data-section="customer-selection">
 
           <div className="grid grid-cols-2 w-full bg-background border-b-2 border-border">
             <button
@@ -1300,17 +1356,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
         {currentStage === 'details' && (
           <div className="space-y-4">
-            {/* Sticky Section Navigation */}
-            <StickyFormNavigation 
-              sections={navigationSections}
-              onSectionClick={handleSectionNavigation}
-            />
-            
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
                 <AccordionItem value="basic" className="border rounded-lg" data-section-id="basic">
-                  <AccordionTrigger className="sticky top-[180px] z-20 bg-card/95 backdrop-blur-sm px-4 hover:no-underline justify-start gap-2 border-b">
+                  <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
                     <h3 className="text-base font-medium">Basic Information</h3>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
@@ -1374,7 +1424,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             {/* Source & Channel - Shown when basic info complete OR clicked in nav */}
             {(isBasicInfoComplete || accordionValue.includes('lead')) && (
             <AccordionItem value="lead" className="border rounded-lg" data-section-id="lead">
-                  <AccordionTrigger className="sticky top-[180px] z-20 bg-card/95 backdrop-blur-sm px-4 hover:no-underline justify-start gap-2 border-b">
+                  <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
                     <h3 className="text-base font-medium">Source & Channel Information</h3>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
@@ -1406,7 +1456,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         {/* Service Selection - Shown when basic info complete OR clicked in nav */}
         {(isBasicInfoComplete || accordionValue.includes('service')) && (
         <AccordionItem value="service" className="border rounded-lg" data-section-id="service">
-              <AccordionTrigger className="sticky top-[180px] z-20 bg-card/95 backdrop-blur-sm px-4 hover:no-underline justify-start gap-2 border-b">
+              <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
                 <h3 className="text-base font-medium">Service Selection</h3>
               </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
@@ -1544,7 +1594,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           data-section="deal-information"
           data-section-id="application"
         >
-              <AccordionTrigger className="sticky top-[180px] z-20 bg-card/95 backdrop-blur-sm px-4 hover:no-underline justify-start gap-2 border-b">
+              <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
                 <h3 className={cn(
                   "text-base font-medium transition-colors",
                   highlightDealInfo && "text-blue-600 dark:text-blue-400"
@@ -2090,8 +2140,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               {/* Home Finance Application Details */}
               {hasHomeFinance && (
                 <>
-                  <div className="sticky top-[180px] z-20 bg-card/95 backdrop-blur-sm -mx-4 px-4 py-2 border-b">
-                    <h3 className="text-base font-medium">Home Finance Draft Details</h3>
+                  <div>
+                    <h3 className="text-base font-medium mb-3">Home Finance Draft Details</h3>
                   </div>
                   <div>
                     
@@ -2486,8 +2536,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               {/* VAT Registration Details */}
               {hasVAT && (
                 <>
-                  <div className="sticky top-[180px] z-20 bg-card/95 backdrop-blur-sm -mx-4 px-4 py-2 border-b">
-                    <h3 className="text-base font-medium">VAT Registration Details</h3>
+                  <div>
+                    <h3 className="text-base font-medium mb-3">VAT Registration Details</h3>
                   </div>
                   <div>
                     
