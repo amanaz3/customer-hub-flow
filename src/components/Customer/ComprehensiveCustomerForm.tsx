@@ -160,7 +160,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [existingCustomers, setExistingCustomers] = useState<any[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [accordionValue, setAccordionValue] = useState<string[]>(["basic"]);
+  const [accordionValue, setAccordionValue] = useState<string[]>(["basic", "lead", "service"]);
   const [highlightDealInfo, setHighlightDealInfo] = useState(false);
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
