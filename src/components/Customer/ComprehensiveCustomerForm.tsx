@@ -1017,7 +1017,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       )}
 
       {/* Stage Indicator - Modern Gradient Design */}
-      <Card className="sticky top-0 z-40 border-0 shadow-xl mb-3 overflow-hidden bg-background">
+      <Card className="sticky top-14 sm:top-16 z-40 border-0 shadow-xl mb-3 overflow-hidden bg-background">
         {/* Solid background to fully cover content during scroll overlap */}
         <CardContent className="relative py-3 px-4">
           <div className="flex items-center justify-between">
