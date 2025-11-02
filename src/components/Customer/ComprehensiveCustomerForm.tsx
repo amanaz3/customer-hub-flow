@@ -1243,7 +1243,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </Card>
 
       
-      <Card className="w-full overflow-hidden mt-6 mb-8 relative z-10 border-0 shadow-2xl rounded-2xl bg-background">
+      {false && <Card className="w-full overflow-hidden mt-6 mb-8 relative z-10 border-0 shadow-2xl rounded-2xl bg-background">
         <CardContent className="space-y-4 pb-8 pt-8">
         {/* Customer Selection Section - Sticky Compact */}
         <div ref={stickyNavRef} className="sticky z-50 isolate bg-background -mx-6 px-6 pb-2 border-b shadow-md mb-3" style={{ top: stageHeight + stickyGap }}>
@@ -3613,7 +3613,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           </div>
         )}
       </CardContent>
-    </Card>
+    </Card>}
 
     {/* Floating Action Buttons - Only show on details stage before submission */}
     {false && currentStage === 'details' && !createdCustomerId && (
