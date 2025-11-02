@@ -518,14 +518,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       label: 'Source & Channel',
       isComplete: !!isSourceChannelComplete,
       isActive: accordionValue.includes('lead'),
-      isVisible: !!isBasicInfoComplete,
+      isVisible: true, // Always show in sticky nav
     },
     {
       id: 'service',
       label: 'Service',
       isComplete: !!isServiceSelectionComplete,
       isActive: accordionValue.includes('service'),
-      isVisible: !!isSourceChannelComplete,
+      isVisible: true, // Always show in sticky nav
     },
     {
       id: 'application',
@@ -1272,8 +1272,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </AccordionContent>
                 </AccordionItem>
 
-            {/* Source & Channel - Only shown when basic info is complete */}
-            {isBasicInfoComplete && (
+            {/* Source & Channel - Shown when basic info complete OR clicked in nav */}
+            {(isBasicInfoComplete || accordionValue.includes('lead')) && (
             <AccordionItem value="lead" className="border rounded-lg" data-section-id="lead">
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
                     <h3 className="text-base font-medium">Source & Channel Information</h3>
@@ -1304,8 +1304,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </AccordionItem>
                 )}
 
-        {/* Service Selection - Only shown when source & channel is complete */}
-        {isSourceChannelComplete && (
+        {/* Service Selection - Shown when source & channel complete OR clicked in nav */}
+        {(isSourceChannelComplete || accordionValue.includes('service')) && (
         <AccordionItem value="service" className="border rounded-lg" data-section-id="service">
               <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
                 <h3 className="text-base font-medium">Service Selection</h3>
