@@ -1243,10 +1243,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </Card>
 
       {/* Spacing div to maintain gap */}
-      <div style={{ height: `${stickyGap}px` }} />
+      <div style={{ height: `${stickyGap * 2}px` }} />
       
       <Card className="w-full overflow-hidden mb-8 relative z-10 border-0 shadow-2xl rounded-2xl bg-background sticky" style={{ top: stageHeight + stickyGap * 2 }}>
-        <CardContent className="space-y-4 pb-8 pt-4">
+        <CardContent className="space-y-4 pb-8 pt-8">
         {/* Customer Selection Section - Sticky Compact */}
         <div ref={stickyNavRef} className="sticky z-50 isolate bg-background -mx-6 px-6 pb-2 border-b shadow-md mb-3" style={{ top: stageHeight + stickyGap }}>
           <div className="grid grid-cols-2 w-full bg-background border-b border-border">
@@ -1394,7 +1394,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               )}
               
               {/* Show form sections when in existing mode and details stage */}
-              {currentStage === 'details' && (
+              {false && currentStage === 'details' && (
                 <div className="space-y-4 pt-4">
                   <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                     <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
@@ -1632,7 +1632,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           onCompanyCreated={handleCompanyCreated}
         />
 
-        {currentStage === 'details' && customerMode === 'new' && (
+        {false && currentStage === 'details' && customerMode === 'new' && (
           <div className="space-y-4 pt-4">
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
@@ -3618,7 +3618,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     </Card>
 
     {/* Floating Action Buttons - Only show on details stage before submission */}
-    {currentStage === 'details' && !createdCustomerId && (
+    {false && currentStage === 'details' && !createdCustomerId && (
       <div className="fixed bottom-8 right-8 flex gap-3 z-50">
         <button
           type="button"
