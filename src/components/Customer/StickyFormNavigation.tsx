@@ -30,13 +30,13 @@ export const StickyFormNavigation = ({ sections, onSectionClick }: StickyFormNav
               type="button"
               onClick={() => onSectionClick(section.id)}
               className={cn(
-                "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap",
+                "flex items-center gap-2 px-3 py-2 rounded-none border-b-4 text-sm font-medium transition-all whitespace-nowrap",
                 "hover:bg-accent hover:text-accent-foreground",
                 section.isActive 
-                  ? "bg-green-600 text-white shadow-sm dark:bg-green-700" 
+                  ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400" 
                   : section.isComplete
-                  ? "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                  : "bg-muted text-muted-foreground"
+                  ? "border-b-green-300 bg-green-50/50 text-green-600 dark:bg-green-950/50 dark:text-green-500"
+                  : "border-b-transparent text-muted-foreground"
               )}
             >
               {/* Icon indicator */}
