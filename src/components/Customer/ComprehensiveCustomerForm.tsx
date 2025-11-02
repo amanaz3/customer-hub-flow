@@ -177,7 +177,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [stageHeight, setStageHeight] = useState(0);
   const [stickyNavHeight, setStickyNavHeight] = useState(0);
-  const stickyGap = 12; // px gap to keep consistent padding
+  const stickyGap = 0; // px gap to keep consistent padding
   const totalStickyOffset = stageHeight + stickyNavHeight + stickyGap;
 
   useEffect(() => {
@@ -1244,7 +1244,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </Card>
       
       {/* Customer Selection Card - Sticky */}
-      <div className="sticky z-40" style={{ top: `${stageHeight + 12}px` }}>
+      <div className="sticky z-40" style={{ top: `${stageHeight}px` }}>
         <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
         <div className="grid grid-cols-2 w-full">
           {customerMode === 'existing' ? (
