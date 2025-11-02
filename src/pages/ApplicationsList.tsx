@@ -134,14 +134,20 @@ const ApplicationsList = () => {
       {/* Tab-based Layout */}
       <Tabs defaultValue="applications" className="w-full">
         <TabsList className="grid w-full grid-cols-2 max-w-md">
-          <TabsTrigger value="applications" className="flex items-center gap-2">
+          <TabsTrigger 
+            value="applications" 
+            className="flex items-center gap-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:border-b-2 data-[state=active]:border-b-green-500 dark:data-[state=active]:bg-green-950 dark:data-[state=active]:text-green-400"
+          >
             <FileText className="h-4 w-4" />
             Applications
             <Badge variant="secondary" className="ml-1">
               {filteredApplications.length}
             </Badge>
           </TabsTrigger>
-          <TabsTrigger value="analytics" className="flex items-center gap-2">
+          <TabsTrigger 
+            value="analytics" 
+            className="flex items-center gap-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:border-b-2 data-[state=active]:border-b-green-500 dark:data-[state=active]:bg-green-950 dark:data-[state=active]:text-green-400"
+          >
             <BarChart3 className="h-4 w-4" />
             Analytics
           </TabsTrigger>
