@@ -12,7 +12,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useCustomer } from '@/contexts/CustomerContext';
@@ -1632,7 +1632,22 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         />
 
         {currentStage === 'details' && customerMode === 'new' && (
-          <div className="space-y-4 pt-4">
+          <div className="space-y-4 pt-0">
+            {/* Sub-tabs under Create New Company */}
+            <Tabs defaultValue="details" className="w-full">
+              <TabsList className="grid w-full grid-cols-3 bg-muted rounded-none border-b">
+                <TabsTrigger value="details" className="rounded-none data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-primary">
+                  Company Details
+                </TabsTrigger>
+                <TabsTrigger value="service" className="rounded-none data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-primary">
+                  Service Selection
+                </TabsTrigger>
+                <TabsTrigger value="application" className="rounded-none data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-primary">
+                  Deal Information
+                </TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="details" className="mt-4">
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
@@ -3410,6 +3425,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </div>
               </div>
             </form>
+              </TabsContent>
+            </Tabs>
           </div>
         )}
 
