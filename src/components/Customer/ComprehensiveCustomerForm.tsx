@@ -503,26 +503,46 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   // Check if form has unsaved data
   const hasUnsavedData = useCallback(() => {
     const formValues = form.getValues();
-    
-    // Check if any field has been filled with actual user data (not default values)
+
+    // Compute booleans without exposing raw values in logs
+    const hasName = !!formValues.name?.trim();
+    const hasEmail = !!formValues.email?.trim();
+    const hasMobile = !!formValues.mobile?.trim();
+    const hasCompany = !!formValues.company?.trim();
+    const hasAmount = typeof formValues.amount === 'number' && formValues.amount > 0;
+    const hasProduct = !!formValues.product_id;
+    const hasNotes = !!formValues.customer_notes?.trim();
+    const hasJurisdiction = !!formValues.jurisdiction?.trim();
+    const hasBankPref = !!formValues.bank_preference_1?.trim();
+    const hasTurnover = typeof formValues.annual_turnover === 'number' && formValues.annual_turnover > 0;
+
+    let hasData = false;
+
     if (customerMode === 'new') {
-      return (formValues.name && formValues.name.trim() !== '') || 
-             (formValues.email && formValues.email.trim() !== '') || 
-             (formValues.mobile && formValues.mobile.trim() !== '') || 
-             (formValues.company && formValues.company.trim() !== '') || 
-             (formValues.amount && formValues.amount > 0) || 
-             (formValues.product_id && formValues.product_id !== '') ||
-             (formValues.customer_notes && formValues.customer_notes.trim() !== '') ||
-             (formValues.jurisdiction && formValues.jurisdiction.trim() !== '') ||
-             (formValues.bank_preference_1 && formValues.bank_preference_1.trim() !== '') ||
-             (formValues.annual_turnover && formValues.annual_turnover > 0);
+      hasData = hasName || hasEmail || hasMobile || hasCompany || hasAmount || hasProduct || hasNotes || hasJurisdiction || hasBankPref || hasTurnover;
     } else {
-      // For existing customer mode, check if they selected a customer or filled deal info
-      return (selectedCustomerId !== '') || 
-             (formValues.amount && formValues.amount > 0) || 
-             (formValues.product_id && formValues.product_id !== '') ||
-             (formValues.customer_notes && formValues.customer_notes.trim() !== '');
+      // For existing mode, consider only meaningful inputs or selection
+      hasData = (!!selectedCustomerId) || hasAmount || hasProduct || hasNotes;
     }
+
+    // Debug (safe) – booleans only
+    console.log('[ComprehensiveCustomerForm] hasUnsavedData:', {
+      mode: customerMode,
+      selectedCustomer: !!selectedCustomerId,
+      hasName,
+      hasEmail,
+      hasMobile,
+      hasCompany,
+      hasAmount,
+      hasProduct,
+      hasNotes,
+      hasJurisdiction,
+      hasBankPref,
+      hasTurnover,
+      result: hasData,
+    });
+
+    return hasData;
   }, [form, customerMode, selectedCustomerId]);
 
   // Handle mode switch with confirmation
