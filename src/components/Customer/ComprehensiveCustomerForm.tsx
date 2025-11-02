@@ -1242,7 +1242,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </CardContent>
       </Card>
 
-      <Card className="w-full overflow-hidden mt-6 mb-8 relative z-10 border-0 shadow-2xl rounded-2xl bg-background">
+      {/* Spacing div to maintain gap */}
+      <div style={{ height: `${stickyGap * 2}px` }} />
+      
+      <Card className="w-full overflow-hidden mb-8 relative z-10 border-0 shadow-2xl rounded-2xl bg-background sticky" style={{ top: stageHeight + stickyGap * 2 }}>
         <CardContent className="space-y-4 pb-8 pt-8">
         {/* Customer Selection Section - Sticky Compact */}
         <div ref={stickyNavRef} className="sticky z-50 isolate bg-background -mx-6 px-6 pb-2 border-b shadow-md mb-3" style={{ top: stageHeight + stickyGap }}>
