@@ -984,7 +984,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const allMandatoryUploaded = mandatoryDocuments.length > 0 && mandatoryDocumentsUploaded;
 
   return (
-    <div className="space-y-6 relative max-w-5xl mx-auto">
+    <div className="space-y-6 relative max-w-5xl mx-auto px-4 py-6">
       {/* Navigation Blocker - prevents navigation when there's unsaved data */}
       <NavigationBlocker 
         when={hasUnsavedData() && !createdCustomerId} 
@@ -1234,7 +1234,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </CardContent>
       </Card>
 
-      <Card className="w-full overflow-visible mt-3 relative z-10 border-0 shadow-xl rounded-xl bg-background">
+      <Card className="w-full overflow-hidden mt-3 relative z-10 border-0 shadow-xl rounded-xl bg-background">
         <CardContent className="space-y-4 pb-6 pt-6">
         {/* Customer Selection Section - Sticky Compact */}
         <div ref={stickyNavRef} className="sticky z-50 isolate bg-background -mx-6 px-6 pb-2 border-b shadow-md mb-3" style={{ top: stageHeight + stickyGap }}>
