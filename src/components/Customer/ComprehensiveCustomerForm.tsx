@@ -887,7 +887,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   Preview
                 </div>
                 <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                  Review Details
+                  Review Details (Optional)
                 </div>
               </div>
             </div>
