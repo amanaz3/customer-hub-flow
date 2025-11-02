@@ -1115,13 +1115,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   )}
                 </div>
                 <div className={cn(
-                  "absolute -right-1.5 w-4 h-4 rounded-full transition-all duration-500 flex items-center justify-center",
+                  "absolute -right-2 w-6 h-6 rounded-full transition-all duration-500 flex items-center justify-center",
                   currentStage === 'preview' || currentStage === 'documents'
-                    ? "bg-gradient-to-br from-blue-400 to-blue-600 shadow-lg shadow-blue-500/60 animate-pulse ring-2 ring-blue-300/50 ring-offset-1 ring-offset-background" 
-                    : "bg-gradient-to-br from-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-600"
+                    ? "bg-gradient-to-br from-blue-500 to-blue-700 shadow-xl shadow-blue-500/70 animate-pulse ring-2 ring-blue-400 ring-offset-2 ring-offset-background" 
+                    : "bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700 shadow-md"
                 )}>
                   <svg 
-                    className="w-3 h-3 text-white"
+                    className={cn(
+                      "w-4 h-4 transition-all duration-300",
+                      currentStage === 'preview' || currentStage === 'documents'
+                        ? "text-white drop-shadow-md"
+                        : "text-white/70"
+                    )}
                     fill="currentColor" 
                     viewBox="0 0 20 20"
                   >
@@ -1186,13 +1191,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   )}
                 </div>
                 <div className={cn(
-                  "absolute -right-1.5 w-4 h-4 rounded-full transition-all duration-500 flex items-center justify-center",
+                  "absolute -right-2 w-6 h-6 rounded-full transition-all duration-500 flex items-center justify-center",
                   createdCustomerId
-                    ? "bg-gradient-to-br from-purple-400 to-purple-600 shadow-lg shadow-purple-500/60 animate-pulse ring-2 ring-purple-300/50 ring-offset-1 ring-offset-background" 
-                    : "bg-gradient-to-br from-gray-300 to-gray-400 dark:from-gray-700 dark:to-gray-600"
+                    ? "bg-gradient-to-br from-purple-500 to-purple-700 shadow-xl shadow-purple-500/70 animate-pulse ring-2 ring-purple-400 ring-offset-2 ring-offset-background" 
+                    : "bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700 shadow-md"
                 )}>
                   <svg 
-                    className="w-3 h-3 text-white"
+                    className={cn(
+                      "w-4 h-4 transition-all duration-300",
+                      createdCustomerId
+                        ? "text-white drop-shadow-md"
+                        : "text-white/70"
+                    )}
                     fill="currentColor" 
                     viewBox="0 0 20 20"
                   >
