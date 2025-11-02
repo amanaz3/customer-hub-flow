@@ -1253,8 +1253,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 onClick={() => handleModeSwitch('existing')}
                 className={cn(
                   "relative flex items-center justify-center gap-2 py-4 px-4 transition-all duration-300 text-sm font-semibold",
-                  "border-b-4 border-primary shadow-sm",
-                  "bg-gradient-to-br from-primary/10 to-primary/5 text-primary"
+                  "border-b-4 border-green-500 shadow-sm",
+                  "bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400"
                 )}
                 aria-selected={true}
               >
@@ -1285,8 +1285,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 onClick={() => handleModeSwitch('new')}
                 className={cn(
                   "relative flex items-center justify-center gap-2 py-4 px-4 transition-all duration-300 text-sm font-semibold",
-                  "border-b-4 border-primary shadow-sm",
-                  "bg-gradient-to-br from-primary/10 to-primary/5 text-primary"
+                  "border-b-4 border-green-500 shadow-sm",
+                  "bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400"
                 )}
                 aria-selected={true}
               >
