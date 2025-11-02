@@ -1183,21 +1183,19 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               </div>
             </div>
           </div>
-        </CardContent>
-      </Card>
-
-         {/* Stage Description Banner - Sticky */}
+          
+          {/* Stage Description Banner - Inside sticky card */}
           <div className={cn(
-            "sticky top-0 z-30 mt-6 p-4 rounded-lg border-2 transition-all duration-300 backdrop-blur-sm shadow-md",
+            "mt-4 p-3 rounded-lg border transition-all duration-300",
             currentStage === 'details' 
-              ? "bg-green-50/95 border-green-200 dark:bg-green-950/95 dark:border-green-800"
+              ? "bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800"
               : currentStage === 'preview'
-              ? "bg-blue-50/95 border-blue-200 dark:bg-blue-950/95 dark:border-blue-800"
-              : "bg-purple-50/95 border-purple-200 dark:bg-purple-950/95 dark:border-purple-800"
+              ? "bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800"
+              : "bg-purple-50 border-purple-200 dark:bg-purple-950 dark:border-purple-800"
           )}>
-            <div className="flex items-start gap-3 max-w-2xl mx-auto">
+            <div className="flex items-start gap-3">
               <div className={cn(
-                "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm",
+                "w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0",
                 currentStage === 'details' 
                   ? "bg-green-100 dark:bg-green-900"
                   : currentStage === 'preview'
@@ -1205,18 +1203,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   : "bg-purple-100 dark:bg-purple-900"
               )}>
                 {currentStage === 'details' ? (
-                  <ClipboardList className="w-5 h-5 text-green-700 dark:text-green-300" />
+                  <ClipboardList className="w-4 h-4 text-green-700 dark:text-green-300" />
                 ) : currentStage === 'preview' ? (
-                  <svg className="w-5 h-5 text-blue-700 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-4 h-4 text-blue-700 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
                 ) : (
-                  <Building2 className="w-5 h-5 text-purple-700 dark:text-purple-300" />
+                  <Building2 className="w-4 h-4 text-purple-700 dark:text-purple-300" />
                 )}
               </div>
-              <div>
-                <h3 className="font-bold text-sm mb-1 text-gray-900 dark:text-gray-100">
+              <div className="flex-1">
+                <h3 className="font-semibold text-sm mb-0.5 text-gray-900 dark:text-gray-100">
                   {currentStage === 'details' 
                     ? 'Step 1: Fill Draft Details'
                     : currentStage === 'preview'
@@ -1224,7 +1222,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     : 'Step 3: Upload Documents'
                   }
                 </h3>
-                <p className="text-sm text-gray-700 dark:text-gray-300">
+                <p className="text-xs text-gray-700 dark:text-gray-300">
                   {currentStage === 'details'
                     ? 'Select the customer, choose service type, and provide all required business information.'
                     : currentStage === 'preview'
@@ -1232,9 +1230,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     : 'Upload all required documents for the draft. Mandatory documents must be uploaded before completion.'
                   }
                 </p>
+              </div>
             </div>
           </div>
-        </div>
+        </CardContent>
+      </Card>
 
       <Card className="w-full max-w-4xl mx-auto overflow-visible">
         <CardContent className="space-y-4 pb-6 pt-6">
