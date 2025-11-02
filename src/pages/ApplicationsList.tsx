@@ -10,6 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import ProductUsageAnalytics from '@/components/Analytics/ProductUsageAnalytics';
 
 interface ApplicationWithCustomer {
   id: string;
@@ -127,6 +128,9 @@ const ApplicationsList = () => {
           New Application
         </Button>
       </div>
+
+      {/* Product Usage Analytics */}
+      <ProductUsageAnalytics />
 
       <div className="flex flex-col md:flex-row gap-4">
         <Input
