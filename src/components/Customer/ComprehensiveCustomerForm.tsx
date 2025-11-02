@@ -960,7 +960,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const allMandatoryUploaded = mandatoryDocuments.length > 0 && mandatoryDocumentsUploaded;
 
   return (
-    <div className="space-y-6 relative">
+    <div className="space-y-6 relative max-w-5xl mx-auto">
       {/* Navigation Blocker - prevents navigation when there's unsaved data */}
       <NavigationBlocker 
         when={hasUnsavedData() && !createdCustomerId} 
