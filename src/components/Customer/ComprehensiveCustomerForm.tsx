@@ -1309,13 +1309,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           )}
         </div>
 
-        <CardContent className="space-y-4 pb-8 pt-0">
         {/* Form Navigation - Sticky Below Tabs */}
-        <div ref={stickyNavRef} className="sticky z-50 isolate bg-background -mx-6 px-6 pb-2 border-b shadow-md" style={{ top: stageHeight + stickyGap }}>
+        <div ref={stickyNavRef} className="sticky z-50 isolate bg-background border-b shadow-md" style={{ top: stageHeight + stickyGap }}>
           {/* Form Navigation inside sticky container */}
           {currentStage === 'details' && (
             <div className="bg-background border-t border-border">
-              <div className="flex items-center gap-0.5 overflow-x-auto py-1">
+              <div className="flex items-center gap-0.5 overflow-x-auto py-1 px-4">
                 {navigationSections.filter(s => s.isVisible !== false).map((section, index) => (
                   <button
                     key={section.id}
@@ -1346,7 +1345,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             </div>
           )}
         </div>
-        
+
+        <CardContent className="space-y-4 pb-8 pt-4">
         {/* Customer Selection Content - Not Sticky */}
         <div className="space-y-4 relative z-0 pt-4">
 
