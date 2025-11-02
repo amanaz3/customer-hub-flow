@@ -997,156 +997,182 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </div>
       )}
 
-      {/* Stage Indicator */}
-      <div className="relative w-full max-w-4xl mx-auto">
-        <div className="flex items-center justify-between max-w-2xl mx-auto">
-            {/* Stage 1: Application Details */}
-            <div className="flex flex-col items-center gap-3 flex-1">
-              <div className={cn(
-                "flex items-center justify-center w-14 h-14 rounded-full font-semibold text-lg transition-all duration-300 border-4 shadow-md",
-                currentStage === 'details' 
-                  ? "bg-green-600 text-white border-green-600 shadow-green-200 scale-110" 
-                  : createdCustomerId
-                  ? "bg-green-500 text-white border-green-500 shadow-green-200"
-                  : "bg-gray-200 text-gray-400 border-gray-300"
-              )}>
-                {createdCustomerId ? (
-                  <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : (
-                  <ClipboardList className="w-6 h-6" />
-                )}
-              </div>
-              <div className="text-center">
-                <div className={cn(
-                  "text-sm font-bold transition-colors",
-                  currentStage === 'details' || createdCustomerId
-                    ? "text-gray-900 dark:text-gray-100" 
-                    : "text-gray-500"
-                )}>
-                  Application Details
-                </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                  Draft Customer & Service Info
-                </div>
-              </div>
+      {/* Stage Indicator - Sticky Card */}
+      <Card className="sticky top-0 z-30 shadow-lg border-2 mb-6">
+        <CardHeader className="pb-3">
+          <div className="flex items-center justify-between">
+            <div>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <ClipboardList className="h-5 w-5 text-primary" />
+                Application Creation Process
+              </CardTitle>
+              <p className="text-sm text-muted-foreground mt-1">
+                {currentStage === 'details' 
+                  ? 'Fill in customer and service details'
+                  : currentStage === 'preview'
+                  ? 'Review and confirm information'
+                  : 'Upload required documents'
+                }
+              </p>
             </div>
-
-            {/* Connecting Line 1 with Animated Arrow */}
-            <div className="flex-1 relative px-2" style={{ maxWidth: '80px' }}>
-              <div className="relative h-2 flex items-center">
-                <div className={cn(
-                  "h-2 rounded-full transition-all duration-500 shadow-sm flex-1",
-                  currentStage === 'preview' || currentStage === 'documents' ? "bg-green-500" : "bg-gray-300"
-                )} />
-                <svg 
-                  className={cn(
-                    "absolute -right-1 w-4 h-4 transition-all duration-500",
-                    currentStage === 'preview' || currentStage === 'documents' 
-                      ? "text-green-500 animate-pulse" 
-                      : "text-gray-300"
-                  )}
-                  fill="currentColor" 
-                  viewBox="0 0 20 20"
-                >
-                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
-            
-            {/* Stage 2: Preview */}
-            <div className="flex flex-col items-center gap-3 flex-1">
-              <div className={cn(
-                "flex items-center justify-center w-14 h-14 rounded-full font-semibold text-lg transition-all duration-300 border-4 shadow-md",
-                currentStage === 'preview' 
-                  ? "bg-blue-600 text-white border-blue-600 shadow-blue-200 scale-110" 
-                  : currentStage === 'documents'
-                  ? "bg-green-500 text-white border-green-500 shadow-green-200"
-                  : "bg-gray-200 text-gray-400 border-gray-300"
-              )}>
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-              </div>
-              <div className="text-center">
-                <div className={cn(
-                  "text-sm font-bold transition-colors",
-                  currentStage === 'preview' || currentStage === 'documents'
-                    ? "text-gray-900 dark:text-gray-100" 
-                    : "text-gray-500"
-                )}>
-                  Preview
-                </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                  Review Details (Optional)
-                </div>
-              </div>
-            </div>
-
-            {/* Connecting Line 2 with Animated Arrow */}
-            <div className="flex-1 relative px-2" style={{ maxWidth: '80px' }}>
-              <div className="relative h-2 flex items-center">
-                <div className={cn(
-                  "h-2 rounded-full transition-all duration-500 shadow-sm flex-1",
-                  createdCustomerId ? "bg-green-500" : "bg-gray-300"
-                )} />
-                <svg 
-                  className={cn(
-                    "absolute -right-1 w-4 h-4 transition-all duration-500",
-                    createdCustomerId
-                      ? "text-green-500 animate-pulse" 
-                      : "text-gray-300"
-                  )}
-                  fill="currentColor" 
-                  viewBox="0 0 20 20"
-                >
-                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-              </div>
-            </div>
-            
-            {/* Stage 3: Documents */}
-            <div className="flex flex-col items-center gap-3 flex-1">
-              <div className={cn(
-                "flex items-center justify-center w-14 h-14 rounded-full font-semibold text-lg transition-all duration-300 border-4 relative shadow-md",
-                currentStage === 'documents' && createdCustomerId
-                  ? "bg-green-600 text-white border-green-600 shadow-green-200 scale-110" 
-                  : createdCustomerId 
-                  ? "bg-white text-green-600 border-green-500 hover:border-green-600 cursor-pointer shadow-green-100"
-                  : "bg-gray-200 text-gray-400 border-gray-300 opacity-60"
-              )}
-              onClick={() => createdCustomerId && setCurrentStage('documents')}
-              >
-                <Building2 className="w-6 h-6" />
-                {createdCustomerId && documents.length > 0 && (
-                  <div className="absolute -top-1 -right-1 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-3 border-white shadow-lg">
-                    {documents.filter(doc => doc.is_uploaded).length}
-                  </div>
-                )}
-              </div>
-              <div className="text-center">
-                <div className={cn(
-                  "text-sm font-bold transition-colors",
-                  currentStage === 'documents' && createdCustomerId
-                    ? "text-gray-900 dark:text-gray-100" 
-                    : createdCustomerId
-                    ? "text-gray-700 dark:text-gray-300"
-                    : "text-gray-500"
-                )}>
-                  Documents
-                </div>
-                <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                  {createdCustomerId ? (
-                    <span className="font-semibold">{documents.filter(doc => doc.is_uploaded).length}/{documents.length} Uploaded</span>
-                  ) : (
-                    <span>Upload Files</span>
-                  )}
-                </div>
-              </div>
+            <Badge variant="outline" className="text-xs">
+              Step {currentStage === 'details' ? '1' : currentStage === 'preview' ? '2' : '3'} of 3
+            </Badge>
           </div>
-        </div>
+        </CardHeader>
+        <CardContent className="pt-0">
+          <div className="relative w-full">
+            <div className="flex items-center justify-between">
+              {/* Stage 1: Application Details */}
+              <div className="flex flex-col items-center gap-3 flex-1">
+                <div className={cn(
+                  "flex items-center justify-center w-14 h-14 rounded-full font-semibold text-lg transition-all duration-300 border-4 shadow-md",
+                  currentStage === 'details' 
+                    ? "bg-green-600 text-white border-green-600 shadow-green-200 scale-110" 
+                    : createdCustomerId
+                    ? "bg-green-500 text-white border-green-500 shadow-green-200"
+                    : "bg-gray-200 text-gray-400 border-gray-300"
+                )}>
+                  {createdCustomerId ? (
+                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                    </svg>
+                  ) : (
+                    <ClipboardList className="w-6 h-6" />
+                  )}
+                </div>
+                <div className="text-center">
+                  <div className={cn(
+                    "text-sm font-bold transition-colors",
+                    currentStage === 'details' || createdCustomerId
+                      ? "text-gray-900 dark:text-gray-100" 
+                      : "text-gray-500"
+                  )}>
+                    Details
+                  </div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                    Customer & Service
+                  </div>
+                </div>
+              </div>
+
+              {/* Connecting Line 1 with Animated Arrow */}
+              <div className="flex-1 relative px-2" style={{ maxWidth: '80px' }}>
+                <div className="relative h-2 flex items-center">
+                  <div className={cn(
+                    "h-2 rounded-full transition-all duration-500 shadow-sm flex-1",
+                    currentStage === 'preview' || currentStage === 'documents' ? "bg-green-500" : "bg-gray-300"
+                  )} />
+                  <svg 
+                    className={cn(
+                      "absolute -right-1 w-4 h-4 transition-all duration-500",
+                      currentStage === 'preview' || currentStage === 'documents' 
+                        ? "text-green-500 animate-pulse" 
+                        : "text-gray-300"
+                    )}
+                    fill="currentColor" 
+                    viewBox="0 0 20 20"
+                  >
+                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+              
+              {/* Stage 2: Preview */}
+              <div className="flex flex-col items-center gap-3 flex-1">
+                <div className={cn(
+                  "flex items-center justify-center w-14 h-14 rounded-full font-semibold text-lg transition-all duration-300 border-4 shadow-md",
+                  currentStage === 'preview' 
+                    ? "bg-blue-600 text-white border-blue-600 shadow-blue-200 scale-110" 
+                    : currentStage === 'documents'
+                    ? "bg-green-500 text-white border-green-500 shadow-green-200"
+                    : "bg-gray-200 text-gray-400 border-gray-300"
+                )}>
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </div>
+                <div className="text-center">
+                  <div className={cn(
+                    "text-sm font-bold transition-colors",
+                    currentStage === 'preview' || currentStage === 'documents'
+                      ? "text-gray-900 dark:text-gray-100" 
+                      : "text-gray-500"
+                  )}>
+                    Preview
+                  </div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                    Review Info
+                  </div>
+                </div>
+              </div>
+
+              {/* Connecting Line 2 with Animated Arrow */}
+              <div className="flex-1 relative px-2" style={{ maxWidth: '80px' }}>
+                <div className="relative h-2 flex items-center">
+                  <div className={cn(
+                    "h-2 rounded-full transition-all duration-500 shadow-sm flex-1",
+                    createdCustomerId ? "bg-green-500" : "bg-gray-300"
+                  )} />
+                  <svg 
+                    className={cn(
+                      "absolute -right-1 w-4 h-4 transition-all duration-500",
+                      createdCustomerId
+                        ? "text-green-500 animate-pulse" 
+                        : "text-gray-300"
+                    )}
+                    fill="currentColor" 
+                    viewBox="0 0 20 20"
+                  >
+                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
+              
+              {/* Stage 3: Documents */}
+              <div className="flex flex-col items-center gap-3 flex-1">
+                <div className={cn(
+                  "flex items-center justify-center w-14 h-14 rounded-full font-semibold text-lg transition-all duration-300 border-4 relative shadow-md",
+                  currentStage === 'documents' && createdCustomerId
+                    ? "bg-green-600 text-white border-green-600 shadow-green-200 scale-110" 
+                    : createdCustomerId 
+                    ? "bg-white text-green-600 border-green-500 hover:border-green-600 cursor-pointer shadow-green-100"
+                    : "bg-gray-200 text-gray-400 border-gray-300 opacity-60"
+                )}
+                onClick={() => createdCustomerId && setCurrentStage('documents')}
+                >
+                  <Building2 className="w-6 h-6" />
+                  {createdCustomerId && documents.length > 0 && (
+                    <div className="absolute -top-1 -right-1 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-3 border-white shadow-lg">
+                       {documents.filter(doc => doc.is_uploaded).length}
+                    </div>
+                  )}
+                </div>
+                <div className="text-center">
+                  <div className={cn(
+                    "text-sm font-bold transition-colors",
+                    currentStage === 'documents' && createdCustomerId
+                      ? "text-gray-900 dark:text-gray-100" 
+                      : createdCustomerId
+                      ? "text-gray-700 dark:text-gray-300"
+                      : "text-gray-500"
+                  )}>
+                    Documents
+                  </div>
+                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                    {createdCustomerId ? (
+                      <span className="font-semibold">{documents.filter(doc => doc.is_uploaded).length}/{documents.length} Files</span>
+                    ) : (
+                      <span>Upload Files</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
          {/* Stage Description Banner */}
           <div className={cn(
@@ -1197,7 +1223,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             </div>
           </div>
         </div>
-      </div>
 
       <Card className="w-full max-w-4xl mx-auto overflow-visible">
         <CardContent className="space-y-4 pb-6 pt-6">
