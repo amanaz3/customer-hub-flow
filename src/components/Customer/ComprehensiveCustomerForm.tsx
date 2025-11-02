@@ -157,6 +157,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [existingCustomers, setExistingCustomers] = useState<any[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
+  const [accordionValue, setAccordionValue] = useState<string[]>(["basic", "service"]);
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const { uploadDocument } = useCustomer();
@@ -308,6 +309,19 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const watchLicenseType = form.watch('license_type');
   const watchShareholderCount = form.watch('no_of_shareholders');
   const watchProductId = form.watch('product_id');
+
+  // Auto-expand Deal Information and collapse Service Selection when product is selected
+  useEffect(() => {
+    if (watchProductId) {
+      setAccordionValue(prev => {
+        const withoutService = prev.filter(item => item !== 'service');
+        if (!withoutService.includes('application')) {
+          return [...withoutService, 'application'];
+        }
+        return withoutService;
+      });
+    }
+  }, [watchProductId]);
 
   // Check which product type is selected
   const selectedProduct = products.find(p => p.id === watchProductId);
@@ -1002,7 +1016,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         {currentStage === 'details' && (
           <div className="space-y-4">
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-              <Accordion type="multiple" defaultValue={["basic", "service"]} className="space-y-4">
+              <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
                 <AccordionItem value="basic" className="border rounded-lg">
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
