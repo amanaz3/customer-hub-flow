@@ -1251,9 +1251,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </CardContent>
       </Card>
 
+      {/* Smooth Gradient Transition */}
+      <div className="h-6 bg-gradient-to-b from-background via-primary/5 to-background" />
       
       {/* Customer Selection Card - Sticky */}
-      <div className="sticky z-40 mt-6" style={{ top: `${stageHeight + 12}px` }}>
+      <div className="sticky z-40" style={{ top: `${stageHeight + 12}px` }}>
         <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
         <div className="grid grid-cols-2 w-full">
           {customerMode === 'existing' ? (
