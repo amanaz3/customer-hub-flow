@@ -148,7 +148,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   initialData
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [currentStage, setCurrentStage] = useState<'details' | 'documents'>('details');
+  const [currentStage, setCurrentStage] = useState<'details' | 'preview' | 'documents'>('details');
   const [createdCustomerId, setCreatedCustomerId] = useState<string | null>(null);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [showSuccessTransition, setShowSuccessTransition] = useState(false);
@@ -795,7 +795,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
       {/* Stage Indicator */}
       <div className="relative w-full max-w-4xl mx-auto">
-        <div className="flex items-center justify-between max-w-md mx-auto">
+        <div className="flex items-center justify-between max-w-2xl mx-auto">
             {/* Stage 1: Application Details */}
             <div className="flex flex-col items-center gap-3 flex-1">
               <div className={cn(
@@ -829,19 +829,53 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               </div>
             </div>
 
-            {/* Connecting Line */}
-            <div className="flex-1 relative px-4" style={{ maxWidth: '120px' }}>
+            {/* Connecting Line 1 */}
+            <div className="flex-1 relative px-2" style={{ maxWidth: '80px' }}>
+              <div className={cn(
+                "h-2 rounded-full transition-all duration-500 shadow-sm",
+                currentStage === 'preview' || currentStage === 'documents' ? "bg-green-500" : "bg-gray-300"
+              )} />
+            </div>
+            
+            {/* Stage 2: Preview */}
+            <div className="flex flex-col items-center gap-3 flex-1">
+              <div className={cn(
+                "flex items-center justify-center w-14 h-14 rounded-full font-semibold text-lg transition-all duration-300 border-4 shadow-md",
+                currentStage === 'preview' 
+                  ? "bg-blue-600 text-white border-blue-600 shadow-blue-200 scale-110" 
+                  : currentStage === 'documents'
+                  ? "bg-green-500 text-white border-green-500 shadow-green-200"
+                  : "bg-gray-200 text-gray-400 border-gray-300"
+              )}>
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </div>
+              <div className="text-center">
+                <div className={cn(
+                  "text-sm font-bold transition-colors",
+                  currentStage === 'preview' || currentStage === 'documents'
+                    ? "text-gray-900 dark:text-gray-100" 
+                    : "text-gray-500"
+                )}>
+                  Preview
+                </div>
+                <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                  Review Details
+                </div>
+              </div>
+            </div>
+
+            {/* Connecting Line 2 */}
+            <div className="flex-1 relative px-2" style={{ maxWidth: '80px' }}>
               <div className={cn(
                 "h-2 rounded-full transition-all duration-500 shadow-sm",
                 createdCustomerId ? "bg-green-500" : "bg-gray-300"
               )} />
-              <div className={cn(
-                "absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-4 h-4 rounded-full transition-all duration-300 border-2 border-white shadow-md",
-                createdCustomerId ? "bg-green-500 scale-100" : "bg-gray-300 scale-75"
-              )} />
             </div>
             
-            {/* Stage 2: Documents */}
+            {/* Stage 3: Documents */}
             <div className="flex flex-col items-center gap-3 flex-1">
               <div className={cn(
                 "flex items-center justify-center w-14 h-14 rounded-full font-semibold text-lg transition-all duration-300 border-4 relative shadow-md",
@@ -882,34 +916,49 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           </div>
         </div>
 
-        {/* Stage Description Banner */}
+         {/* Stage Description Banner */}
           <div className={cn(
             "mt-6 p-4 rounded-lg border-2 transition-all duration-300",
             currentStage === 'details' 
-              ? "bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800" 
-              : "bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800"
+              ? "bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800"
+              : currentStage === 'preview'
+              ? "bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800"
+              : "bg-purple-50 border-purple-200 dark:bg-purple-950 dark:border-purple-800"
           )}>
             <div className="flex items-start gap-3 max-w-2xl mx-auto">
               <div className={cn(
                 "w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 shadow-sm",
-                currentStage === 'details' ? "bg-green-100 dark:bg-green-900" : "bg-blue-100 dark:bg-blue-900"
+                currentStage === 'details' 
+                  ? "bg-green-100 dark:bg-green-900"
+                  : currentStage === 'preview'
+                  ? "bg-blue-100 dark:bg-blue-900"
+                  : "bg-purple-100 dark:bg-purple-900"
               )}>
                 {currentStage === 'details' ? (
                   <ClipboardList className="w-5 h-5 text-green-700 dark:text-green-300" />
+                ) : currentStage === 'preview' ? (
+                  <svg className="w-5 h-5 text-blue-700 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
                 ) : (
-                  <Building2 className="w-5 h-5 text-blue-700 dark:text-blue-300" />
+                  <Building2 className="w-5 h-5 text-purple-700 dark:text-purple-300" />
                 )}
               </div>
               <div>
                 <h3 className="font-bold text-sm mb-1 text-gray-900 dark:text-gray-100">
                   {currentStage === 'details' 
-                    ? 'Step 1: Fill Application Details' 
-                    : 'Step 2: Upload Documents'
+                    ? 'Step 1: Fill Application Details'
+                    : currentStage === 'preview'
+                    ? 'Step 2: Review Your Application'
+                    : 'Step 3: Upload Documents'
                   }
                 </h3>
                 <p className="text-sm text-gray-700 dark:text-gray-300">
                   {currentStage === 'details'
                     ? 'Select the customer, choose service type, and provide all required business information.'
+                    : currentStage === 'preview'
+                    ? 'Review all the details before submitting your application. You can go back to edit if needed.'
                     : 'Upload all required documents for the application. Mandatory documents must be uploaded before completion.'
                   }
                 </p>
@@ -2770,14 +2819,167 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
               <div className="flex justify-end space-x-4 pt-4 pb-2">
                 <Button
-                  type="submit"
+                  type="button"
+                  onClick={() => {
+                    const isValid = form.trigger();
+                    if (isValid) {
+                      setCurrentStage('preview');
+                    }
+                  }}
                   disabled={isSubmitting}
                   className="min-w-[150px]"
                 >
-                  {isSubmitting ? 'Creating Application...' : 'Create Application'}
+                  Preview Application
                 </Button>
               </div>
             </form>
+          </div>
+        )}
+
+        {currentStage === 'preview' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-medium">Review Application</h3>
+                <p className="text-sm text-muted-foreground">
+                  Please review all details before submitting
+                </p>
+              </div>
+              <Badge variant="outline">Draft Preview</Badge>
+            </div>
+
+            <div className="space-y-6">
+              {/* Basic Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Basic Information</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Contact Name</p>
+                      <p className="font-medium">{form.getValues('name')}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Email</p>
+                      <p className="font-medium">{form.getValues('email')}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Mobile</p>
+                      <p className="font-medium">{form.getValues('mobile')}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Company</p>
+                      <p className="font-medium">{form.getValues('company')}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Service Selection */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Service Selection</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Product/Service</p>
+                      <p className="font-medium">
+                        {products.find(p => p.id === form.getValues('product_id'))?.name || 'Not selected'}
+                      </p>
+                    </div>
+                    {form.getValues('license_type') && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">License Type</p>
+                        <p className="font-medium">{form.getValues('license_type')}</p>
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Business Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Business Information</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    {form.getValues('jurisdiction') && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Jurisdiction</p>
+                        <p className="font-medium">{form.getValues('jurisdiction')}</p>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm text-muted-foreground">Annual Turnover</p>
+                      <p className="font-medium">AED {form.getValues('amount')?.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Lead Source</p>
+                      <p className="font-medium">{form.getValues('lead_source')}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Number of Shareholders</p>
+                      <p className="font-medium">{form.getValues('no_of_shareholders')}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Financial Information */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Financial Information</CardTitle>
+                </CardHeader>
+                <CardContent className="grid gap-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-sm text-muted-foreground">Annual Turnover</p>
+                      <p className="font-medium">AED {form.getValues('annual_turnover')?.toLocaleString()}</p>
+                    </div>
+                    <div>
+                      <p className="text-sm text-muted-foreground">Bank Preference</p>
+                      <p className="font-medium">
+                        {form.getValues('any_suitable_bank') 
+                          ? 'Any suitable bank' 
+                          : form.getValues('bank_preference_1') || 'Not specified'}
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Additional Notes */}
+              {form.getValues('customer_notes') && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Additional Notes</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-sm whitespace-pre-wrap">{form.getValues('customer_notes')}</p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            <div className="flex justify-between pt-4">
+              <Button
+                variant="outline"
+                onClick={() => setCurrentStage('details')}
+                disabled={isSubmitting}
+              >
+                Back to Edit
+              </Button>
+              <Button
+                onClick={form.handleSubmit(handleSubmit)}
+                disabled={isSubmitting}
+                className="min-w-[150px]"
+              >
+                {isSubmitting ? 'Creating Application...' : 'Confirm & Submit'}
+              </Button>
+            </div>
           </div>
         )}
 
@@ -2841,18 +3043,26 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     {currentStage === 'details' && !createdCustomerId && (
       <button
         type="button"
-        onClick={form.handleSubmit(handleSubmit)}
+        onClick={async () => {
+          const isValid = await form.trigger();
+          if (isValid) {
+            setCurrentStage('preview');
+          }
+        }}
         disabled={isSubmitting}
-        className="fixed bottom-8 right-8 w-16 h-16 bg-green-600 hover:bg-green-700 text-white font-bold shadow-2xl border-4 border-white rounded-full z-50 transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
-        title="Create Application"
+        className="fixed bottom-8 right-8 w-16 h-16 bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-2xl border-4 border-white rounded-full z-50 transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
+        title="Preview Application"
       >
         {isSubmitting ? (
           <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
         ) : (
           <>
-            <Plus className="w-8 h-8" />
+            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+            </svg>
             <span className="absolute -top-10 right-0 bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
-              Create Application
+              Preview Application
             </span>
           </>
         )}
