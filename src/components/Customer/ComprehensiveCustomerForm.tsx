@@ -1304,8 +1304,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </AccordionItem>
                 )}
 
-        {/* Service Selection - Shown when source & channel complete OR clicked in nav */}
-        {(isSourceChannelComplete || accordionValue.includes('service')) && (
+        {/* Service Selection - Shown when basic info complete OR clicked in nav */}
+        {(isBasicInfoComplete || accordionValue.includes('service')) && (
         <AccordionItem value="service" className="border rounded-lg" data-section-id="service">
               <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
                 <h3 className="text-base font-medium">Service Selection</h3>
