@@ -1053,10 +1053,24 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
             {/* Connecting Line 1 */}
             <div className="flex-1 relative px-1" style={{ maxWidth: '40px' }}>
-              <div className={cn(
-                "h-0.5 rounded-full transition-all duration-500",
-                currentStage === 'preview' || currentStage === 'documents' ? "bg-green-500" : "bg-gray-300"
-              )} />
+              <div className="relative h-0.5 flex items-center">
+                <div className={cn(
+                  "h-0.5 rounded-full transition-all duration-500 flex-1",
+                  currentStage === 'preview' || currentStage === 'documents' ? "bg-green-500" : "bg-gray-300"
+                )} />
+                <svg 
+                  className={cn(
+                    "absolute -right-0.5 w-2 h-2 transition-all duration-500",
+                    currentStage === 'preview' || currentStage === 'documents' 
+                      ? "text-green-500 animate-pulse" 
+                      : "text-gray-300"
+                  )}
+                  fill="currentColor" 
+                  viewBox="0 0 20 20"
+                >
+                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </div>
             </div>
             
             {/* Stage 2 */}
@@ -1096,10 +1110,24 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
             {/* Connecting Line 2 */}
             <div className="flex-1 relative px-1" style={{ maxWidth: '40px' }}>
-              <div className={cn(
-                "h-0.5 rounded-full transition-all duration-500",
-                createdCustomerId ? "bg-green-500" : "bg-gray-300"
-              )} />
+              <div className="relative h-0.5 flex items-center">
+                <div className={cn(
+                  "h-0.5 rounded-full transition-all duration-500 flex-1",
+                  createdCustomerId ? "bg-green-500" : "bg-gray-300"
+                )} />
+                <svg 
+                  className={cn(
+                    "absolute -right-0.5 w-2 h-2 transition-all duration-500",
+                    createdCustomerId
+                      ? "text-green-500 animate-pulse" 
+                      : "text-gray-300"
+                  )}
+                  fill="currentColor" 
+                  viewBox="0 0 20 20"
+                >
+                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                </svg>
+              </div>
             </div>
             
             {/* Stage 3 */}
