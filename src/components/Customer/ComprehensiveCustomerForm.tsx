@@ -1252,9 +1252,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </Card>
 
       
-      <Card className="w-full overflow-hidden mb-8 mt-6 relative z-10 border shadow-lg bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
-        {/* Customer Selection Tabs - At Top */}
-        <div className="grid grid-cols-2 w-full bg-gradient-to-r from-muted/30 to-muted/20 border-b-2 border-border/50">
+      {/* Customer Selection Card */}
+      <Card className="w-full overflow-hidden mt-6 relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
+        <div className="grid grid-cols-2 w-full">
           {customerMode === 'existing' ? (
             <>
               <button
@@ -1321,8 +1321,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             </>
           )}
         </div>
+      </Card>
 
-        {/* Form Navigation - Sticky Below Tabs */}
+      {/* Form Content Card */}
+      <Card className="w-full overflow-hidden mt-3 mb-8 relative z-10 border shadow-lg bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
+        {/* Form Navigation - Sticky */}
         {false && customerMode === 'new' && <div ref={stickyNavRef} className="sticky z-50 isolate bg-gradient-to-r from-background via-background to-background border-b shadow-lg backdrop-blur-sm" style={{ top: stageHeight + stickyGap }}>
           {/* Form Navigation inside sticky container */}
           {currentStage === 'details' && (
@@ -1359,7 +1362,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           )}
         </div>}
 
-        <CardContent className="space-y-4 pb-8 pt-0">
+        <CardContent className="space-y-4 pb-8 pt-4">
         {/* Customer Selection Content - Not Sticky */}
         <div className="space-y-4 relative z-0">
 
