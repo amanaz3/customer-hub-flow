@@ -1434,9 +1434,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </AccordionItem>
                 )}
 
-        {/* Deal Information - Only shown when service selection is complete */}
-        {isServiceSelectionComplete && (
-        <AccordionItem 
+        {/* Deal Information - Only shown when service selection is complete OR when service is active and product is selected */}
+        {(isServiceSelectionComplete || (accordionValue.includes('service') && watchProductId)) && (
+        <AccordionItem
           value="application" 
           className={cn(
             "border rounded-lg transition-all duration-500",
