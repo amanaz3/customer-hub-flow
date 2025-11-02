@@ -849,7 +849,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   Application Details
                 </div>
                 <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
-                  Customer & Service Info
+                  Draft Customer & Service Info
                 </div>
               </div>
             </div>
