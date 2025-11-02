@@ -1244,73 +1244,74 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
       
       <Card className="w-full overflow-hidden mb-8 relative z-10 border-0 shadow-2xl rounded-2xl bg-background">
+        {/* Customer Selection Tabs - At Top */}
+        <div className="grid grid-cols-2 w-full bg-background border-b border-border">
+          {customerMode === 'existing' ? (
+            <>
+              <button
+                type="button"
+                onClick={() => handleModeSwitch('existing')}
+                className={cn(
+                  "relative flex items-center justify-center gap-1.5 py-3 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
+                  "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
+                )}
+                aria-selected={true}
+              >
+                <Users className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Select Existing</span>
+                <span className="sm:hidden">Existing</span>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => handleModeSwitch('new')}
+                className={cn(
+                  "relative flex items-center justify-center gap-1.5 py-3 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
+                  "border-b-transparent text-muted-foreground hover:text-foreground"
+                )}
+                aria-selected={false}
+              >
+                <Building2 className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Create New Company</span>
+                <span className="sm:hidden">New</span>
+              </button>
+            </>
+          ) : (
+            <>
+              <button
+                type="button"
+                onClick={() => handleModeSwitch('new')}
+                className={cn(
+                  "relative flex items-center justify-center gap-1.5 py-3 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
+                  "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
+                )}
+                aria-selected={true}
+              >
+                <Building2 className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Create New Company</span>
+                <span className="sm:hidden">New</span>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => handleModeSwitch('existing')}
+                className={cn(
+                  "relative flex items-center justify-center gap-1.5 py-3 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
+                  "border-b-transparent text-muted-foreground hover:text-foreground"
+                )}
+                aria-selected={false}
+              >
+                <Users className="h-3.5 w-3.5" />
+                <span className="hidden sm:inline">Select Existing</span>
+                <span className="sm:hidden">Existing</span>
+              </button>
+            </>
+          )}
+        </div>
+
         <CardContent className="space-y-4 pb-8 pt-4">
-        {/* Customer Selection Section - Sticky Compact */}
+        {/* Form Navigation - Sticky */}
         <div ref={stickyNavRef} className="sticky z-50 isolate bg-background -mx-6 px-6 pb-2 border-b shadow-md mb-3" style={{ top: stageHeight + stickyGap }}>
-          <div className="grid grid-cols-2 w-full bg-background border-b border-border">
-            {customerMode === 'existing' ? (
-              <>
-                <button
-                  type="button"
-                  onClick={() => handleModeSwitch('existing')}
-                  className={cn(
-                    "relative flex items-center justify-center gap-1.5 py-2 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
-                    "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                  )}
-                  aria-selected={true}
-                >
-                  <Users className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Select Existing</span>
-                  <span className="sm:hidden">Existing</span>
-                </button>
-                
-                <button
-                  type="button"
-                  onClick={() => handleModeSwitch('new')}
-                  className={cn(
-                    "relative flex items-center justify-center gap-1.5 py-2 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
-                    "border-b-transparent text-muted-foreground hover:text-foreground"
-                  )}
-                  aria-selected={false}
-                >
-                  <Building2 className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Create New Company</span>
-                  <span className="sm:hidden">New</span>
-                </button>
-              </>
-            ) : (
-              <>
-                <button
-                  type="button"
-                  onClick={() => handleModeSwitch('new')}
-                  className={cn(
-                    "relative flex items-center justify-center gap-1.5 py-2 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
-                    "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                  )}
-                  aria-selected={true}
-                >
-                  <Building2 className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Create New Company</span>
-                  <span className="sm:hidden">New</span>
-                </button>
-                
-                <button
-                  type="button"
-                  onClick={() => handleModeSwitch('existing')}
-                  className={cn(
-                    "relative flex items-center justify-center gap-1.5 py-2 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
-                    "border-b-transparent text-muted-foreground hover:text-foreground"
-                  )}
-                  aria-selected={false}
-                >
-                  <Users className="h-3.5 w-3.5" />
-                  <span className="hidden sm:inline">Select Existing</span>
-                  <span className="sm:hidden">Existing</span>
-                </button>
-              </>
-            )}
-          </div>
-          
           {/* Form Navigation inside sticky container */}
           {currentStage === 'details' && (
             <div className="bg-background border-t border-border">
