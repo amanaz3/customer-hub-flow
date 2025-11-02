@@ -13,6 +13,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useCustomer } from '@/contexts/CustomerContext';
@@ -137,6 +138,14 @@ const formSchema = z.object({
   vat_accounting_software: z.string().optional(),
   multiple_business_locations: z.boolean().optional(),
   number_of_locations: z.number().optional(),
+  // Deal/Application fields
+  banking_preferences: z.string().optional(),
+  payment_method: z.string().optional(),
+  arr_value: z.number().optional(),
+  deal_stage: z.enum(['prospect', 'qualified', 'proposal', 'negotiation', 'won', 'lost']).optional(),
+  expected_close_date: z.string().optional(),
+  probability: z.number().min(0).max(100).optional(),
+  notes: z.string().optional(),
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -1649,110 +1658,190 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             )}
                           </h3>
                         </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-4 space-y-4">
-                          {/* Copy the same Deal Information content from Create New Company section */}
-                          {/* Application Information */}
-                          <div>
-                            <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
-                              <span className="text-xs">📋</span>
-                              <h4 className="text-xs font-semibold text-foreground">Application Information</h4>
-                            </div>
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              {hasCompanyFormation && (
-                                <>
-                                  <div className="space-y-2">
-                                    <Label htmlFor="license_type">License Type *</Label>
-                                    <Select
-                                      value={form.watch('license_type')}
-                                      onValueChange={(value) => form.setValue('license_type', value as any)}
-                                      disabled={isSubmitting}
-                                    >
-                                      <SelectTrigger>
-                                        <SelectValue />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        <SelectItem value="Mainland">Mainland</SelectItem>
-                                        <SelectItem value="Freezone">Freezone</SelectItem>
-                                        <SelectItem value="Offshore">Offshore</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
+                        <AccordionContent className="px-4 pb-4">
+                          <div className="space-y-4">
+                            {/* License Type */}
+                            <FormField
+                              control={form.control}
+                              name="license_type"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>License Type</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} value={field.value || ''} placeholder="e.g., Business License" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
 
-                                  <div className="space-y-2">
-                                    <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
-                                    <Input
-                                      id="no_of_shareholders"
-                                      type="number"
-                                      min="1"
-                                      max="10"
-                                      {...form.register('no_of_shareholders', { valueAsNumber: true })}
-                                      disabled={isSubmitting}
-                                      required
+                            {/* Number of Shareholders */}
+                            <FormField
+                              control={form.control}
+                              name="no_of_shareholders"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Number of Shareholders</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      type="number" 
+                                      {...field} 
+                                      value={field.value || ''} 
+                                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
                                     />
-                                    {form.formState.errors.no_of_shareholders && (
-                                      <p className="text-sm text-red-600">{form.formState.errors.no_of_shareholders.message}</p>
-                                    )}
-                                    <p className="text-xs text-muted-foreground">
-                                      Number of shareholders will determine how many signatory document sets are created (1-10)
-                                    </p>
-                                  </div>
-                                </>
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
                               )}
+                            />
 
-                              {/* Banking Preferences - shown for bank account products */}
-                              {hasBankAccount && (
-                                <>
-                                  <div className="col-span-full mt-2">
-                                    <h5 className="text-sm font-medium mb-2">Banking Preferences</h5>
-                                  </div>
-                                  <div className="col-span-full">
-                                    <div className="flex items-center space-x-2">
-                                      <Checkbox
-                                        id="any_suitable_bank"
-                                        checked={watchAnySuitableBank}
-                                        onCheckedChange={(checked) => form.setValue('any_suitable_bank', !!checked)}
-                                        disabled={isSubmitting}
-                                      />
-                                      <Label htmlFor="any_suitable_bank">Any Suitable Bank</Label>
-                                    </div>
-                                  </div>
-
-                                  {!watchAnySuitableBank && (
-                                    <>
-                                      <div className="space-y-2">
-                                        <Label htmlFor="bank_preference_1">First Preference</Label>
-                                        <Input
-                                          id="bank_preference_1"
-                                          {...form.register('bank_preference_1')}
-                                          placeholder="Enter first preference bank"
-                                          disabled={isSubmitting}
-                                        />
-                                      </div>
-                                      
-                                      <div className="space-y-2">
-                                        <Label htmlFor="bank_preference_2">Second Preference</Label>
-                                        <Input
-                                          id="bank_preference_2"
-                                          {...form.register('bank_preference_2')}
-                                          placeholder="Enter second preference bank"
-                                          disabled={isSubmitting}
-                                        />
-                                      </div>
-                                      
-                                      <div className="space-y-2">
-                                        <Label htmlFor="bank_preference_3">Third Preference</Label>
-                                        <Input
-                                          id="bank_preference_3"
-                                          {...form.register('bank_preference_3')}
-                                          placeholder="Enter third preference bank"
-                                          disabled={isSubmitting}
-                                        />
-                                      </div>
-                                    </>
-                                  )}
-                                </>
+                            {/* Banking Preferences */}
+                            <FormField
+                              control={form.control}
+                              name="banking_preferences"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Banking Preferences</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} value={field.value || ''} placeholder="Preferred bank" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
                               )}
-                            </div>
+                            />
+
+                            {/* Payment Method */}
+                            <FormField
+                              control={form.control}
+                              name="payment_method"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Payment Method</FormLabel>
+                                  <FormControl>
+                                    <Input {...field} value={field.value || ''} placeholder="e.g., Bank Transfer" />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                      )}
+
+                      {/* Additional Information */}
+                      {(accordionValue.includes('service') && watchProductId) && (
+                      <AccordionItem
+                        value="additional-info"
+                        className="border rounded-lg bg-background shadow-sm"
+                        data-section="additional-info"
+                        data-section-id="additional-info"
+                        style={{ scrollMarginTop: totalStickyOffset }}
+                      >
+                        <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
+                          <h3 className="text-base font-medium">Additional Information</h3>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4">
+                          <div className="space-y-4">
+                            {/* ARR Value */}
+                            <FormField
+                              control={form.control}
+                              name="arr_value"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>ARR Value</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      type="number" 
+                                      {...field} 
+                                      value={field.value || ''} 
+                                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
+                                      placeholder="Annual Recurring Revenue"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Deal Stage */}
+                            <FormField
+                              control={form.control}
+                              name="deal_stage"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Deal Stage</FormLabel>
+                                  <Select onValueChange={field.onChange} value={field.value || ''}>
+                                    <FormControl>
+                                      <SelectTrigger>
+                                        <SelectValue placeholder="Select deal stage" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent>
+                                      <SelectItem value="prospect">Prospect</SelectItem>
+                                      <SelectItem value="qualified">Qualified</SelectItem>
+                                      <SelectItem value="proposal">Proposal</SelectItem>
+                                      <SelectItem value="negotiation">Negotiation</SelectItem>
+                                      <SelectItem value="won">Won</SelectItem>
+                                      <SelectItem value="lost">Lost</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Expected Close Date */}
+                            <FormField
+                              control={form.control}
+                              name="expected_close_date"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Expected Close Date</FormLabel>
+                                  <FormControl>
+                                    <Input type="date" {...field} value={field.value || ''} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Probability */}
+                            <FormField
+                              control={form.control}
+                              name="probability"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Probability (%)</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      type="number" 
+                                      min="0" 
+                                      max="100" 
+                                      {...field} 
+                                      value={field.value || ''} 
+                                      onChange={(e) => field.onChange(e.target.value ? Number(e.target.value) : '')}
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Notes */}
+                            <FormField
+                              control={form.control}
+                              name="notes"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Notes</FormLabel>
+                                  <FormControl>
+                                    <Textarea {...field} value={field.value || ''} placeholder="Additional notes about the deal" rows={4} />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
                           </div>
                         </AccordionContent>
                       </AccordionItem>
