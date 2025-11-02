@@ -1630,7 +1630,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           onCompanyCreated={handleCompanyCreated}
         />
 
-        {false && currentStage === 'details' && customerMode === 'new' && (
+        {currentStage === 'details' && customerMode === 'new' && (
           <div className="space-y-4 pt-4">
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
