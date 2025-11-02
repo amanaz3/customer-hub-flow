@@ -2,7 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -167,6 +167,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const { uploadDocument } = useCustomer();
+  const queryClient = useQueryClient();
 
   // Fetch all active products for the dropdown
   const { data: allProducts = [], isLoading: productsLoading } = useQuery({
@@ -215,6 +216,37 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       }
       return data;
     }
+  });
+
+  // Fetch the most popular product in real-time
+  const { data: mostPopularProduct } = useQuery({
+    queryKey: ['most_popular_product'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('customers')
+        .select('product_id')
+        .not('product_id', 'is', null);
+      
+      if (error) {
+        console.error('Error fetching popular products:', error);
+        return null;
+      }
+
+      // Count frequency of each product
+      const productCounts = data.reduce((acc: Record<string, number>, curr) => {
+        if (curr.product_id) {
+          acc[curr.product_id] = (acc[curr.product_id] || 0) + 1;
+        }
+        return acc;
+      }, {});
+
+      // Find most frequent product
+      const mostPopular = Object.entries(productCounts)
+        .sort(([, a], [, b]) => (b as number) - (a as number))[0];
+
+      return mostPopular ? mostPopular[0] : null;
+    },
+    refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
   });
 
   const form = useForm<FormData>({
@@ -327,6 +359,37 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const isBasicInfoComplete = watchName && watchEmail && watchMobile && watchCompany;
   const isSourceChannelComplete = isBasicInfoComplete && watchLeadSource;
   const isServiceSelectionComplete = isSourceChannelComplete && watchProductId;
+
+  // Auto-select most popular product when form loads
+  useEffect(() => {
+    if (mostPopularProduct && !watchProductId && !initialData) {
+      form.setValue('product_id', mostPopularProduct);
+    }
+  }, [mostPopularProduct, watchProductId, initialData, form]);
+
+  // Real-time subscription to update most popular product when customers change
+  useEffect(() => {
+    const channel = supabase
+      .channel('customer-product-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'customers',
+          filter: 'product_id=not.is.null'
+        },
+        () => {
+          // Invalidate and refetch the most popular product query
+          queryClient.invalidateQueries({ queryKey: ['most_popular_product'] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [queryClient]);
 
   // Auto-scroll and highlight Deal Information when product is selected
   useEffect(() => {
