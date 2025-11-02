@@ -1289,6 +1289,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         {/* Customer Selection Content - Not Sticky */}
         <div className="space-y-3 relative z-0">
 
+          {/* Select Existing Customer Tab Content */}
           {customerMode === 'existing' && (
             <div className="space-y-3 pt-2">
               <div className="flex gap-2">
@@ -1446,18 +1447,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               )}
             </div>
           )}
-        </div>
 
-        <CreateCompanyDialog
-          open={showCreateDialog}
-          onOpenChange={setShowCreateDialog}
-          onCompanyCreated={handleCompanyCreated}
-        />
-
-        {currentStage === 'details' && customerMode === 'new' && (
-          <div className="space-y-4 pt-4">
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-              <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
+          {/* Create New Company Tab Content */}
+          {customerMode === 'new' && currentStage === 'details' && (
+            <div className="space-y-4 pt-2">
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
                 <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm scroll-mt-[280px]" data-section-id="basic">
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
@@ -3436,6 +3431,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             )}
           </div>
         )}
+        </div>
+
+        <CreateCompanyDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+          onCompanyCreated={handleCompanyCreated}
+        />
       </CardContent>
     </Card>
 
