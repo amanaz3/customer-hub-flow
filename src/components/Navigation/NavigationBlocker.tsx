@@ -1,15 +1,4 @@
-import { useEffect, useCallback } from 'react';
-import { useBlocker } from 'react-router-dom';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
+import { useEffect } from 'react';
 
 interface NavigationBlockerProps {
   when: boolean;
@@ -20,12 +9,7 @@ export const NavigationBlocker = ({
   when, 
   message = "You have unsaved changes. Are you sure you want to leave this page?" 
 }: NavigationBlockerProps) => {
-  const blocker = useBlocker(
-    ({ currentLocation, nextLocation }) =>
-      when && currentLocation.pathname !== nextLocation.pathname
-  );
-
-  // Also handle browser back/forward and refresh
+  // Handle browser back/forward, refresh, and close
   useEffect(() => {
     if (!when) return;
 
@@ -39,38 +23,32 @@ export const NavigationBlocker = ({
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [when, message]);
 
-  const handleConfirm = useCallback(() => {
-    if (blocker.state === 'blocked') {
-      blocker.proceed();
-    }
-  }, [blocker]);
+  // Handle internal navigation attempts (clicking sidebar links)
+  useEffect(() => {
+    if (!when) return;
 
-  const handleCancel = useCallback(() => {
-    if (blocker.state === 'blocked') {
-      blocker.reset();
-    }
-  }, [blocker]);
-
-  return (
-    <AlertDialog open={blocker.state === 'blocked'} onOpenChange={(open) => {
-      if (!open && blocker.state === 'blocked') {
-        blocker.reset();
+    const handleClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      const link = target.closest('a[href]');
+      
+      if (link && link instanceof HTMLAnchorElement) {
+        const href = link.getAttribute('href');
+        
+        // Check if it's an internal navigation link
+        if (href && href.startsWith('/') && !href.startsWith('//')) {
+          const confirmed = window.confirm(message);
+          if (!confirmed) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+        }
       }
-    }}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
-          <AlertDialogDescription>
-            {message}
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-          <AlertDialogCancel onClick={handleCancel}>Stay on Page</AlertDialogCancel>
-          <AlertDialogAction onClick={handleConfirm} className="bg-destructive hover:bg-destructive/90">
-            Leave Without Saving
-          </AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
-  );
+    };
+
+    // Capture phase to intercept before React Router
+    document.addEventListener('click', handleClick, true);
+    return () => document.removeEventListener('click', handleClick, true);
+  }, [when, message]);
+
+  return null;
 };
