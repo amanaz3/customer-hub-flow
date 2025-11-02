@@ -1234,10 +1234,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </CardContent>
       </Card>
 
-      <Card className="w-full overflow-hidden mt-6 mb-8 relative z-10 border-0 shadow-2xl rounded-2xl bg-background">
-        <CardContent className="space-y-4 pb-8 pt-8">
+      <Card className="w-full overflow-hidden mt-6 mb-8 relative z-10 border-0 shadow-2xl rounded-2xl bg-background sticky" style={{ top: stageHeight + stickyGap, maxHeight: `calc(100vh - ${stageHeight + stickyGap + 24}px)` }}>
+        <CardContent className="space-y-4 pb-8 pt-8 overflow-y-auto" style={{ maxHeight: '100%' }}>
         {/* Customer Selection Section - Sticky Compact */}
-        <div ref={stickyNavRef} className="sticky z-50 isolate bg-background -mx-6 px-6 pb-2 border-b shadow-md mb-3" style={{ top: stageHeight + stickyGap }}>
+        <div ref={stickyNavRef} className="sticky z-50 isolate bg-background -mx-6 px-6 pb-2 border-b shadow-md mb-3" style={{ top: 0 }}>
           <div className="grid grid-cols-2 w-full bg-background border-b border-border">
             {customerMode === 'existing' ? (
               <>
