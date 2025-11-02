@@ -1252,48 +1252,39 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </Card>
 
       
-      {/* Customer Selection Card - Floating & Sticky */}
-      <div className="sticky z-40 mt-6 animate-fade-in" style={{ top: `${stageHeight + 12}px` }}>
-        <Card className="w-full overflow-hidden relative border border-border/40 shadow-2xl rounded-2xl bg-gradient-to-br from-background via-background/98 to-background/95 backdrop-blur-xl hover:shadow-3xl transition-all duration-500 hover:border-border/60">
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/[0.02] via-transparent to-accent/[0.02] pointer-events-none" />
-          <div className="grid grid-cols-2 w-full rounded-t-2xl overflow-hidden relative">
+      {/* Customer Selection Card */}
+      <Card className="w-full overflow-hidden mt-6 relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
+        <div className="grid grid-cols-2 w-full">
           {customerMode === 'existing' ? (
             <>
               <button
                 type="button"
                 onClick={() => handleModeSwitch('existing')}
                 className={cn(
-                  "relative flex items-center justify-center gap-2 py-5 px-6 transition-all duration-500 text-sm font-semibold group",
-                  "border-b-4 border-green-500",
-                  "bg-gradient-to-b from-green-50 to-green-100/80 dark:from-green-950/40 dark:to-green-950/20",
-                  "text-green-700 dark:text-green-400",
-                  "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]"
+                  "relative flex items-center justify-center gap-2 py-4 px-4 transition-all duration-300 text-sm font-semibold",
+                  "border-b-4 border-green-500 shadow-sm",
+                  "bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400"
                 )}
                 aria-selected={true}
               >
-                <div className="absolute inset-0 bg-gradient-to-b from-green-500/10 to-transparent" />
-                <Users className="h-4 w-4 relative z-10 drop-shadow-sm" />
-                <span className="hidden sm:inline relative z-10">Select Existing</span>
-                <span className="sm:hidden relative z-10">Existing</span>
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">Select Existing</span>
+                <span className="sm:hidden">Existing</span>
               </button>
               
               <button
                 type="button"
                 onClick={() => handleModeSwitch('new')}
                 className={cn(
-                  "relative flex items-center justify-center gap-2 py-5 px-6 transition-all duration-500 text-sm font-semibold group",
+                  "relative flex items-center justify-center gap-2 py-4 px-4 transition-all duration-300 text-sm font-semibold",
                   "border-b-4 border-transparent text-muted-foreground",
-                  "bg-gradient-to-b from-muted/30 to-muted/10",
-                  "hover:from-muted/50 hover:to-muted/30 hover:text-foreground",
-                  "hover:border-b-muted/40",
-                  "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]"
+                  "hover:bg-muted/50 hover:text-foreground"
                 )}
                 aria-selected={false}
               >
-                <div className="absolute inset-0 bg-gradient-to-b from-background/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <Building2 className="h-4 w-4 relative z-10 transition-transform group-hover:scale-110 duration-300" />
-                <span className="hidden sm:inline relative z-10">Create New Company</span>
-                <span className="sm:hidden relative z-10">New</span>
+                <Building2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Create New Company</span>
+                <span className="sm:hidden">New</span>
               </button>
             </>
           ) : (
@@ -1302,43 +1293,35 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 type="button"
                 onClick={() => handleModeSwitch('new')}
                 className={cn(
-                  "relative flex items-center justify-center gap-2 py-5 px-6 transition-all duration-500 text-sm font-semibold group",
-                  "border-b-4 border-green-500",
-                  "bg-gradient-to-b from-green-50 to-green-100/80 dark:from-green-950/40 dark:to-green-950/20",
-                  "text-green-700 dark:text-green-400",
-                  "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.1)]"
+                  "relative flex items-center justify-center gap-2 py-4 px-4 transition-all duration-300 text-sm font-semibold",
+                  "border-b-4 border-green-500 shadow-sm",
+                  "bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400"
                 )}
                 aria-selected={true}
               >
-                <div className="absolute inset-0 bg-gradient-to-b from-green-500/10 to-transparent" />
-                <Building2 className="h-4 w-4 relative z-10 drop-shadow-sm" />
-                <span className="hidden sm:inline relative z-10">Create New Company</span>
-                <span className="sm:hidden relative z-10">New</span>
+                <Building2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Create New Company</span>
+                <span className="sm:hidden">New</span>
               </button>
               
               <button
                 type="button"
                 onClick={() => handleModeSwitch('existing')}
                 className={cn(
-                  "relative flex items-center justify-center gap-2 py-5 px-6 transition-all duration-500 text-sm font-semibold group",
+                  "relative flex items-center justify-center gap-2 py-4 px-4 transition-all duration-300 text-sm font-semibold",
                   "border-b-4 border-transparent text-muted-foreground",
-                  "bg-gradient-to-b from-muted/30 to-muted/10",
-                  "hover:from-muted/50 hover:to-muted/30 hover:text-foreground",
-                  "hover:border-b-muted/40",
-                  "shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)]"
+                  "hover:bg-muted/50 hover:text-foreground"
                 )}
                 aria-selected={false}
               >
-                <div className="absolute inset-0 bg-gradient-to-b from-background/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <Users className="h-4 w-4 relative z-10 transition-transform group-hover:scale-110 duration-300" />
-                <span className="hidden sm:inline relative z-10">Select Existing</span>
-                <span className="sm:hidden relative z-10">Existing</span>
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">Select Existing</span>
+                <span className="sm:hidden">Existing</span>
               </button>
             </>
           )}
         </div>
       </Card>
-      </div>
 
       {/* Form Content Card */}
       <Card className="w-full overflow-hidden mb-8 relative z-10 border shadow-lg bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
