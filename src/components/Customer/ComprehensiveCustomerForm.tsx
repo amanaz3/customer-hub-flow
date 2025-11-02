@@ -532,7 +532,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       label: 'Deal Info',
       isComplete: false, // Add logic for deal info completion if needed
       isActive: accordionValue.includes('application'),
-      isVisible: !!isServiceSelectionComplete,
+      isVisible: !!isServiceSelectionComplete || (accordionValue.includes('service') && !!watchProductId),
     },
   ];
 
