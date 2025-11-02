@@ -110,7 +110,7 @@ const ApplicationsList = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold">
             {isAdmin ? 'All Applications' : 'My Applications'}
@@ -124,9 +124,10 @@ const ApplicationsList = () => {
         </div>
         <Button
           onClick={() => navigate('/applications/new')}
-          className="mt-4 md:mt-0"
+          className="bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg transition-all h-9 px-4 font-medium whitespace-nowrap"
+          size="sm"
         >
-          <Plus className="w-4 h-4 mr-2" />
+          <Plus className="w-4 h-4 mr-1.5" />
           New Application
         </Button>
       </div>
