@@ -1250,9 +1250,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           </div>
         </CardContent>
       </Card>
-
-      {/* Smooth Gradient Transition */}
-      <div className="h-6 bg-gradient-to-b from-background via-primary/5 to-background" />
       
       {/* Customer Selection Card - Sticky */}
       <div className="sticky z-40" style={{ top: `${stageHeight + 12}px` }}>
