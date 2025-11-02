@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -162,6 +162,27 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [accordionValue, setAccordionValue] = useState<string[]>(["basic"]);
   const [highlightDealInfo, setHighlightDealInfo] = useState(false);
+  // Dynamic sticky measurements for consistent spacing
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const stickyNavRef = useRef<HTMLDivElement | null>(null);
+  const [stageHeight, setStageHeight] = useState(0);
+  const [stickyNavHeight, setStickyNavHeight] = useState(0);
+  const stickyGap = 12; // px gap to keep consistent padding
+  const totalStickyOffset = stageHeight + stickyNavHeight + stickyGap;
+
+  useEffect(() => {
+    const update = () => {
+      const sh = stageRef.current?.offsetHeight ?? 0;
+      const nh = stickyNavRef.current?.offsetHeight ?? 0;
+      setStageHeight(sh);
+      setStickyNavHeight(nh);
+      // Expose for CSS if needed
+      document.documentElement.style.setProperty('--customer-sticky-offset', `${sh + nh}px`);
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, [currentStage, customerMode, documents.length]);
   const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
   const { user, isAdmin } = useAuth();
@@ -575,9 +596,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     setTimeout(() => {
       const sectionElement = document.querySelector(`[data-section-id="${sectionId}"]`);
       if (sectionElement) {
-        const elementPosition = sectionElement.getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - 80; // 80px offset for sticky header
-        
+        const elementPosition = (sectionElement as HTMLElement).getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - totalStickyOffset;
         window.scrollTo({
           top: offsetPosition,
           behavior: 'smooth'
@@ -1017,7 +1037,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       )}
 
       {/* Stage Indicator - Modern Gradient Design */}
-      <Card className="sticky top-0 z-40 border-0 shadow-xl mb-3 overflow-hidden bg-background">
+      <Card ref={stageRef} className="sticky top-0 z-40 border-0 shadow-xl mb-3 overflow-hidden bg-background">
         {/* Solid background to fully cover content during scroll overlap */}
         <CardContent className="relative py-3 px-4">
           <div className="flex items-center justify-between">
@@ -1220,7 +1240,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       <Card className="w-full overflow-visible mt-3 relative z-10">
         <CardContent className="space-y-4 pb-6 pt-6">
         {/* Customer Selection Section - Sticky Compact */}
-        <div className="sticky top-16 z-50 isolate bg-background -mx-6 px-6 pb-2 border-b shadow-md">
+        <div ref={stickyNavRef} className="sticky z-50 isolate bg-background -mx-6 px-6 pb-2 border-b shadow-md mb-3" style={{ top: stageHeight + stickyGap }}>
           <div className="grid grid-cols-2 w-full bg-background border-b border-border">
             {customerMode === 'existing' ? (
               <>
@@ -1371,7 +1391,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                     <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                       {/* Basic Information */}
-                      <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm scroll-mt-[240px]" data-section-id="basic">
+                      <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
                         <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                           <h3 className="text-base font-medium">Basic Information</h3>
                         </AccordionTrigger>
@@ -1434,7 +1454,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </AccordionItem>
 
                       {/* Source & Channel */}
-                      <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm scroll-mt-[240px]" data-section-id="lead">
+                      <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm" data-section-id="lead" style={{ scrollMarginTop: totalStickyOffset }}>
                         <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                           <h3 className="text-base font-medium">Source & Channel Information</h3>
                         </AccordionTrigger>
@@ -1464,7 +1484,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </AccordionItem>
 
                       {/* Service Selection */}
-                      <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm scroll-mt-[240px]" data-section-id="service">
+                      <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm" data-section-id="service" style={{ scrollMarginTop: totalStickyOffset }}>
                         <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                           <h3 className="text-base font-medium">Service Selection</h3>
                         </AccordionTrigger>
@@ -1609,7 +1629,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
-                <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm scroll-mt-[240px]" data-section-id="basic">
+                <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                     <h3 className="text-base font-medium">Basic Information</h3>
                   </AccordionTrigger>
@@ -1673,7 +1693,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
             {/* Source & Channel - Shown when basic info complete OR clicked in nav */}
             {(isBasicInfoComplete || accordionValue.includes('lead')) && (
-            <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm scroll-mt-[240px]" data-section-id="lead">
+            <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm" data-section-id="lead" style={{ scrollMarginTop: totalStickyOffset }}>
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                     <h3 className="text-base font-medium">Source & Channel Information</h3>
                   </AccordionTrigger>
@@ -1705,7 +1725,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
         {/* Service Selection - Shown when basic info complete OR clicked in nav */}
         {(isBasicInfoComplete || accordionValue.includes('service')) && (
-        <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm scroll-mt-[240px]" data-section-id="service">
+        <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm" data-section-id="service" style={{ scrollMarginTop: totalStickyOffset }}>
               <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                 <h3 className="text-base font-medium">Service Selection</h3>
               </AccordionTrigger>
@@ -3047,7 +3067,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
               {/* Corporate Tax Registration Details */}
               {hasTaxRegistration && (
-                <AccordionItem value="tax-registration" className="border rounded-lg bg-background shadow-sm scroll-mt-[240px]">
+                <AccordionItem value="tax-registration" className="border rounded-lg bg-background shadow-sm" style={{ scrollMarginTop: totalStickyOffset }}>
                   <AccordionTrigger className="px-4 hover:no-underline">
                     <h3 className="text-base font-medium">Corporate Tax Registration Details</h3>
                   </AccordionTrigger>
@@ -3187,7 +3207,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
               {/* Corporate Tax Filing Details */}
               {hasTaxFiling && (
-                <AccordionItem value="tax-filing" className="border rounded-lg bg-background shadow-sm scroll-mt-[240px]">
+                <AccordionItem value="tax-filing" className="border rounded-lg bg-background shadow-sm" style={{ scrollMarginTop: totalStickyOffset }}>
                   <AccordionTrigger className="px-4 hover:no-underline">
                     <h3 className="text-base font-medium">Corporate Tax Filing Details</h3>
                   </AccordionTrigger>
