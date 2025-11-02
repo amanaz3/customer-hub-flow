@@ -310,6 +310,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const watchLicenseType = form.watch('license_type');
   const watchShareholderCount = form.watch('no_of_shareholders');
   const watchProductId = form.watch('product_id');
+  
+  // Watch form fields for section validation
+  const watchName = form.watch('name');
+  const watchEmail = form.watch('email');
+  const watchMobile = form.watch('mobile');
+  const watchCompany = form.watch('company');
+  const watchLeadSource = form.watch('lead_source');
+  
+  // Section completion checks
+  const isBasicInfoComplete = watchName && watchEmail && watchMobile && watchCompany;
+  const isSourceChannelComplete = isBasicInfoComplete && watchLeadSource;
+  const isServiceSelectionComplete = isSourceChannelComplete && watchProductId;
 
   // Auto-scroll and highlight Deal Information when product is selected
   useEffect(() => {
@@ -1143,9 +1155,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </AccordionItem>
 
                 {/* Source & Channel */}
-                <AccordionItem value="lead" className="border rounded-lg">
-                  <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
-                    <h3 className="text-base font-medium">Source & Channel Information</h3>
+                <AccordionItem value="lead" className="border rounded-lg" disabled={!isBasicInfoComplete}>
+                  <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2" disabled={!isBasicInfoComplete}>
+                    <h3 className="text-base font-medium flex items-center gap-2">
+                      Source & Channel Information
+                      {!isBasicInfoComplete && (
+                        <span className="text-xs text-muted-foreground">(Complete Basic Info first)</span>
+                      )}
+                    </h3>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
                     <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1172,11 +1189,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </AccordionContent>
                 </AccordionItem>
 
-                {/* Service Selection */}
-                <AccordionItem value="service" className="border rounded-lg">
-                  <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
-                    <h3 className="text-base font-medium">Service Selection</h3>
-                  </AccordionTrigger>
+            {/* Service Selection */}
+            <AccordionItem value="service" className="border rounded-lg" disabled={!isSourceChannelComplete}>
+              <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2" disabled={!isSourceChannelComplete}>
+                <h3 className="text-base font-medium flex items-center gap-2">
+                  Service Selection
+                  {!isSourceChannelComplete && (
+                    <span className="text-xs text-muted-foreground">(Complete Source & Channel first)</span>
+                  )}
+                </h3>
+              </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
                     <div className="pt-2 space-y-4">
                       {/* Category Filter Tabs */}
