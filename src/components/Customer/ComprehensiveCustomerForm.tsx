@@ -973,9 +973,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <div>
                 <h3 className="font-bold text-sm mb-1 text-gray-900 dark:text-gray-100">
                   {currentStage === 'details' 
-                    ? 'Step 1: Fill Application Details'
+                    ? 'Step 1: Fill Draft Details'
                     : currentStage === 'preview'
-                    ? 'Step 2: Review Your Application'
+                    ? 'Step 2: Review Your Draft'
                     : 'Step 3: Upload Documents'
                   }
                 </h3>
@@ -983,8 +983,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   {currentStage === 'details'
                     ? 'Select the customer, choose service type, and provide all required business information.'
                     : currentStage === 'preview'
-                    ? 'Review all the details before submitting your application. You can go back to edit if needed.'
-                    : 'Upload all required documents for the application. Mandatory documents must be uploaded before completion.'
+                    ? 'Review all the details before saving your draft. You can go back to edit if needed.'
+                    : 'Upload all required documents for the draft. Mandatory documents must be uploaded before completion.'
                   }
                 </p>
             </div>
@@ -1873,7 +1873,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               {hasHomeFinance && (
                 <>
                   <div>
-                    <h3 className="text-base font-medium mb-3">Home Finance Application Details</h3>
+                    <h3 className="text-base font-medium mb-3">Home Finance Draft Details</h3>
                     
                     {/* Personal Financial Information */}
                     <div className="mb-4">
@@ -2874,14 +2874,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   disabled={isSubmitting}
                   className="min-w-[150px]"
                 >
-                  Preview Application
+                  Preview Draft
                 </Button>
                 <Button
                   type="submit"
                   disabled={isSubmitting}
                   className="min-w-[150px]"
                 >
-                  {isSubmitting ? 'Creating Application...' : 'Submit Directly'}
+                  {isSubmitting ? 'Saving Draft...' : 'Save as Draft'}
                 </Button>
               </div>
             </form>
@@ -2892,9 +2892,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           <div className="space-y-6">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-lg font-medium">Review Application</h3>
+                <h3 className="text-lg font-medium">Review Draft</h3>
                 <p className="text-sm text-muted-foreground">
-                  Please review all details before submitting
+                  Please review all details before saving
                 </p>
               </div>
               <Badge variant="outline">Draft Preview</Badge>
@@ -3029,7 +3029,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 disabled={isSubmitting}
                 className="min-w-[150px]"
               >
-                {isSubmitting ? 'Creating Application...' : 'Confirm & Submit'}
+                {isSubmitting ? 'Saving Draft...' : 'Confirm & Save Draft'}
               </Button>
             </div>
           </div>
@@ -3104,14 +3104,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           }}
           disabled={isSubmitting}
           className="w-16 h-16 bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-2xl border-4 border-white rounded-full transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
-          title="Preview Application"
+          title="Preview Draft"
         >
           <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
           </svg>
           <span className="absolute -top-10 right-0 bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
-            Preview
+            Preview Draft
           </span>
         </button>
         <button
@@ -3119,7 +3119,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           onClick={form.handleSubmit(handleSubmit)}
           disabled={isSubmitting}
           className="w-16 h-16 bg-green-600 hover:bg-green-700 text-white font-bold shadow-2xl border-4 border-white rounded-full transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
-          title="Submit Directly"
+          title="Save as Draft"
         >
           {isSubmitting ? (
             <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
@@ -3127,7 +3127,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             <>
               <Plus className="w-8 h-8" />
               <span className="absolute -top-10 right-0 bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
-                Submit
+                Save Draft
               </span>
             </>
           )}
