@@ -1220,7 +1220,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       <Card className="w-full overflow-visible mt-3 relative z-10">
         <CardContent className="space-y-4 pb-6 pt-6">
         {/* Customer Selection Section - Sticky Compact */}
-        <div className="sticky top-14 sm:top-16 z-50 isolate bg-background -mx-6 px-6 pb-2 border-b shadow-md">
+        <div className="sticky top-[120px] sm:top-[128px] z-50 isolate bg-background -mx-6 px-6 pb-2 border-b shadow-md">
           <div className="grid grid-cols-2 w-full bg-background border-b border-border">
             {customerMode === 'existing' ? (
               <>
