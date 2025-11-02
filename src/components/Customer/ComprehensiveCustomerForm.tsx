@@ -3320,7 +3320,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </Card>
       
       {/* Customer Selection Section - Fixed at Bottom */}
-      <div className="fixed bottom-0 left-0 right-0 z-50 border-t-2 border-primary/20 shadow-2xl bg-background">
+      <div className="fixed bottom-0 left-0 md:left-64 right-0 z-50 border-t-2 border-primary/20 shadow-2xl bg-background">
         {/* Visual Indicator Arrow */}
         <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex flex-col items-center animate-pulse">
           <div className="text-primary font-bold text-xs mb-1">CONTROL PANEL</div>
