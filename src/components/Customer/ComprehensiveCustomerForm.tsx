@@ -3319,91 +3319,95 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </CardContent>
       </Card>
       
-      {/* Customer Selection Section - Fixed at Bottom */}
-      <div className="fixed bottom-0 left-0 md:left-64 right-0 z-50 border-t-2 border-primary/20 shadow-2xl bg-background">
-        {/* Visual Indicator Arrow */}
-        <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex flex-col items-center animate-pulse">
-          <div className="text-primary font-bold text-xs mb-1">CONTROL PANEL</div>
-          <div className="w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-primary"></div>
-        </div>
-        
-        <div className="grid grid-cols-2 w-full bg-background border-b border-border">
-          <button
-            type="button"
-            onClick={() => handleModeSwitch('new')}
-            className={cn(
-              "relative flex items-center justify-center gap-1.5 py-3 px-3 rounded-none border-b-3 transition-all text-sm font-medium group",
-              customerMode === 'new'
-                ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                : "border-b-transparent text-muted-foreground hover:text-foreground hover:bg-accent"
-            )}
-            aria-selected={customerMode === 'new'}
-            title="Switch to creating a new company application"
-          >
-            <Building2 className="h-4 w-4" />
-            <span className="hidden sm:inline">Create New Company</span>
-            <span className="sm:hidden">New</span>
-            {/* Tooltip */}
-            <span className="absolute -top-14 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-xs px-3 py-2 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border pointer-events-none z-50">
-              Fill form for a new company
-            </span>
-          </button>
-          
-          <button
-            type="button"
-            onClick={() => handleModeSwitch('existing')}
-            className={cn(
-              "relative flex items-center justify-center gap-1.5 py-3 px-3 rounded-none border-b-3 transition-all text-sm font-medium group",
-              customerMode === 'existing'
-                ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                : "border-b-transparent text-muted-foreground hover:text-foreground hover:bg-accent"
-            )}
-            aria-selected={customerMode === 'existing'}
-            title="Switch to selecting an existing customer"
-          >
-            <Users className="h-4 w-4" />
-            <span className="hidden sm:inline">Select Existing</span>
-            <span className="sm:hidden">Existing</span>
-            {/* Tooltip */}
-            <span className="absolute -top-14 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-xs px-3 py-2 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border pointer-events-none z-50">
-              Choose from existing customers
-            </span>
-          </button>
-        </div>
-        
-        {/* Form Navigation inside sticky container */}
-        {currentStage === 'details' && (
-          <div className="bg-background border-t border-border/50">
-            <div className="flex items-center gap-0.5 overflow-x-auto py-1 px-6">
-              {navigationSections.filter(s => s.isVisible !== false).map((section, index) => (
-                <button
-                  key={section.id}
-                  type="button"
-                  onClick={() => handleSectionNavigation(section.id)}
-                  className={cn(
-                    "flex items-center gap-1 px-2 py-0.5 rounded-none border-b-2 text-xs font-medium transition-all whitespace-nowrap",
-                    "hover:bg-accent hover:text-accent-foreground",
-                    section.isActive 
-                      ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400" 
-                      : section.isComplete
-                      ? "border-b-green-300 bg-green-50/50 text-green-600 dark:bg-green-950/50 dark:text-green-500"
-                      : "border-b-transparent text-muted-foreground"
-                  )}
-                >
-                  {section.isComplete ? (
-                    <Check className="h-2.5 w-2.5 flex-shrink-0" />
-                  ) : section.isActive ? (
-                    <CircleDot className="h-2.5 w-2.5 flex-shrink-0" />
-                  ) : (
-                    <Circle className="h-2.5 w-2.5 flex-shrink-0" />
-                  )}
-                  <span className="hidden sm:inline">{section.label}</span>
-                  <span className="sm:hidden">{index + 1}</span>
-                </button>
-              ))}
+      {/* Customer Selection Section - Fixed at Bottom aligned with container */}
+      <div className="fixed bottom-0 left-0 right-0 z-50">
+        <div className="max-w-5xl mx-auto px-4">
+          <div className="border-t-2 border-primary/20 shadow-2xl bg-background relative">
+            {/* Visual Indicator Arrow */}
+            <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex flex-col items-center animate-pulse">
+              <div className="text-primary font-bold text-xs mb-1">CONTROL PANEL</div>
+              <div className="w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-primary"></div>
             </div>
+            
+            <div className="grid grid-cols-2 w-full bg-background border-b border-border">
+              <button
+                type="button"
+                onClick={() => handleModeSwitch('new')}
+                className={cn(
+                  "relative flex items-center justify-center gap-1.5 py-3 px-3 rounded-none border-b-3 transition-all text-sm font-medium group",
+                  customerMode === 'new'
+                    ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
+                    : "border-b-transparent text-muted-foreground hover:text-foreground hover:bg-accent"
+                )}
+                aria-selected={customerMode === 'new'}
+                title="Switch to creating a new company application"
+              >
+                <Building2 className="h-4 w-4" />
+                <span className="hidden sm:inline">Create New Company</span>
+                <span className="sm:hidden">New</span>
+                {/* Tooltip */}
+                <span className="absolute -top-14 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-xs px-3 py-2 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border pointer-events-none z-50">
+                  Fill form for a new company
+                </span>
+              </button>
+              
+              <button
+                type="button"
+                onClick={() => handleModeSwitch('existing')}
+                className={cn(
+                  "relative flex items-center justify-center gap-1.5 py-3 px-3 rounded-none border-b-3 transition-all text-sm font-medium group",
+                  customerMode === 'existing'
+                    ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
+                    : "border-b-transparent text-muted-foreground hover:text-foreground hover:bg-accent"
+                )}
+                aria-selected={customerMode === 'existing'}
+                title="Switch to selecting an existing customer"
+              >
+                <Users className="h-4 w-4" />
+                <span className="hidden sm:inline">Select Existing</span>
+                <span className="sm:hidden">Existing</span>
+                {/* Tooltip */}
+                <span className="absolute -top-14 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-xs px-3 py-2 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border pointer-events-none z-50">
+                  Choose from existing customers
+                </span>
+              </button>
+            </div>
+            
+            {/* Form Navigation inside sticky container */}
+            {currentStage === 'details' && (
+              <div className="bg-background border-t border-border/50">
+                <div className="flex items-center gap-0.5 overflow-x-auto py-1 px-6">
+                  {navigationSections.filter(s => s.isVisible !== false).map((section, index) => (
+                    <button
+                      key={section.id}
+                      type="button"
+                      onClick={() => handleSectionNavigation(section.id)}
+                      className={cn(
+                        "flex items-center gap-1 px-2 py-0.5 rounded-none border-b-2 text-xs font-medium transition-all whitespace-nowrap",
+                        "hover:bg-accent hover:text-accent-foreground",
+                        section.isActive 
+                          ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400" 
+                          : section.isComplete
+                          ? "border-b-green-300 bg-green-50/50 text-green-600 dark:bg-green-950/50 dark:text-green-500"
+                          : "border-b-transparent text-muted-foreground"
+                      )}
+                    >
+                      {section.isComplete ? (
+                        <Check className="h-2.5 w-2.5 flex-shrink-0" />
+                      ) : section.isActive ? (
+                        <CircleDot className="h-2.5 w-2.5 flex-shrink-0" />
+                      ) : (
+                        <Circle className="h-2.5 w-2.5 flex-shrink-0" />
+                      )}
+                      <span className="hidden sm:inline">{section.label}</span>
+                      <span className="sm:hidden">{index + 1}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
       </div>
     
     {/* Confirmation Dialog for switching tabs with unsaved data */}
