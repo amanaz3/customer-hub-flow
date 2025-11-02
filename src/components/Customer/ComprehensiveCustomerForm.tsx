@@ -2820,8 +2820,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <div className="flex justify-end space-x-4 pt-4 pb-2">
                 <Button
                   type="button"
-                  onClick={() => {
-                    const isValid = form.trigger();
+                  variant="outline"
+                  onClick={async () => {
+                    const isValid = await form.trigger();
                     if (isValid) {
                       setCurrentStage('preview');
                     }
@@ -2830,6 +2831,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   className="min-w-[150px]"
                 >
                   Preview Application
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="min-w-[150px]"
+                >
+                  {isSubmitting ? 'Creating Application...' : 'Submit Directly'}
                 </Button>
               </div>
             </form>
@@ -3039,34 +3047,48 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </CardContent>
     </Card>
 
-    {/* Floating Submit Button - Only show on details stage before submission */}
+    {/* Floating Action Buttons - Only show on details stage before submission */}
     {currentStage === 'details' && !createdCustomerId && (
-      <button
-        type="button"
-        onClick={async () => {
-          const isValid = await form.trigger();
-          if (isValid) {
-            setCurrentStage('preview');
-          }
-        }}
-        disabled={isSubmitting}
-        className="fixed bottom-8 right-8 w-16 h-16 bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-2xl border-4 border-white rounded-full z-50 transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
-        title="Preview Application"
-      >
-        {isSubmitting ? (
-          <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
-        ) : (
-          <>
-            <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-            </svg>
-            <span className="absolute -top-10 right-0 bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
-              Preview Application
-            </span>
-          </>
-        )}
-      </button>
+      <div className="fixed bottom-8 right-8 flex gap-3 z-50">
+        <button
+          type="button"
+          onClick={async () => {
+            const isValid = await form.trigger();
+            if (isValid) {
+              setCurrentStage('preview');
+            }
+          }}
+          disabled={isSubmitting}
+          className="w-16 h-16 bg-blue-600 hover:bg-blue-700 text-white font-bold shadow-2xl border-4 border-white rounded-full transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
+          title="Preview Application"
+        >
+          <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+          <span className="absolute -top-10 right-0 bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
+            Preview
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={form.handleSubmit(handleSubmit)}
+          disabled={isSubmitting}
+          className="w-16 h-16 bg-green-600 hover:bg-green-700 text-white font-bold shadow-2xl border-4 border-white rounded-full transition-all hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
+          title="Submit Directly"
+        >
+          {isSubmitting ? (
+            <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
+          ) : (
+            <>
+              <Plus className="w-8 h-8" />
+              <span className="absolute -top-10 right-0 bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
+                Submit
+              </span>
+            </>
+          )}
+        </button>
+      </div>
     )}
     </div>
   );
