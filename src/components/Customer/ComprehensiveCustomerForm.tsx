@@ -406,7 +406,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       setTimeout(() => {
         const dealInfoSection = document.querySelector('[data-section="deal-information"]');
         if (dealInfoSection) {
-          dealInfoSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          const elementPosition = dealInfoSection.getBoundingClientRect().top;
+          const offsetPosition = elementPosition + window.pageYOffset - 80;
+          
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
           
           // Add highlight pulse effect
           setHighlightDealInfo(true);
@@ -558,11 +564,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       return prev;
     });
 
-    // Scroll to the section
+    // Scroll to the section with offset for sticky header
     setTimeout(() => {
       const sectionElement = document.querySelector(`[data-section-id="${sectionId}"]`);
       if (sectionElement) {
-        sectionElement.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const elementPosition = sectionElement.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - 80; // 80px offset for sticky header
+        
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'smooth'
+        });
       }
     }, 100);
   }, []);
