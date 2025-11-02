@@ -1108,25 +1108,20 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   "h-2 rounded-full transition-all duration-700 flex-1 relative overflow-hidden",
                   currentStage === 'preview' || currentStage === 'documents' 
                     ? "bg-gradient-to-r from-emerald-400 via-blue-400 to-blue-500 shadow-md shadow-blue-500/30" 
-                    : "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-700"
+                    : "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
                 )}>
                   {(currentStage === 'preview' || currentStage === 'documents') && (
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
                   )}
                 </div>
                 <div className={cn(
-                  "absolute -right-3 w-12 h-12 rounded-full transition-all duration-500 flex items-center justify-center",
+                  "absolute -right-3 w-12 h-12 rounded-full transition-all duration-500 flex items-center justify-center backdrop-blur-sm",
                   currentStage === 'preview' || currentStage === 'documents'
                     ? "bg-gradient-to-br from-blue-500 to-blue-700 shadow-2xl shadow-blue-500/70 ring-4 ring-blue-400/50 ring-offset-2 ring-offset-background" 
-                    : "bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700 shadow-lg"
+                    : "bg-gray-400 dark:bg-gray-600 shadow-lg"
                 )}>
-                  {/* Chevron Arrow */}
-                  <div className={cn(
-                    "w-6 h-6 border-r-4 border-t-4 rotate-45 transition-all duration-300",
-                    currentStage === 'preview' || currentStage === 'documents'
-                      ? "border-white"
-                      : "border-white/70"
-                  )} />
+                  {/* Chevron Arrow - Always white for maximum contrast */}
+                  <div className="w-6 h-6 border-r-[3px] border-t-[3px] border-white rotate-45 transition-all duration-300" />
                 </div>
               </div>
             </div>
@@ -1179,25 +1174,20 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   "h-2 rounded-full transition-all duration-700 flex-1 relative overflow-hidden",
                   createdCustomerId 
                     ? "bg-gradient-to-r from-blue-400 via-purple-400 to-purple-500 shadow-md shadow-purple-500/30" 
-                    : "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-800 dark:to-gray-700"
+                    : "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
                 )}>
                   {createdCustomerId && (
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
                   )}
                 </div>
                 <div className={cn(
-                  "absolute -right-3 w-12 h-12 rounded-full transition-all duration-500 flex items-center justify-center",
+                  "absolute -right-3 w-12 h-12 rounded-full transition-all duration-500 flex items-center justify-center backdrop-blur-sm",
                   createdCustomerId
                     ? "bg-gradient-to-br from-purple-500 to-purple-700 shadow-2xl shadow-purple-500/70 ring-4 ring-purple-400/50 ring-offset-2 ring-offset-background" 
-                    : "bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700 shadow-lg"
+                    : "bg-gray-400 dark:bg-gray-600 shadow-lg"
                 )}>
-                  {/* Chevron Arrow */}
-                  <div className={cn(
-                    "w-6 h-6 border-r-4 border-t-4 rotate-45 transition-all duration-300",
-                    createdCustomerId
-                      ? "border-white"
-                      : "border-white/70"
-                  )} />
+                  {/* Chevron Arrow - Always white for maximum contrast */}
+                  <div className="w-6 h-6 border-r-[3px] border-t-[3px] border-white rotate-45 transition-all duration-300" />
                 </div>
               </div>
             </div>
