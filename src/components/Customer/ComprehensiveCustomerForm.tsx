@@ -1382,8 +1382,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </AccordionContent>
                 </AccordionItem>
 
-            {/* Source & Channel - Shown when basic info complete OR clicked in nav */}
-            {(isBasicInfoComplete || accordionValue.includes('lead')) && (
+            {/* Source & Channel */}
             <AccordionItem value="lead" className="border rounded-lg" data-section-id="lead">
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                     <h3 className="text-base font-medium">Source & Channel Information</h3>
@@ -1412,10 +1411,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </div>
                   </AccordionContent>
                 </AccordionItem>
-                )}
 
-        {/* Service Selection - Shown when basic info complete OR clicked in nav */}
-        {(isBasicInfoComplete || accordionValue.includes('service')) && (
+        {/* Service Selection */}
         <AccordionItem value="service" className="border rounded-lg" data-section-id="service">
               <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                 <h3 className="text-base font-medium">Service Selection</h3>
@@ -1539,10 +1536,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>
                         )}
                        </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-                )}
+                     </div>
+                   </AccordionContent>
+                 </AccordionItem>
 
         {/* Deal Information - Only shown when service selection is complete OR when service is active and product is selected */}
         {(isServiceSelectionComplete || (accordionValue.includes('service') && watchProductId)) && (
