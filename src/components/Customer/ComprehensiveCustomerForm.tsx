@@ -1186,14 +1186,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </CardContent>
       </Card>
 
-         {/* Stage Description Banner */}
+         {/* Stage Description Banner - Sticky */}
           <div className={cn(
-            "mt-6 p-4 rounded-lg border-2 transition-all duration-300",
+            "sticky top-0 z-30 mt-6 p-4 rounded-lg border-2 transition-all duration-300 backdrop-blur-sm shadow-md",
             currentStage === 'details' 
-              ? "bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800"
+              ? "bg-green-50/95 border-green-200 dark:bg-green-950/95 dark:border-green-800"
               : currentStage === 'preview'
-              ? "bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800"
-              : "bg-purple-50 border-purple-200 dark:bg-purple-950 dark:border-purple-800"
+              ? "bg-blue-50/95 border-blue-200 dark:bg-blue-950/95 dark:border-blue-800"
+              : "bg-purple-50/95 border-purple-200 dark:bg-purple-950/95 dark:border-purple-800"
           )}>
             <div className="flex items-start gap-3 max-w-2xl mx-auto">
               <div className={cn(
