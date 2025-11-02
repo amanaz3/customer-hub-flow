@@ -1394,7 +1394,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               )}
               
               {/* Show form sections when in existing mode and details stage */}
-              {false && currentStage === 'details' && (
+              {currentStage === 'details' && (
                 <div className="space-y-4 pt-4">
                   <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                     <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
@@ -1632,7 +1632,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           onCompanyCreated={handleCompanyCreated}
         />
 
-        {false && currentStage === 'details' && customerMode === 'new' && (
+        {currentStage === 'details' && customerMode === 'new' && (
           <div className="space-y-4 pt-4">
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
@@ -3618,7 +3618,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     </Card>
 
     {/* Floating Action Buttons - Only show on details stage before submission */}
-    {false && currentStage === 'details' && !createdCustomerId && (
+    {currentStage === 'details' && !createdCustomerId && (
       <div className="fixed bottom-8 right-8 flex gap-3 z-50">
         <button
           type="button"
