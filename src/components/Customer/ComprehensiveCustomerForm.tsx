@@ -500,50 +500,27 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     });
   }, [form, toast]);
 
-  // Check if form has unsaved data
+  // Check if form has unsaved data - only consider typed text in inputs/areas
   const hasUnsavedData = useCallback(() => {
-    const formValues = form.getValues();
+    const formValues = form.getValues() as Record<string, unknown>;
+    const dirty = form.formState.dirtyFields as Record<string, any>;
 
-    // Compute booleans without exposing raw values in logs
-    const hasName = !!formValues.name?.trim();
-    const hasEmail = !!formValues.email?.trim();
-    const hasMobile = !!formValues.mobile?.trim();
-    const hasCompany = !!formValues.company?.trim();
-    const hasAmount = typeof formValues.amount === 'number' && formValues.amount > 0;
-    const hasProduct = !!formValues.product_id;
-    const hasNotes = !!formValues.customer_notes?.trim();
-    const hasJurisdiction = !!formValues.jurisdiction?.trim();
-    const hasBankPref = !!formValues.bank_preference_1?.trim();
-    const hasTurnover = typeof formValues.annual_turnover === 'number' && formValues.annual_turnover > 0;
-
-    let hasData = false;
-
-    if (customerMode === 'new') {
-      hasData = hasName || hasEmail || hasMobile || hasCompany || hasAmount || hasProduct || hasNotes || hasJurisdiction || hasBankPref || hasTurnover;
-    } else {
-      // For existing mode, consider only meaningful inputs or selection
-      hasData = (!!selectedCustomerId) || hasAmount || hasProduct || hasNotes;
-    }
-
-    // Debug (safe) – booleans only
-    console.log('[ComprehensiveCustomerForm] hasUnsavedData:', {
-      mode: customerMode,
-      selectedCustomer: !!selectedCustomerId,
-      hasName,
-      hasEmail,
-      hasMobile,
-      hasCompany,
-      hasAmount,
-      hasProduct,
-      hasNotes,
-      hasJurisdiction,
-      hasBankPref,
-      hasTurnover,
-      result: hasData,
+    // Consider a field as unsaved only if:
+    // - it's a string (typed text)
+    // - it's non-empty after trim
+    // - the field is dirty (user changed it from default)
+    const hasTypedText = Object.entries(formValues).some(([key, value]) => {
+      return typeof value === 'string' && value.trim() !== '' && !!dirty?.[key];
     });
 
-    return hasData;
-  }, [form, customerMode, selectedCustomerId]);
+    // Log safe booleans only
+    console.log('[ComprehensiveCustomerForm] hasUnsavedData (typed text only):', {
+      mode: customerMode,
+      hasTypedText,
+    });
+
+    return hasTypedText;
+  }, [form, customerMode]);
 
   // Handle mode switch with confirmation
   const handleModeSwitch = useCallback((newMode: 'new' | 'existing') => {
