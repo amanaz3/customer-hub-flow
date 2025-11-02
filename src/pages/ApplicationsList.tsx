@@ -4,12 +4,13 @@ import { useAuth } from '@/contexts/SecureAuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, FileText, Building2 } from 'lucide-react';
+import { Plus, FileText, Building2, BarChart3 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import ProductUsageAnalytics from '@/components/Analytics/ProductUsageAnalytics';
 
 interface ApplicationWithCustomer {
@@ -108,6 +109,7 @@ const ApplicationsList = () => {
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center md:justify-between">
         <div>
           <h1 className="text-3xl font-bold">
@@ -115,7 +117,7 @@ const ApplicationsList = () => {
           </h1>
           <p className="text-muted-foreground">
             {isAdmin 
-              ? 'Manage all customer applications' 
+              ? 'Manage all customer applications and view analytics' 
               : 'View and manage your applications'
             }
           </p>
@@ -129,103 +131,127 @@ const ApplicationsList = () => {
         </Button>
       </div>
 
-      {/* Product Usage Analytics */}
-      <ProductUsageAnalytics />
+      {/* Tab-based Layout */}
+      <Tabs defaultValue="applications" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 max-w-md">
+          <TabsTrigger value="applications" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Applications
+            <Badge variant="secondary" className="ml-1">
+              {filteredApplications.length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger value="analytics" className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Analytics
+          </TabsTrigger>
+        </TabsList>
 
-      <div className="flex flex-col md:flex-row gap-4">
-        <Input
-          placeholder="Search by company, contact, or type..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="md:max-w-sm"
-        />
-        <Select value={statusFilter} onValueChange={setStatusFilter}>
-          <SelectTrigger className="md:w-[180px]">
-            <SelectValue placeholder="Filter by status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Statuses</SelectItem>
-            <SelectItem value="draft">Draft</SelectItem>
-            <SelectItem value="submitted">Submitted</SelectItem>
-            <SelectItem value="under_review">Under Review</SelectItem>
-            <SelectItem value="approved">Approved</SelectItem>
-            <SelectItem value="rejected">Rejected</SelectItem>
-            <SelectItem value="completed">Completed</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+        {/* Applications Tab */}
+        <TabsContent value="applications" className="space-y-4 mt-6">
+          {/* Search and Filters */}
+          <div className="flex flex-col md:flex-row gap-4">
+            <Input
+              placeholder="Search by company, contact, or type..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="md:max-w-sm"
+            />
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="md:w-[180px]">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Statuses</SelectItem>
+                <SelectItem value="draft">Draft</SelectItem>
+                <SelectItem value="submitted">Submitted</SelectItem>
+                <SelectItem value="under_review">Under Review</SelectItem>
+                <SelectItem value="approved">Approved</SelectItem>
+                <SelectItem value="rejected">Rejected</SelectItem>
+                <SelectItem value="completed">Completed</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <FileText className="h-5 w-5" />
-            Applications ({filteredApplications.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Application Type</TableHead>
-                <TableHead>Company</TableHead>
-                <TableHead>Contact</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead>Amount</TableHead>
-                <TableHead>Created</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredApplications.length === 0 ? (
-                <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                    No applications found
-                  </TableCell>
-                </TableRow>
-              ) : (
-                filteredApplications.map((app) => (
-                  <TableRow key={app.id}>
-                    <TableCell className="font-medium">
-                      {app.application_type?.replace('_', ' ').toUpperCase() || 'N/A'}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="link"
-                        className="p-0 h-auto"
-                        onClick={() => navigate(`/customers/${app.customer?.id}`)}
-                      >
-                        <Building2 className="h-4 w-4 mr-1" />
-                        {app.customer?.company || 'N/A'}
-                      </Button>
-                    </TableCell>
-                    <TableCell>{app.customer?.name || 'N/A'}</TableCell>
-                    <TableCell>
-                      <Badge className={statusColors[app.status] || 'bg-gray-500'}>
-                        {app.status?.replace('_', ' ').toUpperCase() || 'UNKNOWN'}
-                      </Badge>
-                    </TableCell>
-                    <TableCell>
-                      ${app.application_data?.amount?.toLocaleString() || '0'}
-                    </TableCell>
-                    <TableCell>
-                      {new Date(app.created_at).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate(`/applications/${app.id}`)}
-                      >
-                        View
-                      </Button>
-                    </TableCell>
+          {/* Applications Table */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5" />
+                Applications List
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Application Type</TableHead>
+                    <TableHead>Company</TableHead>
+                    <TableHead>Contact</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead>Amount</TableHead>
+                    <TableHead>Created</TableHead>
+                    <TableHead>Actions</TableHead>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                </TableHeader>
+                <TableBody>
+                  {filteredApplications.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                        No applications found
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredApplications.map((app) => (
+                      <TableRow key={app.id}>
+                        <TableCell className="font-medium">
+                          {app.application_type?.replace('_', ' ').toUpperCase() || 'N/A'}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="link"
+                            className="p-0 h-auto"
+                            onClick={() => navigate(`/customers/${app.customer?.id}`)}
+                          >
+                            <Building2 className="h-4 w-4 mr-1" />
+                            {app.customer?.company || 'N/A'}
+                          </Button>
+                        </TableCell>
+                        <TableCell>{app.customer?.name || 'N/A'}</TableCell>
+                        <TableCell>
+                          <Badge className={statusColors[app.status] || 'bg-gray-500'}>
+                            {app.status?.replace('_', ' ').toUpperCase() || 'UNKNOWN'}
+                          </Badge>
+                        </TableCell>
+                        <TableCell>
+                          ${app.application_data?.amount?.toLocaleString() || '0'}
+                        </TableCell>
+                        <TableCell>
+                          {new Date(app.created_at).toLocaleDateString()}
+                        </TableCell>
+                        <TableCell>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => navigate(`/applications/${app.id}`)}
+                          >
+                            View
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Analytics Tab */}
+        <TabsContent value="analytics" className="mt-6">
+          <ProductUsageAnalytics />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
