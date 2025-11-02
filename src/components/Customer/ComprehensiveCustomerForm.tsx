@@ -1252,8 +1252,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </Card>
 
       
-      {/* Customer Selection Card */}
-      <Card className="w-full overflow-hidden mt-6 relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
+      {/* Customer Selection Card - Sticky */}
+      <div className="sticky z-40 mt-6" style={{ top: `${stageHeight + 12}px` }}>
+        <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
         <div className="grid grid-cols-2 w-full">
           {customerMode === 'existing' ? (
             <>
@@ -1322,6 +1323,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           )}
         </div>
       </Card>
+      </div>
 
       {/* Form Content Card */}
       <Card className="w-full overflow-hidden mb-8 relative z-10 border shadow-lg bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
