@@ -1405,8 +1405,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               {/* Show form sections when in existing mode and details stage */}
               {currentStage === 'details' && (
                 <div className="space-y-4 pt-4">
-                  <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-                    <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
+                  <Form {...form}>
+                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                      <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                       {/* Basic Information */}
                       <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
                         <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
@@ -1845,6 +1846,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       )}
                     </Accordion>
                   </form>
+                  </Form>
                 </div>
               )}
             </div>
@@ -1859,7 +1861,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
         {currentStage === 'details' && customerMode === 'new' && (
           <div className="space-y-4 pt-0">
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
                 <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
@@ -3640,6 +3643,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </div>
               </div>
             </form>
+            </Form>
           </div>
         )}
 
