@@ -1212,8 +1212,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
       <Card className="w-full overflow-hidden mt-3 relative z-10">
         <CardContent className="p-0">
-          {/* Scrollable Content Area - between top multi-step and bottom customer selection */}
-          <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 180px)', paddingBottom: '140px' }}>
+          {/* Content Area */}
+          <div>
             <div className="px-6 pt-6 space-y-4">
               {/* Customer Selection Content */}
               <div className="space-y-3">
