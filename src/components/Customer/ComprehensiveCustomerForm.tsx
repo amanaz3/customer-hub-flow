@@ -1251,9 +1251,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </CardContent>
       </Card>
       
+      {/* Helper Text for First-Time Users */}
+      <div className="mt-6 mb-3 px-1">
+        <p className="text-sm text-muted-foreground flex items-center gap-2">
+          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-primary/10 text-primary text-xs font-semibold">1</span>
+          Start by selecting an existing company or creating a new one below
+        </p>
+      </div>
+      
       {/* Customer Selection Card - Sticky */}
-      <div className="sticky z-40" style={{ top: `${stageHeight + 12}px` }}>
-        <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
+      <div className="sticky z-40 animate-pulse-subtle" style={{ top: `${stageHeight + 12}px` }}>
+        <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm ring-2 ring-primary/20 ring-offset-2 ring-offset-background">
         <div className="grid grid-cols-2 w-full">
           {customerMode === 'existing' ? (
             <>
