@@ -1213,8 +1213,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       <Card className="w-full overflow-hidden mt-3 relative z-10">
         <CardContent className="p-0">
           {/* Scrollable Content Area - Fixed height to show top and bottom sections */}
-          <div className="overflow-y-auto overflow-x-hidden" style={{ maxHeight: 'calc(100vh - 240px)' }}>
-            <div className="px-6 pt-6 pb-32 space-y-4">{/* Added pb-32 for bottom sticky section */}
+          <div className="overflow-y-auto overflow-x-hidden" style={{ maxHeight: 'calc(100vh - 340px)' }}>
+            <div className="px-6 pt-6 pb-6 space-y-4">
               {/* Instructional Hint Banner */}
               <div className={cn(
                 "flex items-center gap-3 p-3 rounded-lg border-2 transition-all duration-300",
@@ -3317,8 +3317,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             </div>
           </div>
           
-          {/* Customer Selection Section - Sticky at Bottom of Content */}
-          <div className="sticky bottom-0 z-40 bg-background/95 backdrop-blur-sm border-t-2 border-primary/20 shadow-2xl -mx-6 px-6 mt-6">
+          {/* Customer Selection Section - Separate Bottom Section */}
+          <div className="border-t-2 border-primary/20 shadow-2xl bg-background">
             {/* Visual Indicator Arrow */}
             <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex flex-col items-center animate-pulse">
               <div className="text-primary font-bold text-xs mb-1">CONTROL PANEL</div>
@@ -3371,8 +3371,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             
             {/* Form Navigation inside sticky container */}
             {currentStage === 'details' && (
-              <div className="bg-background/95 border-t border-border/50">
-                <div className="flex items-center gap-0.5 overflow-x-auto py-1">
+              <div className="bg-background border-t border-border/50">
+                <div className="flex items-center gap-0.5 overflow-x-auto py-1 px-6">
                   {navigationSections.filter(s => s.isVisible !== false).map((section, index) => (
                     <button
                       key={section.id}
