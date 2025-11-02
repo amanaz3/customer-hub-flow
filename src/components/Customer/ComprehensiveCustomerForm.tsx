@@ -158,6 +158,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [accordionValue, setAccordionValue] = useState<string[]>(["basic", "service"]);
+  const [highlightDealInfo, setHighlightDealInfo] = useState(false);
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const { uploadDocument } = useCustomer();
@@ -310,16 +311,28 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const watchShareholderCount = form.watch('no_of_shareholders');
   const watchProductId = form.watch('product_id');
 
-  // Auto-expand Deal Information and collapse Service Selection when product is selected
+  // Auto-scroll and highlight Deal Information when product is selected
   useEffect(() => {
     if (watchProductId) {
+      // Expand Deal Information section if not already expanded
       setAccordionValue(prev => {
-        const withoutService = prev.filter(item => item !== 'service');
-        if (!withoutService.includes('application')) {
-          return [...withoutService, 'application'];
+        if (!prev.includes('application')) {
+          return [...prev, 'application'];
         }
-        return withoutService;
+        return prev;
       });
+
+      // Scroll to Deal Information section smoothly
+      setTimeout(() => {
+        const dealInfoSection = document.querySelector('[data-section="deal-information"]');
+        if (dealInfoSection) {
+          dealInfoSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          
+          // Add highlight pulse effect
+          setHighlightDealInfo(true);
+          setTimeout(() => setHighlightDealInfo(false), 2000);
+        }
+      }, 100);
     }
   }, [watchProductId]);
 
@@ -1289,9 +1302,24 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
             {/* Deal Information - Only shown when a product/service is selected */}
             {form.watch('product_id') && (
-            <AccordionItem value="application" className="border rounded-lg">
+            <AccordionItem 
+              value="application" 
+              className={cn(
+                "border rounded-lg transition-all duration-500",
+                highlightDealInfo && "ring-4 ring-blue-400 shadow-lg shadow-blue-200 dark:shadow-blue-900"
+              )}
+              data-section="deal-information"
+            >
               <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2">
-                <h3 className="text-base font-medium">Deal Information</h3>
+                <h3 className={cn(
+                  "text-base font-medium transition-colors",
+                  highlightDealInfo && "text-blue-600 dark:text-blue-400"
+                )}>
+                  Deal Information
+                  {highlightDealInfo && (
+                    <span className="ml-2 inline-block animate-pulse">✨</span>
+                  )}
+                </h3>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4 space-y-4">
                 {/* Application Information */}
