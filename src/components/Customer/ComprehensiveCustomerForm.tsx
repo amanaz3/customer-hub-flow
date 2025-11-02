@@ -1249,10 +1249,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           </div>
           
           {/* Form Navigation inside sticky container */}
-          {currentStage === 'details' && (
+          {currentStage === 'details' && (customerMode === 'new' || selectedCustomerId) && (
             <div className="bg-background border-t border-border">
               <div className="flex items-center gap-0.5 overflow-x-auto py-1">
-                {navigationSections.filter(s => s.isVisible !== false).map((section, index) => (
+                {navigationSections
+                  .filter(s => s.isVisible !== false)
+                  .filter(s => customerMode === 'new' || ['basic', 'lead', 'service'].includes(s.id))
+                  .map((section, index) => (
                   <button
                     key={section.id}
                     type="button"
