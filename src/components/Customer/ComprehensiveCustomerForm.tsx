@@ -1213,7 +1213,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       <Card className="w-full overflow-visible mt-3 relative z-10">
         <CardContent className="space-y-4 pb-6 pt-6">
         {/* Customer Selection Section - Sticky Compact */}
-        <div className="sticky top-[140px] z-30 bg-background -mx-6 px-6 pb-2 border-b shadow-sm">
+        <div className="sticky top-[140px] z-30 bg-background -mx-6 px-6 pb-2 border-b shadow-md">
           <div className="grid grid-cols-2 w-full bg-background border-b border-border">
             <button
               type="button"
@@ -1250,7 +1250,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           
           {/* Form Navigation inside sticky container */}
           {currentStage === 'details' && (
-            <div className="bg-background/95 border-t border-border/50">
+            <div className="bg-background border-t border-border">
               <div className="flex items-center gap-0.5 overflow-x-auto py-1">
                 {navigationSections.filter(s => s.isVisible !== false).map((section, index) => (
                   <button
@@ -1284,7 +1284,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </div>
         
         {/* Customer Selection Content - Not Sticky */}
-        <div className="space-y-3">
+        <div className="space-y-3 relative z-10">
 
           {customerMode === 'existing' && (
             <div className="space-y-3 pt-2">
@@ -1338,7 +1338,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         />
 
         {currentStage === 'details' && (
-          <div className="space-y-4 pt-2">
+          <div className="space-y-4 pt-2 relative z-10">
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
