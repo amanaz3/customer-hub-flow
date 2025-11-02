@@ -1009,14 +1009,27 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </div>
       )}
 
-      {/* Stage Indicator - Sticky Card */}
+      {/* Stage Indicator - Sticky Card with Header */}
       <Card className="sticky top-0 z-30 shadow-lg border mb-3">
+        {/* Header Section */}
+        <div className="bg-primary/5 border-b px-3 py-2">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-md bg-primary/10">
+              <ClipboardList className="h-4 w-4 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-base font-semibold text-foreground">New Application</h1>
+              <p className="text-xs text-muted-foreground">Complete this multi-step form to create a customer application</p>
+            </div>
+          </div>
+        </div>
+        
+        {/* Progress Section */}
         <CardHeader className="pb-1.5 pt-2.5 px-3">
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="text-sm flex items-center gap-1.5">
-                <ClipboardList className="h-3.5 w-3.5 text-primary" />
-                Application Creation Process
+                Application Progress
               </CardTitle>
               <p className="text-xs text-muted-foreground mt-0.5">
                 {currentStage === 'details' 
