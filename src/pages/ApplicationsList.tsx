@@ -124,11 +124,12 @@ const ApplicationsList = () => {
         </div>
         <Button
           onClick={() => navigate('/applications/new')}
-          className="bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg transition-all h-9 px-4 font-medium whitespace-nowrap"
+          className="bg-green-600 hover:bg-green-700 text-white shadow-md hover:shadow-lg transition-all h-9 px-4 font-medium whitespace-nowrap border-0"
           size="sm"
+          style={{ color: 'white' }}
         >
-          <Plus className="w-4 h-4 mr-1.5" />
-          New Application
+          <Plus className="w-4 h-4 mr-1.5 text-white" />
+          <span className="text-white">New Application</span>
         </Button>
       </div>
 
