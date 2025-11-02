@@ -30,6 +30,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
+import { NavigationBlocker } from '@/components/Navigation/NavigationBlocker';
 
 // Form validation schema
 const formSchema = z.object({
@@ -833,6 +834,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
   return (
     <div className="space-y-6 relative">
+      {/* Navigation Blocker - prevents navigation when there's unsaved data */}
+      <NavigationBlocker 
+        when={hasUnsavedData() && !createdCustomerId} 
+        message="You have unsaved changes in the application form. Leaving this page will discard all your progress. Are you sure you want to continue?"
+      />
+      
       {/* Success Transition Overlay */}
       {showSuccessTransition && (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center animate-fade-in">
