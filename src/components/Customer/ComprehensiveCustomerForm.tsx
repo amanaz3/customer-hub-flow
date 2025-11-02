@@ -1212,9 +1212,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
       <Card className="w-full overflow-hidden mt-3 relative z-10">
         <CardContent className="p-0">
-          {/* Content Area */}
-          <div>
-            <div className="px-6 pt-6 space-y-4">
+          {/* Scrollable Content Area - Fixed height to show top and bottom sections */}
+          <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
+            <div className="px-6 pt-6 pb-4 space-y-4">
               {/* Customer Selection Content */}
               <div className="space-y-3">
                 {customerMode === 'existing' && (
