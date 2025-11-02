@@ -3326,7 +3326,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             }
           }}
           disabled={isSubmitting}
-          className="w-12 h-12 bg-primary hover:bg-primary/90 text-primary-foreground font-semibold shadow-lg border-2 border-primary/20 rounded-full transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
+          className="w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg border-2 border-blue-600/20 rounded-full transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
           title="Preview Draft"
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
