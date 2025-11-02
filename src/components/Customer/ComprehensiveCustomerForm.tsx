@@ -165,6 +165,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
   const stickyNavRef = useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [stageHeight, setStageHeight] = useState(0);
   const [stickyNavHeight, setStickyNavHeight] = useState(0);
   const stickyGap = 12; // px gap to keep consistent padding
@@ -183,6 +184,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     window.addEventListener('resize', update);
     return () => window.removeEventListener('resize', update);
   }, [currentStage, customerMode, documents.length]);
+
+  // Ensure keyboard scrolling targets the inner scroll container
+  useEffect(() => {
+    if (scrollContainerRef.current) {
+      scrollContainerRef.current.focus();
+    }
+  }, [currentStage]);
   const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
   const { user, isAdmin } = useAuth();
@@ -1235,7 +1243,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </Card>
 
       <Card className="w-full overflow-hidden mt-6 mb-8 relative z-10 border-0 shadow-2xl rounded-2xl bg-background sticky" style={{ top: stageHeight + stickyGap, maxHeight: `calc(100vh - ${stageHeight + stickyGap + 24}px)` }}>
-        <CardContent className="space-y-4 pb-8 pt-8 overflow-y-auto" style={{ maxHeight: '100%' }}>
+        <CardContent ref={scrollContainerRef} tabIndex={0} role="region" aria-label="Application form" onMouseEnter={() => scrollContainerRef.current?.focus()} className="space-y-4 pb-8 pt-8 overflow-y-auto focus:outline-none" style={{ maxHeight: '100%' }}>
         {/* Customer Selection Section - Sticky Compact */}
         <div ref={stickyNavRef} className="sticky z-50 isolate bg-background -mx-6 px-6 pb-2 border-b shadow-md mb-3" style={{ top: 0 }}>
           <div className="grid grid-cols-2 w-full bg-background border-b border-border">
