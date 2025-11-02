@@ -1031,14 +1031,24 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   <ClipboardList className="w-3.5 h-3.5" />
                 )}
               </div>
-              <span className={cn(
-                "text-2xs font-medium",
-                currentStage === 'details' || createdCustomerId
-                  ? "text-gray-900 dark:text-gray-100" 
-                  : "text-gray-500"
-              )}>
-                Step 1
-              </span>
+              <div className="text-center">
+                <div className={cn(
+                  "text-2xs font-medium leading-tight",
+                  currentStage === 'details' || createdCustomerId
+                    ? "text-gray-900 dark:text-gray-100" 
+                    : "text-gray-500"
+                )}>
+                  Step 1
+                </div>
+                <div className={cn(
+                  "text-2xs leading-tight",
+                  currentStage === 'details' || createdCustomerId
+                    ? "text-gray-700 dark:text-gray-300" 
+                    : "text-gray-400"
+                )}>
+                  Save Draft
+                </div>
+              </div>
             </div>
 
             {/* Connecting Line 1 */}
@@ -1064,14 +1074,24 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
               </div>
-              <span className={cn(
-                "text-2xs font-medium",
-                currentStage === 'preview' || currentStage === 'documents'
-                  ? "text-gray-900 dark:text-gray-100" 
-                  : "text-gray-500"
-              )}>
-                Step 2
-              </span>
+              <div className="text-center">
+                <div className={cn(
+                  "text-2xs font-medium leading-tight",
+                  currentStage === 'preview' || currentStage === 'documents'
+                    ? "text-gray-900 dark:text-gray-100" 
+                    : "text-gray-500"
+                )}>
+                  Step 2
+                </div>
+                <div className={cn(
+                  "text-2xs leading-tight",
+                  currentStage === 'preview' || currentStage === 'documents'
+                    ? "text-gray-700 dark:text-gray-300" 
+                    : "text-gray-400"
+                )}>
+                  Preview
+                </div>
+              </div>
             </div>
 
             {/* Connecting Line 2 */}
@@ -1101,16 +1121,28 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </div>
                 )}
               </div>
-              <span className={cn(
-                "text-2xs font-medium",
-                currentStage === 'documents' && createdCustomerId
-                  ? "text-gray-900 dark:text-gray-100" 
-                  : createdCustomerId
-                  ? "text-gray-700 dark:text-gray-300"
-                  : "text-gray-500"
-              )}>
-                Step 3
-              </span>
+              <div className="text-center">
+                <div className={cn(
+                  "text-2xs font-medium leading-tight",
+                  currentStage === 'documents' && createdCustomerId
+                    ? "text-gray-900 dark:text-gray-100" 
+                    : createdCustomerId
+                    ? "text-gray-700 dark:text-gray-300"
+                    : "text-gray-500"
+                )}>
+                  Step 3
+                </div>
+                <div className={cn(
+                  "text-2xs leading-tight",
+                  currentStage === 'documents' && createdCustomerId
+                    ? "text-gray-700 dark:text-gray-300" 
+                    : createdCustomerId
+                    ? "text-gray-600 dark:text-gray-400"
+                    : "text-gray-400"
+                )}>
+                  Docs
+                </div>
+              </div>
             </div>
           </div>
         </CardContent>
