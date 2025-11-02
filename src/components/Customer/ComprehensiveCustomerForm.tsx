@@ -1309,25 +1309,20 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         onCompanyCreated={handleCompanyCreated}
       />
 
-      <Card className="w-full overflow-hidden relative z-10">
-        <CardContent className="p-0">
-          {/* Scrollable Content Area */}
-          <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 400px)' }}>
-            <div className="px-6 pt-6 pb-4 space-y-4">
-
-              {currentStage === 'details' && (
-                <div className="space-y-4">
-                  <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-              <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
-                
-                {/* Create Company Section - Parent Container */}
-                <AccordionItem value="company-creation" className="border-2 border-primary/30 rounded-lg bg-gradient-to-br from-primary/5 to-accent/5" data-section-id="company-creation">
-                  <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b bg-primary/10">
+      {/* Create Company Section - Sticky */}
+      {currentStage === 'details' && (
+        <Card className="sticky top-[220px] z-20 w-full overflow-hidden mb-3 border-2 border-primary/30 shadow-xl bg-gradient-to-br from-primary/5 to-accent/5">
+          <CardContent className="p-0">
+            <form onSubmit={form.handleSubmit(handleSubmit)}>
+              <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue}>
+                <AccordionItem value="company-creation" className="border-0" data-section-id="company-creation">
+                  <AccordionTrigger className="px-4 py-3 hover:no-underline justify-start gap-2 border-b bg-primary/10">
                     <Building2 className="h-5 w-5 text-primary" />
                     <h3 className="text-lg font-semibold text-primary">Create Company</h3>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4 pt-2">
-                    <div className="space-y-4">
+                    <div className="space-y-4 max-h-[300px] overflow-y-auto">
+                      <Accordion type="multiple" defaultValue={['basic', 'lead', 'service']} className="space-y-3">
                 
                 {/* Basic Information */}
                 <AccordionItem value="basic" className="border rounded-lg" data-section-id="basic">
@@ -1549,11 +1544,26 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                      </div>
                    </AccordionContent>
                  </AccordionItem>
-                 
+                      </Accordion>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
-                {/* End Create Company Section */}
+              </Accordion>
+            </form>
+          </CardContent>
+        </Card>
+      )}
+
+      <Card className="w-full overflow-hidden relative z-10">
+        <CardContent className="p-0">
+          {/* Scrollable Content Area */}
+          <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 400px)' }}>
+            <div className="px-6 pt-6 pb-4 space-y-4">
+
+              {currentStage === 'details' && (
+                <div className="space-y-4">
+                  <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+              <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
 
         {/* Deal Information - Only shown when service selection is complete OR when service is active and product is selected */}
         {(isServiceSelectionComplete || (accordionValue.includes('service') && watchProductId)) && (
