@@ -1234,7 +1234,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 <div>
                   <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
                     <span className="text-xs">📋</span>
-                    <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Application Information</h4>
+                    <h4 className="text-xs font-semibold text-foreground">Application Information</h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {hasCompanyFormation && (
@@ -1528,7 +1528,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   <div className="mt-3">
                     <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
                       <span className="text-xs">🏢</span>
-                      <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Business Information</h4>
+                      <h4 className="text-xs font-semibold text-foreground">Business Information</h4>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -1619,7 +1619,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 <div className="mt-3">
                   <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
                     <span className="text-xs">💰</span>
-                    <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Financial Information</h4>
+                    <h4 className="text-xs font-semibold text-foreground">Financial Information</h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
@@ -1703,7 +1703,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   <div className="mt-3">
                     <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
                       <span className="text-xs">ℹ️</span>
-                      <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Required Documents</h4>
+                      <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
                     </div>
                     <p className="text-xs text-foreground/70 italic mb-2 px-2 ml-3 flex items-start gap-1.5">
                       <span className="text-base leading-none">💡</span>
@@ -2087,7 +2087,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     <div className="mt-3">
                       <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
                         <span className="text-xs">ℹ️</span>
-                        <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Required Documents</h4>
+                        <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
                       </div>
                       <p className="text-xs text-foreground/70 italic mb-2 px-2 ml-3 flex items-start gap-1.5">
                         <span className="text-base leading-none">💡</span>
@@ -2347,7 +2347,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     <div className="mt-3">
                       <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
                         <span className="text-xs">ℹ️</span>
-                        <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Required Documents</h4>
+                        <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
                       </div>
                       <p className="text-xs text-foreground/70 italic mb-2 px-2 ml-3 flex items-start gap-1.5">
                         <span className="text-base leading-none">💡</span>
@@ -2493,7 +2493,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     <div className="mt-3">
                       <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
                         <span className="text-xs">ℹ️</span>
-                        <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Required Documents</h4>
+                        <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
                       </div>
                       <p className="text-xs text-foreground/70 italic mb-2 px-2 ml-3 flex items-start gap-1.5">
                         <span className="text-base leading-none">💡</span>
@@ -2661,7 +2661,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     <div className="mt-3">
                       <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
                         <span className="text-xs">ℹ️</span>
-                        <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Required Documents</h4>
+                        <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
                       </div>
                       <p className="text-xs text-foreground/70 italic mb-2 px-2 ml-3 flex items-start gap-1.5">
                         <span className="text-base leading-none">💡</span>
