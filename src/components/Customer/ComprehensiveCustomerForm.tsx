@@ -1210,58 +1210,88 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </CardContent>
       </Card>
 
-      {/* Customer Selection Section - Control Panel */}
-      <Card className="sticky top-[76px] z-30 w-full overflow-hidden mb-3 border-2 border-primary/20 shadow-xl">
-        <CardContent className="p-0">
+      <Card className="w-full overflow-visible mt-3 relative z-10">
+        <CardContent className="space-y-4 pb-6 pt-6">
+        {/* Customer Selection Section - Sticky Compact */}
+        <div className="sticky top-[140px] z-20 bg-background/95 backdrop-blur-sm -mx-6 px-6 border-b">
           <div className="grid grid-cols-2 w-full bg-background border-b border-border">
             <button
               type="button"
               onClick={() => handleModeSwitch('new')}
               className={cn(
-                "relative flex items-center justify-center gap-2 py-4 px-4 rounded-none border-b-3 transition-all text-base font-semibold group",
+                "relative flex items-center justify-center gap-1.5 py-2 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
                 customerMode === 'new'
                   ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                  : "border-b-transparent text-muted-foreground hover:text-foreground hover:bg-accent"
+                  : "border-b-transparent text-muted-foreground hover:text-foreground"
               )}
               aria-selected={customerMode === 'new'}
-              title="Switch to creating a new company application"
             >
-              <Building2 className="h-5 w-5" />
-              <span>Create New Company</span>
-              {/* Tooltip */}
-              <span className="absolute -top-14 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-xs px-3 py-2 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border pointer-events-none z-50">
-                Fill form for a new company
-              </span>
+              <Building2 className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Create New Company</span>
+              <span className="sm:hidden">New</span>
             </button>
             
             <button
               type="button"
               onClick={() => handleModeSwitch('existing')}
               className={cn(
-                "relative flex items-center justify-center gap-2 py-4 px-4 rounded-none border-b-3 transition-all text-base font-semibold group",
+                "relative flex items-center justify-center gap-1.5 py-2 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
                 customerMode === 'existing'
                   ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                  : "border-b-transparent text-muted-foreground hover:text-foreground hover:bg-accent"
+                  : "border-b-transparent text-muted-foreground hover:text-foreground"
               )}
               aria-selected={customerMode === 'existing'}
-              title="Switch to selecting an existing customer"
             >
-              <Users className="h-5 w-5" />
-              <span>Select Existing Customer</span>
-              {/* Tooltip */}
-              <span className="absolute -top-14 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-xs px-3 py-2 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border pointer-events-none z-50">
-                Choose from existing customers
-              </span>
+              <Users className="h-3.5 w-3.5" />
+              <span className="hidden sm:inline">Select Existing</span>
+              <span className="sm:hidden">Existing</span>
             </button>
           </div>
           
-          {/* Customer Selection Content */}
+          {/* Form Navigation inside sticky container */}
+          {currentStage === 'details' && (
+            <div className="bg-background/95 border-t border-border/50">
+              <div className="flex items-center gap-0.5 overflow-x-auto py-1">
+                {navigationSections.filter(s => s.isVisible !== false).map((section, index) => (
+                  <button
+                    key={section.id}
+                    type="button"
+                    onClick={() => handleSectionNavigation(section.id)}
+                    className={cn(
+                      "flex items-center gap-1 px-2 py-0.5 rounded-none border-b-2 text-xs font-medium transition-all whitespace-nowrap",
+                      "hover:bg-accent hover:text-accent-foreground",
+                      section.isActive 
+                        ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400" 
+                        : section.isComplete
+                        ? "border-b-green-300 bg-green-50/50 text-green-600 dark:bg-green-950/50 dark:text-green-500"
+                        : "border-b-transparent text-muted-foreground"
+                    )}
+                  >
+                    {section.isComplete ? (
+                      <Check className="h-2.5 w-2.5 flex-shrink-0" />
+                    ) : section.isActive ? (
+                      <CircleDot className="h-2.5 w-2.5 flex-shrink-0" />
+                    ) : (
+                      <Circle className="h-2.5 w-2.5 flex-shrink-0" />
+                    )}
+                    <span className="hidden sm:inline">{section.label}</span>
+                    <span className="sm:hidden">{index + 1}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+        
+        {/* Customer Selection Content - Not Sticky */}
+        <div className="space-y-3">
+
           {customerMode === 'existing' && (
-            <div className="p-6 space-y-3 bg-accent/10">
+            <div className="space-y-3 pt-2">
               <div className="flex gap-2">
                 <div className="flex-1">
                   <Select value={selectedCustomerId} onValueChange={handleCustomerSelect}>
-                    <SelectTrigger className="h-11">
+                    <SelectTrigger>
                       <SelectValue placeholder="Select a customer..." />
                     </SelectTrigger>
                     <SelectContent>
@@ -1285,45 +1315,32 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   size="icon"
                   onClick={() => setShowCreateDialog(true)}
                   title="Create new company"
-                  className="h-11 w-11"
                 >
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
               {selectedCustomerId && (
-                <div className="p-4 bg-background rounded-lg border-2 border-green-500/30">
-                  <p className="text-sm font-semibold text-foreground">Selected Customer</p>
-                  <p className="text-base text-foreground mt-1">
+                <div className="p-3 bg-background rounded-md border">
+                  <p className="text-sm font-medium">Selected Customer</p>
+                  <p className="text-sm text-muted-foreground">
                     {existingCustomers.find(c => c.id === selectedCustomerId)?.company}
                   </p>
                 </div>
               )}
             </div>
           )}
-        </CardContent>
-      </Card>
+        </div>
 
-      <CreateCompanyDialog
-        open={showCreateDialog}
-        onOpenChange={setShowCreateDialog}
-        onCompanyCreated={handleCompanyCreated}
-      />
+        <CreateCompanyDialog
+          open={showCreateDialog}
+          onOpenChange={setShowCreateDialog}
+          onCompanyCreated={handleCompanyCreated}
+        />
 
-      {/* Create Company Section - Sticky */}
-      {currentStage === 'details' && (
-        <Card className="sticky top-[220px] z-20 w-full overflow-hidden mb-3 border-2 border-primary/30 shadow-xl bg-gradient-to-br from-primary/5 to-accent/5">
-          <CardContent className="p-0">
-            <form onSubmit={form.handleSubmit(handleSubmit)}>
-              <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue}>
-                <AccordionItem value="company-creation" className="border-0" data-section-id="company-creation">
-                  <AccordionTrigger className="px-4 py-3 hover:no-underline justify-start gap-2 border-b bg-primary/10">
-                    <Building2 className="h-5 w-5 text-primary" />
-                    <h3 className="text-lg font-semibold text-primary">Create Company</h3>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-2">
-                    <div className="space-y-4 max-h-[300px] overflow-y-auto">
-                      <Accordion type="multiple" defaultValue={['basic', 'lead', 'service']} className="space-y-3">
-                
+        {currentStage === 'details' && (
+          <div className="space-y-4">
+            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+              <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
                 <AccordionItem value="basic" className="border rounded-lg" data-section-id="basic">
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
@@ -1387,7 +1404,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </AccordionContent>
                 </AccordionItem>
 
-            {/* Source & Channel */}
+            {/* Source & Channel - Shown when basic info complete OR clicked in nav */}
+            {(isBasicInfoComplete || accordionValue.includes('lead')) && (
             <AccordionItem value="lead" className="border rounded-lg" data-section-id="lead">
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                     <h3 className="text-base font-medium">Source & Channel Information</h3>
@@ -1416,8 +1434,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </div>
                   </AccordionContent>
                 </AccordionItem>
+                )}
 
-        {/* Service Selection */}
+        {/* Service Selection - Shown when basic info complete OR clicked in nav */}
+        {(isBasicInfoComplete || accordionValue.includes('service')) && (
         <AccordionItem value="service" className="border rounded-lg" data-section-id="service">
               <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                 <h3 className="text-base font-medium">Service Selection</h3>
@@ -1541,29 +1561,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>
                         )}
                        </div>
-                     </div>
-                   </AccordionContent>
-                 </AccordionItem>
-                      </Accordion>
                     </div>
                   </AccordionContent>
                 </AccordionItem>
-              </Accordion>
-            </form>
-          </CardContent>
-        </Card>
-      )}
-
-      <Card className="w-full overflow-hidden relative z-10">
-        <CardContent className="p-0">
-          {/* Scrollable Content Area */}
-          <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 400px)' }}>
-            <div className="px-6 pt-6 pb-4 space-y-4">
-
-              {currentStage === 'details' && (
-                <div className="space-y-4">
-                  <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-              <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
+                )}
 
         {/* Deal Information - Only shown when service selection is complete OR when service is active and product is selected */}
         {(isServiceSelectionComplete || (accordionValue.includes('service') && watchProductId)) && (
@@ -3318,88 +3319,52 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             )}
           </div>
         )}
+      </CardContent>
+    </Card>
 
-        {/* Action Buttons - Only show on details stage before submission */}
-        {currentStage === 'details' && !createdCustomerId && (
-          <div className="flex gap-3 justify-end mt-6 pb-4">
-            <button
-              type="button"
-              onClick={async () => {
-                const isValid = await form.trigger();
-                if (isValid) {
-                  setCurrentStage('preview');
-                }
-              }}
-              disabled={isSubmitting}
-              className="w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg border-2 border-blue-600/20 rounded-full transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group relative"
-              title="Preview Draft"
-            >
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-              </svg>
+    {/* Floating Action Buttons - Only show on details stage before submission */}
+    {currentStage === 'details' && !createdCustomerId && (
+      <div className="fixed bottom-8 right-8 flex gap-3 z-50">
+        <button
+          type="button"
+          onClick={async () => {
+            const isValid = await form.trigger();
+            if (isValid) {
+              setCurrentStage('preview');
+            }
+          }}
+          disabled={isSubmitting}
+          className="w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg border-2 border-blue-600/20 rounded-full transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
+          title="Preview Draft"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+          </svg>
+          <span className="absolute -top-10 right-0 bg-popover text-popover-foreground text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border">
+            Preview Draft (Optional)
+          </span>
+        </button>
+        <button
+          type="button"
+          onClick={form.handleSubmit(handleSubmit)}
+          disabled={isSubmitting}
+          className="w-12 h-12 bg-green-600 hover:bg-green-700 text-white font-semibold shadow-lg border-2 border-green-600/20 rounded-full transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
+          title="Save as Draft"
+        >
+          {isSubmitting ? (
+            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+          ) : (
+            <>
+              <Save className="w-6 h-6" />
               <span className="absolute -top-10 right-0 bg-popover text-popover-foreground text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border">
-                Preview Draft (Optional)
+                Save Draft
               </span>
-            </button>
-            <button
-              type="button"
-              onClick={form.handleSubmit(handleSubmit)}
-              disabled={isSubmitting}
-              className="w-12 h-12 bg-green-600 hover:bg-green-700 text-white font-semibold shadow-lg border-2 border-green-600/20 rounded-full transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group relative"
-              title="Save as Draft"
-            >
-              {isSubmitting ? (
-                <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
-              ) : (
-                <>
-                  <Save className="w-6 h-6" />
-                  <span className="absolute -top-10 right-0 bg-popover text-popover-foreground text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border">
-                    Save Draft
-                  </span>
-                </>
-              )}
-            </button>
-          </div>
-        )}
-            </div>
-          </div>
-          
-          {/* Form Navigation - Now always visible when in details stage */}
-          {currentStage === 'details' && (
-            <div className="sticky bottom-0 z-40 bg-background/95 backdrop-blur-sm border-t border-border shadow-lg -mx-6 px-6">
-              <div className="flex items-center gap-0.5 overflow-x-auto py-2">
-                {navigationSections.filter(s => s.isVisible !== false).map((section, index) => (
-                  <button
-                    key={section.id}
-                    type="button"
-                    onClick={() => handleSectionNavigation(section.id)}
-                    className={cn(
-                      "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap",
-                      "hover:bg-accent hover:text-accent-foreground",
-                      section.isActive 
-                        ? "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400 border-2 border-green-500" 
-                        : section.isComplete
-                        ? "bg-green-50 text-green-600 dark:bg-green-950/50 dark:text-green-500 border border-green-300"
-                        : "text-muted-foreground border border-transparent"
-                    )}
-                  >
-                    {section.isComplete ? (
-                      <Check className="h-3 w-3 flex-shrink-0" />
-                    ) : section.isActive ? (
-                      <CircleDot className="h-3 w-3 flex-shrink-0" />
-                    ) : (
-                      <Circle className="h-3 w-3 flex-shrink-0" />
-                    )}
-                    <span className="hidden sm:inline">{section.label}</span>
-                    <span className="sm:hidden">{index + 1}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
+            </>
           )}
-        </CardContent>
-      </Card>
+        </button>
+      </div>
+    )}
     
     {/* Confirmation Dialog for switching tabs with unsaved data */}
     <AlertDialog open={showSwitchConfirm} onOpenChange={setShowSwitchConfirm}>
