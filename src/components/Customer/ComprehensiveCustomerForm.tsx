@@ -1311,7 +1311,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
         <CardContent className="space-y-4 pb-8 pt-0">
         {/* Form Navigation - Sticky Below Tabs */}
-        <div ref={stickyNavRef} className="sticky z-50 isolate bg-background -mx-6 px-6 pb-2 border-b shadow-md mb-3" style={{ top: stageHeight + stickyGap }}>
+        <div ref={stickyNavRef} className="sticky z-50 isolate bg-background -mx-6 px-6 pb-2 border-b shadow-md" style={{ top: stageHeight + stickyGap }}>
           {/* Form Navigation inside sticky container */}
           {currentStage === 'details' && (
             <div className="bg-background border-t border-border">
