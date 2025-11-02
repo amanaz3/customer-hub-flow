@@ -1327,6 +1327,120 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </p>
                 </div>
               )}
+
+              {/* Show form sections when existing customer is selected */}
+              {selectedCustomerId && currentStage === 'details' && (
+                <div className="space-y-4 pt-4">
+                  <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                    <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
+                      {/* Basic Information */}
+                      <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm scroll-mt-[280px]" data-section-id="basic">
+                        <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
+                          <h3 className="text-base font-medium">Basic Information</h3>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                              <Label htmlFor="name">Full Name *</Label>
+                              <Input
+                                id="name"
+                                {...form.register('name')}
+                                disabled={isSubmitting}
+                                required
+                              />
+                              {form.formState.errors.name && (
+                                <p className="text-sm text-red-600">{form.formState.errors.name.message}</p>
+                              )}
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="email">Email *</Label>
+                              <Input
+                                id="email"
+                                type="email"
+                                {...form.register('email')}
+                                disabled={isSubmitting}
+                                required
+                              />
+                              {form.formState.errors.email && (
+                                <p className="text-sm text-red-600">{form.formState.errors.email.message}</p>
+                              )}
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="mobile">Mobile *</Label>
+                              <Input
+                                id="mobile"
+                                {...form.register('mobile')}
+                                disabled={isSubmitting}
+                                required
+                              />
+                              {form.formState.errors.mobile && (
+                                <p className="text-sm text-red-600">{form.formState.errors.mobile.message}</p>
+                              )}
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="company">Company *</Label>
+                              <Input
+                                id="company"
+                                {...form.register('company')}
+                                disabled={isSubmitting}
+                                required
+                              />
+                              {form.formState.errors.company && (
+                                <p className="text-sm text-red-600">{form.formState.errors.company.message}</p>
+                              )}
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+
+                      {/* Source & Channel */}
+                      <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm scroll-mt-[280px]" data-section-id="lead">
+                        <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
+                          <h3 className="text-base font-medium">Source & Channel Information</h3>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4">
+                          <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                              <Label htmlFor="lead_source">Lead Source *</Label>
+                              <Select
+                                value={form.watch('lead_source')}
+                                onValueChange={(value) => form.setValue('lead_source', value as any)}
+                                disabled={isSubmitting}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Website">Website</SelectItem>
+                                  <SelectItem value="Referral">Referral</SelectItem>
+                                  <SelectItem value="Social Media">Social Media</SelectItem>
+                                  <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                                  <SelectItem value="Other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+
+                      {/* Service Selection */}
+                      <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm scroll-mt-[280px]" data-section-id="service">
+                        <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
+                          <h3 className="text-base font-medium">Service Selection</h3>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4">
+                          <div className="pt-2 text-sm text-muted-foreground">
+                            Service selection for existing customers
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </form>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1337,7 +1451,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           onCompanyCreated={handleCompanyCreated}
         />
 
-        {currentStage === 'details' && (
+        {currentStage === 'details' && customerMode === 'new' && (
           <div className="space-y-4 pt-4">
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
