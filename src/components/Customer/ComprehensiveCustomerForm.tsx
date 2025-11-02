@@ -1553,6 +1553,22 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </select>
                       </div>
 
+                      <div className="space-y-2">
+                        <Label htmlFor="amount">Annual Turnover (AED) *</Label>
+                        <Input
+                          id="amount"
+                          type="number"
+                          step="0.01"
+                          {...form.register('amount', { valueAsNumber: true })}
+                          placeholder="Enter annual turnover"
+                          disabled={isSubmitting}
+                          required
+                        />
+                        {form.formState.errors.amount && (
+                          <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>
+                        )}
+                      </div>
+
                       {/* GoAML Business Fields */}
                       {hasGoAML && (
                         <>
@@ -1635,22 +1651,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       />
                       {form.formState.errors.annual_turnover && (
                         <p className="text-sm text-red-600">{form.formState.errors.annual_turnover.message}</p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="amount">Amount (AED) *</Label>
-                      <Input
-                        id="amount"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        {...form.register('amount', { valueAsNumber: true })}
-                        disabled={isSubmitting}
-                        required
-                      />
-                      {form.formState.errors.amount && (
-                        <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>
                       )}
                     </div>
 
