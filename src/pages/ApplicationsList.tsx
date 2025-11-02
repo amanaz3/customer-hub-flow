@@ -126,7 +126,7 @@ const ApplicationsList = () => {
           onClick={() => navigate('/applications/new')}
           variant="default"
           size="sm"
-          className="bg-green-600 hover:bg-green-700 !text-white shadow-md hover:shadow-lg transition-all h-9 px-4 font-medium whitespace-nowrap border-0 [&>*]:!text-white"
+          className="bg-green-700 hover:bg-green-800 !text-white shadow-md hover:shadow-lg transition-all h-9 px-4 font-medium whitespace-nowrap border-0 [&>*]:!text-white"
         >
           <Plus className="w-4 h-4 mr-1.5" />
           New Application
