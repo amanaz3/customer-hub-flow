@@ -1051,7 +1051,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       )}
 
       {/* Stage Indicator - Premium Stylish Design */}
-      <Card ref={stageRef} className="sticky top-0 z-50 -mt-8 border-0 shadow-2xl overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 backdrop-blur-md">
+      <Card ref={stageRef} className="sticky top-0 z-50 border-0 shadow-2xl overflow-hidden bg-gradient-to-br from-primary/5 via-background to-accent/5 backdrop-blur-md">
         {/* Animated gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-[slide-in-right_3s_ease-in-out_infinite] pointer-events-none" />
         
