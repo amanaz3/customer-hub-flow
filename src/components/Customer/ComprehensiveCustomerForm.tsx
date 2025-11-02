@@ -1346,9 +1346,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           )}
         </div>}
 
-        <CardContent className="space-y-4 pb-8 pt-4">
+        <CardContent className="space-y-4 pb-8 pt-0">
         {/* Customer Selection Content - Not Sticky */}
-        <div className="space-y-4 relative z-0 pt-4">
+        <div className="space-y-4 relative z-0">
 
           {customerMode === 'existing' && (
             <div className="space-y-3 pt-2">
