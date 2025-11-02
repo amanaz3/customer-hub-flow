@@ -1009,12 +1009,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </div>
       )}
 
-      {/* Combined Stage Indicator & Customer Selection - Modern Gradient Design */}
+      {/* Stage Indicator - Modern Gradient Design */}
       <Card className="sticky top-0 z-30 border-0 shadow-xl mb-3 overflow-hidden bg-gradient-to-br from-background via-background to-accent/5">
         <div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(0deg,white,transparent)]" />
-        
-        {/* Stage Indicator */}
-        <CardContent className="relative py-3 px-4 border-b border-border">
+        <CardContent className="relative py-3 px-4">
           <div className="flex items-center justify-between">
             {/* Stage 1 */}
             <div className="flex flex-col items-center gap-1.5 flex-1 group">
@@ -1210,8 +1208,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             </div>
           </div>
         </CardContent>
-        
-        {/* Customer Selection Section - Integrated Control Panel */}
+      </Card>
+
+      {/* Customer Selection Section - Control Panel */}
+      <Card className="sticky top-[76px] z-30 w-full overflow-hidden mb-3 border-2 border-primary/20 shadow-xl">
         <CardContent className="p-0">
           <div className="grid grid-cols-2 w-full bg-background border-b border-border">
             <button
