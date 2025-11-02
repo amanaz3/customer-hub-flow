@@ -1210,138 +1210,67 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </CardContent>
       </Card>
 
-      <Card className="w-full overflow-visible mt-3 relative z-10">
-        <CardContent className="space-y-4 pb-6 pt-6">
-        {/* Customer Selection Section - Fixed at Bottom */}
-        <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-t shadow-2xl">
-          <div className="max-w-7xl mx-auto px-6">
-            <div className="grid grid-cols-2 w-full bg-background border-b border-border">
-              <button
-                type="button"
-                onClick={() => handleModeSwitch('new')}
-                className={cn(
-                  "relative flex items-center justify-center gap-1.5 py-2 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
-                  customerMode === 'new'
-                    ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                    : "border-b-transparent text-muted-foreground hover:text-foreground"
+      <Card className="w-full overflow-hidden mt-3 relative z-10">
+        <CardContent className="p-0">
+          {/* Scrollable Content Area - between top multi-step and bottom customer selection */}
+          <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 180px)', paddingBottom: '140px' }}>
+            <div className="px-6 pt-6 space-y-4">
+              {/* Customer Selection Content */}
+              <div className="space-y-3">
+                {customerMode === 'existing' && (
+                  <div className="space-y-3 pt-2">
+                    <div className="flex gap-2">
+                      <div className="flex-1">
+                        <Select value={selectedCustomerId} onValueChange={handleCustomerSelect}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Select a customer..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {existingCustomers.length === 0 ? (
+                              <div className="p-2 text-sm text-muted-foreground">
+                                No customers found
+                              </div>
+                            ) : (
+                              existingCustomers.map((customer) => (
+                                <SelectItem key={customer.id} value={customer.id}>
+                                  {customer.company} - {customer.name}
+                                </SelectItem>
+                              ))
+                            )}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="icon"
+                        onClick={() => setShowCreateDialog(true)}
+                        title="Create new company"
+                      >
+                        <Plus className="h-4 w-4" />
+                      </Button>
+                    </div>
+                    {selectedCustomerId && (
+                      <div className="p-3 bg-background rounded-md border">
+                        <p className="text-sm font-medium">Selected Customer</p>
+                        <p className="text-sm text-muted-foreground">
+                          {existingCustomers.find(c => c.id === selectedCustomerId)?.company}
+                        </p>
+                      </div>
+                    )}
+                  </div>
                 )}
-                aria-selected={customerMode === 'new'}
-              >
-                <Building2 className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Create New Company</span>
-                <span className="sm:hidden">New</span>
-              </button>
-              
-              <button
-                type="button"
-                onClick={() => handleModeSwitch('existing')}
-                className={cn(
-                  "relative flex items-center justify-center gap-1.5 py-2 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
-                  customerMode === 'existing'
-                    ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                    : "border-b-transparent text-muted-foreground hover:text-foreground"
-                )}
-                aria-selected={customerMode === 'existing'}
-              >
-                <Users className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Select Existing</span>
-                <span className="sm:hidden">Existing</span>
-              </button>
-            </div>
-            
-            {/* Form Navigation inside fixed container */}
-            {currentStage === 'details' && (
-              <div className="bg-background/95 border-t border-border/50">
-                <div className="flex items-center gap-0.5 overflow-x-auto py-1">
-                  {navigationSections.filter(s => s.isVisible !== false).map((section, index) => (
-                    <button
-                      key={section.id}
-                      type="button"
-                      onClick={() => handleSectionNavigation(section.id)}
-                      className={cn(
-                        "flex items-center gap-1 px-2 py-0.5 rounded-none border-b-2 text-xs font-medium transition-all whitespace-nowrap",
-                        "hover:bg-accent hover:text-accent-foreground",
-                        section.isActive 
-                          ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400" 
-                          : section.isComplete
-                          ? "border-b-green-300 bg-green-50/50 text-green-600 dark:bg-green-950/50 dark:text-green-500"
-                          : "border-b-transparent text-muted-foreground"
-                      )}
-                    >
-                      {section.isComplete ? (
-                        <Check className="h-2.5 w-2.5 flex-shrink-0" />
-                      ) : section.isActive ? (
-                        <CircleDot className="h-2.5 w-2.5 flex-shrink-0" />
-                      ) : (
-                        <Circle className="h-2.5 w-2.5 flex-shrink-0" />
-                      )}
-                      <span className="hidden sm:inline">{section.label}</span>
-                      <span className="sm:hidden">{index + 1}</span>
-                    </button>
-                  ))}
-                </div>
               </div>
-            )}
-          </div>
-        </div>
-        
-        {/* Customer Selection Content - Not Sticky */}
-        <div className="space-y-3">
 
-          {customerMode === 'existing' && (
-            <div className="space-y-3 pt-2">
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <Select value={selectedCustomerId} onValueChange={handleCustomerSelect}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a customer..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {existingCustomers.length === 0 ? (
-                        <div className="p-2 text-sm text-muted-foreground">
-                          No customers found
-                        </div>
-                      ) : (
-                        existingCustomers.map((customer) => (
-                          <SelectItem key={customer.id} value={customer.id}>
-                            {customer.company} - {customer.name}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setShowCreateDialog(true)}
-                  title="Create new company"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-              {selectedCustomerId && (
-                <div className="p-3 bg-background rounded-md border">
-                  <p className="text-sm font-medium">Selected Customer</p>
-                  <p className="text-sm text-muted-foreground">
-                    {existingCustomers.find(c => c.id === selectedCustomerId)?.company}
-                  </p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
+              <CreateCompanyDialog
+                open={showCreateDialog}
+                onOpenChange={setShowCreateDialog}
+                onCompanyCreated={handleCompanyCreated}
+              />
 
-        <CreateCompanyDialog
-          open={showCreateDialog}
-          onOpenChange={setShowCreateDialog}
-          onCompanyCreated={handleCompanyCreated}
-        />
-
-        {currentStage === 'details' && (
-          <div className="space-y-4">
-            <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+              {currentStage === 'details' && (
+                <div className="space-y-4">
+                  <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
                 <AccordionItem value="basic" className="border rounded-lg" data-section-id="basic">
@@ -3321,8 +3250,83 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             )}
           </div>
         )}
-      </CardContent>
-    </Card>
+            </div>
+          </div>
+          
+          {/* Customer Selection Section - Fixed at Bottom */}
+          <div className="fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-t shadow-2xl">
+            <div className="max-w-7xl mx-auto px-6">
+              <div className="grid grid-cols-2 w-full bg-background border-b border-border">
+                <button
+                  type="button"
+                  onClick={() => handleModeSwitch('new')}
+                  className={cn(
+                    "relative flex items-center justify-center gap-1.5 py-2 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
+                    customerMode === 'new'
+                      ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
+                      : "border-b-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                  aria-selected={customerMode === 'new'}
+                >
+                  <Building2 className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Create New Company</span>
+                  <span className="sm:hidden">New</span>
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => handleModeSwitch('existing')}
+                  className={cn(
+                    "relative flex items-center justify-center gap-1.5 py-2 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
+                    customerMode === 'existing'
+                      ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
+                      : "border-b-transparent text-muted-foreground hover:text-foreground"
+                  )}
+                  aria-selected={customerMode === 'existing'}
+                >
+                  <Users className="h-3.5 w-3.5" />
+                  <span className="hidden sm:inline">Select Existing</span>
+                  <span className="sm:hidden">Existing</span>
+                </button>
+              </div>
+              
+              {/* Form Navigation inside fixed container */}
+              {currentStage === 'details' && (
+                <div className="bg-background/95 border-t border-border/50">
+                  <div className="flex items-center gap-0.5 overflow-x-auto py-1">
+                    {navigationSections.filter(s => s.isVisible !== false).map((section, index) => (
+                      <button
+                        key={section.id}
+                        type="button"
+                        onClick={() => handleSectionNavigation(section.id)}
+                        className={cn(
+                          "flex items-center gap-1 px-2 py-0.5 rounded-none border-b-2 text-xs font-medium transition-all whitespace-nowrap",
+                          "hover:bg-accent hover:text-accent-foreground",
+                          section.isActive 
+                            ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400" 
+                            : section.isComplete
+                            ? "border-b-green-300 bg-green-50/50 text-green-600 dark:bg-green-950/50 dark:text-green-500"
+                            : "border-b-transparent text-muted-foreground"
+                        )}
+                      >
+                        {section.isComplete ? (
+                          <Check className="h-2.5 w-2.5 flex-shrink-0" />
+                        ) : section.isActive ? (
+                          <CircleDot className="h-2.5 w-2.5 flex-shrink-0" />
+                        ) : (
+                          <Circle className="h-2.5 w-2.5 flex-shrink-0" />
+                        )}
+                        <span className="hidden sm:inline">{section.label}</span>
+                        <span className="sm:hidden">{index + 1}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
     {/* Floating Action Buttons - Only show on details stage before submission */}
     {currentStage === 'details' && !createdCustomerId && (
