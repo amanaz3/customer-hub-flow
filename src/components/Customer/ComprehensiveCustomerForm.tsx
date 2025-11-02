@@ -423,23 +423,20 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         return prev;
       });
 
-      // Scroll to Deal Information section smoothly
-      setTimeout(() => {
-        const dealInfoSection = document.querySelector('[data-section="deal-information"]');
-        if (dealInfoSection) {
-          const elementPosition = dealInfoSection.getBoundingClientRect().top;
-          const offsetPosition = elementPosition + window.pageYOffset - 80;
-          
-          window.scrollTo({
-            top: offsetPosition,
-            behavior: 'smooth'
-          });
-          
-          // Add highlight pulse effect
-          setHighlightDealInfo(true);
-          setTimeout(() => setHighlightDealInfo(false), 2000);
-        }
-      }, 100);
+      // Scroll to Deal Information section smoothly (temporarily disabled to prevent auto-jumps)
+      // setTimeout(() => {
+      //   const dealInfoSection = document.querySelector('[data-section="deal-information"]');
+      //   if (dealInfoSection) {
+      //     const elementPosition = dealInfoSection.getBoundingClientRect().top;
+      //     const offsetPosition = elementPosition + window.pageYOffset - 80;
+      //     window.scrollTo({
+      //       top: offsetPosition,
+      //       behavior: 'smooth'
+      //     });
+      //     setHighlightDealInfo(true);
+      //     setTimeout(() => setHighlightDealInfo(false), 2000);
+      //   }
+      // }, 100);
     }
   }, [watchProductId]);
 
@@ -592,18 +589,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       return prev;
     });
 
-    // Scroll to the section with offset for sticky header
-    setTimeout(() => {
-      const sectionElement = document.querySelector(`[data-section-id="${sectionId}"]`);
-      if (sectionElement) {
-        const elementPosition = (sectionElement as HTMLElement).getBoundingClientRect().top;
-        const offsetPosition = elementPosition + window.pageYOffset - totalStickyOffset;
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
-      }
-    }, 100);
+    // Scroll to the section with offset for sticky header (temporarily disabled to prevent auto-jumps)
+    // setTimeout(() => {
+    //   const sectionElement = document.querySelector(`[data-section-id="${sectionId}"]`);
+    //   if (sectionElement) {
+    //     const elementPosition = (sectionElement as HTMLElement).getBoundingClientRect().top;
+    //     const offsetPosition = elementPosition + window.pageYOffset - totalStickyOffset;
+    //     window.scrollTo({
+    //       top: offsetPosition,
+    //       behavior: 'smooth'
+    //     });
+    //   }
+    // }, 100);
   }, []);
 
   // Define sections for navigation
