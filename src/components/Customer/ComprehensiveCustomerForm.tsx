@@ -1324,7 +1324,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </Card>
 
       {/* Form Content Card */}
-      <Card className="w-full overflow-hidden mt-3 mb-8 relative z-10 border shadow-lg bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
+      <Card className="w-full overflow-hidden mb-8 relative z-10 border shadow-lg bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
         {/* Form Navigation - Sticky */}
         {false && customerMode === 'new' && <div ref={stickyNavRef} className="sticky z-50 isolate bg-gradient-to-r from-background via-background to-background border-b shadow-lg backdrop-blur-sm" style={{ top: stageHeight + stickyGap }}>
           {/* Form Navigation inside sticky container */}
