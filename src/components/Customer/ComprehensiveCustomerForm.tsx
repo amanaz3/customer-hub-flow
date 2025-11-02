@@ -1009,164 +1009,198 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </div>
       )}
 
-      {/* Stage Indicator - Compact Sticky Card */}
-      <Card className="sticky top-0 z-30 shadow-lg border mb-3">
-        <CardContent className="py-2 px-3">
+      {/* Stage Indicator - Modern Gradient Design */}
+      <Card className="sticky top-0 z-30 border-0 shadow-xl mb-3 overflow-hidden bg-gradient-to-br from-background via-background to-accent/5">
+        <div className="absolute inset-0 bg-grid-white/5 [mask-image:linear-gradient(0deg,white,transparent)]" />
+        <CardContent className="relative py-3 px-4">
           <div className="flex items-center justify-between">
             {/* Stage 1 */}
-            <div className="flex flex-col items-center gap-1 flex-1">
+            <div className="flex flex-col items-center gap-1.5 flex-1 group">
               <div className={cn(
-                "flex items-center justify-center w-7 h-7 rounded-full text-xs transition-all duration-300 border-2",
+                "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-500 relative",
                 currentStage === 'details' 
-                  ? "bg-green-600 text-white border-green-600 scale-105" 
+                  ? "bg-gradient-to-br from-green-500 to-green-600 text-white shadow-lg shadow-green-500/40 scale-110 rotate-3" 
                   : createdCustomerId
-                  ? "bg-green-500 text-white border-green-500"
-                  : "bg-gray-200 text-gray-400 border-gray-300"
+                  ? "bg-gradient-to-br from-green-400 to-green-500 text-white shadow-md shadow-green-400/30"
+                  : "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 text-gray-400 dark:text-gray-600"
               )}>
+                <div className={cn(
+                  "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
+                  currentStage === 'details' && "opacity-100 bg-green-500"
+                )} />
                 {createdCustomerId ? (
-                  <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
+                  <svg className="w-5 h-5 relative z-10 animate-scale-in" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
                 ) : (
-                  <ClipboardList className="w-3.5 h-3.5" />
+                  <ClipboardList className="w-5 h-5 relative z-10" />
                 )}
               </div>
-              <div className="text-center">
+              <div className="text-center space-y-0.5">
                 <div className={cn(
-                  "text-2xs font-medium leading-tight",
-                  currentStage === 'details' || createdCustomerId
-                    ? "text-gray-900 dark:text-gray-100" 
-                    : "text-gray-500"
+                  "text-xs font-bold tracking-tight",
+                  currentStage === 'details' 
+                    ? "text-green-600 dark:text-green-400" 
+                    : createdCustomerId
+                    ? "text-gray-900 dark:text-gray-100"
+                    : "text-gray-500 dark:text-gray-500"
                 )}>
                   Step 1
                 </div>
                 <div className={cn(
-                  "text-2xs leading-tight",
+                  "text-2xs font-medium",
                   currentStage === 'details' || createdCustomerId
                     ? "text-gray-700 dark:text-gray-300" 
-                    : "text-gray-400"
+                    : "text-gray-400 dark:text-gray-600"
                 )}>
                   Save Draft
                 </div>
               </div>
             </div>
 
-            {/* Connecting Line 1 */}
-            <div className="flex-1 relative px-1" style={{ maxWidth: '40px' }}>
-              <div className="relative h-0.5 flex items-center">
+            {/* Connecting Line 1 with Gradient */}
+            <div className="flex-1 relative px-2" style={{ maxWidth: '50px' }}>
+              <div className="relative h-1 flex items-center">
                 <div className={cn(
-                  "h-0.5 rounded-full transition-all duration-500 flex-1",
-                  currentStage === 'preview' || currentStage === 'documents' ? "bg-green-500" : "bg-gray-300"
-                )} />
-                <svg 
-                  className={cn(
-                    "absolute -right-0.5 w-2 h-2 transition-all duration-500",
-                    currentStage === 'preview' || currentStage === 'documents' 
-                      ? "text-green-500 animate-pulse" 
-                      : "text-gray-300"
+                  "h-1 rounded-full transition-all duration-700 flex-1 relative overflow-hidden",
+                  currentStage === 'preview' || currentStage === 'documents' 
+                    ? "bg-gradient-to-r from-green-400 to-green-500 shadow-sm shadow-green-400/50" 
+                    : "bg-gray-200 dark:bg-gray-800"
+                )}>
+                  {(currentStage === 'preview' || currentStage === 'documents') && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[slide-in-right_1.5s_ease-in-out_infinite]" />
                   )}
-                  fill="currentColor" 
-                  viewBox="0 0 20 20"
-                >
-                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
+                </div>
+                <div className={cn(
+                  "absolute -right-1 w-3 h-3 rounded-full transition-all duration-500",
+                  currentStage === 'preview' || currentStage === 'documents'
+                    ? "bg-green-500 shadow-md shadow-green-500/50 animate-pulse" 
+                    : "bg-gray-300 dark:bg-gray-700"
+                )}>
+                  <svg 
+                    className="w-3 h-3 text-white"
+                    fill="currentColor" 
+                    viewBox="0 0 20 20"
+                  >
+                    <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </div>
               </div>
             </div>
             
             {/* Stage 2 */}
-            <div className="flex flex-col items-center gap-1 flex-1">
+            <div className="flex flex-col items-center gap-1.5 flex-1 group">
               <div className={cn(
-                "flex items-center justify-center w-7 h-7 rounded-full text-xs transition-all duration-300 border-2",
+                "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-500 relative",
                 currentStage === 'preview' 
-                  ? "bg-blue-600 text-white border-blue-600 scale-105" 
+                  ? "bg-gradient-to-br from-blue-500 to-blue-600 text-white shadow-lg shadow-blue-500/40 scale-110 -rotate-3" 
                   : currentStage === 'documents'
-                  ? "bg-green-500 text-white border-green-500"
-                  : "bg-gray-200 text-gray-400 border-gray-300"
+                  ? "bg-gradient-to-br from-green-400 to-green-500 text-white shadow-md shadow-green-400/30"
+                  : "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 text-gray-400 dark:text-gray-600"
               )}>
-                <svg className="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                <div className={cn(
+                  "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
+                  currentStage === 'preview' && "opacity-100 bg-blue-500"
+                )} />
+                <svg className="w-5 h-5 relative z-10" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                 </svg>
               </div>
-              <div className="text-center">
+              <div className="text-center space-y-0.5">
                 <div className={cn(
-                  "text-2xs font-medium leading-tight",
-                  currentStage === 'preview' || currentStage === 'documents'
-                    ? "text-gray-900 dark:text-gray-100" 
-                    : "text-gray-500"
+                  "text-xs font-bold tracking-tight",
+                  currentStage === 'preview' 
+                    ? "text-blue-600 dark:text-blue-400" 
+                    : currentStage === 'documents'
+                    ? "text-gray-900 dark:text-gray-100"
+                    : "text-gray-500 dark:text-gray-500"
                 )}>
                   Step 2
                 </div>
                 <div className={cn(
-                  "text-2xs leading-tight",
+                  "text-2xs font-medium",
                   currentStage === 'preview' || currentStage === 'documents'
                     ? "text-gray-700 dark:text-gray-300" 
-                    : "text-gray-400"
+                    : "text-gray-400 dark:text-gray-600"
                 )}>
                   Preview
                 </div>
               </div>
             </div>
 
-            {/* Connecting Line 2 */}
-            <div className="flex-1 relative px-1" style={{ maxWidth: '40px' }}>
-              <div className="relative h-0.5 flex items-center">
+            {/* Connecting Line 2 with Gradient */}
+            <div className="flex-1 relative px-2" style={{ maxWidth: '50px' }}>
+              <div className="relative h-1 flex items-center">
                 <div className={cn(
-                  "h-0.5 rounded-full transition-all duration-500 flex-1",
-                  createdCustomerId ? "bg-green-500" : "bg-gray-300"
-                )} />
-                <svg 
-                  className={cn(
-                    "absolute -right-0.5 w-2 h-2 transition-all duration-500",
-                    createdCustomerId
-                      ? "text-green-500 animate-pulse" 
-                      : "text-gray-300"
+                  "h-1 rounded-full transition-all duration-700 flex-1 relative overflow-hidden",
+                  createdCustomerId 
+                    ? "bg-gradient-to-r from-green-400 to-green-500 shadow-sm shadow-green-400/50" 
+                    : "bg-gray-200 dark:bg-gray-800"
+                )}>
+                  {createdCustomerId && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[slide-in-right_1.5s_ease-in-out_infinite]" />
                   )}
-                  fill="currentColor" 
-                  viewBox="0 0 20 20"
-                >
-                  <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
+                </div>
+                <div className={cn(
+                  "absolute -right-1 w-3 h-3 rounded-full transition-all duration-500",
+                  createdCustomerId
+                    ? "bg-green-500 shadow-md shadow-green-500/50 animate-pulse" 
+                    : "bg-gray-300 dark:bg-gray-700"
+                )}>
+                  <svg 
+                    className="w-3 h-3 text-white"
+                    fill="currentColor" 
+                    viewBox="0 0 20 20"
+                  >
+                    <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </div>
               </div>
             </div>
             
             {/* Stage 3 */}
-            <div className="flex flex-col items-center gap-1 flex-1">
-              <div className={cn(
-                "flex items-center justify-center w-7 h-7 rounded-full text-xs transition-all duration-300 border-2 relative",
-                currentStage === 'documents' && createdCustomerId
-                  ? "bg-green-600 text-white border-green-600 scale-105" 
-                  : createdCustomerId 
-                  ? "bg-white text-green-600 border-green-500 hover:border-green-600 cursor-pointer"
-                  : "bg-gray-200 text-gray-400 border-gray-300 opacity-60"
-              )}
-              onClick={() => createdCustomerId && setCurrentStage('documents')}
+            <div className="flex flex-col items-center gap-1.5 flex-1 group">
+              <div 
+                className={cn(
+                  "flex items-center justify-center w-10 h-10 rounded-xl transition-all duration-500 relative",
+                  currentStage === 'documents' && createdCustomerId
+                    ? "bg-gradient-to-br from-purple-500 to-purple-600 text-white shadow-lg shadow-purple-500/40 scale-110 rotate-3" 
+                    : createdCustomerId 
+                    ? "bg-gradient-to-br from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 text-green-600 dark:text-green-400 border-2 border-green-500/30 hover:border-green-500 cursor-pointer hover:scale-105 hover:shadow-lg hover:shadow-green-500/20"
+                    : "bg-gradient-to-br from-gray-100 to-gray-200 dark:from-gray-800 dark:to-gray-900 text-gray-400 dark:text-gray-600 opacity-50"
+                )}
+                onClick={() => createdCustomerId && setCurrentStage('documents')}
               >
-                <Building2 className="w-3.5 h-3.5" />
+                <div className={cn(
+                  "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
+                  currentStage === 'documents' && createdCustomerId && "opacity-100 bg-purple-500"
+                )} />
+                <Building2 className="w-5 h-5 relative z-10" />
                 {createdCustomerId && documents.length > 0 && (
-                  <div className="absolute -top-0.5 -right-0.5 w-3.5 h-3.5 bg-green-500 rounded-full flex items-center justify-center text-white text-2xs font-bold border border-white">
+                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-br from-green-400 to-green-500 rounded-full flex items-center justify-center text-white text-2xs font-bold border-2 border-background shadow-lg shadow-green-500/50 animate-scale-in">
                      {documents.filter(doc => doc.is_uploaded).length}
                   </div>
                 )}
               </div>
-              <div className="text-center">
+              <div className="text-center space-y-0.5">
                 <div className={cn(
-                  "text-2xs font-medium leading-tight",
+                  "text-xs font-bold tracking-tight",
                   currentStage === 'documents' && createdCustomerId
-                    ? "text-gray-900 dark:text-gray-100" 
+                    ? "text-purple-600 dark:text-purple-400" 
                     : createdCustomerId
-                    ? "text-gray-700 dark:text-gray-300"
-                    : "text-gray-500"
+                    ? "text-gray-900 dark:text-gray-100"
+                    : "text-gray-500 dark:text-gray-500"
                 )}>
                   Step 3
                 </div>
                 <div className={cn(
-                  "text-2xs leading-tight",
+                  "text-2xs font-medium",
                   currentStage === 'documents' && createdCustomerId
                     ? "text-gray-700 dark:text-gray-300" 
                     : createdCustomerId
                     ? "text-gray-600 dark:text-gray-400"
-                    : "text-gray-400"
+                    : "text-gray-400 dark:text-gray-600"
                 )}>
                   Docs
                 </div>
