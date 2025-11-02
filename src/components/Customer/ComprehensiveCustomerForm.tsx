@@ -1314,7 +1314,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </div>
 
         {/* Form Navigation - Sticky Below Tabs */}
-        {customerMode === 'new' && <div ref={stickyNavRef} className="sticky z-50 isolate bg-gradient-to-r from-background via-background to-background border-b shadow-lg backdrop-blur-sm" style={{ top: stageHeight + stickyGap }}>
+        {false && customerMode === 'new' && <div ref={stickyNavRef} className="sticky z-50 isolate bg-gradient-to-r from-background via-background to-background border-b shadow-lg backdrop-blur-sm" style={{ top: stageHeight + stickyGap }}>
           {/* Form Navigation inside sticky container */}
           {currentStage === 'details' && (
             <div className="bg-background border-t border-border">
