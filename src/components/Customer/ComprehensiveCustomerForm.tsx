@@ -1328,8 +1328,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </div>
               )}
               
-              {/* Show form sections when customer is selected */}
-              {selectedCustomerId && currentStage === 'details' && (
+              {/* Show form sections when in existing mode and details stage */}
+              {currentStage === 'details' && (
                 <div className="space-y-4 pt-4">
                   <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                     <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
