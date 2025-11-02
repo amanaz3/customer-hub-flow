@@ -1211,10 +1211,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         <CardContent className="space-y-4 pb-6 pt-6">
         {/* Customer Selection Section - Sticky Compact */}
         <div className="sticky top-[140px] z-20 bg-background/95 backdrop-blur-sm -mx-6 px-6 border-b">
-          <div className="py-1">
-            <Label className="text-sm font-medium">Customer Selection</Label>
-          </div>
-
           <div className="grid grid-cols-2 w-full bg-background border-b border-border">
             <button
               type="button"
