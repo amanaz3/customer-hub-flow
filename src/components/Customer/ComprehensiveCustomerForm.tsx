@@ -25,7 +25,7 @@ import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
-import { Building2, Plus, Users, ClipboardList } from 'lucide-react';
+import { Building2, Plus, Save, Users, ClipboardList } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -3125,7 +3125,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin"></div>
           ) : (
             <>
-              <Plus className="w-8 h-8" />
+              <Save className="w-8 h-8" />
               <span className="absolute -top-10 right-0 bg-gray-900 text-white text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg">
                 Save Draft
               </span>
