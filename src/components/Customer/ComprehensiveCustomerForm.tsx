@@ -1010,15 +1010,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       )}
 
       {/* Stage Indicator - Sticky Card */}
-      <Card className="sticky top-0 z-30 shadow-lg border-2 mb-6">
-        <CardHeader className="pb-3">
+      <Card className="sticky top-0 z-30 shadow-lg border-2 mb-4">
+        <CardHeader className="pb-2 pt-3 px-4">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg flex items-center gap-2">
-                <ClipboardList className="h-5 w-5 text-primary" />
+              <CardTitle className="text-base flex items-center gap-2">
+                <ClipboardList className="h-4 w-4 text-primary" />
                 Application Creation Process
               </CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-xs text-muted-foreground mt-0.5">
                 {currentStage === 'details' 
                   ? 'Fill in customer and service details'
                   : currentStage === 'preview'
@@ -1027,18 +1027,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 }
               </p>
             </div>
-            <Badge variant="outline" className="text-xs">
+            <Badge variant="outline" className="text-xs px-2 py-0.5">
               Step {currentStage === 'details' ? '1' : currentStage === 'preview' ? '2' : '3'} of 3
             </Badge>
           </div>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="pt-0 pb-3 px-4">
           <div className="relative w-full">
             <div className="flex items-center justify-between">
               {/* Stage 1: Application Details */}
-              <div className="flex flex-col items-center gap-3 flex-1">
+              <div className="flex flex-col items-center gap-2 flex-1">
                 <div className={cn(
-                  "flex items-center justify-center w-14 h-14 rounded-full font-semibold text-lg transition-all duration-300 border-4 shadow-md",
+                  "flex items-center justify-center w-10 h-10 rounded-full font-semibold text-sm transition-all duration-300 border-3 shadow-sm",
                   currentStage === 'details' 
                     ? "bg-green-600 text-white border-green-600 shadow-green-200 scale-110" 
                     : createdCustomerId
@@ -1046,38 +1046,38 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     : "bg-gray-200 text-gray-400 border-gray-300"
                 )}>
                   {createdCustomerId ? (
-                    <svg className="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                     </svg>
                   ) : (
-                    <ClipboardList className="w-6 h-6" />
+                    <ClipboardList className="w-5 h-5" />
                   )}
                 </div>
                 <div className="text-center">
                   <div className={cn(
-                    "text-sm font-bold transition-colors",
+                    "text-xs font-bold transition-colors",
                     currentStage === 'details' || createdCustomerId
                       ? "text-gray-900 dark:text-gray-100" 
                       : "text-gray-500"
                   )}>
                     Details
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                  <div className="text-2xs text-gray-600 dark:text-gray-400 mt-0.5">
                     Customer & Service
                   </div>
                 </div>
               </div>
 
               {/* Connecting Line 1 with Animated Arrow */}
-              <div className="flex-1 relative px-2" style={{ maxWidth: '80px' }}>
-                <div className="relative h-2 flex items-center">
+              <div className="flex-1 relative px-2" style={{ maxWidth: '60px' }}>
+                <div className="relative h-1.5 flex items-center">
                   <div className={cn(
-                    "h-2 rounded-full transition-all duration-500 shadow-sm flex-1",
+                    "h-1.5 rounded-full transition-all duration-500 shadow-sm flex-1",
                     currentStage === 'preview' || currentStage === 'documents' ? "bg-green-500" : "bg-gray-300"
                   )} />
                   <svg 
                     className={cn(
-                      "absolute -right-1 w-4 h-4 transition-all duration-500",
+                      "absolute -right-1 w-3 h-3 transition-all duration-500",
                       currentStage === 'preview' || currentStage === 'documents' 
                         ? "text-green-500 animate-pulse" 
                         : "text-gray-300"
@@ -1091,45 +1091,45 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               </div>
               
               {/* Stage 2: Preview */}
-              <div className="flex flex-col items-center gap-3 flex-1">
+              <div className="flex flex-col items-center gap-2 flex-1">
                 <div className={cn(
-                  "flex items-center justify-center w-14 h-14 rounded-full font-semibold text-lg transition-all duration-300 border-4 shadow-md",
+                  "flex items-center justify-center w-10 h-10 rounded-full font-semibold text-sm transition-all duration-300 border-3 shadow-sm",
                   currentStage === 'preview' 
                     ? "bg-blue-600 text-white border-blue-600 shadow-blue-200 scale-110" 
                     : currentStage === 'documents'
                     ? "bg-green-500 text-white border-green-500 shadow-green-200"
                     : "bg-gray-200 text-gray-400 border-gray-300"
                 )}>
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
                 </div>
                 <div className="text-center">
                   <div className={cn(
-                    "text-sm font-bold transition-colors",
+                    "text-xs font-bold transition-colors",
                     currentStage === 'preview' || currentStage === 'documents'
                       ? "text-gray-900 dark:text-gray-100" 
                       : "text-gray-500"
                   )}>
                     Preview
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                  <div className="text-2xs text-gray-600 dark:text-gray-400 mt-0.5">
                     Review Info
                   </div>
                 </div>
               </div>
 
               {/* Connecting Line 2 with Animated Arrow */}
-              <div className="flex-1 relative px-2" style={{ maxWidth: '80px' }}>
-                <div className="relative h-2 flex items-center">
+              <div className="flex-1 relative px-2" style={{ maxWidth: '60px' }}>
+                <div className="relative h-1.5 flex items-center">
                   <div className={cn(
-                    "h-2 rounded-full transition-all duration-500 shadow-sm flex-1",
+                    "h-1.5 rounded-full transition-all duration-500 shadow-sm flex-1",
                     createdCustomerId ? "bg-green-500" : "bg-gray-300"
                   )} />
                   <svg 
                     className={cn(
-                      "absolute -right-1 w-4 h-4 transition-all duration-500",
+                      "absolute -right-1 w-3 h-3 transition-all duration-500",
                       createdCustomerId
                         ? "text-green-500 animate-pulse" 
                         : "text-gray-300"
@@ -1143,9 +1143,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               </div>
               
               {/* Stage 3: Documents */}
-              <div className="flex flex-col items-center gap-3 flex-1">
+              <div className="flex flex-col items-center gap-2 flex-1">
                 <div className={cn(
-                  "flex items-center justify-center w-14 h-14 rounded-full font-semibold text-lg transition-all duration-300 border-4 relative shadow-md",
+                  "flex items-center justify-center w-10 h-10 rounded-full font-semibold text-sm transition-all duration-300 border-3 relative shadow-sm",
                   currentStage === 'documents' && createdCustomerId
                     ? "bg-green-600 text-white border-green-600 shadow-green-200 scale-110" 
                     : createdCustomerId 
@@ -1154,16 +1154,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 )}
                 onClick={() => createdCustomerId && setCurrentStage('documents')}
                 >
-                  <Building2 className="w-6 h-6" />
+                  <Building2 className="w-5 h-5" />
                   {createdCustomerId && documents.length > 0 && (
-                    <div className="absolute -top-1 -right-1 w-7 h-7 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-3 border-white shadow-lg">
+                    <div className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-green-500 rounded-full flex items-center justify-center text-white text-2xs font-bold border-2 border-white shadow-lg">
                        {documents.filter(doc => doc.is_uploaded).length}
                     </div>
                   )}
                 </div>
                 <div className="text-center">
                   <div className={cn(
-                    "text-sm font-bold transition-colors",
+                    "text-xs font-bold transition-colors",
                     currentStage === 'documents' && createdCustomerId
                       ? "text-gray-900 dark:text-gray-100" 
                       : createdCustomerId
@@ -1172,7 +1172,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   )}>
                     Documents
                   </div>
-                  <div className="text-xs text-gray-600 dark:text-gray-400 mt-0.5">
+                  <div className="text-2xs text-gray-600 dark:text-gray-400 mt-0.5">
                     {createdCustomerId ? (
                       <span className="font-semibold">{documents.filter(doc => doc.is_uploaded).length}/{documents.length} Files</span>
                     ) : (
@@ -1186,16 +1186,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           
           {/* Stage Description Banner - Inside sticky card */}
           <div className={cn(
-            "mt-4 p-3 rounded-lg border transition-all duration-300",
+            "mt-3 p-2.5 rounded-lg border transition-all duration-300",
             currentStage === 'details' 
               ? "bg-green-50 border-green-200 dark:bg-green-950 dark:border-green-800"
               : currentStage === 'preview'
               ? "bg-blue-50 border-blue-200 dark:bg-blue-950 dark:border-blue-800"
               : "bg-purple-50 border-purple-200 dark:bg-purple-950 dark:border-purple-800"
           )}>
-            <div className="flex items-start gap-3">
+            <div className="flex items-start gap-2.5">
               <div className={cn(
-                "w-9 h-9 rounded-full flex items-center justify-center flex-shrink-0",
+                "w-7 h-7 rounded-full flex items-center justify-center flex-shrink-0",
                 currentStage === 'details' 
                   ? "bg-green-100 dark:bg-green-900"
                   : currentStage === 'preview'
@@ -1203,18 +1203,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   : "bg-purple-100 dark:bg-purple-900"
               )}>
                 {currentStage === 'details' ? (
-                  <ClipboardList className="w-4 h-4 text-green-700 dark:text-green-300" />
+                  <ClipboardList className="w-3.5 h-3.5 text-green-700 dark:text-green-300" />
                 ) : currentStage === 'preview' ? (
-                  <svg className="w-4 h-4 text-blue-700 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="w-3.5 h-3.5 text-blue-700 dark:text-blue-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
                   </svg>
                 ) : (
-                  <Building2 className="w-4 h-4 text-purple-700 dark:text-purple-300" />
+                  <Building2 className="w-3.5 h-3.5 text-purple-700 dark:text-purple-300" />
                 )}
               </div>
               <div className="flex-1">
-                <h3 className="font-semibold text-sm mb-0.5 text-gray-900 dark:text-gray-100">
+                <h3 className="font-semibold text-xs mb-0.5 text-gray-900 dark:text-gray-100">
                   {currentStage === 'details' 
                     ? 'Step 1: Fill Draft Details'
                     : currentStage === 'preview'
@@ -1222,7 +1222,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     : 'Step 3: Upload Documents'
                   }
                 </h3>
-                <p className="text-xs text-gray-700 dark:text-gray-300">
+                <p className="text-2xs text-gray-700 dark:text-gray-300 leading-relaxed">
                   {currentStage === 'details'
                     ? 'Select the customer, choose service type, and provide all required business information.'
                     : currentStage === 'preview'
