@@ -1009,44 +1009,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </div>
       )}
 
-      {/* Stage Indicator - Sticky Card with Header */}
+      {/* Stage Indicator - Sticky Card */}
       <Card className="sticky top-0 z-30 shadow-lg border mb-3">
-        {/* Header Section */}
-        <div className="bg-primary/5 border-b px-3 py-2">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-md bg-primary/10">
-              <ClipboardList className="h-4 w-4 text-primary" />
+        <CardContent className="pt-2.5 pb-2.5 px-3">
+          <div className="relative w-full mb-2">
+            <div className="flex items-center justify-between mb-2">
+              <Badge variant="outline" className="text-2xs px-1.5 py-0.5 h-5">
+                {currentStage === 'details' ? '1' : currentStage === 'preview' ? '2' : '3'}/3
+              </Badge>
             </div>
-            <div>
-              <h1 className="text-base font-semibold text-foreground">New Application</h1>
-              <p className="text-xs text-muted-foreground">Complete this multi-step form to create a customer application</p>
-            </div>
-          </div>
-        </div>
-        
-        {/* Progress Section */}
-        <CardHeader className="pb-1.5 pt-2.5 px-3">
-          <div className="flex items-center justify-between">
-            <div>
-              <CardTitle className="text-sm flex items-center gap-1.5">
-                Application Progress
-              </CardTitle>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                {currentStage === 'details' 
-                  ? 'Fill in customer and service details'
-                  : currentStage === 'preview'
-                  ? 'Review and confirm information'
-                  : 'Upload required documents'
-                }
-              </p>
-            </div>
-            <Badge variant="outline" className="text-2xs px-1.5 py-0.5 h-5">
-              {currentStage === 'details' ? '1' : currentStage === 'preview' ? '2' : '3'}/3
-            </Badge>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0 pb-2.5 px-3">
-          <div className="relative w-full">
             <div className="flex items-center justify-between">
               {/* Stage 1: Application Details */}
               <div className="flex flex-col items-center gap-1.5 flex-1">
