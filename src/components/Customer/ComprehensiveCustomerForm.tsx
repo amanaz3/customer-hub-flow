@@ -1306,7 +1306,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           </div>
           
           {/* Form Navigation inside sticky container */}
-          {currentStage === 'details' && (
+          {false && currentStage === 'details' && (
             <div className="bg-background border-t border-border">
               <div className="flex items-center gap-0.5 overflow-x-auto py-1">
                 {navigationSections.filter(s => s.isVisible !== false).map((section, index) => (
@@ -1386,7 +1386,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               )}
               
               {/* Show form sections when in existing mode and details stage */}
-              {currentStage === 'details' && (
+              {false && currentStage === 'details' && (
                 <div className="space-y-4 pt-4">
                   <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                     <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
@@ -1624,7 +1624,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           onCompanyCreated={handleCompanyCreated}
         />
 
-        {currentStage === 'details' && customerMode === 'new' && (
+        {false && currentStage === 'details' && customerMode === 'new' && (
           <div className="space-y-4 pt-4">
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
@@ -3610,7 +3610,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     </Card>
 
     {/* Floating Action Buttons - Only show on details stage before submission */}
-    {currentStage === 'details' && !createdCustomerId && (
+    {false && currentStage === 'details' && !createdCustomerId && (
       <div className="fixed bottom-8 right-8 flex gap-3 z-50">
         <button
           type="button"
