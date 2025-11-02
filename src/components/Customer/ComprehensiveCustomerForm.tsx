@@ -1637,13 +1637,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             <Tabs defaultValue="details" className="w-full">
               <TabsList className="grid w-full grid-cols-3 bg-muted rounded-none border-b">
                 <TabsTrigger value="details" className="rounded-none data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-primary">
-                  Company Details
                 </TabsTrigger>
                 <TabsTrigger value="service" className="rounded-none data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-primary">
-                  Service Selection
                 </TabsTrigger>
                 <TabsTrigger value="application" className="rounded-none data-[state=active]:bg-background data-[state=active]:border-b-2 data-[state=active]:border-b-primary">
-                  Deal Information
                 </TabsTrigger>
               </TabsList>
               
