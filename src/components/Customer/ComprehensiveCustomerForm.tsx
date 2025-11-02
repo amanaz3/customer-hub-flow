@@ -33,8 +33,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { NavigationBlocker } from '@/components/Navigation/NavigationBlocker';
 import { StickyFormNavigation } from './StickyFormNavigation';
-import transitionArrowActive from '@/assets/transition-arrow-active.png';
-import transitionArrowInactive from '@/assets/transition-arrow-inactive.png';
 
 // Form validation schema
 const formSchema = z.object({
@@ -1117,16 +1115,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   )}
                 </div>
                 <div className={cn(
-                  "absolute -right-3 w-10 h-10 rounded-full transition-all duration-500 flex items-center justify-center overflow-hidden bg-background",
+                  "absolute -right-3 w-12 h-12 rounded-full transition-all duration-500 flex items-center justify-center",
                   currentStage === 'preview' || currentStage === 'documents'
-                    ? "shadow-2xl shadow-blue-500/70 animate-pulse ring-4 ring-blue-400/50 ring-offset-2 ring-offset-background" 
-                    : "shadow-lg"
+                    ? "bg-gradient-to-br from-blue-500 to-blue-700 shadow-2xl shadow-blue-500/70 ring-4 ring-blue-400/50 ring-offset-2 ring-offset-background" 
+                    : "bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700 shadow-lg"
                 )}>
-                  <img 
-                    src={currentStage === 'preview' || currentStage === 'documents' ? transitionArrowActive : transitionArrowInactive}
-                    alt="Transition arrow"
-                    className="w-8 h-8 object-contain"
-                  />
+                  {/* Chevron Arrow */}
+                  <div className={cn(
+                    "w-6 h-6 border-r-4 border-t-4 rotate-45 transition-all duration-300",
+                    currentStage === 'preview' || currentStage === 'documents'
+                      ? "border-white"
+                      : "border-white/70"
+                  )} />
                 </div>
               </div>
             </div>
@@ -1186,16 +1186,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   )}
                 </div>
                 <div className={cn(
-                  "absolute -right-3 w-10 h-10 rounded-full transition-all duration-500 flex items-center justify-center overflow-hidden bg-background",
+                  "absolute -right-3 w-12 h-12 rounded-full transition-all duration-500 flex items-center justify-center",
                   createdCustomerId
-                    ? "shadow-2xl shadow-purple-500/70 animate-pulse ring-4 ring-purple-400/50 ring-offset-2 ring-offset-background" 
-                    : "shadow-lg"
+                    ? "bg-gradient-to-br from-purple-500 to-purple-700 shadow-2xl shadow-purple-500/70 ring-4 ring-purple-400/50 ring-offset-2 ring-offset-background" 
+                    : "bg-gradient-to-br from-gray-400 to-gray-500 dark:from-gray-600 dark:to-gray-700 shadow-lg"
                 )}>
-                  <img 
-                    src={createdCustomerId ? transitionArrowActive : transitionArrowInactive}
-                    alt="Transition arrow"
-                    className="w-8 h-8 object-contain"
-                  />
+                  {/* Chevron Arrow */}
+                  <div className={cn(
+                    "w-6 h-6 border-r-4 border-t-4 rotate-45 transition-all duration-300",
+                    createdCustomerId
+                      ? "border-white"
+                      : "border-white/70"
+                  )} />
                 </div>
               </div>
             </div>
