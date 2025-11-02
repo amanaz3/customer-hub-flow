@@ -1017,7 +1017,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       )}
 
       {/* Stage Indicator - Modern Gradient Design */}
-      <Card className="sticky top-14 sm:top-16 z-40 border-0 shadow-xl mb-3 overflow-hidden bg-background">
+      <Card className="sticky top-0 z-40 border-0 shadow-xl mb-3 overflow-hidden bg-background">
         {/* Solid background to fully cover content during scroll overlap */}
         <CardContent className="relative py-3 px-4">
           <div className="flex items-center justify-between">
@@ -1371,7 +1371,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
                     <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                       {/* Basic Information */}
-                      <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm scroll-mt-[320px]" data-section-id="basic">
+                      <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm scroll-mt-[240px]" data-section-id="basic">
                         <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                           <h3 className="text-base font-medium">Basic Information</h3>
                         </AccordionTrigger>
@@ -1434,7 +1434,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </AccordionItem>
 
                       {/* Source & Channel */}
-                      <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm scroll-mt-[320px]" data-section-id="lead">
+                      <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm scroll-mt-[240px]" data-section-id="lead">
                         <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                           <h3 className="text-base font-medium">Source & Channel Information</h3>
                         </AccordionTrigger>
@@ -1464,7 +1464,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </AccordionItem>
 
                       {/* Service Selection */}
-                      <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm scroll-mt-[320px]" data-section-id="service">
+                      <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm scroll-mt-[240px]" data-section-id="service">
                         <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                           <h3 className="text-base font-medium">Service Selection</h3>
                         </AccordionTrigger>
@@ -1609,7 +1609,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
-                <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm scroll-mt-[320px]" data-section-id="basic">
+                <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm scroll-mt-[240px]" data-section-id="basic">
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                     <h3 className="text-base font-medium">Basic Information</h3>
                   </AccordionTrigger>
@@ -1673,7 +1673,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
             {/* Source & Channel - Shown when basic info complete OR clicked in nav */}
             {(isBasicInfoComplete || accordionValue.includes('lead')) && (
-            <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm scroll-mt-[320px]" data-section-id="lead">
+            <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm scroll-mt-[240px]" data-section-id="lead">
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                     <h3 className="text-base font-medium">Source & Channel Information</h3>
                   </AccordionTrigger>
@@ -1705,7 +1705,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
         {/* Service Selection - Shown when basic info complete OR clicked in nav */}
         {(isBasicInfoComplete || accordionValue.includes('service')) && (
-        <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm scroll-mt-[320px]" data-section-id="service">
+        <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm scroll-mt-[240px]" data-section-id="service">
               <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
                 <h3 className="text-base font-medium">Service Selection</h3>
               </AccordionTrigger>
@@ -3047,7 +3047,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
               {/* Corporate Tax Registration Details */}
               {hasTaxRegistration && (
-                <AccordionItem value="tax-registration" className="border rounded-lg bg-background shadow-sm scroll-mt-[320px]">
+                <AccordionItem value="tax-registration" className="border rounded-lg bg-background shadow-sm scroll-mt-[240px]">
                   <AccordionTrigger className="px-4 hover:no-underline">
                     <h3 className="text-base font-medium">Corporate Tax Registration Details</h3>
                   </AccordionTrigger>
@@ -3187,7 +3187,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
               {/* Corporate Tax Filing Details */}
               {hasTaxFiling && (
-                <AccordionItem value="tax-filing" className="border rounded-lg bg-background shadow-sm scroll-mt-[320px]">
+                <AccordionItem value="tax-filing" className="border rounded-lg bg-background shadow-sm scroll-mt-[240px]">
                   <AccordionTrigger className="px-4 hover:no-underline">
                     <h3 className="text-base font-medium">Corporate Tax Filing Details</h3>
                   </AccordionTrigger>
