@@ -1303,7 +1303,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           </div>
           
           {/* Form Navigation inside sticky container */}
-          {false && currentStage === 'details' && (
+          {currentStage === 'details' && (
             <div className="bg-background border-t border-border">
               <div className="flex items-center gap-0.5 overflow-x-auto py-1">
                 {navigationSections.filter(s => s.isVisible !== false).map((section, index) => (
