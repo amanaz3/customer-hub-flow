@@ -1319,6 +1319,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 <div className="space-y-4">
                   <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
+                
+                {/* Create Company Section - Parent Container */}
+                <AccordionItem value="company-creation" className="border-2 border-primary/30 rounded-lg bg-gradient-to-br from-primary/5 to-accent/5" data-section-id="company-creation">
+                  <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b bg-primary/10">
+                    <Building2 className="h-5 w-5 text-primary" />
+                    <h3 className="text-lg font-semibold text-primary">Create Company</h3>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4 pt-2">
+                    <div className="space-y-4">
+                
                 {/* Basic Information */}
                 <AccordionItem value="basic" className="border rounded-lg" data-section-id="basic">
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
@@ -1539,6 +1549,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                      </div>
                    </AccordionContent>
                  </AccordionItem>
+                 
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+                {/* End Create Company Section */}
 
         {/* Deal Information - Only shown when service selection is complete OR when service is active and product is selected */}
         {(isServiceSelectionComplete || (accordionValue.includes('service') && watchProductId)) && (
