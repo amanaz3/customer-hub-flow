@@ -1213,8 +1213,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       <Card className="w-full overflow-hidden mt-3 relative z-10">
         <CardContent className="p-0">
           {/* Scrollable Content Area - Fixed height to show top and bottom sections */}
-          <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 240px)' }}>
-            <div className="px-6 pt-6 pb-4 space-y-4">
+          <div className="overflow-y-auto overflow-x-hidden" style={{ maxHeight: 'calc(100vh - 240px)' }}>
+            <div className="px-6 pt-6 pb-32 space-y-4">{/* Added pb-32 for bottom sticky section */}
               {/* Instructional Hint Banner */}
               <div className={cn(
                 "flex items-center gap-3 p-3 rounded-lg border-2 transition-all duration-300",
