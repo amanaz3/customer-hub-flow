@@ -504,14 +504,24 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const hasUnsavedData = useCallback(() => {
     const formValues = form.getValues();
     
-    // Check if any field has been filled
+    // Check if any field has been filled with actual user data (not default values)
     if (customerMode === 'new') {
-      return formValues.name || formValues.email || formValues.mobile || 
-             formValues.company || formValues.amount || formValues.product_id ||
-             formValues.customer_notes;
+      return (formValues.name && formValues.name.trim() !== '') || 
+             (formValues.email && formValues.email.trim() !== '') || 
+             (formValues.mobile && formValues.mobile.trim() !== '') || 
+             (formValues.company && formValues.company.trim() !== '') || 
+             (formValues.amount && formValues.amount > 0) || 
+             (formValues.product_id && formValues.product_id !== '') ||
+             (formValues.customer_notes && formValues.customer_notes.trim() !== '') ||
+             (formValues.jurisdiction && formValues.jurisdiction.trim() !== '') ||
+             (formValues.bank_preference_1 && formValues.bank_preference_1.trim() !== '') ||
+             (formValues.annual_turnover && formValues.annual_turnover > 0);
     } else {
       // For existing customer mode, check if they selected a customer or filled deal info
-      return selectedCustomerId !== '' || formValues.amount || formValues.product_id;
+      return (selectedCustomerId !== '') || 
+             (formValues.amount && formValues.amount > 0) || 
+             (formValues.product_id && formValues.product_id !== '') ||
+             (formValues.customer_notes && formValues.customer_notes.trim() !== '');
     }
   }, [form, customerMode, selectedCustomerId]);
 
