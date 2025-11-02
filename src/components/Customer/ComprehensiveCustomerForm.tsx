@@ -1215,6 +1215,26 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           {/* Scrollable Content Area - Fixed height to show top and bottom sections */}
           <div className="overflow-y-auto" style={{ maxHeight: 'calc(100vh - 280px)' }}>
             <div className="px-6 pt-6 pb-4 space-y-4">
+              {/* Instructional Hint Banner */}
+              <div className={cn(
+                "flex items-center gap-3 p-3 rounded-lg border-2 transition-all duration-300",
+                customerMode === 'new' 
+                  ? "bg-green-50 dark:bg-green-950/30 border-green-300 dark:border-green-800" 
+                  : "bg-blue-50 dark:bg-blue-950/30 border-blue-300 dark:border-blue-800"
+              )}>
+                <div className="flex-shrink-0 text-2xl animate-bounce">
+                  👇
+                </div>
+                <div className="flex-1">
+                  <p className="text-sm font-semibold text-foreground">
+                    {customerMode === 'new' ? 'Creating New Company' : 'Selecting Existing Customer'}
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Use the tabs at the bottom to switch between modes
+                  </p>
+                </div>
+              </div>
+
               {/* Customer Selection Content */}
               <div className="space-y-3">
                 {customerMode === 'existing' && (
@@ -3298,38 +3318,54 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           </div>
           
           {/* Customer Selection Section - Sticky at Bottom of Content */}
-          <div className="sticky bottom-0 z-40 bg-background/95 backdrop-blur-sm border-t shadow-2xl -mx-6 px-6 mt-6">
+          <div className="sticky bottom-0 z-40 bg-background/95 backdrop-blur-sm border-t-2 border-primary/20 shadow-2xl -mx-6 px-6 mt-6">
+            {/* Visual Indicator Arrow */}
+            <div className="absolute -top-6 left-1/2 -translate-x-1/2 flex flex-col items-center animate-pulse">
+              <div className="text-primary font-bold text-xs mb-1">CONTROL PANEL</div>
+              <div className="w-0 h-0 border-l-8 border-r-8 border-t-8 border-l-transparent border-r-transparent border-t-primary"></div>
+            </div>
+            
             <div className="grid grid-cols-2 w-full bg-background border-b border-border">
               <button
                 type="button"
                 onClick={() => handleModeSwitch('new')}
                 className={cn(
-                  "relative flex items-center justify-center gap-1.5 py-2 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
+                  "relative flex items-center justify-center gap-1.5 py-3 px-3 rounded-none border-b-3 transition-all text-sm font-medium group",
                   customerMode === 'new'
                     ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                    : "border-b-transparent text-muted-foreground hover:text-foreground"
+                    : "border-b-transparent text-muted-foreground hover:text-foreground hover:bg-accent"
                 )}
                 aria-selected={customerMode === 'new'}
+                title="Switch to creating a new company application"
               >
-                <Building2 className="h-3.5 w-3.5" />
+                <Building2 className="h-4 w-4" />
                 <span className="hidden sm:inline">Create New Company</span>
                 <span className="sm:hidden">New</span>
+                {/* Tooltip */}
+                <span className="absolute -top-14 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-xs px-3 py-2 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border pointer-events-none z-50">
+                  Fill form for a new company
+                </span>
               </button>
               
               <button
                 type="button"
                 onClick={() => handleModeSwitch('existing')}
                 className={cn(
-                  "relative flex items-center justify-center gap-1.5 py-2 px-3 rounded-none border-b-3 transition-all text-sm font-medium",
+                  "relative flex items-center justify-center gap-1.5 py-3 px-3 rounded-none border-b-3 transition-all text-sm font-medium group",
                   customerMode === 'existing'
                     ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
-                    : "border-b-transparent text-muted-foreground hover:text-foreground"
+                    : "border-b-transparent text-muted-foreground hover:text-foreground hover:bg-accent"
                 )}
                 aria-selected={customerMode === 'existing'}
+                title="Switch to selecting an existing customer"
               >
-                <Users className="h-3.5 w-3.5" />
+                <Users className="h-4 w-4" />
                 <span className="hidden sm:inline">Select Existing</span>
                 <span className="sm:hidden">Existing</span>
+                {/* Tooltip */}
+                <span className="absolute -top-14 left-1/2 -translate-x-1/2 bg-popover text-popover-foreground text-xs px-3 py-2 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border pointer-events-none z-50">
+                  Choose from existing customers
+                </span>
               </button>
             </div>
             
