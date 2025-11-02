@@ -33,7 +33,7 @@ export const StickyFormNavigation = ({ sections, onSectionClick }: StickyFormNav
                 "flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium transition-all whitespace-nowrap",
                 "hover:bg-accent hover:text-accent-foreground",
                 section.isActive 
-                  ? "bg-primary text-primary-foreground shadow-sm" 
+                  ? "bg-green-600 text-white shadow-sm dark:bg-green-700" 
                   : section.isComplete
                   ? "bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400"
                   : "bg-muted text-muted-foreground"
