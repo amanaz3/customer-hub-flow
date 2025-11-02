@@ -586,21 +586,21 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       label: 'Basic Info',
       isComplete: !!isBasicInfoComplete,
       isActive: accordionValue.includes('basic'),
-      isVisible: customerMode === 'new' || (customerMode === 'existing' && !!selectedCustomerId),
+      isVisible: true, // Always show
     },
     {
       id: 'lead',
       label: 'Source & Channel',
       isComplete: !!isSourceChannelComplete,
       isActive: accordionValue.includes('lead'),
-      isVisible: customerMode === 'new' || (customerMode === 'existing' && !!selectedCustomerId),
+      isVisible: true, // Always show
     },
     {
       id: 'service',
       label: 'Service',
       isComplete: !!isServiceSelectionComplete,
       isActive: accordionValue.includes('service'),
-      isVisible: customerMode === 'new' || (customerMode === 'existing' && !!selectedCustomerId),
+      isVisible: true, // Always show
     },
     {
       id: 'application',
