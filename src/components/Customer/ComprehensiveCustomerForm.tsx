@@ -29,6 +29,7 @@ import { Building2, Plus, Save, Users, ClipboardList } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 
 // Form validation schema
 const formSchema = z.object({
@@ -159,6 +160,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [accordionValue, setAccordionValue] = useState<string[]>(["basic", "lead", "service"]);
   const [highlightDealInfo, setHighlightDealInfo] = useState(false);
+  const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
+  const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
   const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const { uploadDocument } = useCustomer();
@@ -425,6 +428,60 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       description: 'Company added to the list',
     });
   }, [form, toast]);
+
+  // Check if form has unsaved data
+  const hasUnsavedData = useCallback(() => {
+    const formValues = form.getValues();
+    
+    // Check if any field has been filled
+    if (customerMode === 'new') {
+      return formValues.name || formValues.email || formValues.mobile || 
+             formValues.company || formValues.amount || formValues.product_id ||
+             formValues.customer_notes;
+    } else {
+      // For existing customer mode, check if they selected a customer or filled deal info
+      return selectedCustomerId !== '' || formValues.amount || formValues.product_id;
+    }
+  }, [form, customerMode, selectedCustomerId]);
+
+  // Handle mode switch with confirmation
+  const handleModeSwitch = useCallback((newMode: 'new' | 'existing') => {
+    if (newMode === customerMode) return;
+
+    if (hasUnsavedData()) {
+      setPendingMode(newMode);
+      setShowSwitchConfirm(true);
+    } else {
+      // No unsaved data, switch directly
+      setCustomerMode(newMode);
+      if (newMode === 'new') {
+        setSelectedCustomerId('');
+        form.reset();
+      }
+    }
+  }, [customerMode, hasUnsavedData, form]);
+
+  // Confirm mode switch without saving
+  const confirmModeSwitch = useCallback(() => {
+    if (pendingMode) {
+      setCustomerMode(pendingMode);
+      if (pendingMode === 'new') {
+        setSelectedCustomerId('');
+        form.reset();
+      } else {
+        // Switching to existing, clear form
+        form.reset();
+      }
+      setPendingMode(null);
+    }
+    setShowSwitchConfirm(false);
+  }, [pendingMode, form]);
+
+  // Cancel mode switch
+  const cancelModeSwitch = useCallback(() => {
+    setPendingMode(null);
+    setShowSwitchConfirm(false);
+  }, []);
 
   // Create default documents when license type changes
   const createDefaultDocuments = useCallback(async (customerId: string, licenseType: string, shareholderCount: number = 1) => {
@@ -1003,11 +1060,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           <div className="grid grid-cols-2 w-full bg-background border-b-2 border-border">
             <button
               type="button"
-              onClick={() => {
-                setCustomerMode('new');
-                setSelectedCustomerId('');
-                form.reset();
-              }}
+              onClick={() => handleModeSwitch('new')}
               className={cn(
                 "relative flex items-center justify-center gap-2 py-4 px-4 rounded-none border-b-4 transition-all font-medium",
                 customerMode === 'new'
@@ -1022,7 +1075,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             
             <button
               type="button"
-              onClick={() => setCustomerMode('existing')}
+              onClick={() => handleModeSwitch('existing')}
               className={cn(
                 "relative flex items-center justify-center gap-2 py-4 px-4 rounded-none border-b-4 transition-all font-medium",
                 customerMode === 'existing'
@@ -3110,6 +3163,25 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </button>
       </div>
     )}
+    
+    {/* Confirmation Dialog for switching tabs with unsaved data */}
+    <AlertDialog open={showSwitchConfirm} onOpenChange={setShowSwitchConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Unsaved Changes</AlertDialogTitle>
+          <AlertDialogDescription>
+            You have unsaved data in the current form. Switching tabs will clear this information. 
+            Do you want to continue without saving?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel onClick={cancelModeSwitch}>Cancel</AlertDialogCancel>
+          <AlertDialogAction onClick={confirmModeSwitch}>
+            Continue Without Saving
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
     </div>
   );
 };
