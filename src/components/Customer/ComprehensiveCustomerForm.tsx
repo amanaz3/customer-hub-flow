@@ -1283,8 +1283,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           )}
         </div>
         
-        {/* Spacer below sticky header to prevent initial overlap */}
-        <div aria-hidden="true" className="h-20" />
         {/* Customer Selection Content - Not Sticky */}
         <div className="space-y-3 relative z-0">
 
