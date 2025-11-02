@@ -586,28 +586,28 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       label: 'Basic Info',
       isComplete: !!isBasicInfoComplete,
       isActive: accordionValue.includes('basic'),
-      isVisible: true,
+      isVisible: customerMode === 'new' || (customerMode === 'existing' && !!selectedCustomerId),
     },
     {
       id: 'lead',
       label: 'Source & Channel',
       isComplete: !!isSourceChannelComplete,
       isActive: accordionValue.includes('lead'),
-      isVisible: true, // Always show in sticky nav
+      isVisible: customerMode === 'new' || (customerMode === 'existing' && !!selectedCustomerId),
     },
     {
       id: 'service',
       label: 'Service',
       isComplete: !!isServiceSelectionComplete,
       isActive: accordionValue.includes('service'),
-      isVisible: true, // Always show in sticky nav
+      isVisible: customerMode === 'new' || (customerMode === 'existing' && !!selectedCustomerId),
     },
     {
       id: 'application',
       label: 'Deal Info',
       isComplete: false, // Add logic for deal info completion if needed
       isActive: accordionValue.includes('application'),
-      isVisible: !!isServiceSelectionComplete || (accordionValue.includes('service') && !!watchProductId),
+      isVisible: customerMode === 'new' && (!!isServiceSelectionComplete || (accordionValue.includes('service') && !!watchProductId)),
     },
   ];
 
@@ -1327,6 +1327,236 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </p>
                 </div>
               )}
+              
+              {/* Show form sections when customer is selected */}
+              {selectedCustomerId && currentStage === 'details' && (
+                <div className="space-y-4 pt-4">
+                  <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                    <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
+                      {/* Basic Information */}
+                      <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm scroll-mt-[280px]" data-section-id="basic">
+                        <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
+                          <h3 className="text-base font-medium">Basic Information</h3>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                              <Label htmlFor="name">Full Name *</Label>
+                              <Input
+                                id="name"
+                                {...form.register('name')}
+                                disabled={isSubmitting}
+                                required
+                              />
+                              {form.formState.errors.name && (
+                                <p className="text-sm text-red-600">{form.formState.errors.name.message}</p>
+                              )}
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="email">Email *</Label>
+                              <Input
+                                id="email"
+                                type="email"
+                                {...form.register('email')}
+                                disabled={isSubmitting}
+                                required
+                              />
+                              {form.formState.errors.email && (
+                                <p className="text-sm text-red-600">{form.formState.errors.email.message}</p>
+                              )}
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="mobile">Mobile *</Label>
+                              <Input
+                                id="mobile"
+                                {...form.register('mobile')}
+                                disabled={isSubmitting}
+                                required
+                              />
+                              {form.formState.errors.mobile && (
+                                <p className="text-sm text-red-600">{form.formState.errors.mobile.message}</p>
+                              )}
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="company">Company *</Label>
+                              <Input
+                                id="company"
+                                {...form.register('company')}
+                                disabled={isSubmitting}
+                                required
+                              />
+                              {form.formState.errors.company && (
+                                <p className="text-sm text-red-600">{form.formState.errors.company.message}</p>
+                              )}
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+
+                      {/* Source & Channel */}
+                      <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm scroll-mt-[280px]" data-section-id="lead">
+                        <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
+                          <h3 className="text-base font-medium">Source & Channel Information</h3>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4">
+                          <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="space-y-2">
+                              <Label htmlFor="lead_source">Lead Source *</Label>
+                              <Select
+                                value={form.watch('lead_source')}
+                                onValueChange={(value) => form.setValue('lead_source', value as any)}
+                                disabled={isSubmitting}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Website">Website</SelectItem>
+                                  <SelectItem value="Referral">Referral</SelectItem>
+                                  <SelectItem value="Social Media">Social Media</SelectItem>
+                                  <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                                  <SelectItem value="Other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+
+                      {/* Service Selection */}
+                      <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm scroll-mt-[280px]" data-section-id="service">
+                        <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
+                          <h3 className="text-base font-medium">Service Selection</h3>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4">
+                          <div className="pt-2 space-y-4">
+                            {/* Category Filter Tabs */}
+                            <div className="space-y-2">
+                              <Label className="text-sm text-muted-foreground">Filter by Category (Optional)</Label>
+                              <Tabs 
+                                value={categoryFilter} 
+                                onValueChange={(value) => {
+                                  setCategoryFilter(value);
+                                  if (value === 'all') {
+                                    form.setValue('product_id', '');
+                                  }
+                                }} 
+                                className="w-full"
+                              >
+                                <TabsList className="grid w-full h-auto bg-background border-b-2 border-border p-0" style={{ gridTemplateColumns: `repeat(${serviceCategories.length + 1}, minmax(0, 1fr))` }}>
+                                  <TabsTrigger 
+                                    value="all"
+                                    disabled={isSubmitting || serviceCategoriesLoading}
+                                    className="relative flex items-center justify-center gap-2 py-3 px-4 rounded-none border-b-4 border-transparent data-[state=active]:border-b-green-500 data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-950/30 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-400 transition-all"
+                                  >
+                                    <span className="font-medium text-sm">All Products</span>
+                                    <Badge variant="secondary" className={cn(
+                                      "text-xs",
+                                      categoryFilter === 'all' && "bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-200"
+                                    )}>
+                                      {allProducts.length}
+                                    </Badge>
+                                  </TabsTrigger>
+                                  {serviceCategories.map((category) => {
+                                    const count = allProducts.filter(p => p.service_category_id === category.id).length;
+                                    return (
+                                      <TabsTrigger 
+                                        key={category.id}
+                                        value={category.id}
+                                        disabled={isSubmitting || serviceCategoriesLoading}
+                                        className="relative flex items-center justify-center gap-2 py-3 px-4 rounded-none border-b-4 border-transparent data-[state=active]:border-b-green-500 data-[state=active]:bg-green-50 dark:data-[state=active]:bg-green-950/30 data-[state=active]:text-green-700 dark:data-[state=active]:text-green-400 transition-all"
+                                      >
+                                        <span className="font-medium text-sm">{category.category_name}</span>
+                                        <Badge variant="secondary" className={cn(
+                                          "text-xs",
+                                          categoryFilter === category.id && "bg-green-200 dark:bg-green-900 text-green-800 dark:text-green-200"
+                                        )}>
+                                          {count}
+                                        </Badge>
+                                      </TabsTrigger>
+                                    );
+                                  })}
+                                </TabsList>
+                              </Tabs>
+                            </div>
+
+                            {/* Products Grid */}
+                            <div className="space-y-3">
+                              <Label>Product / Service *</Label>
+                              {productsLoading ? (
+                                <p className="text-sm text-muted-foreground">Loading products...</p>
+                              ) : products.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">No products available in this category.</p>
+                              ) : (
+                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                                  {products.map((product) => {
+                                    const isSelected = watchProductId === product.id;
+                                    return (
+                                      <div
+                                        key={product.id}
+                                        onClick={() => {
+                                          if (!isSubmitting) {
+                                            form.setValue('product_id', product.id);
+                                            setCategoryFilter(product.service_category_id || 'all');
+                                          }
+                                        }}
+                                        className={cn(
+                                          "relative p-3 rounded-md border-2 cursor-pointer transition-all duration-200",
+                                          "hover:shadow-sm",
+                                          isSelected
+                                            ? "border-green-600 bg-green-50 dark:bg-green-950/30 shadow-md"
+                                            : "border-border bg-card hover:border-green-300",
+                                          isSubmitting && "opacity-50 cursor-not-allowed"
+                                        )}
+                                      >
+                                        <div className="flex items-center gap-2">
+                                          <div className="flex-1 min-w-0">
+                                            <h4 className={cn(
+                                              "font-medium text-sm truncate",
+                                              isSelected && "text-green-700 dark:text-green-400"
+                                            )}>
+                                              {product.name}
+                                            </h4>
+                                          </div>
+                                          {isSelected && (
+                                            <div className="flex-shrink-0">
+                                              <div className="w-5 h-5 rounded-full bg-green-600 flex items-center justify-center">
+                                                <svg
+                                                  className="w-3 h-3 text-white"
+                                                  fill="none"
+                                                  strokeWidth="2.5"
+                                                  stroke="currentColor"
+                                                  viewBox="0 0 24 24"
+                                                >
+                                                  <path
+                                                    strokeLinecap="round"
+                                                    strokeLinejoin="round"
+                                                    d="M5 13l4 4L19 7"
+                                                  />
+                                                </svg>
+                                              </div>
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    );
+                                  })}
+                                </div>
+                              )}
+                              {form.formState.errors.product_id && (
+                                <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>
+                              )}
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </form>
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1337,7 +1567,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           onCompanyCreated={handleCompanyCreated}
         />
 
-        {currentStage === 'details' && (
+        {currentStage === 'details' && customerMode === 'new' && (
           <div className="space-y-4 pt-4">
             <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
