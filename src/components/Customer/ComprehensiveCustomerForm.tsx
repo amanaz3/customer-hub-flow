@@ -2641,15 +2641,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                          
                          {/* Co-Applicant Information - inside Property section */}
                          <div className="col-span-full mt-3 pt-3 border-t border-muted/30">
-                           <div className="flex items-center space-x-2">
-                             <Checkbox
-                               id="has_co_applicant"
-                               checked={form.watch('has_co_applicant') || false}
-                               onCheckedChange={(checked) => form.setValue('has_co_applicant', !!checked)}
-                               disabled={isSubmitting}
-                             />
-                             <Label htmlFor="has_co_applicant">I have a co-applicant</Label>
-                           </div>
+                            <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card">
+                              <Checkbox
+                                id="has_co_applicant"
+                                checked={form.watch('has_co_applicant') || false}
+                                onCheckedChange={(checked) => form.setValue('has_co_applicant', !!checked)}
+                                disabled={isSubmitting}
+                                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
+                              />
+                              <Label htmlFor="has_co_applicant" className="cursor-pointer font-medium">I have a co-applicant</Label>
+                            </div>
 
                            {form.watch('has_co_applicant') && (
                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-l-2 border-muted pl-4 mt-2">
@@ -3048,14 +3049,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           </Select>
                         </div>
 
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card">
                           <Checkbox
                             id="wps_transfer_required"
                             checked={form.watch('wps_transfer_required') || false}
                             onCheckedChange={(checked) => form.setValue('wps_transfer_required', !!checked)}
                             disabled={isSubmitting}
+                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                           />
-                          <Label htmlFor="wps_transfer_required">WPS Transfer Requirement</Label>
+                          <Label htmlFor="wps_transfer_required" className="cursor-pointer font-medium">WPS Transfer Requirement</Label>
                         </div>
 
                         <div className="space-y-2">
@@ -3153,24 +3155,26 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           </Select>
                         </div>
 
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card">
                           <Checkbox
                             id="vat_registered"
                             checked={form.watch('vat_registered') || false}
                             onCheckedChange={(checked) => form.setValue('vat_registered', !!checked)}
                             disabled={isSubmitting}
+                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                           />
-                          <Label htmlFor="vat_registered">VAT Registered</Label>
+                          <Label htmlFor="vat_registered" className="cursor-pointer font-medium">VAT Registered</Label>
                         </div>
 
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card">
                           <Checkbox
                             id="has_previous_records"
                             checked={form.watch('has_previous_records') || false}
                             onCheckedChange={(checked) => form.setValue('has_previous_records', !!checked)}
                             disabled={isSubmitting}
+                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                           />
-                          <Label htmlFor="has_previous_records">Has Previous Accounting Records</Label>
+                          <Label htmlFor="has_previous_records" className="cursor-pointer font-medium">Has Previous Accounting Records</Label>
                         </div>
                         </>
                       )}
@@ -3593,14 +3597,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </div>
 
                         <div className="space-y-2 md:col-span-2">
-                          <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card">
                             <Checkbox
                               id="already_registered_vat"
                               checked={form.watch('already_registered_vat') || false}
                               onCheckedChange={(checked) => form.setValue('already_registered_vat', !!checked)}
                               disabled={isSubmitting}
+                              className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                             />
-                            <Label htmlFor="already_registered_vat">Already registered for VAT (need to update/amend)</Label>
+                            <Label htmlFor="already_registered_vat" className="cursor-pointer font-medium">Already registered for VAT (need to update/amend)</Label>
                           </div>
                         </div>
 
@@ -3655,26 +3660,28 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card">
                               <Checkbox
                                 id="import_activities"
                                 checked={form.watch('import_activities') || false}
                                 onCheckedChange={(checked) => form.setValue('import_activities', !!checked)}
                                 disabled={isSubmitting}
+                                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                               />
-                              <Label htmlFor="import_activities">Business involves imports</Label>
+                              <Label htmlFor="import_activities" className="cursor-pointer font-medium">Business involves imports</Label>
                             </div>
                           </div>
 
                           <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card">
                               <Checkbox
                                 id="export_activities"
                                 checked={form.watch('export_activities') || false}
                                 onCheckedChange={(checked) => form.setValue('export_activities', !!checked)}
                                 disabled={isSubmitting}
+                                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                               />
-                              <Label htmlFor="export_activities">Business involves exports</Label>
+                              <Label htmlFor="export_activities" className="cursor-pointer font-medium">Business involves exports</Label>
                             </div>
                           </div>
                         </div>
@@ -3705,14 +3712,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                           <div className="space-y-2">
-                            <div className="flex items-center space-x-2">
+                            <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card">
                               <Checkbox
                                 id="multiple_business_locations"
                                 checked={form.watch('multiple_business_locations') || false}
                                 onCheckedChange={(checked) => form.setValue('multiple_business_locations', !!checked)}
                                 disabled={isSubmitting}
+                                className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                               />
-                              <Label htmlFor="multiple_business_locations">Multiple business locations/branches</Label>
+                              <Label htmlFor="multiple_business_locations" className="cursor-pointer font-medium">Multiple business locations/branches</Label>
                             </div>
                           </div>
 
@@ -3880,14 +3888,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         />
                       </div>
 
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card">
                         <Checkbox
                           id="has_foreign_operations"
                           checked={form.watch('has_foreign_operations') || false}
                           onCheckedChange={(checked) => form.setValue('has_foreign_operations', !!checked)}
                           disabled={isSubmitting}
+                          className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                         />
-                        <Label htmlFor="has_foreign_operations">Has foreign shareholders or operations</Label>
+                        <Label htmlFor="has_foreign_operations" className="cursor-pointer font-medium">Has foreign shareholders or operations</Label>
                       </div>
                     </div>
 
@@ -4038,24 +4047,26 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         />
                       </div>
 
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card">
                         <Checkbox
                           id="first_time_filing"
                           checked={form.watch('first_time_filing') || false}
                           onCheckedChange={(checked) => form.setValue('first_time_filing', !!checked)}
                           disabled={isSubmitting}
+                          className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                         />
-                        <Label htmlFor="first_time_filing">First time filing</Label>
+                        <Label htmlFor="first_time_filing" className="cursor-pointer font-medium">First time filing</Label>
                       </div>
 
-                      <div className="flex items-center space-x-2">
+                      <div className="flex items-center space-x-3 p-3 rounded-lg border border-border bg-card">
                         <Checkbox
                           id="has_foreign_operations"
                           checked={form.watch('has_foreign_operations') || false}
                           onCheckedChange={(checked) => form.setValue('has_foreign_operations', !!checked)}
                           disabled={isSubmitting}
+                          className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                         />
-                        <Label htmlFor="has_foreign_operations">Has foreign operations/transactions</Label>
+                        <Label htmlFor="has_foreign_operations" className="cursor-pointer font-medium">Has foreign operations/transactions</Label>
                       </div>
                     </div>
 
