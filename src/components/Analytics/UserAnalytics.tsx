@@ -21,10 +21,13 @@ import {
   CheckCircle,
   Clock,
   CreditCard,
-  XCircle
+  XCircle,
+  UserPlus,
+  Building2
 } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { supabase } from '@/integrations/supabase/client';
 
 interface UserStats {
   userId: string;
@@ -46,6 +49,10 @@ const UserAnalytics = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
+  const [customerTypeData, setCustomerTypeData] = useState<{
+    newCustomer: number;
+    existingCustomer: number;
+  }>({ newCustomer: 0, existingCustomer: 0 });
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -61,6 +68,36 @@ const UserAnalytics = () => {
 
     fetchUsers();
   }, [getUsers]);
+
+  useEffect(() => {
+    const fetchCustomerTypeData = async () => {
+      try {
+        const { data, error } = await supabase.rpc('get_customer_type_breakdown');
+        
+        if (error) {
+          console.error('Error fetching customer type data:', error);
+          return;
+        }
+
+        if (data && data.length > 0) {
+          const breakdown = data.reduce((acc: any, item: any) => {
+            if (item.customer_type === 'New Customer') {
+              acc.newCustomer = item.application_count;
+            } else if (item.customer_type === 'Existing Customer') {
+              acc.existingCustomer = item.application_count;
+            }
+            return acc;
+          }, { newCustomer: 0, existingCustomer: 0 });
+          
+          setCustomerTypeData(breakdown);
+        }
+      } catch (error) {
+        console.error('Error fetching customer type breakdown:', error);
+      }
+    };
+
+    fetchCustomerTypeData();
+  }, []);
 
   const userAnalytics = useMemo(() => {
     const analytics: UserStats[] = users.map(user => {
@@ -232,6 +269,35 @@ const UserAnalytics = () => {
             <div className="text-2xl font-bold">{overallStats.avgCompletionRate.toFixed(1)}%</div>
             <p className="text-xs text-muted-foreground">
               Across all users
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Customer Type Breakdown */}
+      <div className="grid gap-4 md:grid-cols-2">
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">New Customer Applications</CardTitle>
+            <UserPlus className="h-4 w-4 text-blue-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">{customerTypeData.newCustomer}</div>
+            <p className="text-xs text-muted-foreground">
+              {((customerTypeData.newCustomer / (customerTypeData.newCustomer + customerTypeData.existingCustomer)) * 100 || 0).toFixed(1)}% of total applications
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Existing Customer Applications</CardTitle>
+            <Building2 className="h-4 w-4 text-green-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">{customerTypeData.existingCustomer}</div>
+            <p className="text-xs text-muted-foreground">
+              {((customerTypeData.existingCustomer / (customerTypeData.newCustomer + customerTypeData.existingCustomer)) * 100 || 0).toFixed(1)}% of total applications
             </p>
           </CardContent>
         </Card>
