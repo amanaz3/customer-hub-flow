@@ -2389,52 +2389,84 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                         <div className="space-y-2">
                           <Label htmlFor="nationality">Nationality</Label>
-                          <Select
-                            value={form.watch('nationality') || ''}
-                            onValueChange={(value) => form.setValue('nationality', value)}
+                          <Input
+                            id="nationality"
+                            list="nationality-options"
+                            {...form.register('nationality')}
+                            placeholder="Type to search nationalities..."
                             disabled={isSubmitting}
-                          >
-                            <SelectTrigger className="bg-background">
-                              <SelectValue placeholder="Select nationality" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-background z-50 max-h-[300px]">
-                              <SelectItem value="UAE">UAE</SelectItem>
-                              <SelectItem value="Indian">Indian</SelectItem>
-                              <SelectItem value="Pakistani">Pakistani</SelectItem>
-                              <SelectItem value="British">British</SelectItem>
-                              <SelectItem value="American">American</SelectItem>
-                              <SelectItem value="Canadian">Canadian</SelectItem>
-                              <SelectItem value="Australian">Australian</SelectItem>
-                              <SelectItem value="Filipino">Filipino</SelectItem>
-                              <SelectItem value="Egyptian">Egyptian</SelectItem>
-                              <SelectItem value="Jordanian">Jordanian</SelectItem>
-                              <SelectItem value="Lebanese">Lebanese</SelectItem>
-                              <SelectItem value="Saudi Arabian">Saudi Arabian</SelectItem>
-                              <SelectItem value="Kuwaiti">Kuwaiti</SelectItem>
-                              <SelectItem value="Qatari">Qatari</SelectItem>
-                              <SelectItem value="Omani">Omani</SelectItem>
-                              <SelectItem value="Bahraini">Bahraini</SelectItem>
-                              <SelectItem value="Yemeni">Yemeni</SelectItem>
-                              <SelectItem value="Syrian">Syrian</SelectItem>
-                              <SelectItem value="Iraqi">Iraqi</SelectItem>
-                              <SelectItem value="Bangladeshi">Bangladeshi</SelectItem>
-                              <SelectItem value="Sri Lankan">Sri Lankan</SelectItem>
-                              <SelectItem value="Nepalese">Nepalese</SelectItem>
-                              <SelectItem value="Chinese">Chinese</SelectItem>
-                              <SelectItem value="Japanese">Japanese</SelectItem>
-                              <SelectItem value="South Korean">South Korean</SelectItem>
-                              <SelectItem value="German">German</SelectItem>
-                              <SelectItem value="French">French</SelectItem>
-                              <SelectItem value="Italian">Italian</SelectItem>
-                              <SelectItem value="Spanish">Spanish</SelectItem>
-                              <SelectItem value="Russian">Russian</SelectItem>
-                              <SelectItem value="Turkish">Turkish</SelectItem>
-                              <SelectItem value="Iranian">Iranian</SelectItem>
-                              <SelectItem value="South African">South African</SelectItem>
-                              <SelectItem value="Nigerian">Nigerian</SelectItem>
-                              <SelectItem value="Other">Other</SelectItem>
-                            </SelectContent>
-                          </Select>
+                            className="bg-background"
+                          />
+                          <datalist id="nationality-options">
+                            <option value="UAE" />
+                            <option value="Indian" />
+                            <option value="Pakistani" />
+                            <option value="British" />
+                            <option value="American" />
+                            <option value="Canadian" />
+                            <option value="Australian" />
+                            <option value="Filipino" />
+                            <option value="Egyptian" />
+                            <option value="Jordanian" />
+                            <option value="Lebanese" />
+                            <option value="Saudi Arabian" />
+                            <option value="Kuwaiti" />
+                            <option value="Qatari" />
+                            <option value="Omani" />
+                            <option value="Bahraini" />
+                            <option value="Yemeni" />
+                            <option value="Syrian" />
+                            <option value="Iraqi" />
+                            <option value="Bangladeshi" />
+                            <option value="Sri Lankan" />
+                            <option value="Nepalese" />
+                            <option value="Chinese" />
+                            <option value="Japanese" />
+                            <option value="South Korean" />
+                            <option value="German" />
+                            <option value="French" />
+                            <option value="Italian" />
+                            <option value="Spanish" />
+                            <option value="Russian" />
+                            <option value="Turkish" />
+                            <option value="Iranian" />
+                            <option value="South African" />
+                            <option value="Nigerian" />
+                            <option value="Ethiopian" />
+                            <option value="Kenyan" />
+                            <option value="Moroccan" />
+                            <option value="Tunisian" />
+                            <option value="Algerian" />
+                            <option value="Sudanese" />
+                            <option value="Afghan" />
+                            <option value="Indonesian" />
+                            <option value="Malaysian" />
+                            <option value="Thai" />
+                            <option value="Vietnamese" />
+                            <option value="Singaporean" />
+                            <option value="New Zealander" />
+                            <option value="Dutch" />
+                            <option value="Belgian" />
+                            <option value="Swedish" />
+                            <option value="Norwegian" />
+                            <option value="Danish" />
+                            <option value="Finnish" />
+                            <option value="Polish" />
+                            <option value="Ukrainian" />
+                            <option value="Romanian" />
+                            <option value="Greek" />
+                            <option value="Portuguese" />
+                            <option value="Irish" />
+                            <option value="Swiss" />
+                            <option value="Austrian" />
+                            <option value="Brazilian" />
+                            <option value="Mexican" />
+                            <option value="Argentine" />
+                            <option value="Colombian" />
+                            <option value="Venezuelan" />
+                            <option value="Chilean" />
+                            <option value="Peruvian" />
+                          </datalist>
                         </div>
 
                         <div className="space-y-2">
