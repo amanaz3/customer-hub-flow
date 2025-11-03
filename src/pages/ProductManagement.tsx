@@ -14,6 +14,7 @@ import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface Product {
   id: string;
@@ -404,7 +405,18 @@ const ProductManagement: React.FC = () => {
               <TableBody>
                 {products?.map((product) => (
                   <TableRow key={product.id}>
-                    <TableCell className="font-medium">{product.name}</TableCell>
+                    <TableCell className="font-medium">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <span className="cursor-help truncate block max-w-[200px]">{product.name}</span>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>{product.name}</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </TableCell>
                     <TableCell>
                       {product.category_name ? (
                         <Badge variant="outline">{product.category_name}</Badge>
