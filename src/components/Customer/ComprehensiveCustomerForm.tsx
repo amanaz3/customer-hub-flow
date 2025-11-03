@@ -2181,6 +2181,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     {/* Home Finance Employment & Property Details */}
                     {hasHomeFinance && (
                       <>
+                        {/* Employment Information Subsection */}
+                        <div className="col-span-full">
+                          <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-muted/30 rounded">
+                            <span className="text-xs">👔</span>
+                            <h5 className="text-xs font-medium text-muted-foreground">Employment Information</h5>
+                          </div>
+                        </div>
+
                         <div className="space-y-2">
                           <Label htmlFor="employment_status">Employment Status *</Label>
                           <select
@@ -2217,6 +2225,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             placeholder="e.g., 2.5"
                             disabled={isSubmitting}
                           />
+                        </div>
+
+                        {/* Property Information Subsection */}
+                        <div className="col-span-full mt-2">
+                          <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-muted/30 rounded">
+                            <span className="text-xs">🏠</span>
+                            <h5 className="text-xs font-medium text-muted-foreground">Property Information</h5>
+                          </div>
                         </div>
 
                         <div className="space-y-2">
