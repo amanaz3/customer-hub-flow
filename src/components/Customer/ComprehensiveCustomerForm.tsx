@@ -402,8 +402,23 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   useEffect(() => {
     if (mostPopularProduct && !watchProductId && !initialData) {
       form.setValue('product_id', mostPopularProduct);
+      // Also set the category filter to this product's category
+      const popularProduct = allProducts.find(p => p.id === mostPopularProduct);
+      if (popularProduct?.service_category_id) {
+        setCategoryFilter(popularProduct.service_category_id);
+      }
     }
-  }, [mostPopularProduct, watchProductId, initialData, form]);
+  }, [mostPopularProduct, watchProductId, initialData, form, allProducts]);
+
+  // Auto-update category filter when product changes
+  useEffect(() => {
+    if (watchProductId) {
+      const product = allProducts.find(p => p.id === watchProductId);
+      if (product?.service_category_id) {
+        setCategoryFilter(product.service_category_id);
+      }
+    }
+  }, [watchProductId, allProducts]);
 
   // Real-time subscription to update most popular product when customers change
   useEffect(() => {
