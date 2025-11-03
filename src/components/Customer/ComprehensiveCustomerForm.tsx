@@ -1638,11 +1638,25 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       {/* Service Selection */}
                       <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm" data-section-id="service" style={{ scrollMarginTop: totalStickyOffset }}>
                         <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
-                          <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-primary/10">
-                              <Building2 className="h-5 w-5 text-primary" />
+                          <div className="flex items-center gap-2 flex-wrap w-full">
+                            <div className="flex items-center gap-3">
+                              <div className="p-2 rounded-lg bg-primary/10">
+                                <Building2 className="h-5 w-5 text-primary" />
+                              </div>
+                              <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Service Selection</h3>
                             </div>
-                            <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Service Selection</h3>
+                            {selectedProduct && (
+                              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
+                                <Check className="h-3.5 w-3.5 text-primary" />
+                                <span className="text-xs font-medium text-primary">{selectedProduct.name}</span>
+                              </div>
+                            )}
+                            {sectionsWithErrors.has('service') && (
+                              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/10 border border-destructive/30 animate-pulse">
+                                <AlertCircle className="h-3.5 w-3.5 text-destructive" />
+                                <span className="text-xs font-medium text-destructive">Error</span>
+                              </div>
+                            )}
                           </div>
                         </AccordionTrigger>
                         <AccordionContent className="px-4 pb-4 pt-4">
