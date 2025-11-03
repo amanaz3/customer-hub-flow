@@ -2651,48 +2651,76 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               }
                             }}
                             disabled={isSubmitting}
+                            className="grid grid-cols-1 md:grid-cols-2 gap-3"
                           >
-                            <div className="flex items-center space-x-2">
+                            <label
+                              htmlFor="bank-preferred"
+                              className={cn(
+                                "flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all hover:bg-accent/50",
+                                bankPreferenceMode === 'preferred' 
+                                  ? "border-primary bg-primary/5" 
+                                  : "border-border"
+                              )}
+                            >
                               <RadioGroupItem value="preferred" id="bank-preferred" />
-                              <Label htmlFor="bank-preferred" className="cursor-pointer">I have preferred banks</Label>
-                            </div>
-                            <div className="flex items-center space-x-2">
+                              <div className="flex-1">
+                                <div className="font-medium">I have preferred banks</div>
+                                <div className="text-sm text-muted-foreground">Select up to 3 banks in order of preference</div>
+                              </div>
+                            </label>
+                            
+                            <label
+                              htmlFor="bank-any"
+                              className={cn(
+                                "flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all hover:bg-accent/50",
+                                bankPreferenceMode === 'any' 
+                                  ? "border-primary bg-primary/5" 
+                                  : "border-border"
+                              )}
+                            >
                               <RadioGroupItem value="any" id="bank-any" />
-                              <Label htmlFor="bank-any" className="cursor-pointer">Any bank is fine</Label>
-                            </div>
+                              <div className="flex-1">
+                                <div className="font-medium">Any bank is fine</div>
+                                <div className="text-sm text-muted-foreground">No specific bank preference</div>
+                              </div>
+                            </label>
                           </RadioGroup>
                         </div>
 
                         {bankPreferenceMode === 'preferred' && (
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+                          <div className="space-y-3 mt-4 p-4 rounded-lg bg-muted/30 border">
                             <div className="space-y-2">
-                              <Label htmlFor="bank_preference_1">Preferred Bank</Label>
+                              <Label htmlFor="bank_preference_1" className="text-sm font-medium">
+                                1st Preference <span className="text-destructive">*</span>
+                              </Label>
                               <Input
                                 id="bank_preference_1"
                                 {...form.register('bank_preference_1')}
-                                placeholder="Enter preferred bank"
+                                placeholder="Enter your first choice bank"
                                 disabled={isSubmitting}
                               />
                             </div>
                             
-                            <div className="space-y-2">
-                              <Label htmlFor="bank_preference_2">Second Preference</Label>
-                              <Input
-                                id="bank_preference_2"
-                                {...form.register('bank_preference_2')}
-                                placeholder="Enter second preference (optional)"
-                                disabled={isSubmitting}
-                              />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="bank_preference_3">Third Preference</Label>
-                              <Input
-                                id="bank_preference_3"
-                                {...form.register('bank_preference_3')}
-                                placeholder="Enter third preference (optional)"
-                                disabled={isSubmitting}
-                              />
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div className="space-y-2">
+                                <Label htmlFor="bank_preference_2" className="text-sm">2nd Preference (Optional)</Label>
+                                <Input
+                                  id="bank_preference_2"
+                                  {...form.register('bank_preference_2')}
+                                  placeholder="Second choice"
+                                  disabled={isSubmitting}
+                                />
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label htmlFor="bank_preference_3" className="text-sm">3rd Preference (Optional)</Label>
+                                <Input
+                                  id="bank_preference_3"
+                                  {...form.register('bank_preference_3')}
+                                  placeholder="Third choice"
+                                  disabled={isSubmitting}
+                                />
+                              </div>
                             </div>
                           </div>
                         )}
