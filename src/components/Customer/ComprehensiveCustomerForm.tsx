@@ -3048,7 +3048,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           </Select>
                         </div>
 
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-2 md:col-span-2">
                           <Checkbox
                             id="wps_transfer_required"
                             checked={form.watch('wps_transfer_required') || false}
