@@ -2171,7 +2171,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           </div>
                         )}
                         {isBasicInfoComplete && !sectionsWithErrors.has('basic') && (
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 animate-scale-in">
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 animate-in fade-in zoom-in duration-500 shadow-lg shadow-green-500/20">
                             <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
                             <span className="text-xs font-medium text-green-700 dark:text-green-400">Complete</span>
                           </div>
@@ -2256,7 +2256,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           </div>
                         )}
                         {isSourceChannelComplete && !sectionsWithErrors.has('lead') && (
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 animate-scale-in">
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 animate-in fade-in zoom-in duration-500 shadow-lg shadow-green-500/20">
                             <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
                             <span className="text-xs font-medium text-green-700 dark:text-green-400">Complete</span>
                           </div>
@@ -2316,7 +2316,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </div>
                     )}
                     {isServiceSelectionComplete && !sectionsWithErrors.has('service') && (
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 animate-scale-in">
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 animate-in fade-in zoom-in duration-500 shadow-lg shadow-green-500/20">
                         <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
                         <span className="text-xs font-medium text-green-700 dark:text-green-400">Complete</span>
                       </div>
