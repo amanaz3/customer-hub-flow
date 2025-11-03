@@ -14,6 +14,7 @@ import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useCustomer } from '@/contexts/CustomerContext';
@@ -27,7 +28,7 @@ import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
-import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle } from 'lucide-react';
+import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -2773,7 +2774,19 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               </div>
                               
                               <div className="space-y-2">
-                                <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
+                                <div className="flex items-center gap-1.5">
+                                  <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                                      </TooltipTrigger>
+                                      <TooltipContent className="max-w-xs">
+                                        <p>Number of shareholders will determine how many signatory document sets are created (1-10)</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
                                 <Input
                                   id="no_of_shareholders"
                                   type="number"
@@ -2786,9 +2799,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 {form.formState.errors.no_of_shareholders && (
                                   <p className="text-sm text-destructive">{form.formState.errors.no_of_shareholders.message}</p>
                                 )}
-                                <p className="text-xs text-muted-foreground">
-                                  Number of shareholders will determine how many signatory document sets are created (1-10)
-                                </p>
                               </div>
                               
                               <div className="space-y-2">
