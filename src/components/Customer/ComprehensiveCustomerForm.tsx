@@ -26,7 +26,7 @@ import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
-import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle } from 'lucide-react';
+import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -172,6 +172,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [accordionValue, setAccordionValue] = useState<string[]>(["basic", "lead"]);
   const [highlightDealInfo, setHighlightDealInfo] = useState(false);
   const [serviceSelectionExpanded, setServiceSelectionExpanded] = useState(false);
+  const [sectionsWithErrors, setSectionsWithErrors] = useState<Set<string>>(new Set());
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
   const stickyNavRef = useRef<HTMLDivElement | null>(null);
@@ -398,6 +399,135 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const isBasicInfoComplete = watchName && watchEmail && watchMobile && watchCompany;
   const isSourceChannelComplete = isBasicInfoComplete && watchLeadSource;
   const isServiceSelectionComplete = isSourceChannelComplete && watchProductId;
+
+  // Map field names to their corresponding accordion sections
+  const getFieldSection = (fieldName: string): string | null => {
+    // Basic Information
+    if (['name', 'email', 'mobile', 'company'].includes(fieldName)) return 'basic';
+    
+    // Source & Channel
+    if (['lead_source'].includes(fieldName)) return 'lead';
+    
+    // Service Selection
+    if (['product_id', 'service_type_id'].includes(fieldName)) return 'service';
+    
+    // Deal Information
+    if (['amount', 'annual_turnover', 'license_type', 'jurisdiction', 'any_suitable_bank', 
+         'bank_preference_1', 'bank_preference_2', 'bank_preference_3', 'customer_notes',
+         'no_of_shareholders', 'arr_value', 'deal_stage', 'expected_close_date', 
+         'probability', 'notes', 'banking_preferences', 'payment_method'].includes(fieldName)) {
+      return 'application';
+    }
+    
+    // Bookkeeping fields
+    if (['accounting_software', 'monthly_transactions', 'vat_registered', 'bank_accounts_count',
+         'employees_count', 'service_start_date', 'has_previous_records', 'reporting_frequency'].includes(fieldName)) {
+      return 'bookkeeping';
+    }
+    
+    // Company Formation fields
+    if (fieldName.includes('shareholder_') || fieldName.includes('no_of_shareholders')) {
+      return 'company-formation';
+    }
+    
+    // Bank Account fields
+    if (fieldName.includes('bank_preference')) {
+      return 'bank-account';
+    }
+    
+    // GoAML fields
+    if (['trade_license_number', 'date_of_incorporation', 'registered_office_address', 
+         'nature_of_business', 'number_of_ubos', 'compliance_officer_name', 
+         'compliance_officer_email', 'compliance_officer_phone', 'compliance_officer_position',
+         'expected_annual_transaction_volume', 'transaction_types', 'customer_types',
+         'high_risk_countries', 'source_of_funds'].includes(fieldName)) {
+      return 'goaml';
+    }
+    
+    // Home Finance fields
+    if (['monthly_gross_salary', 'employment_status', 'employer_name', 'years_with_employer',
+         'additional_income', 'additional_income_source', 'existing_loan_commitments',
+         'credit_card_limit', 'credit_card_outstanding', 'property_type', 'property_location',
+         'property_value', 'developer_name', 'property_status', 'intended_use',
+         'loan_amount_required', 'down_payment_amount', 'preferred_loan_tenure',
+         'purchase_purpose', 'has_co_applicant', 'co_applicant_name', 'co_applicant_income',
+         'co_applicant_relationship'].includes(fieldName)) {
+      return 'home-finance';
+    }
+    
+    // VAT Registration fields
+    if (['vat_registration_type', 'already_registered_vat', 'existing_trn', 
+         'business_activity_description', 'import_activities', 'export_activities',
+         'import_countries', 'export_countries', 'previous_tax_period', 
+         'vat_accounting_software', 'multiple_business_locations', 'number_of_locations'].includes(fieldName)) {
+      return 'vat-registration';
+    }
+    
+    // Tax Registration fields
+    if (fieldName.includes('tax_registration')) {
+      return 'tax-registration';
+    }
+    
+    // Tax Filing fields
+    if (['tax_year_period', 'first_time_filing', 'tax_registration_number', 
+         'financial_year_end_date', 'has_foreign_operations', 'tax_exemptions',
+         'previous_tax_consultant', 'filing_deadline'].includes(fieldName)) {
+      return 'tax-filing';
+    }
+    
+    return null;
+  };
+
+  // Handle draft validation with error tracking
+  const handlePreviewDraft = useCallback(async () => {
+    const isValid = await form.trigger();
+    
+    if (!isValid) {
+      // Track which sections have errors
+      const errors = form.formState.errors;
+      const errorSections = new Set<string>();
+      
+      Object.keys(errors).forEach((fieldName) => {
+        const section = getFieldSection(fieldName);
+        if (section) {
+          errorSections.add(section);
+        }
+      });
+      
+      setSectionsWithErrors(errorSections);
+      
+      // Expand all sections with errors
+      setAccordionValue(prev => {
+        const newValue = new Set([...prev, ...Array.from(errorSections)]);
+        return Array.from(newValue);
+      });
+      
+      // Scroll to the first error section
+      if (errorSections.size > 0) {
+        const firstErrorSection = Array.from(errorSections)[0];
+        setTimeout(() => {
+          const sectionElement = document.querySelector(`[data-section-id="${firstErrorSection}"]`);
+          if (sectionElement) {
+            const elementPosition = (sectionElement as HTMLElement).getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - totalStickyOffset - 20;
+            window.scrollTo({
+              top: offsetPosition,
+              behavior: 'smooth'
+            });
+          }
+        }, 100);
+      }
+      
+      toast({
+        title: 'Validation Error',
+        description: `Please fix errors in ${errorSections.size} section${errorSections.size !== 1 ? 's' : ''} before continuing`,
+        variant: 'destructive',
+      });
+    } else {
+      setSectionsWithErrors(new Set());
+      setCurrentStage('preview');
+    }
+  }, [form, toast, totalStickyOffset]);
 
   // Auto-select most popular product when form loads
   useEffect(() => {
@@ -647,6 +777,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       isComplete: !!isBasicInfoComplete,
       isActive: accordionValue.includes('basic'),
       isVisible: true, // Always show
+      hasError: sectionsWithErrors.has('basic'),
     },
     {
       id: 'lead',
@@ -654,6 +785,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       isComplete: !!isSourceChannelComplete,
       isActive: accordionValue.includes('lead'),
       isVisible: true, // Always show
+      hasError: sectionsWithErrors.has('lead'),
     },
     {
       id: 'service',
@@ -661,6 +793,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       isComplete: !!isServiceSelectionComplete,
       isActive: accordionValue.includes('service'),
       isVisible: true, // Always show
+      hasError: sectionsWithErrors.has('service'),
     },
     {
       id: 'application',
@@ -668,6 +801,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       isComplete: false, // Add logic for deal info completion if needed
       isActive: accordionValue.includes('application'),
       isVisible: customerMode === 'new' && (!!isServiceSelectionComplete || (accordionValue.includes('service') && !!watchProductId)),
+      hasError: sectionsWithErrors.has('application'),
     },
   ];
 
@@ -1930,12 +2064,20 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </div>
                         <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Basic Information</h3>
                       </div>
-                      {isBasicInfoComplete && (
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20">
-                          <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                          <span className="text-xs font-medium text-green-700 dark:text-green-400">Complete</span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {sectionsWithErrors.has('basic') && (
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/10 border border-destructive/30 animate-pulse">
+                            <AlertCircle className="h-3.5 w-3.5 text-destructive" />
+                            <span className="text-xs font-medium text-destructive">Has Errors</span>
+                          </div>
+                        )}
+                        {isBasicInfoComplete && !sectionsWithErrors.has('basic') && (
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                            <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                            <span className="text-xs font-medium text-green-700 dark:text-green-400">Complete</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4 pt-4">
@@ -2008,12 +2150,20 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </div>
                         <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Source & Channel Information</h3>
                       </div>
-                      {isSourceChannelComplete && (
-                        <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20">
-                          <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                          <span className="text-xs font-medium text-green-700 dark:text-green-400">Complete</span>
-                        </div>
-                      )}
+                      <div className="flex items-center gap-2">
+                        {sectionsWithErrors.has('lead') && (
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/10 border border-destructive/30 animate-pulse">
+                            <AlertCircle className="h-3.5 w-3.5 text-destructive" />
+                            <span className="text-xs font-medium text-destructive">Has Errors</span>
+                          </div>
+                        )}
+                        {isSourceChannelComplete && !sectionsWithErrors.has('lead') && (
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                            <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                            <span className="text-xs font-medium text-green-700 dark:text-green-400">Complete</span>
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4 pt-4">
@@ -2053,12 +2203,20 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </div>
                     <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Service Selection</h3>
                   </div>
-                  {isServiceSelectionComplete && (
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20">
-                      <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                      <span className="text-xs font-medium text-green-700 dark:text-green-400">Complete</span>
-                    </div>
-                  )}
+                  <div className="flex items-center gap-2">
+                    {sectionsWithErrors.has('service') && (
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/10 border border-destructive/30 animate-pulse">
+                        <AlertCircle className="h-3.5 w-3.5 text-destructive" />
+                        <span className="text-xs font-medium text-destructive">Has Errors</span>
+                      </div>
+                    )}
+                    {isServiceSelectionComplete && !sectionsWithErrors.has('service') && (
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20">
+                        <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                        <span className="text-xs font-medium text-green-700 dark:text-green-400">Complete</span>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4 pt-4">
@@ -2228,6 +2386,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       <span className="ml-2 inline-block animate-pulse text-lg">✨</span>
                     )}
                   </div>
+                  {sectionsWithErrors.has('application') && (
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/10 border border-destructive/30 animate-pulse">
+                      <AlertCircle className="h-3.5 w-3.5 text-destructive" />
+                      <span className="text-xs font-medium text-destructive">Has Errors</span>
+                    </div>
+                  )}
                 </div>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-6 space-y-8 pt-4">
@@ -4048,12 +4212,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       <div className="fixed bottom-8 right-8 flex gap-3 z-50">
         <button
           type="button"
-          onClick={async () => {
-            const isValid = await form.trigger();
-            if (isValid) {
-              setCurrentStage('preview');
-            }
-          }}
+          onClick={handlePreviewDraft}
           disabled={isSubmitting}
           className="w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg border-2 border-blue-600/20 rounded-full transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
           title="Preview Draft"
