@@ -21,7 +21,8 @@ import {
   BarChart3,
   Target,
   Link2,
-  Shield
+  Shield,
+  FolderTree
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -98,6 +99,12 @@ const Sidebar: React.FC = () => {
       roles: ['admin'],
     },
     {
+      name: 'Service Categories',
+      path: '/service-categories',
+      icon: <FolderTree className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
       name: 'User Management',
       path: '/users',
       icon: <Shield className="h-5 w-5" />,
@@ -137,7 +144,7 @@ const Sidebar: React.FC = () => {
 
   const isActiveRoute = (path: string) => {
     // Exact match for most routes
-    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/analytics' || path === '/targets' || path === '/crm' || path === '/admin/migrate') {
+    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/service-categories' || path === '/analytics' || path === '/targets' || path === '/crm' || path === '/admin/migrate') {
       return location.pathname === path;
     }
     
