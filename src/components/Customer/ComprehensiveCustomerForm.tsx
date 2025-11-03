@@ -60,6 +60,7 @@ const formSchema = z.object({
     .max(1000000000, "Annual turnover cannot exceed 1,000,000,000"),
   jurisdiction: z.string().optional(),
   nationality: z.string().optional(),
+  proposed_activity: z.string().optional(),
   bank_preference_1: z.string().optional(),
   bank_preference_2: z.string().optional(),
   bank_preference_3: z.string().optional(),
@@ -963,6 +964,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             jurisdiction: data.jurisdiction ? sanitizeInput(data.jurisdiction.trim()) : null,
             customer_notes: data.customer_notes ? sanitizeInput(data.customer_notes.trim()) : null,
             nationality: data.nationality ? sanitizeInput(data.nationality.trim()) : null,
+            proposed_activity: data.proposed_activity ? sanitizeInput(data.proposed_activity.trim()) : null,
             mainland_or_freezone: data.mainland_or_freezone,
             number_of_shareholders: data.no_of_shareholders,
             signatory_type: data.signatory_type,
@@ -3169,6 +3171,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           <option value="Freezone">Freezone</option>
                           <option value="Other">Other</option>
                         </select>
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="proposed_activity">Proposed Activity</Label>
+                        <Input
+                          id="proposed_activity"
+                          {...form.register('proposed_activity')}
+                          placeholder="e.g., Trading, Consulting, Manufacturing"
+                          disabled={isSubmitting}
+                        />
                       </div>
 
                       <div className="space-y-2">
