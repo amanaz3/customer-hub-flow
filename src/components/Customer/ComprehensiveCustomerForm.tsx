@@ -272,42 +272,65 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   });
 
-  // Fetch Business Bank Account as default product
+  // Fetch the most frequently used product as default
   const { data: defaultProduct } = useQuery({
-    queryKey: ['default_product_business_bank'],
+    queryKey: ['default_product_most_used'],
     queryFn: async () => {
-      console.log('Fetching Business Bank Account product...');
+      console.log('Finding most used product...');
       
-      const { data, error } = await supabase
-        .from('products')
-        .select('id, service_category_id')
-        .ilike('name', '%business%bank%account%')
-        .eq('is_active', true)
-        .limit(1)
-        .single();
+      // Get product usage count from customers table
+      const { data: productCounts, error: countError } = await supabase
+        .from('customers')
+        .select('product_id')
+        .not('product_id', 'is', null);
       
-      if (error) {
-        console.log('Business Bank Account not found, trying alternative names:', error);
-        // Fallback: try just "bank account"
+      if (countError) {
+        console.error('Error fetching product usage:', countError);
+        return null;
+      }
+      
+      // Count occurrences of each product
+      const counts = productCounts.reduce((acc, customer) => {
+        const productId = customer.product_id;
+        acc[productId] = (acc[productId] || 0) + 1;
+        return acc;
+      }, {} as Record<string, number>);
+      
+      console.log('Product usage counts:', counts);
+      
+      // Find the most used product
+      let mostUsedProductId = null;
+      let maxCount = 0;
+      
+      for (const [productId, count] of Object.entries(counts)) {
+        if (count > maxCount) {
+          maxCount = count;
+          mostUsedProductId = productId;
+        }
+      }
+      
+      if (!mostUsedProductId) {
+        console.log('No usage data found, falling back to Business Bank Account');
+        // Fallback to Business Bank Account if no usage data
         const { data: fallbackData, error: fallbackError } = await supabase
           .from('products')
           .select('id, service_category_id')
-          .ilike('name', '%bank%account%')
+          .ilike('name', '%business%bank%account%')
           .eq('is_active', true)
           .limit(1)
           .single();
         
         if (fallbackError) {
-          console.error('Error fetching default product:', fallbackError);
+          console.error('Fallback product not found:', fallbackError);
           return null;
         }
         
-        console.log('Found fallback product:', fallbackData);
+        console.log('Using fallback product:', fallbackData);
         return fallbackData?.id || null;
       }
 
-      console.log('Found Business Bank Account product:', data);
-      return data?.id || null;
+      console.log(`Most used product ID: ${mostUsedProductId} (used ${maxCount} times)`);
+      return mostUsedProductId;
     },
   });
 
