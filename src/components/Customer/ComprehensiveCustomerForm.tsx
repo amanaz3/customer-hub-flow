@@ -276,6 +276,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const { data: defaultProduct } = useQuery({
     queryKey: ['default_product_business_bank'],
     queryFn: async () => {
+      console.log('Fetching Business Bank Account product...');
+      
       const { data, error } = await supabase
         .from('products')
         .select('id, service_category_id')
@@ -299,9 +301,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           console.error('Error fetching default product:', fallbackError);
           return null;
         }
+        
+        console.log('Found fallback product:', fallbackData);
         return fallbackData?.id || null;
       }
 
+      console.log('Found Business Bank Account product:', data);
       return data?.id || null;
     },
   });
@@ -522,11 +527,25 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
   // Auto-select Business Bank Account as default product when form loads
   useEffect(() => {
+    console.log('Default product selection check:', {
+      defaultProduct,
+      watchProductId,
+      initialData: !!initialData,
+      hasUserInteracted: hasUserInteractedWithCategory.current,
+      allProductsCount: allProducts.length
+    });
+    
     if (defaultProduct && !watchProductId && !initialData && !hasUserInteractedWithCategory.current) {
+      console.log('Auto-selecting Business Bank Account:', defaultProduct);
+      
       form.setValue('product_id', defaultProduct);
+      
       // Also set the category filter to this product's category
       const product = allProducts.find(p => p.id === defaultProduct);
+      console.log('Found product for category:', product);
+      
       if (product?.service_category_id) {
+        console.log('Setting category filter to:', product.service_category_id);
         setCategoryFilter(product.service_category_id);
       }
     }
