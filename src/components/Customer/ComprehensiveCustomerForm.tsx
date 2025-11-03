@@ -3851,7 +3851,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     </Card>
 
     {/* Floating Action Buttons - Only show on details stage before submission */}
-    {false && currentStage === 'details' && !createdCustomerId && (
+    {currentStage === 'details' && !createdCustomerId && (
       <div className="fixed bottom-8 right-8 flex gap-3 z-50">
         <button
           type="button"
