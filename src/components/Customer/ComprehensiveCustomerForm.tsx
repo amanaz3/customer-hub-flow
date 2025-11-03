@@ -2749,6 +2749,22 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               </div>
                               
                               <div className="space-y-2">
+                                <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
+                                <Input
+                                  id="no_of_shareholders"
+                                  type="number"
+                                  min="1"
+                                  max="10"
+                                  {...form.register('no_of_shareholders', { valueAsNumber: true })}
+                                  disabled={isSubmitting}
+                                  placeholder="1-10"
+                                />
+                                {form.formState.errors.no_of_shareholders && (
+                                  <p className="text-sm text-destructive">{form.formState.errors.no_of_shareholders.message}</p>
+                                )}
+                              </div>
+                              
+                              <div className="space-y-2">
                                 <Label htmlFor="signatory_type">Signatory Type *</Label>
                                 <select
                                   id="signatory_type"
