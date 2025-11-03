@@ -1487,37 +1487,24 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
           {customerMode === 'existing' && (
             <div className="space-y-3 pt-2">
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <Select value={selectedCustomerId} onValueChange={handleCustomerSelect}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select a customer..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {existingCustomers.length === 0 ? (
-                        <div className="p-2 text-sm text-muted-foreground">
-                          No customers found
-                        </div>
-                      ) : (
-                        existingCustomers.map((customer) => (
-                          <SelectItem key={customer.id} value={customer.id}>
-                            {customer.company} - {customer.name}
-                          </SelectItem>
-                        ))
-                      )}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setShowCreateDialog(true)}
-                  title="Create new company"
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
+              <Select value={selectedCustomerId} onValueChange={handleCustomerSelect}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select a customer..." />
+                </SelectTrigger>
+                <SelectContent>
+                  {existingCustomers.length === 0 ? (
+                    <div className="p-2 text-sm text-muted-foreground">
+                      No customers found
+                    </div>
+                  ) : (
+                    existingCustomers.map((customer) => (
+                      <SelectItem key={customer.id} value={customer.id}>
+                        {customer.company} - {customer.name}
+                      </SelectItem>
+                    ))
+                  )}
+                </SelectContent>
+              </Select>
               {selectedCustomerId && (
                 <div className="p-3 bg-background rounded-md border">
                   <p className="text-sm font-medium">Selected Customer</p>
