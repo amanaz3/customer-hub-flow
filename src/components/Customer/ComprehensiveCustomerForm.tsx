@@ -2330,6 +2330,22 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </Tabs>
                       </div>
 
+                      {/* Search Bar */}
+                      <div className="space-y-2">
+                        <Label className="text-sm font-medium">Search Products</Label>
+                        <div className="relative">
+                          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                          <Input
+                            type="text"
+                            placeholder="Search products/services..."
+                            value={productSearchTerm}
+                            onChange={(e) => setProductSearchTerm(e.target.value)}
+                            className="pl-9 bg-background"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                      </div>
+
                       {/* Products Grid */}
                       <div className="space-y-3">
                         <Label>Product / Service *</Label>
