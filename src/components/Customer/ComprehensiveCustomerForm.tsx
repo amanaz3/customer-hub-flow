@@ -2737,7 +2737,51 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               </div>
                             </div>
                             
-                            <div className="space-y-2">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-1.5">
+                                  <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
+                                  <TooltipProvider>
+                                    <Tooltip>
+                                      <TooltipTrigger asChild>
+                                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                                      </TooltipTrigger>
+                                      <TooltipContent className="max-w-xs">
+                                        <p>Number of shareholders will determine how many signatory document sets are created (1-10)</p>
+                                      </TooltipContent>
+                                    </Tooltip>
+                                  </TooltipProvider>
+                                </div>
+                                <Input
+                                  id="no_of_shareholders"
+                                  type="number"
+                                  min="1"
+                                  max="10"
+                                  {...form.register('no_of_shareholders', { valueAsNumber: true })}
+                                  disabled={isSubmitting}
+                                  placeholder="1-10"
+                                />
+                                {form.formState.errors.no_of_shareholders && (
+                                  <p className="text-sm text-destructive">{form.formState.errors.no_of_shareholders.message}</p>
+                                )}
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label htmlFor="signatory_type">Signatory Type *</Label>
+                                <select
+                                  id="signatory_type"
+                                  {...form.register('signatory_type')}
+                                  disabled={isSubmitting}
+                                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  <option value="">Select signatory type</option>
+                                  <option value="single">Single Signatory</option>
+                                  <option value="joint">Joint Signatory</option>
+                                </select>
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-2 mt-4">
                               <Label htmlFor="business_activity_details">Business Activity Details *</Label>
                               <Textarea
                                 id="business_activity_details"
@@ -2862,59 +2906,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           </div>
                         </div>
                         
-                        {/* Shareholder/Signatory Details */}
-                        <div className="space-y-4 mt-6">
-                          <div className="flex items-center gap-2 pb-3 border-b border-primary/20">
-                            <Users className="h-4 w-4 text-primary" />
-                            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Shareholder & Signatory Details</h4>
-                          </div>
-                          
-                          <div className="space-y-4 pl-1">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <div className="flex items-center gap-1.5">
-                                  <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
-                                  <TooltipProvider>
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
-                                      </TooltipTrigger>
-                                      <TooltipContent className="max-w-xs">
-                                        <p>Number of shareholders will determine how many signatory document sets are created (1-10)</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  </TooltipProvider>
-                                </div>
-                                <Input
-                                  id="no_of_shareholders"
-                                  type="number"
-                                  min="1"
-                                  max="10"
-                                  {...form.register('no_of_shareholders', { valueAsNumber: true })}
-                                  disabled={isSubmitting}
-                                  placeholder="1-10"
-                                />
-                                {form.formState.errors.no_of_shareholders && (
-                                  <p className="text-sm text-destructive">{form.formState.errors.no_of_shareholders.message}</p>
-                                )}
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <Label htmlFor="signatory_type">Signatory Type *</Label>
-                                <select
-                                  id="signatory_type"
-                                  {...form.register('signatory_type')}
-                                  disabled={isSubmitting}
-                                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                  <option value="">Select signatory type</option>
-                                  <option value="single">Single Signatory</option>
-                                  <option value="joint">Joint Signatory</option>
-                                </select>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
                       </>
                     )}
 
