@@ -77,6 +77,10 @@ const formSchema = z.object({
   business_activity_details: z.string().optional(),
   minimum_balance_range: z.enum(['0-10k', '10k-100k', '100k-150k', '150k-250k', 'above-250k']).optional(),
   // Bookkeeping-specific fields
+  company_incorporation_date: z.string().optional(),
+  number_of_entries_per_month: z.string().optional(),
+  vat_corporate_tax_status: z.string().optional(),
+  wps_transfer_required: z.boolean().optional(),
   accounting_software: z.string().optional(),
   monthly_transactions: z.string().optional(),
   vat_registered: z.boolean().optional(),
@@ -326,6 +330,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       business_activity_details: '',
       minimum_balance_range: undefined,
       // Bookkeeping defaults
+      company_incorporation_date: '',
+      number_of_entries_per_month: '',
+      vat_corporate_tax_status: '',
+      wps_transfer_required: false,
       accounting_software: '',
       monthly_transactions: '',
       vat_registered: false,
@@ -433,6 +441,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
          'minimum_balance_range', 'arr_value', 'deal_stage', 'expected_close_date',
          'probability', 'notes', 'banking_preferences', 'payment_method',
          'accounting_software', 'monthly_transactions', 'vat_registered', 'bank_accounts_count',
+         'company_incorporation_date', 'number_of_entries_per_month', 'vat_corporate_tax_status', 'wps_transfer_required',
          'employees_count', 'service_start_date', 'has_previous_records', 'reporting_frequency',
          'monthly_gross_salary', 'employment_status', 'employer_name', 'years_with_employer',
          'additional_income', 'additional_income_source', 'existing_loan_commitments',
@@ -973,6 +982,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             product_id: data.product_id,
             user_id: user.id,
             // Bookkeeping-specific fields
+            ...(data.company_incorporation_date && { company_incorporation_date: data.company_incorporation_date }),
+            ...(data.number_of_entries_per_month && { number_of_entries_per_month: data.number_of_entries_per_month }),
+            ...(data.vat_corporate_tax_status && { vat_corporate_tax_status: data.vat_corporate_tax_status }),
+            ...(data.wps_transfer_required !== undefined && { wps_transfer_required: data.wps_transfer_required }),
             ...(data.accounting_software && { accounting_software: data.accounting_software }),
             ...(data.monthly_transactions && { monthly_transactions: data.monthly_transactions }),
             ...(data.vat_registered !== undefined && { vat_registered: data.vat_registered }),
@@ -2974,6 +2987,78 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     {hasBookkeeping && (
                       <>
                         <div className="space-y-2">
+                          <Label htmlFor="company_incorporation_date">Company Incorporation Date</Label>
+                          <Input
+                            id="company_incorporation_date"
+                            type="date"
+                            {...form.register('company_incorporation_date')}
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="number_of_entries_per_month">Number of Entries per Month</Label>
+                          <Select
+                            value={form.watch('number_of_entries_per_month') || ''}
+                            onValueChange={(value) => form.setValue('number_of_entries_per_month', value)}
+                            disabled={isSubmitting}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select number of entries" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="0-50">0-50 entries</SelectItem>
+                              <SelectItem value="51-100">51-100 entries</SelectItem>
+                              <SelectItem value="101-200">101-200 entries</SelectItem>
+                              <SelectItem value="201-500">201-500 entries</SelectItem>
+                              <SelectItem value="500+">500+ entries</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="annual_turnover">Annual Turnover (AED)</Label>
+                          <Input
+                            id="annual_turnover"
+                            type="number"
+                            min="0"
+                            step="0.01"
+                            {...form.register('annual_turnover', { valueAsNumber: true })}
+                            disabled={isSubmitting}
+                            placeholder="Enter annual turnover"
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="vat_corporate_tax_status">VAT and Corporate Tax Registration Status</Label>
+                          <Select
+                            value={form.watch('vat_corporate_tax_status') || ''}
+                            onValueChange={(value) => form.setValue('vat_corporate_tax_status', value)}
+                            disabled={isSubmitting}
+                          >
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select registration status" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="not_registered">Not Registered</SelectItem>
+                              <SelectItem value="vat_only">VAT Only</SelectItem>
+                              <SelectItem value="corporate_tax_only">Corporate Tax Only</SelectItem>
+                              <SelectItem value="both_registered">Both Registered</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="wps_transfer_required"
+                            checked={form.watch('wps_transfer_required') || false}
+                            onCheckedChange={(checked) => form.setValue('wps_transfer_required', !!checked)}
+                            disabled={isSubmitting}
+                          />
+                          <Label htmlFor="wps_transfer_required">WPS Transfer Requirement</Label>
+                        </div>
+
+                        <div className="space-y-2">
                           <Label htmlFor="accounting_software">Current Accounting Software</Label>
                           <Select
                             value={form.watch('accounting_software') || ''}
@@ -4156,6 +4241,59 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Bookkeeping Details - if any bookkeeping fields are filled */}
+              {hasBookkeeping && (form.getValues('company_incorporation_date') || form.getValues('number_of_entries_per_month') || 
+               form.getValues('vat_corporate_tax_status') || form.getValues('wps_transfer_required') ||
+               form.getValues('accounting_software') || form.getValues('monthly_transactions')) && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-base">Bookkeeping Details</CardTitle>
+                  </CardHeader>
+                  <CardContent className="grid gap-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      {form.getValues('company_incorporation_date') && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Company Incorporation Date</p>
+                          <p className="font-medium">{form.getValues('company_incorporation_date')}</p>
+                        </div>
+                      )}
+                      {form.getValues('number_of_entries_per_month') && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Number of Entries per Month</p>
+                          <p className="font-medium">{form.getValues('number_of_entries_per_month')}</p>
+                        </div>
+                      )}
+                      {form.getValues('vat_corporate_tax_status') && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">VAT & Corporate Tax Status</p>
+                          <p className="font-medium">
+                            {form.getValues('vat_corporate_tax_status')?.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase())}
+                          </p>
+                        </div>
+                      )}
+                      {form.getValues('wps_transfer_required') !== undefined && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">WPS Transfer Required</p>
+                          <p className="font-medium">{form.getValues('wps_transfer_required') ? 'Yes' : 'No'}</p>
+                        </div>
+                      )}
+                      {form.getValues('accounting_software') && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Accounting Software</p>
+                          <p className="font-medium">{form.getValues('accounting_software')}</p>
+                        </div>
+                      )}
+                      {form.getValues('monthly_transactions') && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Monthly Transaction Volume</p>
+                          <p className="font-medium">{form.getValues('monthly_transactions')}</p>
+                        </div>
+                      )}
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Additional Notes */}
               {form.getValues('customer_notes') && (
