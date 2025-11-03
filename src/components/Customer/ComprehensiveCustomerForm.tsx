@@ -601,7 +601,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     if (defaultProduct && !watchProductId && !initialData && !hasUserInteractedWithCategory.current) {
       console.log('Auto-selecting Business Bank Account:', defaultProduct);
       
-      form.setValue('product_id', defaultProduct);
+      form.setValue('product_id', defaultProduct, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
       
       // Also set the category filter to this product's category
       const product = allProducts.find(p => p.id === defaultProduct);
@@ -1738,7 +1738,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               <Label htmlFor="lead_source">Lead Source *</Label>
                               <Select
                                 value={form.watch('lead_source')}
-                                onValueChange={(value) => form.setValue('lead_source', value as any)}
+                                onValueChange={(value) => form.setValue('lead_source', value as any, { shouldDirty: true, shouldTouch: true, shouldValidate: true })}
                                 disabled={isSubmitting}
                               >
                                 <SelectTrigger>
@@ -1778,7 +1778,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                   hasUserInteractedWithCategory.current = true;
                                   setCategoryFilter(value);
                                   // Clear product selection when category changes
-                                  form.setValue('product_id', '');
+                                  form.setValue('product_id', '', { shouldDirty: true, shouldTouch: true, shouldValidate: true });
                                 }} 
                                 className="w-full"
                               >
@@ -1849,12 +1849,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                   {products.map((product) => {
                                     const isSelected = watchProductId === product.id;
                                     return (
-                                       <div
+                                     <div
                                          key={product.id}
                                          onClick={() => {
                                            if (!isSubmitting) {
                                              // Set the product
-                                             form.setValue('product_id', product.id);
+                                             form.setValue('product_id', product.id, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
                                              
                                              // Switch to the product's category tab
                                              if (product.service_category_id) {
@@ -2298,7 +2298,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <Label htmlFor="lead_source">Lead Source *</Label>
                         <Select
                           value={form.watch('lead_source')}
-                          onValueChange={(value) => form.setValue('lead_source', value as any)}
+                          onValueChange={(value) => form.setValue('lead_source', value as any, { shouldDirty: true, shouldTouch: true, shouldValidate: true })}
                           disabled={isSubmitting}
                         >
                           <SelectTrigger>
@@ -2363,7 +2363,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             hasUserInteractedWithCategory.current = true;
                             setCategoryFilter(value);
                             // Clear product selection when category changes
-                            form.setValue('product_id', '');
+                            form.setValue('product_id', '', { shouldDirty: true, shouldTouch: true, shouldValidate: true });
                           }} 
                           className="w-full"
                         >
@@ -2439,7 +2439,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                    onClick={() => {
                                      if (!isSubmitting) {
                                        // Set the product
-                                       form.setValue('product_id', product.id);
+                                       form.setValue('product_id', product.id, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
                                        
                                        // Switch to the product's category tab
                                        if (product.service_category_id) {
