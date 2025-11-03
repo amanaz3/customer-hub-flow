@@ -1779,9 +1779,21 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 onValueChange={(value) => {
                                   hasUserInteractedWithCategory.current = true;
                                   setCategoryFilter(value);
-                                  // Clear product selection when category changes
-                                  form.setValue('product_id', '', { shouldDirty: true, shouldTouch: true, shouldValidate: true });
-                                }} 
+                                  const currentProductId = form.getValues('product_id');
+                                  if (value !== 'all') {
+                                    const currentProduct = allProducts.find(p => p.id === currentProductId);
+                                    const belongsToNewCategory = currentProduct && currentProduct.service_category_id === value;
+                                    if (!belongsToNewCategory) {
+                                      form.setValue('product_id', '', { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+                                      form.clearErrors('product_id');
+                                    } else {
+                                      form.clearErrors('product_id');
+                                    }
+                                  } else {
+                                    // Switching to 'all' should not clear a valid selection
+                                    form.clearErrors('product_id');
+                                  }
+                                }}
                                 className="w-full"
                               >
                                 <TabsList className="grid w-full h-auto bg-background border-b-2 border-border p-0" style={{ gridTemplateColumns: `repeat(${serviceCategories.length + 1}, minmax(0, 1fr))` }}>
@@ -2365,9 +2377,21 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           onValueChange={(value) => {
                             hasUserInteractedWithCategory.current = true;
                             setCategoryFilter(value);
-                            // Clear product selection when category changes
-                            form.setValue('product_id', '', { shouldDirty: true, shouldTouch: true, shouldValidate: true });
-                          }} 
+                            const currentProductId = form.getValues('product_id');
+                            if (value !== 'all') {
+                              const currentProduct = allProducts.find(p => p.id === currentProductId);
+                              const belongsToNewCategory = currentProduct && currentProduct.service_category_id === value;
+                              if (!belongsToNewCategory) {
+                                form.setValue('product_id', '', { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+                                form.clearErrors('product_id');
+                              } else {
+                                form.clearErrors('product_id');
+                              }
+                            } else {
+                              // Switching to 'all' should not clear a valid selection
+                              form.clearErrors('product_id');
+                            }
+                          }}
                           className="w-full"
                         >
                           <TabsList className="grid w-full h-auto bg-background border-b-2 border-border p-0" style={{ gridTemplateColumns: `repeat(${serviceCategories.length + 1}, minmax(0, 1fr))` }}>
