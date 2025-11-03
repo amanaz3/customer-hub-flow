@@ -240,6 +240,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       return 0;
     });
 
+  // Debug logging
+  console.log('Category filter:', categoryFilter);
+  console.log('All products:', allProducts);
+  console.log('Filtered products:', products);
+
   // Fetch all active service categories for the dropdown
   const { data: serviceCategories = [], isLoading: serviceCategoriesLoading } = useQuery({
     queryKey: ['service_categories'],
