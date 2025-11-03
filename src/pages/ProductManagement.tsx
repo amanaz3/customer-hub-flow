@@ -43,37 +43,12 @@ const ProductManagement: React.FC = () => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
-  const [isUpdatingCategory, setIsUpdatingCategory] = useState(false);
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     description: '',
     is_active: true,
     service_category_id: null
   });
-
-  const handleUpdateVATCategory = async () => {
-    setIsUpdatingCategory(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('update-product-category');
-      
-      if (error) throw error;
-      
-      toast({
-        title: "Success",
-        description: data.message || "Product category updated successfully"
-      });
-      
-      queryClient.invalidateQueries({ queryKey: ['products'] });
-    } catch (error: any) {
-      toast({
-        title: "Error",
-        description: error.message || 'Failed to update product category',
-        variant: "destructive"
-      });
-    } finally {
-      setIsUpdatingCategory(false);
-    }
-  };
 
   const { data: serviceCategories } = useQuery({
     queryKey: ['service-categories'],
@@ -297,15 +272,7 @@ const ProductManagement: React.FC = () => {
             Manage products that can be assigned to users
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button 
-            variant="outline" 
-            onClick={handleUpdateVATCategory}
-            disabled={isUpdatingCategory}
-          >
-            Update VAT Filing Category
-          </Button>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
             <Button onClick={() => resetForm()}>
               <Plus className="mr-2 h-4 w-4" />
@@ -386,8 +353,7 @@ const ProductManagement: React.FC = () => {
               </DialogFooter>
             </form>
           </DialogContent>
-          </Dialog>
-        </div>
+        </Dialog>
       </div>
 
       {isLoading ? (
