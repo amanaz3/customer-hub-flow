@@ -21,13 +21,10 @@ import {
   CheckCircle,
   Clock,
   CreditCard,
-  XCircle,
-  UserPlus,
-  Building2
+  XCircle
 } from 'lucide-react';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { BarChart, Bar, XAxis, YAxis, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
-import { supabase } from '@/integrations/supabase/client';
 
 interface UserStats {
   userId: string;
@@ -49,10 +46,6 @@ const UserAnalytics = () => {
   const [users, setUsers] = useState<any[]>([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [isLoading, setIsLoading] = useState(true);
-  const [customerTypeData, setCustomerTypeData] = useState<{
-    newCustomer: number;
-    existingCustomer: number;
-  }>({ newCustomer: 0, existingCustomer: 0 });
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -68,48 +61,6 @@ const UserAnalytics = () => {
 
     fetchUsers();
   }, [getUsers]);
-
-  useEffect(() => {
-    const fetchCustomerTypeData = async () => {
-      try {
-        const { data: applications, error } = await supabase
-          .from('account_applications')
-          .select('id, created_at, customer_id, customers(id, created_at)');
-        
-        if (error) {
-          console.error('Error fetching customer type data:', error);
-          return;
-        }
-
-        if (applications) {
-          let newCustomerCount = 0;
-          let existingCustomerCount = 0;
-
-          applications.forEach((app: any) => {
-            if (app.customers) {
-              const appDate = new Date(app.created_at).toDateString();
-              const customerDate = new Date(app.customers.created_at).toDateString();
-              
-              if (appDate === customerDate) {
-                newCustomerCount++;
-              } else {
-                existingCustomerCount++;
-              }
-            }
-          });
-          
-          setCustomerTypeData({
-            newCustomer: newCustomerCount,
-            existingCustomer: existingCustomerCount
-          });
-        }
-      } catch (error) {
-        console.error('Error fetching customer type breakdown:', error);
-      }
-    };
-
-    fetchCustomerTypeData();
-  }, []);
 
   const userAnalytics = useMemo(() => {
     const analytics: UserStats[] = users.map(user => {
@@ -281,35 +232,6 @@ const UserAnalytics = () => {
             <div className="text-2xl font-bold">{overallStats.avgCompletionRate.toFixed(1)}%</div>
             <p className="text-xs text-muted-foreground">
               Across all users
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Customer Type Breakdown */}
-      <div className="grid gap-4 md:grid-cols-2">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">New Customer Applications</CardTitle>
-            <UserPlus className="h-4 w-4 text-blue-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-blue-600">{customerTypeData.newCustomer}</div>
-            <p className="text-xs text-muted-foreground">
-              {((customerTypeData.newCustomer / (customerTypeData.newCustomer + customerTypeData.existingCustomer)) * 100 || 0).toFixed(1)}% of total applications
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Existing Customer Applications</CardTitle>
-            <Building2 className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">{customerTypeData.existingCustomer}</div>
-            <p className="text-xs text-muted-foreground">
-              {((customerTypeData.existingCustomer / (customerTypeData.newCustomer + customerTypeData.existingCustomer)) * 100 || 0).toFixed(1)}% of total applications
             </p>
           </CardContent>
         </Card>
