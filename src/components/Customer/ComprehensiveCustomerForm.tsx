@@ -2985,7 +2985,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                     {/* Bookkeeping Details - shown for bookkeeping products */}
                     {hasBookkeeping && (
-                      <>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="company_incorporation_date">Company Incorporation Date</Label>
                           <Input
@@ -3098,7 +3098,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             </SelectContent>
                           </Select>
                         </div>
+                      </div>
+                    )}
 
+                    {hasBookkeeping && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
                           <Label htmlFor="bank_accounts_count">Number of Bank Accounts</Label>
                           <Input
@@ -3172,8 +3176,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           />
                           <Label htmlFor="has_previous_records">Has Previous Accounting Records</Label>
                         </div>
-                        </>
-                      )}
+                      </div>
+                    )}
                     </div>
                   </div>
 
