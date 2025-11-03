@@ -2671,9 +2671,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           </div>
                         </div>
                           
-                          {/* Additional Business Bank Account Fields */}
-                          <div className="space-y-4 mt-4">
-                            <h5 className="text-sm font-medium">Business Account Details</h5>
+                          {/* Business Bank Account Application Information */}
+                          <div className="space-y-4 mt-6">
+                            <div className="flex items-center gap-2">
+                              <Building2 className="h-4 w-4 text-primary" />
+                              <h5 className="text-sm font-semibold">Application Information</h5>
+                            </div>
+                            <Separator />
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div className="space-y-2">
