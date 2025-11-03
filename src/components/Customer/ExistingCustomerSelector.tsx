@@ -51,21 +51,25 @@ export const ExistingCustomerSelector = ({
   const selectedCustomer = customers.find(c => c.id === value);
 
   // Filter customers based on search term
-  const filteredCustomers = customers.filter(customer => 
-    customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.email?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const hasQuery = searchTerm.trim().length >= 2;
+  const filteredCustomers = hasQuery
+    ? customers.filter(customer => 
+        customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        customer.email?.toLowerCase().includes(searchTerm.toLowerCase())
+      )
+    : [];
+
 
   const handleSelect = (customerId: string) => {
     const customer = customers.find(c => c.id === customerId);
     if (value === customerId) {
       onChange(null, null);
-      setSearchTerm('');
     } else {
       onChange(customerId, customer || null);
-      setSearchTerm(customer?.company || customer?.name || '');
     }
+    // Clear search after selection so list doesn't open on click
+    setSearchTerm('');
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -97,8 +101,12 @@ export const ExistingCustomerSelector = ({
           />
         </div>
 
+        {searchTerm.trim().length > 0 && searchTerm.trim().length < 2 && (
+          <p className="mt-2 text-xs text-muted-foreground">Type at least 2 characters to search</p>
+        )}
+
         {/* Results dropdown */}
-        {searchTerm && filteredCustomers.length > 0 && (
+        {hasQuery && filteredCustomers.length > 0 && (
           <div className="absolute z-50 w-full mt-2 border rounded-lg shadow-lg bg-popover">
             <ScrollArea className="max-h-[300px]">
               <div className="p-1">
@@ -149,14 +157,14 @@ export const ExistingCustomerSelector = ({
         )}
 
         {/* No results message */}
-        {searchTerm && filteredCustomers.length === 0 && !loading && (
+        {hasQuery && filteredCustomers.length === 0 && !loading && (
           <div className="absolute z-50 w-full mt-2 p-4 border rounded-lg shadow-lg bg-popover text-center text-sm text-muted-foreground">
             No customers found matching "{searchTerm}"
           </div>
         )}
 
         {/* Loading state */}
-        {loading && (
+        {loading && hasQuery && (
           <div className="absolute z-50 w-full mt-2 p-4 border rounded-lg shadow-lg bg-popover text-center text-sm text-muted-foreground">
             Loading customers...
           </div>
