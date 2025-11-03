@@ -2636,121 +2636,230 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                        </>
                      )}
 
-                    {/* Banking Preferences - shown for bank account products */}
-                    {hasBankAccount && (
-                      <>
-                        <div className="space-y-2">
-                          <h5 className="text-sm font-medium mb-2">Banking Preferences</h5>
-                        </div>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              id="any_suitable_bank"
-                              checked={watchAnySuitableBank}
-                              onCheckedChange={(checked) => form.setValue('any_suitable_bank', !!checked)}
-                              disabled={isSubmitting}
-                            />
-                            <Label htmlFor="any_suitable_bank">Any Suitable Bank</Label>
-                          </div>
-                        </div>
+                     {/* Banking Preferences - shown for bank account products */}
+                     {hasBankAccount && (
+                       <div className="space-y-4">
+                         {/* Banking Preferences Card */}
+                         <Card className="border-primary/20">
+                           <CardHeader className="pb-3">
+                             <CardTitle className="text-base flex items-center gap-2">
+                               <Building2 className="h-4 w-4 text-primary" />
+                               Banking Preferences
+                             </CardTitle>
+                           </CardHeader>
+                           <CardContent className="space-y-4">
+                             <div className="flex items-center space-x-2">
+                               <Checkbox
+                                 id="any_suitable_bank"
+                                 checked={watchAnySuitableBank}
+                                 onCheckedChange={(checked) => form.setValue('any_suitable_bank', !!checked)}
+                                 disabled={isSubmitting}
+                               />
+                               <Label htmlFor="any_suitable_bank" className="font-normal cursor-pointer">
+                                 Any Suitable Bank
+                               </Label>
+                             </div>
 
-                        {!watchAnySuitableBank && (
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
-                            <div className="space-y-2">
-                              <Label htmlFor="bank_preference_1">First Preference</Label>
-                              <Input
-                                id="bank_preference_1"
-                                {...form.register('bank_preference_1')}
-                                placeholder="Enter first preference bank"
-                                disabled={isSubmitting}
-                              />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="bank_preference_2">Second Preference</Label>
-                              <Input
-                                id="bank_preference_2"
-                                {...form.register('bank_preference_2')}
-                                placeholder="Enter second preference bank"
-                                disabled={isSubmitting}
-                              />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="bank_preference_3">Third Preference</Label>
-                              <Input
-                                id="bank_preference_3"
-                                {...form.register('bank_preference_3')}
-                                placeholder="Enter third preference bank"
-                                disabled={isSubmitting}
-                              />
-                            </div>
-                            </div>
-                          )}
-                          
-                          {/* Additional Business Bank Account Fields */}
-                          <div className="space-y-4 mt-4">
-                            <h5 className="text-sm font-medium">Business Account Details</h5>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                              <div className="space-y-2">
-                                <Label htmlFor="mainland_or_freezone">Mainland or Free Zone *</Label>
-                                <select
-                                  id="mainland_or_freezone"
-                                  {...form.register('mainland_or_freezone')}
-                                  disabled={isSubmitting}
-                                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                  <option value="">Select type</option>
-                                  <option value="mainland">Mainland</option>
-                                  <option value="freezone">Free Zone</option>
-                                </select>
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <Label htmlFor="signatory_type">Signatory Type *</Label>
-                                <select
-                                  id="signatory_type"
-                                  {...form.register('signatory_type')}
-                                  disabled={isSubmitting}
-                                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                  <option value="">Select signatory type</option>
-                                  <option value="single">Single Signatory</option>
-                                  <option value="joint">Joint Signatory</option>
-                                </select>
-                              </div>
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="minimum_balance_range">Minimum Balance to be Maintained *</Label>
-                              <select
-                                id="minimum_balance_range"
-                                {...form.register('minimum_balance_range')}
-                                disabled={isSubmitting}
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                              >
-                                <option value="">Select balance range</option>
-                                <option value="0-10k">0 – 10K</option>
-                                <option value="10k-100k">10K – 100K</option>
-                                <option value="100k-150k">100K – 150K</option>
-                                <option value="150k-250k">150K – 250K</option>
-                                <option value="above-250k">Above 250K</option>
-                              </select>
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="business_activity_details">Business Activity Details *</Label>
-                              <Textarea
-                                id="business_activity_details"
-                                {...form.register('business_activity_details')}
-                                placeholder="Describe the business activities in detail..."
-                                disabled={isSubmitting}
-                                rows={4}
-                              />
-                            </div>
-                          </div>
-                       </>
+                             {!watchAnySuitableBank && (
+                               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+                                 <div className="space-y-2">
+                                   <Label htmlFor="bank_preference_1" className="text-xs text-muted-foreground">
+                                     First Preference
+                                   </Label>
+                                   <Input
+                                     id="bank_preference_1"
+                                     {...form.register('bank_preference_1')}
+                                     placeholder="e.g., Emirates NBD"
+                                     disabled={isSubmitting}
+                                   />
+                                 </div>
+                                 
+                                 <div className="space-y-2">
+                                   <Label htmlFor="bank_preference_2" className="text-xs text-muted-foreground">
+                                     Second Preference
+                                   </Label>
+                                   <Input
+                                     id="bank_preference_2"
+                                     {...form.register('bank_preference_2')}
+                                     placeholder="e.g., ADCB"
+                                     disabled={isSubmitting}
+                                   />
+                                 </div>
+                                 
+                                 <div className="space-y-2">
+                                   <Label htmlFor="bank_preference_3" className="text-xs text-muted-foreground">
+                                     Third Preference
+                                   </Label>
+                                   <Input
+                                     id="bank_preference_3"
+                                     {...form.register('bank_preference_3')}
+                                     placeholder="e.g., Mashreq"
+                                     disabled={isSubmitting}
+                                   />
+                                 </div>
+                               </div>
+                             )}
+                           </CardContent>
+                         </Card>
+
+                         {/* Business Account Details Card */}
+                         <Card className="border-primary/20">
+                           <CardHeader className="pb-3">
+                             <CardTitle className="text-base flex items-center gap-2">
+                               <Users className="h-4 w-4 text-primary" />
+                               Business Account Details
+                             </CardTitle>
+                           </CardHeader>
+                           <CardContent className="space-y-6">
+                             {/* Company Structure */}
+                             <div className="space-y-4">
+                               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                 <Building2 className="h-3.5 w-3.5" />
+                                 Company Structure
+                               </div>
+                               
+                               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                 <FormField
+                                   control={form.control}
+                                   name="mainland_or_freezone"
+                                   render={({ field }) => (
+                                     <FormItem className="space-y-3">
+                                       <FormLabel>Mainland or Free Zone *</FormLabel>
+                                       <FormControl>
+                                         <RadioGroup
+                                           onValueChange={field.onChange}
+                                           value={field.value}
+                                           className="flex flex-col space-y-2"
+                                           disabled={isSubmitting}
+                                         >
+                                           <div className="flex items-center space-x-2">
+                                             <RadioGroupItem value="mainland" id="mainland" />
+                                             <Label htmlFor="mainland" className="font-normal cursor-pointer">
+                                               Mainland
+                                             </Label>
+                                           </div>
+                                           <div className="flex items-center space-x-2">
+                                             <RadioGroupItem value="freezone" id="freezone" />
+                                             <Label htmlFor="freezone" className="font-normal cursor-pointer">
+                                               Free Zone
+                                             </Label>
+                                           </div>
+                                         </RadioGroup>
+                                       </FormControl>
+                                       <FormMessage />
+                                     </FormItem>
+                                   )}
+                                 />
+                                 
+                                 <div className="space-y-2">
+                                   <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
+                                   <Input
+                                     id="no_of_shareholders"
+                                     type="number"
+                                     min="1"
+                                     max="10"
+                                     {...form.register('no_of_shareholders', { valueAsNumber: true })}
+                                     disabled={isSubmitting}
+                                   />
+                                 </div>
+                               </div>
+                             </div>
+
+                             <Separator />
+
+                             {/* Account Operation */}
+                             <div className="space-y-4">
+                               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                 <ClipboardList className="h-3.5 w-3.5" />
+                                 Account Operation
+                               </div>
+                               
+                               <FormField
+                                 control={form.control}
+                                 name="signatory_type"
+                                 render={({ field }) => (
+                                   <FormItem className="space-y-3">
+                                     <FormLabel>Signatory Type *</FormLabel>
+                                     <FormControl>
+                                       <RadioGroup
+                                         onValueChange={field.onChange}
+                                         value={field.value}
+                                         className="flex flex-col space-y-2"
+                                         disabled={isSubmitting}
+                                       >
+                                         <div className="flex items-center space-x-2">
+                                           <RadioGroupItem value="single" id="single-signatory" />
+                                           <Label htmlFor="single-signatory" className="font-normal cursor-pointer">
+                                             Single Signatory
+                                           </Label>
+                                         </div>
+                                         <div className="flex items-center space-x-2">
+                                           <RadioGroupItem value="joint" id="joint-signatory" />
+                                           <Label htmlFor="joint-signatory" className="font-normal cursor-pointer">
+                                             Joint Signatory
+                                           </Label>
+                                         </div>
+                                       </RadioGroup>
+                                     </FormControl>
+                                     <FormMessage />
+                                   </FormItem>
+                                 )}
+                               />
+                             </div>
+
+                             <Separator />
+
+                             {/* Financial Requirements */}
+                             <div className="space-y-4">
+                               <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                                 <CircleDot className="h-3.5 w-3.5" />
+                                 Financial Requirements
+                               </div>
+                               
+                               <div className="space-y-2">
+                                 <Label htmlFor="minimum_balance_range">Minimum Balance to be Maintained *</Label>
+                                 <Select
+                                   value={form.watch('minimum_balance_range')}
+                                   onValueChange={(value) => form.setValue('minimum_balance_range', value as any)}
+                                   disabled={isSubmitting}
+                                 >
+                                   <SelectTrigger className="bg-background">
+                                     <SelectValue placeholder="Select balance range" />
+                                   </SelectTrigger>
+                                   <SelectContent className="bg-background z-50">
+                                     <SelectItem value="0-10k">0 – 10K AED</SelectItem>
+                                     <SelectItem value="10k-100k">10K – 100K AED</SelectItem>
+                                     <SelectItem value="100k-150k">100K – 150K AED</SelectItem>
+                                     <SelectItem value="150k-250k">150K – 250K AED</SelectItem>
+                                     <SelectItem value="above-250k">Above 250K AED</SelectItem>
+                                   </SelectContent>
+                                 </Select>
+                               </div>
+                             </div>
+
+                             <Separator />
+
+                             {/* Business Activity */}
+                             <div className="space-y-2">
+                               <Label htmlFor="business_activity_details" className="flex items-center gap-2">
+                                 <ClipboardList className="h-3.5 w-3.5" />
+                                 Business Activity Details *
+                               </Label>
+                               <Textarea
+                                 id="business_activity_details"
+                                 {...form.register('business_activity_details')}
+                                 placeholder="Describe the business activities in detail..."
+                                 disabled={isSubmitting}
+                                 rows={4}
+                                 className="resize-none"
+                               />
+                               <p className="text-xs text-muted-foreground">
+                                 Provide a detailed description of your business activities, products, and services
+                               </p>
+                             </div>
+                           </CardContent>
+                         </Card>
+                       </div>
                      )}
 
                     {/* GoAML Application Fields */}
