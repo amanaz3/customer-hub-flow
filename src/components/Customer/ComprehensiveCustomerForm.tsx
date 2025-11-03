@@ -2749,6 +2749,19 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               </div>
                               
                               <div className="space-y-2">
+                                <Label htmlFor="jurisdiction">Jurisdiction</Label>
+                                <Input
+                                  id="jurisdiction"
+                                  {...form.register('jurisdiction')}
+                                  placeholder="e.g., DIFC, ADGM, Dubai"
+                                  disabled={isSubmitting}
+                                />
+                                <p className="text-xs text-muted-foreground">
+                                  Specify the free zone or emirate
+                                </p>
+                              </div>
+                              
+                              <div className="space-y-2">
                                 <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
                                 <Input
                                   id="no_of_shareholders"
