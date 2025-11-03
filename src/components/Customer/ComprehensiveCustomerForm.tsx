@@ -2597,7 +2597,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     )}
                     
                     {/* Deal Amount - Always shown last */}
-                    <div className="space-y-2 md:col-span-2">
+                    <div className="space-y-2">
                       <Label htmlFor="amount">Deal Amount (AED) *</Label>
                       <Input
                         id="amount"
