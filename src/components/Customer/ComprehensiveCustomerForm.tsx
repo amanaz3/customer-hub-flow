@@ -2372,24 +2372,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       <>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="space-y-2">
-                          <Label htmlFor="license_type">License Type *</Label>
-                          <Select
-                            value={form.watch('license_type')}
-                            onValueChange={(value) => form.setValue('license_type', value as any)}
-                            disabled={isSubmitting}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Mainland">Mainland</SelectItem>
-                              <SelectItem value="Freezone">Freezone</SelectItem>
-                              <SelectItem value="Offshore">Offshore</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        <div className="space-y-2">
                           <Label htmlFor="nationality">Nationality</Label>
                           <Input
                             id="nationality"
@@ -3066,6 +3048,24 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Business Information</h4>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-1">
+                      <div className="space-y-2">
+                        <Label htmlFor="license_type">License Type *</Label>
+                        <Select
+                          value={form.watch('license_type')}
+                          onValueChange={(value) => form.setValue('license_type', value as any)}
+                          disabled={isSubmitting}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Mainland">Mainland</SelectItem>
+                            <SelectItem value="Freezone">Freezone</SelectItem>
+                            <SelectItem value="Offshore">Offshore</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
                       <div className="space-y-2">
                         <Label htmlFor="jurisdiction">Jurisdiction</Label>
                         <select
