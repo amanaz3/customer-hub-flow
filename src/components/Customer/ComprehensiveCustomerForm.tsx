@@ -59,6 +59,7 @@ const formSchema = z.object({
     .min(0.01, "Annual turnover must be greater than 0")
     .max(1000000000, "Annual turnover cannot exceed 1,000,000,000"),
   jurisdiction: z.string().optional(),
+  nationality: z.string().optional(),
   bank_preference_1: z.string().optional(),
   bank_preference_2: z.string().optional(),
   bank_preference_3: z.string().optional(),
@@ -961,6 +962,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             annual_turnover: data.annual_turnover,
             jurisdiction: data.jurisdiction ? sanitizeInput(data.jurisdiction.trim()) : null,
             customer_notes: data.customer_notes ? sanitizeInput(data.customer_notes.trim()) : null,
+            nationality: data.nationality ? sanitizeInput(data.nationality.trim()) : null,
             mainland_or_freezone: data.mainland_or_freezone,
             number_of_shareholders: data.no_of_shareholders,
             signatory_type: data.signatory_type,
@@ -2383,6 +2385,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               <SelectItem value="Offshore">Offshore</SelectItem>
                             </SelectContent>
                           </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="nationality">Nationality</Label>
+                          <Input
+                            id="nationality"
+                            {...form.register('nationality')}
+                            placeholder="e.g., UAE, Indian, British"
+                            disabled={isSubmitting}
+                          />
                         </div>
 
                         <div className="space-y-2">
