@@ -258,33 +258,33 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   });
 
-  // Fetch the most popular product in real-time
+  // Fetch Business Bank Account as the default product
   const { data: mostPopularProduct } = useQuery({
-    queryKey: ['most_popular_product'],
+    queryKey: ['default_product_business_bank'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('customers')
-        .select('product_id')
-        .not('product_id', 'is', null);
+        .from('products')
+        .select('id')
+        .ilike('name', '%Business Bank Account%')
+        .eq('is_active', true)
+        .limit(1)
+        .single();
       
       if (error) {
-        console.error('Error fetching popular products:', error);
-        return null;
+        console.error('Error fetching Business Bank Account:', error);
+        // Fallback to any bank account product
+        const { data: fallbackData, error: fallbackError } = await supabase
+          .from('products')
+          .select('id')
+          .ilike('name', '%bank account%')
+          .eq('is_active', true)
+          .limit(1)
+          .single();
+        
+        return fallbackData?.id || null;
       }
 
-      // Count frequency of each product
-      const productCounts = data.reduce((acc: Record<string, number>, curr) => {
-        if (curr.product_id) {
-          acc[curr.product_id] = (acc[curr.product_id] || 0) + 1;
-        }
-        return acc;
-      }, {});
-
-      // Find most frequent product
-      const mostPopular = Object.entries(productCounts)
-        .sort(([, a], [, b]) => (b as number) - (a as number))[0];
-
-      return mostPopular ? mostPopular[0] : null;
+      return data?.id || null;
     },
     refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
   });
@@ -495,7 +495,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [form, toast, totalStickyOffset]);
 
-  // Auto-select most popular product when form loads
+  // Auto-select Business Bank Account when form loads
   useEffect(() => {
     if (mostPopularProduct && !watchProductId && !initialData) {
       form.setValue('product_id', mostPopularProduct);
@@ -507,21 +507,21 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [mostPopularProduct, watchProductId, initialData, form, allProducts]);
 
-  // Real-time subscription to update most popular product when customers change
+  // Real-time subscription to update default product when products table changes
   useEffect(() => {
     const channel = supabase
-      .channel('customer-product-changes')
+      .channel('default-product-changes')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'customers',
-          filter: 'product_id=not.is.null'
+          table: 'products',
+          filter: 'is_active=eq.true'
         },
         () => {
-          // Invalidate and refetch the most popular product query
-          queryClient.invalidateQueries({ queryKey: ['most_popular_product'] });
+          // Invalidate and refetch the default product query
+          queryClient.invalidateQueries({ queryKey: ['default_product_business_bank'] });
         }
       )
       .subscribe();
