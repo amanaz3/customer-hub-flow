@@ -258,38 +258,35 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   });
 
-  // Fetch Business Bank Account as default product
-  const { data: defaultProduct } = useQuery({
-    queryKey: ['default_product_business_bank'],
+  // Fetch the most popular product in real-time
+  const { data: mostPopularProduct } = useQuery({
+    queryKey: ['most_popular_product'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('products')
-        .select('id, service_category_id')
-        .ilike('name', '%business%bank%account%')
-        .eq('is_active', true)
-        .limit(1)
-        .single();
+        .from('customers')
+        .select('product_id')
+        .not('product_id', 'is', null);
       
       if (error) {
-        console.log('Business Bank Account not found, trying alternative names:', error);
-        // Fallback: try just "bank account"
-        const { data: fallbackData, error: fallbackError } = await supabase
-          .from('products')
-          .select('id, service_category_id')
-          .ilike('name', '%bank%account%')
-          .eq('is_active', true)
-          .limit(1)
-          .single();
-        
-        if (fallbackError) {
-          console.error('Error fetching default product:', fallbackError);
-          return null;
-        }
-        return fallbackData?.id || null;
+        console.error('Error fetching popular products:', error);
+        return null;
       }
 
-      return data?.id || null;
+      // Count frequency of each product
+      const productCounts = data.reduce((acc: Record<string, number>, curr) => {
+        if (curr.product_id) {
+          acc[curr.product_id] = (acc[curr.product_id] || 0) + 1;
+        }
+        return acc;
+      }, {});
+
+      // Find most frequent product
+      const mostPopular = Object.entries(productCounts)
+        .sort(([, a], [, b]) => (b as number) - (a as number))[0];
+
+      return mostPopular ? mostPopular[0] : null;
     },
+    refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
   });
 
   const form = useForm<FormData>({
@@ -498,32 +495,33 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [form, toast, totalStickyOffset]);
 
-  // Auto-select Business Bank Account as default product when form loads
+  // Auto-select most popular product when form loads
   useEffect(() => {
-    if (defaultProduct && !watchProductId && !initialData) {
-      form.setValue('product_id', defaultProduct);
+    if (mostPopularProduct && !watchProductId && !initialData) {
+      form.setValue('product_id', mostPopularProduct);
       // Also set the category filter to this product's category
-      const product = allProducts.find(p => p.id === defaultProduct);
-      if (product?.service_category_id) {
-        setCategoryFilter(product.service_category_id);
+      const popularProduct = allProducts.find(p => p.id === mostPopularProduct);
+      if (popularProduct?.service_category_id) {
+        setCategoryFilter(popularProduct.service_category_id);
       }
     }
-  }, [defaultProduct, watchProductId, initialData, form, allProducts]);
+  }, [mostPopularProduct, watchProductId, initialData, form, allProducts]);
 
-  // Real-time subscription to update default product when products change
+  // Real-time subscription to update most popular product when customers change
   useEffect(() => {
     const channel = supabase
-      .channel('product-changes')
+      .channel('customer-product-changes')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
-          table: 'products',
+          table: 'customers',
+          filter: 'product_id=not.is.null'
         },
         () => {
-          // Invalidate and refetch the default product query
-          queryClient.invalidateQueries({ queryKey: ['default_product_business_bank'] });
+          // Invalidate and refetch the most popular product query
+          queryClient.invalidateQueries({ queryKey: ['most_popular_product'] });
         }
       )
       .subscribe();
