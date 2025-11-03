@@ -2187,9 +2187,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       Deal Information
                     </h3>
                     {selectedProduct && (
-                      <Badge variant="secondary" className="text-xs font-normal">
-                        {selectedProduct.name}
-                      </Badge>
+                      <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
+                        <Check className="h-3.5 w-3.5 text-primary" />
+                        <span className="text-xs font-medium text-primary">{selectedProduct.name}</span>
+                      </div>
                     )}
                   </div>
                   {highlightDealInfo && (
