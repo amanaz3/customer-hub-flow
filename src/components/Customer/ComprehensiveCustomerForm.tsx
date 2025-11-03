@@ -2129,19 +2129,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   )}
                 </h3>
               </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4 space-y-4">
+              <AccordionContent className="px-4 pb-4 space-y-6">
                 {/* Application Information */}
-                <div>
-                  <div className="flex items-center gap-1.5 mb-3 px-2 py-1.5 bg-primary/5 rounded">
-                    <span className="text-xs">📋</span>
-                    <h4 className="text-xs font-semibold text-foreground">Application Information</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 pb-2 border-b-2 border-primary/20">
+                    <span className="text-sm">📋</span>
+                    <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Application Information</h4>
                   </div>
                   
-                  {/* Nested content with left border for visual hierarchy */}
-                  <div className="border-l-2 border-primary/20 pl-4 space-y-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="space-y-4">
                     {hasCompanyFormation && (
                       <>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="space-y-2">
                           <Label htmlFor="license_type">License Type *</Label>
                           <Select
@@ -2178,19 +2177,20 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             Number of shareholders will determine how many signatory document sets are created (1-10)
                           </p>
                         </div>
+                        </div>
                       </>
                     )}
-
+                    
                     {/* Home Finance Employment & Property Details */}
                     {hasHomeFinance && (
                       <>
                         {/* Employment Information Subsection */}
-                        <div className="col-span-full -mx-4 mb-2">
-                          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/40 border-l-4 border-primary/40">
-                            <span className="text-xs">👔</span>
-                            <h5 className="text-xs font-semibold text-foreground">Employment Information</h5>
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-1.5 pt-2">
+                            <span className="text-xs opacity-60">👔</span>
+                            <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Employment Details</h5>
                           </div>
-                        </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-4 border-l border-muted">
 
                         <div className="space-y-2">
                           <Label htmlFor="employment_status">Employment Status *</Label>
@@ -2218,25 +2218,27 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           />
                         </div>
 
-                        <div className="space-y-2">
-                          <Label htmlFor="years_with_employer">Years with Current Employer</Label>
-                          <Input
-                            id="years_with_employer"
-                            type="number"
-                            step="0.5"
-                            {...form.register('years_with_employer', { valueAsNumber: true })}
-                            placeholder="e.g., 2.5"
-                            disabled={isSubmitting}
-                          />
+                          <div className="space-y-2">
+                            <Label htmlFor="years_with_employer">Years with Current Employer</Label>
+                            <Input
+                              id="years_with_employer"
+                              type="number"
+                              step="0.5"
+                              {...form.register('years_with_employer', { valueAsNumber: true })}
+                              placeholder="e.g., 2.5"
+                              disabled={isSubmitting}
+                            />
+                          </div>
+                          </div>
                         </div>
 
                         {/* Property Information Subsection */}
-                        <div className="col-span-full -mx-4 mt-3 mb-2">
-                          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/40 border-l-4 border-primary/40">
-                            <span className="text-xs">🏠</span>
-                            <h5 className="text-xs font-semibold text-foreground">Property Information</h5>
+                        <div className="space-y-3">
+                          <div className="flex items-center gap-1.5 pt-2">
+                            <span className="text-xs opacity-60">🏠</span>
+                            <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Property Details</h5>
                           </div>
-                        </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-4 border-l border-muted">
 
                         <div className="space-y-2">
                           <Label htmlFor="property_type">Property Type *</Label>
@@ -2344,73 +2346,75 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             <option value="20">20 years</option>
                             <option value="25">25 years</option>
                           </select>
-                        </div>
+                         </div>
+                         
+                         {/* Co-Applicant Information - inside Property section */}
+                         <div className="col-span-full mt-3 pt-3 border-t border-muted/30">
+                           <div className="flex items-center space-x-2">
+                             <Checkbox
+                               id="has_co_applicant"
+                               checked={form.watch('has_co_applicant') || false}
+                               onCheckedChange={(checked) => form.setValue('has_co_applicant', !!checked)}
+                               disabled={isSubmitting}
+                             />
+                             <Label htmlFor="has_co_applicant">I have a co-applicant</Label>
+                           </div>
 
-                        {/* Co-Applicant Information */}
-                        <div className="space-y-2 md:col-span-2">
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              id="has_co_applicant"
-                              checked={form.watch('has_co_applicant') || false}
-                              onCheckedChange={(checked) => form.setValue('has_co_applicant', !!checked)}
-                              disabled={isSubmitting}
-                            />
-                            <Label htmlFor="has_co_applicant">I have a co-applicant</Label>
-                          </div>
+                           {form.watch('has_co_applicant') && (
+                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-l-2 border-muted pl-4 mt-2">
+                               <div className="space-y-2">
+                                 <Label htmlFor="co_applicant_name">Co-Applicant Name</Label>
+                                 <Input
+                                   id="co_applicant_name"
+                                   {...form.register('co_applicant_name')}
+                                   placeholder="Full name"
+                                   disabled={isSubmitting}
+                                 />
+                               </div>
 
-                          {form.watch('has_co_applicant') && (
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-l-2 border-muted pl-4 mt-2">
-                              <div className="space-y-2">
-                                <Label htmlFor="co_applicant_name">Co-Applicant Name</Label>
-                                <Input
-                                  id="co_applicant_name"
-                                  {...form.register('co_applicant_name')}
-                                  placeholder="Full name"
-                                  disabled={isSubmitting}
-                                />
-                              </div>
+                               <div className="space-y-2">
+                                 <Label htmlFor="co_applicant_income">Co-Applicant Monthly Income (AED)</Label>
+                                 <Input
+                                   id="co_applicant_income"
+                                   type="number"
+                                   step="0.01"
+                                   {...form.register('co_applicant_income', { valueAsNumber: true })}
+                                   placeholder="Monthly salary"
+                                   disabled={isSubmitting}
+                                 />
+                               </div>
 
-                              <div className="space-y-2">
-                                <Label htmlFor="co_applicant_income">Co-Applicant Monthly Income (AED)</Label>
-                                <Input
-                                  id="co_applicant_income"
-                                  type="number"
-                                  step="0.01"
-                                  {...form.register('co_applicant_income', { valueAsNumber: true })}
-                                  placeholder="Monthly salary"
-                                  disabled={isSubmitting}
-                                />
-                              </div>
-
-                              <div className="space-y-2">
-                                <Label htmlFor="co_applicant_relationship">Relationship to Main Applicant</Label>
-                                <select
-                                  id="co_applicant_relationship"
-                                  {...form.register('co_applicant_relationship')}
-                                  disabled={isSubmitting}
-                                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                  <option value="">Select relationship</option>
-                                  <option value="Spouse">Spouse</option>
-                                  <option value="Parent">Parent</option>
-                                  <option value="Sibling">Sibling</option>
-                                  <option value="Business Partner">Business Partner</option>
-                                  <option value="Other">Other</option>
-                                </select>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      </>
-                    )}
+                               <div className="space-y-2">
+                                 <Label htmlFor="co_applicant_relationship">Relationship to Main Applicant</Label>
+                                 <select
+                                   id="co_applicant_relationship"
+                                   {...form.register('co_applicant_relationship')}
+                                   disabled={isSubmitting}
+                                   className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                 >
+                                   <option value="">Select relationship</option>
+                                   <option value="Spouse">Spouse</option>
+                                   <option value="Parent">Parent</option>
+                                   <option value="Sibling">Sibling</option>
+                                   <option value="Business Partner">Business Partner</option>
+                                   <option value="Other">Other</option>
+                                 </select>
+                               </div>
+                             </div>
+                           )}
+                         </div>
+                         </div>
+                       </div>
+                       </>
+                     )}
 
                     {/* Banking Preferences - shown for bank account products */}
                     {hasBankAccount && (
                       <>
-                        <div className="col-span-full mt-2">
+                        <div className="space-y-2">
                           <h5 className="text-sm font-medium mb-2">Banking Preferences</h5>
                         </div>
-                        <div className="col-span-full">
+                        <div>
                           <div className="flex items-center space-x-2">
                             <Checkbox
                               id="any_suitable_bank"
@@ -2423,7 +2427,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </div>
 
                         {!watchAnySuitableBank && (
-                          <>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
                             <div className="space-y-2">
                               <Label htmlFor="bank_preference_1">First Preference</Label>
                               <Input
@@ -2453,10 +2457,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 disabled={isSubmitting}
                               />
                             </div>
-                          </>
-                        )}
-                      </>
-                    )}
+                           </div>
+                         )}
+                       </>
+                     )}
 
                     {/* GoAML Application Fields */}
                     {hasGoAML && (
@@ -2644,18 +2648,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           />
                           <Label htmlFor="has_previous_records">Has Previous Accounting Records</Label>
                         </div>
-                       </>
-                     )}
+                        </>
+                      )}
                     </div>
                   </div>
-                </div>
 
                 {/* Business Information */}
                 {hasCompanyFormation && (
-                  <div className="mt-3">
-                    <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
-                      <span className="text-xs">🏢</span>
-                      <h4 className="text-xs font-semibold text-foreground">Business Information</h4>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 pb-2 border-b-2 border-primary/20">
+                      <span className="text-sm">🏢</span>
+                      <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Business Information</h4>
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
@@ -2759,10 +2762,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 )}
 
                 {/* Financial Information */}
-                <div className="mt-3">
-                  <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
-                    <span className="text-xs">💰</span>
-                    <h4 className="text-xs font-semibold text-foreground">Financial Information</h4>
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2 pb-2 border-b-2 border-primary/20">
+                    <span className="text-sm">💰</span>
+                    <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Financial Information</h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div className="space-y-2">
