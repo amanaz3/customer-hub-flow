@@ -258,35 +258,38 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   });
 
-  // Fetch Business Bank Account as the default product
-  const { data: mostPopularProduct } = useQuery({
+  // Fetch Business Bank Account as default product
+  const { data: defaultProduct } = useQuery({
     queryKey: ['default_product_business_bank'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('products')
-        .select('id, name')
-        .ilike('name', '%Business Bank Account%')
+        .select('id, service_category_id')
+        .ilike('name', '%business%bank%account%')
         .eq('is_active', true)
         .limit(1)
         .single();
       
       if (error) {
-        console.error('Error fetching Business Bank Account:', error);
-        // Fallback to any bank account product
-        const { data: fallbackData } = await supabase
+        console.log('Business Bank Account not found, trying alternative names:', error);
+        // Fallback: try just "bank account"
+        const { data: fallbackData, error: fallbackError } = await supabase
           .from('products')
-          .select('id, name')
-          .ilike('name', '%bank account%')
+          .select('id, service_category_id')
+          .ilike('name', '%bank%account%')
           .eq('is_active', true)
           .limit(1)
           .single();
         
-        return fallbackData || null;
+        if (fallbackError) {
+          console.error('Error fetching default product:', fallbackError);
+          return null;
+        }
+        return fallbackData?.id || null;
       }
 
-      return data || null;
+      return data?.id || null;
     },
-    refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
   });
 
   const form = useForm<FormData>({
@@ -495,29 +498,28 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [form, toast, totalStickyOffset]);
 
-  // Auto-select Business Bank Account when form loads
+  // Auto-select Business Bank Account as default product when form loads
   useEffect(() => {
-    if (mostPopularProduct?.id && !watchProductId && !initialData && allProducts.length > 0) {
-      form.setValue('product_id', mostPopularProduct.id);
+    if (defaultProduct && !watchProductId && !initialData) {
+      form.setValue('product_id', defaultProduct);
       // Also set the category filter to this product's category
-      const popularProduct = allProducts.find(p => p.id === mostPopularProduct.id);
-      if (popularProduct?.service_category_id) {
-        setCategoryFilter(popularProduct.service_category_id);
+      const product = allProducts.find(p => p.id === defaultProduct);
+      if (product?.service_category_id) {
+        setCategoryFilter(product.service_category_id);
       }
     }
-  }, [mostPopularProduct, watchProductId, initialData, form, allProducts]);
+  }, [defaultProduct, watchProductId, initialData, form, allProducts]);
 
-  // Real-time subscription to update default product when products table changes
+  // Real-time subscription to update default product when products change
   useEffect(() => {
     const channel = supabase
-      .channel('default-product-changes')
+      .channel('product-changes')
       .on(
         'postgres_changes',
         {
           event: '*',
           schema: 'public',
           table: 'products',
-          filter: 'is_active=eq.true'
         },
         () => {
           // Invalidate and refetch the default product query
@@ -559,8 +561,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [watchProductId]);
 
-  // Check which product is selected (use allProducts to avoid category filter hiding it)
-  const selectedProduct = allProducts.find(p => p.id === watchProductId);
+  // Check which product type is selected
+  const selectedProduct = products.find(p => p.id === watchProductId);
   const selectedProductName = selectedProduct?.name.toLowerCase() || '';
   const selectedProductCategoryId = selectedProduct?.service_category_id || '';
   
@@ -1638,27 +1640,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       {/* Service Selection */}
                       <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm" data-section-id="service" style={{ scrollMarginTop: totalStickyOffset }}>
                         <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
-                          <div className="flex items-center justify-between w-full gap-3 flex-wrap">
-                            <div className="flex items-center gap-3 flex-wrap">
-                              <div className="p-2 rounded-lg bg-primary/10">
-                                <Building2 className="h-5 w-5 text-primary" />
-                              </div>
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Service Selection</h3>
-                                {selectedProduct && watchProductId ? (
-                                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
-                                    <Check className="h-3.5 w-3.5 text-primary" />
-                                    <span className="text-xs font-medium text-primary">{selectedProduct.name}</span>
-                                  </div>
-                                ) : null}
-                              </div>
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-primary/10">
+                              <Building2 className="h-5 w-5 text-primary" />
                             </div>
-                            {sectionsWithErrors.has('service') && (
-                              <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/10 border border-destructive/30 animate-pulse">
-                                <AlertCircle className="h-3.5 w-3.5 text-destructive" />
-                                <span className="text-xs font-medium text-destructive">Error</span>
-                              </div>
-                            )}
+                            <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Service Selection</h3>
                           </div>
                         </AccordionTrigger>
                         <AccordionContent className="px-4 pb-4 pt-4">
@@ -2324,8 +2310,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </AccordionContent>
                 </AccordionItem>
 
-        {/* Deal Information - Only shown when a product is selected */}
-        {watchProductId && (
+        {/* Deal Information - Only shown after Service Selection has been expanded */}
+        {serviceSelectionExpanded && (
         <AccordionItem
           value="application" 
           className={cn(
@@ -2357,7 +2343,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       )}>
                         Deal Information
                       </h3>
-                      {selectedProduct && watchProductId && (
+                      {selectedProduct && (
                         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
                           <Check className="h-3.5 w-3.5 text-primary" />
                           <span className="text-xs font-medium text-primary">{selectedProduct.name}</span>
