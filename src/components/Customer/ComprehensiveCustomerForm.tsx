@@ -2762,6 +2762,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 {form.formState.errors.no_of_shareholders && (
                                   <p className="text-sm text-destructive">{form.formState.errors.no_of_shareholders.message}</p>
                                 )}
+                                <p className="text-xs text-muted-foreground">
+                                  Number of shareholders will determine how many signatory document sets are created (1-10)
+                                </p>
                               </div>
                               
                               <div className="space-y-2">
