@@ -71,3 +71,6 @@ verify_jwt = false
 
 [functions.migrate-customer-applications]
 verify_jwt = true
+
+[functions.encrypt-fta-credentials]
+verify_jwt = true

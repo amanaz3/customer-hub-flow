@@ -28,7 +28,7 @@ import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
-import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search } from 'lucide-react';
+import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search, Eye, EyeOff } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -190,6 +190,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [sectionsWithErrors, setSectionsWithErrors] = useState<Set<string>>(new Set());
   const [bankPreferenceMode, setBankPreferenceMode] = useState<'preferred' | 'any'>('preferred');
   const [productSearchTerm, setProductSearchTerm] = useState('');
+  const [showFTAPassword, setShowFTAPassword] = useState(false);
   const hasUserInteractedWithCategory = useRef(false);
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
@@ -980,6 +981,38 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         amount: data.amount
       }, user.id);
 
+      // Step 0: Encrypt FTA password if provided
+      let encryptedFTAPassword = null;
+      let ftaPasswordIV = null;
+      
+      if (data.fta_portal_password && data.fta_portal_password.trim()) {
+        try {
+          const { data: encryptResult, error: encryptError } = await supabase.functions.invoke('encrypt-fta-credentials', {
+            body: {
+              action: 'encrypt',
+              password: data.fta_portal_password.trim()
+            }
+          });
+
+          if (encryptError) {
+            console.error('FTA password encryption error:', encryptError);
+            throw new Error('Failed to encrypt FTA password');
+          }
+
+          encryptedFTAPassword = encryptResult.encrypted;
+          ftaPasswordIV = encryptResult.iv;
+          console.log('FTA password encrypted successfully');
+        } catch (encryptErr) {
+          console.error('Encryption failed:', encryptErr);
+          toast({
+            title: 'Encryption Error',
+            description: 'Failed to secure FTA password. Please try again.',
+            variant: 'destructive',
+          });
+          return;
+        }
+      }
+
       // Step 1: Find or create customer
       let customerId = selectedCustomerId;
       
@@ -1059,9 +1092,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             ...(data.tax_exemptions && { tax_exemptions: data.tax_exemptions }),
             ...(data.previous_tax_consultant && { previous_tax_consultant: data.previous_tax_consultant }),
             ...(data.filing_deadline && { filing_deadline: data.filing_deadline }),
-            // FTA Portal credentials
+            // FTA Portal credentials (encrypted)
             ...(data.fta_portal_email && { fta_portal_email: data.fta_portal_email }),
-            ...(data.fta_portal_password && { fta_portal_password: data.fta_portal_password }),
+            ...(encryptedFTAPassword && { fta_portal_password_encrypted: encryptedFTAPassword }),
+            ...(ftaPasswordIV && { fta_portal_password_iv: ftaPasswordIV }),
           }
         }])
         .select()
@@ -3332,15 +3366,31 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                           <div className="space-y-2">
                             <Label htmlFor="fta_portal_password">FTA Portal Password</Label>
-                            <Input
-                              id="fta_portal_password"
-                              type="password"
-                              {...form.register('fta_portal_password')}
-                              placeholder="Enter FTA portal password"
-                              disabled={isSubmitting}
-                            />
-                            <p className="text-xs text-muted-foreground">
-                              Password for Federal Tax Authority portal
+                            <div className="relative">
+                              <Input
+                                id="fta_portal_password"
+                                type={showFTAPassword ? "text" : "password"}
+                                {...form.register('fta_portal_password')}
+                                placeholder="Enter FTA portal password"
+                                disabled={isSubmitting}
+                                className="pr-10"
+                              />
+                              <button
+                                type="button"
+                                onClick={() => setShowFTAPassword(!showFTAPassword)}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                                disabled={isSubmitting}
+                              >
+                                {showFTAPassword ? (
+                                  <EyeOff className="h-4 w-4" />
+                                ) : (
+                                  <Eye className="h-4 w-4" />
+                                )}
+                              </button>
+                            </div>
+                            <p className="text-xs text-muted-foreground flex items-center gap-1">
+                              <AlertCircle className="h-3 w-3" />
+                              Password is encrypted and stored securely
                             </p>
                           </div>
                         </div>
