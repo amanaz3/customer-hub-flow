@@ -72,24 +72,36 @@ const UserAnalytics = () => {
   useEffect(() => {
     const fetchCustomerTypeData = async () => {
       try {
-        const { data, error } = await supabase.rpc('get_customer_type_breakdown');
+        const { data: applications, error } = await supabase
+          .from('account_applications')
+          .select('id, created_at, customer_id, customers(id, created_at)');
         
         if (error) {
           console.error('Error fetching customer type data:', error);
           return;
         }
 
-        if (data && data.length > 0) {
-          const breakdown = data.reduce((acc: any, item: any) => {
-            if (item.customer_type === 'New Customer') {
-              acc.newCustomer = item.application_count;
-            } else if (item.customer_type === 'Existing Customer') {
-              acc.existingCustomer = item.application_count;
+        if (applications) {
+          let newCustomerCount = 0;
+          let existingCustomerCount = 0;
+
+          applications.forEach((app: any) => {
+            if (app.customers) {
+              const appDate = new Date(app.created_at).toDateString();
+              const customerDate = new Date(app.customers.created_at).toDateString();
+              
+              if (appDate === customerDate) {
+                newCustomerCount++;
+              } else {
+                existingCustomerCount++;
+              }
             }
-            return acc;
-          }, { newCustomer: 0, existingCustomer: 0 });
+          });
           
-          setCustomerTypeData(breakdown);
+          setCustomerTypeData({
+            newCustomer: newCustomerCount,
+            existingCustomer: existingCustomerCount
+          });
         }
       } catch (error) {
         console.error('Error fetching customer type breakdown:', error);
