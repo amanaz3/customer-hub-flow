@@ -1714,8 +1714,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                          key={product.id}
                                          onClick={() => {
                                            if (!isSubmitting) {
+                                             // Set the product
                                              form.setValue('product_id', product.id);
-                                             setCategoryFilter(product.service_category_id || 'all');
+                                             
+                                             // Switch to the product's category tab
+                                             if (product.service_category_id) {
+                                               setCategoryFilter(product.service_category_id);
+                                               // Reset the interaction flag since we're programmatically setting it
+                                               hasUserInteractedWithCategory.current = false;
+                                             }
+                                             
                                              // Auto-open Deal Information section
                                              if (!accordionValue.includes('application')) {
                                                setAccordionValue([...accordionValue, 'application']);
@@ -2262,7 +2270,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                    key={product.id}
                                    onClick={() => {
                                      if (!isSubmitting) {
+                                       // Set the product
                                        form.setValue('product_id', product.id);
+                                       
+                                       // Switch to the product's category tab
+                                       if (product.service_category_id) {
+                                         setCategoryFilter(product.service_category_id);
+                                         // Reset the interaction flag since we're programmatically setting it
+                                         hasUserInteractedWithCategory.current = false;
+                                       }
+                                       
                                        // Auto-open Deal Information section
                                        if (!accordionValue.includes('application')) {
                                          setAccordionValue([...accordionValue, 'application']);
