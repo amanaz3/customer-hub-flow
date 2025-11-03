@@ -207,11 +207,28 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const scrollFormCardIntoView = useCallback(() => {
     const el = formContentCardRef.current;
     if (!el) return;
+
+    // Prefer native scrollIntoView with a proper offset via CSS scroll-margin-top
+    try {
+      console.info('[ComprehensiveCustomerForm] Reattaching form card via scrollIntoView');
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch {}
+
+    // Fallback precise calculation accounting for sticky headers
     const stageOffset = stageRef.current?.offsetHeight ?? 0;
     const customerSelectionOffset = customerSelectionCardRef.current?.offsetHeight ?? 0;
     const rect = el.getBoundingClientRect();
-    const top = window.scrollY + rect.top - stageOffset - customerSelectionOffset;
-    window.scrollTo({ top, behavior: 'smooth' });
+    const targetTop = window.scrollY + rect.top - stageOffset - customerSelectionOffset - 4; // tiny padding
+
+    // Double RAF to ensure layout settled after mode switch
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: targetTop, behavior: 'smooth' });
+        // Cross-browser fallback
+        document.documentElement.scrollTop = targetTop;
+        document.body.scrollTop = targetTop;
+      });
+    });
   }, []);
 
   useEffect(() => {
@@ -1620,7 +1637,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </div>
 
       {/* Form Content Card */}
-      <Card ref={formContentCardRef} className="w-full overflow-hidden mb-8 relative z-10 border shadow-lg bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
+      <Card
+        ref={formContentCardRef}
+        className="w-full overflow-hidden mb-8 relative z-10 border shadow-lg bg-gradient-to-b from-background to-background/95 backdrop-blur-sm"
+        style={{ scrollMarginTop: totalStickyOffset + 8 }}
+      >
         {/* Form Navigation - Sticky */}
         {false && customerMode === 'new' && <div ref={stickyNavRef} className="sticky z-50 isolate bg-gradient-to-r from-background via-background to-background border-b shadow-lg backdrop-blur-sm" style={{ top: stageHeight + stickyGap }}>
           {/* Form Navigation inside sticky container */}
