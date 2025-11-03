@@ -113,10 +113,16 @@ export const ExistingCustomerSelector = ({
           sticky="always"
           style={{ zIndex: 9999 }}
         >
-          <Command>
-            <CommandInput placeholder="Search by company or email..." />
-            <CommandEmpty>
-              {loading ? 'Loading customers...' : 'No customers found.'}
+          <Command shouldFilter>
+            <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+              <CommandInput 
+                placeholder="Type to search by company, email, or name..." 
+                className="h-12 text-base"
+                autoFocus
+              />
+            </div>
+            <CommandEmpty className="py-6 text-center text-sm">
+              {loading ? 'Loading customers...' : 'No matching customers found. Try a different search term.'}
             </CommandEmpty>
             <CommandGroup className="max-h-[300px] overflow-auto">
               {customers.map((customer) => (
