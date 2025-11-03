@@ -104,7 +104,13 @@ export const ExistingCustomerSelector = ({
             <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-[600px] p-0 bg-popover z-50" align="start" side="bottom">
+        <PopoverContent 
+          className="w-[600px] p-0 bg-popover z-50" 
+          align="start" 
+          side="bottom"
+          sideOffset={8}
+          avoidCollisions={false}
+        >
           <Command>
             <CommandInput placeholder="Search by company or email..." />
             <CommandEmpty>
