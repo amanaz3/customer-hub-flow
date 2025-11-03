@@ -1884,14 +1884,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                 {/* Basic Information */}
                 <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
-                  <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">👤</span>
+                  <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <Users className="h-5 w-5 text-primary" />
+                      </div>
                       <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Basic Information</h3>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <AccordionContent className="px-4 pb-4 pt-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="name">Full Name *</Label>
                         <Input
@@ -1951,14 +1953,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             {/* Source & Channel - Shown when basic info complete OR clicked in nav */}
             {(isBasicInfoComplete || accordionValue.includes('lead')) && (
             <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm" data-section-id="lead" style={{ scrollMarginTop: totalStickyOffset }}>
-                  <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
-                    <div className="flex items-center gap-2">
-                      <span className="text-base">🎯</span>
+                  <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 rounded-lg bg-primary/10">
+                        <ClipboardList className="h-5 w-5 text-primary" />
+                      </div>
                       <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Source & Channel Information</h3>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4">
-                    <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <AccordionContent className="px-4 pb-4 pt-4">
+                    <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="lead_source">Lead Source *</Label>
                         <Select
@@ -1986,13 +1990,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         {/* Service Selection - Shown when basic info complete OR clicked in nav */}
         {(isBasicInfoComplete || accordionValue.includes('service')) && (
         <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm" data-section-id="service" style={{ scrollMarginTop: totalStickyOffset }}>
-              <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
-                <div className="flex items-center gap-2">
-                  <span className="text-base">🛍️</span>
+              <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    <Building2 className="h-5 w-5 text-primary" />
+                  </div>
                   <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Service Selection</h3>
                 </div>
               </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4">
+                  <AccordionContent className="px-4 pb-4 pt-4">
                     <div className="pt-2 space-y-4">
                       {/* Category Filter Tabs */}
                       <div className="space-y-2">
@@ -2121,18 +2127,26 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         <AccordionItem
           value="application" 
           className={cn(
-            "border rounded-lg transition-all duration-500",
+            "border rounded-lg transition-all duration-500 shadow-sm",
             highlightDealInfo && "ring-4 ring-blue-400 shadow-lg shadow-blue-200 dark:shadow-blue-900"
           )}
           data-section="deal-information"
           data-section-id="application"
         >
-              <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
-                <div className="flex items-center gap-2">
-                  <span className="text-base">📊</span>
+              <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
+                <div className="flex items-center gap-3">
+                  <div className={cn(
+                    "p-2 rounded-lg transition-colors",
+                    highlightDealInfo ? "bg-blue-100 dark:bg-blue-900" : "bg-primary/10"
+                  )}>
+                    <CircleDot className={cn(
+                      "h-5 w-5 transition-colors",
+                      highlightDealInfo ? "text-blue-600 dark:text-blue-400" : "text-primary"
+                    )} />
+                  </div>
                   <h3 className={cn(
-                    "text-base font-bold text-foreground uppercase tracking-wide transition-colors",
-                    highlightDealInfo && "text-blue-600 dark:text-blue-400"
+                    "text-base font-bold uppercase tracking-wide transition-colors",
+                    highlightDealInfo ? "text-blue-600 dark:text-blue-400" : "text-foreground"
                   )}>
                     Deal Information
                   </h3>
@@ -2141,15 +2155,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   )}
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="px-4 pb-4 space-y-6">
+              <AccordionContent className="px-4 pb-6 space-y-8 pt-4">
                 {/* Application Information */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 pb-2 border-b-2 border-primary/20">
-                    <span className="text-sm">📋</span>
-                    <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Application Information</h4>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 pb-3 border-b border-primary/20">
+                    <Save className="h-4 w-4 text-primary" />
+                    <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Application Information</h4>
                   </div>
                   
-                  <div className="space-y-4">
+                  <div className="space-y-6 pl-1">
                     {hasCompanyFormation && (
                       <>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -2197,12 +2211,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     {hasHomeFinance && (
                       <>
                         {/* Employment Information Subsection */}
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-1.5 pt-2">
-                            <span className="text-xs opacity-60">👔</span>
-                            <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Employment Details</h5>
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2 pl-3 py-2 border-l-4 border-muted/40 bg-muted/20 rounded-r">
+                            <Users className="h-3.5 w-3.5 text-muted-foreground" />
+                            <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Employment Details</h5>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-4 border-l border-muted">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-4">
 
                         <div className="space-y-2">
                           <Label htmlFor="employment_status">Employment Status *</Label>
@@ -2245,12 +2259,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </div>
 
                         {/* Property Information Subsection */}
-                        <div className="space-y-3">
-                          <div className="flex items-center gap-1.5 pt-2">
-                            <span className="text-xs opacity-60">🏠</span>
-                            <h5 className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Property Details</h5>
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2 pl-3 py-2 border-l-4 border-muted/40 bg-muted/20 rounded-r">
+                            <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                            <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Property Details</h5>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-4 border-l border-muted">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-4">
 
                         <div className="space-y-2">
                           <Label htmlFor="property_type">Property Type *</Label>
@@ -2667,12 +2681,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                 {/* Business Information */}
                 {hasCompanyFormation && (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2 pb-2 border-b-2 border-primary/20">
-                      <span className="text-sm">🏢</span>
-                      <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Business Information</h4>
+                  <div className="space-y-4">
+                    <div className="flex items-center gap-2 pb-3 border-b border-primary/20">
+                      <Building2 className="h-4 w-4 text-primary" />
+                      <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Business Information</h4>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-1">
                       <div className="space-y-2">
                         <Label htmlFor="jurisdiction">Jurisdiction</Label>
                         <select
@@ -2774,12 +2788,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 )}
 
                 {/* Financial Information */}
-                <div className="space-y-3">
-                  <div className="flex items-center gap-2 pb-2 border-b-2 border-primary/20">
-                    <span className="text-sm">💰</span>
-                    <h4 className="text-sm font-bold text-foreground uppercase tracking-wide">Financial Information</h4>
+                <div className="space-y-4">
+                  <div className="flex items-center gap-2 pb-3 border-b border-primary/20">
+                    <CircleDot className="h-4 w-4 text-primary" />
+                    <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Financial Information</h4>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-1">
                     <div className="space-y-2">
                       <Label htmlFor="annual_turnover">Annual Turnover (AED) *</Label>
                       <Input
