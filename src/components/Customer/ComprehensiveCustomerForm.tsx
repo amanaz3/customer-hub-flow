@@ -208,15 +208,25 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     const el = formContentCardRef.current;
     if (!el) return;
 
+    // Prefer native scrollIntoView with a proper offset via CSS scroll-margin-top
+    try {
+      console.info('[ComprehensiveCustomerForm] Reattaching form card via scrollIntoView');
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } catch {}
+
+    // Fallback precise calculation accounting for sticky headers
     const stageOffset = stageRef.current?.offsetHeight ?? 0;
     const customerSelectionOffset = customerSelectionCardRef.current?.offsetHeight ?? 0;
     const rect = el.getBoundingClientRect();
-    const targetTop = window.scrollY + rect.top - stageOffset - customerSelectionOffset;
+    const targetTop = window.scrollY + rect.top - stageOffset - customerSelectionOffset - 4; // tiny padding
 
     // Double RAF to ensure layout settled after mode switch
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         window.scrollTo({ top: targetTop, behavior: 'smooth' });
+        // Cross-browser fallback
+        document.documentElement.scrollTop = targetTop;
+        document.body.scrollTop = targetTop;
       });
     });
   }, []);
