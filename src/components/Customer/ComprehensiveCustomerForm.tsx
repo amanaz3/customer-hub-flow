@@ -2132,11 +2132,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <AccordionContent className="px-4 pb-4 space-y-4">
                 {/* Application Information */}
                 <div>
-                  <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
+                  <div className="flex items-center gap-1.5 mb-3 px-2 py-1.5 bg-primary/5 rounded">
                     <span className="text-xs">📋</span>
                     <h4 className="text-xs font-semibold text-foreground">Application Information</h4>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  
+                  {/* Nested content with left border for visual hierarchy */}
+                  <div className="border-l-2 border-primary/20 pl-4 space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                     {hasCompanyFormation && (
                       <>
                         <div className="space-y-2">
@@ -2182,10 +2185,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     {hasHomeFinance && (
                       <>
                         {/* Employment Information Subsection */}
-                        <div className="col-span-full">
-                          <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-muted/30 rounded">
+                        <div className="col-span-full -mx-4 mb-2">
+                          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/40 border-l-4 border-primary/40">
                             <span className="text-xs">👔</span>
-                            <h5 className="text-xs font-medium text-muted-foreground">Employment Information</h5>
+                            <h5 className="text-xs font-semibold text-foreground">Employment Information</h5>
                           </div>
                         </div>
 
@@ -2228,10 +2231,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </div>
 
                         {/* Property Information Subsection */}
-                        <div className="col-span-full mt-2">
-                          <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-muted/30 rounded">
+                        <div className="col-span-full -mx-4 mt-3 mb-2">
+                          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-muted/40 border-l-4 border-primary/40">
                             <span className="text-xs">🏠</span>
-                            <h5 className="text-xs font-medium text-muted-foreground">Property Information</h5>
+                            <h5 className="text-xs font-semibold text-foreground">Property Information</h5>
                           </div>
                         </div>
 
@@ -2641,8 +2644,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           />
                           <Label htmlFor="has_previous_records">Has Previous Accounting Records</Label>
                         </div>
-                      </>
-                    )}
+                       </>
+                     )}
+                    </div>
                   </div>
                 </div>
 
