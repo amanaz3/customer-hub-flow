@@ -1738,7 +1738,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               <Label htmlFor="lead_source">Lead Source *</Label>
                               <Select
                                 value={form.watch('lead_source')}
-                                onValueChange={(value) => form.setValue('lead_source', value as any, { shouldDirty: true, shouldTouch: true, shouldValidate: true })}
+                                onValueChange={(value) => { form.setValue('lead_source', value as any, { shouldDirty: true, shouldTouch: true, shouldValidate: true }); form.clearErrors('lead_source'); }}
                                 disabled={isSubmitting}
                               >
                                 <SelectTrigger>
@@ -1855,6 +1855,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                            if (!isSubmitting) {
                                              // Set the product
                                              form.setValue('product_id', product.id, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+                                             form.clearErrors('product_id');
                                              
                                              // Switch to the product's category tab
                                              if (product.service_category_id) {
@@ -2298,7 +2299,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <Label htmlFor="lead_source">Lead Source *</Label>
                         <Select
                           value={form.watch('lead_source')}
-                          onValueChange={(value) => form.setValue('lead_source', value as any, { shouldDirty: true, shouldTouch: true, shouldValidate: true })}
+                          onValueChange={(value) => { form.setValue('lead_source', value as any, { shouldDirty: true, shouldTouch: true, shouldValidate: true }); form.clearErrors('lead_source'); }}
                           disabled={isSubmitting}
                         >
                           <SelectTrigger>
@@ -2440,6 +2441,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                      if (!isSubmitting) {
                                        // Set the product
                                        form.setValue('product_id', product.id, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+                                       form.clearErrors('product_id');
                                        
                                        // Switch to the product's category tab
                                        if (product.service_category_id) {
