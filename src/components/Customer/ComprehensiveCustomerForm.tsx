@@ -200,33 +200,29 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const customerSelectionCardRef = useRef<HTMLDivElement | null>(null);
   const [stageHeight, setStageHeight] = useState(0);
   const [stickyNavHeight, setStickyNavHeight] = useState(0);
+  const [selectionHeight, setSelectionHeight] = useState(0);
   const stickyGap = 0; // px gap to keep consistent padding
-  const totalStickyOffset = stageHeight + stickyNavHeight + stickyGap;
+  const totalStickyOffset = stageHeight + selectionHeight + stickyNavHeight + stickyGap;
 
   // Smoothly scroll to bring form content card back to original position
   const scrollFormCardIntoView = useCallback(() => {
     const el = formContentCardRef.current;
     if (!el) return;
 
-    // Prefer native scrollIntoView with a proper offset via CSS scroll-margin-top
-    try {
-      console.info('[ComprehensiveCustomerForm] Reattaching form card via scrollIntoView');
-      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } catch {}
-
-    // Fallback precise calculation accounting for sticky headers
-    const stageOffset = stageRef.current?.offsetHeight ?? 0;
-    const customerSelectionOffset = customerSelectionCardRef.current?.offsetHeight ?? 0;
-    const rect = el.getBoundingClientRect();
-    const targetTop = window.scrollY + rect.top - stageOffset - customerSelectionOffset - 4; // tiny padding
-
-    // Double RAF to ensure layout settled after mode switch
+    // Double RAF ensures layout is fully settled after mode/tab changes
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        window.scrollTo({ top: targetTop, behavior: 'smooth' });
-        // Cross-browser fallback
-        document.documentElement.scrollTop = targetTop;
-        document.body.scrollTop = targetTop;
+        try {
+          console.info('[ComprehensiveCustomerForm] Reattaching form card via scrollIntoView');
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        } catch {
+          // Fallback precise calculation accounting for sticky headers
+          const stageOffset = stageRef.current?.offsetHeight ?? 0;
+          const customerSelectionOffset = customerSelectionCardRef.current?.offsetHeight ?? 0;
+          const rect = el.getBoundingClientRect();
+          const targetTop = Math.max(0, window.scrollY + rect.top - stageOffset - customerSelectionOffset);
+          window.scrollTo({ top: targetTop, behavior: 'smooth' });
+        }
       });
     });
   }, []);
@@ -235,10 +231,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     const update = () => {
       const sh = stageRef.current?.offsetHeight ?? 0;
       const nh = stickyNavRef.current?.offsetHeight ?? 0;
+      const selh = customerSelectionCardRef.current?.offsetHeight ?? 0;
       setStageHeight(sh);
       setStickyNavHeight(nh);
+      setSelectionHeight(selh);
       // Expose for CSS if needed
-      document.documentElement.style.setProperty('--customer-sticky-offset', `${sh + nh}px`);
+      document.documentElement.style.setProperty('--customer-sticky-offset', `${sh + selh + nh}px`);
     };
     update();
     window.addEventListener('resize', update);
