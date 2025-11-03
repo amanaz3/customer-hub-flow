@@ -28,7 +28,7 @@ import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
-import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info } from 'lucide-react';
+import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -186,6 +186,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [serviceSelectionExpanded, setServiceSelectionExpanded] = useState(false);
   const [sectionsWithErrors, setSectionsWithErrors] = useState<Set<string>>(new Set());
   const [bankPreferenceMode, setBankPreferenceMode] = useState<'preferred' | 'any'>('preferred');
+  const [productSearchTerm, setProductSearchTerm] = useState('');
   const hasUserInteractedWithCategory = useRef(false);
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
@@ -242,10 +243,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   });
 
-  // Filter products based on category filter and sort "Others" to the end
+  // Filter products based on category filter, search term, and sort "Others" to the end
   const products = (categoryFilter === 'all' 
     ? allProducts 
     : allProducts.filter(p => p.service_category_id === categoryFilter))
+    .filter(p => 
+      productSearchTerm === '' || 
+      p.name?.toLowerCase().includes(productSearchTerm.toLowerCase())
+    )
     .sort((a, b) => {
       const aIsOther = a.name?.toLowerCase().includes('other');
       const bIsOther = b.name?.toLowerCase().includes('other');
@@ -1690,6 +1695,19 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </AccordionTrigger>
                         <AccordionContent className="px-4 pb-4 pt-4">
                           <div className="pt-2 space-y-4">
+                            {/* Search Bar */}
+                            <div className="relative">
+                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                type="text"
+                                placeholder="Search products/services..."
+                                value={productSearchTerm}
+                                onChange={(e) => setProductSearchTerm(e.target.value)}
+                                className="pl-9"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
                             {/* Category Filter Tabs */}
                             <div className="space-y-2">
                               <Label className="text-sm text-muted-foreground">Filter by Category (Optional)</Label>
