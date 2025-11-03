@@ -410,16 +410,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [mostPopularProduct, watchProductId, initialData, form, allProducts]);
 
-  // Auto-update category filter when product changes
-  useEffect(() => {
-    if (watchProductId) {
-      const product = allProducts.find(p => p.id === watchProductId);
-      if (product?.service_category_id) {
-        setCategoryFilter(product.service_category_id);
-      }
-    }
-  }, [watchProductId, allProducts]);
-
   // Real-time subscription to update most popular product when customers change
   useEffect(() => {
     const channel = supabase
@@ -1989,9 +1979,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           value={categoryFilter} 
                           onValueChange={(value) => {
                             setCategoryFilter(value);
-                            if (value === 'all') {
-                              form.setValue('product_id', '');
-                            }
                           }} 
                           className="w-full"
                         >
@@ -2049,7 +2036,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                    onClick={() => {
                                      if (!isSubmitting) {
                                        form.setValue('product_id', product.id);
-                                       setCategoryFilter(product.service_category_id || 'all');
                                        // Auto-open Deal Information section
                                        if (!accordionValue.includes('application')) {
                                          setAccordionValue([...accordionValue, 'application']);
