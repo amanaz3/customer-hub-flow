@@ -205,23 +205,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
   // Smoothly scroll to bring form content card back to original position
   const scrollFormCardIntoView = useCallback(() => {
-    const formEl = formContentCardRef.current;
-    const selectionEl = customerSelectionCardRef.current;
-    const stageEl = stageRef.current;
-    if (!formEl) return;
+    const el = formContentCardRef.current;
+    if (!el) return;
 
-    // Precise calculation: position card exactly below stage + selection + 8px gap
-    const stageOffset = stageEl?.offsetHeight ?? 0;
-    const selectionOffset = selectionEl?.offsetHeight ?? 0;
-    const formRect = formEl.getBoundingClientRect();
-    
-    // Target position: current scroll + card's position - stage height - selection height - 8px gap
-    const targetTop = window.scrollY + formRect.top - stageOffset - selectionOffset - 8;
+    const stageOffset = stageRef.current?.offsetHeight ?? 0;
+    const customerSelectionOffset = customerSelectionCardRef.current?.offsetHeight ?? 0;
+    const rect = el.getBoundingClientRect();
+    const targetTop = window.scrollY + rect.top - stageOffset - customerSelectionOffset;
 
-    // Double RAF to ensure layout settled after tab switch
+    // Double RAF to ensure layout settled after mode switch
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
-        window.scrollTo({ top: Math.max(0, targetTop), behavior: 'smooth' });
+        window.scrollTo({ top: targetTop, behavior: 'smooth' });
       });
     });
   }, []);
