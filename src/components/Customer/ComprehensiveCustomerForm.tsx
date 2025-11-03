@@ -1786,10 +1786,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                             <TooltipTrigger asChild>
                                               <div className="flex items-center gap-2 w-full">
                                                 <div className="flex-1 min-w-0">
-                                                  <h4 className={cn(
-                                                    "font-medium text-sm truncate",
-                                                    isSelected && "text-green-700 dark:text-green-400"
-                                                  )}>
+                                                  <h4
+                                                    title={product.name}
+                                                    aria-label={product.name}
+                                                    className={cn(
+                                                      "font-medium text-sm truncate cursor-help",
+                                                      isSelected && "text-green-700 dark:text-green-400"
+                                                    )}
+                                                  >
                                                     {product.name}
                                                   </h4>
                                                 </div>
@@ -2348,10 +2352,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                  >
                                   <div className="flex items-center gap-2">
                                     <div className="flex-1 min-w-0">
-                                      <h4 className={cn(
-                                        "font-medium text-sm truncate",
-                                        isSelected && "text-green-700 dark:text-green-400"
-                                      )}>
+                                      <h4
+                                        title={product.name}
+                                        aria-label={product.name}
+                                        className={cn(
+                                          "font-medium text-sm truncate cursor-help",
+                                          isSelected && "text-green-700 dark:text-green-400"
+                                        )}
+                                      >
                                         {product.name}
                                       </h4>
                                     </div>
