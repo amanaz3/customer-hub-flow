@@ -2553,22 +2553,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <p className="text-sm text-red-600">{form.formState.errors.annual_turnover.message}</p>
                       )}
                     </div>
-                    
-                    <div className="space-y-2">
-                      <Label htmlFor="amount">Deal Amount (AED) *</Label>
-                      <Input
-                        id="amount"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        {...form.register('amount', { valueAsNumber: true })}
-                        disabled={isSubmitting}
-                        required
-                      />
-                      {form.formState.errors.amount && (
-                        <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>
-                      )}
-                    </div>
 
                     {/* GoAML Financial Fields */}
                     {hasGoAML && (
@@ -2611,6 +2595,23 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </div>
                       </>
                     )}
+                    
+                    {/* Deal Amount - Always shown last */}
+                    <div className="space-y-2 md:col-span-2">
+                      <Label htmlFor="amount">Deal Amount (AED) *</Label>
+                      <Input
+                        id="amount"
+                        type="number"
+                        min="0"
+                        step="0.01"
+                        {...form.register('amount', { valueAsNumber: true })}
+                        disabled={isSubmitting}
+                        required
+                      />
+                      {form.formState.errors.amount && (
+                        <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>
+                      )}
+                    </div>
                   </div>
                 </div>
 
