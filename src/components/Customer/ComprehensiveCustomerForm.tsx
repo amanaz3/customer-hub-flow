@@ -178,6 +178,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [highlightDealInfo, setHighlightDealInfo] = useState(false);
   const [serviceSelectionExpanded, setServiceSelectionExpanded] = useState(false);
   const [sectionsWithErrors, setSectionsWithErrors] = useState<Set<string>>(new Set());
+  const [bankPreferenceMode, setBankPreferenceMode] = useState<'preferred' | 'any'>('preferred');
   const hasUserInteractedWithCategory = useRef(false);
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
@@ -2635,52 +2636,67 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     {/* Banking Preferences - shown for bank account products */}
                     {hasBankAccount && (
                       <>
-                        <div className="space-y-2">
-                          <h5 className="text-sm font-medium mb-2">Banking Preferences</h5>
+                        <div className="space-y-4">
+                          <h5 className="text-sm font-medium">Banking Preferences</h5>
+                          
+                          <RadioGroup
+                            value={bankPreferenceMode}
+                            onValueChange={(value) => {
+                              setBankPreferenceMode(value as 'preferred' | 'any');
+                              // Clear bank preference fields if switching to "any"
+                              if (value === 'any') {
+                                form.setValue('bank_preference_1', '');
+                                form.setValue('bank_preference_2', '');
+                                form.setValue('bank_preference_3', '');
+                              }
+                            }}
+                            disabled={isSubmitting}
+                          >
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="preferred" id="bank-preferred" />
+                              <Label htmlFor="bank-preferred" className="cursor-pointer">I have preferred banks</Label>
+                            </div>
+                            <div className="flex items-center space-x-2">
+                              <RadioGroupItem value="any" id="bank-any" />
+                              <Label htmlFor="bank-any" className="cursor-pointer">Any bank is fine</Label>
+                            </div>
+                          </RadioGroup>
                         </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                          <div className="space-y-2">
-                            <Label htmlFor="bank_preference_1">Preferred Bank</Label>
-                            <Input
-                              id="bank_preference_1"
-                              {...form.register('bank_preference_1')}
-                              placeholder="Enter preferred bank"
-                              disabled={isSubmitting}
-                            />
+                        {bankPreferenceMode === 'preferred' && (
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="bank_preference_1">Preferred Bank</Label>
+                              <Input
+                                id="bank_preference_1"
+                                {...form.register('bank_preference_1')}
+                                placeholder="Enter preferred bank"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="bank_preference_2">Second Preference</Label>
+                              <Input
+                                id="bank_preference_2"
+                                {...form.register('bank_preference_2')}
+                                placeholder="Enter second preference (optional)"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="bank_preference_3">Third Preference</Label>
+                              <Input
+                                id="bank_preference_3"
+                                {...form.register('bank_preference_3')}
+                                placeholder="Enter third preference (optional)"
+                                disabled={isSubmitting}
+                              />
+                            </div>
                           </div>
-                          
-                          <div className="space-y-2">
-                            <Label htmlFor="bank_preference_2">Second Preference</Label>
-                            <Input
-                              id="bank_preference_2"
-                              {...form.register('bank_preference_2')}
-                              placeholder="Enter second preference"
-                              disabled={isSubmitting}
-                            />
-                          </div>
-                          
-                          <div className="space-y-2">
-                            <Label htmlFor="bank_preference_3">Third Preference</Label>
-                            <Input
-                              id="bank_preference_3"
-                              {...form.register('bank_preference_3')}
-                              placeholder="Enter third preference"
-                              disabled={isSubmitting}
-                            />
-                          </div>
-                        </div>
-                        
-                        <div className="space-y-2 mt-3">
-                          <Label htmlFor="any_bank">Any Bank</Label>
-                          <Input
-                            id="any_bank"
-                            placeholder="Or specify 'Any Bank' if no preference"
-                            disabled={isSubmitting}
-                            className="bg-muted/50"
-                          />
-                        </div>
-                          
+                        )}
+                      
                           {/* Business Bank Account Application Information */}
                           <div className="space-y-4 mt-6">
                             <div className="flex items-center gap-2">
@@ -2747,8 +2763,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               />
                             </div>
                           </div>
-                       </>
-                     )}
+                      </>
+                    )}
 
                     {/* GoAML Application Fields */}
                     {hasGoAML && (
