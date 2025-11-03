@@ -586,6 +586,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [watchProductId]);
 
+  // Auto-update category filter when product is selected
+  useEffect(() => {
+    if (watchProductId) {
+      const selectedProd = allProducts.find(p => p.id === watchProductId);
+      if (selectedProd?.service_category_id && !hasUserInteractedWithCategory.current) {
+        setCategoryFilter(selectedProd.service_category_id);
+      }
+    }
+  }, [watchProductId, allProducts]);
+
   // Check which product type is selected
   const selectedProduct = products.find(p => p.id === watchProductId);
   const selectedProductName = selectedProduct?.name.toLowerCase() || '';
