@@ -469,8 +469,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     form.formState.errors.company
   );
   const isBasicInfoComplete = basicValuesFilled && !basicHasError;
-  const isSourceChannelComplete = isBasicInfoComplete && Boolean(watchLeadSource);
-  const isServiceSelectionComplete = isSourceChannelComplete && Boolean(watchProductId);
+  
+  const leadHasError = Boolean(form.formState.errors.lead_source);
+  const isSourceChannelComplete = isBasicInfoComplete && Boolean(watchLeadSource) && !leadHasError;
+  
+  const serviceHasError = Boolean(form.formState.errors.product_id);
+  const isServiceSelectionComplete = isSourceChannelComplete && Boolean(watchProductId) && !serviceHasError;
 
   // Map field names to their corresponding accordion sections
   const getFieldSection = (fieldName: string): string | null => {
