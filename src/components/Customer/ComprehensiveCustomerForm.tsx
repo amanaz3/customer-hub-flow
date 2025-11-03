@@ -69,6 +69,11 @@ const formSchema = z.object({
     .min(1, "Number of shareholders must be at least 1")
     .max(10, "Number of shareholders cannot exceed 10")
     .default(1),
+  // Business Bank Account specific fields
+  mainland_or_freezone: z.enum(['mainland', 'freezone']).optional(),
+  signatory_type: z.enum(['single', 'joint']).optional(),
+  business_activity_details: z.string().optional(),
+  minimum_balance_range: z.enum(['0-10k', '10k-100k', '100k-150k', '150k-250k', 'above-250k']).optional(),
   // Bookkeeping-specific fields
   accounting_software: z.string().optional(),
   monthly_transactions: z.string().optional(),
@@ -314,6 +319,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       product_id: '',
       service_type_id: '',
       no_of_shareholders: 1,
+      mainland_or_freezone: undefined,
+      signatory_type: undefined,
+      business_activity_details: '',
+      minimum_balance_range: undefined,
       // Bookkeeping defaults
       accounting_software: '',
       monthly_transactions: '',
@@ -419,7 +428,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     // Deal Information - expanded to catch all possible fields
     if (['amount', 'annual_turnover', 'license_type', 'jurisdiction', 'any_suitable_bank', 
          'bank_preference_1', 'bank_preference_2', 'bank_preference_3', 'customer_notes',
-         'no_of_shareholders', 'arr_value', 'deal_stage', 'expected_close_date', 
+         'no_of_shareholders', 'mainland_or_freezone', 'signatory_type', 'business_activity_details',
+         'minimum_balance_range', 'arr_value', 'deal_stage', 'expected_close_date',
          'probability', 'notes', 'banking_preferences', 'payment_method',
          'accounting_software', 'monthly_transactions', 'vat_registered', 'bank_accounts_count',
          'employees_count', 'service_start_date', 'has_previous_records', 'reporting_frequency',
@@ -943,17 +953,21 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           application_type: 'license',
           submission_source: 'web_form',
           status: 'draft',
-          application_data: {
+            application_data: {
             lead_source: data.lead_source,
             amount: data.amount,
-            preferred_bank: data.any_suitable_bank ? 'Any Suitable Bank' : [
-              data.bank_preference_1?.trim(),
-              data.bank_preference_2?.trim(), 
-              data.bank_preference_3?.trim()
-            ].filter(Boolean).join(', ') || null,
+            preferred_bank: data.bank_preference_1?.trim() || null,
+            preferred_bank_2: data.bank_preference_2?.trim() || null,
+            preferred_bank_3: data.bank_preference_3?.trim() || null,
+            any_suitable_bank: data.any_suitable_bank,
             annual_turnover: data.annual_turnover,
             jurisdiction: data.jurisdiction ? sanitizeInput(data.jurisdiction.trim()) : null,
             customer_notes: data.customer_notes ? sanitizeInput(data.customer_notes.trim()) : null,
+            mainland_or_freezone: data.mainland_or_freezone,
+            number_of_shareholders: data.no_of_shareholders,
+            signatory_type: data.signatory_type,
+            business_activity_details: data.business_activity_details ? sanitizeInput(data.business_activity_details.trim()) : null,
+            minimum_balance_range: data.minimum_balance_range,
             product_id: data.product_id,
             user_id: user.id,
             // Bookkeeping-specific fields
@@ -2671,8 +2685,71 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 disabled={isSubmitting}
                               />
                             </div>
-                           </div>
-                         )}
+                            </div>
+                          )}
+                          
+                          {/* Additional Business Bank Account Fields */}
+                          <div className="space-y-4 mt-4">
+                            <h5 className="text-sm font-medium">Business Account Details</h5>
+                            
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="mainland_or_freezone">Mainland or Free Zone *</Label>
+                                <select
+                                  id="mainland_or_freezone"
+                                  {...form.register('mainland_or_freezone')}
+                                  disabled={isSubmitting}
+                                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  <option value="">Select type</option>
+                                  <option value="mainland">Mainland</option>
+                                  <option value="freezone">Free Zone</option>
+                                </select>
+                              </div>
+                              
+                              <div className="space-y-2">
+                                <Label htmlFor="signatory_type">Signatory Type *</Label>
+                                <select
+                                  id="signatory_type"
+                                  {...form.register('signatory_type')}
+                                  disabled={isSubmitting}
+                                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  <option value="">Select signatory type</option>
+                                  <option value="single">Single Signatory</option>
+                                  <option value="joint">Joint Signatory</option>
+                                </select>
+                              </div>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="minimum_balance_range">Minimum Balance to be Maintained *</Label>
+                              <select
+                                id="minimum_balance_range"
+                                {...form.register('minimum_balance_range')}
+                                disabled={isSubmitting}
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                <option value="">Select balance range</option>
+                                <option value="0-10k">0 – 10K</option>
+                                <option value="10k-100k">10K – 100K</option>
+                                <option value="100k-150k">100K – 150K</option>
+                                <option value="150k-250k">150K – 250K</option>
+                                <option value="above-250k">Above 250K</option>
+                              </select>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="business_activity_details">Business Activity Details *</Label>
+                              <Textarea
+                                id="business_activity_details"
+                                {...form.register('business_activity_details')}
+                                placeholder="Describe the business activities in detail..."
+                                disabled={isSubmitting}
+                                rows={4}
+                              />
+                            </div>
+                          </div>
                        </>
                      )}
 

@@ -68,6 +68,13 @@ export interface ApplicationData {
   customer_notes?: string;
   product_id?: string;
   user_id?: string;
+  
+  // Business Bank Account specific fields
+  mainland_or_freezone?: 'mainland' | 'freezone';
+  number_of_shareholders?: number;
+  signatory_type?: 'single' | 'joint';
+  business_activity_details?: string;
+  minimum_balance_range?: '0-10k' | '10k-100k' | '100k-150k' | '150k-250k' | 'above-250k';
 }
 
 export interface ApplicationDocument {
