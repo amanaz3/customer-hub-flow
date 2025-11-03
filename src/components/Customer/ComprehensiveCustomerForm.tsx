@@ -1820,7 +1820,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             </div>
 
                             {/* Search Bar - Only show when products exist */}
-                            {products.length > 0 && (
+                            {allProducts.length > 0 && (
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium">Search Products</Label>
                                 <div className="relative">
@@ -2406,7 +2406,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </div>
 
                       {/* Search Bar - Only show when products exist */}
-                      {products.length > 0 && (
+                      {allProducts.length > 0 && (
                         <div className="space-y-2">
                           <Label className="text-sm font-medium">Search Products</Label>
                           <div className="relative">
