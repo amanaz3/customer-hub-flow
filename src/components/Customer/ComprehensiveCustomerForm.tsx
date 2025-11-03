@@ -1428,11 +1428,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
                       {/* Basic Information */}
                       <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
-                        <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
-                          <h3 className="text-base font-medium">Basic Information</h3>
+                        <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-primary/10">
+                              <Users className="h-5 w-5 text-primary" />
+                            </div>
+                            <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Basic Information</h3>
+                          </div>
                         </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <AccordionContent className="px-4 pb-4 pt-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                               <Label htmlFor="name">Full Name *</Label>
                               <Input
@@ -1491,11 +1496,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                       {/* Source & Channel */}
                       <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm" data-section-id="lead" style={{ scrollMarginTop: totalStickyOffset }}>
-                        <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
-                          <h3 className="text-base font-medium">Source & Channel Information</h3>
+                        <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-primary/10">
+                              <ClipboardList className="h-5 w-5 text-primary" />
+                            </div>
+                            <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Source & Channel Information</h3>
+                          </div>
                         </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-4">
-                          <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-3">
+                        <AccordionContent className="px-4 pb-4 pt-4">
+                          <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
                               <Label htmlFor="lead_source">Lead Source *</Label>
                               <Select
@@ -1521,10 +1531,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                       {/* Service Selection */}
                       <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm" data-section-id="service" style={{ scrollMarginTop: totalStickyOffset }}>
-                        <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
-                          <h3 className="text-base font-medium">Service Selection</h3>
+                        <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
+                          <div className="flex items-center gap-3">
+                            <div className="p-2 rounded-lg bg-primary/10">
+                              <Building2 className="h-5 w-5 text-primary" />
+                            </div>
+                            <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Service Selection</h3>
+                          </div>
                         </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-4">
+                        <AccordionContent className="px-4 pb-4 pt-4">
                           <div className="pt-2 space-y-4">
                             {/* Category Filter Tabs */}
                             <div className="space-y-2">
@@ -1663,18 +1678,29 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         data-section-id="application"
                         style={{ scrollMarginTop: totalStickyOffset }}
                       >
-                        <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
-                          <h3 className={cn(
-                            "text-base font-medium transition-colors",
-                            highlightDealInfo && "text-blue-600 dark:text-blue-400"
-                          )}>
-                            Deal Information
+                        <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
+                          <div className="flex items-center gap-3">
+                            <div className={cn(
+                              "p-2 rounded-lg transition-colors",
+                              highlightDealInfo ? "bg-blue-100 dark:bg-blue-900" : "bg-primary/10"
+                            )}>
+                              <CircleDot className={cn(
+                                "h-5 w-5 transition-colors",
+                                highlightDealInfo ? "text-blue-600 dark:text-blue-400" : "text-primary"
+                              )} />
+                            </div>
+                            <h3 className={cn(
+                              "text-base font-bold uppercase tracking-wide transition-colors",
+                              highlightDealInfo ? "text-blue-600 dark:text-blue-400" : "text-foreground"
+                            )}>
+                              Deal Information
+                            </h3>
                             {highlightDealInfo && (
                               <span className="ml-2 inline-block animate-pulse">✨</span>
                             )}
-                          </h3>
+                          </div>
                         </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-4">
+                        <AccordionContent className="px-4 pb-6 pt-4">
                           <div className="space-y-4">
                             {/* License Type */}
                             <FormField
