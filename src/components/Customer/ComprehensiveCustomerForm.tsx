@@ -173,6 +173,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [highlightDealInfo, setHighlightDealInfo] = useState(false);
   const [serviceSelectionExpanded, setServiceSelectionExpanded] = useState(false);
   const [sectionsWithErrors, setSectionsWithErrors] = useState<Set<string>>(new Set());
+  const hasUserInteractedWithCategory = useRef(false);
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
   const stickyNavRef = useRef<HTMLDivElement | null>(null);
@@ -239,11 +240,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       if (!aIsOther && bIsOther) return -1;
       return 0;
     });
-
-  // Debug logging
-  console.log('Category filter:', categoryFilter);
-  console.log('All products:', allProducts);
-  console.log('Filtered products:', products);
 
   // Fetch all active service categories for the dropdown
   const { data: serviceCategories = [], isLoading: serviceCategoriesLoading } = useQuery({
@@ -505,7 +501,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
   // Auto-select Business Bank Account as default product when form loads
   useEffect(() => {
-    if (defaultProduct && !watchProductId && !initialData) {
+    if (defaultProduct && !watchProductId && !initialData && !hasUserInteractedWithCategory.current) {
       form.setValue('product_id', defaultProduct);
       // Also set the category filter to this product's category
       const product = allProducts.find(p => p.id === defaultProduct);
@@ -1663,6 +1659,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               <Tabs 
                                 value={categoryFilter} 
                                 onValueChange={(value) => {
+                                  hasUserInteractedWithCategory.current = true;
                                   setCategoryFilter(value);
                                   // Clear product selection when category changes
                                   form.setValue('product_id', '');
@@ -2210,6 +2207,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <Tabs 
                           value={categoryFilter} 
                           onValueChange={(value) => {
+                            hasUserInteractedWithCategory.current = true;
                             setCategoryFilter(value);
                             // Clear product selection when category changes
                             form.setValue('product_id', '');
