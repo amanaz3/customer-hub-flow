@@ -2634,106 +2634,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                        </>
                      )}
 
-                    {/* Banking Preferences - shown for bank account products */}
+                    {/* Business Bank Account Application Information */}
                     {hasBankAccount && (
                       <>
+                        {/* Business Information */}
                         <div className="space-y-4">
-                          <h5 className="text-sm font-medium">Banking Preferences</h5>
-                          
-                          <RadioGroup
-                            value={bankPreferenceMode}
-                            onValueChange={(value) => {
-                              setBankPreferenceMode(value as 'preferred' | 'any');
-                              // Clear bank preference fields if switching to "any"
-                              if (value === 'any') {
-                                form.setValue('bank_preference_1', '');
-                                form.setValue('bank_preference_2', '');
-                                form.setValue('bank_preference_3', '');
-                              }
-                            }}
-                            disabled={isSubmitting}
-                            className="grid grid-cols-1 md:grid-cols-2 gap-3"
-                          >
-                            <label
-                              htmlFor="bank-preferred"
-                              className={cn(
-                                "flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all hover:bg-accent/50",
-                                bankPreferenceMode === 'preferred' 
-                                  ? "border-primary bg-primary/5" 
-                                  : "border-border"
-                              )}
-                            >
-                              <RadioGroupItem value="preferred" id="bank-preferred" />
-                              <div className="flex-1">
-                                <div className="font-medium">I have preferred banks</div>
-                                <div className="text-sm text-muted-foreground">Select up to 3 banks in order of preference</div>
-                              </div>
-                            </label>
-                            
-                            <label
-                              htmlFor="bank-any"
-                              className={cn(
-                                "flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all hover:bg-accent/50",
-                                bankPreferenceMode === 'any' 
-                                  ? "border-primary bg-primary/5" 
-                                  : "border-border"
-                              )}
-                            >
-                              <RadioGroupItem value="any" id="bank-any" />
-                              <div className="flex-1">
-                                <div className="font-medium">Any bank is fine</div>
-                                <div className="text-sm text-muted-foreground">No specific bank preference</div>
-                              </div>
-                            </label>
-                          </RadioGroup>
-                        </div>
-
-                        {bankPreferenceMode === 'preferred' && (
-                          <div className="space-y-3 mt-4 p-4 rounded-lg bg-muted/30 border">
-                            <div className="space-y-2">
-                              <Label htmlFor="bank_preference_1" className="text-sm font-medium">
-                                Preferred Bank <span className="text-destructive">*</span>
-                              </Label>
-                              <Input
-                                id="bank_preference_1"
-                                {...form.register('bank_preference_1')}
-                                placeholder="Enter your first choice bank"
-                                disabled={isSubmitting}
-                              />
-                            </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                              <div className="space-y-2">
-                                <Label htmlFor="bank_preference_2" className="text-sm">2nd Preference (Optional)</Label>
-                                <Input
-                                  id="bank_preference_2"
-                                  {...form.register('bank_preference_2')}
-                                  placeholder="Second choice"
-                                  disabled={isSubmitting}
-                                />
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <Label htmlFor="bank_preference_3" className="text-sm">3rd Preference (Optional)</Label>
-                                <Input
-                                  id="bank_preference_3"
-                                  {...form.register('bank_preference_3')}
-                                  placeholder="Third choice"
-                                  disabled={isSubmitting}
-                                />
-                              </div>
-                            </div>
+                          <div className="flex items-center gap-2 pb-3 border-b border-primary/20">
+                            <Building2 className="h-4 w-4 text-primary" />
+                            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Business Information</h4>
                           </div>
-                        )}
-                      
-                          {/* Business Bank Account Application Information */}
-                          <div className="space-y-4 mt-6">
-                            <div className="flex items-center gap-2">
-                              <Building2 className="h-4 w-4 text-primary" />
-                              <h5 className="text-sm font-semibold">Business Information</h5>
-                            </div>
-                            <Separator />
-                            
+                          
+                          <div className="space-y-4 pl-1">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div className="space-y-2">
                                 <Label htmlFor="mainland_or_freezone">License Type *</Label>
@@ -2772,7 +2683,142 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                   <option value="Other">Other</option>
                                 </select>
                               </div>
+                            </div>
+                            
+                            <div className="space-y-2">
+                              <Label htmlFor="business_activity_details">Business Activity Details *</Label>
+                              <Textarea
+                                id="business_activity_details"
+                                {...form.register('business_activity_details')}
+                                placeholder="Describe the business activities in detail..."
+                                disabled={isSubmitting}
+                                rows={4}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* Banking Preferences */}
+                        <div className="space-y-4 mt-6">
+                          <div className="flex items-center gap-2 pb-3 border-b border-primary/20">
+                            <CircleDot className="h-4 w-4 text-primary" />
+                            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Banking Preferences</h4>
+                          </div>
+                          
+                          <div className="space-y-4 pl-1">
+                            <div className="space-y-2">
+                              <Label htmlFor="minimum_balance_range">Minimum Balance to be Maintained *</Label>
+                              <select
+                                id="minimum_balance_range"
+                                {...form.register('minimum_balance_range')}
+                                disabled={isSubmitting}
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                <option value="">Select balance range</option>
+                                <option value="0-10k">0 – 10K</option>
+                                <option value="10k-100k">10K – 100K</option>
+                                <option value="100k-150k">100K – 150K</option>
+                                <option value="150k-250k">150K – 250K</option>
+                                <option value="above-250k">Above 250K</option>
+                              </select>
+                            </div>
+                            
+                            <RadioGroup
+                              value={bankPreferenceMode}
+                              onValueChange={(value) => {
+                                setBankPreferenceMode(value as 'preferred' | 'any');
+                                // Clear bank preference fields if switching to "any"
+                                if (value === 'any') {
+                                  form.setValue('bank_preference_1', '');
+                                  form.setValue('bank_preference_2', '');
+                                  form.setValue('bank_preference_3', '');
+                                }
+                              }}
+                              disabled={isSubmitting}
+                              className="grid grid-cols-1 md:grid-cols-2 gap-3"
+                            >
+                              <label
+                                htmlFor="bank-preferred"
+                                className={cn(
+                                  "flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all hover:bg-accent/50",
+                                  bankPreferenceMode === 'preferred' 
+                                    ? "border-primary bg-primary/5" 
+                                    : "border-border"
+                                )}
+                              >
+                                <RadioGroupItem value="preferred" id="bank-preferred" />
+                                <div className="flex-1">
+                                  <div className="font-medium">I have preferred banks</div>
+                                  <div className="text-sm text-muted-foreground">Select up to 3 banks in order of preference</div>
+                                </div>
+                              </label>
                               
+                              <label
+                                htmlFor="bank-any"
+                                className={cn(
+                                  "flex items-center space-x-3 rounded-lg border-2 p-4 cursor-pointer transition-all hover:bg-accent/50",
+                                  bankPreferenceMode === 'any' 
+                                    ? "border-primary bg-primary/5" 
+                                    : "border-border"
+                                )}
+                              >
+                                <RadioGroupItem value="any" id="bank-any" />
+                                <div className="flex-1">
+                                  <div className="font-medium">Any bank is fine</div>
+                                  <div className="text-sm text-muted-foreground">No specific bank preference</div>
+                                </div>
+                              </label>
+                            </RadioGroup>
+
+                            {bankPreferenceMode === 'preferred' && (
+                              <div className="space-y-3 mt-4 p-4 rounded-lg bg-muted/30 border">
+                                <div className="space-y-2">
+                                  <Label htmlFor="bank_preference_1" className="text-sm font-medium">
+                                    Preferred Bank <span className="text-destructive">*</span>
+                                  </Label>
+                                  <Input
+                                    id="bank_preference_1"
+                                    {...form.register('bank_preference_1')}
+                                    placeholder="Enter your first choice bank"
+                                    disabled={isSubmitting}
+                                  />
+                                </div>
+                                
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="bank_preference_2" className="text-sm">2nd Preference (Optional)</Label>
+                                    <Input
+                                      id="bank_preference_2"
+                                      {...form.register('bank_preference_2')}
+                                      placeholder="Second choice"
+                                      disabled={isSubmitting}
+                                    />
+                                  </div>
+                                  
+                                  <div className="space-y-2">
+                                    <Label htmlFor="bank_preference_3" className="text-sm">3rd Preference (Optional)</Label>
+                                    <Input
+                                      id="bank_preference_3"
+                                      {...form.register('bank_preference_3')}
+                                      placeholder="Third choice"
+                                      disabled={isSubmitting}
+                                    />
+                                  </div>
+                                </div>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Shareholder/Signatory Details */}
+                        <div className="space-y-4 mt-6">
+                          <div className="flex items-center gap-2 pb-3 border-b border-primary/20">
+                            <Users className="h-4 w-4 text-primary" />
+                            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Shareholder & Signatory Details</h4>
+                          </div>
+                          
+                          <div className="space-y-4 pl-1">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div className="space-y-2">
                                 <div className="flex items-center gap-1.5">
                                   <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
@@ -2815,35 +2861,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 </select>
                               </div>
                             </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="minimum_balance_range">Minimum Balance to be Maintained *</Label>
-                              <select
-                                id="minimum_balance_range"
-                                {...form.register('minimum_balance_range')}
-                                disabled={isSubmitting}
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                              >
-                                <option value="">Select balance range</option>
-                                <option value="0-10k">0 – 10K</option>
-                                <option value="10k-100k">10K – 100K</option>
-                                <option value="100k-150k">100K – 150K</option>
-                                <option value="150k-250k">150K – 250K</option>
-                                <option value="above-250k">Above 250K</option>
-                              </select>
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="business_activity_details">Business Activity Details *</Label>
-                              <Textarea
-                                id="business_activity_details"
-                                {...form.register('business_activity_details')}
-                                placeholder="Describe the business activities in detail..."
-                                disabled={isSubmitting}
-                                rows={4}
-                              />
-                            </div>
                           </div>
+                        </div>
                       </>
                     )}
 
