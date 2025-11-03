@@ -197,20 +197,21 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const stickyNavRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const formContentCardRef = useRef<HTMLDivElement | null>(null);
+  const customerSelectionCardRef = useRef<HTMLDivElement | null>(null);
   const [stageHeight, setStageHeight] = useState(0);
   const [stickyNavHeight, setStickyNavHeight] = useState(0);
   const stickyGap = 0; // px gap to keep consistent padding
   const totalStickyOffset = stageHeight + stickyNavHeight + stickyGap;
 
-  // Smoothly scroll the main form card into view accounting for sticky headers
+  // Smoothly scroll to reattach customer selection card at top
   const scrollFormCardIntoView = useCallback(() => {
-    const el = formContentCardRef.current;
+    const el = customerSelectionCardRef.current;
     if (!el) return;
-    const offset = (stageRef.current?.offsetHeight ?? 0) + (stickyNavRef.current?.offsetHeight ?? 0) + 8; // small padding
+    const stageOffset = stageRef.current?.offsetHeight ?? 0;
     const rect = el.getBoundingClientRect();
-    const top = window.scrollY + rect.top - offset;
+    const top = window.scrollY + rect.top - stageOffset;
     window.scrollTo({ top, behavior: 'smooth' });
-  }, [stageHeight, stickyNavHeight]);
+  }, []);
 
   useEffect(() => {
     const update = () => {
@@ -1545,7 +1546,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </Card>
       
       {/* Customer Selection Card - Sticky */}
-      <div className="sticky z-40" style={{ top: `${stageHeight}px` }}>
+      <div ref={customerSelectionCardRef} className="sticky z-40" style={{ top: `${stageHeight}px` }}>
         <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
         <div className="grid grid-cols-2 w-full">
           {customerMode === 'existing' ? (
