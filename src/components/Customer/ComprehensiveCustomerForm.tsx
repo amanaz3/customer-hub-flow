@@ -2770,9 +2770,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                   <option value="Fujairah">Fujairah</option>
                                   <option value="Other">Other</option>
                                 </select>
-                                <p className="text-xs text-muted-foreground">
-                                  Specify the free zone or emirate
-                                </p>
                               </div>
                               
                               <div className="space-y-2">
