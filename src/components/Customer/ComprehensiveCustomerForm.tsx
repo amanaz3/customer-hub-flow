@@ -248,9 +248,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   });
 
   // Filter products based on category filter, search term, and sort "Others" to the end
-  const products = (categoryFilter === 'all' 
+  const categoryProducts = categoryFilter === 'all' 
     ? allProducts 
-    : allProducts.filter(p => p.service_category_id === categoryFilter))
+    : allProducts.filter(p => p.service_category_id === categoryFilter);
+  
+  const products = categoryProducts
     .filter(p => 
       productSearchTerm === '' || 
       p.name?.toLowerCase().includes(productSearchTerm.toLowerCase())
@@ -1819,8 +1821,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               </Tabs>
                             </div>
 
-                            {/* Search Bar - Only show when products exist */}
-                            {allProducts.length > 0 && (
+                            {/* Search Bar - Only show when category has products */}
+                            {categoryProducts.length > 0 && (
                               <div className="space-y-2">
                                 <Label className="text-sm font-medium">Search Products</Label>
                                 <div className="relative">
@@ -2405,8 +2407,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </Tabs>
                       </div>
 
-                      {/* Search Bar - Only show when products exist */}
-                      {allProducts.length > 0 && (
+                      {/* Search Bar - Only show when category has products */}
+                      {categoryProducts.length > 0 && (
                         <div className="space-y-2">
                           <Label className="text-sm font-medium">Search Products</Label>
                           <div className="relative">
