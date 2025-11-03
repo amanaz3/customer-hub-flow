@@ -2321,8 +2321,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </AccordionContent>
                 </AccordionItem>
 
-        {/* Deal Information - Only shown after Service Selection has been expanded */}
-        {serviceSelectionExpanded && (
+        {/* Deal Information - Only shown when a product is selected */}
+        {serviceSelectionExpanded && watchProductId && (
         <AccordionItem
           value="application" 
           className={cn(
