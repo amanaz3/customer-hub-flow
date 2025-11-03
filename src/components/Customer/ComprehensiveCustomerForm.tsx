@@ -2691,7 +2691,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           <div className="space-y-3 mt-4 p-4 rounded-lg bg-muted/30 border">
                             <div className="space-y-2">
                               <Label htmlFor="bank_preference_1" className="text-sm font-medium">
-                                1st Preference <span className="text-destructive">*</span>
+                                Preferred Bank <span className="text-destructive">*</span>
                               </Label>
                               <Input
                                 id="bank_preference_1"
