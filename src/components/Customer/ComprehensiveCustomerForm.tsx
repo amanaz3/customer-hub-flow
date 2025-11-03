@@ -3099,22 +3099,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="amount">Annual Turnover (AED) *</Label>
-                        <Input
-                          id="amount"
-                          type="number"
-                          step="0.01"
-                          {...form.register('amount', { valueAsNumber: true })}
-                          placeholder="Enter annual turnover"
-                          disabled={isSubmitting}
-                          required
-                        />
-                        {form.formState.errors.amount && (
-                          <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>
-                        )}
-                      </div>
-
-                      <div className="space-y-2">
                         <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
                         <Input
                           id="no_of_shareholders"
