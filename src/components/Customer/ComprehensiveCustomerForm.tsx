@@ -203,32 +203,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const stickyGap = 0; // px gap to keep consistent padding
   const totalStickyOffset = stageHeight + stickyNavHeight + stickyGap;
 
-  // Smoothly scroll to bring form content card back to original position (precise, no gap)
+  // Smoothly scroll to bring form content card back to original position
   const scrollFormCardIntoView = useCallback(() => {
-    const formEl = formContentCardRef.current;
-    const selectEl = customerSelectionCardRef.current;
-    if (!formEl || !selectEl) return;
+    const el = formContentCardRef.current;
+    if (!el) return;
 
     const stageOffset = stageRef.current?.offsetHeight ?? 0;
-    const selectionHeight = selectEl.getBoundingClientRect().height ?? 0;
-    const formRect = formEl.getBoundingClientRect();
-    const styles = getComputedStyle(formEl);
-    const marginTop = parseFloat(styles.marginTop || '0') || 0;
-    const borderTop = parseFloat(styles.borderTopWidth || '0') || 0;
+    const customerSelectionOffset = customerSelectionCardRef.current?.offsetHeight ?? 0;
+    const rect = el.getBoundingClientRect();
+    const targetTop = window.scrollY + rect.top - stageOffset - customerSelectionOffset;
 
-    const targetTop = window.scrollY + formRect.top - stageOffset - selectionHeight - marginTop - borderTop - 1;
-
-    console.info('[ComprehensiveCustomerForm] Reattaching form card', {
-      stageOffset,
-      selectionHeight,
-      marginTop,
-      borderTop,
-      formRectTop: formRect.top,
-      currentScrollY: window.scrollY,
-      targetTop,
-    });
-
-    // Double RAF to ensure layout is settled after tab switch/confirm dialog
+    // Double RAF to ensure layout settled after mode switch
     requestAnimationFrame(() => {
       requestAnimationFrame(() => {
         window.scrollTo({ top: targetTop, behavior: 'smooth' });
