@@ -24,6 +24,7 @@ import {
   LazyRejected,
   LazySettings,
   LazyProductManagement,
+  LazyServiceCategoryManagement,
   LazyDataMigration,
   LazyNotFound,
   PageLoadingFallback
@@ -201,6 +202,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Product Management">
                           <LazyProductManagement />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/service-categories" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Service Category Management">
+                          <LazyServiceCategoryManagement />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
