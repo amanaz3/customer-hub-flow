@@ -3048,14 +3048,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           </Select>
                         </div>
 
-                        <div className="flex items-center space-x-2 md:col-span-2">
+                        <div className="md:col-span-2 flex items-center space-x-3 p-4 rounded-lg border border-border bg-card/50 hover:bg-card transition-colors">
                           <Checkbox
                             id="wps_transfer_required"
                             checked={form.watch('wps_transfer_required') || false}
                             onCheckedChange={(checked) => form.setValue('wps_transfer_required', !!checked)}
                             disabled={isSubmitting}
+                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                           />
-                          <Label htmlFor="wps_transfer_required">WPS Transfer Requirement</Label>
+                          <Label htmlFor="wps_transfer_required" className="cursor-pointer font-medium">WPS Transfer Requirement</Label>
                         </div>
 
                         <div className="space-y-2">
@@ -3157,24 +3158,26 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           </Select>
                         </div>
 
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-3 p-4 rounded-lg border border-border bg-card/50 hover:bg-card transition-colors">
                           <Checkbox
                             id="vat_registered"
                             checked={form.watch('vat_registered') || false}
                             onCheckedChange={(checked) => form.setValue('vat_registered', !!checked)}
                             disabled={isSubmitting}
+                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                           />
-                          <Label htmlFor="vat_registered">VAT Registered</Label>
+                          <Label htmlFor="vat_registered" className="cursor-pointer font-medium">VAT Registered</Label>
                         </div>
 
-                        <div className="flex items-center space-x-2">
+                        <div className="flex items-center space-x-3 p-4 rounded-lg border border-border bg-card/50 hover:bg-card transition-colors">
                           <Checkbox
                             id="has_previous_records"
                             checked={form.watch('has_previous_records') || false}
                             onCheckedChange={(checked) => form.setValue('has_previous_records', !!checked)}
                             disabled={isSubmitting}
+                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                           />
-                          <Label htmlFor="has_previous_records">Has Previous Accounting Records</Label>
+                          <Label htmlFor="has_previous_records" className="cursor-pointer font-medium">Has Previous Accounting Records</Label>
                         </div>
                       </div>
                     )}
