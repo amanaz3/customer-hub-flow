@@ -105,11 +105,13 @@ export const ExistingCustomerSelector = ({
           </Button>
         </PopoverTrigger>
         <PopoverContent 
-          className="w-[600px] p-0 bg-popover z-50" 
+          className="w-[600px] p-0 bg-popover border shadow-lg" 
           align="start" 
           side="bottom"
-          sideOffset={8}
+          sideOffset={4}
           avoidCollisions={false}
+          sticky="always"
+          style={{ zIndex: 9999 }}
         >
           <Command>
             <CommandInput placeholder="Search by company or email..." />
