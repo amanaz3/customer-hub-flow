@@ -203,13 +203,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const stickyGap = 0; // px gap to keep consistent padding
   const totalStickyOffset = stageHeight + stickyNavHeight + stickyGap;
 
-  // Smoothly scroll to reattach customer selection card at top
+  // Smoothly scroll to bring form content card back to original position
   const scrollFormCardIntoView = useCallback(() => {
-    const el = customerSelectionCardRef.current;
+    const el = formContentCardRef.current;
     if (!el) return;
     const stageOffset = stageRef.current?.offsetHeight ?? 0;
+    const customerSelectionOffset = customerSelectionCardRef.current?.offsetHeight ?? 0;
     const rect = el.getBoundingClientRect();
-    const top = window.scrollY + rect.top - stageOffset;
+    const top = window.scrollY + rect.top - stageOffset - customerSelectionOffset;
     window.scrollTo({ top, behavior: 'smooth' });
   }, []);
 
