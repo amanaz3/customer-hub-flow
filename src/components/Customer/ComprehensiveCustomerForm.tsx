@@ -2024,8 +2024,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </AccordionItem>
                 )}
 
-        {/* Service Selection - Shown when basic info complete OR clicked in nav */}
-        {(isBasicInfoComplete || accordionValue.includes('service')) && (
+        {/* Service Selection */}
         <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm" data-section-id="service" style={{ scrollMarginTop: totalStickyOffset }}>
               <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
                 <div className="flex items-center gap-3">
@@ -2157,7 +2156,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </div>
                   </AccordionContent>
                 </AccordionItem>
-                )}
 
         {/* Deal Information - Only shown after Service Selection has been expanded */}
         {serviceSelectionExpanded && (
