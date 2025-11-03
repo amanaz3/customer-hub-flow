@@ -26,7 +26,7 @@ import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
-import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle } from 'lucide-react';
+import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, Eye, FileText, Upload, Sparkles } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -1069,43 +1069,51 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </div>
       )}
 
-      {/* Stage Indicator - Premium Stylish Design */}
-      <Card ref={stageRef} className="sticky top-0 z-[100] border-0 shadow-2xl overflow-hidden bg-background/95 backdrop-blur-md">
+      {/* Stage Indicator - Premium Multi-Step Card with Lucide Icons */}
+      <Card ref={stageRef} className="sticky top-0 z-[100] border-0 shadow-2xl overflow-hidden bg-gradient-to-br from-background via-background to-background/95 backdrop-blur-xl">
         {/* Animated gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-[slide-in-right_3s_ease-in-out_infinite] pointer-events-none" />
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/0 via-primary/5 to-primary/0 animate-[slide-in-right_3s_ease-in-out_infinite] pointer-events-none" />
+        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-emerald-500 via-blue-500 to-purple-500 opacity-50" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         
-        <CardContent className="relative py-4 px-6">
-          <div className="flex items-center justify-between gap-4">
-            {/* Stage 1 */}
-            <div className="flex flex-col items-center gap-2 flex-1 group cursor-pointer transition-transform hover:scale-105">
+        <CardContent className="relative py-6 px-6">
+          <div className="flex items-center justify-between gap-6">
+            {/* Step 1: Save Draft */}
+            <div className="flex flex-col items-center gap-3 flex-1 group cursor-pointer transition-all hover:scale-105">
               <div className={cn(
-                "flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-500 relative",
+                "relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-500",
                 currentStage === 'details' 
-                  ? "bg-gradient-to-br from-emerald-500 via-green-500 to-emerald-600 text-white shadow-xl shadow-emerald-500/50 scale-110 rotate-6" 
+                  ? "bg-gradient-to-br from-emerald-500 via-green-500 to-emerald-600 text-white shadow-2xl shadow-emerald-500/60 scale-110 rotate-3" 
                   : createdCustomerId
-                  ? "bg-gradient-to-br from-emerald-400 via-green-400 to-emerald-500 text-white shadow-lg shadow-emerald-400/40 ring-2 ring-emerald-300/50 ring-offset-2 ring-offset-background"
-                  : "bg-gradient-to-br from-gray-100 via-muted to-gray-200 dark:from-gray-800 dark:via-muted dark:to-gray-900 text-gray-400 dark:text-gray-600"
+                  ? "bg-gradient-to-br from-emerald-400 via-green-400 to-emerald-500 text-white shadow-xl shadow-emerald-400/50 ring-4 ring-emerald-300/40 ring-offset-2 ring-offset-background"
+                  : "bg-gradient-to-br from-muted to-muted/70 text-muted-foreground/50"
               )}>
+                {/* Animated glow effect */}
                 <div className={cn(
-                  "absolute inset-0 rounded-2xl blur-xl opacity-0 transition-opacity duration-500",
-                  currentStage === 'details' && "opacity-70 bg-emerald-500 animate-pulse"
+                  "absolute inset-0 rounded-2xl blur-2xl opacity-0 transition-opacity duration-500",
+                  currentStage === 'details' && "opacity-60 bg-emerald-500 animate-pulse"
                 )} />
+                
+                {/* Icon */}
                 {createdCustomerId ? (
-                  <svg className="w-6 h-6 relative z-10 animate-scale-in" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
+                  <Check className="w-7 h-7 relative z-10 stroke-[3] animate-in zoom-in duration-300" />
                 ) : (
-                  <ClipboardList className="w-6 h-6 relative z-10" />
+                  <Save className="w-7 h-7 relative z-10 group-hover:scale-110 transition-transform" />
+                )}
+
+                {/* Sparkle decoration for active */}
+                {currentStage === 'details' && (
+                  <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-yellow-300 animate-pulse" />
                 )}
               </div>
+              
               <div className="text-center space-y-1">
                 <div className={cn(
-                  "text-xs font-extrabold tracking-wide",
+                  "text-xs font-bold tracking-wider uppercase",
                   currentStage === 'details' 
                     ? "text-emerald-600 dark:text-emerald-400" 
                     : createdCustomerId
-                    ? "text-foreground"
+                    ? "text-emerald-600 dark:text-emerald-500"
                     : "text-muted-foreground"
                 )}>
                   Step 1
@@ -1114,64 +1122,72 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   "text-xs font-semibold",
                   currentStage === 'details' || createdCustomerId
                     ? "text-foreground" 
-                    : "text-muted-foreground"
+                    : "text-muted-foreground/70"
                 )}>
                   Save Draft
                 </div>
               </div>
             </div>
 
-            {/* Connecting Line 1 with Enhanced Gradient */}
-            <div className="flex-1 relative px-2" style={{ maxWidth: '80px' }}>
-              <div className="relative h-2 flex items-center">
+            {/* Animated Connection Line 1 */}
+            <div className="flex-1 relative px-3" style={{ maxWidth: '100px' }}>
+              <div className="relative h-2.5 flex items-center">
                 <div className={cn(
-                  "h-2 rounded-full transition-all duration-700 flex-1 relative overflow-hidden",
+                  "h-2.5 rounded-full transition-all duration-700 flex-1 relative overflow-hidden shadow-inner",
                   currentStage === 'preview' || currentStage === 'documents' 
-                    ? "bg-gradient-to-r from-emerald-400 via-blue-400 to-blue-500 shadow-md shadow-blue-500/30" 
-                    : "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
+                    ? "bg-gradient-to-r from-emerald-400 via-blue-400 to-blue-500 shadow-lg shadow-blue-400/40" 
+                    : "bg-gradient-to-r from-muted to-muted/70"
                 )}>
                   {(currentStage === 'preview' || currentStage === 'documents') && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
                   )}
                 </div>
                 <div className={cn(
-                  "absolute -right-3 w-12 h-12 rounded-full transition-all duration-500 flex items-center justify-center backdrop-blur-sm",
+                  "absolute -right-2 w-10 h-10 rounded-full transition-all duration-500 flex items-center justify-center backdrop-blur-sm",
                   currentStage === 'preview' || currentStage === 'documents'
-                    ? "bg-gradient-to-br from-blue-500 to-blue-700 shadow-2xl shadow-blue-500/70 ring-4 ring-blue-400/50 ring-offset-2 ring-offset-background" 
-                    : "bg-gray-400 dark:bg-gray-600 shadow-lg"
+                    ? "bg-gradient-to-br from-blue-500 to-blue-600 shadow-2xl shadow-blue-500/70 ring-4 ring-blue-400/40 ring-offset-2 ring-offset-background scale-110" 
+                    : "bg-muted shadow-md"
                 )}>
-                  {/* Chevron Arrow - Always white for maximum contrast */}
-                  <div className="w-6 h-6 border-r-[3px] border-t-[3px] border-white rotate-45 transition-all duration-300" />
+                  <div className={cn(
+                    "w-4 h-4 border-r-[3px] border-t-[3px] rotate-45 transition-all duration-300",
+                    currentStage === 'preview' || currentStage === 'documents' ? "border-white" : "border-muted-foreground/50"
+                  )} />
                 </div>
               </div>
             </div>
             
-            {/* Stage 2 */}
-            <div className="flex flex-col items-center gap-2 flex-1 group cursor-pointer transition-transform hover:scale-105">
+            {/* Step 2: Preview */}
+            <div className="flex flex-col items-center gap-3 flex-1 group cursor-pointer transition-all hover:scale-105">
               <div className={cn(
-                "flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-500 relative",
+                "relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-500",
                 currentStage === 'preview' 
-                  ? "bg-gradient-to-br from-blue-500 via-sky-500 to-blue-600 text-white shadow-xl shadow-blue-500/50 scale-110 -rotate-6" 
+                  ? "bg-gradient-to-br from-blue-500 via-sky-500 to-blue-600 text-white shadow-2xl shadow-blue-500/60 scale-110 -rotate-3" 
                   : currentStage === 'documents'
-                  ? "bg-gradient-to-br from-blue-400 via-sky-400 to-blue-500 text-white shadow-lg shadow-blue-400/40 ring-2 ring-blue-300/50 ring-offset-2 ring-offset-background"
-                  : "bg-gradient-to-br from-gray-100 via-muted to-gray-200 dark:from-gray-800 dark:via-muted dark:to-gray-900 text-gray-400 dark:text-gray-600"
+                  ? "bg-gradient-to-br from-blue-400 via-sky-400 to-blue-500 text-white shadow-xl shadow-blue-400/50 ring-4 ring-blue-300/40 ring-offset-2 ring-offset-background"
+                  : "bg-gradient-to-br from-muted to-muted/70 text-muted-foreground/50"
               )}>
+                {/* Animated glow effect */}
                 <div className={cn(
-                  "absolute inset-0 rounded-2xl blur-xl opacity-0 transition-opacity duration-500",
-                  currentStage === 'preview' && "opacity-70 bg-blue-500 animate-pulse"
+                  "absolute inset-0 rounded-2xl blur-2xl opacity-0 transition-opacity duration-500",
+                  currentStage === 'preview' && "opacity-60 bg-blue-500 animate-pulse"
                 )} />
-                <svg className="w-6 h-6 relative z-10" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
+                
+                {/* Icon */}
+                <Eye className="w-7 h-7 relative z-10 group-hover:scale-110 transition-transform" />
+
+                {/* Sparkle decoration for active */}
+                {currentStage === 'preview' && (
+                  <Sparkles className="absolute -top-1 -right-1 w-4 h-4 text-yellow-300 animate-pulse" />
+                )}
               </div>
+              
               <div className="text-center space-y-1">
                 <div className={cn(
-                  "text-xs font-extrabold tracking-wide",
+                  "text-xs font-bold tracking-wider uppercase",
                   currentStage === 'preview' 
                     ? "text-blue-600 dark:text-blue-400" 
                     : currentStage === 'documents'
-                    ? "text-foreground"
+                    ? "text-blue-600 dark:text-blue-500"
                     : "text-muted-foreground"
                 )}>
                   Step 2
@@ -1180,69 +1196,82 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   "text-xs font-semibold",
                   currentStage === 'preview' || currentStage === 'documents'
                     ? "text-foreground" 
-                    : "text-muted-foreground"
+                    : "text-muted-foreground/70"
                 )}>
                   Preview
                 </div>
               </div>
             </div>
 
-            {/* Connecting Line 2 with Enhanced Gradient */}
-            <div className="flex-1 relative px-2" style={{ maxWidth: '80px' }}>
-              <div className="relative h-2 flex items-center">
+            {/* Animated Connection Line 2 */}
+            <div className="flex-1 relative px-3" style={{ maxWidth: '100px' }}>
+              <div className="relative h-2.5 flex items-center">
                 <div className={cn(
-                  "h-2 rounded-full transition-all duration-700 flex-1 relative overflow-hidden",
-                  createdCustomerId 
-                    ? "bg-gradient-to-r from-blue-400 via-purple-400 to-purple-500 shadow-md shadow-purple-500/30" 
-                    : "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
+                  "h-2.5 rounded-full transition-all duration-700 flex-1 relative overflow-hidden shadow-inner",
+                  currentStage === 'documents' && createdCustomerId
+                    ? "bg-gradient-to-r from-blue-400 via-purple-400 to-purple-500 shadow-lg shadow-purple-400/40" 
+                    : "bg-gradient-to-r from-muted to-muted/70"
                 )}>
-                  {createdCustomerId && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
+                  {currentStage === 'documents' && createdCustomerId && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
                   )}
                 </div>
                 <div className={cn(
-                  "absolute -right-3 w-12 h-12 rounded-full transition-all duration-500 flex items-center justify-center backdrop-blur-sm",
-                  createdCustomerId
-                    ? "bg-gradient-to-br from-purple-500 to-purple-700 shadow-2xl shadow-purple-500/70 ring-4 ring-purple-400/50 ring-offset-2 ring-offset-background" 
-                    : "bg-gray-400 dark:bg-gray-600 shadow-lg"
+                  "absolute -right-2 w-10 h-10 rounded-full transition-all duration-500 flex items-center justify-center backdrop-blur-sm",
+                  currentStage === 'documents' && createdCustomerId
+                    ? "bg-gradient-to-br from-purple-500 to-purple-600 shadow-2xl shadow-purple-500/70 ring-4 ring-purple-400/40 ring-offset-2 ring-offset-background scale-110" 
+                    : "bg-muted shadow-md"
                 )}>
-                  {/* Chevron Arrow - Always white for maximum contrast */}
-                  <div className="w-6 h-6 border-r-[3px] border-t-[3px] border-white rotate-45 transition-all duration-300" />
+                  <div className={cn(
+                    "w-4 h-4 border-r-[3px] border-t-[3px] rotate-45 transition-all duration-300",
+                    currentStage === 'documents' && createdCustomerId ? "border-white" : "border-muted-foreground/50"
+                  )} />
                 </div>
               </div>
             </div>
             
-            {/* Stage 3 */}
-            <div className="flex flex-col items-center gap-2 flex-1 group cursor-pointer transition-transform hover:scale-105">
-              <div 
-                className={cn(
-                  "flex items-center justify-center w-12 h-12 rounded-2xl transition-all duration-500 relative",
-                  currentStage === 'documents' && createdCustomerId
-                    ? "bg-gradient-to-br from-purple-500 via-violet-500 to-purple-600 text-white shadow-xl shadow-purple-500/50 scale-110 rotate-6" 
-                    : createdCustomerId 
-                    ? "bg-gradient-to-br from-gray-50 via-muted to-gray-100 dark:from-gray-800 dark:via-muted dark:to-gray-700 text-purple-600 dark:text-purple-400 border-2 border-purple-500/40 hover:border-purple-500 cursor-pointer hover:scale-110 hover:shadow-xl hover:shadow-purple-500/30 ring-2 ring-purple-300/30 ring-offset-2 ring-offset-background"
-                    : "bg-gradient-to-br from-gray-100 via-muted to-gray-200 dark:from-gray-800 dark:via-muted dark:to-gray-900 text-gray-400 dark:text-gray-600 opacity-50"
-                )}
-                onClick={() => createdCustomerId && setCurrentStage('documents')}
-              >
+            {/* Step 3: Documents */}
+            <div 
+              className="flex flex-col items-center gap-3 flex-1 group cursor-pointer transition-all hover:scale-105"
+              onClick={() => createdCustomerId && setCurrentStage('documents')}
+            >
+              <div className={cn(
+                "relative flex items-center justify-center w-14 h-14 rounded-2xl transition-all duration-500",
+                currentStage === 'documents' && createdCustomerId
+                  ? "bg-gradient-to-br from-purple-500 via-violet-500 to-purple-600 text-white shadow-2xl shadow-purple-500/60 scale-110 rotate-3" 
+                  : createdCustomerId 
+                  ? "bg-gradient-to-br from-background to-muted text-purple-600 dark:text-purple-400 border-2 border-purple-500/50 hover:border-purple-500 hover:scale-110 hover:shadow-xl hover:shadow-purple-500/40 ring-4 ring-purple-300/30 ring-offset-2 ring-offset-background"
+                  : "bg-gradient-to-br from-muted to-muted/70 text-muted-foreground/50 opacity-60"
+              )}>
+                {/* Animated glow effect */}
                 <div className={cn(
-                  "absolute inset-0 rounded-2xl blur-xl opacity-0 transition-opacity duration-500",
-                  currentStage === 'documents' && createdCustomerId && "opacity-70 bg-purple-500 animate-pulse"
+                  "absolute inset-0 rounded-2xl blur-2xl opacity-0 transition-opacity duration-500",
+                  currentStage === 'documents' && createdCustomerId && "opacity-60 bg-purple-500 animate-pulse"
                 )} />
-                <Building2 className="w-6 h-6 relative z-10" />
+                
+                {/* Icon */}
+                <FileText className="w-7 h-7 relative z-10 group-hover:scale-110 transition-transform" />
+
+                {/* Document count badge */}
                 {createdCustomerId && documents.length > 0 && (
-                  <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-br from-emerald-400 via-green-400 to-emerald-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-background shadow-xl shadow-emerald-500/60 animate-scale-in ring-2 ring-emerald-300/50 ring-offset-1 ring-offset-background">
-                     {documents.filter(doc => doc.is_uploaded).length}
+                  <div className="absolute -top-1 -right-1 w-7 h-7 bg-gradient-to-br from-emerald-400 via-green-400 to-emerald-500 rounded-full flex items-center justify-center text-white text-xs font-bold border-2 border-background shadow-xl shadow-emerald-500/70 animate-in zoom-in duration-300 ring-2 ring-emerald-300/50 ring-offset-1 ring-offset-background">
+                    {documents.filter(doc => doc.is_uploaded).length}
                   </div>
                 )}
+
+                {/* Sparkle decoration for active */}
+                {currentStage === 'documents' && createdCustomerId && (
+                  <Sparkles className="absolute -top-1 -left-1 w-4 h-4 text-yellow-300 animate-pulse" />
+                )}
               </div>
+              
               <div className="text-center space-y-1">
                 <div className={cn(
-                  "text-xs font-extrabold tracking-wide",
+                  "text-xs font-bold tracking-wider uppercase",
                   currentStage === 'documents' && createdCustomerId
                     ? "text-purple-600 dark:text-purple-400" 
                     : createdCustomerId
-                    ? "text-foreground"
+                    ? "text-purple-600 dark:text-purple-500"
                     : "text-muted-foreground"
                 )}>
                   Step 3
@@ -1255,7 +1284,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     ? "text-muted-foreground"
                     : "text-muted-foreground/50"
                 )}>
-                  Docs
+                  Documents
                 </div>
               </div>
             </div>
