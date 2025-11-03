@@ -12,12 +12,15 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 interface Product {
   id: string;
   name: string;
   description: string | null;
   is_active: boolean;
+  service_category_id: string | null;
+  category_name?: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -44,11 +47,23 @@ const ProductManagement: React.FC = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from('products')
-        .select('*')
+        .select(`
+          *,
+          service_category:service_category_id (
+            category_name
+          )
+        `)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as unknown as Product[];
+      
+      // Flatten the data structure
+      const flattenedData = data?.map(product => ({
+        ...product,
+        category_name: product.service_category?.category_name || null
+      }));
+      
+      return flattenedData as Product[];
     }
   });
 
@@ -279,83 +294,99 @@ const ProductManagement: React.FC = () => {
       </div>
 
       {isLoading ? (
-        <div className="grid gap-4">
-          {[...Array(3)].map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-6">
-                <div className="animate-pulse space-y-3">
-                  <div className="h-4 bg-muted rounded w-1/4"></div>
-                  <div className="h-3 bg-muted rounded w-3/4"></div>
-                  <div className="h-8 bg-muted rounded w-1/6"></div>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        <Card>
+          <CardContent className="p-6">
+            <div className="animate-pulse space-y-4">
+              <div className="h-10 bg-muted rounded"></div>
+              <div className="h-10 bg-muted rounded"></div>
+              <div className="h-10 bg-muted rounded"></div>
+            </div>
+          </CardContent>
+        </Card>
+      ) : products?.length === 0 ? (
+        <Card>
+          <CardContent className="p-6 text-center">
+            <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No products yet</h3>
+            <p className="text-muted-foreground mb-4">
+              Get started by creating your first product.
+            </p>
+            <Button onClick={() => setIsDialogOpen(true)}>
+              <Plus className="mr-2 h-4 w-4" />
+              Add Product
+            </Button>
+          </CardContent>
+        </Card>
       ) : (
-        <div className="grid gap-4">
-          {products?.length === 0 ? (
-            <Card>
-              <CardContent className="p-6 text-center">
-                <Package className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No products yet</h3>
-                <p className="text-muted-foreground mb-4">
-                  Get started by creating your first product.
-                </p>
-                <Button onClick={() => setIsDialogOpen(true)}>
-                  <Plus className="mr-2 h-4 w-4" />
-                  Add Product
-                </Button>
-              </CardContent>
-            </Card>
-          ) : (
-            products?.map((product) => (
-              <Card key={product.id}>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div className="space-y-1">
-                      <CardTitle className="flex items-center gap-2">
-                        {product.name}
-                        <Badge variant={product.is_active ? "default" : "secondary"}>
-                          {product.is_active ? "Active" : "Inactive"}
-                        </Badge>
-                      </CardTitle>
-                      {product.description && (
-                        <CardDescription>{product.description}</CardDescription>
+        <Card>
+          <CardHeader>
+            <CardTitle>Products</CardTitle>
+            <CardDescription>
+              {products?.length} {products?.length === 1 ? 'product' : 'products'} total
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Product Name</TableHead>
+                  <TableHead>Category</TableHead>
+                  <TableHead>Description</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead>Updated</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {products?.map((product) => (
+                  <TableRow key={product.id}>
+                    <TableCell className="font-medium">{product.name}</TableCell>
+                    <TableCell>
+                      {product.category_name ? (
+                        <Badge variant="outline">{product.category_name}</Badge>
+                      ) : (
+                        <span className="text-muted-foreground text-sm">Uncategorized</span>
                       )}
-                    </div>
-                    <div className="flex gap-2">
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => handleEdit(product)}
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        size="sm"
-                        onClick={() => handleDelete(product)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-sm text-muted-foreground">
-                    Created: {new Date(product.created_at).toLocaleDateString()}
-                    {product.updated_at !== product.created_at && (
-                      <span className="ml-4">
-                        Updated: {new Date(product.updated_at).toLocaleDateString()}
-                      </span>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {product.description || '-'}
+                    </TableCell>
+                    <TableCell>
+                      <Badge variant={product.is_active ? "default" : "secondary"}>
+                        {product.is_active ? "Active" : "Inactive"}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(product.created_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-muted-foreground">
+                      {new Date(product.updated_at).toLocaleDateString()}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex gap-2 justify-end">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(product)}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDelete(product)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
       )}
     </div>
   );
