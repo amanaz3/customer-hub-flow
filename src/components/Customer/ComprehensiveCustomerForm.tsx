@@ -2735,7 +2735,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div className="space-y-2">
-                                <Label htmlFor="mainland_or_freezone">Mainland or Free Zone *</Label>
+                                <Label htmlFor="mainland_or_freezone">License Type *</Label>
                                 <select
                                   id="mainland_or_freezone"
                                   {...form.register('mainland_or_freezone')}
