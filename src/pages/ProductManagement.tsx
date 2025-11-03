@@ -48,20 +48,39 @@ const ProductManagement: React.FC = () => {
       const { data, error } = await supabase
         .from('products')
         .select(`
-          *,
-          service_category:service_category_id (
+          id,
+          name,
+          description,
+          is_active,
+          service_category_id,
+          created_at,
+          updated_at,
+          service_category!products_service_category_id_fkey (
             category_name
           )
         `)
         .order('created_at', { ascending: false });
       
-      if (error) throw error;
+      if (error) {
+        console.error('Products query error:', error);
+        throw error;
+      }
+      
+      console.log('Products raw data:', data);
       
       // Flatten the data structure
       const flattenedData = data?.map(product => ({
-        ...product,
+        id: product.id,
+        name: product.name,
+        description: product.description,
+        is_active: product.is_active,
+        service_category_id: product.service_category_id,
+        created_at: product.created_at,
+        updated_at: product.updated_at,
         category_name: product.service_category?.category_name || null
       }));
+      
+      console.log('Products flattened data:', flattenedData);
       
       return flattenedData as Product[];
     }
