@@ -559,8 +559,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [watchProductId]);
 
-  // Check which product type is selected
-  const selectedProduct = products.find(p => p.id === watchProductId);
+  // Check which product is selected (use allProducts to avoid category filter hiding it)
+  const selectedProduct = allProducts.find(p => p.id === watchProductId);
   const selectedProductName = selectedProduct?.name.toLowerCase() || '';
   const selectedProductCategoryId = selectedProduct?.service_category_id || '';
   
