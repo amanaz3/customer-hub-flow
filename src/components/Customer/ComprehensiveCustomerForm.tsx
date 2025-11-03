@@ -1780,15 +1780,24 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                             : "border-border bg-card hover:border-green-300",
                                           isSubmitting && "opacity-50 cursor-not-allowed"
                                         )}
-                                      >
+                                       >
                                         <div className="flex items-center gap-2">
                                           <div className="flex-1 min-w-0">
-                                            <h4 className={cn(
-                                              "font-medium text-sm truncate",
-                                              isSelected && "text-green-700 dark:text-green-400"
-                                            )}>
-                                              {product.name}
-                                            </h4>
+                                            <TooltipProvider>
+                                              <Tooltip>
+                                                <TooltipTrigger asChild>
+                                                  <h4 className={cn(
+                                                    "font-medium text-sm truncate cursor-help",
+                                                    isSelected && "text-green-700 dark:text-green-400"
+                                                  )}>
+                                                    {product.name}
+                                                  </h4>
+                                                </TooltipTrigger>
+                                                <TooltipContent>
+                                                  <p>{product.name}</p>
+                                                </TooltipContent>
+                                              </Tooltip>
+                                            </TooltipProvider>
                                           </div>
                                           {isSelected && (
                                             <div className="flex-shrink-0">
