@@ -2165,7 +2165,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </div>
                       <div className="flex items-center gap-2">
                         {sectionsWithErrors.has('basic') && (
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/10 border border-destructive/30 animate-pulse">
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/25 border-2 border-destructive shadow-lg shadow-destructive/20 animate-pulse">
                             <AlertCircle className="h-3.5 w-3.5 text-destructive" />
                             <span className="text-xs font-medium text-destructive">Has Errors</span>
                           </div>
@@ -2250,7 +2250,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </div>
                       <div className="flex items-center gap-2">
                         {sectionsWithErrors.has('lead') && (
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/10 border border-destructive/30 animate-pulse">
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/25 border-2 border-destructive shadow-lg shadow-destructive/20 animate-pulse">
                             <AlertCircle className="h-3.5 w-3.5 text-destructive" />
                             <span className="text-xs font-medium text-destructive">Has Errors</span>
                           </div>
@@ -2310,7 +2310,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </div>
                   <div className="flex items-center gap-2">
                     {sectionsWithErrors.has('service') && (
-                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/10 border border-destructive/30 animate-pulse">
+                      <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/25 border-2 border-destructive shadow-lg shadow-destructive/20 animate-pulse">
                         <AlertCircle className="h-3.5 w-3.5 text-destructive" />
                         <span className="text-xs font-medium text-destructive">Has Errors</span>
                       </div>
@@ -2526,7 +2526,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     )}
                   </div>
                   {sectionsWithErrors.has('application') && (
-                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/10 border border-destructive/30 animate-pulse">
+                    <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/25 border-2 border-destructive shadow-lg shadow-destructive/20 animate-pulse">
                       <AlertCircle className="h-3.5 w-3.5 text-destructive" />
                       <span className="text-xs font-medium text-destructive">Has Errors</span>
                     </div>
