@@ -1659,9 +1659,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 value={categoryFilter} 
                                 onValueChange={(value) => {
                                   setCategoryFilter(value);
-                                  if (value === 'all') {
-                                    form.setValue('product_id', '');
-                                  }
+                                  // Clear product selection when category changes
+                                  form.setValue('product_id', '');
                                 }} 
                                 className="w-full"
                               >
@@ -2207,6 +2206,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           value={categoryFilter} 
                           onValueChange={(value) => {
                             setCategoryFilter(value);
+                            // Clear product selection when category changes
+                            form.setValue('product_id', '');
                           }} 
                           className="w-full"
                         >
