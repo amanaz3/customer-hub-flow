@@ -2178,6 +2178,213 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </>
                     )}
 
+                    {/* Home Finance Employment & Property Details */}
+                    {hasHomeFinance && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="employment_status">Employment Status *</Label>
+                          <select
+                            id="employment_status"
+                            {...form.register('employment_status')}
+                            disabled={isSubmitting}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="">Select employment status</option>
+                            <option value="Employed">Employed (Salaried)</option>
+                            <option value="Self-Employed">Self-Employed</option>
+                            <option value="Business Owner">Business Owner</option>
+                            <option value="Professional">Professional (Doctor/Lawyer/etc.)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="employer_name">Employer/Company Name</Label>
+                          <Input
+                            id="employer_name"
+                            {...form.register('employer_name')}
+                            placeholder="Current employer"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="years_with_employer">Years with Current Employer</Label>
+                          <Input
+                            id="years_with_employer"
+                            type="number"
+                            step="0.5"
+                            {...form.register('years_with_employer', { valueAsNumber: true })}
+                            placeholder="e.g., 2.5"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="property_type">Property Type *</Label>
+                          <select
+                            id="property_type"
+                            {...form.register('property_type')}
+                            disabled={isSubmitting}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="">Select property type</option>
+                            <option value="Villa">Villa</option>
+                            <option value="Apartment">Apartment</option>
+                            <option value="Townhouse">Townhouse</option>
+                            <option value="Penthouse">Penthouse</option>
+                            <option value="Land">Land/Plot</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="property_location">Property Location/Area *</Label>
+                          <Input
+                            id="property_location"
+                            {...form.register('property_location')}
+                            placeholder="e.g., Dubai Marina, Downtown Dubai"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="property_value">Property Value/Price (AED) *</Label>
+                          <Input
+                            id="property_value"
+                            type="number"
+                            step="0.01"
+                            {...form.register('property_value', { valueAsNumber: true })}
+                            placeholder="Total property price"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="property_status">Property Status</Label>
+                          <select
+                            id="property_status"
+                            {...form.register('property_status')}
+                            disabled={isSubmitting}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="">Select status</option>
+                            <option value="Ready">Ready Property</option>
+                            <option value="Under Construction">Under Construction (Off-plan)</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="developer_name">Developer Name (if off-plan)</Label>
+                          <Input
+                            id="developer_name"
+                            {...form.register('developer_name')}
+                            placeholder="Developer name"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="intended_use">Intended Use</Label>
+                          <select
+                            id="intended_use"
+                            {...form.register('intended_use')}
+                            disabled={isSubmitting}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="">Select intended use</option>
+                            <option value="Primary Residence">Primary Residence</option>
+                            <option value="Investment">Investment Property</option>
+                            <option value="Second Home">Second Home</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="purchase_purpose">Purchase Purpose</Label>
+                          <select
+                            id="purchase_purpose"
+                            {...form.register('purchase_purpose')}
+                            disabled={isSubmitting}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="">Select purpose</option>
+                            <option value="First Home">First Home Purchase</option>
+                            <option value="Upgrade">Property Upgrade</option>
+                            <option value="Investment">Investment</option>
+                            <option value="Additional Property">Additional Property</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="preferred_loan_tenure">Preferred Loan Tenure (years)</Label>
+                          <select
+                            id="preferred_loan_tenure"
+                            {...form.register('preferred_loan_tenure', { valueAsNumber: true })}
+                            disabled={isSubmitting}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="15">15 years</option>
+                            <option value="20">20 years</option>
+                            <option value="25">25 years</option>
+                          </select>
+                        </div>
+
+                        {/* Co-Applicant Information */}
+                        <div className="space-y-2 md:col-span-2">
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="has_co_applicant"
+                              checked={form.watch('has_co_applicant') || false}
+                              onCheckedChange={(checked) => form.setValue('has_co_applicant', !!checked)}
+                              disabled={isSubmitting}
+                            />
+                            <Label htmlFor="has_co_applicant">I have a co-applicant</Label>
+                          </div>
+
+                          {form.watch('has_co_applicant') && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-l-2 border-muted pl-4 mt-2">
+                              <div className="space-y-2">
+                                <Label htmlFor="co_applicant_name">Co-Applicant Name</Label>
+                                <Input
+                                  id="co_applicant_name"
+                                  {...form.register('co_applicant_name')}
+                                  placeholder="Full name"
+                                  disabled={isSubmitting}
+                                />
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label htmlFor="co_applicant_income">Co-Applicant Monthly Income (AED)</Label>
+                                <Input
+                                  id="co_applicant_income"
+                                  type="number"
+                                  step="0.01"
+                                  {...form.register('co_applicant_income', { valueAsNumber: true })}
+                                  placeholder="Monthly salary"
+                                  disabled={isSubmitting}
+                                />
+                              </div>
+
+                              <div className="space-y-2">
+                                <Label htmlFor="co_applicant_relationship">Relationship to Main Applicant</Label>
+                                <select
+                                  id="co_applicant_relationship"
+                                  {...form.register('co_applicant_relationship')}
+                                  disabled={isSubmitting}
+                                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                                >
+                                  <option value="">Select relationship</option>
+                                  <option value="Spouse">Spouse</option>
+                                  <option value="Parent">Parent</option>
+                                  <option value="Sibling">Sibling</option>
+                                  <option value="Business Partner">Business Partner</option>
+                                  <option value="Other">Other</option>
+                                </select>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    )}
+
                     {/* Banking Preferences - shown for bank account products */}
                     {hasBankAccount && (
                       <>
@@ -2595,6 +2802,105 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </div>
                       </>
                     )}
+
+                    {/* Home Finance Financial Fields */}
+                    {hasHomeFinance && (
+                      <>
+                        <div className="space-y-2">
+                          <Label htmlFor="monthly_gross_salary">Monthly Gross Salary (AED) *</Label>
+                          <Input
+                            id="monthly_gross_salary"
+                            type="number"
+                            step="0.01"
+                            {...form.register('monthly_gross_salary', { valueAsNumber: true })}
+                            placeholder="Enter monthly salary"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="additional_income">Additional Monthly Income (AED)</Label>
+                          <Input
+                            id="additional_income"
+                            type="number"
+                            step="0.01"
+                            {...form.register('additional_income', { valueAsNumber: true })}
+                            placeholder="Rental, investment income, etc."
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="additional_income_source">Source of Additional Income</Label>
+                          <Input
+                            id="additional_income_source"
+                            {...form.register('additional_income_source')}
+                            placeholder="e.g., Rental income, dividends"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="existing_loan_commitments">Existing Monthly Loan Commitments (AED)</Label>
+                          <Input
+                            id="existing_loan_commitments"
+                            type="number"
+                            step="0.01"
+                            {...form.register('existing_loan_commitments', { valueAsNumber: true })}
+                            placeholder="Total monthly payments"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="credit_card_limit">Total Credit Card Limit (AED)</Label>
+                          <Input
+                            id="credit_card_limit"
+                            type="number"
+                            step="0.01"
+                            {...form.register('credit_card_limit', { valueAsNumber: true })}
+                            placeholder="Combined credit limit"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="credit_card_outstanding">Credit Card Outstanding (AED)</Label>
+                          <Input
+                            id="credit_card_outstanding"
+                            type="number"
+                            step="0.01"
+                            {...form.register('credit_card_outstanding', { valueAsNumber: true })}
+                            placeholder="Current outstanding balance"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="loan_amount_required">Loan Amount Required (AED) *</Label>
+                          <Input
+                            id="loan_amount_required"
+                            type="number"
+                            step="0.01"
+                            {...form.register('loan_amount_required', { valueAsNumber: true })}
+                            placeholder="Amount to finance"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="down_payment_amount">Down Payment Available (AED) *</Label>
+                          <Input
+                            id="down_payment_amount"
+                            type="number"
+                            step="0.01"
+                            {...form.register('down_payment_amount', { valueAsNumber: true })}
+                            placeholder="Your down payment"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+                      </>
+                    )}
                     
                     {/* Deal Amount - Always shown last */}
                     <div className="space-y-2">
@@ -2615,7 +2921,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </div>
                 </div>
 
-                {/* Required Documents Section */}
+                {/* Required Documents Section - GoAML */}
                 {hasGoAML && (
                   <div className="mt-3">
                     <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
@@ -2678,416 +2984,57 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           </AccordionItem>
             )}
 
-              {/* Home Finance - Application Information */}
-              {hasHomeFinance && (
-                <div>
-                  <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
-                    <span className="text-xs">📋</span>
-                    <h4 className="text-xs font-semibold text-foreground">Employment & Property Details</h4>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div className="space-y-2">
-                      <Label htmlFor="employment_status">Employment Status *</Label>
-                      <select
-                        id="employment_status"
-                        {...form.register('employment_status')}
-                        disabled={isSubmitting}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <option value="">Select employment status</option>
-                        <option value="Employed">Employed (Salaried)</option>
-                        <option value="Self-Employed">Self-Employed</option>
-                        <option value="Business Owner">Business Owner</option>
-                        <option value="Professional">Professional (Doctor/Lawyer/etc.)</option>
-                      </select>
+                {/* Required Documents Section - GoAML */}
+                {hasGoAML && (
+                  <div className="mt-3">
+                    <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
+                      <span className="text-xs">ℹ️</span>
+                      <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
                     </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="employer_name">Employer/Company Name</Label>
-                      <Input
-                        id="employer_name"
-                        {...form.register('employer_name')}
-                        placeholder="Current employer"
-                        disabled={isSubmitting}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="years_with_employer">Years with Current Employer</Label>
-                      <Input
-                        id="years_with_employer"
-                        type="number"
-                        step="0.5"
-                        {...form.register('years_with_employer', { valueAsNumber: true })}
-                        placeholder="e.g., 2.5"
-                        disabled={isSubmitting}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="property_type">Property Type *</Label>
-                      <select
-                        id="property_type"
-                        {...form.register('property_type')}
-                        disabled={isSubmitting}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <option value="">Select property type</option>
-                        <option value="Villa">Villa</option>
-                        <option value="Apartment">Apartment</option>
-                        <option value="Townhouse">Townhouse</option>
-                        <option value="Penthouse">Penthouse</option>
-                        <option value="Land">Land/Plot</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="property_location">Property Location/Area *</Label>
-                      <Input
-                        id="property_location"
-                        {...form.register('property_location')}
-                        placeholder="e.g., Dubai Marina, Downtown Dubai"
-                        disabled={isSubmitting}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="property_value">Property Value/Price (AED) *</Label>
-                      <Input
-                        id="property_value"
-                        type="number"
-                        step="0.01"
-                        {...form.register('property_value', { valueAsNumber: true })}
-                        placeholder="Total property price"
-                        disabled={isSubmitting}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="property_status">Property Status</Label>
-                      <select
-                        id="property_status"
-                        {...form.register('property_status')}
-                        disabled={isSubmitting}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <option value="">Select status</option>
-                        <option value="Ready">Ready Property</option>
-                        <option value="Under Construction">Under Construction (Off-plan)</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="developer_name">Developer Name (if off-plan)</Label>
-                      <Input
-                        id="developer_name"
-                        {...form.register('developer_name')}
-                        placeholder="Developer name"
-                        disabled={isSubmitting}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="intended_use">Intended Use</Label>
-                      <select
-                        id="intended_use"
-                        {...form.register('intended_use')}
-                        disabled={isSubmitting}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <option value="">Select intended use</option>
-                        <option value="Primary Residence">Primary Residence</option>
-                        <option value="Investment">Investment Property</option>
-                        <option value="Second Home">Second Home</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="purchase_purpose">Purchase Purpose</Label>
-                      <select
-                        id="purchase_purpose"
-                        {...form.register('purchase_purpose')}
-                        disabled={isSubmitting}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <option value="">Select purpose</option>
-                        <option value="First Home">First Home Purchase</option>
-                        <option value="Upgrade">Property Upgrade</option>
-                        <option value="Investment">Investment</option>
-                        <option value="Additional Property">Additional Property</option>
-                      </select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="preferred_loan_tenure">Preferred Loan Tenure (years)</Label>
-                      <select
-                        id="preferred_loan_tenure"
-                        {...form.register('preferred_loan_tenure', { valueAsNumber: true })}
-                        disabled={isSubmitting}
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        <option value="15">15 years</option>
-                        <option value="20">20 years</option>
-                        <option value="25">25 years</option>
-                      </select>
-                    </div>
-
-                    {/* Co-Applicant Information */}
-                    <div className="space-y-2 md:col-span-2">
-                      <div className="flex items-center space-x-2">
-                        <Checkbox
-                          id="has_co_applicant"
-                          checked={form.watch('has_co_applicant') || false}
-                          onCheckedChange={(checked) => form.setValue('has_co_applicant', !!checked)}
-                          disabled={isSubmitting}
-                        />
-                        <Label htmlFor="has_co_applicant">I have a co-applicant</Label>
-                      </div>
-
-                      {form.watch('has_co_applicant') && (
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-l-2 border-muted pl-4 mt-2">
-                          <div className="space-y-2">
-                            <Label htmlFor="co_applicant_name">Co-Applicant Name</Label>
-                            <Input
-                              id="co_applicant_name"
-                              {...form.register('co_applicant_name')}
-                              placeholder="Full name"
-                              disabled={isSubmitting}
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="co_applicant_income">Co-Applicant Monthly Income (AED)</Label>
-                            <Input
-                              id="co_applicant_income"
-                              type="number"
-                              step="0.01"
-                              {...form.register('co_applicant_income', { valueAsNumber: true })}
-                              placeholder="Monthly salary"
-                              disabled={isSubmitting}
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="co_applicant_relationship">Relationship to Main Applicant</Label>
-                            <select
-                              id="co_applicant_relationship"
-                              {...form.register('co_applicant_relationship')}
-                              disabled={isSubmitting}
-                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                            >
-                              <option value="">Select relationship</option>
-                              <option value="Spouse">Spouse</option>
-                              <option value="Parent">Parent</option>
-                              <option value="Sibling">Sibling</option>
-                              <option value="Business Partner">Business Partner</option>
-                              <option value="Other">Other</option>
-                            </select>
-                          </div>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Home Finance - Financial Information */}
-              {hasHomeFinance && (
-                <div className="mt-3">
-                  <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
-                    <span className="text-xs">💰</span>
-                    <h4 className="text-xs font-semibold text-foreground">Income & Financing Details</h4>
-                  </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="annual_turnover">Annual Income (AED) *</Label>
-                      <Input
-                        id="annual_turnover"
-                        type="number"
-                        step="0.01"
-                        {...form.register('annual_turnover', { valueAsNumber: true })}
-                        placeholder="Total annual income"
-                        disabled={isSubmitting}
-                        required
-                      />
-                      {form.formState.errors.annual_turnover && (
-                        <p className="text-sm text-red-600">{form.formState.errors.annual_turnover.message}</p>
-                      )}
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="monthly_gross_salary">Monthly Gross Salary (AED) *</Label>
-                      <Input
-                        id="monthly_gross_salary"
-                        type="number"
-                        step="0.01"
-                        {...form.register('monthly_gross_salary', { valueAsNumber: true })}
-                        placeholder="Enter monthly salary"
-                        disabled={isSubmitting}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="additional_income">Additional Monthly Income (AED)</Label>
-                      <Input
-                        id="additional_income"
-                        type="number"
-                        step="0.01"
-                        {...form.register('additional_income', { valueAsNumber: true })}
-                        placeholder="Rental, investment income, etc."
-                        disabled={isSubmitting}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="additional_income_source">Source of Additional Income</Label>
-                      <Input
-                        id="additional_income_source"
-                        {...form.register('additional_income_source')}
-                        placeholder="e.g., Rental income, dividends"
-                        disabled={isSubmitting}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="existing_loan_commitments">Existing Monthly Loan Commitments (AED)</Label>
-                      <Input
-                        id="existing_loan_commitments"
-                        type="number"
-                        step="0.01"
-                        {...form.register('existing_loan_commitments', { valueAsNumber: true })}
-                        placeholder="Total monthly payments"
-                        disabled={isSubmitting}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="credit_card_limit">Total Credit Card Limit (AED)</Label>
-                      <Input
-                        id="credit_card_limit"
-                        type="number"
-                        step="0.01"
-                        {...form.register('credit_card_limit', { valueAsNumber: true })}
-                        placeholder="Combined credit limit"
-                        disabled={isSubmitting}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="credit_card_outstanding">Credit Card Outstanding (AED)</Label>
-                      <Input
-                        id="credit_card_outstanding"
-                        type="number"
-                        step="0.01"
-                        {...form.register('credit_card_outstanding', { valueAsNumber: true })}
-                        placeholder="Current outstanding balance"
-                        disabled={isSubmitting}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="loan_amount_required">Loan Amount Required (AED) *</Label>
-                      <Input
-                        id="loan_amount_required"
-                        type="number"
-                        step="0.01"
-                        {...form.register('loan_amount_required', { valueAsNumber: true })}
-                        placeholder="Amount to finance"
-                        disabled={isSubmitting}
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="down_payment_amount">Down Payment Available (AED) *</Label>
-                      <Input
-                        id="down_payment_amount"
-                        type="number"
-                        step="0.01"
-                        {...form.register('down_payment_amount', { valueAsNumber: true })}
-                        placeholder="Your down payment"
-                        disabled={isSubmitting}
-                      />
-                    </div>
-
-                    {/* Deal Amount - Always shown last */}
-                    <div className="space-y-2 md:col-span-2">
-                      <Label htmlFor="amount">Deal Amount (AED) *</Label>
-                      <Input
-                        id="amount"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        {...form.register('amount', { valueAsNumber: true })}
-                        disabled={isSubmitting}
-                        required
-                      />
-                      {form.formState.errors.amount && (
-                        <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Home Finance - Required Documents */}
-              {hasHomeFinance && (
-                <div className="mt-3">
-                  <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
-                    <span className="text-xs">ℹ️</span>
-                    <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
-                  </div>
-                  <p className="text-xs text-foreground/70 italic mb-2 px-2 ml-3 flex items-start gap-1.5">
-                    <span className="text-base leading-none">💡</span>
-                    <span>This is an informational checklist only. Documents will be requested during the mortgage processing stage.</span>
-                  </p>
-                  <Accordion type="single" collapsible className="w-full ml-3 border-l-2 border-muted pl-2">
-                    <AccordionItem value="home-finance-docs" className="border-0">
-                      <AccordionTrigger className="pl-6 py-2 hover:no-underline text-sm justify-start gap-2">
-                        <span className="text-muted-foreground">View document checklist</span>
-                      </AccordionTrigger>
+                    <p className="text-xs text-foreground/70 italic mb-2 px-2 ml-3 flex items-start gap-1.5">
+                      <span className="text-base leading-none">💡</span>
+                      <span>This is an informational checklist only. Documents will be collected in subsequent registration steps.</span>
+                    </p>
+                      <Accordion type="single" collapsible className="w-full ml-3 border-l-2 border-muted pl-2">
+                        <AccordionItem value="goaml-docs" className="border-0">
+                          <AccordionTrigger className="pl-6 py-2 hover:no-underline text-sm justify-start gap-2">
+                            <span className="text-muted-foreground">View document checklist</span>
+                          </AccordionTrigger>
                       <AccordionContent className="px-4 pb-4">
                         <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
-                          <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Supporting Documents Required:</p>
+                          <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Required Documents:</p>
                           <ul className="text-sm space-y-1.5 text-muted-foreground">
                             <li className="flex items-start gap-2">
                               <span className="text-blue-500 mt-0.5">•</span>
-                              <span>Passport Copy with valid UAE Visa</span>
+                              <span>Trade License Copy (certified)</span>
                             </li>
                             <li className="flex items-start gap-2">
                               <span className="text-blue-500 mt-0.5">•</span>
-                              <span>Emirates ID Copy (both sides)</span>
+                              <span>Passport Copies of all Beneficial Owners (UBOs)</span>
                             </li>
                             <li className="flex items-start gap-2">
                               <span className="text-blue-500 mt-0.5">•</span>
-                              <span>Salary Certificate (last 3 months)</span>
+                              <span>Emirates ID Copies of all UBOs</span>
                             </li>
                             <li className="flex items-start gap-2">
                               <span className="text-blue-500 mt-0.5">•</span>
-                              <span>Bank Statements (last 6 months)</span>
+                              <span>Proof of Address for all UBOs</span>
                             </li>
                             <li className="flex items-start gap-2">
                               <span className="text-blue-500 mt-0.5">•</span>
-                              <span>Property Valuation Report</span>
+                              <span>Memorandum of Association (MOA)</span>
                             </li>
                             <li className="flex items-start gap-2">
                               <span className="text-blue-500 mt-0.5">•</span>
-                              <span>Property Documents (Title Deed / MOU / Sale Agreement)</span>
+                              <span>Board Resolution appointing Compliance Officer</span>
                             </li>
                             <li className="flex items-start gap-2">
                               <span className="text-blue-500 mt-0.5">•</span>
-                              <span>Proof of Down Payment (Bank Statement showing available funds)</span>
+                              <span>Company Organization Chart</span>
                             </li>
                             <li className="flex items-start gap-2">
                               <span className="text-blue-500 mt-0.5">•</span>
-                              <span>Credit Report Authorization Form</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-orange-600 mt-0.5">•</span>
-                              <span><strong>If Self-Employed:</strong> Trade License, MOA, Audited Financials (last 2 years)</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-orange-600 mt-0.5">•</span>
-                              <span><strong>If Co-Applicant:</strong> All above documents for co-applicant as well</span>
+                              <span>Bank Account Details & Statements (Last 6 months)</span>
                             </li>
                           </ul>
                         </div>
@@ -3095,7 +3042,75 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </AccordionItem>
                   </Accordion>
                 </div>
-              )}
+                )}
+
+                {/* Required Documents Section - Home Finance */}
+                {hasHomeFinance && (
+                  <div className="mt-3">
+                    <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
+                      <span className="text-xs">ℹ️</span>
+                      <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
+                    </div>
+                    <p className="text-xs text-foreground/70 italic mb-2 px-2 ml-3 flex items-start gap-1.5">
+                      <span className="text-base leading-none">💡</span>
+                      <span>This is an informational checklist only. Documents will be requested during the mortgage processing stage.</span>
+                    </p>
+                    <Accordion type="single" collapsible className="w-full ml-3 border-l-2 border-muted pl-2">
+                      <AccordionItem value="home-finance-docs" className="border-0">
+                        <AccordionTrigger className="pl-6 py-2 hover:no-underline text-sm justify-start gap-2">
+                          <span className="text-muted-foreground">View document checklist</span>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4">
+                          <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
+                            <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Supporting Documents Required:</p>
+                            <ul className="text-sm space-y-1.5 text-muted-foreground">
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Passport Copy with valid UAE Visa</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Emirates ID Copy (both sides)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Salary Certificate (last 3 months)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Bank Statements (last 6 months)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Property Valuation Report</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Property Documents (Title Deed / MOU / Sale Agreement)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Proof of Down Payment (Bank Statement showing available funds)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-blue-500 mt-0.5">•</span>
+                                <span>Credit Report Authorization Form</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-orange-600 mt-0.5">•</span>
+                                <span><strong>If Self-Employed:</strong> Trade License, MOA, Audited Financials (last 2 years)</span>
+                              </li>
+                              <li className="flex items-start gap-2">
+                                <span className="text-orange-600 mt-0.5">•</span>
+                                <span><strong>If Co-Applicant:</strong> All above documents for co-applicant as well</span>
+                              </li>
+                            </ul>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </div>
+                )}
 
               {/* VAT Registration Details */}
               {hasVAT && (
