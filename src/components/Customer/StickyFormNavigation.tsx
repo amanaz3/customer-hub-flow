@@ -21,38 +21,50 @@ export const StickyFormNavigation = ({ sections, onSectionClick }: StickyFormNav
   if (visibleSections.length === 0) return null;
 
   return (
-    <div className="sticky top-0 z-40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b shadow-sm">
-      <div className="max-w-4xl mx-auto px-3 py-1.5">
-        <div className="flex items-center gap-1 overflow-x-auto">
+    <div className="sticky top-0 z-40 bg-gradient-to-b from-background via-background to-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 border-b border-border/50 shadow-lg">
+      <div className="max-w-4xl mx-auto px-3 py-2">
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
           {visibleSections.map((section, index) => (
             <button
               key={section.id}
               type="button"
               onClick={() => onSectionClick(section.id)}
               className={cn(
-                "flex items-center gap-1.5 px-2 py-1 rounded-none border-b-3 text-xs font-medium transition-all whitespace-nowrap",
-                "hover:bg-accent hover:text-accent-foreground",
+                "group relative flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-300 whitespace-nowrap",
+                "hover:scale-105 active:scale-95",
                 section.isActive 
-                  ? "border-b-green-500 bg-green-50 text-green-700 dark:bg-green-950 dark:text-green-400" 
+                  ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-md shadow-primary/20" 
                   : section.isComplete
-                  ? "border-b-green-300 bg-green-50/50 text-green-600 dark:bg-green-950/50 dark:text-green-500"
-                  : "border-b-transparent text-muted-foreground"
+                  ? "bg-gradient-to-br from-green-500/10 to-green-600/10 text-green-700 dark:text-green-400 border border-green-500/30"
+                  : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent"
               )}
             >
-              {/* Icon indicator */}
-              {section.isComplete ? (
-                <Check className="h-3 w-3 flex-shrink-0" />
-              ) : section.isActive ? (
-                <CircleDot className="h-3 w-3 flex-shrink-0" />
-              ) : (
-                <Circle className="h-3 w-3 flex-shrink-0" />
-              )}
+              {/* Icon indicator with animation */}
+              <div className={cn(
+                "flex items-center justify-center rounded-full transition-all duration-300",
+                section.isComplete ? "bg-green-500 text-white p-0.5" : 
+                section.isActive ? "bg-primary-foreground/20 p-0.5" :
+                "p-0"
+              )}>
+                {section.isComplete ? (
+                  <Check className="h-3.5 w-3.5 flex-shrink-0 animate-in zoom-in duration-200" />
+                ) : section.isActive ? (
+                  <CircleDot className="h-3.5 w-3.5 flex-shrink-0 animate-pulse" />
+                ) : (
+                  <Circle className="h-3 w-3 flex-shrink-0" />
+                )}
+              </div>
               
               {/* Section label */}
-              <span className="hidden sm:inline">{section.label}</span>
+              <span className="hidden sm:inline font-semibold">{section.label}</span>
               
               {/* Mobile: Show only number */}
-              <span className="sm:hidden">{index + 1}</span>
+              <span className="sm:hidden font-bold">{index + 1}</span>
+
+              {/* Active indicator glow */}
+              {section.isActive && (
+                <div className="absolute inset-0 rounded-lg bg-primary/5 blur-sm -z-10 animate-pulse" />
+              )}
             </button>
           ))}
         </div>
