@@ -2372,6 +2372,46 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       <>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="space-y-2">
+                          <Label htmlFor="license_type">License Type *</Label>
+                          <Select
+                            value={form.watch('license_type')}
+                            onValueChange={(value) => form.setValue('license_type', value as any)}
+                            disabled={isSubmitting}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Mainland">Mainland</SelectItem>
+                              <SelectItem value="Freezone">Freezone</SelectItem>
+                              <SelectItem value="Offshore">Offshore</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="jurisdiction">Jurisdiction</Label>
+                          <select
+                            id="jurisdiction"
+                            {...form.register('jurisdiction')}
+                            disabled={isSubmitting}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="">Select jurisdiction (optional)</option>
+                            <option value="Dubai">Dubai</option>
+                            <option value="Abu Dhabi">Abu Dhabi</option>
+                            <option value="Sharjah">Sharjah</option>
+                            <option value="Ajman">Ajman</option>
+                            <option value="Ras Al Khaimah">Ras Al Khaimah</option>
+                            <option value="Fujairah">Fujairah</option>
+                            <option value="Umm Al Quwain">Umm Al Quwain</option>
+                            <option value="Mainland">Mainland</option>
+                            <option value="Freezone">Freezone</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-2">
                           <Label htmlFor="nationality">Nationality</Label>
                           <Input
                             id="nationality"
@@ -2385,6 +2425,35 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 ...
                             <option value="Peruvian" />
                           </datalist>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="proposed_activity">Proposed Activity</Label>
+                          <Input
+                            id="proposed_activity"
+                            {...form.register('proposed_activity')}
+                            placeholder="e.g., Trading, Consulting, Manufacturing"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
+                          <Input
+                            id="no_of_shareholders"
+                            type="number"
+                            min="1"
+                            max="10"
+                            {...form.register('no_of_shareholders', { valueAsNumber: true })}
+                            disabled={isSubmitting}
+                            required
+                          />
+                          {form.formState.errors.no_of_shareholders && (
+                            <p className="text-sm text-red-600">{form.formState.errors.no_of_shareholders.message}</p>
+                          )}
+                          <p className="text-xs text-muted-foreground">
+                            Number of shareholders will determine how many signatory document sets are created (1-10)
+                          </p>
                         </div>
                         </div>
                       </>
@@ -3040,8 +3109,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </div>
                   </div>
 
-                {/* Business Information */}
-                {hasCompanyFormation && (
+                {/* Business Information - Only show if NOT company formation */}
+                {hasCompanyFormation ? null : (
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-3 border-b border-primary/20">
                       <Building2 className="h-4 w-4 text-primary" />
