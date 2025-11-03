@@ -1,20 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Check, ChevronsUpDown, Building2, Mail, Phone, FileText } from 'lucide-react';
+import { Building2, Mail, Phone, FileText, Check, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-} from '@/components/ui/command';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '@/components/ui/popover';
+import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { CustomerService } from '@/services/customerService';
 import { ApplicationService } from '@/services/applicationService';
 import type { Customer } from '@/types/customer';
@@ -30,10 +19,10 @@ export const ExistingCustomerSelector = ({
   value, 
   onChange 
 }: ExistingCustomerSelectorProps) => {
-  const [open, setOpen] = useState(false);
   const [customers, setCustomers] = useState<Partial<Customer>[]>([]);
   const [loading, setLoading] = useState(true);
   const [applicationCounts, setApplicationCounts] = useState<Record<string, number>>({});
+  const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -61,14 +50,30 @@ export const ExistingCustomerSelector = ({
 
   const selectedCustomer = customers.find(c => c.id === value);
 
+  // Filter customers based on search term
+  const filteredCustomers = customers.filter(customer => 
+    customer.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    customer.email?.toLowerCase().includes(searchTerm.toLowerCase())
+  );
+
   const handleSelect = (customerId: string) => {
     const customer = customers.find(c => c.id === customerId);
     if (value === customerId) {
       onChange(null, null);
+      setSearchTerm('');
     } else {
       onChange(customerId, customer || null);
+      setSearchTerm(customer?.company || customer?.name || '');
     }
-    setOpen(false);
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    // Clear selection if user modifies the search
+    if (value && e.target.value !== selectedCustomer?.company && e.target.value !== selectedCustomer?.name) {
+      onChange(null, null);
+    }
   };
 
   return (
@@ -76,96 +81,87 @@ export const ExistingCustomerSelector = ({
       <div>
         <label className="text-sm font-medium">Select Existing Customer</label>
         <p className="text-sm text-muted-foreground">
-          Choose a customer from your list to create a new application for them
+          Type customer name or company to search
         </p>
       </div>
 
-      <Popover open={open} onOpenChange={setOpen}>
-        <PopoverTrigger asChild>
-          <Button
-            variant="outline"
-            role="combobox"
-            aria-expanded={open}
-            className="w-full justify-between h-auto min-h-[44px]"
-          >
-            {selectedCustomer ? (
-              <div className="flex items-center gap-2 text-left">
-                <Building2 className="h-4 w-4 shrink-0 text-muted-foreground" />
-                <div className="flex flex-col">
-                  <span className="font-medium">{selectedCustomer.company}</span>
-                  <span className="text-xs text-muted-foreground">
-                    {selectedCustomer.name} • {selectedCustomer.email}
-                  </span>
-                </div>
-              </div>
-            ) : (
-              <span className="text-muted-foreground">Select a customer...</span>
-            )}
-            <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
-          </Button>
-        </PopoverTrigger>
-        <PopoverContent 
-          className="w-[600px] p-0 bg-popover border shadow-lg" 
-          align="start" 
-          side="bottom"
-          sideOffset={4}
-          avoidCollisions={false}
-          sticky="always"
-          style={{ zIndex: 9999 }}
-        >
-          <Command shouldFilter>
-            <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-              <CommandInput 
-                placeholder="Type to search by company, email, or name..." 
-                className="h-12 text-base"
-                autoFocus
-              />
-            </div>
-            <CommandEmpty className="py-6 text-center text-sm">
-              {loading ? 'Loading customers...' : 'No matching customers found. Try a different search term.'}
-            </CommandEmpty>
-            <CommandGroup className="max-h-[300px] overflow-auto">
-              {customers.map((customer) => (
-                <CommandItem
-                  key={customer.id}
-                  value={`${customer.company} ${customer.email} ${customer.name}`}
-                  onSelect={() => handleSelect(customer.id)}
-                  className="flex items-start gap-3 py-3"
-                >
-                  <Check
+      <div className="relative">
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            placeholder="Start typing customer name, company, or email..."
+            value={searchTerm}
+            onChange={handleInputChange}
+            className="pl-9 h-12 text-base"
+            disabled={loading}
+          />
+        </div>
+
+        {/* Results dropdown */}
+        {searchTerm && filteredCustomers.length > 0 && (
+          <div className="absolute z-50 w-full mt-2 border rounded-lg shadow-lg bg-popover">
+            <ScrollArea className="max-h-[300px]">
+              <div className="p-1">
+                {filteredCustomers.map((customer) => (
+                  <button
+                    key={customer.id}
+                    onClick={() => handleSelect(customer.id)}
                     className={cn(
-                      'mt-1 h-4 w-4 shrink-0',
-                      value === customer.id ? 'opacity-100' : 'opacity-0'
+                      "w-full text-left p-3 rounded-md hover:bg-muted transition-colors",
+                      value === customer.id && "bg-muted"
                     )}
-                  />
-                  <div className="flex-1 space-y-1">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-4 w-4 text-muted-foreground" />
-                      <span className="font-medium">{customer.company}</span>
-                      {applicationCounts[customer.id] > 0 && (
-                        <Badge variant="secondary" className="ml-auto">
-                          <FileText className="h-3 w-3 mr-1" />
-                          {applicationCounts[customer.id]} app{applicationCounts[customer.id] !== 1 ? 's' : ''}
-                        </Badge>
-                      )}
+                  >
+                    <div className="flex items-start gap-3">
+                      <Check
+                        className={cn(
+                          'mt-1 h-4 w-4 shrink-0 text-primary',
+                          value === customer.id ? 'opacity-100' : 'opacity-0'
+                        )}
+                      />
+                      <div className="flex-1 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-muted-foreground" />
+                          <span className="font-medium">{customer.company}</span>
+                          {applicationCounts[customer.id] > 0 && (
+                            <Badge variant="secondary" className="ml-auto">
+                              <FileText className="h-3 w-3 mr-1" />
+                              {applicationCounts[customer.id]} app{applicationCounts[customer.id] !== 1 ? 's' : ''}
+                            </Badge>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
+                          <span className="flex items-center gap-1">
+                            <Mail className="h-3 w-3" />
+                            {customer.email}
+                          </span>
+                          <span className="flex items-center gap-1">
+                            <Phone className="h-3 w-3" />
+                            {customer.mobile}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Mail className="h-3 w-3" />
-                        {customer.email}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Phone className="h-3 w-3" />
-                        {customer.mobile}
-                      </span>
-                    </div>
-                  </div>
-                </CommandItem>
-              ))}
-            </CommandGroup>
-          </Command>
-        </PopoverContent>
-      </Popover>
+                  </button>
+                ))}
+              </div>
+            </ScrollArea>
+          </div>
+        )}
+
+        {/* No results message */}
+        {searchTerm && filteredCustomers.length === 0 && !loading && (
+          <div className="absolute z-50 w-full mt-2 p-4 border rounded-lg shadow-lg bg-popover text-center text-sm text-muted-foreground">
+            No customers found matching "{searchTerm}"
+          </div>
+        )}
+
+        {/* Loading state */}
+        {loading && (
+          <div className="absolute z-50 w-full mt-2 p-4 border rounded-lg shadow-lg bg-popover text-center text-sm text-muted-foreground">
+            Loading customers...
+          </div>
+        )}
+      </div>
 
       {selectedCustomer && (
         <div className="p-4 border rounded-lg bg-muted/50 space-y-2">
