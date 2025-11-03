@@ -1885,7 +1885,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 {/* Basic Information */}
                 <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
-                    <h3 className="text-base font-medium">Basic Information</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">👤</span>
+                      <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Basic Information</h3>
+                    </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1949,7 +1952,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             {(isBasicInfoComplete || accordionValue.includes('lead')) && (
             <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm" data-section-id="lead" style={{ scrollMarginTop: totalStickyOffset }}>
                   <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
-                    <h3 className="text-base font-medium">Source & Channel Information</h3>
+                    <div className="flex items-center gap-2">
+                      <span className="text-base">🎯</span>
+                      <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Source & Channel Information</h3>
+                    </div>
                   </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
                     <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1981,7 +1987,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         {(isBasicInfoComplete || accordionValue.includes('service')) && (
         <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm" data-section-id="service" style={{ scrollMarginTop: totalStickyOffset }}>
               <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
-                <h3 className="text-base font-medium">Service Selection</h3>
+                <div className="flex items-center gap-2">
+                  <span className="text-base">🛍️</span>
+                  <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Service Selection</h3>
+                </div>
               </AccordionTrigger>
                   <AccordionContent className="px-4 pb-4">
                     <div className="pt-2 space-y-4">
