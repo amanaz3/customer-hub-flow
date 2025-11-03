@@ -58,7 +58,6 @@ const formSchema = z.object({
     .min(0.01, "Annual turnover must be greater than 0")
     .max(1000000000, "Annual turnover cannot exceed 1,000,000,000"),
   jurisdiction: z.string().optional(),
-  any_suitable_bank: z.boolean().default(false),
   bank_preference_1: z.string().optional(),
   bank_preference_2: z.string().optional(),
   bank_preference_3: z.string().optional(),
@@ -311,7 +310,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       lead_source: 'Referral',
       annual_turnover: 0,
       jurisdiction: '',
-      any_suitable_bank: false,
       bank_preference_1: '',
       bank_preference_2: '',
       bank_preference_3: '',
@@ -397,7 +395,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     },
   });
 
-  const watchAnySuitableBank = form.watch('any_suitable_bank');
   const watchLicenseType = form.watch('license_type');
   const watchShareholderCount = form.watch('no_of_shareholders');
   const watchProductId = form.watch('product_id');
@@ -426,7 +423,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     if (['product_id', 'service_type_id'].includes(fieldName)) return 'service';
     
     // Deal Information - expanded to catch all possible fields
-    if (['amount', 'annual_turnover', 'license_type', 'jurisdiction', 'any_suitable_bank', 
+    if (['amount', 'annual_turnover', 'license_type', 'jurisdiction', 
          'bank_preference_1', 'bank_preference_2', 'bank_preference_3', 'customer_notes',
          'no_of_shareholders', 'mainland_or_freezone', 'signatory_type', 'business_activity_details',
          'minimum_balance_range', 'arr_value', 'deal_stage', 'expected_close_date',
@@ -959,7 +956,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             preferred_bank: data.bank_preference_1?.trim() || null,
             preferred_bank_2: data.bank_preference_2?.trim() || null,
             preferred_bank_3: data.bank_preference_3?.trim() || null,
-            any_suitable_bank: data.any_suitable_bank,
             annual_turnover: data.annual_turnover,
             jurisdiction: data.jurisdiction ? sanitizeInput(data.jurisdiction.trim()) : null,
             customer_notes: data.customer_notes ? sanitizeInput(data.customer_notes.trim()) : null,
@@ -2642,51 +2638,38 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <div className="space-y-2">
                           <h5 className="text-sm font-medium mb-2">Banking Preferences</h5>
                         </div>
-                        <div>
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              id="any_suitable_bank"
-                              checked={watchAnySuitableBank}
-                              onCheckedChange={(checked) => form.setValue('any_suitable_bank', !!checked)}
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                          <div className="space-y-2">
+                            <Label htmlFor="bank_preference_1">First Preference</Label>
+                            <Input
+                              id="bank_preference_1"
+                              {...form.register('bank_preference_1')}
+                              placeholder="Enter first preference bank"
                               disabled={isSubmitting}
                             />
-                            <Label htmlFor="any_suitable_bank">Any Suitable Bank</Label>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="bank_preference_2">Second Preference</Label>
+                            <Input
+                              id="bank_preference_2"
+                              {...form.register('bank_preference_2')}
+                              placeholder="Enter second preference bank"
+                              disabled={isSubmitting}
+                            />
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="bank_preference_3">Third Preference</Label>
+                            <Input
+                              id="bank_preference_3"
+                              {...form.register('bank_preference_3')}
+                              placeholder="Enter third preference bank"
+                              disabled={isSubmitting}
+                            />
                           </div>
                         </div>
-
-                        {!watchAnySuitableBank && (
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-2">
-                            <div className="space-y-2">
-                              <Label htmlFor="bank_preference_1">First Preference</Label>
-                              <Input
-                                id="bank_preference_1"
-                                {...form.register('bank_preference_1')}
-                                placeholder="Enter first preference bank"
-                                disabled={isSubmitting}
-                              />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="bank_preference_2">Second Preference</Label>
-                              <Input
-                                id="bank_preference_2"
-                                {...form.register('bank_preference_2')}
-                                placeholder="Enter second preference bank"
-                                disabled={isSubmitting}
-                              />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <Label htmlFor="bank_preference_3">Third Preference</Label>
-                              <Input
-                                id="bank_preference_3"
-                                {...form.register('bank_preference_3')}
-                                placeholder="Enter third preference bank"
-                                disabled={isSubmitting}
-                              />
-                            </div>
-                            </div>
-                          )}
                           
                           {/* Additional Business Bank Account Fields */}
                           <div className="space-y-4 mt-4">
@@ -4136,9 +4119,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     <div>
                       <p className="text-sm text-muted-foreground">Bank Preference</p>
                       <p className="font-medium">
-                        {form.getValues('any_suitable_bank') 
-                          ? 'Any suitable bank' 
-                          : form.getValues('bank_preference_1') || 'Not specified'}
+                        {form.getValues('bank_preference_1') || 'Not specified'}
                       </p>
                     </div>
                   </div>
