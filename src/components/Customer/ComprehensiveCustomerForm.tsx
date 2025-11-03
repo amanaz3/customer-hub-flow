@@ -1781,25 +1781,19 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                           isSubmitting && "opacity-50 cursor-not-allowed"
                                         )}
                                        >
-                                        <div className="flex items-center gap-2">
-                                          <div className="flex-1 min-w-0">
-                                            <TooltipProvider>
-                                              <Tooltip>
-                                                <TooltipTrigger asChild>
+                                        <TooltipProvider>
+                                          <Tooltip delayDuration={300}>
+                                            <TooltipTrigger asChild>
+                                              <div className="flex items-center gap-2 w-full">
+                                                <div className="flex-1 min-w-0">
                                                   <h4 className={cn(
-                                                    "font-medium text-sm truncate cursor-help",
+                                                    "font-medium text-sm truncate",
                                                     isSelected && "text-green-700 dark:text-green-400"
                                                   )}>
                                                     {product.name}
                                                   </h4>
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                  <p>{product.name}</p>
-                                                </TooltipContent>
-                                              </Tooltip>
-                                            </TooltipProvider>
-                                          </div>
-                                          {isSelected && (
+                                                </div>
+                                                {isSelected && (
                                             <div className="flex-shrink-0">
                                               <div className="w-5 h-5 rounded-full bg-green-600 flex items-center justify-center">
                                                 <svg
@@ -1817,8 +1811,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                                 </svg>
                                               </div>
                                             </div>
-                                          )}
-                                        </div>
+                                           )}
+                                              </div>
+                                            </TooltipTrigger>
+                                            <TooltipContent side="top" className="max-w-xs">
+                                              <p className="text-sm">{product.name}</p>
+                                            </TooltipContent>
+                                          </Tooltip>
+                                        </TooltipProvider>
                                       </div>
                                     );
                                   })}
