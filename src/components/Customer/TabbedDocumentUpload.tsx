@@ -50,6 +50,7 @@ const TabbedDocumentUpload: React.FC<TabbedDocumentUploadProps> = ({
   const [documentToReplace, setDocumentToReplace] = useState<Document | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isReplacing, setIsReplacing] = useState(false);
+  const guidelinesRef = React.useRef<HTMLDivElement>(null);
 
   const handleFileChange = (documentId: string) => async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -382,7 +383,12 @@ const TabbedDocumentUpload: React.FC<TabbedDocumentUploadProps> = ({
         <p className="text-red-600 font-medium">* Indicates required documents</p>
       </div>
 
-      <Tabs defaultValue="company" className="w-full">
+      <Tabs defaultValue="company" className="w-full" onValueChange={() => {
+        // Scroll the guidelines card back to initial position when tab changes
+        if (guidelinesRef.current) {
+          guidelinesRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }}>
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="company" className="flex items-center gap-2">
             <Building className="w-4 h-4" />
@@ -479,7 +485,7 @@ const TabbedDocumentUpload: React.FC<TabbedDocumentUploadProps> = ({
         </TabsContent>
       </Tabs>
       
-      <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
+      <div ref={guidelinesRef} className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-md">
         <div className="flex items-start gap-2">
           <AlertCircle className="w-4 h-4 text-blue-600 mt-0.5" />
           <div className="text-blue-800 text-sm">
