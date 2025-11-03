@@ -3048,15 +3048,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           </Select>
                         </div>
 
-                        <div className="md:col-span-2 flex items-center space-x-3 p-4 rounded-lg border border-border bg-card/50 hover:bg-card transition-colors">
+                        <div className="md:col-span-2 flex items-center space-x-3 p-4 rounded-lg border-2 border-primary/20 bg-primary/5 hover:border-primary/30 hover:bg-primary/10 transition-colors">
                           <Checkbox
                             id="wps_transfer_required"
                             checked={form.watch('wps_transfer_required') || false}
                             onCheckedChange={(checked) => form.setValue('wps_transfer_required', !!checked)}
                             disabled={isSubmitting}
-                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary border-2 w-5 h-5"
+                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary border-2 border-muted-foreground w-5 h-5"
                           />
-                          <Label htmlFor="wps_transfer_required" className="cursor-pointer font-medium">WPS Transfer Requirement</Label>
+                          <Label htmlFor="wps_transfer_required" className="cursor-pointer font-medium text-foreground">WPS Transfer Requirement</Label>
                         </div>
 
                         <div className="space-y-2">
@@ -3158,26 +3158,26 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           </Select>
                         </div>
 
-                        <div className="flex items-center space-x-3 p-4 rounded-lg border border-border bg-card/50 hover:bg-card transition-colors">
+                        <div className="flex items-center space-x-3 p-4 rounded-lg border-2 border-primary/20 bg-primary/5 hover:border-primary/30 hover:bg-primary/10 transition-colors">
                           <Checkbox
                             id="vat_registered"
                             checked={form.watch('vat_registered') || false}
                             onCheckedChange={(checked) => form.setValue('vat_registered', !!checked)}
                             disabled={isSubmitting}
-                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary border-2 w-5 h-5"
+                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary border-2 border-muted-foreground w-5 h-5"
                           />
-                          <Label htmlFor="vat_registered" className="cursor-pointer font-medium">VAT Registered</Label>
+                          <Label htmlFor="vat_registered" className="cursor-pointer font-medium text-foreground">VAT Registered</Label>
                         </div>
 
-                        <div className="flex items-center space-x-3 p-4 rounded-lg border border-border bg-card/50 hover:bg-card transition-colors">
+                        <div className="flex items-center space-x-3 p-4 rounded-lg border-2 border-primary/20 bg-primary/5 hover:border-primary/30 hover:bg-primary/10 transition-colors">
                           <Checkbox
                             id="has_previous_records"
                             checked={form.watch('has_previous_records') || false}
                             onCheckedChange={(checked) => form.setValue('has_previous_records', !!checked)}
                             disabled={isSubmitting}
-                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary border-2 w-5 h-5"
+                            className="data-[state=checked]:bg-primary data-[state=checked]:border-primary border-2 border-muted-foreground w-5 h-5"
                           />
-                          <Label htmlFor="has_previous_records" className="cursor-pointer font-medium">Has Previous Accounting Records</Label>
+                          <Label htmlFor="has_previous_records" className="cursor-pointer font-medium text-foreground">Has Previous Accounting Records</Label>
                         </div>
                       </div>
                     )}
