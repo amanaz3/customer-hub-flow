@@ -76,10 +76,6 @@ const formSchema = z.object({
   signatory_type: z.enum(['single', 'joint']).optional(),
   business_activity_details: z.string().optional(),
   minimum_balance_range: z.enum(['0-10k', '10k-100k', '100k-150k', '150k-250k', 'above-250k']).optional(),
-  company_incorporation_date: z.string().optional(),
-  number_of_entries_per_month: z.string().optional(),
-  vat_tax_registration_status: z.string().optional(),
-  wps_transfer_requirement: z.boolean().optional(),
   // Bookkeeping-specific fields
   accounting_software: z.string().optional(),
   monthly_transactions: z.string().optional(),
@@ -329,10 +325,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       signatory_type: undefined,
       business_activity_details: '',
       minimum_balance_range: undefined,
-      company_incorporation_date: '',
-      number_of_entries_per_month: '',
-      vat_tax_registration_status: '',
-      wps_transfer_requirement: false,
       // Bookkeeping defaults
       accounting_software: '',
       monthly_transactions: '',
@@ -2792,61 +2784,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 rows={4}
                               />
                             </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                              <div className="space-y-2">
-                                <Label htmlFor="company_incorporation_date">Company Incorporation Date</Label>
-                                <Input
-                                  id="company_incorporation_date"
-                                  type="date"
-                                  {...form.register('company_incorporation_date')}
-                                  disabled={isSubmitting}
-                                />
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <Label htmlFor="number_of_entries_per_month">Number of Entries per Month</Label>
-                                <Input
-                                  id="number_of_entries_per_month"
-                                  {...form.register('number_of_entries_per_month')}
-                                  placeholder="e.g., 50-100"
-                                  disabled={isSubmitting}
-                                />
-                              </div>
-                            </div>
-                            
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
-                              <div className="space-y-2">
-                                <Label htmlFor="vat_tax_registration_status">VAT Tax Registration Status</Label>
-                                <select
-                                  id="vat_tax_registration_status"
-                                  {...form.register('vat_tax_registration_status')}
-                                  disabled={isSubmitting}
-                                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                  <option value="">Select status</option>
-                                  <option value="registered">Registered</option>
-                                  <option value="not-registered">Not Registered</option>
-                                  <option value="in-progress">In Progress</option>
-                                </select>
-                              </div>
-                              
-                              <div className="space-y-2">
-                                <Label htmlFor="wps_transfer_requirement">WPS Transfer Requirement</Label>
-                                <select
-                                  id="wps_transfer_requirement"
-                                  {...form.register('wps_transfer_requirement', { 
-                                    setValueAs: (v) => v === 'true' 
-                                  })}
-                                  disabled={isSubmitting}
-                                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                                >
-                                  <option value="">Select option</option>
-                                  <option value="true">Yes</option>
-                                  <option value="false">No</option>
-                                </select>
-                              </div>
-                            </div>
                         </div>
                         
                         {/* Banking Preferences */}
@@ -4198,79 +4135,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </div>
                 </CardContent>
               </Card>
-
-              {/* Business Bank Account Details */}
-              {hasBankAccount && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Business Bank Account Details</CardTitle>
-                  </CardHeader>
-                  <CardContent className="grid gap-4">
-                    <div className="grid grid-cols-2 gap-4">
-                      {form.getValues('mainland_or_freezone') && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">License Type</p>
-                          <p className="font-medium capitalize">{form.getValues('mainland_or_freezone')}</p>
-                        </div>
-                      )}
-                      {form.getValues('jurisdiction') && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Jurisdiction</p>
-                          <p className="font-medium">{form.getValues('jurisdiction')}</p>
-                        </div>
-                      )}
-                      {form.getValues('no_of_shareholders') && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Number of Shareholders</p>
-                          <p className="font-medium">{form.getValues('no_of_shareholders')}</p>
-                        </div>
-                      )}
-                      {form.getValues('signatory_type') && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Signatory Type</p>
-                          <p className="font-medium capitalize">{form.getValues('signatory_type')}</p>
-                        </div>
-                      )}
-                      {form.getValues('company_incorporation_date') && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Company Incorporation Date</p>
-                          <p className="font-medium">{new Date(form.getValues('company_incorporation_date')).toLocaleDateString()}</p>
-                        </div>
-                      )}
-                      {form.getValues('number_of_entries_per_month') && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Entries per Month</p>
-                          <p className="font-medium">{form.getValues('number_of_entries_per_month')}</p>
-                        </div>
-                      )}
-                      {form.getValues('vat_tax_registration_status') && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">VAT Tax Registration Status</p>
-                          <p className="font-medium capitalize">{form.getValues('vat_tax_registration_status').replace('-', ' ')}</p>
-                        </div>
-                      )}
-                      {form.getValues('wps_transfer_requirement') !== undefined && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">WPS Transfer Requirement</p>
-                          <p className="font-medium">{form.getValues('wps_transfer_requirement') ? 'Yes' : 'No'}</p>
-                        </div>
-                      )}
-                      {form.getValues('minimum_balance_range') && (
-                        <div>
-                          <p className="text-sm text-muted-foreground">Minimum Balance Range</p>
-                          <p className="font-medium">{form.getValues('minimum_balance_range')}</p>
-                        </div>
-                      )}
-                    </div>
-                    {form.getValues('business_activity_details') && (
-                      <div>
-                        <p className="text-sm text-muted-foreground">Business Activity Details</p>
-                        <p className="text-sm whitespace-pre-wrap">{form.getValues('business_activity_details')}</p>
-                      </div>
-                    )}
-                  </CardContent>
-                </Card>
-              )}
 
               {/* Financial Information */}
               <Card>
