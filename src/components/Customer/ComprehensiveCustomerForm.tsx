@@ -26,6 +26,7 @@ import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
+import { ExistingCustomerSelector } from './ExistingCustomerSelector';
 import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle } from 'lucide-react';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
@@ -631,16 +632,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   }, [user?.id, isAdmin]);
 
   // Handle existing customer selection
-  const handleCustomerSelect = useCallback((customerId: string) => {
-    setSelectedCustomerId(customerId);
-    const customer = existingCustomers.find(c => c.id === customerId);
+  const handleCustomerSelect = useCallback((customerId: string | null, customer: any) => {
+    setSelectedCustomerId(customerId || '');
     if (customer) {
       form.setValue('company', customer.company);
       form.setValue('name', customer.name);
       form.setValue('email', customer.email);
       form.setValue('mobile', customer.mobile);
     }
-  }, [existingCustomers, form]);
+  }, [form]);
 
   // Handle new company creation from dialog
   const handleCompanyCreated = useCallback((customer: any) => {
@@ -1487,32 +1487,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
           {customerMode === 'existing' && (
             <div className="space-y-3 pt-2">
-              <Select value={selectedCustomerId} onValueChange={handleCustomerSelect}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a customer..." />
-                </SelectTrigger>
-                <SelectContent>
-                  {existingCustomers.length === 0 ? (
-                    <div className="p-2 text-sm text-muted-foreground">
-                      No customers found
-                    </div>
-                  ) : (
-                    existingCustomers.map((customer) => (
-                      <SelectItem key={customer.id} value={customer.id}>
-                        {customer.company} - {customer.name}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-              {selectedCustomerId && (
-                <div className="p-3 bg-background rounded-md border">
-                  <p className="text-sm font-medium">Selected Customer</p>
-                  <p className="text-sm text-muted-foreground">
-                    {existingCustomers.find(c => c.id === selectedCustomerId)?.company}
-                  </p>
-                </div>
-              )}
+              <ExistingCustomerSelector
+                userId={user?.id || ''}
+                value={selectedCustomerId || null}
+                onChange={handleCustomerSelect}
+              />
               
               {/* Show form sections when in existing mode and details stage */}
               {currentStage === 'details' && (
