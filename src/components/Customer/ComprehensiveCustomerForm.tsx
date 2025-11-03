@@ -1695,19 +1695,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </AccordionTrigger>
                         <AccordionContent className="px-4 pb-4 pt-4">
                           <div className="pt-2 space-y-4">
-                            {/* Search Bar */}
-                            <div className="relative">
-                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                              <Input
-                                type="text"
-                                placeholder="Search products/services..."
-                                value={productSearchTerm}
-                                onChange={(e) => setProductSearchTerm(e.target.value)}
-                                className="pl-9"
-                                disabled={isSubmitting}
-                              />
-                            </div>
-
                             {/* Category Filter Tabs */}
                             <div className="space-y-2">
                               <Label className="text-sm text-muted-foreground">Filter by Category (Optional)</Label>
@@ -1756,6 +1743,19 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                   })}
                                 </TabsList>
                               </Tabs>
+                            </div>
+
+                            {/* Search Bar */}
+                            <div className="relative">
+                              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                              <Input
+                                type="text"
+                                placeholder="Search products/services..."
+                                value={productSearchTerm}
+                                onChange={(e) => setProductSearchTerm(e.target.value)}
+                                className="pl-9"
+                                disabled={isSubmitting}
+                              />
                             </div>
 
                             {/* Products Grid */}
