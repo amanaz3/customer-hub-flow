@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2, FolderTree } from 'lucide-react';
+import { Plus, Edit, Trash2, FolderTree, Database, Info } from 'lucide-react';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,6 +11,7 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 
 interface ServiceCategory {
   id: string;
@@ -175,8 +176,27 @@ const ServiceCategoryManagement: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex justify-between items-center mb-6">
+    <div className="container mx-auto py-6 space-y-6">
+      {/* Table Info Card */}
+      <Alert>
+        <Database className="h-4 w-4" />
+        <AlertTitle>Database Table: service_category</AlertTitle>
+        <AlertDescription>
+          <div className="mt-2 space-y-1 text-sm">
+            <div><strong>Columns:</strong></div>
+            <ul className="list-disc list-inside space-y-0.5 ml-2">
+              <li><code className="text-xs bg-muted px-1 py-0.5 rounded">id</code> - UUID (Primary Key)</li>
+              <li><code className="text-xs bg-muted px-1 py-0.5 rounded">category_name</code> - TEXT (Category Name)</li>
+              <li><code className="text-xs bg-muted px-1 py-0.5 rounded">is_active</code> - BOOLEAN (Active Status)</li>
+              <li><code className="text-xs bg-muted px-1 py-0.5 rounded">created_at</code> - TIMESTAMP (Created Date)</li>
+              <li><code className="text-xs bg-muted px-1 py-0.5 rounded">updated_at</code> - TIMESTAMP (Updated Date)</li>
+            </ul>
+            <div className="mt-2"><strong>Relationships:</strong> Products reference this table via <code className="text-xs bg-muted px-1 py-0.5 rounded">service_category_id</code></div>
+          </div>
+        </AlertDescription>
+      </Alert>
+
+      <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Service Category Management</h1>
           <p className="text-muted-foreground">
