@@ -202,6 +202,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const stickyGap = 0; // px gap to keep consistent padding
   const totalStickyOffset = stageHeight + stickyNavHeight + stickyGap;
 
+  // Smoothly scroll the main form card into view accounting for sticky headers
+  const scrollFormCardIntoView = useCallback(() => {
+    const el = formContentCardRef.current;
+    if (!el) return;
+    const offset = (stageRef.current?.offsetHeight ?? 0) + (stickyNavRef.current?.offsetHeight ?? 0) + 8; // small padding
+    const rect = el.getBoundingClientRect();
+    const top = window.scrollY + rect.top - offset;
+    window.scrollTo({ top, behavior: 'smooth' });
+  }, [stageHeight, stickyNavHeight]);
+
   useEffect(() => {
     const update = () => {
       const sh = stageRef.current?.offsetHeight ?? 0;
@@ -222,6 +232,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       scrollContainerRef.current.focus();
     }
   }, [currentStage]);
+
+  // Reposition the form content card when mode changes (tab swap)
+  useEffect(() => {
+    // wait a tick for layout to settle
+    requestAnimationFrame(() => scrollFormCardIntoView());
+  }, [customerMode, scrollFormCardIntoView]);
   const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
   const { user, isAdmin } = useAuth();
@@ -800,13 +816,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         setSelectedCustomerId('');
         form.reset();
       }
-      
+
       // Scroll form content card to its original position
-      setTimeout(() => {
-        formContentCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
+      requestAnimationFrame(() => scrollFormCardIntoView());
     }
-  }, [customerMode, hasUnsavedData, form]);
+  }, [customerMode, hasUnsavedData, form, scrollFormCardIntoView]);
 
   // Confirm mode switch without saving
   const confirmModeSwitch = useCallback(() => {
@@ -820,14 +834,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         form.reset();
       }
       setPendingMode(null);
-      
+
       // Scroll form content card to its original position
-      setTimeout(() => {
-        formContentCardRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }, 100);
+      requestAnimationFrame(() => scrollFormCardIntoView());
     }
     setShowSwitchConfirm(false);
-  }, [pendingMode, form]);
+  }, [pendingMode, form, scrollFormCardIntoView]);
 
   // Cancel mode switch
   const cancelModeSwitch = useCallback(() => {
