@@ -2169,7 +2169,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           data-section-id="application"
         >
               <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 flex-wrap">
                   <div className={cn(
                     "p-2 rounded-lg transition-colors",
                     highlightDealInfo ? "bg-blue-100 dark:bg-blue-900" : "bg-primary/10"
@@ -2179,12 +2179,19 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       highlightDealInfo ? "text-blue-600 dark:text-blue-400" : "text-primary"
                     )} />
                   </div>
-                  <h3 className={cn(
-                    "text-base font-bold uppercase tracking-wide transition-colors",
-                    highlightDealInfo ? "text-blue-600 dark:text-blue-400" : "text-foreground"
-                  )}>
-                    Deal Information
-                  </h3>
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <h3 className={cn(
+                      "text-base font-bold uppercase tracking-wide transition-colors",
+                      highlightDealInfo ? "text-blue-600 dark:text-blue-400" : "text-foreground"
+                    )}>
+                      Deal Information
+                    </h3>
+                    {selectedProduct && (
+                      <Badge variant="secondary" className="text-xs font-normal">
+                        {selectedProduct.name}
+                      </Badge>
+                    )}
+                  </div>
                   {highlightDealInfo && (
                     <span className="ml-2 inline-block animate-pulse">✨</span>
                   )}
