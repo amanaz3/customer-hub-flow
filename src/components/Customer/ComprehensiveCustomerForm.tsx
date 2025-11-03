@@ -2675,7 +2675,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           <div className="space-y-4 mt-6">
                             <div className="flex items-center gap-2">
                               <Building2 className="h-4 w-4 text-primary" />
-                              <h5 className="text-sm font-semibold">Application Information</h5>
+                              <h5 className="text-sm font-semibold">Business Information</h5>
                             </div>
                             <Separator />
                             
