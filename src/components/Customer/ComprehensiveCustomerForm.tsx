@@ -460,10 +460,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const watchCompany = form.watch('company');
   const watchLeadSource = form.watch('lead_source');
   
-  // Section completion checks
-  const isBasicInfoComplete = watchName && watchEmail && watchMobile && watchCompany;
-  const isSourceChannelComplete = isBasicInfoComplete && watchLeadSource;
-  const isServiceSelectionComplete = isSourceChannelComplete && watchProductId;
+  // Section completion checks (value + no validation errors)
+  const basicValuesFilled = Boolean(watchName?.trim() && watchEmail?.trim() && watchMobile?.trim() && watchCompany?.trim());
+  const basicHasError = Boolean(
+    form.formState.errors.name ||
+    form.formState.errors.email ||
+    form.formState.errors.mobile ||
+    form.formState.errors.company
+  );
+  const isBasicInfoComplete = basicValuesFilled && !basicHasError;
+  const isSourceChannelComplete = isBasicInfoComplete && Boolean(watchLeadSource);
+  const isServiceSelectionComplete = isSourceChannelComplete && Boolean(watchProductId);
 
   // Map field names to their corresponding accordion sections
   const getFieldSection = (fieldName: string): string | null => {
