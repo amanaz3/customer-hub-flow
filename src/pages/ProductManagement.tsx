@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface Product {
   id: string;
@@ -29,6 +30,12 @@ interface ProductFormData {
   name: string;
   description: string;
   is_active: boolean;
+  service_category_id: string | null;
+}
+
+interface ServiceCategory {
+  id: string;
+  category_name: string;
 }
 
 const ProductManagement: React.FC = () => {
@@ -40,7 +47,8 @@ const ProductManagement: React.FC = () => {
   const [formData, setFormData] = useState<ProductFormData>({
     name: '',
     description: '',
-    is_active: true
+    is_active: true,
+    service_category_id: null
   });
 
   const handleUpdateVATCategory = async () => {
@@ -66,6 +74,20 @@ const ProductManagement: React.FC = () => {
       setIsUpdatingCategory(false);
     }
   };
+
+  const { data: serviceCategories } = useQuery({
+    queryKey: ['service-categories'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('service_category')
+        .select('id, category_name')
+        .eq('is_active', true)
+        .order('category_name');
+      
+      if (error) throw error;
+      return data as ServiceCategory[];
+    }
+  });
 
   const { data: products, isLoading } = useQuery({
     queryKey: ['products'],
@@ -118,7 +140,8 @@ const ProductManagement: React.FC = () => {
         .insert([{
           name: data.name,
           description: data.description,
-          is_active: data.is_active
+          is_active: data.is_active,
+          service_category_id: data.service_category_id
         }]);
       
       if (error) throw error;
@@ -148,6 +171,7 @@ const ProductManagement: React.FC = () => {
           name: data.name,
           description: data.description,
           is_active: data.is_active,
+          service_category_id: data.service_category_id,
           updated_at: new Date().toISOString()
         })
         .eq('id', id);
@@ -200,7 +224,8 @@ const ProductManagement: React.FC = () => {
     setFormData({
       name: '',
       description: '',
-      is_active: true
+      is_active: true,
+      service_category_id: null
     });
     setEditingProduct(null);
     setIsDialogOpen(false);
@@ -211,7 +236,8 @@ const ProductManagement: React.FC = () => {
     setFormData({
       name: product.name,
       description: product.description || '',
-      is_active: product.is_active
+      is_active: product.is_active,
+      service_category_id: product.service_category_id
     });
     setIsDialogOpen(true);
   };
@@ -319,6 +345,24 @@ const ProductManagement: React.FC = () => {
                     placeholder="Enter product description (optional)"
                     rows={3}
                   />
+                </div>
+                <div className="grid gap-2">
+                  <Label htmlFor="service_category">Service Category</Label>
+                  <Select
+                    value={formData.service_category_id || undefined}
+                    onValueChange={(value) => setFormData(prev => ({ ...prev, service_category_id: value }))}
+                  >
+                    <SelectTrigger id="service_category">
+                      <SelectValue placeholder="Select a category (optional)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {serviceCategories?.map((category) => (
+                        <SelectItem key={category.id} value={category.id}>
+                          {category.category_name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch
