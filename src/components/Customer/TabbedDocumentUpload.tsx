@@ -384,7 +384,10 @@ const TabbedDocumentUpload: React.FC<TabbedDocumentUploadProps> = ({
       </div>
 
       <Tabs defaultValue="company" className="w-full" onValueChange={() => {
-        guidelinesRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        // Scroll the guidelines card back to initial position when tab changes
+        if (guidelinesRef.current) {
+          guidelinesRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }}>
         <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="company" className="flex items-center gap-2">
