@@ -2119,15 +2119,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           data-section-id="application"
         >
               <AccordionTrigger className="px-4 hover:no-underline justify-start gap-2 border-b">
-                <h3 className={cn(
-                  "text-base font-medium transition-colors",
-                  highlightDealInfo && "text-blue-600 dark:text-blue-400"
-                )}>
-                  Deal Information
+                <div className="flex items-center gap-2">
+                  <span className="text-base">📊</span>
+                  <h3 className={cn(
+                    "text-base font-bold text-foreground uppercase tracking-wide transition-colors",
+                    highlightDealInfo && "text-blue-600 dark:text-blue-400"
+                  )}>
+                    Deal Information
+                  </h3>
                   {highlightDealInfo && (
                     <span className="ml-2 inline-block animate-pulse">✨</span>
                   )}
-                </h3>
+                </div>
               </AccordionTrigger>
               <AccordionContent className="px-4 pb-4 space-y-6">
                 {/* Application Information */}
