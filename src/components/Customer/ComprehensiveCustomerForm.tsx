@@ -2689,14 +2689,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     {/* Business Bank Account Application Information */}
                     {hasBankAccount && (
                       <>
-                        {/* Business Information */}
                         <div className="space-y-4">
-                          <div className="flex items-center gap-2 pb-3 border-b border-primary/20">
-                            <Building2 className="h-4 w-4 text-primary" />
-                            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Business Information</h4>
-                          </div>
-                          
-                          <div className="space-y-4 pl-1">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                               <div className="space-y-2">
                                 <Label htmlFor="mainland_or_freezone">License Type *</Label>
@@ -2791,7 +2784,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 rows={4}
                               />
                             </div>
-                          </div>
                         </div>
                         
                         {/* Banking Preferences */}
