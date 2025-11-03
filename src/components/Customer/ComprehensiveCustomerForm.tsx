@@ -150,6 +150,9 @@ const formSchema = z.object({
   vat_accounting_software: z.string().optional(),
   multiple_business_locations: z.boolean().optional(),
   number_of_locations: z.number().optional(),
+  // FTA Portal Credentials (for VAT, Tax Registration, and Tax Filing services)
+  fta_portal_email: z.string().email().optional().or(z.literal('')),
+  fta_portal_password: z.string().optional(),
   // Deal/Application fields
   banking_preferences: z.string().optional(),
   payment_method: z.string().optional(),
@@ -436,6 +439,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       vat_accounting_software: '',
       multiple_business_locations: false,
       number_of_locations: 1,
+      // FTA Portal defaults
+      fta_portal_email: '',
+      fta_portal_password: '',
       ...initialData
     },
   });
@@ -670,6 +676,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const hasVAT = productType === 'vat_registration';
   const hasTaxRegistration = productType === 'tax_registration';
   const hasTaxFiling = productType === 'tax_filing';
+  
+  // Check if service requires FTA Portal credentials
+  const requiresFTAPortal = hasVAT || hasTaxRegistration || hasTaxFiling;
 
   // Fetch existing customers for selection
   useEffect(() => {
@@ -1050,6 +1059,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             ...(data.tax_exemptions && { tax_exemptions: data.tax_exemptions }),
             ...(data.previous_tax_consultant && { previous_tax_consultant: data.previous_tax_consultant }),
             ...(data.filing_deadline && { filing_deadline: data.filing_deadline }),
+            // FTA Portal credentials
+            ...(data.fta_portal_email && { fta_portal_email: data.fta_portal_email }),
+            ...(data.fta_portal_password && { fta_portal_password: data.fta_portal_password }),
           }
         }])
         .select()
@@ -3291,6 +3303,46 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             className="data-[state=checked]:bg-primary data-[state=checked]:border-primary border-2 border-muted-foreground w-5 h-5"
                           />
                           <Label htmlFor="has_previous_records" className="cursor-pointer font-medium text-foreground">Has Previous Accounting Records</Label>
+                        </div>
+                      </div>
+                    )}
+                    
+                    {/* FTA Portal Access Credentials - for VAT, Tax Registration, and Tax Filing services */}
+                    {requiresFTAPortal && (
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-2 pb-3 border-b border-orange-500/30">
+                          <CircleDot className="h-4 w-4 text-orange-600" />
+                          <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">FTA Portal Access Credentials</h4>
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-1">
+                          <div className="space-y-2">
+                            <Label htmlFor="fta_portal_email">FTA Portal Email</Label>
+                            <Input
+                              id="fta_portal_email"
+                              type="email"
+                              {...form.register('fta_portal_email')}
+                              placeholder="Enter FTA portal email address"
+                              disabled={isSubmitting}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Email used for Federal Tax Authority portal access
+                            </p>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="fta_portal_password">FTA Portal Password</Label>
+                            <Input
+                              id="fta_portal_password"
+                              type="password"
+                              {...form.register('fta_portal_password')}
+                              placeholder="Enter FTA portal password"
+                              disabled={isSubmitting}
+                            />
+                            <p className="text-xs text-muted-foreground">
+                              Password for Federal Tax Authority portal
+                            </p>
+                          </div>
                         </div>
                       </div>
                     )}
