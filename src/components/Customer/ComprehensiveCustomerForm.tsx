@@ -558,6 +558,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       //     setTimeout(() => setHighlightDealInfo(false), 2000);
       //   }
       // }, 100);
+    } else {
+      // Collapse Deal Information section when product is unselected
+      setAccordionValue(prev => prev.filter(item => item !== 'application'));
     }
   }, [watchProductId]);
 
