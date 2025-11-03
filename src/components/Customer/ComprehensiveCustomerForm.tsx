@@ -2169,7 +2169,14 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       <Building2 className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
                       <div className="absolute inset-0 rounded-xl bg-primary/5 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
-                    <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Service Selection</h3>
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Service Selection</h3>
+                      {watchProductId && allProducts.find(p => p.id === watchProductId) && (
+                        <span className="text-sm font-medium text-primary">
+                          - {allProducts.find(p => p.id === watchProductId)?.name}
+                        </span>
+                      )}
+                    </div>
                   </div>
                   <div className="flex items-center gap-2">
                     {sectionsWithErrors.has('service') && (
