@@ -2641,11 +2641,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                           <div className="space-y-2">
-                            <Label htmlFor="bank_preference_1">First Preference</Label>
+                            <Label htmlFor="bank_preference_1">Preferred Bank</Label>
                             <Input
                               id="bank_preference_1"
                               {...form.register('bank_preference_1')}
-                              placeholder="Enter first preference bank"
+                              placeholder="Enter preferred bank"
                               disabled={isSubmitting}
                             />
                           </div>
@@ -2655,7 +2655,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             <Input
                               id="bank_preference_2"
                               {...form.register('bank_preference_2')}
-                              placeholder="Enter second preference bank"
+                              placeholder="Enter second preference"
                               disabled={isSubmitting}
                             />
                           </div>
@@ -2665,10 +2665,20 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             <Input
                               id="bank_preference_3"
                               {...form.register('bank_preference_3')}
-                              placeholder="Enter third preference bank"
+                              placeholder="Enter third preference"
                               disabled={isSubmitting}
                             />
                           </div>
+                        </div>
+                        
+                        <div className="space-y-2 mt-3">
+                          <Label htmlFor="any_bank">Any Bank</Label>
+                          <Input
+                            id="any_bank"
+                            placeholder="Or specify 'Any Bank' if no preference"
+                            disabled={isSubmitting}
+                            className="bg-muted/50"
+                          />
                         </div>
                           
                           {/* Business Bank Account Application Information */}
