@@ -3186,21 +3186,23 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Financial Information</h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-1">
-                    <div className="space-y-2">
-                      <Label htmlFor="annual_turnover">Annual Turnover (AED) *</Label>
-                      <Input
-                        id="annual_turnover"
-                        type="number"
-                        min="0"
-                        step="0.01"
-                        {...form.register('annual_turnover', { valueAsNumber: true })}
-                        disabled={isSubmitting}
-                        required
-                      />
-                      {form.formState.errors.annual_turnover && (
-                        <p className="text-sm text-red-600">{form.formState.errors.annual_turnover.message}</p>
-                      )}
-                    </div>
+                    {!hasCompanyFormation && (
+                      <div className="space-y-2">
+                        <Label htmlFor="annual_turnover">Annual Turnover (AED) *</Label>
+                        <Input
+                          id="annual_turnover"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          {...form.register('annual_turnover', { valueAsNumber: true })}
+                          disabled={isSubmitting}
+                          required
+                        />
+                        {form.formState.errors.annual_turnover && (
+                          <p className="text-sm text-red-600">{form.formState.errors.annual_turnover.message}</p>
+                        )}
+                      </div>
+                    )}
 
                     {/* GoAML Financial Fields */}
                     {hasGoAML && (
