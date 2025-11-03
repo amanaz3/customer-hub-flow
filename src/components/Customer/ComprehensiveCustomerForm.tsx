@@ -471,21 +471,34 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const selectedCategory = serviceCategories.find(cat => cat.id === selectedProductCategoryId);
   const selectedProductNameNoSpaces = selectedProductName.replace(/\s+/g, '');
   
-  const hasBookkeeping = selectedProductNameNoSpaces.includes('bookkeeping') || 
-                         selectedProductNameNoSpaces.includes('book') || 
-                         selectedProductName.includes('accounting');
-  const hasCompanyFormation = selectedProductName.includes('company') || 
-                              selectedProductName.includes('formation') || 
-                              selectedProductName.includes('license');
-  const hasBankAccount = selectedProductName.includes('bank');
-  const hasGoAML = selectedProductName.includes('goaml');
-  const hasHomeFinance = selectedProductName.includes('home') && selectedProductName.includes('finance');
-  const hasVAT = selectedProductName.includes('vat');
+  // Determine the primary product type (mutually exclusive for cleaner UI)
+  const getProductType = () => {
+    if (selectedProductName.includes('goaml')) return 'goaml';
+    if (selectedProductName.includes('home') && selectedProductName.includes('finance')) return 'home_finance';
+    if (selectedProductNameNoSpaces.includes('bookkeeping') || 
+        selectedProductNameNoSpaces.includes('book') || 
+        selectedProductName.includes('accounting')) return 'bookkeeping';
+    if (selectedProductName.includes('vat') && selectedProductName.includes('registration')) return 'vat_registration';
+    if (selectedProductName.includes('registration') && selectedProductName.includes('tax')) return 'tax_registration';
+    if (selectedProductName.includes('filing') || (selectedProductName.includes('tax') && !selectedProductName.includes('registration'))) return 'tax_filing';
+    if (selectedProductName.includes('bank')) return 'bank_account';
+    if (selectedProductName.includes('company') || 
+        selectedProductName.includes('formation') || 
+        selectedProductName.includes('license')) return 'company_formation';
+    return 'general'; // Default for any other products
+  };
   
-  // Differentiate between tax registration and tax filing
-  const hasTaxRegistration = selectedProductName.includes('registration') && !hasGoAML;
-  const hasTaxFiling = (selectedProductName.includes('filing') || selectedProductName.includes('filling')) && 
-                       !hasTaxRegistration;
+  const productType = getProductType();
+  
+  // Legacy flags for backward compatibility (if needed elsewhere)
+  const hasBookkeeping = productType === 'bookkeeping';
+  const hasCompanyFormation = productType === 'company_formation';
+  const hasBankAccount = productType === 'bank_account';
+  const hasGoAML = productType === 'goaml';
+  const hasHomeFinance = productType === 'home_finance';
+  const hasVAT = productType === 'vat_registration';
+  const hasTaxRegistration = productType === 'tax_registration';
+  const hasTaxFiling = productType === 'tax_filing';
 
   // Fetch existing customers for selection
   useEffect(() => {
