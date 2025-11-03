@@ -171,6 +171,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
   const [accordionValue, setAccordionValue] = useState<string[]>(["basic", "lead", "service"]);
   const [highlightDealInfo, setHighlightDealInfo] = useState(false);
+  const [serviceSelectionExpanded, setServiceSelectionExpanded] = useState(false);
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
   const stickyNavRef = useRef<HTMLDivElement | null>(null);
@@ -1425,7 +1426,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 <div className="space-y-4 pt-4">
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-                      <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
+                      <Accordion type="multiple" value={accordionValue} onValueChange={(value) => {
+                        setAccordionValue(value);
+                        if (value.includes('service')) {
+                          setServiceSelectionExpanded(true);
+                        }
+                      }} className="space-y-4">
                       {/* Basic Information */}
                       <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
                         <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
@@ -1907,7 +1913,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           <div className="space-y-4 pt-0">
             <Form {...form}>
               <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
-              <Accordion type="multiple" value={accordionValue} onValueChange={setAccordionValue} className="space-y-4">
+              <Accordion type="multiple" value={accordionValue} onValueChange={(value) => {
+                setAccordionValue(value);
+                if (value.includes('service')) {
+                  setServiceSelectionExpanded(true);
+                }
+              }} className="space-y-4">
                 {/* Basic Information */}
                 <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
                   <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
@@ -2148,8 +2159,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </AccordionItem>
                 )}
 
-        {/* Deal Information - Only shown when service selection is complete OR when service is active and product is selected */}
-        {(isServiceSelectionComplete || (accordionValue.includes('service') && watchProductId)) && (
+        {/* Deal Information - Only shown after Service Selection has been expanded */}
+        {serviceSelectionExpanded && (
         <AccordionItem
           value="application" 
           className={cn(
