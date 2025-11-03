@@ -2372,6 +2372,32 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       <>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="space-y-2">
+                          <Label htmlFor="proposed_activity">Proposed Activity</Label>
+                          <Input
+                            id="proposed_activity"
+                            {...form.register('proposed_activity')}
+                            placeholder="e.g., Trading, Consulting, Manufacturing"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="nationality">Nationality</Label>
+                          <Input
+                            id="nationality"
+                            list="nationality-options"
+                            {...form.register('nationality')}
+                            placeholder="Type to search nationalities..."
+                            disabled={isSubmitting}
+                            className="bg-background"
+                          />
+                          <datalist id="nationality-options">
+...
+                            <option value="Peruvian" />
+                          </datalist>
+                        </div>
+
+                        <div className="space-y-2">
                           <Label htmlFor="license_type">License Type *</Label>
                           <Select
                             value={form.watch('license_type')}
@@ -2409,32 +2435,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             <option value="Freezone">Freezone</option>
                             <option value="Other">Other</option>
                           </select>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="nationality">Nationality</Label>
-                          <Input
-                            id="nationality"
-                            list="nationality-options"
-                            {...form.register('nationality')}
-                            placeholder="Type to search nationalities..."
-                            disabled={isSubmitting}
-                            className="bg-background"
-                          />
-                          <datalist id="nationality-options">
-...
-                            <option value="Peruvian" />
-                          </datalist>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="proposed_activity">Proposed Activity</Label>
-                          <Input
-                            id="proposed_activity"
-                            {...form.register('proposed_activity')}
-                            placeholder="e.g., Trading, Consulting, Manufacturing"
-                            disabled={isSubmitting}
-                          />
                         </div>
 
                         <div className="space-y-2">
