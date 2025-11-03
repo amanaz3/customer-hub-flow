@@ -2237,8 +2237,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </AccordionContent>
                 </AccordionItem>
 
-            {/* Source & Channel - Shown when basic info complete OR clicked in nav */}
-            {(isBasicInfoComplete || accordionValue.includes('lead')) && (
+            {/* Source & Channel */}
             <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow" data-section-id="lead" style={{ scrollMarginTop: totalStickyOffset }}>
                   <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-all group">
                     <div className="flex items-center justify-between w-full gap-3">
@@ -2289,7 +2288,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </div>
                   </AccordionContent>
                 </AccordionItem>
-                )}
 
         {/* Service Selection */}
         <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow" data-section-id="service" style={{ scrollMarginTop: totalStickyOffset }}>
