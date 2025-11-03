@@ -411,68 +411,31 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     // Service Selection
     if (['product_id', 'service_type_id'].includes(fieldName)) return 'service';
     
-    // Deal Information
+    // Deal Information - expanded to catch all possible fields
     if (['amount', 'annual_turnover', 'license_type', 'jurisdiction', 'any_suitable_bank', 
          'bank_preference_1', 'bank_preference_2', 'bank_preference_3', 'customer_notes',
          'no_of_shareholders', 'arr_value', 'deal_stage', 'expected_close_date', 
-         'probability', 'notes', 'banking_preferences', 'payment_method'].includes(fieldName)) {
-      return 'application';
-    }
-    
-    // Bookkeeping fields
-    if (['accounting_software', 'monthly_transactions', 'vat_registered', 'bank_accounts_count',
-         'employees_count', 'service_start_date', 'has_previous_records', 'reporting_frequency'].includes(fieldName)) {
-      return 'bookkeeping';
-    }
-    
-    // Company Formation fields
-    if (fieldName.includes('shareholder_') || fieldName.includes('no_of_shareholders')) {
-      return 'company-formation';
-    }
-    
-    // Bank Account fields
-    if (fieldName.includes('bank_preference')) {
-      return 'bank-account';
-    }
-    
-    // GoAML fields
-    if (['trade_license_number', 'date_of_incorporation', 'registered_office_address', 
-         'nature_of_business', 'number_of_ubos', 'compliance_officer_name', 
-         'compliance_officer_email', 'compliance_officer_phone', 'compliance_officer_position',
-         'expected_annual_transaction_volume', 'transaction_types', 'customer_types',
-         'high_risk_countries', 'source_of_funds'].includes(fieldName)) {
-      return 'goaml';
-    }
-    
-    // Home Finance fields
-    if (['monthly_gross_salary', 'employment_status', 'employer_name', 'years_with_employer',
+         'probability', 'notes', 'banking_preferences', 'payment_method',
+         'accounting_software', 'monthly_transactions', 'vat_registered', 'bank_accounts_count',
+         'employees_count', 'service_start_date', 'has_previous_records', 'reporting_frequency',
+         'monthly_gross_salary', 'employment_status', 'employer_name', 'years_with_employer',
          'additional_income', 'additional_income_source', 'existing_loan_commitments',
          'credit_card_limit', 'credit_card_outstanding', 'property_type', 'property_location',
          'property_value', 'developer_name', 'property_status', 'intended_use',
          'loan_amount_required', 'down_payment_amount', 'preferred_loan_tenure',
          'purchase_purpose', 'has_co_applicant', 'co_applicant_name', 'co_applicant_income',
-         'co_applicant_relationship'].includes(fieldName)) {
-      return 'home-finance';
-    }
-    
-    // VAT Registration fields
-    if (['vat_registration_type', 'already_registered_vat', 'existing_trn', 
-         'business_activity_description', 'import_activities', 'export_activities',
-         'import_countries', 'export_countries', 'previous_tax_period', 
-         'vat_accounting_software', 'multiple_business_locations', 'number_of_locations'].includes(fieldName)) {
-      return 'vat-registration';
-    }
-    
-    // Tax Registration fields
-    if (fieldName.includes('tax_registration')) {
-      return 'tax-registration';
-    }
-    
-    // Tax Filing fields
-    if (['tax_year_period', 'first_time_filing', 'tax_registration_number', 
+         'co_applicant_relationship', 'trade_license_number', 'date_of_incorporation',
+         'registered_office_address', 'nature_of_business', 'number_of_ubos',
+         'compliance_officer_name', 'compliance_officer_email', 'compliance_officer_phone',
+         'compliance_officer_position', 'expected_annual_transaction_volume', 'transaction_types',
+         'customer_types', 'high_risk_countries', 'source_of_funds', 'vat_registration_type',
+         'already_registered_vat', 'existing_trn', 'business_activity_description',
+         'import_activities', 'export_activities', 'import_countries', 'export_countries',
+         'previous_tax_period', 'vat_accounting_software', 'multiple_business_locations',
+         'number_of_locations', 'tax_year_period', 'first_time_filing', 'tax_registration_number',
          'financial_year_end_date', 'has_foreign_operations', 'tax_exemptions',
          'previous_tax_consultant', 'filing_deadline'].includes(fieldName)) {
-      return 'tax-filing';
+      return 'application';
     }
     
     return null;
@@ -487,8 +450,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       const errors = form.formState.errors;
       const errorSections = new Set<string>();
       
+      console.log('Form validation errors:', errors);
+      
       Object.keys(errors).forEach((fieldName) => {
         const section = getFieldSection(fieldName);
+        console.log(`Field "${fieldName}" mapped to section:`, section);
         if (section) {
           errorSections.add(section);
         }
