@@ -497,10 +497,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
   // Auto-select Business Bank Account when form loads
   useEffect(() => {
-    if (mostPopularProduct && !watchProductId && !initialData) {
+    if (mostPopularProduct && !watchProductId && !initialData && allProducts.length > 0) {
+      console.log('Setting default product:', mostPopularProduct);
       form.setValue('product_id', mostPopularProduct);
       // Also set the category filter to this product's category
       const popularProduct = allProducts.find(p => p.id === mostPopularProduct);
+      console.log('Found product in allProducts:', popularProduct);
       if (popularProduct?.service_category_id) {
         setCategoryFilter(popularProduct.service_category_id);
       }
@@ -561,6 +563,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
   // Check which product is selected (use allProducts to avoid category filter hiding it)
   const selectedProduct = allProducts.find(p => p.id === watchProductId);
+  console.log('Service Selection - selectedProduct:', selectedProduct, 'watchProductId:', watchProductId, 'allProducts.length:', allProducts.length);
   const selectedProductName = selectedProduct?.name.toLowerCase() || '';
   const selectedProductCategoryId = selectedProduct?.service_category_id || '';
   
