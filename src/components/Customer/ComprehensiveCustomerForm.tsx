@@ -2389,12 +2389,52 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                         <div className="space-y-2">
                           <Label htmlFor="nationality">Nationality</Label>
-                          <Input
-                            id="nationality"
-                            {...form.register('nationality')}
-                            placeholder="e.g., UAE, Indian, British"
+                          <Select
+                            value={form.watch('nationality') || ''}
+                            onValueChange={(value) => form.setValue('nationality', value)}
                             disabled={isSubmitting}
-                          />
+                          >
+                            <SelectTrigger className="bg-background">
+                              <SelectValue placeholder="Select nationality" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-background z-50 max-h-[300px]">
+                              <SelectItem value="UAE">UAE</SelectItem>
+                              <SelectItem value="Indian">Indian</SelectItem>
+                              <SelectItem value="Pakistani">Pakistani</SelectItem>
+                              <SelectItem value="British">British</SelectItem>
+                              <SelectItem value="American">American</SelectItem>
+                              <SelectItem value="Canadian">Canadian</SelectItem>
+                              <SelectItem value="Australian">Australian</SelectItem>
+                              <SelectItem value="Filipino">Filipino</SelectItem>
+                              <SelectItem value="Egyptian">Egyptian</SelectItem>
+                              <SelectItem value="Jordanian">Jordanian</SelectItem>
+                              <SelectItem value="Lebanese">Lebanese</SelectItem>
+                              <SelectItem value="Saudi Arabian">Saudi Arabian</SelectItem>
+                              <SelectItem value="Kuwaiti">Kuwaiti</SelectItem>
+                              <SelectItem value="Qatari">Qatari</SelectItem>
+                              <SelectItem value="Omani">Omani</SelectItem>
+                              <SelectItem value="Bahraini">Bahraini</SelectItem>
+                              <SelectItem value="Yemeni">Yemeni</SelectItem>
+                              <SelectItem value="Syrian">Syrian</SelectItem>
+                              <SelectItem value="Iraqi">Iraqi</SelectItem>
+                              <SelectItem value="Bangladeshi">Bangladeshi</SelectItem>
+                              <SelectItem value="Sri Lankan">Sri Lankan</SelectItem>
+                              <SelectItem value="Nepalese">Nepalese</SelectItem>
+                              <SelectItem value="Chinese">Chinese</SelectItem>
+                              <SelectItem value="Japanese">Japanese</SelectItem>
+                              <SelectItem value="South Korean">South Korean</SelectItem>
+                              <SelectItem value="German">German</SelectItem>
+                              <SelectItem value="French">French</SelectItem>
+                              <SelectItem value="Italian">Italian</SelectItem>
+                              <SelectItem value="Spanish">Spanish</SelectItem>
+                              <SelectItem value="Russian">Russian</SelectItem>
+                              <SelectItem value="Turkish">Turkish</SelectItem>
+                              <SelectItem value="Iranian">Iranian</SelectItem>
+                              <SelectItem value="South African">South African</SelectItem>
+                              <SelectItem value="Nigerian">Nigerian</SelectItem>
+                              <SelectItem value="Other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
 
                         <div className="space-y-2">
