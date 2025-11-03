@@ -2400,94 +2400,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             className="bg-background"
                           />
                           <datalist id="nationality-options">
-                            <option value="UAE" />
-                            <option value="Indian" />
-                            <option value="Pakistani" />
-                            <option value="British" />
-                            <option value="American" />
-                            <option value="Canadian" />
-                            <option value="Australian" />
-                            <option value="Filipino" />
-                            <option value="Egyptian" />
-                            <option value="Jordanian" />
-                            <option value="Lebanese" />
-                            <option value="Saudi Arabian" />
-                            <option value="Kuwaiti" />
-                            <option value="Qatari" />
-                            <option value="Omani" />
-                            <option value="Bahraini" />
-                            <option value="Yemeni" />
-                            <option value="Syrian" />
-                            <option value="Iraqi" />
-                            <option value="Bangladeshi" />
-                            <option value="Sri Lankan" />
-                            <option value="Nepalese" />
-                            <option value="Chinese" />
-                            <option value="Japanese" />
-                            <option value="South Korean" />
-                            <option value="German" />
-                            <option value="French" />
-                            <option value="Italian" />
-                            <option value="Spanish" />
-                            <option value="Russian" />
-                            <option value="Turkish" />
-                            <option value="Iranian" />
-                            <option value="South African" />
-                            <option value="Nigerian" />
-                            <option value="Ethiopian" />
-                            <option value="Kenyan" />
-                            <option value="Moroccan" />
-                            <option value="Tunisian" />
-                            <option value="Algerian" />
-                            <option value="Sudanese" />
-                            <option value="Afghan" />
-                            <option value="Indonesian" />
-                            <option value="Malaysian" />
-                            <option value="Thai" />
-                            <option value="Vietnamese" />
-                            <option value="Singaporean" />
-                            <option value="New Zealander" />
-                            <option value="Dutch" />
-                            <option value="Belgian" />
-                            <option value="Swedish" />
-                            <option value="Norwegian" />
-                            <option value="Danish" />
-                            <option value="Finnish" />
-                            <option value="Polish" />
-                            <option value="Ukrainian" />
-                            <option value="Romanian" />
-                            <option value="Greek" />
-                            <option value="Portuguese" />
-                            <option value="Irish" />
-                            <option value="Swiss" />
-                            <option value="Austrian" />
-                            <option value="Brazilian" />
-                            <option value="Mexican" />
-                            <option value="Argentine" />
-                            <option value="Colombian" />
-                            <option value="Venezuelan" />
-                            <option value="Chilean" />
+...
                             <option value="Peruvian" />
                           </datalist>
-                        </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
-                          <Input
-                            id="no_of_shareholders"
-                            type="number"
-                            min="1"
-                            max="10"
-                            {...form.register('no_of_shareholders', { valueAsNumber: true })}
-                            disabled={isSubmitting}
-                            required
-                          />
-                          {form.formState.errors.no_of_shareholders && (
-                            <p className="text-sm text-red-600">{form.formState.errors.no_of_shareholders.message}</p>
-                          )}
-                          <p className="text-xs text-muted-foreground">
-                            Number of shareholders will determine how many signatory document sets are created (1-10)
-                          </p>
                         </div>
                         </div>
                       </>
@@ -3197,6 +3112,25 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         {form.formState.errors.amount && (
                           <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>
                         )}
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
+                        <Input
+                          id="no_of_shareholders"
+                          type="number"
+                          min="1"
+                          max="10"
+                          {...form.register('no_of_shareholders', { valueAsNumber: true })}
+                          disabled={isSubmitting}
+                          required
+                        />
+                        {form.formState.errors.no_of_shareholders && (
+                          <p className="text-sm text-red-600">{form.formState.errors.no_of_shareholders.message}</p>
+                        )}
+                        <p className="text-xs text-muted-foreground">
+                          Number of shareholders will determine how many signatory document sets are created (1-10)
+                        </p>
                       </div>
 
                       {/* GoAML Business Fields */}
