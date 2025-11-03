@@ -264,7 +264,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     queryFn: async () => {
       const { data, error } = await supabase
         .from('products')
-        .select('id')
+        .select('id, name')
         .ilike('name', '%Business Bank Account%')
         .eq('is_active', true)
         .limit(1)
@@ -273,18 +273,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       if (error) {
         console.error('Error fetching Business Bank Account:', error);
         // Fallback to any bank account product
-        const { data: fallbackData, error: fallbackError } = await supabase
+        const { data: fallbackData } = await supabase
           .from('products')
-          .select('id')
+          .select('id, name')
           .ilike('name', '%bank account%')
           .eq('is_active', true)
           .limit(1)
           .single();
         
-        return fallbackData?.id || null;
+        return fallbackData || null;
       }
 
-      return data?.id || null;
+      return data || null;
     },
     refetchInterval: 30000, // Refetch every 30 seconds for real-time updates
   });
@@ -497,10 +497,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
   // Auto-select Business Bank Account when form loads
   useEffect(() => {
-    if (mostPopularProduct && !watchProductId && !initialData && allProducts.length > 0) {
-      form.setValue('product_id', mostPopularProduct);
+    if (mostPopularProduct?.id && !watchProductId && !initialData && allProducts.length > 0) {
+      form.setValue('product_id', mostPopularProduct.id);
       // Also set the category filter to this product's category
-      const popularProduct = allProducts.find(p => p.id === mostPopularProduct);
+      const popularProduct = allProducts.find(p => p.id === mostPopularProduct.id);
       if (popularProduct?.service_category_id) {
         setCategoryFilter(popularProduct.service_category_id);
       }
@@ -1645,12 +1645,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               </div>
                               <div className="flex items-center gap-2 flex-wrap">
                                 <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Service Selection</h3>
-                                {selectedProduct && (
+                                {selectedProduct ? (
                                   <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
                                     <Check className="h-3.5 w-3.5 text-primary" />
                                     <span className="text-xs font-medium text-primary">{selectedProduct.name}</span>
                                   </div>
-                                )}
+                                ) : mostPopularProduct ? (
+                                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
+                                    <Check className="h-3.5 w-3.5 text-primary" />
+                                    <span className="text-xs font-medium text-primary">{mostPopularProduct.name}</span>
+                                  </div>
+                                ) : null}
                               </div>
                             </div>
                             {sectionsWithErrors.has('service') && (
