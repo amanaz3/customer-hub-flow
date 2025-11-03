@@ -345,6 +345,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
+    mode: 'onBlur', // Validate when user leaves a field
+    reValidateMode: 'onChange', // Re-validate on every change after first blur
     defaultValues: {
       name: '',
       email: '',
@@ -559,6 +561,21 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       setCurrentStage('preview');
     }
   }, [form, toast, totalStickyOffset]);
+
+  // Real-time error tracking - update sectionsWithErrors as user types
+  useEffect(() => {
+    const errors = form.formState.errors;
+    const errorSections = new Set<string>();
+    
+    Object.keys(errors).forEach((fieldName) => {
+      const section = getFieldSection(fieldName);
+      if (section) {
+        errorSections.add(section);
+      }
+    });
+    
+    setSectionsWithErrors(errorSections);
+  }, [form.formState.errors]);
 
   // Auto-select Business Bank Account as default product when form loads
   useEffect(() => {
