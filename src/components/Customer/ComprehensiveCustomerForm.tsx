@@ -4406,6 +4406,33 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
                         <Badge variant="secondary" className="text-xs">7 items</Badge>
                       </div>
+                      <div className="flex items-center gap-1">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={() => {
+                                  const checklist = `AML Services - Required Documents Checklist\n\nPersonal Documents:\n• Copy of Emirates ID / Passport\n• Proof of address (utility bill, tenancy contract)\n\nCompany Documents:\n• Trade license (for companies)\n• Memorandum of Association\n• Board resolution for authorized signatories\n\nFinancial Documents:\n• Bank statements (last 3-6 months)\n• Source of funds documentation`;
+                                  navigator.clipboard.writeText(checklist);
+                                  toast({
+                                    title: "Copied!",
+                                    description: "Checklist copied to clipboard",
+                                  });
+                                }}
+                              >
+                                <ClipboardList className="h-3.5 w-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy checklist</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     </div>
                     <p className="text-xs text-foreground/70 italic mb-2 px-2 ml-3 flex items-start gap-1.5">
                       <Info className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
