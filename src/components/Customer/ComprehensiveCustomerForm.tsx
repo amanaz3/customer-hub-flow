@@ -4400,52 +4400,84 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 {/* Required Documents Section - AML Services */}
                 {hasAMLServices && (
                   <div className="mt-3">
-                    <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
-                      <span className="text-xs">ℹ️</span>
-                      <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
+                    <div className="flex items-center justify-between gap-2 mb-2 px-2 py-1.5 bg-primary/5 rounded">
+                      <div className="flex items-center gap-1.5">
+                        <ClipboardList className="h-4 w-4 text-primary" />
+                        <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
+                        <Badge variant="secondary" className="text-xs">7 items</Badge>
+                      </div>
                     </div>
                     <p className="text-xs text-foreground/70 italic mb-2 px-2 ml-3 flex items-start gap-1.5">
-                      <span className="text-base leading-none">💡</span>
-                      <span>This is an informational checklist only. Documents will be requested during the AML compliance process.</span>
+                      <Info className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                      <span>Agent reference only - Documents will be requested during AML compliance process.</span>
                     </p>
                     <Accordion type="single" collapsible className="w-full ml-3 border-l-2 border-muted pl-2">
                       <AccordionItem value="aml-services-docs" className="border-0">
                         <AccordionTrigger className="pl-6 py-2 hover:no-underline text-sm justify-start gap-2">
-                          <span className="text-muted-foreground">View document checklist</span>
+                          <span className="text-muted-foreground">📋 View categorized document checklist</span>
                         </AccordionTrigger>
                         <AccordionContent className="px-4 pb-4">
-                          <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
-                            <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Supporting Documents Required:</p>
-                            <ul className="text-sm space-y-1.5 text-muted-foreground">
-                              <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-0.5">•</span>
-                                <span>Copy of Emirates ID / Passport</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-0.5">•</span>
-                                <span>Proof of address (utility bill, tenancy contract)</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-0.5">•</span>
-                                <span>Trade license (for companies)</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-0.5">•</span>
-                                <span>Memorandum of Association</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-0.5">•</span>
-                                <span>Board resolution for authorized signatories</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-0.5">•</span>
-                                <span>Bank statements (last 3-6 months)</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-0.5">•</span>
-                                <span>Source of funds documentation</span>
-                              </li>
-                            </ul>
+                          <div className="space-y-4">
+                            {/* Personal Documents */}
+                            <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Users className="h-4 w-4 text-blue-600" />
+                                <p className="text-xs font-semibold text-blue-900 dark:text-blue-100">Personal Documents</p>
+                                <Badge variant="outline" className="text-xs">2</Badge>
+                              </div>
+                              <ul className="text-sm space-y-1.5 text-muted-foreground ml-6">
+                                <li className="flex items-start gap-2">
+                                  <span className="text-blue-500 mt-0.5">•</span>
+                                  <span>Copy of Emirates ID / Passport</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-blue-500 mt-0.5">•</span>
+                                  <span>Proof of address (utility bill, tenancy contract)</span>
+                                </li>
+                              </ul>
+                            </div>
+
+                            {/* Company Documents */}
+                            <div className="rounded-md border border-purple-200 dark:border-purple-800 bg-background/50 p-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Building2 className="h-4 w-4 text-purple-600" />
+                                <p className="text-xs font-semibold text-purple-900 dark:text-purple-100">Company Documents</p>
+                                <Badge variant="outline" className="text-xs">3</Badge>
+                              </div>
+                              <ul className="text-sm space-y-1.5 text-muted-foreground ml-6">
+                                <li className="flex items-start gap-2">
+                                  <span className="text-purple-500 mt-0.5">•</span>
+                                  <span>Trade license (for companies)</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-purple-500 mt-0.5">•</span>
+                                  <span>Memorandum of Association</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-purple-500 mt-0.5">•</span>
+                                  <span>Board resolution for authorized signatories</span>
+                                </li>
+                              </ul>
+                            </div>
+
+                            {/* Financial Documents */}
+                            <div className="rounded-md border border-green-200 dark:border-green-800 bg-background/50 p-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <CircleDot className="h-4 w-4 text-green-600" />
+                                <p className="text-xs font-semibold text-green-900 dark:text-green-100">Financial Documents</p>
+                                <Badge variant="outline" className="text-xs">2</Badge>
+                              </div>
+                              <ul className="text-sm space-y-1.5 text-muted-foreground ml-6">
+                                <li className="flex items-start gap-2">
+                                  <span className="text-green-500 mt-0.5">•</span>
+                                  <span>Bank statements (last 3-6 months)</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-green-500 mt-0.5">•</span>
+                                  <span>Source of funds documentation</span>
+                                </li>
+                              </ul>
+                            </div>
                           </div>
                         </AccordionContent>
                       </AccordionItem>
