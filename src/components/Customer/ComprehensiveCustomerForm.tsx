@@ -250,11 +250,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [currentStage]);
 
-  // Reposition the form content card when mode changes (tab swap)
+  // Scroll to top when customer mode changes (tab swap)
   useEffect(() => {
-    // wait a tick for layout to settle
-    requestAnimationFrame(() => scrollFormCardIntoView());
-  }, [customerMode, scrollFormCardIntoView]);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [customerMode]);
   const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
   const { user, isAdmin } = useAuth();
