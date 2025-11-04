@@ -250,9 +250,39 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [currentStage]);
 
-  // Scroll page to top when customer mode changes (tab swap)
+  // Robust: scroll PAGE to top on customer mode change, even if a dialog just closed
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    let attempts = 0;
+    const maxAttempts = 12; // ~200ms with rAF
+
+    const tryScroll = () => {
+      const locked =
+        document.body.style.overflow === 'hidden' ||
+        document.body.hasAttribute('data-scroll-locked') ||
+        document.documentElement.hasAttribute('data-scroll-locked');
+
+      if (locked && attempts < maxAttempts) {
+        attempts++;
+        requestAnimationFrame(tryScroll);
+        return;
+      }
+
+      // Double RAF to ensure layout settles after tab swap/modal close
+      requestAnimationFrame(() => {
+        requestAnimationFrame(() => {
+          try {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+          } finally {
+            // Fallbacks for some browsers/environments
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
+          }
+          console.info('[ComprehensiveCustomerForm] Forced page scroll to top after mode change');
+        });
+      });
+    };
+
+    tryScroll();
   }, [customerMode]);
   const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
