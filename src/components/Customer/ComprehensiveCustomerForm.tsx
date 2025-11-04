@@ -4341,61 +4341,294 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 {/* Required Documents Section - GoAML */}
                 {hasGoAML && (
                   <div className="mt-3">
-                    <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
-                      <span className="text-xs">ℹ️</span>
-                      <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
+                    <div className="flex items-center justify-between gap-2 mb-2 px-2 py-1.5 bg-primary/5 rounded">
+                      <div className="flex items-center gap-1.5">
+                        <ClipboardList className="h-4 w-4 text-primary" />
+                        <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
+                        <Badge variant="secondary" className="text-xs">8 items</Badge>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={() => {
+                                  const doc = new jsPDF();
+                                  
+                                  doc.setFontSize(16);
+                                  doc.setFont(undefined, 'bold');
+                                  doc.text('GoAML REGISTRATION', 105, 20, { align: 'center' });
+                                  doc.text('Required Documents Checklist', 105, 28, { align: 'center' });
+                                  
+                                  doc.setFontSize(10);
+                                  doc.setFont(undefined, 'normal');
+                                  doc.text(`Generated: ${new Date().toLocaleDateString()}`, 105, 35, { align: 'center' });
+                                  
+                                  doc.setLineWidth(0.5);
+                                  doc.line(20, 40, 190, 40);
+                                  
+                                  let yPos = 50;
+                                  
+                                  doc.setFontSize(12);
+                                  doc.setFont(undefined, 'bold');
+                                  doc.text('COMPANY DOCUMENTS (3)', 20, yPos);
+                                  yPos += 8;
+                                  
+                                  doc.setFontSize(10);
+                                  doc.setFont(undefined, 'normal');
+                                  doc.text('☐ Trade License Copy (certified)', 25, yPos);
+                                  yPos += 7;
+                                  doc.text('☐ Memorandum of Association (MOA)', 25, yPos);
+                                  yPos += 7;
+                                  doc.text('☐ Company Organization Chart', 25, yPos);
+                                  yPos += 12;
+                                  
+                                  doc.setFontSize(12);
+                                  doc.setFont(undefined, 'bold');
+                                  doc.text('BENEFICIAL OWNER DOCUMENTS (3)', 20, yPos);
+                                  yPos += 8;
+                                  
+                                  doc.setFontSize(10);
+                                  doc.setFont(undefined, 'normal');
+                                  doc.text('☐ Passport Copies of all UBOs', 25, yPos);
+                                  yPos += 7;
+                                  doc.text('☐ Emirates ID Copies of all UBOs', 25, yPos);
+                                  yPos += 7;
+                                  doc.text('☐ Proof of Address for all UBOs', 25, yPos);
+                                  yPos += 12;
+                                  
+                                  doc.setFontSize(12);
+                                  doc.setFont(undefined, 'bold');
+                                  doc.text('COMPLIANCE DOCUMENTS (2)', 20, yPos);
+                                  yPos += 8;
+                                  
+                                  doc.setFontSize(10);
+                                  doc.setFont(undefined, 'normal');
+                                  doc.text('☐ Board Resolution appointing Compliance Officer', 25, yPos);
+                                  yPos += 7;
+                                  doc.text('☐ Bank Account Details & Statements (Last 6 months)', 25, yPos);
+                                  yPos += 15;
+                                  
+                                  doc.setLineWidth(0.5);
+                                  doc.line(20, yPos, 190, yPos);
+                                  yPos += 8;
+                                  
+                                  doc.setFontSize(9);
+                                  doc.setFont(undefined, 'bold');
+                                  doc.text('NOTES:', 20, yPos);
+                                  yPos += 6;
+                                  
+                                  doc.setFont(undefined, 'normal');
+                                  doc.text('• Documents will be collected in subsequent registration steps', 20, yPos);
+                                  yPos += 5;
+                                  doc.text('• All copies must be certified where indicated', 20, yPos);
+                                  yPos += 5;
+                                  doc.text('• UBO = Ultimate Beneficial Owner (25%+ ownership)', 20, yPos);
+                                  
+                                  doc.save(`GoAML-Registration-Checklist-${new Date().toISOString().split('T')[0]}.pdf`);
+                                  
+                                  toast({
+                                    title: "Downloaded!",
+                                    description: "PDF checklist saved to downloads",
+                                  });
+                                }}
+                              >
+                                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Download PDF checklist</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={() => {
+                                  const checklist = `GoAML REGISTRATION - REQUIRED DOCUMENTS CHECKLIST
+
+Generated: ${new Date().toLocaleDateString()}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+COMPANY DOCUMENTS (3)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Trade License Copy (certified)
+□ Memorandum of Association (MOA)
+□ Company Organization Chart
+
+
+BENEFICIAL OWNER DOCUMENTS (3)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Passport Copies of all UBOs
+□ Emirates ID Copies of all UBOs
+□ Proof of Address for all UBOs
+
+
+COMPLIANCE DOCUMENTS (2)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Board Resolution appointing Compliance Officer
+□ Bank Account Details & Statements (Last 6 months)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NOTES:
+• Documents will be collected in subsequent registration steps
+• All copies must be certified where indicated
+• UBO = Ultimate Beneficial Owner (25%+ ownership)
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+                                  
+                                  const blob = new Blob([checklist], { type: 'text/plain' });
+                                  const url = window.URL.createObjectURL(blob);
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.download = `GoAML-Registration-Checklist-${new Date().toISOString().split('T')[0]}.txt`;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  window.URL.revokeObjectURL(url);
+                                  document.body.removeChild(a);
+                                  
+                                  toast({
+                                    title: "Downloaded!",
+                                    description: "Text checklist saved to downloads",
+                                  });
+                                }}
+                              >
+                                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Download text checklist</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={() => {
+                                  const checklist = `GoAML Registration - Required Documents\n\nCompany Documents:\n• Trade License Copy (certified)\n• Memorandum of Association (MOA)\n• Company Organization Chart\n\nBeneficial Owner Documents:\n• Passport Copies of all UBOs\n• Emirates ID Copies of all UBOs\n• Proof of Address for all UBOs\n\nCompliance Documents:\n• Board Resolution appointing Compliance Officer\n• Bank Account Details & Statements (Last 6 months)`;
+                                  navigator.clipboard.writeText(checklist);
+                                  toast({
+                                    title: "Copied!",
+                                    description: "Checklist copied to clipboard",
+                                  });
+                                }}
+                              >
+                                <ClipboardList className="h-3.5 w-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy checklist</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     </div>
                     <p className="text-xs text-foreground/70 italic mb-2 px-2 ml-3 flex items-start gap-1.5">
-                      <span className="text-base leading-none">💡</span>
-                      <span>This is an informational checklist only. Documents will be collected in subsequent registration steps.</span>
+                      <Info className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                      <span>Agent reference only - Documents collected in subsequent registration steps.</span>
                     </p>
-                      <Accordion type="single" collapsible className="w-full ml-3 border-l-2 border-muted pl-2">
-                        <AccordionItem value="goaml-docs" className="border-0">
-                          <AccordionTrigger className="pl-6 py-2 hover:no-underline text-sm justify-start gap-2">
-                            <span className="text-muted-foreground">View document checklist</span>
-                          </AccordionTrigger>
-                      <AccordionContent className="px-4 pb-4">
-                        <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
-                          <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Required Documents:</p>
-                          <ul className="text-sm space-y-1.5 text-muted-foreground">
-                            <li className="flex items-start gap-2">
-                              <span className="text-blue-500 mt-0.5">•</span>
-                              <span>Trade License Copy (certified)</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-blue-500 mt-0.5">•</span>
-                              <span>Passport Copies of all Beneficial Owners (UBOs)</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-blue-500 mt-0.5">•</span>
-                              <span>Emirates ID Copies of all UBOs</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-blue-500 mt-0.5">•</span>
-                              <span>Proof of Address for all UBOs</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-blue-500 mt-0.5">•</span>
-                              <span>Memorandum of Association (MOA)</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-blue-500 mt-0.5">•</span>
-                              <span>Board Resolution appointing Compliance Officer</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-blue-500 mt-0.5">•</span>
-                              <span>Company Organization Chart</span>
-                            </li>
-                            <li className="flex items-start gap-2">
-                              <span className="text-blue-500 mt-0.5">•</span>
-                              <span>Bank Account Details & Statements (Last 6 months)</span>
-                            </li>
-                          </ul>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </div>
+                    <Accordion type="single" collapsible className="w-full ml-3 border-l-2 border-muted pl-2">
+                      <AccordionItem value="goaml-docs" className="border-0">
+                        <AccordionTrigger className="pl-6 py-2 hover:no-underline text-sm justify-start gap-2">
+                          <span className="text-muted-foreground">📋 View categorized document checklist</span>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-4">
+                          <div className="space-y-4">
+                            {/* Company Documents */}
+                            <div className="rounded-md border border-purple-200 dark:border-purple-800 bg-background/50 p-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Building2 className="h-4 w-4 text-purple-600" />
+                                <p className="text-xs font-semibold text-purple-900 dark:text-purple-100">Company Documents</p>
+                                <Badge variant="outline" className="text-xs">3</Badge>
+                              </div>
+                              <ul className="text-sm space-y-1.5 text-muted-foreground ml-6">
+                                <li className="flex items-start gap-2">
+                                  <span className="text-purple-500 mt-0.5">•</span>
+                                  <span>Trade License Copy (certified)</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-purple-500 mt-0.5">•</span>
+                                  <span>Memorandum of Association (MOA)</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-purple-500 mt-0.5">•</span>
+                                  <span>Company Organization Chart</span>
+                                </li>
+                              </ul>
+                            </div>
+
+                            {/* Beneficial Owner Documents */}
+                            <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Users className="h-4 w-4 text-blue-600" />
+                                <p className="text-xs font-semibold text-blue-900 dark:text-blue-100">Beneficial Owner Documents</p>
+                                <Badge variant="outline" className="text-xs">3</Badge>
+                              </div>
+                              <ul className="text-sm space-y-1.5 text-muted-foreground ml-6">
+                                <li className="flex items-start gap-2">
+                                  <span className="text-blue-500 mt-0.5">•</span>
+                                  <span>Passport Copies of all Beneficial Owners (UBOs)</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-blue-500 mt-0.5">•</span>
+                                  <span>Emirates ID Copies of all UBOs</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-blue-500 mt-0.5">•</span>
+                                  <span>Proof of Address for all UBOs</span>
+                                </li>
+                              </ul>
+                            </div>
+
+                            {/* Compliance Documents */}
+                            <div className="rounded-md border border-green-200 dark:border-green-800 bg-background/50 p-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <CircleDot className="h-4 w-4 text-green-600" />
+                                <p className="text-xs font-semibold text-green-900 dark:text-green-100">Compliance Documents</p>
+                                <Badge variant="outline" className="text-xs">2</Badge>
+                              </div>
+                              <ul className="text-sm space-y-1.5 text-muted-foreground ml-6">
+                                <li className="flex items-start gap-2">
+                                  <span className="text-green-500 mt-0.5">•</span>
+                                  <span>Board Resolution appointing Compliance Officer</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-green-500 mt-0.5">•</span>
+                                  <span>Bank Account Details & Statements (Last 6 months)</span>
+                                </li>
+                              </ul>
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    </Accordion>
+                  </div>
                 )}
 
                 {/* Required Documents Section - AML Services */}
@@ -4692,64 +4925,327 @@ NOTES:
                 {/* Required Documents Section - Home Finance */}
                 {hasHomeFinance && (
                   <div className="mt-3">
-                    <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
-                      <span className="text-xs">ℹ️</span>
-                      <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
+                    <div className="flex items-center justify-between gap-2 mb-2 px-2 py-1.5 bg-primary/5 rounded">
+                      <div className="flex items-center gap-1.5">
+                        <ClipboardList className="h-4 w-4 text-primary" />
+                        <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
+                        <Badge variant="secondary" className="text-xs">10 items</Badge>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={() => {
+                                  const doc = new jsPDF();
+                                  
+                                  doc.setFontSize(16);
+                                  doc.setFont(undefined, 'bold');
+                                  doc.text('HOME FINANCE MORTGAGE', 105, 20, { align: 'center' });
+                                  doc.text('Required Documents Checklist', 105, 28, { align: 'center' });
+                                  
+                                  doc.setFontSize(10);
+                                  doc.setFont(undefined, 'normal');
+                                  doc.text(`Generated: ${new Date().toLocaleDateString()}`, 105, 35, { align: 'center' });
+                                  
+                                  doc.setLineWidth(0.5);
+                                  doc.line(20, 40, 190, 40);
+                                  
+                                  let yPos = 50;
+                                  
+                                  doc.setFontSize(12);
+                                  doc.setFont(undefined, 'bold');
+                                  doc.text('PERSONAL DOCUMENTS (2)', 20, yPos);
+                                  yPos += 8;
+                                  
+                                  doc.setFontSize(10);
+                                  doc.setFont(undefined, 'normal');
+                                  doc.text('☐ Passport Copy with valid UAE Visa', 25, yPos);
+                                  yPos += 7;
+                                  doc.text('☐ Emirates ID Copy (both sides)', 25, yPos);
+                                  yPos += 12;
+                                  
+                                  doc.setFontSize(12);
+                                  doc.setFont(undefined, 'bold');
+                                  doc.text('EMPLOYMENT & FINANCIAL (2)', 20, yPos);
+                                  yPos += 8;
+                                  
+                                  doc.setFontSize(10);
+                                  doc.setFont(undefined, 'normal');
+                                  doc.text('☐ Salary Certificate (last 3 months)', 25, yPos);
+                                  yPos += 7;
+                                  doc.text('☐ Bank Statements (last 6 months)', 25, yPos);
+                                  yPos += 12;
+                                  
+                                  doc.setFontSize(12);
+                                  doc.setFont(undefined, 'bold');
+                                  doc.text('PROPERTY DOCUMENTS (3)', 20, yPos);
+                                  yPos += 8;
+                                  
+                                  doc.setFontSize(10);
+                                  doc.setFont(undefined, 'normal');
+                                  doc.text('☐ Property Valuation Report', 25, yPos);
+                                  yPos += 7;
+                                  doc.text('☐ Property Documents (Title Deed / MOU / Sale Agreement)', 25, yPos);
+                                  yPos += 7;
+                                  doc.text('☐ Proof of Down Payment (Bank Statement)', 25, yPos);
+                                  yPos += 12;
+                                  
+                                  doc.setFontSize(12);
+                                  doc.setFont(undefined, 'bold');
+                                  doc.text('ADDITIONAL DOCUMENTS (3)', 20, yPos);
+                                  yPos += 8;
+                                  
+                                  doc.setFontSize(10);
+                                  doc.setFont(undefined, 'normal');
+                                  doc.text('☐ Credit Report Authorization Form', 25, yPos);
+                                  yPos += 7;
+                                  doc.text('☐ Self-Employed: Trade License, MOA, Audited Financials', 25, yPos);
+                                  yPos += 7;
+                                  doc.text('☐ Co-Applicant: All above documents for co-applicant', 25, yPos);
+                                  yPos += 15;
+                                  
+                                  doc.setLineWidth(0.5);
+                                  doc.line(20, yPos, 190, yPos);
+                                  yPos += 8;
+                                  
+                                  doc.setFontSize(9);
+                                  doc.setFont(undefined, 'bold');
+                                  doc.text('NOTES:', 20, yPos);
+                                  yPos += 6;
+                                  
+                                  doc.setFont(undefined, 'normal');
+                                  doc.text('• Documents requested during mortgage processing stage', 20, yPos);
+                                  yPos += 5;
+                                  doc.text('• Self-employed applicants need additional business documents', 20, yPos);
+                                  yPos += 5;
+                                  doc.text('• Co-applicant documents required if applicable', 20, yPos);
+                                  
+                                  doc.save(`Home-Finance-Checklist-${new Date().toISOString().split('T')[0]}.pdf`);
+                                  
+                                  toast({
+                                    title: "Downloaded!",
+                                    description: "PDF checklist saved to downloads",
+                                  });
+                                }}
+                              >
+                                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Download PDF checklist</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={() => {
+                                  const checklist = `HOME FINANCE MORTGAGE - REQUIRED DOCUMENTS CHECKLIST
+
+Generated: ${new Date().toLocaleDateString()}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PERSONAL DOCUMENTS (2)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Passport Copy with valid UAE Visa
+□ Emirates ID Copy (both sides)
+
+
+EMPLOYMENT & FINANCIAL (2)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Salary Certificate (last 3 months)
+□ Bank Statements (last 6 months)
+
+
+PROPERTY DOCUMENTS (3)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Property Valuation Report
+□ Property Documents (Title Deed / MOU / Sale Agreement)
+□ Proof of Down Payment (Bank Statement showing available funds)
+
+
+ADDITIONAL DOCUMENTS (3)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Credit Report Authorization Form
+□ If Self-Employed: Trade License, MOA, Audited Financials (last 2 years)
+□ If Co-Applicant: All above documents for co-applicant as well
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NOTES:
+• Documents requested during mortgage processing stage
+• Self-employed applicants need additional business documents
+• Co-applicant documents required if applicable
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+                                  
+                                  const blob = new Blob([checklist], { type: 'text/plain' });
+                                  const url = window.URL.createObjectURL(blob);
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.download = `Home-Finance-Checklist-${new Date().toISOString().split('T')[0]}.txt`;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  window.URL.revokeObjectURL(url);
+                                  document.body.removeChild(a);
+                                  
+                                  toast({
+                                    title: "Downloaded!",
+                                    description: "Text checklist saved to downloads",
+                                  });
+                                }}
+                              >
+                                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Download text checklist</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={() => {
+                                  const checklist = `Home Finance Mortgage - Required Documents\n\nPersonal Documents:\n• Passport Copy with valid UAE Visa\n• Emirates ID Copy (both sides)\n\nEmployment & Financial:\n• Salary Certificate (last 3 months)\n• Bank Statements (last 6 months)\n\nProperty Documents:\n• Property Valuation Report\n• Property Documents (Title Deed / MOU / Sale Agreement)\n• Proof of Down Payment\n\nAdditional Documents:\n• Credit Report Authorization Form\n• If Self-Employed: Trade License, MOA, Audited Financials\n• If Co-Applicant: All documents for co-applicant`;
+                                  navigator.clipboard.writeText(checklist);
+                                  toast({
+                                    title: "Copied!",
+                                    description: "Checklist copied to clipboard",
+                                  });
+                                }}
+                              >
+                                <ClipboardList className="h-3.5 w-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Copy checklist</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                      </div>
                     </div>
                     <p className="text-xs text-foreground/70 italic mb-2 px-2 ml-3 flex items-start gap-1.5">
-                      <span className="text-base leading-none">💡</span>
-                      <span>This is an informational checklist only. Documents will be requested during the mortgage processing stage.</span>
+                      <Info className="h-3.5 w-3.5 mt-0.5 flex-shrink-0" />
+                      <span>Agent reference only - Documents requested during mortgage processing stage.</span>
                     </p>
                     <Accordion type="single" collapsible className="w-full ml-3 border-l-2 border-muted pl-2">
                       <AccordionItem value="home-finance-docs" className="border-0">
                         <AccordionTrigger className="pl-6 py-2 hover:no-underline text-sm justify-start gap-2">
-                          <span className="text-muted-foreground">View document checklist</span>
+                          <span className="text-muted-foreground">📋 View categorized document checklist</span>
                         </AccordionTrigger>
                         <AccordionContent className="px-4 pb-4">
-                          <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
-                            <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Supporting Documents Required:</p>
-                            <ul className="text-sm space-y-1.5 text-muted-foreground">
-                              <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-0.5">•</span>
-                                <span>Passport Copy with valid UAE Visa</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-0.5">•</span>
-                                <span>Emirates ID Copy (both sides)</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-0.5">•</span>
-                                <span>Salary Certificate (last 3 months)</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-0.5">•</span>
-                                <span>Bank Statements (last 6 months)</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-0.5">•</span>
-                                <span>Property Valuation Report</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-0.5">•</span>
-                                <span>Property Documents (Title Deed / MOU / Sale Agreement)</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-0.5">•</span>
-                                <span>Proof of Down Payment (Bank Statement showing available funds)</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-blue-500 mt-0.5">•</span>
-                                <span>Credit Report Authorization Form</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-orange-600 mt-0.5">•</span>
-                                <span><strong>If Self-Employed:</strong> Trade License, MOA, Audited Financials (last 2 years)</span>
-                              </li>
-                              <li className="flex items-start gap-2">
-                                <span className="text-orange-600 mt-0.5">•</span>
-                                <span><strong>If Co-Applicant:</strong> All above documents for co-applicant as well</span>
-                              </li>
-                            </ul>
+                          <div className="space-y-4">
+                            {/* Personal Documents */}
+                            <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Users className="h-4 w-4 text-blue-600" />
+                                <p className="text-xs font-semibold text-blue-900 dark:text-blue-100">Personal Documents</p>
+                                <Badge variant="outline" className="text-xs">2</Badge>
+                              </div>
+                              <ul className="text-sm space-y-1.5 text-muted-foreground ml-6">
+                                <li className="flex items-start gap-2">
+                                  <span className="text-blue-500 mt-0.5">•</span>
+                                  <span>Passport Copy with valid UAE Visa</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-blue-500 mt-0.5">•</span>
+                                  <span>Emirates ID Copy (both sides)</span>
+                                </li>
+                              </ul>
+                            </div>
+
+                            {/* Employment & Financial Documents */}
+                            <div className="rounded-md border border-green-200 dark:border-green-800 bg-background/50 p-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <CircleDot className="h-4 w-4 text-green-600" />
+                                <p className="text-xs font-semibold text-green-900 dark:text-green-100">Employment & Financial</p>
+                                <Badge variant="outline" className="text-xs">2</Badge>
+                              </div>
+                              <ul className="text-sm space-y-1.5 text-muted-foreground ml-6">
+                                <li className="flex items-start gap-2">
+                                  <span className="text-green-500 mt-0.5">•</span>
+                                  <span>Salary Certificate (last 3 months)</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-green-500 mt-0.5">•</span>
+                                  <span>Bank Statements (last 6 months)</span>
+                                </li>
+                              </ul>
+                            </div>
+
+                            {/* Property Documents */}
+                            <div className="rounded-md border border-purple-200 dark:border-purple-800 bg-background/50 p-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Building2 className="h-4 w-4 text-purple-600" />
+                                <p className="text-xs font-semibold text-purple-900 dark:text-purple-100">Property Documents</p>
+                                <Badge variant="outline" className="text-xs">3</Badge>
+                              </div>
+                              <ul className="text-sm space-y-1.5 text-muted-foreground ml-6">
+                                <li className="flex items-start gap-2">
+                                  <span className="text-purple-500 mt-0.5">•</span>
+                                  <span>Property Valuation Report</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-purple-500 mt-0.5">•</span>
+                                  <span>Property Documents (Title Deed / MOU / Sale Agreement)</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-purple-500 mt-0.5">•</span>
+                                  <span>Proof of Down Payment (Bank Statement showing available funds)</span>
+                                </li>
+                              </ul>
+                            </div>
+
+                            {/* Additional Documents */}
+                            <div className="rounded-md border border-orange-200 dark:border-orange-800 bg-background/50 p-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <AlertCircle className="h-4 w-4 text-orange-600" />
+                                <p className="text-xs font-semibold text-orange-900 dark:text-orange-100">Additional Documents</p>
+                                <Badge variant="outline" className="text-xs">3</Badge>
+                              </div>
+                              <ul className="text-sm space-y-1.5 text-muted-foreground ml-6">
+                                <li className="flex items-start gap-2">
+                                  <span className="text-orange-500 mt-0.5">•</span>
+                                  <span>Credit Report Authorization Form</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-orange-600 mt-0.5">•</span>
+                                  <span><strong>If Self-Employed:</strong> Trade License, MOA, Audited Financials (last 2 years)</span>
+                                </li>
+                                <li className="flex items-start gap-2">
+                                  <span className="text-orange-600 mt-0.5">•</span>
+                                  <span><strong>If Co-Applicant:</strong> All above documents for co-applicant as well</span>
+                                </li>
+                              </ul>
+                            </div>
                           </div>
                         </AccordionContent>
                       </AccordionItem>
