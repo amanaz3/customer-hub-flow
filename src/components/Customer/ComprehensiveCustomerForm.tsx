@@ -3757,61 +3757,63 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             </div>
                           </div>
                         </div>
-
-                        {/* Required Documents Section - AML Services */}
-                        <div className="mt-3">
-                          <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
-                            <span className="text-xs">ℹ️</span>
-                            <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
-                          </div>
-                          <p className="text-xs text-foreground/70 italic mb-2 px-2 ml-3 flex items-start gap-1.5">
-                            <span className="text-base leading-none">💡</span>
-                            <span>This is an informational checklist only. Documents will be requested during the AML compliance process.</span>
-                          </p>
-                          <Accordion type="single" collapsible className="w-full ml-3 border-l-2 border-muted pl-2">
-                            <AccordionItem value="aml-services-docs" className="border-0">
-                              <AccordionTrigger className="pl-6 py-2 hover:no-underline text-sm justify-start gap-2">
-                                <span className="text-muted-foreground">View document checklist</span>
-                              </AccordionTrigger>
-                              <AccordionContent className="px-4 pb-4">
-                                <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
-                                  <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Supporting Documents Required:</p>
-                                  <ul className="text-sm space-y-1.5 text-muted-foreground">
-                                    <li className="flex items-start gap-2">
-                                      <span className="text-blue-500 mt-0.5">•</span>
-                                      <span>Copy of Emirates ID / Passport</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                      <span className="text-blue-500 mt-0.5">•</span>
-                                      <span>Proof of address (utility bill, tenancy contract)</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                      <span className="text-blue-500 mt-0.5">•</span>
-                                      <span>Trade license (for companies)</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                      <span className="text-blue-500 mt-0.5">•</span>
-                                      <span>Memorandum of Association</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                      <span className="text-blue-500 mt-0.5">•</span>
-                                      <span>Board resolution for authorized signatories</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                      <span className="text-blue-500 mt-0.5">•</span>
-                                      <span>Bank statements (last 3-6 months)</span>
-                                    </li>
-                                    <li className="flex items-start gap-2">
-                                      <span className="text-blue-500 mt-0.5">•</span>
-                                      <span>Source of funds documentation</span>
-                                    </li>
-                                  </ul>
-                                </div>
-                              </AccordionContent>
-                            </AccordionItem>
-                          </Accordion>
-                        </div>
                       </>
+                    )}
+
+                    {/* Required Documents Section - AML Services */}
+                    {hasAMLServices && (
+                      <div className="mt-3">
+                        <div className="flex items-center gap-1.5 mb-2 px-2 py-1.5 bg-primary/5 rounded">
+                          <span className="text-xs">ℹ️</span>
+                          <h4 className="text-xs font-semibold text-foreground">Required Documents</h4>
+                        </div>
+                        <p className="text-xs text-foreground/70 italic mb-2 px-2 ml-3 flex items-start gap-1.5">
+                          <span className="text-base leading-none">💡</span>
+                          <span>This is an informational checklist only. Documents will be requested during the AML compliance process.</span>
+                        </p>
+                        <Accordion type="single" collapsible className="w-full ml-3 border-l-2 border-muted pl-2">
+                          <AccordionItem value="aml-services-docs" className="border-0">
+                            <AccordionTrigger className="pl-6 py-2 hover:no-underline text-sm justify-start gap-2">
+                              <span className="text-muted-foreground">View document checklist</span>
+                            </AccordionTrigger>
+                            <AccordionContent className="px-4 pb-4">
+                              <div className="rounded-md border border-blue-200 dark:border-blue-800 bg-background/50 p-3">
+                                <p className="text-xs font-medium text-blue-900 dark:text-blue-100 mb-2">📋 Supporting Documents Required:</p>
+                                <ul className="text-sm space-y-1.5 text-muted-foreground">
+                                  <li className="flex items-start gap-2">
+                                    <span className="text-blue-500 mt-0.5">•</span>
+                                    <span>Copy of Emirates ID / Passport</span>
+                                  </li>
+                                  <li className="flex items-start gap-2">
+                                    <span className="text-blue-500 mt-0.5">•</span>
+                                    <span>Proof of address (utility bill, tenancy contract)</span>
+                                  </li>
+                                  <li className="flex items-start gap-2">
+                                    <span className="text-blue-500 mt-0.5">•</span>
+                                    <span>Trade license (for companies)</span>
+                                  </li>
+                                  <li className="flex items-start gap-2">
+                                    <span className="text-blue-500 mt-0.5">•</span>
+                                    <span>Memorandum of Association</span>
+                                  </li>
+                                  <li className="flex items-start gap-2">
+                                    <span className="text-blue-500 mt-0.5">•</span>
+                                    <span>Board resolution for authorized signatories</span>
+                                  </li>
+                                  <li className="flex items-start gap-2">
+                                    <span className="text-blue-500 mt-0.5">•</span>
+                                    <span>Bank statements (last 3-6 months)</span>
+                                  </li>
+                                  <li className="flex items-start gap-2">
+                                    <span className="text-blue-500 mt-0.5">•</span>
+                                    <span>Source of funds documentation</span>
+                                  </li>
+                                </ul>
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
+                      </div>
                     )}
 
                     {/* GoAML Application Fields */}
