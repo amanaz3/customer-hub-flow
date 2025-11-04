@@ -52,19 +52,35 @@ const ProductManagement: React.FC = () => {
     service_category_id: null
   });
 
-  const { data: serviceCategories } = useQuery({
+  const { data: serviceCategories, error: categoriesError, isLoading: categoriesLoading } = useQuery({
     queryKey: ['service-categories'],
     queryFn: async () => {
+      console.log('Fetching service categories...');
       const { data, error } = await supabase
         .from('service_category')
         .select('id, category_name')
         .eq('is_active', true)
         .order('category_name');
       
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching categories:', error);
+        throw error;
+      }
+      console.log('Categories fetched:', data);
       return data as ServiceCategory[];
     }
   });
+
+  // Show toast if there's an error fetching categories
+  React.useEffect(() => {
+    if (categoriesError) {
+      toast({
+        title: "Error",
+        description: `Failed to load categories: ${categoriesError.message}`,
+        variant: "destructive"
+      });
+    }
+  }, [categoriesError, toast]);
 
   const { data: products, isLoading } = useQuery({
     queryKey: ['products'],
@@ -332,9 +348,16 @@ const ProductManagement: React.FC = () => {
                       ...prev, 
                       service_category_id: value === "none" ? null : value 
                     }))}
+                    disabled={categoriesLoading}
                   >
                     <SelectTrigger id="service_category">
-                      <SelectValue placeholder="Select a category (optional)" />
+                      <SelectValue placeholder={
+                        categoriesLoading 
+                          ? "Loading categories..." 
+                          : categoriesError 
+                          ? "Error loading categories"
+                          : "Select a category (optional)"
+                      } />
                     </SelectTrigger>
                     <SelectContent className="bg-popover z-50">
                       <SelectItem value="none">
@@ -348,11 +371,16 @@ const ProductManagement: React.FC = () => {
                         ))
                       ) : (
                         <SelectItem value="no-categories" disabled>
-                          <span className="text-muted-foreground text-xs">No categories available. Create one first.</span>
+                          <span className="text-muted-foreground text-xs">
+                            {categoriesLoading ? "Loading..." : "No categories available. Create one first."}
+                          </span>
                         </SelectItem>
                       )}
                     </SelectContent>
                   </Select>
+                  {categoriesError && (
+                    <p className="text-xs text-destructive">Failed to load categories</p>
+                  )}
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch
