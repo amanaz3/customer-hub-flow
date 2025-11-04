@@ -250,28 +250,23 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [currentStage]);
 
-  // Reset all scrollbars (outer first, then inner) when tabs swapped
+  // Reset scroll to top when tabs swapped
   useEffect(() => {
     const resetScrollPositions = () => {
-      // 1) App main scroll container FIRST (MainLayout -> <main class="overflow-y-auto"/>)
+      // Reset main scroll container to top instantly
       const mainEl = document.querySelector('main');
       if (mainEl && 'scrollTo' in mainEl) {
-        (mainEl as HTMLElement).scrollTo({ top: 0, behavior: 'smooth' });
+        (mainEl as HTMLElement).scrollTo({ top: 0, behavior: 'instant' });
       } else if (document.scrollingElement) {
-        document.scrollingElement.scrollTo({ top: 0, behavior: 'smooth' });
+        document.scrollingElement.scrollTo({ top: 0, behavior: 'instant' });
       } else {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: 'instant' });
       }
 
-      // 2) Inner card scroll SECOND
-      if (scrollContainerRef.current) {
-        scrollContainerRef.current.scrollTop = 0;
-      }
-
-      console.info('[ComprehensiveCustomerForm] Reset outer then inner scroll to top');
+      console.info('[ComprehensiveCustomerForm] Reset scroll to top on tab switch');
     };
 
-    // Double RAF to let layout settle after mode swap/dialog close
+    // Double RAF to let layout settle after mode swap
     requestAnimationFrame(() => requestAnimationFrame(resetScrollPositions));
   }, [customerMode]);
   const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
