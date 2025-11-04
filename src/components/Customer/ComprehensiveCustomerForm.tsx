@@ -1386,12 +1386,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       )}
 
       {/* Stage Indicator - Premium Stylish Design */}
-      <Card ref={stageRef} className="sticky top-0 z-[100] border border-b-2 border-border shadow-elegant ring-1 ring-border/50 overflow-hidden bg-background/95 backdrop-blur-md mb-0 rounded-b-none">
+      <Card ref={stageRef} className="sticky top-0 z-[100] border border-b-2 border-border shadow-elegant ring-1 ring-border/50 overflow-hidden bg-gradient-to-b from-primary/[0.02] to-background/95 backdrop-blur-md mb-0 rounded-b-none">
         {/* Animated gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-[slide-in-right_3s_ease-in-out_infinite] pointer-events-none" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         
-        <CardContent className="relative pt-2 px-3 pb-0">
+        <CardContent className="relative pt-2 px-3 pb-1">
+          {/* Progress Indicator Badge */}
+          <div className="flex items-center justify-center mb-1">
+            <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-primary/5 border-primary/20 text-primary font-medium">
+              Progress Guide
+            </Badge>
+          </div>
           <div className="flex items-center justify-between gap-2">
             {/* Stage 1 */}
             <div className="flex flex-col items-center gap-1 flex-1 group cursor-pointer transition-transform hover:scale-105">
