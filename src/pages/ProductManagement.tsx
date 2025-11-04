@@ -327,18 +327,30 @@ const ProductManagement: React.FC = () => {
                     </Link>
                   </div>
                   <Select
-                    value={formData.service_category_id || undefined}
-                    onValueChange={(value) => setFormData(prev => ({ ...prev, service_category_id: value }))}
+                    value={formData.service_category_id || "none"}
+                    onValueChange={(value) => setFormData(prev => ({ 
+                      ...prev, 
+                      service_category_id: value === "none" ? null : value 
+                    }))}
                   >
                     <SelectTrigger id="service_category">
                       <SelectValue placeholder="Select a category (optional)" />
                     </SelectTrigger>
-                    <SelectContent>
-                      {serviceCategories?.map((category) => (
-                        <SelectItem key={category.id} value={category.id}>
-                          {category.category_name}
+                    <SelectContent className="bg-popover z-50">
+                      <SelectItem value="none">
+                        <span className="text-muted-foreground">No Category</span>
+                      </SelectItem>
+                      {serviceCategories && serviceCategories.length > 0 ? (
+                        serviceCategories.map((category) => (
+                          <SelectItem key={category.id} value={category.id}>
+                            {category.category_name}
+                          </SelectItem>
+                        ))
+                      ) : (
+                        <SelectItem value="no-categories" disabled>
+                          <span className="text-muted-foreground text-xs">No categories available. Create one first.</span>
                         </SelectItem>
-                      ))}
+                      )}
                     </SelectContent>
                   </Select>
                 </div>
