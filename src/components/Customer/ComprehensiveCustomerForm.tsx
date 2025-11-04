@@ -6329,7 +6329,7 @@ NOTES:
     {/* Floating Action Buttons - Only show on details stage before submission */}
     {currentStage === 'details' && !createdCustomerId && (
       <div 
-        className="fixed bottom-8 flex gap-3 z-50 transition-all duration-300 hidden lg:flex"
+        className="fixed bottom-6 flex gap-2 z-50 transition-all duration-300 hidden lg:flex"
         style={{
           right: sidebarCollapsed ? '5rem' : '22rem'
         }}
@@ -6338,30 +6338,30 @@ NOTES:
           type="button"
           onClick={handlePreviewDraft}
           disabled={isSubmitting}
-          className="w-12 h-12 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg border-2 border-blue-600/20 rounded-full transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
+          className="w-10 h-10 bg-blue-600 hover:bg-blue-700 text-white font-semibold shadow-lg border border-blue-600/20 rounded-full transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
           title="Preview Draft"
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
           </svg>
-          <span className="absolute -top-10 right-0 bg-popover text-popover-foreground text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border">
-            Preview Draft (Optional)
+          <span className="absolute -top-9 right-0 bg-popover text-popover-foreground text-xs font-semibold px-2.5 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border">
+            Preview Draft
           </span>
         </button>
         <button
           type="button"
           onClick={form.handleSubmit(handleSubmit)}
           disabled={isSubmitting}
-          className="w-12 h-12 bg-green-600 hover:bg-green-700 text-white font-semibold shadow-lg border-2 border-green-600/20 rounded-full transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
+          className="w-10 h-10 bg-green-600 hover:bg-green-700 text-white font-semibold shadow-lg border border-green-600/20 rounded-full transition-all hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center group"
           title="Save as Draft"
         >
           {isSubmitting ? (
-            <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
           ) : (
             <>
-              <Save className="w-6 h-6" />
-              <span className="absolute -top-10 right-0 bg-popover text-popover-foreground text-xs font-semibold px-3 py-1.5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border">
+              <Save className="w-5 h-5" />
+              <span className="absolute -top-9 right-0 bg-popover text-popover-foreground text-xs font-semibold px-2.5 py-1 rounded-md opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap shadow-lg border border-border">
                 Save Draft
               </span>
             </>
