@@ -1391,7 +1391,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-[slide-in-right_3s_ease-in-out_infinite] pointer-events-none" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         
-        <CardContent className="relative py-2 px-3">
+        <CardContent className="relative pt-2 px-3 pb-0">
           <div className="flex items-center justify-between gap-2">
             {/* Stage 1 */}
             <div className="flex flex-col items-center gap-1 flex-1 group cursor-pointer transition-transform hover:scale-105">
