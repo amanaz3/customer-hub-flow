@@ -1723,10 +1723,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
                         <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
                           <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-primary/10">
-                              <Users className="h-5 w-5 text-primary" />
+                            <div className="p-1.5 rounded-lg bg-primary/10">
+                              <Users className="h-4 w-4 text-primary" />
                             </div>
-                            <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Basic Information</h3>
+                            <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">Basic Information</h3>
                           </div>
                         </AccordionTrigger>
                         <AccordionContent className="px-4 pb-2 pt-2">
@@ -1791,10 +1791,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm" data-section-id="lead" style={{ scrollMarginTop: totalStickyOffset }}>
                         <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
                           <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-primary/10">
-                              <ClipboardList className="h-5 w-5 text-primary" />
+                            <div className="p-1.5 rounded-lg bg-primary/10">
+                              <ClipboardList className="h-4 w-4 text-primary" />
                             </div>
-                            <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Source & Channel Information</h3>
+                            <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">Source & Channel Information</h3>
                           </div>
                         </AccordionTrigger>
                         <AccordionContent className="px-4 pb-2 pt-2">
@@ -1826,10 +1826,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm" data-section-id="service" style={{ scrollMarginTop: totalStickyOffset }}>
                         <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
                           <div className="flex items-center gap-3">
-                            <div className="p-2 rounded-lg bg-primary/10">
-                              <Building2 className="h-5 w-5 text-primary" />
+                            <div className="p-1.5 rounded-lg bg-primary/10">
+                              <Building2 className="h-4 w-4 text-primary" />
                             </div>
-                            <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Service Selection</h3>
+                            <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">Service Selection</h3>
                           </div>
                         </AccordionTrigger>
                         <AccordionContent className="px-4 pb-2 pt-2">
@@ -2026,16 +2026,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
                           <div className="flex items-center gap-3">
                             <div className={cn(
-                              "p-2 rounded-lg transition-colors",
+                              "p-1.5 rounded-lg transition-colors",
                               highlightDealInfo ? "bg-blue-100 dark:bg-blue-900" : "bg-primary/10"
                             )}>
                               <CircleDot className={cn(
-                                "h-5 w-5 transition-colors",
+                                "h-4 w-4 transition-colors",
                                 highlightDealInfo ? "text-blue-600 dark:text-blue-400" : "text-primary"
                               )} />
                             </div>
                             <h3 className={cn(
-                              "text-base font-bold uppercase tracking-wide transition-colors",
+                              "text-xs font-bold uppercase tracking-wide transition-colors",
                               highlightDealInfo ? "text-blue-600 dark:text-blue-400" : "text-foreground"
                             )}>
                               Deal Information
@@ -2263,11 +2263,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-all group">
                     <div className="flex items-center justify-between w-full gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="relative p-2.5 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
-                          <Users className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                        <div className="relative p-1.5 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
+                          <Users className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
                           <div className="absolute inset-0 rounded-xl bg-primary/5 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
-                        <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Basic Information</h3>
+                        <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">Basic Information</h3>
                       </div>
                       <div className="flex items-center gap-2">
                         {sectionsWithErrors.has('basic') && (
@@ -2348,11 +2348,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-all group">
                     <div className="flex items-center justify-between w-full gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="relative p-2.5 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
-                          <ClipboardList className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                        <div className="relative p-1.5 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
+                          <ClipboardList className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
                           <div className="absolute inset-0 rounded-xl bg-primary/5 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
                         </div>
-                        <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Source & Channel Information</h3>
+                        <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">Source & Channel Information</h3>
                       </div>
                       <div className="flex items-center gap-2">
                         {sectionsWithErrors.has('lead') && (
@@ -2400,12 +2400,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-all group">
                 <div className="flex items-center justify-between w-full gap-3">
                   <div className="flex items-center gap-3">
-                    <div className="relative p-2.5 rounded-xl bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
-                      <Building2 className="h-5 w-5 text-primary group-hover:scale-110 transition-transform" />
+                    <div className="relative p-1.5 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
+                      <Building2 className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
                       <div className="absolute inset-0 rounded-xl bg-primary/5 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
-                      <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Service Selection</h3>
+                      <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">Service Selection</h3>
                       {selectedProduct && (
                         <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20">
                           <Check className="h-3.5 w-3.5 text-primary" />
@@ -2615,20 +2615,20 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 <div className="flex items-center justify-between w-full gap-3 flex-wrap">
                   <div className="flex items-center gap-3 flex-wrap">
                     <div className={cn(
-                      "relative p-2.5 rounded-xl transition-all duration-300",
+                      "relative p-1.5 rounded-lg transition-all duration-300",
                       highlightDealInfo 
                         ? "bg-gradient-to-br from-blue-100 to-blue-50 dark:from-blue-900 dark:to-blue-950 scale-110" 
                         : "bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10"
                     )}>
                       <CircleDot className={cn(
-                        "h-5 w-5 transition-all duration-300",
+                        "h-4 w-4 transition-all duration-300",
                         highlightDealInfo ? "text-blue-600 dark:text-blue-400 animate-pulse" : "text-primary group-hover:scale-110"
                       )} />
                       <div className="absolute inset-0 rounded-xl bg-primary/5 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
                     </div>
                     <div className="flex items-center gap-2 flex-wrap">
                       <h3 className={cn(
-                        "text-base font-bold uppercase tracking-wide transition-colors",
+                        "text-xs font-bold uppercase tracking-wide transition-colors",
                         highlightDealInfo ? "text-blue-600 dark:text-blue-400" : "text-foreground"
                       )}>
                         Deal Information
@@ -2656,8 +2656,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 {/* Application Information */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 pb-3 border-b border-primary/20">
-                    <Save className="h-4 w-4 text-primary" />
-                    <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Application Information</h4>
+                    <Save className="h-3 w-3 text-primary" />
+                    <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Application Information</h4>
                   </div>
                   
                   <div className="space-y-6 pl-1">
@@ -3082,8 +3082,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         {/* Banking Preferences */}
                         <div className="space-y-2 mt-3">
                           <div className="flex items-center gap-2 pb-2 border-b border-primary/20">
-                            <CircleDot className="h-4 w-4 text-primary" />
-                            <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Banking Preferences</h4>
+                            <CircleDot className="h-3 w-3 text-primary" />
+                            <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Banking Preferences</h4>
                           </div>
                           
                           <div className="space-y-2 pl-1">
@@ -3466,8 +3466,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     {requiresFTAPortal && (
                       <div className="space-y-2">
                         <div className="flex items-center gap-2 pb-2 border-b border-orange-500/30">
-                          <CircleDot className="h-4 w-4 text-orange-600" />
-                          <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">FTA Portal Access Credentials</h4>
+                          <CircleDot className="h-3 w-3 text-orange-600" />
+                          <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">FTA Portal Access Credentials</h4>
                         </div>
                         
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-1">
@@ -3524,8 +3524,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 {/* Financial Information */}
                 <div className="space-y-2">
                   <div className="flex items-center gap-2 pb-2 border-b border-primary/20">
-                    <CircleDot className="h-4 w-4 text-primary" />
-                    <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Financial Information</h4>
+                    <CircleDot className="h-3 w-3 text-primary" />
+                    <h4 className="text-xs font-semibold text-foreground uppercase tracking-wide">Financial Information</h4>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-1">
                     {!hasCompanyFormation && (
