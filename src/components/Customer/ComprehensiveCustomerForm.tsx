@@ -1808,116 +1808,42 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         
         {/* Form Mode Selector */}
         <div className="px-3 py-3 bg-muted/30 border-t border-border">
-          <div className="space-y-2">
+          <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-2 text-xs text-muted-foreground">
               <UserCog className="h-3.5 w-3.5" />
-              <span className="font-medium">Form Layout Mode:</span>
+              <span className="font-medium">Layout:</span>
             </div>
-            <RadioGroup
-              value={formMode}
-              onValueChange={(value) => setFormMode(value as typeof formMode)}
-              className="grid grid-cols-2 gap-2"
-            >
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                      <RadioGroupItem value="wizard" id="mode-wizard" className="peer sr-only" />
-                      <Label
-                        htmlFor="mode-wizard"
-                        className={cn(
-                          "flex flex-col items-center justify-center rounded-md border-2 border-muted bg-background p-2 cursor-pointer transition-all",
-                          "hover:bg-accent hover:border-accent-foreground/20",
-                          "peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5",
-                          formMode === 'wizard' && "border-primary bg-primary/5"
-                        )}
-                      >
-                        <Zap className="h-4 w-4 mb-1" />
-                        <span className="text-xs font-medium">Wizard</span>
-                      </Label>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-xs">
-                    <p className="text-xs">Step-by-step guided form. Shows one section at a time with Next/Previous buttons. Perfect for beginners.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                      <RadioGroupItem value="tabs" id="mode-tabs" className="peer sr-only" />
-                      <Label
-                        htmlFor="mode-tabs"
-                        className={cn(
-                          "flex flex-col items-center justify-center rounded-md border-2 border-muted bg-background p-2 cursor-pointer transition-all",
-                          "hover:bg-accent hover:border-accent-foreground/20",
-                          "peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5",
-                          formMode === 'tabs' && "border-primary bg-primary/5"
-                        )}
-                      >
-                        <Building2 className="h-4 w-4 mb-1" />
-                        <span className="text-xs font-medium">Tabs</span>
-                      </Label>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-xs">
-                    <p className="text-xs">Tab-based navigation. Click to jump between sections freely. Good for non-linear data entry.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                      <RadioGroupItem value="single" id="mode-single" className="peer sr-only" />
-                      <Label
-                        htmlFor="mode-single"
-                        className={cn(
-                          "flex flex-col items-center justify-center rounded-md border-2 border-muted bg-background p-2 cursor-pointer transition-all",
-                          "hover:bg-accent hover:border-accent-foreground/20",
-                          "peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5",
-                          formMode === 'single' && "border-primary bg-primary/5"
-                        )}
-                      >
-                        <ClipboardList className="h-4 w-4 mb-1" />
-                        <span className="text-xs font-medium">Single</span>
-                      </Label>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-xs">
-                    <p className="text-xs">All fields visible in one scrolling form. Fast for experts who know what they need.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div>
-                      <RadioGroupItem value="progressive" id="mode-progressive" className="peer sr-only" />
-                      <Label
-                        htmlFor="mode-progressive"
-                        className={cn(
-                          "flex flex-col items-center justify-center rounded-md border-2 border-muted bg-background p-2 cursor-pointer transition-all",
-                          "hover:bg-accent hover:border-accent-foreground/20",
-                          "peer-data-[state=checked]:border-primary peer-data-[state=checked]:bg-primary/5",
-                          formMode === 'progressive' && "border-primary bg-primary/5"
-                        )}
-                      >
-                        <UserCog className="h-4 w-4 mb-1" />
-                        <span className="text-xs font-medium">Progressive</span>
-                      </Label>
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-xs">
-                    <p className="text-xs">Progressive disclosure. Shows next section after completing current. Reduces cognitive load.</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </RadioGroup>
+            <Select value={formMode} onValueChange={(value) => setFormMode(value as typeof formMode)}>
+              <SelectTrigger className="w-[135px] h-8 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="wizard">
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-3.5 w-3.5" />
+                    <span>Wizard</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="tabs">
+                  <div className="flex items-center gap-2">
+                    <Building2 className="h-3.5 w-3.5" />
+                    <span>Tabs</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="single">
+                  <div className="flex items-center gap-2">
+                    <ClipboardList className="h-3.5 w-3.5" />
+                    <span>Single Page</span>
+                  </div>
+                </SelectItem>
+                <SelectItem value="progressive">
+                  <div className="flex items-center gap-2">
+                    <UserCog className="h-3.5 w-3.5" />
+                    <span>Progressive</span>
+                  </div>
+                </SelectItem>
+              </SelectContent>
+            </Select>
           </div>
         </div>
       </Card>
