@@ -22,8 +22,8 @@ export const StickyFormNavigation = ({ sections, onSectionClick }: StickyFormNav
   if (visibleSections.length === 0) return null;
 
   return (
-    <div className="sticky top-0 z-40 bg-gradient-to-b from-background via-background to-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 border-b border-border/50 shadow-lg">
-      <div className="max-w-4xl mx-auto px-3 py-2">
+    <div className="sticky top-0 z-30 bg-gradient-to-b from-background via-background to-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 border-b border-border/50 shadow-lg">
+      <div className="w-full px-3 py-2">
         <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
           {visibleSections.map((section, index) => (
             <button
