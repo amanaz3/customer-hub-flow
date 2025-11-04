@@ -1696,9 +1696,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           )}
         </div>}
 
-        <CardContent className="space-y-4 pb-4 pt-4 overflow-y-auto" style={{ maxHeight: `calc(100vh - ${stageHeight + selectionHeight + 16}px)` }}>
+        <CardContent className="space-y-2 pb-3 pt-3 overflow-y-auto" style={{ maxHeight: `calc(100vh - ${stageHeight + selectionHeight + 16}px)` }}>
         {/* Customer Selection Content - Not Sticky */}
-        <div className="space-y-4 relative z-0">
+        <div className="space-y-2 relative z-0">
 
           {customerMode === 'existing' && (
             <div className="space-y-3 pt-2">
@@ -1710,15 +1710,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               
               {/* Show form sections when in existing mode and details stage */}
               {currentStage === 'details' && (
-                <div className="space-y-4 pt-4">
+                <div className="space-y-2 pt-2">
                   <Form {...form}>
-                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+                    <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-2">
                       <Accordion type="multiple" value={accordionValue} onValueChange={(value) => {
                         setAccordionValue(value);
                         if (value.includes('service')) {
                           setServiceSelectionExpanded(true);
                         }
-                      }} className="space-y-4">
+                      }} className="space-y-2">
                       {/* Basic Information */}
                       <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
                         <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
@@ -1729,8 +1729,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Basic Information</h3>
                           </div>
                         </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-4 pt-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <AccordionContent className="px-4 pb-3 pt-3">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div className="space-y-2">
                               <Label htmlFor="name">Full Name *</Label>
                               <Input
@@ -1797,8 +1797,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Source & Channel Information</h3>
                           </div>
                         </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-4 pt-4">
-                          <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <AccordionContent className="px-4 pb-3 pt-3">
+                          <div className="pt-1 grid grid-cols-1 md:grid-cols-2 gap-3">
                             <div className="space-y-2">
                               <Label htmlFor="lead_source">Lead Source *</Label>
                               <Select
@@ -1832,8 +1832,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             <h3 className="text-base font-bold text-foreground uppercase tracking-wide">Service Selection</h3>
                           </div>
                         </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-4 pt-4">
-                          <div className="pt-2 space-y-4">
+                        <AccordionContent className="px-4 pb-3 pt-3">
+                          <div className="pt-1 space-y-2">
                             {/* Category Filter Tabs */}
                             <div className="space-y-2">
                               <Label className="text-sm text-muted-foreground">Filter by Category (Optional)</Label>
@@ -2249,15 +2249,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         />
 
         {currentStage === 'details' && customerMode === 'new' && (
-          <div className="space-y-4 pt-0">
+          <div className="space-y-2 pt-0">
             <Form {...form}>
-              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-4">
+              <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-2">
               <Accordion type="multiple" value={accordionValue} onValueChange={(value) => {
                 setAccordionValue(value);
                 if (value.includes('service')) {
                   setServiceSelectionExpanded(true);
                 }
-              }} className="space-y-4">
+              }} className="space-y-2">
                 {/* Basic Information */}
                 <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
                   <AccordionTrigger className="px-4 py-3 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-all group">
@@ -2285,8 +2285,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </div>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <AccordionContent className="px-4 pb-3 pt-3">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <Label htmlFor="name">Full Name *</Label>
                         <Input
@@ -2370,8 +2370,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </div>
                     </div>
                   </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-4">
-                    <div className="pt-2 grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <AccordionContent className="px-4 pb-3 pt-3">
+                    <div className="pt-1 grid grid-cols-1 md:grid-cols-2 gap-3">
                       <div className="space-y-2">
                         <Label htmlFor="lead_source">Lead Source *</Label>
                         <Select
@@ -2430,8 +2430,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </div>
                 </div>
               </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4 pt-4">
-                    <div className="pt-2 space-y-4">
+                  <AccordionContent className="px-4 pb-3 pt-3">
+                    <div className="pt-1 space-y-3">
                       {/* Category Filter Tabs */}
                       <div className="space-y-2">
                         <Label className="text-sm text-muted-foreground">Filter by Category (Optional)</Label>
@@ -2652,9 +2652,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   )}
                 </div>
               </AccordionTrigger>
-              <AccordionContent className="px-4 pb-6 space-y-8 pt-4">
+              <AccordionContent className="px-4 pb-4 space-y-5 pt-3">
                 {/* Application Information */}
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div className="flex items-center gap-2 pb-3 border-b border-primary/20">
                     <Save className="h-4 w-4 text-primary" />
                     <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Application Information</h4>
@@ -2756,12 +2756,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     {hasHomeFinance && (
                       <>
                         {/* Employment Information Subsection */}
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                           <div className="flex items-center gap-2 pl-3 py-2 border-l-4 border-muted/40 bg-muted/20 rounded-r">
                             <Users className="h-3.5 w-3.5 text-muted-foreground" />
                             <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Employment Details</h5>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-4">
 
                         <div className="space-y-2">
                           <Label htmlFor="employment_status">Employment Status *</Label>
@@ -2804,12 +2804,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </div>
 
                         {/* Property Information Subsection */}
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                           <div className="flex items-center gap-2 pl-3 py-2 border-l-4 border-muted/40 bg-muted/20 rounded-r">
                             <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
                             <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Property Details</h5>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-4">
 
                         <div className="space-y-2">
                           <Label htmlFor="property_type">Property Type *</Label>
@@ -2982,8 +2982,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     {/* Business Bank Account Application Information */}
                     {hasBankAccount && (
                       <>
-                        <div className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div className="space-y-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                               <div className="space-y-2">
                                 <Label htmlFor="mainland_or_freezone">License Type *</Label>
                                 <select
@@ -3023,7 +3023,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               </div>
                             </div>
                             
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3">
                               <div className="space-y-2">
                                 <div className="flex items-center gap-1.5">
                                   <Label htmlFor="no_of_shareholders">Number of Shareholders *</Label>
@@ -3080,13 +3080,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </div>
                         
                         {/* Banking Preferences */}
-                        <div className="space-y-4 mt-6">
+                        <div className="space-y-3 mt-4">
                           <div className="flex items-center gap-2 pb-3 border-b border-primary/20">
                             <CircleDot className="h-4 w-4 text-primary" />
                             <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Banking Preferences</h4>
                           </div>
                           
-                          <div className="space-y-4 pl-1">
+                          <div className="space-y-3 pl-1">
                             <div className="space-y-2">
                               <Label htmlFor="minimum_balance_range">Minimum Balance to be Maintained *</Label>
                               <select
@@ -3265,7 +3265,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                     {/* Bookkeeping Details - shown for bookkeeping products */}
                     {hasBookkeeping && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="space-y-2">
                           <Label htmlFor="company_incorporation_date">Company Incorporation Date</Label>
                           <Input
@@ -3383,7 +3383,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     )}
 
                     {hasBookkeeping && (
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                         <div className="space-y-2">
                           <Label htmlFor="bank_accounts_count">Number of Bank Accounts</Label>
                           <Input
@@ -3464,13 +3464,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     
                     {/* FTA Portal Access Credentials - for VAT, Tax Registration, and Tax Filing services */}
                     {requiresFTAPortal && (
-                      <div className="space-y-4">
+                      <div className="space-y-3">
                         <div className="flex items-center gap-2 pb-3 border-b border-orange-500/30">
                           <CircleDot className="h-4 w-4 text-orange-600" />
                           <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">FTA Portal Access Credentials</h4>
                         </div>
                         
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-1">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-1">
                           <div className="space-y-2">
                             <Label htmlFor="fta_portal_email">FTA Portal Email</Label>
                             <Input
@@ -3522,12 +3522,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
 
                 {/* Financial Information */}
-                <div className="space-y-4">
+                <div className="space-y-3">
                   <div className="flex items-center gap-2 pb-3 border-b border-primary/20">
                     <CircleDot className="h-4 w-4 text-primary" />
                     <h4 className="text-sm font-semibold text-foreground uppercase tracking-wide">Financial Information</h4>
                   </div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-1">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pl-1">
                     {!hasCompanyFormation && (
                       <div className="space-y-2">
                         <Label htmlFor="annual_turnover">Annual Turnover (AED) *</Label>
