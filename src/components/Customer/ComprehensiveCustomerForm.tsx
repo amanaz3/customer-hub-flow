@@ -1590,13 +1590,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 type="button"
                 onClick={() => handleModeSwitch('existing')}
                 className={cn(
-                  "relative flex items-center justify-center gap-2 py-4 px-4 transition-all duration-300 text-sm font-semibold",
-                  "border-b-4 border-green-500 shadow-sm",
+                  "relative flex items-center justify-center gap-1.5 py-2 px-3 transition-all duration-300 text-xs font-semibold",
+                  "border-b-2 border-green-500 shadow-sm",
                   "bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400"
                 )}
                 aria-selected={true}
               >
-                <Users className="h-4 w-4" />
+                <Users className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Select Existing</span>
                 <span className="sm:hidden">Existing</span>
               </button>
@@ -1605,13 +1605,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 type="button"
                 onClick={() => handleModeSwitch('new')}
                 className={cn(
-                  "relative flex items-center justify-center gap-2 py-4 px-4 transition-all duration-300 text-sm font-semibold",
-                  "border-b-4 border-transparent text-muted-foreground",
+                  "relative flex items-center justify-center gap-1.5 py-2 px-3 transition-all duration-300 text-xs font-semibold",
+                  "border-b-2 border-transparent text-muted-foreground",
                   "hover:bg-muted/50 hover:text-foreground"
                 )}
                 aria-selected={false}
               >
-                <Building2 className="h-4 w-4" />
+                <Building2 className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Create New Company</span>
                 <span className="sm:hidden">New</span>
               </button>
@@ -1622,13 +1622,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 type="button"
                 onClick={() => handleModeSwitch('new')}
                 className={cn(
-                  "relative flex items-center justify-center gap-2 py-4 px-4 transition-all duration-300 text-sm font-semibold",
-                  "border-b-4 border-green-500 shadow-sm",
+                  "relative flex items-center justify-center gap-1.5 py-2 px-3 transition-all duration-300 text-xs font-semibold",
+                  "border-b-2 border-green-500 shadow-sm",
                   "bg-green-50 dark:bg-green-950/30 text-green-700 dark:text-green-400"
                 )}
                 aria-selected={true}
               >
-                <Building2 className="h-4 w-4" />
+                <Building2 className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Create New Company</span>
                 <span className="sm:hidden">New</span>
               </button>
@@ -1637,13 +1637,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 type="button"
                 onClick={() => handleModeSwitch('existing')}
                 className={cn(
-                  "relative flex items-center justify-center gap-2 py-4 px-4 transition-all duration-300 text-sm font-semibold",
-                  "border-b-4 border-transparent text-muted-foreground",
+                  "relative flex items-center justify-center gap-1.5 py-2 px-3 transition-all duration-300 text-xs font-semibold",
+                  "border-b-2 border-transparent text-muted-foreground",
                   "hover:bg-muted/50 hover:text-foreground"
                 )}
                 aria-selected={false}
               >
-                <Users className="h-4 w-4" />
+                <Users className="h-3.5 w-3.5" />
                 <span className="hidden sm:inline">Select Existing</span>
                 <span className="sm:hidden">Existing</span>
               </button>
