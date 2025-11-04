@@ -3924,13 +3924,22 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </div>
 
                         <div className="space-y-2">
-                          <Label htmlFor="property_location">Property Location/Area *</Label>
-                          <Input
+                          <Label htmlFor="property_location">Property Location (Emirate) *</Label>
+                          <select
                             id="property_location"
                             {...form.register('property_location')}
-                            placeholder="e.g., Dubai Marina, Downtown Dubai"
                             disabled={isSubmitting}
-                          />
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="">Select emirate</option>
+                            <option value="Dubai">Dubai</option>
+                            <option value="Abu Dhabi">Abu Dhabi</option>
+                            <option value="Sharjah">Sharjah</option>
+                            <option value="Ajman">Ajman</option>
+                            <option value="Ras Al Khaimah">Ras Al Khaimah</option>
+                            <option value="Fujairah">Fujairah</option>
+                            <option value="Umm Al Quwain">Umm Al Quwain</option>
+                          </select>
                         </div>
 
                         <div className="space-y-2">
