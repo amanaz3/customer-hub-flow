@@ -2512,6 +2512,233 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             </div>
                           )}
                         </div>
+                      ) : formMode === 'single' ? (
+                        /* Single Page Mode - All sections visible at once */
+                        <div className="space-y-6">
+                          {/* Basic Information */}
+                          <Card className="border rounded-lg bg-background shadow-sm">
+                            <CardHeader className="pb-3">
+                              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                                <Users className="h-4 w-4" />
+                                Basic Information
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="single-name">Full Name *</Label>
+                                  <Input
+                                    id="single-name"
+                                    {...form.register('name')}
+                                    disabled={isSubmitting}
+                                    required
+                                  />
+                                  {form.formState.errors.name && (
+                                    <p className="text-sm text-red-600">{form.formState.errors.name.message}</p>
+                                  )}
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="single-email">Email *</Label>
+                                  <Input
+                                    id="single-email"
+                                    type="email"
+                                    {...form.register('email')}
+                                    disabled={isSubmitting}
+                                    required
+                                  />
+                                  {form.formState.errors.email && (
+                                    <p className="text-sm text-red-600">{form.formState.errors.email.message}</p>
+                                  )}
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="single-mobile">Mobile *</Label>
+                                  <Input
+                                    id="single-mobile"
+                                    {...form.register('mobile')}
+                                    disabled={isSubmitting}
+                                    required
+                                  />
+                                  {form.formState.errors.mobile && (
+                                    <p className="text-sm text-red-600">{form.formState.errors.mobile.message}</p>
+                                  )}
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="single-company">Company *</Label>
+                                  <Input
+                                    id="single-company"
+                                    {...form.register('company')}
+                                    disabled={isSubmitting}
+                                    required
+                                  />
+                                  {form.formState.errors.company && (
+                                    <p className="text-sm text-red-600">{form.formState.errors.company.message}</p>
+                                  )}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+
+                          {/* Source & Channel Information */}
+                          <Card className="border rounded-lg bg-background shadow-sm">
+                            <CardHeader className="pb-3">
+                              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                                <ClipboardList className="h-4 w-4" />
+                                Source & Channel Information
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-2">
+                                <Label htmlFor="single-lead-source">Lead Source *</Label>
+                                <Select
+                                  value={form.watch('lead_source')}
+                                  onValueChange={(value) => { form.setValue('lead_source', value as any, { shouldDirty: true, shouldTouch: true, shouldValidate: true }); form.clearErrors('lead_source'); }}
+                                  disabled={isSubmitting}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="Website">Website</SelectItem>
+                                    <SelectItem value="Referral">Referral</SelectItem>
+                                    <SelectItem value="Social Media">Social Media</SelectItem>
+                                    <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                                    <SelectItem value="Other">Other</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </CardContent>
+                          </Card>
+
+                          {/* Service Selection */}
+                          <Card className="border rounded-lg bg-background shadow-sm">
+                            <CardHeader className="pb-3">
+                              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                                <Building2 className="h-4 w-4" />
+                                Service Selection
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-4">
+                                {/* Category Filter */}
+                                <div className="space-y-2">
+                                  <Label className="text-sm text-muted-foreground">Filter by Category (Optional)</Label>
+                                  <Tabs 
+                                    value={categoryFilter} 
+                                    onValueChange={(value) => {
+                                      hasUserInteractedWithCategory.current = true;
+                                      setCategoryFilter(value);
+                                    }}
+                                    className="w-full"
+                                  >
+                                    <TabsList className="grid w-full h-auto bg-background border-b-2 border-border p-0" style={{ gridTemplateColumns: `repeat(${serviceCategories.length + 1}, minmax(0, 1fr))` }}>
+                                      <TabsTrigger value="all" disabled={isSubmitting || serviceCategoriesLoading} className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none">
+                                        All
+                                      </TabsTrigger>
+                                      {serviceCategories.map((cat) => (
+                                        <TabsTrigger key={cat.id} value={cat.id} disabled={isSubmitting || serviceCategoriesLoading} className="data-[state=active]:border-b-2 data-[state=active]:border-primary rounded-none text-xs">
+                                          {cat.category_name}
+                                        </TabsTrigger>
+                                      ))}
+                                    </TabsList>
+                                  </Tabs>
+                                </div>
+
+                                {/* Product Selection */}
+                                <div className="space-y-2">
+                                  <Label htmlFor="single-product">Product/Service *</Label>
+                                  <Select
+                                    value={form.watch('product_id')}
+                                    onValueChange={(value) => { form.setValue('product_id', value, { shouldDirty: true, shouldTouch: true, shouldValidate: true }); form.clearErrors('product_id'); }}
+                                    disabled={isSubmitting || productsLoading}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a product or service" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {products.map((product) => (
+                                        <SelectItem key={product.id} value={product.id}>
+                                          {product.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  {form.formState.errors.product_id && (
+                                    <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>
+                                  )}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+
+                          {/* Deal Information */}
+                          <Card className="border rounded-lg bg-background shadow-sm">
+                            <CardHeader className="pb-3">
+                              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                                <Save className="h-4 w-4" />
+                                Deal Information
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="single-amount">Amount *</Label>
+                                  <Input
+                                    id="single-amount"
+                                    type="number"
+                                    {...form.register('amount', { valueAsNumber: true })}
+                                    disabled={isSubmitting}
+                                    required
+                                  />
+                                  {form.formState.errors.amount && (
+                                    <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>
+                                  )}
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="single-license-type">License Type *</Label>
+                                  <Select
+                                    value={form.watch('license_type')}
+                                    onValueChange={(value) => { form.setValue('license_type', value as any, { shouldDirty: true, shouldTouch: true, shouldValidate: true }); }}
+                                    disabled={isSubmitting}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="Mainland">Mainland</SelectItem>
+                                      <SelectItem value="Freezone">Freezone</SelectItem>
+                                      <SelectItem value="Offshore">Offshore</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="single-annual-turnover">Annual Turnover *</Label>
+                                  <Input
+                                    id="single-annual-turnover"
+                                    type="number"
+                                    {...form.register('annual_turnover', { valueAsNumber: true })}
+                                    disabled={isSubmitting}
+                                    required
+                                  />
+                                  {form.formState.errors.annual_turnover && (
+                                    <p className="text-sm text-red-600">{form.formState.errors.annual_turnover.message}</p>
+                                  )}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+
+                          {/* Save Button */}
+                          <div className="flex justify-end pt-4">
+                            <Button
+                              type="button"
+                              onClick={form.handleSubmit(handleSubmit)}
+                              disabled={isSubmitting}
+                              size="lg"
+                            >
+                              {isSubmitting ? 'Saving...' : 'Save Draft'}
+                            </Button>
+                          </div>
+                        </div>
                       ) : (
                         /* Concept/Accordion Mode */
                         <Accordion type="multiple" value={accordionValue} onValueChange={(value) => {
