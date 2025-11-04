@@ -250,10 +250,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [currentStage]);
 
-  // Scroll to top when tabs are switched (not on stage changes)
+  // Reposition the form content card when mode changes (tab swap)
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [customerMode]);
+    // wait a tick for layout to settle
+    requestAnimationFrame(() => scrollFormCardIntoView());
+  }, [customerMode, scrollFormCardIntoView]);
   const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
   const { user, isAdmin } = useAuth();
@@ -1633,11 +1634,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </Card>
       </div>
 
-      {/* Form Content Card - Sticky */}
+      {/* Form Content Card - Fixed */}
       <Card
         ref={formContentCardRef}
-        className="sticky w-full overflow-hidden z-30 border shadow-lg bg-background/95 backdrop-blur-md"
-        style={{ top: `${stageHeight + selectionHeight}px`, marginBottom: 0 }}
+        className="fixed left-0 right-0 w-full overflow-hidden z-30 border shadow-lg bg-background/95 backdrop-blur-md"
+        style={{ top: `${stageHeight + selectionHeight}px`, bottom: 0 }}
       >
         {/* Form Navigation - Sticky */}
         {false && customerMode === 'new' && <div ref={stickyNavRef} className="sticky z-50 isolate bg-gradient-to-r from-background via-background to-background border-b shadow-lg backdrop-blur-sm" style={{ top: stageHeight + stickyGap }}>
@@ -1676,7 +1677,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           )}
         </div>}
 
-        <CardContent className="space-y-4 pb-4 pt-4 overflow-y-auto" style={{ maxHeight: `calc(100vh - ${stageHeight + selectionHeight + 16}px)` }}>
+        <CardContent className="space-y-4 pb-4 pt-4 overflow-y-auto" style={{ height: `calc(100vh - ${stageHeight + selectionHeight}px)` }}>
         {/* Customer Selection Content - Not Sticky */}
         <div className="space-y-4 relative z-0">
 
