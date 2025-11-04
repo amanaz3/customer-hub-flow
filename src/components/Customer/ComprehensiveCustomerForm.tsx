@@ -2990,8 +2990,19 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 <div className="flex items-center justify-between">
                                   <Label className="flex items-center gap-2">
                                     <Package className="h-4 w-4" />
-                                    Pre-Made Bundles (Optional)
+                                    Service Bundles (Optional)
                                   </Label>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setShowCustomPackageDialog(true)}
+                                    disabled={isSubmitting || productsLoading}
+                                    className="gap-1.5"
+                                  >
+                                    <Sparkles className="h-3.5 w-3.5" />
+                                    Create Custom Package
+                                  </Button>
                                 </div>
                                 
                                 {bundlesLoading ? (
@@ -3118,10 +3129,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                             {/* Products Grid */}
                             <div className="space-y-3">
-                              <Label>Product / Service / Bundled Services *</Label>
+                              <Label>Product / Service *</Label>
                               {productsLoading ? (
                                 <p className="text-sm text-muted-foreground">Loading products...</p>
                               ) : products.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">No products available in this category.</p>
+                              ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
                                   {/* Build Your Own Package Card */}
                                   <div
@@ -3136,12 +3149,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                       <p className="text-xs text-muted-foreground text-center">Create custom package</p>
                                     </div>
                                   </div>
-                                  <div className="p-3 rounded-md border-2 border-dashed border-border text-sm text-muted-foreground flex items-center justify-center">
-                                    No products match your filters. Start with a custom package.
-                                  </div>
-                                </div>
-                              ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                                  
                                   {products.map((product) => {
                                     const isSelected = watchProductId === product.id;
                                     return (
@@ -3220,20 +3228,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                       </div>
                                     );
                                   })}
-                                  
-                                  {/* Build Your Own Package Card - At the end */}
-                                  <div
-                                    onClick={() => setShowCustomPackageDialog(true)}
-                                    className="relative p-3 rounded-md border-2 border-dashed border-primary/50 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary bg-primary/5 hover:bg-primary/10"
-                                  >
-                                    <div className="flex flex-col items-center justify-center gap-2 py-4">
-                                      <div className="p-2 rounded-full bg-primary/10">
-                                        <Sparkles className="h-5 w-5 text-primary" />
-                                      </div>
-                                      <h4 className="font-semibold text-sm text-center">Build Your Own</h4>
-                                      <p className="text-xs text-muted-foreground text-center">Create custom package</p>
-                                    </div>
-                                  </div>
                                 </div>
                               )}
                               {form.formState.errors.product_id && (
