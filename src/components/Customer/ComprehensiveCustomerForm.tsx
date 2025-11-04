@@ -8099,7 +8099,7 @@ NOTES:
 
     {/* Floating Action Button - Expert Mode Only */}
     {expertMode === 'expert' && (
-      <div className={cn("fixed bottom-6 z-50 transition-all duration-300", sidebarCollapsed ? "lg:right-6 right-6" : "lg:right-[22rem] right-6")}>
+      <div className="fixed bottom-6 lg:right-[22rem] right-6 z-50">
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
