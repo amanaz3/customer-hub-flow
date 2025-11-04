@@ -4364,28 +4364,31 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             <option value="In Process">In Process</option>
                           </select>
                         </div>
-
-                        <div className="space-y-2">
-                          <Label htmlFor="purpose_of_finance">Purpose of Finance *</Label>
-                          <select
-                            id="purpose_of_finance"
-                            {...form.register('purpose_of_finance')}
-                            disabled={isSubmitting}
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
-                          >
-                            <option value="">Select purpose</option>
-                            <option value="Working Capital">Working Capital</option>
-                            <option value="Business Expansion">Business Expansion</option>
-                            <option value="Equipment Purchase">Equipment Purchase</option>
-                            <option value="Inventory Financing">Inventory Financing</option>
-                            <option value="Real Estate">Real Estate</option>
-                            <option value="Debt Consolidation">Debt Consolidation</option>
-                            <option value="Other">Other</option>
-                          </select>
-                        </div>
                           </div>
                         </div>
                       </>
+                    )}
+                    
+                    {/* Purpose of Finance - Business Finance only, outside subsection */}
+                    {hasBusinessFinance && (
+                      <div className="space-y-2">
+                        <Label htmlFor="purpose_of_finance">Purpose of Finance *</Label>
+                        <select
+                          id="purpose_of_finance"
+                          {...form.register('purpose_of_finance')}
+                          disabled={isSubmitting}
+                          className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                        >
+                          <option value="">Select purpose</option>
+                          <option value="Working Capital">Working Capital</option>
+                          <option value="Business Expansion">Business Expansion</option>
+                          <option value="Equipment Purchase">Equipment Purchase</option>
+                          <option value="Inventory Financing">Inventory Financing</option>
+                          <option value="Real Estate">Real Estate</option>
+                          <option value="Debt Consolidation">Debt Consolidation</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
                     )}
 
                     {/* AML Services Application Fields */}
