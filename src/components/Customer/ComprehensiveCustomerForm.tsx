@@ -29,8 +29,7 @@ import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
-import { CreateBundleDialog } from './CreateBundleDialog';
-import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search, Eye, EyeOff, Mail, Share2, Send, Zap, UserCog, Layers, Package } from 'lucide-react';
+import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search, Eye, EyeOff, Mail, Share2, Send, Zap, UserCog, Layers } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { emailDocumentChecklist, shareViaWhatsApp, formatChecklistForSharing } from '@/utils/documentChecklistSharing';
 import { AgentHelpDialog } from './AgentHelpDialog';
@@ -254,7 +253,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [bankPreferenceMode, setBankPreferenceMode] = useState<'preferred' | 'any'>('preferred');
   const [productSearchTerm, setProductSearchTerm] = useState('');
   const [showFTAPassword, setShowFTAPassword] = useState(false);
-  const [showBundleDialog, setShowBundleDialog] = useState(false);
   const hasUserInteractedWithCategory = useRef(false);
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
@@ -2953,26 +2951,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 <p className="text-sm text-muted-foreground">No products available in this category.</p>
                               ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                                  {/* Create Bundle Card */}
-                                  <div
-                                    onClick={() => !isSubmitting && setShowBundleDialog(true)}
-                                    className={cn(
-                                      "relative p-3 rounded-md border-2 cursor-pointer transition-all duration-200",
-                                      "border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 hover:border-primary hover:shadow-md",
-                                      isSubmitting && "opacity-50 cursor-not-allowed"
-                                    )}
-                                  >
-                                    <div className="flex flex-col items-center justify-center gap-2 py-2">
-                                      <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                                        <Package className="h-5 w-5 text-primary" />
-                                      </div>
-                                      <div className="text-center">
-                                        <h4 className="font-semibold text-sm text-primary">Create Bundle</h4>
-                                        <p className="text-xs text-muted-foreground mt-0.5">Combine services</p>
-                                      </div>
-                                    </div>
-                                  </div>
-
                                   {products.map((product) => {
                                     const isSelected = watchProductId === product.id;
                                     return (
@@ -3573,26 +3551,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           <p className="text-sm text-muted-foreground">No products available in this category.</p>
                         ) : (
                           <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                            {/* Create Bundle Card */}
-                            <div
-                              onClick={() => !isSubmitting && setShowBundleDialog(true)}
-                              className={cn(
-                                "relative p-3 rounded-md border-2 cursor-pointer transition-all duration-200",
-                                "border-dashed border-primary/40 bg-primary/5 hover:bg-primary/10 hover:border-primary hover:shadow-md",
-                                isSubmitting && "opacity-50 cursor-not-allowed"
-                              )}
-                            >
-                              <div className="flex flex-col items-center justify-center gap-2 py-2">
-                                <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                                  <Package className="h-5 w-5 text-primary" />
-                                </div>
-                                <div className="text-center">
-                                  <h4 className="font-semibold text-sm text-primary">Create Bundle</h4>
-                                  <p className="text-xs text-muted-foreground mt-0.5">Combine services</p>
-                                </div>
-                              </div>
-                            </div>
-
                             {products.map((product) => {
                               const isSelected = watchProductId === product.id;
                               return (
@@ -7899,21 +7857,6 @@ NOTES:
         </button>
       </div>
     )}
-    
-    {/* Bundle Creation Dialog */}
-    <CreateBundleDialog
-      open={showBundleDialog}
-      onOpenChange={setShowBundleDialog}
-      onBundleCreated={async (bundleId, bundleName, totalARR) => {
-        // Refresh products to show the new bundle
-        await queryClient.invalidateQueries({ queryKey: ['products'] });
-        
-        toast({
-          title: 'Bundle Created',
-          description: `"${bundleName}" is now available for selection`,
-        });
-      }}
-    />
     
     {/* Confirmation Dialog for switching tabs with unsaved data */}
     <AlertDialog open={showSwitchConfirm} onOpenChange={setShowSwitchConfirm}>
