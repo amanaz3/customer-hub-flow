@@ -102,6 +102,7 @@ const formSchema = z.object({
   years_since_registration: z.number().optional(),
   vat_registration_status: z.enum(['Registered', 'Not Registered', 'In Process']).optional(),
   purpose_of_finance: z.string().optional(),
+  service_charges: z.number().optional(),
   // Corporate tax filing fields
   tax_year_period: z.string().optional(),
   first_time_filing: z.boolean().optional(),
@@ -553,6 +554,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       years_since_registration: 0,
       vat_registration_status: undefined,
       purpose_of_finance: '',
+      service_charges: 0,
       additional_income: 0,
       additional_income_source: '',
       existing_loan_commitments: 0,
@@ -5199,6 +5201,25 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         />
                         {form.formState.errors.annual_turnover && (
                           <p className="text-sm text-red-600">{form.formState.errors.annual_turnover.message}</p>
+                        )}
+                      </div>
+                    )}
+
+                    {/* Service Charges - All products except Home Finance and Business Finance */}
+                    {!hasHomeFinance && !hasBusinessFinance && (
+                      <div className="space-y-2">
+                        <Label htmlFor="service_charges">Service Charges (AED) *</Label>
+                        <Input
+                          id="service_charges"
+                          type="number"
+                          min="0"
+                          step="0.01"
+                          {...form.register('service_charges', { valueAsNumber: true })}
+                          disabled={isSubmitting}
+                          placeholder="Enter service charges"
+                        />
+                        {form.formState.errors.service_charges && (
+                          <p className="text-sm text-red-600">{form.formState.errors.service_charges.message}</p>
                         )}
                       </div>
                     )}
