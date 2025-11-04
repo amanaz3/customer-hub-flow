@@ -2984,25 +2984,56 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               </div>
                             )}
 
+                            {/* Bundled Services Section */}
+                            <div className="space-y-3 mb-4">
+                              <Label className="flex items-center gap-2 text-base font-semibold">
+                                <Sparkles className="h-5 w-5 text-primary" />
+                                Bundled Services
+                              </Label>
+                              
+                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                {/* Build Your Own Card */}
+                                <Card
+                                  onClick={() => setShowCustomPackageDialog(true)}
+                                  className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 border-dashed border-primary/50 hover:border-primary bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/15"
+                                >
+                                  <CardContent className="p-6">
+                                    <div className="flex flex-col items-center justify-center gap-3 text-center">
+                                      <div className="p-3 rounded-full bg-primary/20">
+                                        <Sparkles className="h-6 w-6 text-primary" />
+                                      </div>
+                                      <div>
+                                        <h4 className="font-bold text-base mb-1">Build Your Own</h4>
+                                        <p className="text-sm text-muted-foreground">
+                                          Create a custom package tailored to your needs
+                                        </p>
+                                      </div>
+                                      <Button
+                                        type="button"
+                                        variant="default"
+                                        size="sm"
+                                        className="mt-2"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setShowCustomPackageDialog(true);
+                                        }}
+                                      >
+                                        Get Started
+                                      </Button>
+                                    </div>
+                                  </CardContent>
+                                </Card>
+                              </div>
+                            </div>
+
                             {/* Service Bundles Section */}
                             {bundles.length > 0 && (
                               <div className="space-y-3 mb-4">
                                 <div className="flex items-center justify-between">
                                   <Label className="flex items-center gap-2">
                                     <Package className="h-4 w-4" />
-                                    Service Bundles (Optional)
+                                    Pre-Made Bundles (Optional)
                                   </Label>
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setShowCustomPackageDialog(true)}
-                                    disabled={isSubmitting || productsLoading}
-                                    className="gap-1.5"
-                                  >
-                                    <Sparkles className="h-3.5 w-3.5" />
-                                    Create Custom Package
-                                  </Button>
                                 </div>
                                 
                                 {bundlesLoading ? (
