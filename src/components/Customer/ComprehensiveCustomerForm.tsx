@@ -2315,6 +2315,203 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             </Button>
                           </div>
                         </Tabs>
+                      ) : formMode === 'progressive' ? (
+                        /* Progressive Mode - Reveal sections as they're completed */
+                        <div className="space-y-4">
+                          {/* Basic Information - Always shown first */}
+                          <Card className="border rounded-lg bg-background shadow-sm">
+                            <CardHeader className="pb-3">
+                              <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                                <Users className="h-4 w-4" />
+                                Basic Information
+                                {isBasicInfoComplete && <Check className="h-4 w-4 text-green-600 ml-auto" />}
+                              </CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="prog-name">Full Name *</Label>
+                                  <Input
+                                    id="prog-name"
+                                    {...form.register('name')}
+                                    disabled={isSubmitting}
+                                    required
+                                  />
+                                  {form.formState.errors.name && (
+                                    <p className="text-sm text-red-600">{form.formState.errors.name.message}</p>
+                                  )}
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="prog-email">Email *</Label>
+                                  <Input
+                                    id="prog-email"
+                                    type="email"
+                                    {...form.register('email')}
+                                    disabled={isSubmitting}
+                                    required
+                                  />
+                                  {form.formState.errors.email && (
+                                    <p className="text-sm text-red-600">{form.formState.errors.email.message}</p>
+                                  )}
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="prog-mobile">Mobile *</Label>
+                                  <Input
+                                    id="prog-mobile"
+                                    {...form.register('mobile')}
+                                    disabled={isSubmitting}
+                                    required
+                                  />
+                                  {form.formState.errors.mobile && (
+                                    <p className="text-sm text-red-600">{form.formState.errors.mobile.message}</p>
+                                  )}
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="prog-company">Company *</Label>
+                                  <Input
+                                    id="prog-company"
+                                    {...form.register('company')}
+                                    disabled={isSubmitting}
+                                    required
+                                  />
+                                  {form.formState.errors.company && (
+                                    <p className="text-sm text-red-600">{form.formState.errors.company.message}</p>
+                                  )}
+                                </div>
+                              </div>
+                            </CardContent>
+                          </Card>
+
+                          {/* Source & Channel - Show after basic info is complete */}
+                          {isBasicInfoComplete && (
+                            <Card className="border rounded-lg bg-background shadow-sm animate-fade-in">
+                              <CardHeader className="pb-3">
+                                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                                  <ClipboardList className="h-4 w-4" />
+                                  Source & Channel Information
+                                  {isSourceChannelComplete && <Check className="h-4 w-4 text-green-600 ml-auto" />}
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="space-y-2">
+                                  <Label htmlFor="prog-lead-source">Lead Source *</Label>
+                                  <Select
+                                    value={form.watch('lead_source')}
+                                    onValueChange={(value) => { form.setValue('lead_source', value as any, { shouldDirty: true, shouldTouch: true, shouldValidate: true }); form.clearErrors('lead_source'); }}
+                                    disabled={isSubmitting}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="Website">Website</SelectItem>
+                                      <SelectItem value="Referral">Referral</SelectItem>
+                                      <SelectItem value="Social Media">Social Media</SelectItem>
+                                      <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                                      <SelectItem value="Other">Other</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          )}
+
+                          {/* Service Selection - Show after source is complete */}
+                          {isBasicInfoComplete && isSourceChannelComplete && (
+                            <Card className="border rounded-lg bg-background shadow-sm animate-fade-in">
+                              <CardHeader className="pb-3">
+                                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                                  <Building2 className="h-4 w-4" />
+                                  Service Selection
+                                  {isServiceSelectionComplete && <Check className="h-4 w-4 text-green-600 ml-auto" />}
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="space-y-2">
+                                  <Label htmlFor="prog-product">Product/Service *</Label>
+                                  <Select
+                                    value={form.watch('product_id')}
+                                    onValueChange={(value) => { form.setValue('product_id', value, { shouldDirty: true, shouldTouch: true, shouldValidate: true }); form.clearErrors('product_id'); }}
+                                    disabled={isSubmitting || productsLoading}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select a product or service" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {products.map((product) => (
+                                        <SelectItem key={product.id} value={product.id}>
+                                          {product.name}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                  {form.formState.errors.product_id && (
+                                    <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>
+                                  )}
+                                </div>
+                              </CardContent>
+                            </Card>
+                          )}
+
+                          {/* Deal Info - Show after service is selected */}
+                          {isBasicInfoComplete && isSourceChannelComplete && isServiceSelectionComplete && (
+                            <Card className="border rounded-lg bg-background shadow-sm animate-fade-in">
+                              <CardHeader className="pb-3">
+                                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                                  <Save className="h-4 w-4" />
+                                  Deal Information
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="prog-amount">Amount *</Label>
+                                    <Input
+                                      id="prog-amount"
+                                      type="number"
+                                      {...form.register('amount', { valueAsNumber: true })}
+                                      disabled={isSubmitting}
+                                      required
+                                    />
+                                    {form.formState.errors.amount && (
+                                      <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>
+                                    )}
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="prog-license-type">License Type *</Label>
+                                    <Select
+                                      value={form.watch('license_type')}
+                                      onValueChange={(value) => { form.setValue('license_type', value as any, { shouldDirty: true, shouldTouch: true, shouldValidate: true }); }}
+                                      disabled={isSubmitting}
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="Mainland">Mainland</SelectItem>
+                                        <SelectItem value="Freezone">Freezone</SelectItem>
+                                        <SelectItem value="Offshore">Offshore</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          )}
+
+                          {/* Save Button - Show when all sections are visible */}
+                          {isBasicInfoComplete && isSourceChannelComplete && isServiceSelectionComplete && (
+                            <div className="flex justify-end pt-4 animate-fade-in">
+                              <Button
+                                type="button"
+                                onClick={form.handleSubmit(handleSubmit)}
+                                disabled={isSubmitting}
+                              >
+                                {isSubmitting ? 'Saving...' : 'Save Draft'}
+                              </Button>
+                            </div>
+                          )}
+                        </div>
                       ) : (
                         /* Concept/Accordion Mode */
                         <Accordion type="multiple" value={accordionValue} onValueChange={(value) => {
