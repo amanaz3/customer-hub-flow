@@ -1696,7 +1696,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           )}
         </div>}
 
-        <CardContent className="space-y-1 pb-2 pt-2 overflow-y-auto" style={{ maxHeight: `calc(100vh - ${stageHeight + selectionHeight + 16}px)` }}>
+        <CardContent className="space-y-1 pb-0 pt-2 overflow-y-auto" style={{ maxHeight: `calc(100vh - ${stageHeight + selectionHeight + 16}px)` }}>
         {/* Customer Selection Content - Not Sticky */}
         <div className="space-y-1 relative z-0">
 
