@@ -119,6 +119,44 @@ const formSchema = z.object({
   mlro_email: z.string().email().optional().or(z.literal('')),
   mlro_phone: z.string().optional(),
   aml_policy_required: z.boolean().optional(),
+  // Customer Identification fields
+  customer_full_legal_name: z.string().optional(),
+  customer_date_of_birth: z.string().optional(),
+  customer_nationality: z.string().optional(),
+  customer_national_id: z.string().optional(),
+  customer_passport_number: z.string().optional(),
+  customer_id_expiry_date: z.string().optional(),
+  customer_residential_address: z.string().optional(),
+  customer_contact_phone: z.string().optional(),
+  customer_contact_email: z.string().email().optional().or(z.literal('')),
+  // Business/Company Information fields (for corporate clients)
+  business_company_name: z.string().optional(),
+  business_registration_number: z.string().optional(),
+  business_trade_license_number: z.string().optional(),
+  business_trade_license_expiry: z.string().optional(),
+  business_activity_sector: z.string().optional(),
+  business_company_address: z.string().optional(),
+  business_authorized_signatories: z.string().optional(),
+  business_beneficial_ownership: z.string().optional(),
+  business_ubo_information: z.string().optional(),
+  // Financial Profile fields
+  financial_source_of_funds: z.string().optional(),
+  financial_source_of_wealth: z.string().optional(),
+  financial_expected_monthly_volume: z.string().optional(),
+  financial_expected_annual_volume: z.string().optional(),
+  financial_account_purpose: z.string().optional(),
+  financial_anticipated_activity: z.string().optional(),
+  financial_employment_status: z.string().optional(),
+  financial_employer_details: z.string().optional(),
+  financial_annual_income: z.string().optional(),
+  financial_annual_turnover: z.string().optional(),
+  // Risk Assessment fields
+  risk_pep_status: z.enum(['yes', 'no', 'related']).optional(),
+  risk_pep_details: z.string().optional(),
+  risk_sanctions_screening: z.string().optional(),
+  risk_adverse_media: z.string().optional(),
+  risk_country_risk: z.string().optional(),
+  risk_business_relationship_purpose: z.string().optional(),
   // Home Finance fields
   monthly_gross_salary: z.number().optional(),
   employment_status: z.string().optional(),
@@ -1199,6 +1237,49 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             ...(data.fta_portal_email && { fta_portal_email: data.fta_portal_email }),
             ...(encryptedFTAPassword && { fta_portal_password_encrypted: encryptedFTAPassword }),
             ...(ftaPasswordIV && { fta_portal_password_iv: ftaPasswordIV }),
+            // AML/MLRO fields
+            ...(data.mlro_name && { mlro_name: sanitizeInput(data.mlro_name) }),
+            ...(data.mlro_email && { mlro_email: data.mlro_email }),
+            ...(data.mlro_phone && { mlro_phone: sanitizeInput(data.mlro_phone) }),
+            ...(data.aml_policy_required !== undefined && { aml_policy_required: data.aml_policy_required }),
+            // Customer Identification fields
+            ...(data.customer_full_legal_name && { customer_full_legal_name: sanitizeInput(data.customer_full_legal_name) }),
+            ...(data.customer_date_of_birth && { customer_date_of_birth: data.customer_date_of_birth }),
+            ...(data.customer_nationality && { customer_nationality: sanitizeInput(data.customer_nationality) }),
+            ...(data.customer_national_id && { customer_national_id: sanitizeInput(data.customer_national_id) }),
+            ...(data.customer_passport_number && { customer_passport_number: sanitizeInput(data.customer_passport_number) }),
+            ...(data.customer_id_expiry_date && { customer_id_expiry_date: data.customer_id_expiry_date }),
+            ...(data.customer_residential_address && { customer_residential_address: sanitizeInput(data.customer_residential_address) }),
+            ...(data.customer_contact_phone && { customer_contact_phone: sanitizeInput(data.customer_contact_phone) }),
+            ...(data.customer_contact_email && { customer_contact_email: data.customer_contact_email }),
+            // Business/Company Information fields
+            ...(data.business_company_name && { business_company_name: sanitizeInput(data.business_company_name) }),
+            ...(data.business_registration_number && { business_registration_number: sanitizeInput(data.business_registration_number) }),
+            ...(data.business_trade_license_number && { business_trade_license_number: sanitizeInput(data.business_trade_license_number) }),
+            ...(data.business_trade_license_expiry && { business_trade_license_expiry: data.business_trade_license_expiry }),
+            ...(data.business_activity_sector && { business_activity_sector: sanitizeInput(data.business_activity_sector) }),
+            ...(data.business_company_address && { business_company_address: sanitizeInput(data.business_company_address) }),
+            ...(data.business_authorized_signatories && { business_authorized_signatories: sanitizeInput(data.business_authorized_signatories) }),
+            ...(data.business_beneficial_ownership && { business_beneficial_ownership: sanitizeInput(data.business_beneficial_ownership) }),
+            ...(data.business_ubo_information && { business_ubo_information: sanitizeInput(data.business_ubo_information) }),
+            // Financial Profile fields
+            ...(data.financial_source_of_funds && { financial_source_of_funds: sanitizeInput(data.financial_source_of_funds) }),
+            ...(data.financial_source_of_wealth && { financial_source_of_wealth: sanitizeInput(data.financial_source_of_wealth) }),
+            ...(data.financial_expected_monthly_volume && { financial_expected_monthly_volume: sanitizeInput(data.financial_expected_monthly_volume) }),
+            ...(data.financial_expected_annual_volume && { financial_expected_annual_volume: sanitizeInput(data.financial_expected_annual_volume) }),
+            ...(data.financial_account_purpose && { financial_account_purpose: sanitizeInput(data.financial_account_purpose) }),
+            ...(data.financial_anticipated_activity && { financial_anticipated_activity: sanitizeInput(data.financial_anticipated_activity) }),
+            ...(data.financial_employment_status && { financial_employment_status: data.financial_employment_status }),
+            ...(data.financial_employer_details && { financial_employer_details: sanitizeInput(data.financial_employer_details) }),
+            ...(data.financial_annual_income && { financial_annual_income: sanitizeInput(data.financial_annual_income) }),
+            ...(data.financial_annual_turnover && { financial_annual_turnover: sanitizeInput(data.financial_annual_turnover) }),
+            // Risk Assessment fields
+            ...(data.risk_pep_status && { risk_pep_status: data.risk_pep_status }),
+            ...(data.risk_pep_details && { risk_pep_details: sanitizeInput(data.risk_pep_details) }),
+            ...(data.risk_sanctions_screening && { risk_sanctions_screening: sanitizeInput(data.risk_sanctions_screening) }),
+            ...(data.risk_adverse_media && { risk_adverse_media: sanitizeInput(data.risk_adverse_media) }),
+            ...(data.risk_country_risk && { risk_country_risk: sanitizeInput(data.risk_country_risk) }),
+            ...(data.risk_business_relationship_purpose && { risk_business_relationship_purpose: sanitizeInput(data.risk_business_relationship_purpose) }),
           }
         }])
         .select()
@@ -3271,6 +3352,408 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               <Label htmlFor="aml_policy_required" className="ml-2 cursor-pointer">
                                 AML Policy Required
                               </Label>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Customer Identification Section */}
+                        <div className="space-y-4 p-4 border border-primary/20 rounded-lg bg-primary/5">
+                          <div className="flex items-center gap-2">
+                            <Users className="h-5 w-5 text-primary" />
+                            <h4 className="text-sm font-semibold text-foreground">1. Customer Identification</h4>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="customer_full_legal_name">Full Legal Name *</Label>
+                              <Input
+                                id="customer_full_legal_name"
+                                {...form.register('customer_full_legal_name')}
+                                placeholder="As per official documents"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="customer_date_of_birth">Date of Birth *</Label>
+                              <Input
+                                id="customer_date_of_birth"
+                                type="date"
+                                {...form.register('customer_date_of_birth')}
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="customer_nationality">Nationality *</Label>
+                              <Input
+                                id="customer_nationality"
+                                {...form.register('customer_nationality')}
+                                placeholder="Country of citizenship"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="customer_national_id">National ID Number</Label>
+                              <Input
+                                id="customer_national_id"
+                                {...form.register('customer_national_id')}
+                                placeholder="National ID or Emirates ID"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="customer_passport_number">Passport Number *</Label>
+                              <Input
+                                id="customer_passport_number"
+                                {...form.register('customer_passport_number')}
+                                placeholder="Passport number"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="customer_id_expiry_date">ID Expiry Date *</Label>
+                              <Input
+                                id="customer_id_expiry_date"
+                                type="date"
+                                {...form.register('customer_id_expiry_date')}
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2 md:col-span-2">
+                              <Label htmlFor="customer_residential_address">Residential Address (with proof) *</Label>
+                              <Textarea
+                                id="customer_residential_address"
+                                {...form.register('customer_residential_address')}
+                                placeholder="Full residential address"
+                                disabled={isSubmitting}
+                                rows={2}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="customer_contact_phone">Contact Phone *</Label>
+                              <Input
+                                id="customer_contact_phone"
+                                {...form.register('customer_contact_phone')}
+                                placeholder="+971 XX XXX XXXX"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="customer_contact_email">Contact Email *</Label>
+                              <Input
+                                id="customer_contact_email"
+                                type="email"
+                                {...form.register('customer_contact_email')}
+                                placeholder="customer@email.com"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Business/Company Information Section */}
+                        <div className="space-y-4 p-4 border border-primary/20 rounded-lg bg-primary/5">
+                          <div className="flex items-center gap-2">
+                            <Building2 className="h-5 w-5 text-primary" />
+                            <h4 className="text-sm font-semibold text-foreground">2. Business/Company Information (for corporate clients)</h4>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="business_company_name">Company Name</Label>
+                              <Input
+                                id="business_company_name"
+                                {...form.register('business_company_name')}
+                                placeholder="Legal company name"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="business_registration_number">Registration Number</Label>
+                              <Input
+                                id="business_registration_number"
+                                {...form.register('business_registration_number')}
+                                placeholder="Company registration number"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="business_trade_license_number">Trade License Number</Label>
+                              <Input
+                                id="business_trade_license_number"
+                                {...form.register('business_trade_license_number')}
+                                placeholder="Trade license number"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="business_trade_license_expiry">Trade License Expiry</Label>
+                              <Input
+                                id="business_trade_license_expiry"
+                                type="date"
+                                {...form.register('business_trade_license_expiry')}
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="business_activity_sector">Business Activity/Sector</Label>
+                              <Input
+                                id="business_activity_sector"
+                                {...form.register('business_activity_sector')}
+                                placeholder="e.g., Technology, Finance, Retail"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2 md:col-span-2">
+                              <Label htmlFor="business_company_address">Company Address</Label>
+                              <Textarea
+                                id="business_company_address"
+                                {...form.register('business_company_address')}
+                                placeholder="Registered business address"
+                                disabled={isSubmitting}
+                                rows={2}
+                              />
+                            </div>
+
+                            <div className="space-y-2 md:col-span-2">
+                              <Label htmlFor="business_authorized_signatories">Authorized Signatories</Label>
+                              <Textarea
+                                id="business_authorized_signatories"
+                                {...form.register('business_authorized_signatories')}
+                                placeholder="List of authorized persons with signing authority"
+                                disabled={isSubmitting}
+                                rows={2}
+                              />
+                            </div>
+
+                            <div className="space-y-2 md:col-span-2">
+                              <Label htmlFor="business_beneficial_ownership">Beneficial Ownership Details (25%+ ownership)</Label>
+                              <Textarea
+                                id="business_beneficial_ownership"
+                                {...form.register('business_beneficial_ownership')}
+                                placeholder="Details of beneficial owners with 25% or more ownership"
+                                disabled={isSubmitting}
+                                rows={2}
+                              />
+                            </div>
+
+                            <div className="space-y-2 md:col-span-2">
+                              <Label htmlFor="business_ubo_information">Ultimate Beneficial Owner (UBO) Information</Label>
+                              <Textarea
+                                id="business_ubo_information"
+                                {...form.register('business_ubo_information')}
+                                placeholder="Full details of ultimate beneficial owners"
+                                disabled={isSubmitting}
+                                rows={2}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Financial Profile Section */}
+                        <div className="space-y-4 p-4 border border-primary/20 rounded-lg bg-primary/5">
+                          <div className="flex items-center gap-2">
+                            <ClipboardList className="h-5 w-5 text-primary" />
+                            <h4 className="text-sm font-semibold text-foreground">3. Financial Profile</h4>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="financial_source_of_funds">Source of Funds *</Label>
+                              <Input
+                                id="financial_source_of_funds"
+                                {...form.register('financial_source_of_funds')}
+                                placeholder="e.g., Salary, Business income, Investment"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="financial_source_of_wealth">Source of Wealth</Label>
+                              <Input
+                                id="financial_source_of_wealth"
+                                {...form.register('financial_source_of_wealth')}
+                                placeholder="Origin of wealth"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="financial_expected_monthly_volume">Expected Monthly Transaction Volume</Label>
+                              <Input
+                                id="financial_expected_monthly_volume"
+                                {...form.register('financial_expected_monthly_volume')}
+                                placeholder="e.g., AED 100,000"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="financial_expected_annual_volume">Expected Annual Transaction Volume</Label>
+                              <Input
+                                id="financial_expected_annual_volume"
+                                {...form.register('financial_expected_annual_volume')}
+                                placeholder="e.g., AED 1,200,000"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2 md:col-span-2">
+                              <Label htmlFor="financial_account_purpose">Purpose of Account/Service *</Label>
+                              <Textarea
+                                id="financial_account_purpose"
+                                {...form.register('financial_account_purpose')}
+                                placeholder="Describe the intended use of the account or service"
+                                disabled={isSubmitting}
+                                rows={2}
+                              />
+                            </div>
+
+                            <div className="space-y-2 md:col-span-2">
+                              <Label htmlFor="financial_anticipated_activity">Anticipated Account Activity</Label>
+                              <Textarea
+                                id="financial_anticipated_activity"
+                                {...form.register('financial_anticipated_activity')}
+                                placeholder="Expected types and frequency of transactions"
+                                disabled={isSubmitting}
+                                rows={2}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="financial_employment_status">Employment Status</Label>
+                              <select
+                                id="financial_employment_status"
+                                {...form.register('financial_employment_status')}
+                                disabled={isSubmitting}
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                <option value="">Select status</option>
+                                <option value="Employed">Employed</option>
+                                <option value="Self-Employed">Self-Employed</option>
+                                <option value="Business Owner">Business Owner</option>
+                                <option value="Unemployed">Unemployed</option>
+                                <option value="Retired">Retired</option>
+                              </select>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="financial_employer_details">Employer Details</Label>
+                              <Input
+                                id="financial_employer_details"
+                                {...form.register('financial_employer_details')}
+                                placeholder="Employer name and position"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="financial_annual_income">Annual Income (Personal)</Label>
+                              <Input
+                                id="financial_annual_income"
+                                {...form.register('financial_annual_income')}
+                                placeholder="e.g., AED 300,000"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="financial_annual_turnover">Annual Turnover (Business)</Label>
+                              <Input
+                                id="financial_annual_turnover"
+                                {...form.register('financial_annual_turnover')}
+                                placeholder="e.g., AED 5,000,000"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Risk Assessment Section */}
+                        <div className="space-y-4 p-4 border border-primary/20 rounded-lg bg-primary/5">
+                          <div className="flex items-center gap-2">
+                            <AlertCircle className="h-5 w-5 text-primary" />
+                            <h4 className="text-sm font-semibold text-foreground">4. Risk Assessment</h4>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="risk_pep_status">PEP Status (Politically Exposed Person) *</Label>
+                              <select
+                                id="risk_pep_status"
+                                {...form.register('risk_pep_status')}
+                                disabled={isSubmitting}
+                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                <option value="">Select PEP status</option>
+                                <option value="yes">Yes - PEP</option>
+                                <option value="no">No - Not a PEP</option>
+                                <option value="related">Related to PEP</option>
+                              </select>
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="risk_pep_details">PEP Details (if applicable)</Label>
+                              <Input
+                                id="risk_pep_details"
+                                {...form.register('risk_pep_details')}
+                                placeholder="Position, relationship, or details"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2 md:col-span-2">
+                              <Label htmlFor="risk_sanctions_screening">Sanctions Screening Results</Label>
+                              <Textarea
+                                id="risk_sanctions_screening"
+                                {...form.register('risk_sanctions_screening')}
+                                placeholder="Results of sanctions list screening"
+                                disabled={isSubmitting}
+                                rows={2}
+                              />
+                            </div>
+
+                            <div className="space-y-2 md:col-span-2">
+                              <Label htmlFor="risk_adverse_media">Adverse Media Checks</Label>
+                              <Textarea
+                                id="risk_adverse_media"
+                                {...form.register('risk_adverse_media')}
+                                placeholder="Results of adverse media screening"
+                                disabled={isSubmitting}
+                                rows={2}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="risk_country_risk">Country Risk (if international transactions)</Label>
+                              <Input
+                                id="risk_country_risk"
+                                {...form.register('risk_country_risk')}
+                                placeholder="List high-risk countries involved"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="risk_business_relationship_purpose">Business Relationship Purpose *</Label>
+                              <Input
+                                id="risk_business_relationship_purpose"
+                                {...form.register('risk_business_relationship_purpose')}
+                                placeholder="Purpose of establishing the relationship"
+                                disabled={isSubmitting}
+                              />
                             </div>
                           </div>
                         </div>
