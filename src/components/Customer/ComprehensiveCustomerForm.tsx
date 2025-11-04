@@ -1719,6 +1719,41 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                           setServiceSelectionExpanded(true);
                         }
                       }} className="space-y-1">
+                      {/* Source & Channel */}
+                      <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm" data-section-id="lead" style={{ scrollMarginTop: totalStickyOffset }}>
+                        <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
+                          <div className="flex items-center gap-3">
+                            <div className="p-1.5 rounded-lg bg-primary/10">
+                              <ClipboardList className="h-4 w-4 text-primary" />
+                            </div>
+                            <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">Source & Channel Information</h3>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent className="px-4 pb-2 pt-2">
+                          <div className="pt-0 grid grid-cols-1 md:grid-cols-2 gap-2">
+                            <div className="space-y-1">
+                              <Label htmlFor="lead_source">Lead Source *</Label>
+                              <Select
+                                value={form.watch('lead_source')}
+                                onValueChange={(value) => { form.setValue('lead_source', value as any, { shouldDirty: true, shouldTouch: true, shouldValidate: true }); form.clearErrors('lead_source'); }}
+                                disabled={isSubmitting}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="Website">Website</SelectItem>
+                                  <SelectItem value="Referral">Referral</SelectItem>
+                                  <SelectItem value="Social Media">Social Media</SelectItem>
+                                  <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                                  <SelectItem value="Other">Other</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+
                       {/* Basic Information */}
                       <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
                         <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
@@ -1782,41 +1817,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               {form.formState.errors.company && (
                                 <p className="text-sm text-red-600">{form.formState.errors.company.message}</p>
                               )}
-                            </div>
-                          </div>
-                        </AccordionContent>
-                      </AccordionItem>
-
-                      {/* Source & Channel */}
-                      <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm" data-section-id="lead" style={{ scrollMarginTop: totalStickyOffset }}>
-                        <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-colors">
-                          <div className="flex items-center gap-3">
-                            <div className="p-1.5 rounded-lg bg-primary/10">
-                              <ClipboardList className="h-4 w-4 text-primary" />
-                            </div>
-                            <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">Source & Channel Information</h3>
-                          </div>
-                        </AccordionTrigger>
-                        <AccordionContent className="px-4 pb-2 pt-2">
-                          <div className="pt-0 grid grid-cols-1 md:grid-cols-2 gap-2">
-                            <div className="space-y-1">
-                              <Label htmlFor="lead_source">Lead Source *</Label>
-                              <Select
-                                value={form.watch('lead_source')}
-                                onValueChange={(value) => { form.setValue('lead_source', value as any, { shouldDirty: true, shouldTouch: true, shouldValidate: true }); form.clearErrors('lead_source'); }}
-                                disabled={isSubmitting}
-                              >
-                                <SelectTrigger>
-                                  <SelectValue />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  <SelectItem value="Website">Website</SelectItem>
-                                  <SelectItem value="Referral">Referral</SelectItem>
-                                  <SelectItem value="Social Media">Social Media</SelectItem>
-                                  <SelectItem value="WhatsApp">WhatsApp</SelectItem>
-                                  <SelectItem value="Other">Other</SelectItem>
-                                </SelectContent>
-                              </Select>
                             </div>
                           </div>
                         </AccordionContent>
@@ -2258,6 +2258,58 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   setServiceSelectionExpanded(true);
                 }
               }} className="space-y-1">
+            {/* Source & Channel */}
+            <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow" data-section-id="lead" style={{ scrollMarginTop: totalStickyOffset }}>
+                  <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-all group">
+                    <div className="flex items-center justify-between w-full gap-3">
+                      <div className="flex items-center gap-3">
+                        <div className="relative p-1.5 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
+                          <ClipboardList className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
+                          <div className="absolute inset-0 rounded-xl bg-primary/5 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
+                        </div>
+                        <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">Source & Channel Information</h3>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {sectionsWithErrors.has('lead') && (
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/25 border-2 border-destructive shadow-lg shadow-destructive/20 animate-pulse">
+                            <AlertCircle className="h-3.5 w-3.5 text-destructive" />
+                            <span className="text-xs font-medium text-destructive">Has Errors</span>
+                          </div>
+                        )}
+                        {isSourceChannelComplete && !sectionsWithErrors.has('lead') && (
+                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 animate-in fade-in zoom-in duration-500 shadow-lg shadow-green-500/20">
+                            <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
+                            <span className="text-xs font-medium text-green-700 dark:text-green-400">Complete</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-2 pt-2">
+                    <div className="pt-0 grid grid-cols-1 md:grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <Label htmlFor="lead_source">Lead Source *</Label>
+                        <Select
+                          value={form.watch('lead_source')}
+                          onValueChange={(value) => { form.setValue('lead_source', value as any, { shouldDirty: true, shouldTouch: true, shouldValidate: true }); form.clearErrors('lead_source'); }}
+                          disabled={isSubmitting}
+                        >
+                          <SelectTrigger>
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="Website">Website</SelectItem>
+                            <SelectItem value="Referral">Referral</SelectItem>
+                            <SelectItem value="Social Media">Social Media</SelectItem>
+                            <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                            <SelectItem value="Other">Other</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+
                 {/* Basic Information */}
                 <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
                   <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-all group">
@@ -2338,58 +2390,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         {form.formState.errors.company && (
                           <p className="text-sm text-red-600">{form.formState.errors.company.message}</p>
                         )}
-                      </div>
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-
-            {/* Source & Channel */}
-            <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow" data-section-id="lead" style={{ scrollMarginTop: totalStickyOffset }}>
-                  <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-all group">
-                    <div className="flex items-center justify-between w-full gap-3">
-                      <div className="flex items-center gap-3">
-                        <div className="relative p-1.5 rounded-lg bg-gradient-to-br from-primary/10 to-primary/5 group-hover:from-primary/20 group-hover:to-primary/10 transition-all duration-300">
-                          <ClipboardList className="h-4 w-4 text-primary group-hover:scale-110 transition-transform" />
-                          <div className="absolute inset-0 rounded-xl bg-primary/5 blur-md opacity-0 group-hover:opacity-100 transition-opacity" />
-                        </div>
-                        <h3 className="text-xs font-bold text-foreground uppercase tracking-wide">Source & Channel Information</h3>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {sectionsWithErrors.has('lead') && (
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-destructive/25 border-2 border-destructive shadow-lg shadow-destructive/20 animate-pulse">
-                            <AlertCircle className="h-3.5 w-3.5 text-destructive" />
-                            <span className="text-xs font-medium text-destructive">Has Errors</span>
-                          </div>
-                        )}
-                        {isSourceChannelComplete && !sectionsWithErrors.has('lead') && (
-                          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-green-500/10 border border-green-500/20 animate-in fade-in zoom-in duration-500 shadow-lg shadow-green-500/20">
-                            <Check className="h-3.5 w-3.5 text-green-600 dark:text-green-400" />
-                            <span className="text-xs font-medium text-green-700 dark:text-green-400">Complete</span>
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-2 pt-2">
-                    <div className="pt-0 grid grid-cols-1 md:grid-cols-2 gap-2">
-                      <div className="space-y-1">
-                        <Label htmlFor="lead_source">Lead Source *</Label>
-                        <Select
-                          value={form.watch('lead_source')}
-                          onValueChange={(value) => { form.setValue('lead_source', value as any, { shouldDirty: true, shouldTouch: true, shouldValidate: true }); form.clearErrors('lead_source'); }}
-                          disabled={isSubmitting}
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="Website">Website</SelectItem>
-                            <SelectItem value="Referral">Referral</SelectItem>
-                            <SelectItem value="Social Media">Social Media</SelectItem>
-                            <SelectItem value="WhatsApp">WhatsApp</SelectItem>
-                            <SelectItem value="Other">Other</SelectItem>
-                          </SelectContent>
-                        </Select>
                       </div>
                     </div>
                   </AccordionContent>
