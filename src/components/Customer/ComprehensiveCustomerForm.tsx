@@ -238,6 +238,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [createdCustomerId, setCreatedCustomerId] = useState<string | null>(null);
   const [formMode, setFormMode] = useState<'concept' | 'wizard' | 'tabs' | 'single' | 'progressive'>('concept');
   const [expertMode, setExpertMode] = useState<'simple' | 'expert'>('simple');
+  const [wizardStep, setWizardStep] = useState(0);
   const [documents, setDocuments] = useState<Document[]>([]);
   const [showSuccessTransition, setShowSuccessTransition] = useState(false);
   const [customerMode, setCustomerMode] = useState<'new' | 'existing'>('new');
@@ -1011,6 +1012,28 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     //   }
     // }, 100);
   }, []);
+
+  // Wizard steps configuration
+  const wizardSteps = [
+    { id: 'basic', label: 'Basic Info', icon: Users },
+    { id: 'lead', label: 'Source & Channel', icon: ClipboardList },
+    { id: 'service', label: 'Service Selection', icon: Building2 },
+    { id: 'application', label: 'Deal Info', icon: Save },
+  ];
+
+  const handleWizardNext = useCallback(() => {
+    if (wizardStep < wizardSteps.length - 1) {
+      setWizardStep(prev => prev + 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [wizardStep, wizardSteps.length]);
+
+  const handleWizardPrevious = useCallback(() => {
+    if (wizardStep > 0) {
+      setWizardStep(prev => prev - 1);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, [wizardStep]);
 
   // Define sections for navigation
   const navigationSections = [
@@ -1948,7 +1971,136 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 <div className="space-y-1 pt-1">
                   <Form {...form}>
                     <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-1">
-                      <Accordion type="multiple" value={accordionValue} onValueChange={(value) => {
+                      {formMode === 'wizard' ? (
+                        /* Wizard Mode - Show one step at a time */
+                        <div className="space-y-4">
+                          {/* Wizard Progress */}
+                          <div className="flex items-center justify-between mb-4 px-2">
+                            <div className="flex items-center gap-2">
+                              {wizardSteps.map((step, index) => {
+                                const StepIcon = step.icon;
+                                return (
+                                  <React.Fragment key={step.id}>
+                                    <div className={cn(
+                                      "flex items-center gap-2 px-3 py-1.5 rounded-full transition-all",
+                                      index === wizardStep 
+                                        ? "bg-primary text-primary-foreground font-semibold" 
+                                        : index < wizardStep
+                                        ? "bg-primary/20 text-primary"
+                                        : "bg-muted text-muted-foreground"
+                                    )}>
+                                      <StepIcon className="h-4 w-4" />
+                                      <span className="text-xs hidden sm:inline">{step.label}</span>
+                                      <span className="text-xs sm:hidden">{index + 1}</span>
+                                    </div>
+                                    {index < wizardSteps.length - 1 && (
+                                      <div className={cn(
+                                        "h-0.5 w-8 transition-all",
+                                        index < wizardStep ? "bg-primary" : "bg-muted"
+                                      )} />
+                                    )}
+                                  </React.Fragment>
+                                );
+                              })}
+                            </div>
+                          </div>
+
+                          {/* Wizard Step Content - Basic Info */}
+                          {wizardStep === 0 && (
+                            <Card className="border rounded-lg bg-background shadow-sm">
+                              <CardHeader className="pb-3">
+                                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                                  <Users className="h-4 w-4" />
+                                  Basic Information
+                                </CardTitle>
+                              </CardHeader>
+                              <CardContent>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="name">Full Name *</Label>
+                                    <Input
+                                      id="name"
+                                      {...form.register('name')}
+                                      disabled={isSubmitting}
+                                      required
+                                    />
+                                    {form.formState.errors.name && (
+                                      <p className="text-sm text-red-600">{form.formState.errors.name.message}</p>
+                                    )}
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="email">Email *</Label>
+                                    <Input
+                                      id="email"
+                                      type="email"
+                                      {...form.register('email')}
+                                      disabled={isSubmitting}
+                                      required
+                                    />
+                                    {form.formState.errors.email && (
+                                      <p className="text-sm text-red-600">{form.formState.errors.email.message}</p>
+                                    )}
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="mobile">Mobile *</Label>
+                                    <Input
+                                      id="mobile"
+                                      {...form.register('mobile')}
+                                      disabled={isSubmitting}
+                                      required
+                                    />
+                                    {form.formState.errors.mobile && (
+                                      <p className="text-sm text-red-600">{form.formState.errors.mobile.message}</p>
+                                    )}
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="company">Company *</Label>
+                                    <Input
+                                      id="company"
+                                      {...form.register('company')}
+                                      disabled={isSubmitting}
+                                      required
+                                    />
+                                    {form.formState.errors.company && (
+                                      <p className="text-sm text-red-600">{form.formState.errors.company.message}</p>
+                                    )}
+                                  </div>
+                                </div>
+                              </CardContent>
+                            </Card>
+                          )}
+
+                          {/* Wizard Navigation Buttons */}
+                          <div className="flex justify-between pt-4">
+                            <Button
+                              type="button"
+                              variant="outline"
+                              onClick={handleWizardPrevious}
+                              disabled={wizardStep === 0}
+                            >
+                              Previous
+                            </Button>
+                            {wizardStep < wizardSteps.length - 1 ? (
+                              <Button
+                                type="button"
+                                onClick={handleWizardNext}
+                              >
+                                Next
+                              </Button>
+                            ) : (
+                              <Button
+                                type="button"
+                                onClick={form.handleSubmit(handleSubmit)}
+                                disabled={isSubmitting}
+                              >
+                                {isSubmitting ? 'Saving...' : 'Save Draft'}
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      ) : (
+                        /* Concept/Accordion Mode */
+                        <Accordion type="multiple" value={accordionValue} onValueChange={(value) => {
                         setAccordionValue(value);
                         if (value.includes('service')) {
                           setServiceSelectionExpanded(true);
@@ -2469,6 +2621,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </AccordionItem>
                       )}
                     </Accordion>
+                    )}
                   </form>
                   </Form>
                 </div>
