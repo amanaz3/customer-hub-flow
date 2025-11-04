@@ -29,7 +29,7 @@ import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
-import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search, Eye, EyeOff, Mail, Share2, Send, Zap, UserCog } from 'lucide-react';
+import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search, Eye, EyeOff, Mail, Share2, Send, Zap, UserCog, Layers } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { emailDocumentChecklist, shareViaWhatsApp, formatChecklistForSharing } from '@/utils/documentChecklistSharing';
 import { AgentHelpDialog } from './AgentHelpDialog';
@@ -236,7 +236,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStage, setCurrentStage] = useState<'details' | 'preview' | 'documents'>('details');
   const [createdCustomerId, setCreatedCustomerId] = useState<string | null>(null);
-  const [formMode, setFormMode] = useState<'wizard' | 'tabs' | 'single' | 'progressive'>('wizard');
+  const [formMode, setFormMode] = useState<'concept' | 'wizard' | 'tabs' | 'single' | 'progressive'>('concept');
   const [expertMode, setExpertMode] = useState<'simple' | 'expert'>('simple');
   const [documents, setDocuments] = useState<Document[]>([]);
   const [showSuccessTransition, setShowSuccessTransition] = useState(false);
@@ -1851,6 +1851,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
+                  <SelectItem value="concept">
+                    <div className="flex items-center gap-2">
+                      <Layers className="h-3.5 w-3.5" />
+                      <span>Concept</span>
+                    </div>
+                  </SelectItem>
                   <SelectItem value="wizard">
                     <div className="flex items-center gap-2">
                       <Zap className="h-3.5 w-3.5" />
