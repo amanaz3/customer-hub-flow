@@ -2008,6 +2008,89 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 onChange={handleCustomerSelect}
               />
               
+              {/* Service Bundles Section for Existing Customers */}
+              {bundles.length > 0 && (
+                <div className="space-y-3 mt-4">
+                  <div className="flex items-center justify-between">
+                    <Label className="flex items-center gap-2">
+                      <Package className="h-4 w-4" />
+                      Service Bundles (Optional)
+                    </Label>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => setShowCustomPackageDialog(true)}
+                      disabled={isSubmitting || productsLoading}
+                      className="gap-1.5"
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Create Custom Package
+                    </Button>
+                  </div>
+                  
+                  {bundlesLoading ? (
+                    <p className="text-sm text-muted-foreground">Loading bundles...</p>
+                  ) : (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {bundles.map((bundle: any) => (
+                        <Card
+                          key={bundle.id}
+                          className="cursor-pointer hover:shadow-md transition-all border-2 hover:border-primary/50"
+                        >
+                          <CardHeader className="pb-3">
+                            <div className="flex items-start justify-between gap-2">
+                              <div className="flex-1">
+                                <CardTitle className="text-sm font-semibold">{bundle.bundle_name}</CardTitle>
+                                {bundle.bundle_description && (
+                                  <p className="text-xs text-muted-foreground mt-1">{bundle.bundle_description}</p>
+                                )}
+                              </div>
+                              <Badge variant="secondary" className="text-xs">
+                                {bundle.total_arr.toLocaleString()} ARR
+                              </Badge>
+                            </div>
+                          </CardHeader>
+                          <CardContent className="space-y-2">
+                            {bundle.products && bundle.products.length > 0 && (
+                              <div className="space-y-1">
+                                <p className="text-xs font-medium text-muted-foreground">Includes:</p>
+                                <ul className="text-xs space-y-0.5">
+                                  {bundle.products.slice(0, 3).map((product: any) => (
+                                    <li key={product.id} className="flex items-center gap-1.5">
+                                      <Check className="h-3 w-3 text-green-600" />
+                                      <span className="truncate">{product.name}</span>
+                                    </li>
+                                  ))}
+                                  {bundle.products.length > 3 && (
+                                    <li className="text-muted-foreground italic">
+                                      +{bundle.products.length - 3} more...
+                                    </li>
+                                  )}
+                                </ul>
+                              </div>
+                            )}
+                            <Button
+                              type="button"
+                              variant="outline"
+                              size="sm"
+                              className="w-full mt-2"
+                              onClick={() => {
+                                setSelectedBundleForCustomization(bundle);
+                                setShowCustomizeBundleDialog(true);
+                              }}
+                              disabled={isSubmitting}
+                            >
+                              Customize Bundle
+                            </Button>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+              
               {/* Show form sections when in existing mode and details stage */}
               {currentStage === 'details' && (
                 <div className="space-y-1 pt-1">
@@ -2984,6 +3067,149 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               </div>
                             )}
 
+                            {/* Service Bundles Section */}
+                            {bundles.length > 0 && (
+                              <div className="space-y-3 mb-4">
+                                <div className="flex items-center justify-between">
+                                  <Label className="flex items-center gap-2">
+                                    <Package className="h-4 w-4" />
+                                    Service Bundles (Optional)
+                                  </Label>
+                                  <Button
+                                    type="button"
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => setShowCustomPackageDialog(true)}
+                                    disabled={isSubmitting || productsLoading}
+                                    className="gap-1.5"
+                                  >
+                                    <Sparkles className="h-3.5 w-3.5" />
+                                    Create Custom Package
+                                  </Button>
+                                </div>
+                                
+                                {bundlesLoading ? (
+                                  <p className="text-sm text-muted-foreground">Loading bundles...</p>
+                                ) : (
+                                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                    {bundles.map((bundle: any) => (
+                                      <Card
+                                        key={bundle.id}
+                                        className="cursor-pointer hover:shadow-md transition-all border-2 hover:border-primary/50"
+                                      >
+                                        <CardHeader className="pb-3">
+                                          <div className="flex items-start justify-between gap-2">
+                                            <div className="flex-1">
+                                              <CardTitle className="text-sm font-semibold">{bundle.bundle_name}</CardTitle>
+                                              {bundle.bundle_description && (
+                                                <p className="text-xs text-muted-foreground mt-1">{bundle.bundle_description}</p>
+                                              )}
+                                            </div>
+                                            <Badge variant="secondary" className="text-xs">
+                                              {bundle.total_arr.toLocaleString()} ARR
+                                            </Badge>
+                                          </div>
+                                        </CardHeader>
+                                        <CardContent className="space-y-2">
+                                          {bundle.products && bundle.products.length > 0 && (
+                                            <div className="space-y-1">
+                                              <p className="text-xs font-medium text-muted-foreground">Includes:</p>
+                                              <ul className="text-xs space-y-0.5">
+                                                {bundle.products.slice(0, 3).map((product: any) => (
+                                                  <li key={product.id} className="flex items-center gap-1.5">
+                                                    <Check className="h-3 w-3 text-green-600" />
+                                                    <span className="truncate">{product.name}</span>
+                                                  </li>
+                                                ))}
+                                                {bundle.products.length > 3 && (
+                                                  <li className="text-muted-foreground italic">
+                                                    +{bundle.products.length - 3} more...
+                                                  </li>
+                                                )}
+                                              </ul>
+                                            </div>
+                                          )}
+                                          <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            className="w-full mt-2"
+                                            onClick={() => {
+                                              setSelectedBundleForCustomization(bundle);
+                                              setShowCustomizeBundleDialog(true);
+                                            }}
+                                            disabled={isSubmitting}
+                                          >
+                                            Customize Bundle
+                                          </Button>
+                                        </CardContent>
+                                      </Card>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* Custom Packages (Customer-specific) */}
+                            {customPackages.length > 0 && (
+                              <div className="space-y-3 mb-4">
+                                <Label className="flex items-center gap-2">
+                                  <Sparkles className="h-4 w-4" />
+                                  Custom Packages (This Customer)
+                                </Label>
+                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                  {customPackages.map((pkg, index) => (
+                                    <Card
+                                      key={index}
+                                      className="border-2 border-primary/30 bg-primary/5"
+                                    >
+                                      <CardHeader className="pb-3">
+                                        <div className="flex items-start justify-between gap-2">
+                                          <div className="flex-1">
+                                            <CardTitle className="text-sm font-semibold flex items-center gap-1.5">
+                                              {pkg.name}
+                                              <Badge variant="outline" className="text-xs">Custom</Badge>
+                                            </CardTitle>
+                                            {pkg.description && (
+                                              <p className="text-xs text-muted-foreground mt-1">{pkg.description}</p>
+                                            )}
+                                            {pkg.basedOn && (
+                                              <p className="text-xs text-muted-foreground italic mt-1">
+                                                Based on: {pkg.basedOn}
+                                              </p>
+                                            )}
+                                          </div>
+                                          <Badge className="text-xs">
+                                            {pkg.totalARR.toLocaleString()} ARR
+                                          </Badge>
+                                        </div>
+                                      </CardHeader>
+                                      <CardContent className="space-y-2">
+                                        {pkg.products && pkg.products.length > 0 && (
+                                          <div className="space-y-1">
+                                            <p className="text-xs font-medium text-muted-foreground">Includes:</p>
+                                            <ul className="text-xs space-y-0.5">
+                                              {pkg.products.slice(0, 3).map((product: any) => (
+                                                <li key={product.id} className="flex items-center gap-1.5">
+                                                  <Check className="h-3 w-3 text-green-600" />
+                                                  <span className="truncate">{product.name}</span>
+                                                </li>
+                                              ))}
+                                              {pkg.products.length > 3 && (
+                                                <li className="text-muted-foreground italic">
+                                                  +{pkg.products.length - 3} more...
+                                                </li>
+                                              )}
+                                            </ul>
+                                          </div>
+                                        )}
+                                      </CardContent>
+                                    </Card>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
                             {/* Products Grid */}
                             <div className="space-y-3">
                               <Label>Product / Service *</Label>
@@ -2993,6 +3219,20 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 <p className="text-sm text-muted-foreground">No products available in this category.</p>
                               ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                                  {/* Build Your Own Package Card */}
+                                  <div
+                                    onClick={() => setShowCustomPackageDialog(true)}
+                                    className="relative p-3 rounded-md border-2 border-dashed border-primary/50 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary bg-primary/5 hover:bg-primary/10"
+                                  >
+                                    <div className="flex flex-col items-center justify-center gap-2 py-4">
+                                      <div className="p-2 rounded-full bg-primary/10">
+                                        <Sparkles className="h-5 w-5 text-primary" />
+                                      </div>
+                                      <h4 className="font-semibold text-sm text-center">Build Your Own</h4>
+                                      <p className="text-xs text-muted-foreground text-center">Create custom package</p>
+                                    </div>
+                                  </div>
+                                  
                                   {products.map((product) => {
                                     const isSelected = watchProductId === product.id;
                                     return (
@@ -3077,89 +3317,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>
                               )}
                             </div>
-
-                            {/* Service Bundles Section */}
-                            {bundles.length > 0 && (
-                              <div className="space-y-3 mt-6">
-                                <div className="flex items-center justify-between">
-                                  <Label className="flex items-center gap-2">
-                                    <Package className="h-4 w-4" />
-                                    Service Bundles (Optional)
-                                  </Label>
-                                  <Button
-                                    type="button"
-                                    variant="outline"
-                                    size="sm"
-                                    onClick={() => setShowCustomPackageDialog(true)}
-                                    disabled={isSubmitting || productsLoading}
-                                    className="gap-1.5"
-                                  >
-                                    <Sparkles className="h-3.5 w-3.5" />
-                                    Create Custom Package
-                                  </Button>
-                                </div>
-                                
-                                {bundlesLoading ? (
-                                  <p className="text-sm text-muted-foreground">Loading bundles...</p>
-                                ) : (
-                                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                    {bundles.map((bundle: any) => (
-                                      <Card
-                                        key={bundle.id}
-                                        className="cursor-pointer hover:shadow-md transition-all border-2 hover:border-primary/50"
-                                      >
-                                        <CardHeader className="pb-3">
-                                          <div className="flex items-start justify-between gap-2">
-                                            <div className="flex-1">
-                                              <CardTitle className="text-sm font-semibold">{bundle.bundle_name}</CardTitle>
-                                              {bundle.bundle_description && (
-                                                <p className="text-xs text-muted-foreground mt-1">{bundle.bundle_description}</p>
-                                              )}
-                                            </div>
-                                            <Badge variant="secondary" className="text-xs">
-                                              {bundle.total_arr.toLocaleString()} ARR
-                                            </Badge>
-                                          </div>
-                                        </CardHeader>
-                                        <CardContent className="space-y-2">
-                                          {bundle.products && bundle.products.length > 0 && (
-                                            <div className="space-y-1">
-                                              <p className="text-xs font-medium text-muted-foreground">Includes:</p>
-                                              <ul className="text-xs space-y-0.5">
-                                                {bundle.products.slice(0, 3).map((product: any) => (
-                                                  <li key={product.id} className="flex items-center gap-1.5">
-                                                    <Check className="h-3 w-3 text-green-600" />
-                                                    <span className="truncate">{product.name}</span>
-                                                  </li>
-                                                ))}
-                                                {bundle.products.length > 3 && (
-                                                  <li className="text-muted-foreground italic">
-                                                    +{bundle.products.length - 3} more...
-                                                  </li>
-                                                )}
-                                              </ul>
-                                            </div>
-                                          )}
-                                          <Button
-                                            type="button"
-                                            variant="outline"
-                                            size="sm"
-                                            className="w-full mt-2"
-                                            onClick={() => {
-                                              setSelectedBundleForCustomization(bundle);
-                                              setShowCustomizeBundleDialog(true);
-                                            }}
-                                            disabled={isSubmitting}
-                                          >
-                                            Customize Bundle
-                                          </Button>
-                                        </CardContent>
-                                      </Card>
-                                    ))}
-                                  </div>
-                                )}
-                              </div>
-                            )}
                           </div>
                         </AccordionContent>
                        </AccordionItem>
