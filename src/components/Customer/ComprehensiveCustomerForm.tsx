@@ -29,7 +29,8 @@ import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
-import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search, Eye, EyeOff } from 'lucide-react';
+import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search, Eye, EyeOff, Mail, MessageCircle } from 'lucide-react';
+import { emailDocumentChecklist, shareViaWhatsApp, formatChecklistForSharing } from '@/utils/documentChecklistSharing';
 import { AgentHelpDialog } from './AgentHelpDialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
@@ -4547,6 +4548,106 @@ NOTES:
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
+                        
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={async () => {
+                                  const email = form.watch('email');
+                                  const name = form.watch('name');
+                                  
+                                  if (!email || !validateEmail(email)) {
+                                    toast({
+                                      title: "Email Required",
+                                      description: "Please enter a valid email address in the Basic Information section first",
+                                      variant: "destructive",
+                                    });
+                                    return;
+                                  }
+                                  
+                                  const checklist = `Company Documents:\n• Trade License Copy (certified)\n• Memorandum of Association (MOA)\n• Company Organization Chart\n\nBeneficial Owner Documents:\n• Passport Copies of all UBOs\n• Emirates ID Copies of all UBOs\n• Proof of Address for all UBOs\n\nCompliance Documents:\n• Board Resolution appointing Compliance Officer\n• Bank Account Details & Statements (Last 6 months)`;
+                                  
+                                  const success = await emailDocumentChecklist({
+                                    recipientEmail: email,
+                                    recipientName: name || 'Customer',
+                                    documentList: checklist,
+                                    productType: 'GoAML Registration',
+                                    customerName: form.watch('company'),
+                                  });
+                                  
+                                  if (success) {
+                                    toast({
+                                      title: "Email Sent!",
+                                      description: `Checklist sent to ${email}`,
+                                    });
+                                  } else {
+                                    toast({
+                                      title: "Failed to send",
+                                      description: "Please try again or contact support",
+                                      variant: "destructive",
+                                    });
+                                  }
+                                }}
+                              >
+                                <Mail className="h-3.5 w-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Email checklist</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={() => {
+                                  const mobile = form.watch('mobile');
+                                  
+                                  if (!mobile || !validatePhoneNumber(mobile)) {
+                                    toast({
+                                      title: "Phone Required",
+                                      description: "Please enter a valid mobile number in the Basic Information section first",
+                                      variant: "destructive",
+                                    });
+                                    return;
+                                  }
+                                  
+                                  const checklist = `Company Documents:\n• Trade License Copy (certified)\n• Memorandum of Association (MOA)\n• Company Organization Chart\n\nBeneficial Owner Documents:\n• Passport Copies of all UBOs\n• Emirates ID Copies of all UBOs\n• Proof of Address for all UBOs\n\nCompliance Documents:\n• Board Resolution appointing Compliance Officer\n• Bank Account Details & Statements (Last 6 months)`;
+                                  
+                                  try {
+                                    shareViaWhatsApp(mobile, checklist, 'GoAML Registration');
+                                    toast({
+                                      title: "Opening WhatsApp...",
+                                      description: "Share checklist via WhatsApp",
+                                    });
+                                  } catch (error) {
+                                    toast({
+                                      title: "Failed to open WhatsApp",
+                                      description: "Please check the mobile number",
+                                      variant: "destructive",
+                                    });
+                                  }
+                                }}
+                              >
+                                <MessageCircle className="h-3.5 w-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Share via WhatsApp</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     </div>
                     <p className="text-xs text-foreground/70 italic mb-2 px-2 ml-3 flex items-start gap-1.5">
@@ -5147,6 +5248,106 @@ NOTES:
                             </TooltipTrigger>
                             <TooltipContent>
                               <p>Copy checklist</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={async () => {
+                                  const email = form.watch('email');
+                                  const name = form.watch('name');
+                                  
+                                  if (!email || !validateEmail(email)) {
+                                    toast({
+                                      title: "Email Required",
+                                      description: "Please enter a valid email address in the Basic Information section first",
+                                      variant: "destructive",
+                                    });
+                                    return;
+                                  }
+                                  
+                                  const checklist = `Personal Documents:\n• Passport Copy with valid UAE Visa\n• Emirates ID Copy (both sides)\n\nEmployment & Financial:\n• Salary Certificate (last 3 months)\n• Bank Statements (last 6 months)\n\nProperty Documents:\n• Property Valuation Report\n• Property Documents (Title Deed / MOU / Sale Agreement)\n• Proof of Down Payment\n\nAdditional Documents:\n• Credit Report Authorization Form\n• If Self-Employed: Trade License, MOA, Audited Financials\n• If Co-Applicant: All documents for co-applicant`;
+                                  
+                                  const success = await emailDocumentChecklist({
+                                    recipientEmail: email,
+                                    recipientName: name || 'Customer',
+                                    documentList: checklist,
+                                    productType: 'Home Finance Mortgage',
+                                    customerName: form.watch('company'),
+                                  });
+                                  
+                                  if (success) {
+                                    toast({
+                                      title: "Email Sent!",
+                                      description: `Checklist sent to ${email}`,
+                                    });
+                                  } else {
+                                    toast({
+                                      title: "Failed to send",
+                                      description: "Please try again or contact support",
+                                      variant: "destructive",
+                                    });
+                                  }
+                                }}
+                              >
+                                <Mail className="h-3.5 w-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Email checklist</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={() => {
+                                  const mobile = form.watch('mobile');
+                                  
+                                  if (!mobile || !validatePhoneNumber(mobile)) {
+                                    toast({
+                                      title: "Phone Required",
+                                      description: "Please enter a valid mobile number in the Basic Information section first",
+                                      variant: "destructive",
+                                    });
+                                    return;
+                                  }
+                                  
+                                  const checklist = `Personal Documents:\n• Passport Copy with valid UAE Visa\n• Emirates ID Copy (both sides)\n\nEmployment & Financial:\n• Salary Certificate (last 3 months)\n• Bank Statements (last 6 months)\n\nProperty Documents:\n• Property Valuation Report\n• Property Documents (Title Deed / MOU / Sale Agreement)\n• Proof of Down Payment\n\nAdditional Documents:\n• Credit Report Authorization Form\n• If Self-Employed: Trade License, MOA, Audited Financials\n• If Co-Applicant: All documents for co-applicant`;
+                                  
+                                  try {
+                                    shareViaWhatsApp(mobile, checklist, 'Home Finance Mortgage');
+                                    toast({
+                                      title: "Opening WhatsApp...",
+                                      description: "Share checklist via WhatsApp",
+                                    });
+                                  } catch (error) {
+                                    toast({
+                                      title: "Failed to open WhatsApp",
+                                      description: "Please check the mobile number",
+                                      variant: "destructive",
+                                    });
+                                  }
+                                }}
+                              >
+                                <MessageCircle className="h-3.5 w-3.5" />
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Share via WhatsApp</p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
