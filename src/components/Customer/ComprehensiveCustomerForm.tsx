@@ -1634,10 +1634,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </Card>
       </div>
 
-      {/* Form Content Card - Sticky */}
+      {/* Form Content Card - Fixed with internal scroll */}
       <Card
         ref={formContentCardRef}
-        className="sticky w-full overflow-hidden mb-8 z-30 border shadow-lg bg-background/95 backdrop-blur-md"
+        className="fixed inset-x-0 w-full overflow-hidden mb-8 z-30 border shadow-lg bg-background/95 backdrop-blur-md"
         style={{ top: `${stageHeight + selectionHeight}px` }}
       >
         {/* Form Navigation - Sticky */}
@@ -1677,7 +1677,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           )}
         </div>}
 
-        <CardContent className="space-y-4 pb-8 pt-4">
+        <CardContent className="space-y-4 pb-8 pt-4 overflow-y-auto" style={{ maxHeight: `calc(100vh - ${stageHeight + selectionHeight + 24}px)` }}>
         {/* Customer Selection Content - Not Sticky */}
         <div className="space-y-4 relative z-0">
 
