@@ -114,6 +114,11 @@ const formSchema = z.object({
   customer_types: z.string().optional(),
   high_risk_countries: z.string().optional(),
   source_of_funds: z.string().optional(),
+  // AML/MLRO fields
+  mlro_name: z.string().optional(),
+  mlro_email: z.string().email().optional().or(z.literal('')),
+  mlro_phone: z.string().optional(),
+  aml_policy_required: z.boolean().optional(),
   // Home Finance fields
   monthly_gross_salary: z.number().optional(),
   employment_status: z.string().optional(),
@@ -460,6 +465,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       customer_types: '',
       high_risk_countries: '',
       source_of_funds: '',
+      // AML/MLRO defaults
+      mlro_name: '',
+      mlro_email: '',
+      mlro_phone: '',
+      aml_policy_required: false,
       // Home Finance defaults
       monthly_gross_salary: 0,
       employment_status: '',
@@ -561,7 +571,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
          'registered_office_address', 'nature_of_business', 'number_of_ubos',
          'compliance_officer_name', 'compliance_officer_email', 'compliance_officer_phone',
          'compliance_officer_position', 'expected_annual_transaction_volume', 'transaction_types',
-         'customer_types', 'high_risk_countries', 'source_of_funds', 'vat_registration_type',
+         'customer_types', 'high_risk_countries', 'source_of_funds', 'mlro_name', 'mlro_email',
+         'mlro_phone', 'aml_policy_required', 'vat_registration_type',
          'already_registered_vat', 'existing_trn', 'business_activity_description',
          'import_activities', 'export_activities', 'import_countries', 'export_countries',
          'previous_tax_period', 'vat_accounting_software', 'multiple_business_locations',
@@ -3270,6 +3281,61 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             placeholder="+971 XX XXX XXXX"
                             disabled={isSubmitting}
                           />
+                        </div>
+
+                        <Separator className="my-4" />
+
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-2">
+                            <h4 className="text-sm font-semibold">MLRO Information</h4>
+                            <Badge variant="secondary" className="text-xs">Money Laundering Reporting Officer</Badge>
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="mlro_name">MLRO Name *</Label>
+                            <Input
+                              id="mlro_name"
+                              {...form.register('mlro_name')}
+                              placeholder="Full name of MLRO"
+                              disabled={isSubmitting}
+                            />
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="mlro_email">MLRO Email *</Label>
+                            <Input
+                              id="mlro_email"
+                              type="email"
+                              {...form.register('mlro_email')}
+                              placeholder="mlro@company.com"
+                              disabled={isSubmitting}
+                            />
+                            {form.formState.errors.mlro_email && (
+                              <p className="text-sm text-red-600">{form.formState.errors.mlro_email.message}</p>
+                            )}
+                          </div>
+
+                          <div className="space-y-2">
+                            <Label htmlFor="mlro_phone">MLRO Phone Number *</Label>
+                            <Input
+                              id="mlro_phone"
+                              {...form.register('mlro_phone')}
+                              placeholder="+971 XX XXX XXXX"
+                              disabled={isSubmitting}
+                            />
+                          </div>
+
+                          <div className="flex items-center space-x-2">
+                            <Checkbox
+                              id="aml_policy_required"
+                              checked={form.watch('aml_policy_required')}
+                              onCheckedChange={(checked) => form.setValue('aml_policy_required', checked as boolean)}
+                              disabled={isSubmitting}
+                            />
+                            <Label htmlFor="aml_policy_required" className="cursor-pointer">
+                              AML Policy Required
+                            </Label>
+                          </div>
                         </div>
                       </>
                     )}
