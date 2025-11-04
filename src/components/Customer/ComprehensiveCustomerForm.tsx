@@ -1840,15 +1840,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       
       {/* Mode and Layout Selectors - Sticky */}
       <Card ref={modeLayoutRef} className="sticky z-40 -mt-px border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm rounded-none border-t-0 mb-0" style={{ top: `${stageHeight + selectionHeight}px` }}>
-        <div className="px-3 py-3 bg-muted/30">
-          <div className="flex items-center gap-6">
+        <div className="px-3 py-1.5 bg-muted/30">
+          <div className="flex items-center gap-4">
             {/* Expert/Simple Toggle */}
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <UserCog className="h-3.5 w-3.5" />
+            <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <UserCog className="h-3 w-3" />
                 <span className="font-medium">Mode:</span>
               </div>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5">
                 <Label htmlFor="expert-toggle" className={cn("text-xs cursor-pointer", expertMode === 'simple' && "font-semibold text-foreground")}>
                   Simple
                 </Label>
@@ -1864,43 +1864,43 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             </div>
             
             {/* Layout Selector */}
-            <div className="flex items-center gap-2 ml-auto">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <ClipboardList className="h-3.5 w-3.5" />
+            <div className="flex items-center gap-1.5 ml-auto">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <ClipboardList className="h-3 w-3" />
                 <span className="font-medium">Layout:</span>
               </div>
               <Select value={formMode} onValueChange={(value) => setFormMode(value as typeof formMode)}>
-                <SelectTrigger className="w-[135px] h-8 text-xs">
+                <SelectTrigger className="w-[120px] h-7 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="concept">
-                    <div className="flex items-center gap-2">
-                      <Layers className="h-3.5 w-3.5" />
+                    <div className="flex items-center gap-1.5">
+                      <Layers className="h-3 w-3" />
                       <span>Concept</span>
                     </div>
                   </SelectItem>
                   <SelectItem value="wizard">
-                    <div className="flex items-center gap-2">
-                      <Zap className="h-3.5 w-3.5" />
+                    <div className="flex items-center gap-1.5">
+                      <Zap className="h-3 w-3" />
                       <span>Wizard</span>
                     </div>
                   </SelectItem>
                   <SelectItem value="tabs">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-3.5 w-3.5" />
+                    <div className="flex items-center gap-1.5">
+                      <Building2 className="h-3 w-3" />
                       <span>Tabs</span>
                     </div>
                   </SelectItem>
                   <SelectItem value="single">
-                    <div className="flex items-center gap-2">
-                      <ClipboardList className="h-3.5 w-3.5" />
+                    <div className="flex items-center gap-1.5">
+                      <ClipboardList className="h-3 w-3" />
                       <span>Single Page</span>
                     </div>
                   </SelectItem>
                   <SelectItem value="progressive">
-                    <div className="flex items-center gap-2">
-                      <UserCog className="h-3.5 w-3.5" />
+                    <div className="flex items-center gap-1.5">
+                      <UserCog className="h-3 w-3" />
                       <span>Progressive</span>
                     </div>
                   </SelectItem>
