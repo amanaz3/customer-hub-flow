@@ -6960,6 +6960,165 @@ NOTES:
 
 
               </Accordion>
+              ) : formMode === 'tabs' ? (
+                /* Tabs Mode - All sections accessible via tabs */
+                <Tabs defaultValue="basic" className="space-y-4">
+                  <TabsList className="grid w-full grid-cols-4 h-auto">
+                    <TabsTrigger value="basic" className="flex items-center gap-2">
+                      <Users className="h-4 w-4" />
+                      <span className="hidden sm:inline">Basic Info</span>
+                      <span className="sm:hidden">Info</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="lead" className="flex items-center gap-2">
+                      <ClipboardList className="h-4 w-4" />
+                      <span className="hidden sm:inline">Source</span>
+                      <span className="sm:hidden">Source</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="service" className="flex items-center gap-2">
+                      <Building2 className="h-4 w-4" />
+                      <span className="hidden sm:inline">Service</span>
+                      <span className="sm:hidden">Service</span>
+                    </TabsTrigger>
+                    <TabsTrigger value="deal" className="flex items-center gap-2">
+                      <Save className="h-4 w-4" />
+                      <span className="hidden sm:inline">Deal Info</span>
+                      <span className="sm:hidden">Deal</span>
+                    </TabsTrigger>
+                  </TabsList>
+
+                  {/* Basic Info Tab */}
+                  <TabsContent value="basic" className="space-y-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                          <Users className="h-4 w-4" />
+                          Basic Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="new-tab-name">Full Name *</Label>
+                            <Input id="new-tab-name" {...form.register('name')} disabled={isSubmitting} required />
+                            {form.formState.errors.name && <p className="text-sm text-red-600">{form.formState.errors.name.message}</p>}
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="new-tab-email">Email *</Label>
+                            <Input id="new-tab-email" type="email" {...form.register('email')} disabled={isSubmitting} required />
+                            {form.formState.errors.email && <p className="text-sm text-red-600">{form.formState.errors.email.message}</p>}
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="new-tab-mobile">Mobile *</Label>
+                            <Input id="new-tab-mobile" {...form.register('mobile')} disabled={isSubmitting} required />
+                            {form.formState.errors.mobile && <p className="text-sm text-red-600">{form.formState.errors.mobile.message}</p>}
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="new-tab-company">Company *</Label>
+                            <Input id="new-tab-company" {...form.register('company')} disabled={isSubmitting} required />
+                            {form.formState.errors.company && <p className="text-sm text-red-600">{form.formState.errors.company.message}</p>}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  {/* Source & Channel Tab */}
+                  <TabsContent value="lead" className="space-y-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                          <ClipboardList className="h-4 w-4" />
+                          Source & Channel Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <Label htmlFor="new-tab-lead-source">Lead Source *</Label>
+                          <Select value={form.watch('lead_source')} onValueChange={(value) => { form.setValue('lead_source', value as any, { shouldDirty: true, shouldTouch: true, shouldValidate: true }); form.clearErrors('lead_source'); }} disabled={isSubmitting}>
+                            <SelectTrigger><SelectValue /></SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Website">Website</SelectItem>
+                              <SelectItem value="Referral">Referral</SelectItem>
+                              <SelectItem value="Social Media">Social Media</SelectItem>
+                              <SelectItem value="WhatsApp">WhatsApp</SelectItem>
+                              <SelectItem value="Other">Other</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  {/* Service Selection Tab */}
+                  <TabsContent value="service" className="space-y-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                          <Building2 className="h-4 w-4" />
+                          Service Selection
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-2">
+                          <Label htmlFor="new-tab-product">Product/Service *</Label>
+                          <Select value={form.watch('product_id')} onValueChange={(value) => { form.setValue('product_id', value, { shouldDirty: true, shouldTouch: true, shouldValidate: true }); form.clearErrors('product_id'); }} disabled={isSubmitting || productsLoading}>
+                            <SelectTrigger><SelectValue placeholder="Select a product or service" /></SelectTrigger>
+                            <SelectContent>
+                              {products.map((product) => (
+                                <SelectItem key={product.id} value={product.id}>{product.name}</SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                          {form.formState.errors.product_id && <p className="text-sm text-red-600">{form.formState.errors.product_id.message}</p>}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  {/* Deal Info Tab */}
+                  <TabsContent value="deal" className="space-y-4">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                          <Save className="h-4 w-4" />
+                          Deal Information
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="new-tab-amount">Amount *</Label>
+                            <Input id="new-tab-amount" type="number" {...form.register('amount', { valueAsNumber: true })} disabled={isSubmitting} required />
+                            {form.formState.errors.amount && <p className="text-sm text-red-600">{form.formState.errors.amount.message}</p>}
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="new-tab-license-type">License Type *</Label>
+                            <Select value={form.watch('license_type')} onValueChange={(value) => { form.setValue('license_type', value as any, { shouldDirty: true, shouldTouch: true, shouldValidate: true }); }} disabled={isSubmitting}>
+                              <SelectTrigger><SelectValue /></SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Mainland">Mainland</SelectItem>
+                                <SelectItem value="Freezone">Freezone</SelectItem>
+                                <SelectItem value="Offshore">Offshore</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="new-tab-turnover">Annual Turnover *</Label>
+                            <Input id="new-tab-turnover" type="number" {...form.register('annual_turnover', { valueAsNumber: true })} disabled={isSubmitting} required />
+                            {form.formState.errors.annual_turnover && <p className="text-sm text-red-600">{form.formState.errors.annual_turnover.message}</p>}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </TabsContent>
+
+                  {/* Save Button */}
+                  <div className="flex justify-end pt-4">
+                    <Button type="button" onClick={form.handleSubmit(handleSubmit)} disabled={isSubmitting}>
+                      {isSubmitting ? 'Saving...' : 'Save Draft'}
+                    </Button>
+                  </div>
+                </Tabs>
               ) : formMode === 'progressive' ? (
                 /* Progressive Mode - Reveal sections as they're completed */
                 <div className="space-y-4">
