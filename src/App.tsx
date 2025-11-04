@@ -32,6 +32,7 @@ import {
 import CRMIntegration from '@/pages/CRMIntegration';
 import Analytics from '@/pages/Analytics';
 import TargetManagement from '@/pages/TargetManagement';
+import AgentHelpEditor from '@/pages/AgentHelpEditor';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -232,6 +233,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Settings">
                           <LazySettings />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/admin/help-editor" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Agent Help Editor">
+                          <AgentHelpEditor />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>

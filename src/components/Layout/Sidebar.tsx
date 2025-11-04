@@ -22,7 +22,8 @@ import {
   Target,
   Link2,
   Shield,
-  FolderTree
+  FolderTree,
+  BookOpen
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -135,6 +136,12 @@ const Sidebar: React.FC = () => {
       roles: ['admin'],
     },
     {
+      name: 'Help Editor',
+      path: '/admin/help-editor',
+      icon: <BookOpen className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
       name: 'Settings',
       path: '/settings',
       icon: <Settings className="h-5 w-5" />,
@@ -144,7 +151,7 @@ const Sidebar: React.FC = () => {
 
   const isActiveRoute = (path: string) => {
     // Exact match for most routes
-    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/service-categories' || path === '/analytics' || path === '/targets' || path === '/crm' || path === '/admin/migrate') {
+    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/service-categories' || path === '/analytics' || path === '/targets' || path === '/crm' || path === '/admin/migrate' || path === '/admin/help-editor') {
       return location.pathname === path;
     }
     
