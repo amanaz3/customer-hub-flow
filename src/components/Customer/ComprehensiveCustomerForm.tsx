@@ -1386,7 +1386,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       )}
 
       {/* Stage Indicator - Premium Stylish Design */}
-      <Card ref={stageRef} className="sticky top-0 z-[100] border-0 shadow-lg overflow-hidden bg-background/95 backdrop-blur-md">
+      <Card ref={stageRef} className="sticky top-0 z-[100] border-0 shadow-lg overflow-hidden bg-background/95 backdrop-blur-md mb-0 rounded-b-none">
         {/* Animated gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent animate-[slide-in-right_3s_ease-in-out_infinite] pointer-events-none" />
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
@@ -1579,8 +1579,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </CardContent>
       </Card>
       {/* Customer Selection Card - Sticky */}
-      <div ref={customerSelectionCardRef} className="sticky z-40" style={{ top: `${stageHeight}px` }}>
-        <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm rounded-t-none border-t-0">
+      <div ref={customerSelectionCardRef} className="sticky z-40 -mt-px" style={{ top: `${stageHeight}px` }}>
+        <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm rounded-t-none rounded-b-none border-t-0 mb-0">
         <div className="grid grid-cols-2 w-full">
           {customerMode === 'existing' ? (
             <>
@@ -1653,7 +1653,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       {/* Form Content Card - Sticky */}
       <Card
         ref={formContentCardRef}
-        className="sticky w-full overflow-hidden z-30 border shadow-lg bg-background/95 backdrop-blur-md rounded-t-none border-t-0"
+        className="sticky w-full overflow-hidden z-30 border shadow-lg bg-background/95 backdrop-blur-md rounded-t-none border-t-0 -mt-px"
         style={{ top: `${stageHeight + selectionHeight}px`, marginBottom: 0 }}
       >
         {/* Form Navigation - Sticky */}
