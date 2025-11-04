@@ -29,7 +29,7 @@ import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
-import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search, Eye, EyeOff, Mail, MessageCircle } from 'lucide-react';
+import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search, Eye, EyeOff, Mail, Share2, Send } from 'lucide-react';
 import { emailDocumentChecklist, shareViaWhatsApp, formatChecklistForSharing } from '@/utils/documentChecklistSharing';
 import { AgentHelpDialog } from './AgentHelpDialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -4640,7 +4640,7 @@ NOTES:
                                   }
                                 }}
                               >
-                                <MessageCircle className="h-3.5 w-3.5" />
+                                <Share2 className="h-3.5 w-3.5" />
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>
@@ -5343,7 +5343,7 @@ NOTES:
                                   }
                                 }}
                               >
-                                <MessageCircle className="h-3.5 w-3.5" />
+                                <Share2 className="h-3.5 w-3.5" />
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>
