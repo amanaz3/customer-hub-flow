@@ -1741,75 +1741,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </CardContent>
       </Card>
       
-      {/* Mode and Layout Selectors - Sticky */}
-      <Card ref={modeLayoutRef} className="sticky z-40 -mt-px border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm rounded-none border-t-0 mb-0" style={{ top: `${stageHeight}px` }}>
-        <div className="px-3 py-3 bg-muted/30">
-          <div className="flex items-center gap-6">
-            {/* Expert/Simple Toggle */}
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <UserCog className="h-3.5 w-3.5" />
-                <span className="font-medium">Mode:</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Label htmlFor="expert-toggle" className={cn("text-xs cursor-pointer", expertMode === 'simple' && "font-semibold text-foreground")}>
-                  Simple
-                </Label>
-                <Switch
-                  id="expert-toggle"
-                  checked={expertMode === 'expert'}
-                  onCheckedChange={(checked) => setExpertMode(checked ? 'expert' : 'simple')}
-                />
-                <Label htmlFor="expert-toggle" className={cn("text-xs cursor-pointer", expertMode === 'expert' && "font-semibold text-foreground")}>
-                  Expert
-                </Label>
-              </div>
-            </div>
-            
-            {/* Layout Selector */}
-            <div className="flex items-center gap-2 ml-auto">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <ClipboardList className="h-3.5 w-3.5" />
-                <span className="font-medium">Layout:</span>
-              </div>
-              <Select value={formMode} onValueChange={(value) => setFormMode(value as typeof formMode)}>
-                <SelectTrigger className="w-[135px] h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="wizard">
-                    <div className="flex items-center gap-2">
-                      <Zap className="h-3.5 w-3.5" />
-                      <span>Wizard</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="tabs">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-3.5 w-3.5" />
-                      <span>Tabs</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="single">
-                    <div className="flex items-center gap-2">
-                      <ClipboardList className="h-3.5 w-3.5" />
-                      <span>Single Page</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="progressive">
-                    <div className="flex items-center gap-2">
-                      <UserCog className="h-3.5 w-3.5" />
-                      <span>Progressive</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
-      </Card>
-      
       {/* Customer Selection Card - Sticky */}
-      <div ref={customerSelectionCardRef} className="sticky z-40 -mt-px" style={{ top: `${stageHeight + modeLayoutHeight}px` }}>
+      <div ref={customerSelectionCardRef} className="sticky z-40 -mt-px" style={{ top: `${stageHeight}px` }}>
         <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm rounded-t-none rounded-b-none border-t-0 mb-0">
         {/* Customer Mode Selection */}
         <div className="grid grid-cols-2 w-full border-b border-border">
@@ -1881,6 +1814,74 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </div>
       </Card>
       </div>
+      
+      {/* Mode and Layout Selectors - Sticky */}
+      <Card ref={modeLayoutRef} className="sticky z-40 -mt-px border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm rounded-none border-t-0 mb-0" style={{ top: `${stageHeight + selectionHeight}px` }}>
+        <div className="px-3 py-3 bg-muted/30">
+          <div className="flex items-center gap-6">
+            {/* Expert/Simple Toggle */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <UserCog className="h-3.5 w-3.5" />
+                <span className="font-medium">Mode:</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="expert-toggle" className={cn("text-xs cursor-pointer", expertMode === 'simple' && "font-semibold text-foreground")}>
+                  Simple
+                </Label>
+                <Switch
+                  id="expert-toggle"
+                  checked={expertMode === 'expert'}
+                  onCheckedChange={(checked) => setExpertMode(checked ? 'expert' : 'simple')}
+                />
+                <Label htmlFor="expert-toggle" className={cn("text-xs cursor-pointer", expertMode === 'expert' && "font-semibold text-foreground")}>
+                  Expert
+                </Label>
+              </div>
+            </div>
+            
+            {/* Layout Selector */}
+            <div className="flex items-center gap-2 ml-auto">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <ClipboardList className="h-3.5 w-3.5" />
+                <span className="font-medium">Layout:</span>
+              </div>
+              <Select value={formMode} onValueChange={(value) => setFormMode(value as typeof formMode)}>
+                <SelectTrigger className="w-[135px] h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="wizard">
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-3.5 w-3.5" />
+                      <span>Wizard</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="tabs">
+                    <div className="flex items-center gap-2">
+                      <Building2 className="h-3.5 w-3.5" />
+                      <span>Tabs</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="single">
+                    <div className="flex items-center gap-2">
+                      <ClipboardList className="h-3.5 w-3.5" />
+                      <span>Single Page</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="progressive">
+                    <div className="flex items-center gap-2">
+                      <UserCog className="h-3.5 w-3.5" />
+                      <span>Progressive</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      </Card>
+      
       {/* Form Content Card - Sticky */}
       <Card
         ref={formContentCardRef}
