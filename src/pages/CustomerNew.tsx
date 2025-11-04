@@ -16,6 +16,7 @@ const CustomerNew = () => {
   const [customerName, setCustomerName] = useState<string>('');
   const [customerMobile, setCustomerMobile] = useState<string>('');
   const [customerCompany, setCustomerCompany] = useState<string>('');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
 
   const handleSuccess = () => {
     refreshData();
@@ -55,7 +56,7 @@ const CustomerNew = () => {
   return (
     <div className="w-full relative">
       <div className="w-full bg-gradient-subtle -mx-3 sm:-mx-4 md:-mx-6 -mt-4 sm:-mt-2">
-        <div className="px-4 pb-4 lg:pr-80">
+        <div className={`px-4 pb-4 transition-all duration-300 ${sidebarCollapsed ? 'lg:pr-12' : 'lg:pr-80'}`}>
           {/* Multi-Step Form */}
           <ComprehensiveCustomerForm 
             onSuccess={handleSuccess}
@@ -76,6 +77,7 @@ const CustomerNew = () => {
           customerName={customerName}
           customerMobile={customerMobile}
           customerCompany={customerCompany}
+          onCollapsedChange={setSidebarCollapsed}
         />
       </div>
     </div>

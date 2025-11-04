@@ -16,6 +16,7 @@ interface RequiredDocumentsSidebarProps {
   customerName?: string;
   customerMobile?: string;
   customerCompany?: string;
+  onCollapsedChange?: (collapsed: boolean) => void;
 }
 
 export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> = ({
@@ -24,9 +25,16 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
   customerName,
   customerMobile,
   customerCompany,
+  onCollapsedChange,
 }) => {
   const [isCollapsed, setIsCollapsed] = React.useState(false);
   const { toast } = useToast();
+
+  const toggleCollapsed = () => {
+    const newValue = !isCollapsed;
+    setIsCollapsed(newValue);
+    onCollapsedChange?.(newValue);
+  };
 
   // Don't show sidebar if no product type
   if (!productType) {
@@ -321,7 +329,7 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
         variant="ghost"
         size="sm"
         className="absolute -left-8 top-4 h-16 w-8 rounded-r-none border-l-0 bg-card border shadow-md"
-        onClick={() => setIsCollapsed(!isCollapsed)}
+        onClick={toggleCollapsed}
       >
         {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
       </Button>
