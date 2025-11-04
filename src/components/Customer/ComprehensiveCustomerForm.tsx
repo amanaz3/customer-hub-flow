@@ -3142,31 +3142,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 </FormItem>
                               )}
                             />
-
-                            {/* UAE Residency Status - Home Finance only */}
-                            {hasHomeFinance && (
-                              <FormField
-                                control={form.control}
-                                name="uae_residency_status"
-                                render={({ field }) => (
-                                  <FormItem>
-                                    <FormLabel>UAE Residency Status</FormLabel>
-                                    <Select onValueChange={field.onChange} value={field.value || ''}>
-                                      <FormControl>
-                                        <SelectTrigger>
-                                          <SelectValue placeholder="Select residency status" />
-                                        </SelectTrigger>
-                                      </FormControl>
-                                      <SelectContent>
-                                        <SelectItem value="Resident">Resident</SelectItem>
-                                        <SelectItem value="Non-Resident">Non-Resident</SelectItem>
-                                      </SelectContent>
-                                    </Select>
-                                    <FormMessage />
-                                  </FormItem>
-                                )}
-                              />
-                            )}
                           </div>
                         </AccordionContent>
                       </AccordionItem>
@@ -3813,6 +3788,21 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     {/* Home Finance Employment & Property Details */}
                     {hasHomeFinance && (
                       <>
+                        {/* UAE Residency Status */}
+                        <div className="space-y-2 pl-4">
+                          <Label htmlFor="uae_residency_status">UAE Residency Status *</Label>
+                          <select
+                            id="uae_residency_status"
+                            {...form.register('uae_residency_status')}
+                            disabled={isSubmitting}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="">Select residency status</option>
+                            <option value="Resident">Resident</option>
+                            <option value="Non-Resident">Non-Resident</option>
+                          </select>
+                        </div>
+
                         {/* Employment Information Subsection */}
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 pl-3 py-1.5 border-l-4 border-muted/40 bg-muted/20 rounded-r">
