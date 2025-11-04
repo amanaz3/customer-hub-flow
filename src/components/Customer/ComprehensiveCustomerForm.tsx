@@ -3142,6 +3142,20 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 </div>
                               ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
+                                  {/* Build Your Own Package Card - At the top */}
+                                  <div
+                                    onClick={() => setShowCustomPackageDialog(true)}
+                                    className="relative p-3 rounded-md border-2 border-dashed border-primary/50 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary bg-primary/5 hover:bg-primary/10"
+                                  >
+                                    <div className="flex flex-col items-center justify-center gap-2 py-4">
+                                      <div className="p-2 rounded-full bg-primary/10">
+                                        <Sparkles className="h-5 w-5 text-primary" />
+                                      </div>
+                                      <h4 className="font-semibold text-sm text-center">Build Your Own</h4>
+                                      <p className="text-xs text-muted-foreground text-center">Create custom package</p>
+                                    </div>
+                                  </div>
+                                  
                                   {products.map((product) => {
                                     const isSelected = watchProductId === product.id;
                                     return (
@@ -3220,20 +3234,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                       </div>
                                     );
                                   })}
-                                  
-                                  {/* Build Your Own Package Card - At the end */}
-                                  <div
-                                    onClick={() => setShowCustomPackageDialog(true)}
-                                    className="relative p-3 rounded-md border-2 border-dashed border-primary/50 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary bg-primary/5 hover:bg-primary/10"
-                                  >
-                                    <div className="flex flex-col items-center justify-center gap-2 py-4">
-                                      <div className="p-2 rounded-full bg-primary/10">
-                                        <Sparkles className="h-5 w-5 text-primary" />
-                                      </div>
-                                      <h4 className="font-semibold text-sm text-center">Build Your Own</h4>
-                                      <p className="text-xs text-muted-foreground text-center">Create custom package</p>
-                                    </div>
-                                  </div>
                                 </div>
                               )}
                               {form.formState.errors.product_id && (
