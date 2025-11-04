@@ -1578,10 +1578,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           </div>
         </CardContent>
       </Card>
-      
       {/* Customer Selection Card - Sticky */}
       <div ref={customerSelectionCardRef} className="sticky z-40" style={{ top: `${stageHeight}px` }}>
-        <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm">
+        <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm rounded-t-none border-t-0">
         <div className="grid grid-cols-2 w-full">
           {customerMode === 'existing' ? (
             <>
@@ -1651,11 +1650,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </div>
       </Card>
       </div>
-
       {/* Form Content Card - Sticky */}
       <Card
         ref={formContentCardRef}
-        className="sticky w-full overflow-hidden z-30 border shadow-lg bg-background/95 backdrop-blur-md"
+        className="sticky w-full overflow-hidden z-30 border shadow-lg bg-background/95 backdrop-blur-md rounded-t-none border-t-0"
         style={{ top: `${stageHeight + selectionHeight}px`, marginBottom: 0 }}
       >
         {/* Form Navigation - Sticky */}
