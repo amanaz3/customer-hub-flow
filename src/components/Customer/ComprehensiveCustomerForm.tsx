@@ -97,6 +97,11 @@ const formSchema = z.object({
   uae_residency_status: z.enum(['Resident', 'Non-Resident']).optional(),
   salary_range: z.string().optional(),
   business_turnover: z.string().optional(),
+  // Business Finance specific fields
+  company_turnover: z.string().optional(),
+  years_since_registration: z.number().optional(),
+  vat_registration_status: z.enum(['Registered', 'Not Registered', 'In Process']).optional(),
+  purpose_of_finance: z.string().optional(),
   // Corporate tax filing fields
   tax_year_period: z.string().optional(),
   first_time_filing: z.boolean().optional(),
@@ -543,6 +548,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       uae_residency_status: undefined,
       salary_range: '',
       business_turnover: '',
+      // Business Finance defaults
+      company_turnover: '',
+      years_since_registration: 0,
+      vat_registration_status: undefined,
+      purpose_of_finance: '',
       additional_income: 0,
       additional_income_source: '',
       existing_loan_commitments: 0,
@@ -818,6 +828,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     if (selectedProductName.includes('aml') && selectedProductName.includes('services')) return 'aml_services';
     if (selectedProductName.includes('goaml')) return 'goaml';
     if (selectedProductName.includes('home') && selectedProductName.includes('finance')) return 'home_finance';
+    if (selectedProductName.includes('business') && selectedProductName.includes('finance')) return 'business_finance';
     if (selectedProductNameNoSpaces.includes('bookkeeping') || 
         selectedProductNameNoSpaces.includes('book') || 
         selectedProductName.includes('accounting')) return 'bookkeeping';
@@ -840,6 +851,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const hasGoAML = productType === 'goaml';
   const hasAMLServices = productType === 'aml_services';
   const hasHomeFinance = productType === 'home_finance';
+  const hasBusinessFinance = productType === 'business_finance';
   const hasVAT = productType === 'vat_registration';
   const hasTaxRegistration = productType === 'tax_registration';
   const hasTaxFiling = productType === 'tax_filing';
@@ -5249,6 +5261,84 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             placeholder="Your down payment"
                             disabled={isSubmitting}
                           />
+                        </div>
+                      </>
+                    )}
+                    
+                    {/* Business Finance Specific Fields */}
+                    {hasBusinessFinance && (
+                      <>
+                        <div className="space-y-2">
+                          <div className="flex items-center gap-2 pl-3 py-1.5 border-l-4 border-muted/40 bg-muted/20 rounded-r">
+                            <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                            <h5 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">Business Finance Details</h5>
+                          </div>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-2 pl-4">
+
+                        <div className="space-y-2">
+                          <Label htmlFor="company_turnover">Company Turnover (AED) *</Label>
+                          <select
+                            id="company_turnover"
+                            {...form.register('company_turnover')}
+                            disabled={isSubmitting}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="">Select turnover range</option>
+                            <option value="Below 500,000">Below 500,000</option>
+                            <option value="500,000 - 1,000,000">500,000 - 1,000,000</option>
+                            <option value="1,000,000 - 5,000,000">1,000,000 - 5,000,000</option>
+                            <option value="5,000,000 - 10,000,000">5,000,000 - 10,000,000</option>
+                            <option value="10,000,000 - 50,000,000">10,000,000 - 50,000,000</option>
+                            <option value="Above 50,000,000">Above 50,000,000</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="years_since_registration">Years Since Company Registration *</Label>
+                          <Input
+                            id="years_since_registration"
+                            type="number"
+                            step="0.5"
+                            {...form.register('years_since_registration', { valueAsNumber: true })}
+                            placeholder="e.g., 3.5"
+                            disabled={isSubmitting}
+                          />
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="vat_registration_status">VAT Registration Status *</Label>
+                          <select
+                            id="vat_registration_status"
+                            {...form.register('vat_registration_status')}
+                            disabled={isSubmitting}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="">Select status</option>
+                            <option value="Registered">Registered</option>
+                            <option value="Not Registered">Not Registered</option>
+                            <option value="In Process">In Process</option>
+                          </select>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="purpose_of_finance">Purpose of Finance *</Label>
+                          <select
+                            id="purpose_of_finance"
+                            {...form.register('purpose_of_finance')}
+                            disabled={isSubmitting}
+                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                          >
+                            <option value="">Select purpose</option>
+                            <option value="Working Capital">Working Capital</option>
+                            <option value="Business Expansion">Business Expansion</option>
+                            <option value="Equipment Purchase">Equipment Purchase</option>
+                            <option value="Inventory Financing">Inventory Financing</option>
+                            <option value="Real Estate">Real Estate</option>
+                            <option value="Debt Consolidation">Debt Consolidation</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </div>
+                          </div>
                         </div>
                       </>
                     )}
