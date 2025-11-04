@@ -746,6 +746,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   
   // Determine the primary product type (mutually exclusive for cleaner UI)
   const getProductType = () => {
+    if (selectedProductName.includes('aml') && selectedProductName.includes('services')) return 'aml_services';
     if (selectedProductName.includes('goaml')) return 'goaml';
     if (selectedProductName.includes('home') && selectedProductName.includes('finance')) return 'home_finance';
     if (selectedProductNameNoSpaces.includes('bookkeeping') || 
@@ -768,6 +769,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const hasCompanyFormation = productType === 'company_formation';
   const hasBankAccount = productType === 'bank_account';
   const hasGoAML = productType === 'goaml';
+  const hasAMLServices = productType === 'aml_services';
   const hasHomeFinance = productType === 'home_finance';
   const hasVAT = productType === 'vat_registration';
   const hasTaxRegistration = productType === 'tax_registration';
@@ -3217,8 +3219,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                       </>
                     )}
 
-                    {/* GoAML Application Fields */}
-                    {hasGoAML && (
+                    {/* AML Services Application Fields */}
+                    {hasAMLServices && (
                       <>
                         {/* AML/MLRO Information Section */}
                         <div className="space-y-4 p-4 border border-primary/20 rounded-lg bg-primary/5">
@@ -3272,6 +3274,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             </div>
                           </div>
                         </div>
+                      </>
+                    )}
+
+                    {/* GoAML Application Fields */}
+                    {hasGoAML && (
+                      <>
 
                         <div className="space-y-2">
                           <Label htmlFor="trade_license_number">Trade License Number *</Label>
