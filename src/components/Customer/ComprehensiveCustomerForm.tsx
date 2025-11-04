@@ -93,6 +93,8 @@ const formSchema = z.object({
   service_start_date: z.string().optional(),
   has_previous_records: z.boolean().optional(),
   reporting_frequency: z.string().optional(),
+  // Home Finance specific fields
+  uae_residency_status: z.enum(['Resident', 'Non-Resident']).optional(),
   // Corporate tax filing fields
   tax_year_period: z.string().optional(),
   first_time_filing: z.boolean().optional(),
@@ -536,6 +538,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       employment_status: '',
       employer_name: '',
       years_with_employer: 0,
+      uae_residency_status: undefined,
       additional_income: 0,
       additional_income_source: '',
       existing_loan_commitments: 0,
@@ -3139,6 +3142,31 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 </FormItem>
                               )}
                             />
+
+                            {/* UAE Residency Status - Home Finance only */}
+                            {hasHomeFinance && (
+                              <FormField
+                                control={form.control}
+                                name="uae_residency_status"
+                                render={({ field }) => (
+                                  <FormItem>
+                                    <FormLabel>UAE Residency Status</FormLabel>
+                                    <Select onValueChange={field.onChange} value={field.value || ''}>
+                                      <FormControl>
+                                        <SelectTrigger>
+                                          <SelectValue placeholder="Select residency status" />
+                                        </SelectTrigger>
+                                      </FormControl>
+                                      <SelectContent>
+                                        <SelectItem value="Resident">Resident</SelectItem>
+                                        <SelectItem value="Non-Resident">Non-Resident</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                    <FormMessage />
+                                  </FormItem>
+                                )}
+                              />
+                            )}
                           </div>
                         </AccordionContent>
                       </AccordionItem>
