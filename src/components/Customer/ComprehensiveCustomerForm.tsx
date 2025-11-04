@@ -1535,54 +1535,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         
         <CardContent className="relative pt-2 px-3 pb-1">
-          {/* Mode Toggle and Progress Indicator with Help Button */}
+          {/* Progress Indicator Badge with Help Button */}
           <div className="flex items-center justify-between mb-1">
-            {/* Mode Toggle */}
-            <div className="flex items-center gap-2 flex-1">
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <div className="flex items-center gap-2 bg-background/80 border border-border rounded-md px-2 py-1">
-                      <UserCog className={cn(
-                        "h-3.5 w-3.5 transition-colors",
-                        formMode === 'simple' ? "text-blue-600" : "text-muted-foreground"
-                      )} />
-                      <Switch
-                        checked={formMode === 'expert'}
-                        onCheckedChange={(checked) => setFormMode(checked ? 'expert' : 'simple')}
-                        className="scale-75"
-                      />
-                      <Zap className={cn(
-                        "h-3.5 w-3.5 transition-colors",
-                        formMode === 'expert' ? "text-amber-600" : "text-muted-foreground"
-                      )} />
-                    </div>
-                  </TooltipTrigger>
-                  <TooltipContent side="bottom" className="max-w-xs">
-                    <div className="space-y-1">
-                      <p className="font-semibold">
-                        {formMode === 'simple' ? 'Simple Mode' : 'Expert Mode'}
-                      </p>
-                      <p className="text-xs">
-                        {formMode === 'simple' 
-                          ? 'Basic fields for quick data entry. Toggle for advanced options.' 
-                          : 'Advanced mode with all fields visible. Toggle for simplified view.'}
-                      </p>
-                    </div>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
-            </div>
-            
-            {/* Progress Badge */}
+            <div className="flex-1" />
             <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-primary/5 border-primary/20 text-primary font-medium flex items-center gap-0.5">
               <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Progress Guide
             </Badge>
-            
-            {/* Help Button */}
             <div className="flex-1 flex justify-end">
               <AgentHelpDialog />
             </div>
@@ -1776,7 +1737,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       {/* Customer Selection Card - Sticky */}
       <div ref={customerSelectionCardRef} className="sticky z-40 -mt-px" style={{ top: `${stageHeight}px` }}>
         <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm rounded-t-none rounded-b-none border-t-0 mb-0">
-        <div className="grid grid-cols-2 w-full">
+        {/* Customer Mode Selection */}
+        <div className="grid grid-cols-2 w-full border-b border-border">
           {customerMode === 'existing' ? (
             <>
               <button
@@ -1842,6 +1804,57 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               </button>
             </>
           )}
+        </div>
+        
+        {/* Form Mode Toggle */}
+        <div className="px-3 py-2 bg-muted/30 border-t border-border">
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <UserCog className="h-3.5 w-3.5" />
+                    <span className="font-medium">Form Mode:</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={cn(
+                      "text-xs font-medium transition-colors",
+                      formMode === 'simple' ? "text-blue-600 dark:text-blue-400" : "text-muted-foreground"
+                    )}>
+                      Simple
+                    </span>
+                    <Switch
+                      checked={formMode === 'expert'}
+                      onCheckedChange={(checked) => setFormMode(checked ? 'expert' : 'simple')}
+                      className="scale-90"
+                    />
+                    <span className={cn(
+                      "text-xs font-medium transition-colors",
+                      formMode === 'expert' ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"
+                    )}>
+                      Expert
+                    </span>
+                    <Zap className={cn(
+                      "h-3.5 w-3.5 transition-colors",
+                      formMode === 'expert' ? "text-amber-600 dark:text-amber-400" : "text-muted-foreground"
+                    )} />
+                  </div>
+                </div>
+              </TooltipTrigger>
+              <TooltipContent side="bottom" className="max-w-xs">
+                <div className="space-y-1">
+                  <p className="font-semibold">
+                    {formMode === 'simple' ? '🔵 Simple Mode' : '⚡ Expert Mode'}
+                  </p>
+                  <p className="text-xs">
+                    {formMode === 'simple' 
+                      ? 'Shows essential fields only for quick data entry. Perfect for simple applications.' 
+                      : 'Shows all available fields including advanced options. Ideal for agents and detailed applications.'}
+                  </p>
+                </div>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </Card>
       </div>
