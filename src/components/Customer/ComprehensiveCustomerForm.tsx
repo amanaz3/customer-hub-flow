@@ -1808,65 +1808,67 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         </div>
         
         {/* Form Mode Selectors */}
-        <div className="px-3 py-3 bg-muted/30 border-t border-border space-y-3">
-          {/* Expert/Simple Toggle */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <UserCog className="h-3.5 w-3.5" />
-              <span className="font-medium">Mode:</span>
-            </div>
+        <div className="px-3 py-3 bg-muted/30 border-t border-border">
+          <div className="flex items-center gap-6">
+            {/* Expert/Simple Toggle */}
             <div className="flex items-center gap-2">
-              <Label htmlFor="expert-toggle" className={cn("text-xs cursor-pointer", expertMode === 'simple' && "font-semibold text-foreground")}>
-                Simple
-              </Label>
-              <Switch
-                id="expert-toggle"
-                checked={expertMode === 'expert'}
-                onCheckedChange={(checked) => setExpertMode(checked ? 'expert' : 'simple')}
-              />
-              <Label htmlFor="expert-toggle" className={cn("text-xs cursor-pointer", expertMode === 'expert' && "font-semibold text-foreground")}>
-                Expert
-              </Label>
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <UserCog className="h-3.5 w-3.5" />
+                <span className="font-medium">Mode:</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="expert-toggle" className={cn("text-xs cursor-pointer", expertMode === 'simple' && "font-semibold text-foreground")}>
+                  Simple
+                </Label>
+                <Switch
+                  id="expert-toggle"
+                  checked={expertMode === 'expert'}
+                  onCheckedChange={(checked) => setExpertMode(checked ? 'expert' : 'simple')}
+                />
+                <Label htmlFor="expert-toggle" className={cn("text-xs cursor-pointer", expertMode === 'expert' && "font-semibold text-foreground")}>
+                  Expert
+                </Label>
+              </div>
             </div>
-          </div>
-          
-          {/* Layout Selector */}
-          <div className="flex items-center justify-between gap-3">
-            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-              <ClipboardList className="h-3.5 w-3.5" />
-              <span className="font-medium">Layout:</span>
+            
+            {/* Layout Selector */}
+            <div className="flex items-center gap-2 ml-auto">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <ClipboardList className="h-3.5 w-3.5" />
+                <span className="font-medium">Layout:</span>
+              </div>
+              <Select value={formMode} onValueChange={(value) => setFormMode(value as typeof formMode)}>
+                <SelectTrigger className="w-[135px] h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="wizard">
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-3.5 w-3.5" />
+                      <span>Wizard</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="tabs">
+                    <div className="flex items-center gap-2">
+                      <Building2 className="h-3.5 w-3.5" />
+                      <span>Tabs</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="single">
+                    <div className="flex items-center gap-2">
+                      <ClipboardList className="h-3.5 w-3.5" />
+                      <span>Single Page</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="progressive">
+                    <div className="flex items-center gap-2">
+                      <UserCog className="h-3.5 w-3.5" />
+                      <span>Progressive</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
             </div>
-            <Select value={formMode} onValueChange={(value) => setFormMode(value as typeof formMode)}>
-              <SelectTrigger className="w-[135px] h-8 text-xs">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="wizard">
-                  <div className="flex items-center gap-2">
-                    <Zap className="h-3.5 w-3.5" />
-                    <span>Wizard</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="tabs">
-                  <div className="flex items-center gap-2">
-                    <Building2 className="h-3.5 w-3.5" />
-                    <span>Tabs</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="single">
-                  <div className="flex items-center gap-2">
-                    <ClipboardList className="h-3.5 w-3.5" />
-                    <span>Single Page</span>
-                  </div>
-                </SelectItem>
-                <SelectItem value="progressive">
-                  <div className="flex items-center gap-2">
-                    <UserCog className="h-3.5 w-3.5" />
-                    <span>Progressive</span>
-                  </div>
-                </SelectItem>
-              </SelectContent>
-            </Select>
           </div>
         </div>
       </Card>
