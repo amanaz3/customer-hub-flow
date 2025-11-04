@@ -250,12 +250,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [currentStage]);
 
-  // Reposition the form content card when mode changes (tab swap)
-  useEffect(() => {
-    // wait a tick for layout to settle
-    requestAnimationFrame(() => scrollFormCardIntoView());
-  }, [customerMode, scrollFormCardIntoView]);
-
   // Scroll to top when tabs are switched
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
