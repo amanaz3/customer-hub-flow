@@ -332,6 +332,42 @@ export type Database = {
         }
         Relationships: []
       }
+      bundle_products: {
+        Row: {
+          bundle_id: string
+          created_at: string
+          id: string
+          product_id: string
+        }
+        Insert: {
+          bundle_id: string
+          created_at?: string
+          id?: string
+          product_id: string
+        }
+        Update: {
+          bundle_id?: string
+          created_at?: string
+          id?: string
+          product_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bundle_products_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "service_bundles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bundle_products_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           comment: string
@@ -1239,6 +1275,36 @@ export type Database = {
           ip_address?: unknown
           user_agent?: string | null
           user_id?: string | null
+        }
+        Relationships: []
+      }
+      service_bundles: {
+        Row: {
+          bundle_description: string | null
+          bundle_name: string
+          created_at: string
+          id: string
+          is_active: boolean
+          total_arr: number
+          updated_at: string
+        }
+        Insert: {
+          bundle_description?: string | null
+          bundle_name: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          total_arr?: number
+          updated_at?: string
+        }
+        Update: {
+          bundle_description?: string | null
+          bundle_name?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          total_arr?: number
+          updated_at?: string
         }
         Relationships: []
       }
