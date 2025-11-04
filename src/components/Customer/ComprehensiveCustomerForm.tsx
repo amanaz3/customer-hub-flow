@@ -250,15 +250,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [currentStage]);
 
-  // Reset all scrollbars (inner + app main) to top when tabs swapped
+  // Reset all scrollbars (outer first, then inner) when tabs swapped
   useEffect(() => {
     const resetScrollPositions = () => {
-      // 1) Inner card scroll
-      if (scrollContainerRef.current) {
-        scrollContainerRef.current.scrollTop = 0;
-      }
-
-      // 2) App main scroll container (MainLayout -> <main class="overflow-y-auto"/>)
+      // 1) App main scroll container FIRST (MainLayout -> <main class="overflow-y-auto"/>)
       const mainEl = document.querySelector('main');
       if (mainEl && 'scrollTo' in mainEl) {
         (mainEl as HTMLElement).scrollTo({ top: 0, behavior: 'smooth' });
@@ -268,7 +263,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         window.scrollTo({ top: 0, behavior: 'smooth' });
       }
 
-      console.info('[ComprehensiveCustomerForm] Reset inner + main scroll to top');
+      // 2) Inner card scroll SECOND
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTop = 0;
+      }
+
+      console.info('[ComprehensiveCustomerForm] Reset outer then inner scroll to top');
     };
 
     // Double RAF to let layout settle after mode swap/dialog close
