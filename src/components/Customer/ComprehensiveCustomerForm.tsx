@@ -1637,8 +1637,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       {/* Form Content Card - Sticky */}
       <Card
         ref={formContentCardRef}
-        className="sticky w-full overflow-hidden mb-8 z-30 border shadow-lg bg-background/95 backdrop-blur-md"
-        style={{ top: `${stageHeight + selectionHeight}px` }}
+        className="sticky w-full overflow-hidden z-30 border shadow-lg bg-background/95 backdrop-blur-md"
+        style={{ top: `${stageHeight + selectionHeight}px`, marginBottom: 0 }}
       >
         {/* Form Navigation - Sticky */}
         {false && customerMode === 'new' && <div ref={stickyNavRef} className="sticky z-50 isolate bg-gradient-to-r from-background via-background to-background border-b shadow-lg backdrop-blur-sm" style={{ top: stageHeight + stickyGap }}>
@@ -1677,7 +1677,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           )}
         </div>}
 
-        <CardContent className="space-y-4 pb-8 pt-4 overflow-y-auto" style={{ maxHeight: `calc(100vh - ${stageHeight + selectionHeight + 80}px)` }}>
+        <CardContent className="space-y-4 pb-4 pt-4 overflow-y-auto" style={{ maxHeight: `calc(100vh - ${stageHeight + selectionHeight + 16}px)` }}>
         {/* Customer Selection Content - Not Sticky */}
         <div className="space-y-4 relative z-0">
 
