@@ -214,11 +214,21 @@ type FormData = z.infer<typeof formSchema>;
 interface ComprehensiveCustomerFormProps {
   onSuccess?: () => void;
   initialData?: Partial<FormData>;
+  onProductChange?: (productName: string | null) => void;
+  onEmailChange?: (email: string) => void;
+  onNameChange?: (name: string) => void;
+  onMobileChange?: (mobile: string) => void;
+  onCompanyChange?: (company: string) => void;
 }
 
 const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   onSuccess,
-  initialData
+  initialData,
+  onProductChange,
+  onEmailChange,
+  onNameChange,
+  onMobileChange,
+  onCompanyChange,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStage, setCurrentStage] = useState<'details' | 'preview' | 'documents'>('details');
@@ -817,6 +827,37 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   
   // Check if service requires FTA Portal credentials
   const requiresFTAPortal = hasVAT || hasTaxRegistration || hasTaxFiling;
+
+  // Notify parent component of form field changes for sidebar
+  useEffect(() => {
+    if (onProductChange) {
+      onProductChange(selectedProductName || null);
+    }
+  }, [selectedProductName, onProductChange]);
+
+  useEffect(() => {
+    if (onEmailChange) {
+      onEmailChange(watchEmail || '');
+    }
+  }, [watchEmail, onEmailChange]);
+
+  useEffect(() => {
+    if (onNameChange) {
+      onNameChange(watchName || '');
+    }
+  }, [watchName, onNameChange]);
+
+  useEffect(() => {
+    if (onMobileChange) {
+      onMobileChange(watchMobile || '');
+    }
+  }, [watchMobile, onMobileChange]);
+
+  useEffect(() => {
+    if (onCompanyChange) {
+      onCompanyChange(watchCompany || '');
+    }
+  }, [watchCompany, onCompanyChange]);
 
   // Fetch existing customers for selection
   useEffect(() => {
