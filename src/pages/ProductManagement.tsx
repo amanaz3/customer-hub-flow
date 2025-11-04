@@ -358,7 +358,7 @@ const ProductManagement: React.FC = () => {
                           : "Select a category (optional)"
                       } />
                     </SelectTrigger>
-                    <SelectContent className="bg-popover z-50">
+                    <SelectContent>
                       <SelectItem value="none">
                         <span className="text-muted-foreground">No Category</span>
                       </SelectItem>
