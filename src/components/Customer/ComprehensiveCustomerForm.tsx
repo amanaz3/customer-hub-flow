@@ -252,22 +252,27 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
   // Reset scroll to top when tabs swapped
   useEffect(() => {
-    const resetScrollPositions = () => {
-      // Reset main scroll container to top instantly
+    const scrollToTop = () => {
+      // Try all possible scroll containers
       const mainEl = document.querySelector('main');
-      if (mainEl && 'scrollTo' in mainEl) {
-        (mainEl as HTMLElement).scrollTo({ top: 0, behavior: 'instant' });
-      } else if (document.scrollingElement) {
-        document.scrollingElement.scrollTo({ top: 0, behavior: 'instant' });
-      } else {
-        window.scrollTo({ top: 0, behavior: 'instant' });
+      if (mainEl) {
+        mainEl.scrollTop = 0;
       }
-
+      if (document.scrollingElement) {
+        document.scrollingElement.scrollTop = 0;
+      }
+      window.scrollTo(0, 0);
       console.info('[ComprehensiveCustomerForm] Reset scroll to top on tab switch');
     };
 
-    // Double RAF to let layout settle after mode swap
-    requestAnimationFrame(() => requestAnimationFrame(resetScrollPositions));
+    // Scroll immediately
+    scrollToTop();
+    
+    // Scroll again after layout settles
+    requestAnimationFrame(() => {
+      scrollToTop();
+      requestAnimationFrame(scrollToTop);
+    });
   }, [customerMode]);
   const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
