@@ -348,7 +348,6 @@ const ProductManagement: React.FC = () => {
                       ...prev, 
                       service_category_id: value === "none" ? null : value 
                     }))}
-                    disabled={categoriesLoading}
                   >
                     <SelectTrigger id="service_category">
                       <SelectValue placeholder={
