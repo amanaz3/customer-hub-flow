@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
+import { jsPDF } from 'jspdf';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -4416,6 +4417,109 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 size="sm"
                                 className="h-7 px-2"
                                 onClick={() => {
+                                  const doc = new jsPDF();
+                                  
+                                  // Header
+                                  doc.setFontSize(16);
+                                  doc.setFont(undefined, 'bold');
+                                  doc.text('AML SERVICES', 105, 20, { align: 'center' });
+                                  doc.text('Required Documents Checklist', 105, 28, { align: 'center' });
+                                  
+                                  doc.setFontSize(10);
+                                  doc.setFont(undefined, 'normal');
+                                  doc.text(`Generated: ${new Date().toLocaleDateString()}`, 105, 35, { align: 'center' });
+                                  
+                                  doc.setLineWidth(0.5);
+                                  doc.line(20, 40, 190, 40);
+                                  
+                                  let yPos = 50;
+                                  
+                                  // Personal Documents
+                                  doc.setFontSize(12);
+                                  doc.setFont(undefined, 'bold');
+                                  doc.text('PERSONAL DOCUMENTS (2)', 20, yPos);
+                                  yPos += 8;
+                                  
+                                  doc.setFontSize(10);
+                                  doc.setFont(undefined, 'normal');
+                                  doc.text('☐ Copy of Emirates ID / Passport', 25, yPos);
+                                  yPos += 7;
+                                  doc.text('☐ Proof of address (utility bill, tenancy contract)', 25, yPos);
+                                  yPos += 12;
+                                  
+                                  // Company Documents
+                                  doc.setFontSize(12);
+                                  doc.setFont(undefined, 'bold');
+                                  doc.text('COMPANY DOCUMENTS (3)', 20, yPos);
+                                  yPos += 8;
+                                  
+                                  doc.setFontSize(10);
+                                  doc.setFont(undefined, 'normal');
+                                  doc.text('☐ Trade license (for companies)', 25, yPos);
+                                  yPos += 7;
+                                  doc.text('☐ Memorandum of Association', 25, yPos);
+                                  yPos += 7;
+                                  doc.text('☐ Board resolution for authorized signatories', 25, yPos);
+                                  yPos += 12;
+                                  
+                                  // Financial Documents
+                                  doc.setFontSize(12);
+                                  doc.setFont(undefined, 'bold');
+                                  doc.text('FINANCIAL DOCUMENTS (2)', 20, yPos);
+                                  yPos += 8;
+                                  
+                                  doc.setFontSize(10);
+                                  doc.setFont(undefined, 'normal');
+                                  doc.text('☐ Bank statements (last 3-6 months)', 25, yPos);
+                                  yPos += 7;
+                                  doc.text('☐ Source of funds documentation', 25, yPos);
+                                  yPos += 15;
+                                  
+                                  // Footer Notes
+                                  doc.setLineWidth(0.5);
+                                  doc.line(20, yPos, 190, yPos);
+                                  yPos += 8;
+                                  
+                                  doc.setFontSize(9);
+                                  doc.setFont(undefined, 'bold');
+                                  doc.text('NOTES:', 20, yPos);
+                                  yPos += 6;
+                                  
+                                  doc.setFont(undefined, 'normal');
+                                  doc.text('• Documents will be requested during AML compliance process', 20, yPos);
+                                  yPos += 5;
+                                  doc.text('• Keep copies for your records', 20, yPos);
+                                  yPos += 5;
+                                  doc.text('• Ensure all documents are current and valid', 20, yPos);
+                                  
+                                  doc.save(`AML-Services-Checklist-${new Date().toISOString().split('T')[0]}.pdf`);
+                                  
+                                  toast({
+                                    title: "Downloaded!",
+                                    description: "PDF checklist saved to downloads",
+                                  });
+                                }}
+                              >
+                                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                                </svg>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Download PDF checklist</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={() => {
                                   const checklist = `AML SERVICES - REQUIRED DOCUMENTS CHECKLIST
                                   
 Generated: ${new Date().toLocaleDateString()}
@@ -4465,7 +4569,7 @@ NOTES:
                                   
                                   toast({
                                     title: "Downloaded!",
-                                    description: "Checklist saved to your downloads",
+                                    description: "Text checklist saved to downloads",
                                   });
                                 }}
                               >
@@ -4475,7 +4579,7 @@ NOTES:
                               </Button>
                             </TooltipTrigger>
                             <TooltipContent>
-                              <p>Download checklist</p>
+                              <p>Download text checklist</p>
                             </TooltipContent>
                           </Tooltip>
                         </TooltipProvider>
