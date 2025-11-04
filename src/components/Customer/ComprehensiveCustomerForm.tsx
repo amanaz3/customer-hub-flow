@@ -4416,6 +4416,79 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 size="sm"
                                 className="h-7 px-2"
                                 onClick={() => {
+                                  const checklist = `AML SERVICES - REQUIRED DOCUMENTS CHECKLIST
+                                  
+Generated: ${new Date().toLocaleDateString()}
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+PERSONAL DOCUMENTS (2)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Copy of Emirates ID / Passport
+□ Proof of address (utility bill, tenancy contract)
+
+
+COMPANY DOCUMENTS (3)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Trade license (for companies)
+□ Memorandum of Association
+□ Board resolution for authorized signatories
+
+
+FINANCIAL DOCUMENTS (2)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+□ Bank statements (last 3-6 months)
+□ Source of funds documentation
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+NOTES:
+• Documents will be requested during AML compliance process
+• Keep copies for your records
+• Ensure all documents are current and valid
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━`;
+                                  
+                                  const blob = new Blob([checklist], { type: 'text/plain' });
+                                  const url = window.URL.createObjectURL(blob);
+                                  const a = document.createElement('a');
+                                  a.href = url;
+                                  a.download = `AML-Services-Checklist-${new Date().toISOString().split('T')[0]}.txt`;
+                                  document.body.appendChild(a);
+                                  a.click();
+                                  window.URL.revokeObjectURL(url);
+                                  document.body.removeChild(a);
+                                  
+                                  toast({
+                                    title: "Downloaded!",
+                                    description: "Checklist saved to your downloads",
+                                  });
+                                }}
+                              >
+                                <svg className="h-3.5 w-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>Download checklist</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
+                        
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button
+                                type="button"
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={() => {
                                   const checklist = `AML Services - Required Documents Checklist\n\nPersonal Documents:\n• Copy of Emirates ID / Passport\n• Proof of address (utility bill, tenancy contract)\n\nCompany Documents:\n• Trade license (for companies)\n• Memorandum of Association\n• Board resolution for authorized signatories\n\nFinancial Documents:\n• Bank statements (last 3-6 months)\n• Source of funds documentation`;
                                   navigator.clipboard.writeText(checklist);
                                   toast({
