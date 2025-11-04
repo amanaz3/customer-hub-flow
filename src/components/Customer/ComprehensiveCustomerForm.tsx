@@ -255,15 +255,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const hasUserInteractedWithCategory = useRef(false);
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
+  const modeLayoutRef = useRef<HTMLDivElement | null>(null);
   const stickyNavRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const formContentCardRef = useRef<HTMLDivElement | null>(null);
   const customerSelectionCardRef = useRef<HTMLDivElement | null>(null);
   const [stageHeight, setStageHeight] = useState(0);
+  const [modeLayoutHeight, setModeLayoutHeight] = useState(0);
   const [stickyNavHeight, setStickyNavHeight] = useState(0);
   const [selectionHeight, setSelectionHeight] = useState(0);
   const stickyGap = 0; // px gap to keep consistent padding
-  const totalStickyOffset = stageHeight + selectionHeight + stickyNavHeight + stickyGap;
+  const totalStickyOffset = stageHeight + modeLayoutHeight + selectionHeight + stickyNavHeight + stickyGap;
 
   // Smoothly scroll to bring form content card back to original position
   const scrollFormCardIntoView = useCallback(() => {
@@ -279,9 +281,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         } catch {
           // Fallback precise calculation accounting for sticky headers
           const stageOffset = stageRef.current?.offsetHeight ?? 0;
+          const modeLayoutOffset = modeLayoutRef.current?.offsetHeight ?? 0;
           const customerSelectionOffset = customerSelectionCardRef.current?.offsetHeight ?? 0;
           const rect = el.getBoundingClientRect();
-          const targetTop = Math.max(0, window.scrollY + rect.top - stageOffset - customerSelectionOffset);
+          const targetTop = Math.max(0, window.scrollY + rect.top - stageOffset - modeLayoutOffset - customerSelectionOffset);
           window.scrollTo({ top: targetTop, behavior: 'smooth' });
         }
       });
@@ -291,13 +294,15 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   useEffect(() => {
     const update = () => {
       const sh = stageRef.current?.offsetHeight ?? 0;
+      const mlh = modeLayoutRef.current?.offsetHeight ?? 0;
       const nh = stickyNavRef.current?.offsetHeight ?? 0;
       const selh = customerSelectionCardRef.current?.offsetHeight ?? 0;
       setStageHeight(sh);
+      setModeLayoutHeight(mlh);
       setStickyNavHeight(nh);
       setSelectionHeight(selh);
       // Expose for CSS if needed
-      document.documentElement.style.setProperty('--customer-sticky-offset', `${sh + selh + nh}px`);
+      document.documentElement.style.setProperty('--customer-sticky-offset', `${sh + mlh + selh + nh}px`);
     };
     update();
     window.addEventListener('resize', update);
@@ -1735,8 +1740,76 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           </div>
         </CardContent>
       </Card>
+      
+      {/* Mode and Layout Selectors - Sticky */}
+      <Card ref={modeLayoutRef} className="sticky z-40 -mt-px border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm rounded-none border-t-0 mb-0" style={{ top: `${stageHeight}px` }}>
+        <div className="px-3 py-3 bg-muted/30">
+          <div className="flex items-center gap-6">
+            {/* Expert/Simple Toggle */}
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <UserCog className="h-3.5 w-3.5" />
+                <span className="font-medium">Mode:</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Label htmlFor="expert-toggle" className={cn("text-xs cursor-pointer", expertMode === 'simple' && "font-semibold text-foreground")}>
+                  Simple
+                </Label>
+                <Switch
+                  id="expert-toggle"
+                  checked={expertMode === 'expert'}
+                  onCheckedChange={(checked) => setExpertMode(checked ? 'expert' : 'simple')}
+                />
+                <Label htmlFor="expert-toggle" className={cn("text-xs cursor-pointer", expertMode === 'expert' && "font-semibold text-foreground")}>
+                  Expert
+                </Label>
+              </div>
+            </div>
+            
+            {/* Layout Selector */}
+            <div className="flex items-center gap-2 ml-auto">
+              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                <ClipboardList className="h-3.5 w-3.5" />
+                <span className="font-medium">Layout:</span>
+              </div>
+              <Select value={formMode} onValueChange={(value) => setFormMode(value as typeof formMode)}>
+                <SelectTrigger className="w-[135px] h-8 text-xs">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="wizard">
+                    <div className="flex items-center gap-2">
+                      <Zap className="h-3.5 w-3.5" />
+                      <span>Wizard</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="tabs">
+                    <div className="flex items-center gap-2">
+                      <Building2 className="h-3.5 w-3.5" />
+                      <span>Tabs</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="single">
+                    <div className="flex items-center gap-2">
+                      <ClipboardList className="h-3.5 w-3.5" />
+                      <span>Single Page</span>
+                    </div>
+                  </SelectItem>
+                  <SelectItem value="progressive">
+                    <div className="flex items-center gap-2">
+                      <UserCog className="h-3.5 w-3.5" />
+                      <span>Progressive</span>
+                    </div>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        </div>
+      </Card>
+      
       {/* Customer Selection Card - Sticky */}
-      <div ref={customerSelectionCardRef} className="sticky z-40 -mt-px" style={{ top: `${stageHeight}px` }}>
+      <div ref={customerSelectionCardRef} className="sticky z-40 -mt-px" style={{ top: `${stageHeight + modeLayoutHeight}px` }}>
         <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm rounded-t-none rounded-b-none border-t-0 mb-0">
         {/* Customer Mode Selection */}
         <div className="grid grid-cols-2 w-full border-b border-border">
@@ -1806,78 +1879,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             </>
           )}
         </div>
-        
-        {/* Form Mode Selectors */}
-        <div className="px-3 py-3 bg-muted/30 border-t border-border">
-          <div className="flex items-center gap-6">
-            {/* Expert/Simple Toggle */}
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <UserCog className="h-3.5 w-3.5" />
-                <span className="font-medium">Mode:</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Label htmlFor="expert-toggle" className={cn("text-xs cursor-pointer", expertMode === 'simple' && "font-semibold text-foreground")}>
-                  Simple
-                </Label>
-                <Switch
-                  id="expert-toggle"
-                  checked={expertMode === 'expert'}
-                  onCheckedChange={(checked) => setExpertMode(checked ? 'expert' : 'simple')}
-                />
-                <Label htmlFor="expert-toggle" className={cn("text-xs cursor-pointer", expertMode === 'expert' && "font-semibold text-foreground")}>
-                  Expert
-                </Label>
-              </div>
-            </div>
-            
-            {/* Layout Selector */}
-            <div className="flex items-center gap-2 ml-auto">
-              <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                <ClipboardList className="h-3.5 w-3.5" />
-                <span className="font-medium">Layout:</span>
-              </div>
-              <Select value={formMode} onValueChange={(value) => setFormMode(value as typeof formMode)}>
-                <SelectTrigger className="w-[135px] h-8 text-xs">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="wizard">
-                    <div className="flex items-center gap-2">
-                      <Zap className="h-3.5 w-3.5" />
-                      <span>Wizard</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="tabs">
-                    <div className="flex items-center gap-2">
-                      <Building2 className="h-3.5 w-3.5" />
-                      <span>Tabs</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="single">
-                    <div className="flex items-center gap-2">
-                      <ClipboardList className="h-3.5 w-3.5" />
-                      <span>Single Page</span>
-                    </div>
-                  </SelectItem>
-                  <SelectItem value="progressive">
-                    <div className="flex items-center gap-2">
-                      <UserCog className="h-3.5 w-3.5" />
-                      <span>Progressive</span>
-                    </div>
-                  </SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        </div>
       </Card>
       </div>
       {/* Form Content Card - Sticky */}
       <Card
         ref={formContentCardRef}
         className="sticky w-full overflow-hidden z-30 border shadow-lg bg-background/95 backdrop-blur-md rounded-t-none border-t-0 -mt-px"
-        style={{ top: `${stageHeight + selectionHeight}px`, marginBottom: 0 }}
+        style={{ top: `${stageHeight + modeLayoutHeight + selectionHeight}px`, marginBottom: 0 }}
       >
         {/* Form Navigation - Sticky */}
         {false && customerMode === 'new' && <div ref={stickyNavRef} className="sticky z-50 isolate bg-gradient-to-r from-background via-background to-background border-b shadow-lg backdrop-blur-sm" style={{ top: stageHeight + stickyGap }}>
