@@ -255,6 +255,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     // wait a tick for layout to settle
     requestAnimationFrame(() => scrollFormCardIntoView());
   }, [customerMode, scrollFormCardIntoView]);
+
+  // Scroll to top when tabs are switched
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStage, customerMode]);
   const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
   const { user, isAdmin } = useAuth();
