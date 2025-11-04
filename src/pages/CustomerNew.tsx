@@ -21,8 +21,8 @@ const CustomerNew = () => {
   };
 
   return (
-    <div className="min-h-screen w-full bg-gradient-subtle">
-      <div className="px-4 pb-0">
+    <div className="w-full bg-gradient-subtle">
+      <div className="px-4 pb-4">
         {/* Multi-Step Form */}
         <ComprehensiveCustomerForm onSuccess={handleSuccess} />
       </div>
