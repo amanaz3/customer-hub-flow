@@ -29,7 +29,8 @@ import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
-import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search, Eye, EyeOff, Mail, Share2, Send } from 'lucide-react';
+import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search, Eye, EyeOff, Mail, Share2, Send, Zap, UserCog } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { emailDocumentChecklist, shareViaWhatsApp, formatChecklistForSharing } from '@/utils/documentChecklistSharing';
 import { AgentHelpDialog } from './AgentHelpDialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -235,6 +236,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStage, setCurrentStage] = useState<'details' | 'preview' | 'documents'>('details');
   const [createdCustomerId, setCreatedCustomerId] = useState<string | null>(null);
+  const [formMode, setFormMode] = useState<'simple' | 'expert'>('simple');
   const [documents, setDocuments] = useState<Document[]>([]);
   const [showSuccessTransition, setShowSuccessTransition] = useState(false);
   const [customerMode, setCustomerMode] = useState<'new' | 'existing'>('new');
@@ -1533,15 +1535,54 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         
         <CardContent className="relative pt-2 px-3 pb-1">
-          {/* Progress Indicator Badge with Help Button */}
+          {/* Mode Toggle and Progress Indicator with Help Button */}
           <div className="flex items-center justify-between mb-1">
-            <div className="flex-1" />
+            {/* Mode Toggle */}
+            <div className="flex items-center gap-2 flex-1">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="flex items-center gap-2 bg-background/80 border border-border rounded-md px-2 py-1">
+                      <UserCog className={cn(
+                        "h-3.5 w-3.5 transition-colors",
+                        formMode === 'simple' ? "text-blue-600" : "text-muted-foreground"
+                      )} />
+                      <Switch
+                        checked={formMode === 'expert'}
+                        onCheckedChange={(checked) => setFormMode(checked ? 'expert' : 'simple')}
+                        className="scale-75"
+                      />
+                      <Zap className={cn(
+                        "h-3.5 w-3.5 transition-colors",
+                        formMode === 'expert' ? "text-amber-600" : "text-muted-foreground"
+                      )} />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="bottom" className="max-w-xs">
+                    <div className="space-y-1">
+                      <p className="font-semibold">
+                        {formMode === 'simple' ? 'Simple Mode' : 'Expert Mode'}
+                      </p>
+                      <p className="text-xs">
+                        {formMode === 'simple' 
+                          ? 'Basic fields for quick data entry. Toggle for advanced options.' 
+                          : 'Advanced mode with all fields visible. Toggle for simplified view.'}
+                      </p>
+                    </div>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </div>
+            
+            {/* Progress Badge */}
             <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-primary/5 border-primary/20 text-primary font-medium flex items-center gap-0.5">
               <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Progress Guide
             </Badge>
+            
+            {/* Help Button */}
             <div className="flex-1 flex justify-end">
               <AgentHelpDialog />
             </div>
