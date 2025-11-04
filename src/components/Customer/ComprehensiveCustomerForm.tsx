@@ -250,37 +250,29 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [currentStage]);
 
-  // Reset all scrollbars to initial position when tabs swapped
+  // Reset all scrollbars (inner + app main) to top when tabs swapped
   useEffect(() => {
     const resetScrollPositions = () => {
-      // 1. Reset inner card scroll to top
+      // 1) Inner card scroll
       if (scrollContainerRef.current) {
         scrollContainerRef.current.scrollTop = 0;
       }
 
-      // 2. Wait for layout to settle after mode change
-      requestAnimationFrame(() => {
-        requestAnimationFrame(() => {
-          // 3. Scroll page to bring form card to initial position
-          const formCard = formContentCardRef.current;
-          const stageOffset = stageRef.current?.offsetHeight ?? 0;
-          const selectionOffset = customerSelectionCardRef.current?.offsetHeight ?? 0;
-          
-          if (formCard) {
-            const rect = formCard.getBoundingClientRect();
-            const targetTop = Math.max(0, window.scrollY + rect.top - stageOffset - selectionOffset - 16); // 16px spacing
-            window.scrollTo({ top: targetTop, behavior: 'smooth' });
-          } else {
-            // Fallback: just scroll to top
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-          }
-          
-          console.info('[ComprehensiveCustomerForm] Reset all scrollbars to initial position');
-        });
-      });
+      // 2) App main scroll container (MainLayout -> <main class="overflow-y-auto"/>)
+      const mainEl = document.querySelector('main');
+      if (mainEl && 'scrollTo' in mainEl) {
+        (mainEl as HTMLElement).scrollTo({ top: 0, behavior: 'smooth' });
+      } else if (document.scrollingElement) {
+        document.scrollingElement.scrollTo({ top: 0, behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+
+      console.info('[ComprehensiveCustomerForm] Reset inner + main scroll to top');
     };
 
-    resetScrollPositions();
+    // Double RAF to let layout settle after mode swap/dialog close
+    requestAnimationFrame(() => requestAnimationFrame(resetScrollPositions));
   }, [customerMode]);
   const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
