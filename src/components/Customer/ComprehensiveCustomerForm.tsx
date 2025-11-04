@@ -2984,48 +2984,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                               </div>
                             )}
 
-                            {/* Bundled Services Section */}
-                            <div className="space-y-3 mb-4">
-                              <Label className="flex items-center gap-2 text-base font-semibold">
-                                <Sparkles className="h-5 w-5 text-primary" />
-                                Bundled Services
-                              </Label>
-                              
-                              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                {/* Build Your Own Card */}
-                                <Card
-                                  onClick={() => setShowCustomPackageDialog(true)}
-                                  className="cursor-pointer hover:shadow-lg transition-all duration-200 border-2 border-dashed border-primary/50 hover:border-primary bg-gradient-to-br from-primary/5 to-primary/10 hover:from-primary/10 hover:to-primary/15"
-                                >
-                                  <CardContent className="p-6">
-                                    <div className="flex flex-col items-center justify-center gap-3 text-center">
-                                      <div className="p-3 rounded-full bg-primary/20">
-                                        <Sparkles className="h-6 w-6 text-primary" />
-                                      </div>
-                                      <div>
-                                        <h4 className="font-bold text-base mb-1">Build Your Own</h4>
-                                        <p className="text-sm text-muted-foreground">
-                                          Create a custom package tailored to your needs
-                                        </p>
-                                      </div>
-                                      <Button
-                                        type="button"
-                                        variant="default"
-                                        size="sm"
-                                        className="mt-2"
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          setShowCustomPackageDialog(true);
-                                        }}
-                                      >
-                                        Get Started
-                                      </Button>
-                                    </div>
-                                  </CardContent>
-                                </Card>
-                              </div>
-                            </div>
-
                             {/* Service Bundles Section */}
                             {bundles.length > 0 && (
                               <div className="space-y-3 mb-4">
@@ -3184,20 +3142,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                 </div>
                               ) : (
                                 <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-2">
-                                  {/* Build Your Own Package Card */}
-                                  <div
-                                    onClick={() => setShowCustomPackageDialog(true)}
-                                    className="relative p-3 rounded-md border-2 border-dashed border-primary/50 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary bg-primary/5 hover:bg-primary/10"
-                                  >
-                                    <div className="flex flex-col items-center justify-center gap-2 py-4">
-                                      <div className="p-2 rounded-full bg-primary/10">
-                                        <Sparkles className="h-5 w-5 text-primary" />
-                                      </div>
-                                      <h4 className="font-semibold text-sm text-center">Build Your Own</h4>
-                                      <p className="text-xs text-muted-foreground text-center">Create custom package</p>
-                                    </div>
-                                  </div>
-                                  
                                   {products.map((product) => {
                                     const isSelected = watchProductId === product.id;
                                     return (
@@ -3276,6 +3220,20 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                       </div>
                                     );
                                   })}
+                                  
+                                  {/* Build Your Own Package Card - At the end */}
+                                  <div
+                                    onClick={() => setShowCustomPackageDialog(true)}
+                                    className="relative p-3 rounded-md border-2 border-dashed border-primary/50 cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary bg-primary/5 hover:bg-primary/10"
+                                  >
+                                    <div className="flex flex-col items-center justify-center gap-2 py-4">
+                                      <div className="p-2 rounded-full bg-primary/10">
+                                        <Sparkles className="h-5 w-5 text-primary" />
+                                      </div>
+                                      <h4 className="font-semibold text-sm text-center">Build Your Own</h4>
+                                      <p className="text-xs text-muted-foreground text-center">Create custom package</p>
+                                    </div>
+                                  </div>
                                 </div>
                               )}
                               {form.formState.errors.product_id && (
