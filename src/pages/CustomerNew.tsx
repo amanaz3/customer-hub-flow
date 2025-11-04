@@ -65,6 +65,7 @@ const CustomerNew = () => {
             onNameChange={setCustomerName}
             onMobileChange={setCustomerMobile}
             onCompanyChange={setCustomerCompany}
+            sidebarCollapsed={sidebarCollapsed}
           />
         </div>
       </div>

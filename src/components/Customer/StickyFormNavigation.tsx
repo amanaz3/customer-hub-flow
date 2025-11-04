@@ -13,16 +13,22 @@ interface Section {
 interface StickyFormNavigationProps {
   sections: Section[];
   onSectionClick: (sectionId: string) => void;
+  sidebarCollapsed?: boolean;
 }
 
-export const StickyFormNavigation = ({ sections, onSectionClick }: StickyFormNavigationProps) => {
+export const StickyFormNavigation = ({ sections, onSectionClick, sidebarCollapsed = false }: StickyFormNavigationProps) => {
   // Filter only visible sections
   const visibleSections = sections.filter(s => s.isVisible !== false);
 
   if (visibleSections.length === 0) return null;
 
   return (
-    <div className="sticky top-0 z-30 bg-gradient-to-b from-background via-background to-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 border-b border-border/50 shadow-lg">
+    <div 
+      className="sticky top-0 z-30 bg-gradient-to-b from-background via-background to-background/95 backdrop-blur-xl supports-[backdrop-filter]:bg-background/80 border-b border-border/50 shadow-lg"
+      style={{
+        marginRight: sidebarCollapsed ? '3rem' : '20rem'
+      }}
+    >
       <div className="w-full px-3 py-2">
         <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-hide">
           {visibleSections.map((section, index) => (

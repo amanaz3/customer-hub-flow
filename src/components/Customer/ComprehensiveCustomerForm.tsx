@@ -219,6 +219,7 @@ interface ComprehensiveCustomerFormProps {
   onNameChange?: (name: string) => void;
   onMobileChange?: (mobile: string) => void;
   onCompanyChange?: (company: string) => void;
+  sidebarCollapsed?: boolean;
 }
 
 const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
@@ -229,6 +230,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   onNameChange,
   onMobileChange,
   onCompanyChange,
+  sidebarCollapsed = false,
 }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [currentStage, setCurrentStage] = useState<'details' | 'preview' | 'documents'>('details');
@@ -6326,7 +6328,12 @@ NOTES:
 
     {/* Floating Action Buttons - Only show on details stage before submission */}
     {currentStage === 'details' && !createdCustomerId && (
-      <div className="fixed bottom-8 right-8 flex gap-3 z-50">
+      <div 
+        className="fixed bottom-8 flex gap-3 z-50 transition-all duration-300"
+        style={{
+          right: sidebarCollapsed ? '3.5rem' : '21rem'
+        }}
+      >
         <button
           type="button"
           onClick={handlePreviewDraft}
