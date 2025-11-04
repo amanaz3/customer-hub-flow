@@ -343,7 +343,7 @@ const ProductManagement: React.FC = () => {
                     </Link>
                   </div>
                   <Select
-                    value={formData.service_category_id || "none"}
+                    value={formData.service_category_id ?? undefined}
                     onValueChange={(value) => setFormData(prev => ({ 
                       ...prev, 
                       service_category_id: value === "none" ? null : value 
