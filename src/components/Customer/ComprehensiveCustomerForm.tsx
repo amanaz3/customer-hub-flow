@@ -95,6 +95,8 @@ const formSchema = z.object({
   reporting_frequency: z.string().optional(),
   // Home Finance specific fields
   uae_residency_status: z.enum(['Resident', 'Non-Resident']).optional(),
+  salary_range: z.string().optional(),
+  business_turnover: z.string().optional(),
   // Corporate tax filing fields
   tax_year_period: z.string().optional(),
   first_time_filing: z.boolean().optional(),
@@ -539,6 +541,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       employer_name: '',
       years_with_employer: 0,
       uae_residency_status: undefined,
+      salary_range: '',
+      business_turnover: '',
       additional_income: 0,
       additional_income_source: '',
       existing_loan_commitments: 0,
@@ -581,6 +585,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const watchLicenseType = form.watch('license_type');
   const watchShareholderCount = form.watch('no_of_shareholders');
   const watchProductId = form.watch('product_id');
+  const watchEmploymentStatus = form.watch('employment_status');
   
   // Watch form fields for section validation
   const watchName = form.watch('name');
@@ -3826,6 +3831,48 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             <option value="Professional">Professional (Doctor/Lawyer/etc.)</option>
                           </select>
                         </div>
+
+                        {/* Conditional: Salary Range for Salaried */}
+                        {watchEmploymentStatus === 'Employed' && (
+                          <div className="space-y-2">
+                            <Label htmlFor="salary_range">Salary Range (AED) *</Label>
+                            <select
+                              id="salary_range"
+                              {...form.register('salary_range')}
+                              disabled={isSubmitting}
+                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              <option value="">Select salary range</option>
+                              <option value="Below 10,000">Below 10,000</option>
+                              <option value="10,000 - 20,000">10,000 - 20,000</option>
+                              <option value="20,000 - 30,000">20,000 - 30,000</option>
+                              <option value="30,000 - 50,000">30,000 - 50,000</option>
+                              <option value="50,000 - 75,000">50,000 - 75,000</option>
+                              <option value="75,000 - 100,000">75,000 - 100,000</option>
+                              <option value="Above 100,000">Above 100,000</option>
+                            </select>
+                          </div>
+                        )}
+
+                        {/* Conditional: Business Turnover for Self-Employed */}
+                        {watchEmploymentStatus === 'Self-Employed' && (
+                          <div className="space-y-2">
+                            <Label htmlFor="business_turnover">Business Turnover (AED) *</Label>
+                            <select
+                              id="business_turnover"
+                              {...form.register('business_turnover')}
+                              disabled={isSubmitting}
+                              className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring disabled:cursor-not-allowed disabled:opacity-50"
+                            >
+                              <option value="">Select turnover range</option>
+                              <option value="Below 100,000">Below 100,000</option>
+                              <option value="100,000 - 500,000">100,000 - 500,000</option>
+                              <option value="500,000 - 1,000,000">500,000 - 1,000,000</option>
+                              <option value="1,000,000 - 5,000,000">1,000,000 - 5,000,000</option>
+                              <option value="Above 5,000,000">Above 5,000,000</option>
+                            </select>
+                          </div>
+                        )}
 
                         <div className="space-y-2">
                           <Label htmlFor="employer_name">Employer/Company Name</Label>
