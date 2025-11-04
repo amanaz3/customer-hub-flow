@@ -6329,9 +6329,9 @@ NOTES:
     {/* Floating Action Buttons - Only show on details stage before submission */}
     {currentStage === 'details' && !createdCustomerId && (
       <div 
-        className="fixed bottom-8 flex gap-3 z-50 transition-all duration-300"
+        className="fixed bottom-8 flex gap-3 z-50 transition-all duration-300 hidden lg:flex"
         style={{
-          right: sidebarCollapsed ? '3.5rem' : '21rem'
+          right: sidebarCollapsed ? '5rem' : '22rem'
         }}
       >
         <button
