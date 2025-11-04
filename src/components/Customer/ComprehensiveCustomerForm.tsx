@@ -250,30 +250,29 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [currentStage]);
 
-  // Reset scroll to top when tabs swapped
+  // Ensure scrollbar reaches absolute top when switching tabs and after sticky heights update
   useEffect(() => {
-    const scrollToTop = () => {
-      // Try all possible scroll containers
-      const mainEl = document.querySelector('main');
-      if (mainEl) {
-        mainEl.scrollTop = 0;
-      }
-      if (document.scrollingElement) {
-        document.scrollingElement.scrollTop = 0;
-      }
+    let attempts = 0;
+    const maxAttempts = 5;
+
+    const scrollAllToTop = () => {
+      const mainEl = document.querySelector('main') as HTMLElement | null;
+      // Scroll known containers
+      if (mainEl) mainEl.scrollTop = 0;
+      if (document.scrollingElement) document.scrollingElement.scrollTop = 0;
       window.scrollTo(0, 0);
-      console.info('[ComprehensiveCustomerForm] Reset scroll to top on tab switch');
+      // Anchor top section as a fallback
+      stageRef.current?.scrollIntoView({ block: 'start' });
+
+      attempts++;
+      if (attempts < maxAttempts) requestAnimationFrame(scrollAllToTop);
     };
 
-    // Scroll immediately
-    scrollToTop();
-    
-    // Scroll again after layout settles
-    requestAnimationFrame(() => {
-      scrollToTop();
-      requestAnimationFrame(scrollToTop);
-    });
-  }, [customerMode]);
+    // Run immediately and again after layout/sticky measurements settle
+    scrollAllToTop();
+    requestAnimationFrame(scrollAllToTop);
+    setTimeout(() => requestAnimationFrame(scrollAllToTop), 0);
+  }, [customerMode, stageHeight, selectionHeight, stickyNavHeight]);
   const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
   const { user, isAdmin } = useAuth();
