@@ -3234,6 +3234,20 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                                       </div>
                                     );
                                   })}
+                                  
+                                  {/* Action Button at the end */}
+                                  <div
+                                    onClick={() => setShowCustomPackageDialog(true)}
+                                    className="relative p-3 rounded-md border-2 border-primary cursor-pointer transition-all duration-200 hover:shadow-md hover:border-primary/70 bg-primary/10 hover:bg-primary/20"
+                                  >
+                                    <div className="flex flex-col items-center justify-center gap-2 py-4">
+                                      <div className="p-2 rounded-full bg-primary/20">
+                                        <Plus className="h-5 w-5 text-primary" />
+                                      </div>
+                                      <h4 className="font-semibold text-sm text-center">Add Custom Package</h4>
+                                      <p className="text-xs text-muted-foreground text-center">Build your own</p>
+                                    </div>
+                                  </div>
                                 </div>
                               )}
                               {form.formState.errors.product_id && (
