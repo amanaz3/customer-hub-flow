@@ -3160,7 +3160,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                             {/* Products Grid */}
                             <div className="space-y-3">
-                              <Label>Product / Service *</Label>
+                              <Label>Product / Service / Bundled Services *</Label>
                               {productsLoading ? (
                                 <p className="text-sm text-muted-foreground">Loading products...</p>
                               ) : products.length === 0 ? (
