@@ -29,6 +29,7 @@ import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput 
 import { CreateCompanyDialog } from './CreateCompanyDialog';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
 import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search, Eye, EyeOff } from 'lucide-react';
+import { AgentHelpDialog } from './AgentHelpDialog';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { cn } from '@/lib/utils';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
@@ -1392,14 +1393,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         
         <CardContent className="relative pt-2 px-3 pb-1">
-          {/* Progress Indicator Badge */}
-          <div className="flex items-center justify-center mb-1">
+          {/* Progress Indicator Badge with Help Button */}
+          <div className="flex items-center justify-between mb-1">
+            <div className="flex-1" />
             <Badge variant="outline" className="text-[9px] px-1.5 py-0 bg-primary/5 border-primary/20 text-primary font-medium flex items-center gap-0.5">
               <svg className="w-2.5 h-2.5" fill="none" stroke="currentColor" strokeWidth={2.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
               Progress Guide
             </Badge>
+            <div className="flex-1 flex justify-end">
+              <AgentHelpDialog />
+            </div>
           </div>
           <div className="flex items-center justify-between gap-2">
             {/* Stage 1 */}
