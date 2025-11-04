@@ -250,39 +250,37 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [currentStage]);
 
-  // Robust: scroll PAGE to top on customer mode change, even if a dialog just closed
+  // Reset all scrollbars to initial position when tabs swapped
   useEffect(() => {
-    let attempts = 0;
-    const maxAttempts = 12; // ~200ms with rAF
-
-    const tryScroll = () => {
-      const locked =
-        document.body.style.overflow === 'hidden' ||
-        document.body.hasAttribute('data-scroll-locked') ||
-        document.documentElement.hasAttribute('data-scroll-locked');
-
-      if (locked && attempts < maxAttempts) {
-        attempts++;
-        requestAnimationFrame(tryScroll);
-        return;
+    const resetScrollPositions = () => {
+      // 1. Reset inner card scroll to top
+      if (scrollContainerRef.current) {
+        scrollContainerRef.current.scrollTop = 0;
       }
 
-      // Double RAF to ensure layout settles after tab swap/modal close
+      // 2. Wait for layout to settle after mode change
       requestAnimationFrame(() => {
         requestAnimationFrame(() => {
-          try {
+          // 3. Scroll page to bring form card to initial position
+          const formCard = formContentCardRef.current;
+          const stageOffset = stageRef.current?.offsetHeight ?? 0;
+          const selectionOffset = customerSelectionCardRef.current?.offsetHeight ?? 0;
+          
+          if (formCard) {
+            const rect = formCard.getBoundingClientRect();
+            const targetTop = Math.max(0, window.scrollY + rect.top - stageOffset - selectionOffset - 16); // 16px spacing
+            window.scrollTo({ top: targetTop, behavior: 'smooth' });
+          } else {
+            // Fallback: just scroll to top
             window.scrollTo({ top: 0, behavior: 'smooth' });
-          } finally {
-            // Fallbacks for some browsers/environments
-            document.documentElement.scrollTop = 0;
-            document.body.scrollTop = 0;
           }
-          console.info('[ComprehensiveCustomerForm] Forced page scroll to top after mode change');
+          
+          console.info('[ComprehensiveCustomerForm] Reset all scrollbars to initial position');
         });
       });
     };
 
-    tryScroll();
+    resetScrollPositions();
   }, [customerMode]);
   const [showSwitchConfirm, setShowSwitchConfirm] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
