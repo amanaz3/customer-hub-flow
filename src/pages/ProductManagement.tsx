@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2, Package, Database } from 'lucide-react';
+import { Plus, Edit, Trash2, Package, Database, ExternalLink } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -315,7 +316,16 @@ const ProductManagement: React.FC = () => {
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="service_category">Service Category</Label>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="service_category">Service Category</Label>
+                    <Link to="/service-categories" target="_blank">
+                      <Button type="button" variant="ghost" size="sm" className="h-auto py-1 px-2 text-xs">
+                        <Plus className="h-3 w-3 mr-1" />
+                        Add Category
+                        <ExternalLink className="h-3 w-3 ml-1" />
+                      </Button>
+                    </Link>
+                  </div>
                   <Select
                     value={formData.service_category_id || undefined}
                     onValueChange={(value) => setFormData(prev => ({ ...prev, service_category_id: value }))}
