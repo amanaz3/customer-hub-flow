@@ -571,8 +571,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
          'registered_office_address', 'nature_of_business', 'number_of_ubos',
          'compliance_officer_name', 'compliance_officer_email', 'compliance_officer_phone',
          'compliance_officer_position', 'expected_annual_transaction_volume', 'transaction_types',
-         'customer_types', 'high_risk_countries', 'source_of_funds', 'mlro_name', 'mlro_email',
-         'mlro_phone', 'aml_policy_required', 'vat_registration_type',
+         'customer_types', 'high_risk_countries', 'source_of_funds', 
+         'mlro_name', 'mlro_email', 'mlro_phone', 'aml_policy_required',
+         'vat_registration_type',
          'already_registered_vat', 'existing_trn', 'business_activity_description',
          'import_activities', 'export_activities', 'import_countries', 'export_countries',
          'previous_tax_period', 'vat_accounting_software', 'multiple_business_locations',
@@ -3219,6 +3220,59 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     {/* GoAML Application Fields */}
                     {hasGoAML && (
                       <>
+                        {/* AML/MLRO Information Section */}
+                        <div className="space-y-4 p-4 border border-primary/20 rounded-lg bg-primary/5">
+                          <div className="flex items-center gap-2">
+                            <AlertCircle className="h-5 w-5 text-primary" />
+                            <h4 className="text-sm font-semibold text-foreground">AML/MLRO Information</h4>
+                          </div>
+                          
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label htmlFor="mlro_name">MLRO Name *</Label>
+                              <Input
+                                id="mlro_name"
+                                {...form.register('mlro_name')}
+                                placeholder="Money Laundering Reporting Officer name"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="mlro_email">MLRO Email *</Label>
+                              <Input
+                                id="mlro_email"
+                                type="email"
+                                {...form.register('mlro_email')}
+                                placeholder="mlro@company.com"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2">
+                              <Label htmlFor="mlro_phone">MLRO Phone Number *</Label>
+                              <Input
+                                id="mlro_phone"
+                                {...form.register('mlro_phone')}
+                                placeholder="+971 XX XXX XXXX"
+                                disabled={isSubmitting}
+                              />
+                            </div>
+
+                            <div className="space-y-2 flex items-center pt-6">
+                              <Checkbox
+                                id="aml_policy_required"
+                                checked={form.watch('aml_policy_required') || false}
+                                onCheckedChange={(checked) => form.setValue('aml_policy_required', !!checked)}
+                                disabled={isSubmitting}
+                              />
+                              <Label htmlFor="aml_policy_required" className="ml-2 cursor-pointer">
+                                AML Policy Required
+                              </Label>
+                            </div>
+                          </div>
+                        </div>
+
                         <div className="space-y-2">
                           <Label htmlFor="trade_license_number">Trade License Number *</Label>
                           <Input
@@ -3281,61 +3335,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                             placeholder="+971 XX XXX XXXX"
                             disabled={isSubmitting}
                           />
-                        </div>
-
-                        <Separator className="my-4" />
-
-                        <div className="space-y-4">
-                          <div className="flex items-center gap-2">
-                            <h4 className="text-sm font-semibold">MLRO Information</h4>
-                            <Badge variant="secondary" className="text-xs">Money Laundering Reporting Officer</Badge>
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="mlro_name">MLRO Name *</Label>
-                            <Input
-                              id="mlro_name"
-                              {...form.register('mlro_name')}
-                              placeholder="Full name of MLRO"
-                              disabled={isSubmitting}
-                            />
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="mlro_email">MLRO Email *</Label>
-                            <Input
-                              id="mlro_email"
-                              type="email"
-                              {...form.register('mlro_email')}
-                              placeholder="mlro@company.com"
-                              disabled={isSubmitting}
-                            />
-                            {form.formState.errors.mlro_email && (
-                              <p className="text-sm text-red-600">{form.formState.errors.mlro_email.message}</p>
-                            )}
-                          </div>
-
-                          <div className="space-y-2">
-                            <Label htmlFor="mlro_phone">MLRO Phone Number *</Label>
-                            <Input
-                              id="mlro_phone"
-                              {...form.register('mlro_phone')}
-                              placeholder="+971 XX XXX XXXX"
-                              disabled={isSubmitting}
-                            />
-                          </div>
-
-                          <div className="flex items-center space-x-2">
-                            <Checkbox
-                              id="aml_policy_required"
-                              checked={form.watch('aml_policy_required')}
-                              onCheckedChange={(checked) => form.setValue('aml_policy_required', checked as boolean)}
-                              disabled={isSubmitting}
-                            />
-                            <Label htmlFor="aml_policy_required" className="cursor-pointer">
-                              AML Policy Required
-                            </Label>
-                          </div>
                         </div>
                       </>
                     )}
