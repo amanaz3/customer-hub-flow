@@ -25,6 +25,7 @@ import {
   LazySettings,
   LazyProductManagement,
   LazyServiceCategoryManagement,
+  LazyBundleManagement,
   LazyDataMigration,
   LazyNotFound,
   PageLoadingFallback
@@ -213,6 +214,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Service Category Management">
                           <LazyServiceCategoryManagement />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/bundles" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Bundle Management">
+                          <LazyBundleManagement />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>

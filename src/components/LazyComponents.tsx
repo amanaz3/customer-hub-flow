@@ -17,6 +17,7 @@ const Rejected = React.lazy(() => import('@/pages/Rejected'));
 const Settings = React.lazy(() => import('@/pages/Settings'));
 const ProductManagement = React.lazy(() => import('@/pages/ProductManagement'));
 const ServiceCategoryManagement = React.lazy(() => import('@/pages/ServiceCategoryManagement'));
+const BundleManagement = React.lazy(() => import('@/pages/BundleManagement'));
 const DataMigration = React.lazy(() => import('@/pages/DataMigration'));
 const NotFound = React.lazy(() => import('@/pages/NotFound'));
 
@@ -79,6 +80,7 @@ export const LazyRejected = withLazyLoading(Rejected, "Loading rejected items...
 export const LazySettings = withLazyLoading(Settings, "Loading settings...");
 export const LazyProductManagement = withLazyLoading(ProductManagement, "Loading product management...");
 export const LazyServiceCategoryManagement = withLazyLoading(ServiceCategoryManagement, "Loading service categories...");
+export const LazyBundleManagement = withLazyLoading(BundleManagement, "Loading bundle management...");
 export const LazyDataMigration = withLazyLoading(DataMigration, "Loading data migration...");
 export const LazyNotFound = withLazyLoading(NotFound, "Loading page...");
 
