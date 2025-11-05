@@ -3370,13 +3370,23 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 // Determine the most recently expanded item (last in array)
                 const lastExpanded = value[value.length - 1];
                 
+                // Check if Step 1 data is validated (basic info complete)
+                const isStep1Validated = isBasicInfoComplete && isSourceChannelComplete;
+                
                 // Update progress step and active subcard based on expanded items
+                // Only allow progress to Step 2 if Step 1 is validated
                 if (value.includes('service')) {
                   setServiceSelectionExpanded(true);
-                  setProgressStep(2);
+                  // Only transition to step 2 if step 1 is validated
+                  if (isStep1Validated) {
+                    setProgressStep(2);
+                  }
                   setActiveSubcard('Application Details / Service Selection');
                 } else if (value.includes('application')) {
-                  setProgressStep(2);
+                  // Only transition to step 2 if step 1 is validated
+                  if (isStep1Validated) {
+                    setProgressStep(2);
+                  }
                   setActiveSubcard('Application Details / Deal Information');
                 } else if (value.includes('lead')) {
                   setProgressStep(1);
