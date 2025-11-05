@@ -140,12 +140,12 @@ export default function NotificationManagement() {
             {preferences.map((pref) => (
               <div
                 key={pref.id}
-                className="flex items-start justify-between space-x-4 py-4 border-b last:border-0"
+                className="flex items-start justify-between space-x-4 py-6 px-4 rounded-lg hover:bg-accent/50 transition-colors border-b last:border-0"
               >
                 <div className="space-y-1 flex-1">
                   <Label
                     htmlFor={pref.status_type}
-                    className="text-base font-medium cursor-pointer"
+                    className="text-lg font-semibold cursor-pointer"
                   >
                     {STATUS_LABELS[pref.status_type]?.label || pref.status_type}
                   </Label>
@@ -154,16 +154,22 @@ export default function NotificationManagement() {
                       `Notify when status changes to ${pref.status_type}`}
                   </p>
                 </div>
-                <div className="flex items-center space-x-2">
+                <div className="flex items-center gap-4">
                   {updating === pref.status_type && (
-                    <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                    <Loader2 className="h-5 w-5 animate-spin text-primary" />
                   )}
-                  <Switch
-                    id={pref.status_type}
-                    checked={pref.is_enabled}
-                    onCheckedChange={() => handleToggle(pref.status_type, pref.is_enabled)}
-                    disabled={updating === pref.status_type}
-                  />
+                  <div className="flex flex-col items-center gap-2">
+                    <Switch
+                      id={pref.status_type}
+                      checked={pref.is_enabled}
+                      onCheckedChange={() => handleToggle(pref.status_type, pref.is_enabled)}
+                      disabled={updating === pref.status_type}
+                      className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500 scale-125"
+                    />
+                    <span className={`text-xs font-bold ${pref.is_enabled ? 'text-green-600' : 'text-red-600'}`}>
+                      {pref.is_enabled ? 'ON' : 'OFF'}
+                    </span>
+                  </div>
                 </div>
               </div>
             ))}
