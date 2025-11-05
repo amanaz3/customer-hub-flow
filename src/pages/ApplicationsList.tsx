@@ -20,17 +20,21 @@ interface ApplicationWithCustomer {
   application_type: string;
   created_at: string;
   updated_at: string;
-  application_data: any;
+  application_data: {
+    product_id?: string;
+    amount?: number;
+    [key: string]: any;
+  };
   customer: {
     id: string;
     name: string;
     company: string;
     email: string;
     mobile: string;
-    product?: {
-      id: string;
-      name: string;
-    };
+  };
+  product?: {
+    id: string;
+    name: string;
   };
 }
 
@@ -59,11 +63,7 @@ const ApplicationsList = () => {
             name,
             company,
             email,
-            mobile,
-            product:products!product_id (
-              id,
-              name
-            )
+            mobile
           )
         `)
         .order('created_at', { ascending: false });
@@ -76,7 +76,40 @@ const ApplicationsList = () => {
       const { data, error } = await query;
 
       if (error) throw error;
-      setApplications(data || []);
+
+      // Fetch products separately for applications that have product_id in application_data
+      if (data && data.length > 0) {
+        const productIds = data
+          .map(app => {
+            const appData = app.application_data as any;
+            return appData?.product_id;
+          })
+          .filter((id): id is string => !!id);
+
+        if (productIds.length > 0) {
+          const { data: products } = await supabase
+            .from('products')
+            .select('id, name')
+            .in('id', productIds);
+
+          // Map products to applications
+          const applicationsWithProducts = data.map(app => {
+            const appData = app.application_data as any;
+            const productId = appData?.product_id;
+            const product = products?.find(p => p.id === productId);
+            return {
+              ...app,
+              product: product || null
+            } as ApplicationWithCustomer;
+          });
+
+          setApplications(applicationsWithProducts);
+        } else {
+          setApplications(data as ApplicationWithCustomer[]);
+        }
+      } else {
+        setApplications([]);
+      }
     } catch (error) {
       console.error('Error fetching applications:', error);
       toast({
@@ -222,7 +255,7 @@ const ApplicationsList = () => {
                     filteredApplications.map((app) => (
                       <TableRow key={app.id}>
                         <TableCell className="font-medium">
-                          {app.customer?.product?.name || 'N/A'}
+                          {app.product?.name || 'N/A'}
                         </TableCell>
                         <TableCell>
                           {app.application_type?.replace('_', ' ').toUpperCase() || 'N/A'}
