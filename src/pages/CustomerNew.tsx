@@ -4,7 +4,6 @@ import { useCustomer } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
 import ComprehensiveCustomerForm from '@/components/Customer/ComprehensiveCustomerForm';
 import { RequiredDocumentsSidebar } from '@/components/Customer/RequiredDocumentsSidebar';
-import { MultiStepApplicationForm } from '@/components/Customer/MultiStepApplicationForm';
 
 const CustomerNew = () => {
   const { refreshData } = useCustomer();
@@ -17,7 +16,6 @@ const CustomerNew = () => {
   const [customerName, setCustomerName] = useState<string>('');
   const [customerMobile, setCustomerMobile] = useState<string>('');
   const [customerCompany, setCustomerCompany] = useState<string>('');
-  const [customerId, setCustomerId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
 
   const handleSuccess = () => {
@@ -58,8 +56,8 @@ const CustomerNew = () => {
   return (
     <div className="w-full relative">
       <div className="w-full bg-gradient-subtle -mx-3 sm:-mx-4 md:-mx-6 -mt-4 sm:-mt-2">
-        <div className={`px-4 pb-4 transition-all duration-300 space-y-6 ${sidebarCollapsed ? 'lg:pr-12' : 'lg:pr-80'}`}>
-          {/* Customer Form */}
+        <div className={`px-4 pb-4 transition-all duration-300 ${sidebarCollapsed ? 'lg:pr-12' : 'lg:pr-80'}`}>
+          {/* Multi-Step Form */}
           <ComprehensiveCustomerForm 
             onSuccess={handleSuccess}
             onProductChange={setSelectedProduct}
@@ -68,12 +66,6 @@ const CustomerNew = () => {
             onMobileChange={setCustomerMobile}
             onCompanyChange={setCustomerCompany}
             sidebarCollapsed={sidebarCollapsed}
-          />
-          
-          {/* Multi-Step Application Form */}
-          <MultiStepApplicationForm
-            customerId={customerId}
-            isEnabled={!!customerId}
           />
         </div>
       </div>

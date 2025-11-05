@@ -28,7 +28,6 @@ import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
-import { MultiStepApplicationForm } from './MultiStepApplicationForm';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
 import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search, Eye, EyeOff, Mail, Share2, Send, Zap, UserCog, Layers } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
@@ -1859,14 +1858,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           )}
         </div>
       </Card>
-      </div>
-      
-      {/* Multi-Step Application Form */}
-      <div className="mb-6">
-        <MultiStepApplicationForm
-          customerId={null}
-          isEnabled={false}
-        />
       </div>
       
       {/* Mode and Layout Selectors - Sticky */}
