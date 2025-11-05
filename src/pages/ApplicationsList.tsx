@@ -235,19 +235,19 @@ const ApplicationsList = () => {
             {/* Scrollable Table Container */}
             <div className="overflow-x-auto">
               <Table>
-                <TableHeader className="sticky top-0 bg-muted/30 backdrop-blur-sm z-10">
-                  <TableRow className="hover:bg-transparent border-b">
-                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Product/Service</TableHead>
-                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Type</TableHead>
-                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Company</TableHead>
-                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Contact</TableHead>
-                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Email</TableHead>
-                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Mobile</TableHead>
-                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Status</TableHead>
-                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold text-right">Amount</TableHead>
-                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Created</TableHead>
-                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Updated</TableHead>
-                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold text-right">Actions</TableHead>
+                <TableHeader className="sticky top-0 bg-muted backdrop-blur-sm z-10">
+                  <TableRow className="hover:bg-transparent border-b-2">
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Product/Service</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Type</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Company</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Contact</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Email</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Mobile</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Status</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide text-right">Amount</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Created</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Updated</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -263,76 +263,76 @@ const ApplicationsList = () => {
                     filteredApplications.map((app) => (
                       <TableRow 
                         key={app.id}
-                        className="hover:bg-muted/50 cursor-pointer transition-colors"
+                        className="hover:bg-muted/50 cursor-pointer transition-colors border-b"
                         onClick={() => navigate(`/applications/${app.id}`)}
                       >
-                        <TableCell className="px-3 py-2 font-medium text-sm">
-                          <div className="flex items-center gap-1.5 min-w-[150px]">
-                            <div className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
-                            <span className="truncate">{app.product?.name || 'N/A'}</span>
+                        <TableCell className="px-3 py-3 font-semibold text-sm">
+                          <div className="flex items-center gap-2 min-w-[150px]">
+                            <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0" />
+                            <span className="truncate text-foreground">{app.product?.name || 'N/A'}</span>
                           </div>
                         </TableCell>
-                        <TableCell className="px-3 py-2 text-xs">
-                          <span className="px-2 py-1 rounded-md bg-muted font-medium">
+                        <TableCell className="px-3 py-3 text-xs font-semibold">
+                          <span className="px-2.5 py-1.5 rounded-md bg-muted/80 font-bold text-foreground uppercase">
                             {app.application_type?.replace('_', ' ').toUpperCase() || 'N/A'}
                           </span>
                         </TableCell>
-                        <TableCell className="px-3 py-2 text-sm">
+                        <TableCell className="px-3 py-3 text-sm font-medium">
                           <Button
                             variant="link"
-                            className="p-0 h-auto text-sm font-medium hover:underline"
+                            className="p-0 h-auto text-sm font-semibold hover:underline text-primary"
                             onClick={(e) => {
                               e.stopPropagation();
                               navigate(`/customers/${app.customer?.id}`);
                             }}
                           >
-                            <Building2 className="h-3.5 w-3.5 mr-1" />
+                            <Building2 className="h-4 w-4 mr-1.5" />
                             <span className="max-w-[200px] truncate">{app.customer?.company || 'N/A'}</span>
                           </Button>
                         </TableCell>
-                        <TableCell className="px-3 py-2 text-sm">
+                        <TableCell className="px-3 py-3 text-sm font-medium text-foreground">
                           <span className="max-w-[150px] truncate block">{app.customer?.name || 'N/A'}</span>
                         </TableCell>
-                        <TableCell className="px-3 py-2 text-xs text-muted-foreground">
+                        <TableCell className="px-3 py-3 text-xs font-medium text-foreground/80">
                           <span className="max-w-[180px] truncate block">{app.customer?.email || 'N/A'}</span>
                         </TableCell>
-                        <TableCell className="px-3 py-2 text-xs text-muted-foreground">
+                        <TableCell className="px-3 py-3 text-xs font-medium text-foreground/80">
                           {app.customer?.mobile || 'N/A'}
                         </TableCell>
-                        <TableCell className="px-3 py-2">
+                        <TableCell className="px-3 py-3">
                           <Badge 
                             variant="secondary" 
                             className={`${statusColors[app.status] || 'bg-gray-500'} ${
                               app.status === 'draft' 
-                                ? 'text-yellow-950 dark:text-yellow-100' 
-                                : 'text-white'
-                            } text-[10px] px-2 py-0.5 font-medium`}
+                                ? 'text-yellow-950 dark:text-yellow-50 border border-yellow-600 dark:border-yellow-400' 
+                                : 'text-white border-0'
+                            } text-xs px-3 py-1 font-bold uppercase tracking-wide shadow-sm`}
                           >
-                            {app.status?.replace('_', ' ').toUpperCase() || 'UNKNOWN'}
+                            {app.status?.replace('_', ' ') || 'UNKNOWN'}
                           </Badge>
                         </TableCell>
-                        <TableCell className="px-3 py-2 text-sm font-semibold text-right">
+                        <TableCell className="px-3 py-3 text-sm font-bold text-right">
                           <span className="text-primary">${app.application_data?.amount?.toLocaleString() || '0'}</span>
                         </TableCell>
-                        <TableCell className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">
+                        <TableCell className="px-3 py-3 text-xs font-medium text-foreground/70 whitespace-nowrap">
                           {new Date(app.created_at).toLocaleDateString('en-US', { 
                             month: 'short', 
                             day: 'numeric', 
                             year: 'numeric' 
                           })}
                         </TableCell>
-                        <TableCell className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">
+                        <TableCell className="px-3 py-3 text-xs font-medium text-foreground/70 whitespace-nowrap">
                           {new Date(app.updated_at).toLocaleDateString('en-US', { 
                             month: 'short', 
                             day: 'numeric', 
                             year: 'numeric' 
                           })}
                         </TableCell>
-                        <TableCell className="px-3 py-2 text-right">
+                        <TableCell className="px-3 py-3 text-right">
                           <Button
-                            variant="ghost"
+                            variant="outline"
                             size="sm"
-                            className="h-7 px-2 text-xs"
+                            className="h-8 px-3 text-xs font-semibold border-2 hover:bg-primary hover:text-primary-foreground"
                             onClick={(e) => {
                               e.stopPropagation();
                               navigate(`/applications/${app.id}`);
