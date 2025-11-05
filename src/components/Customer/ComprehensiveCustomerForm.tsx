@@ -39,7 +39,6 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { NavigationBlocker } from '@/components/Navigation/NavigationBlocker';
 import { StickyFormNavigation } from './StickyFormNavigation';
-import { MultiStepApplicationForm } from './MultiStepApplicationForm';
 
 // Form validation schema
 const formSchema = z.object({
@@ -1859,11 +1858,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           )}
         </div>
       </Card>
-      </div>
-      
-      {/* Multi-Step Application Form */}
-      <div className="mb-4">
-        <MultiStepApplicationForm isEnabled={customerMode === 'new'} />
       </div>
       
       {/* Mode and Layout Selectors - Sticky */}
