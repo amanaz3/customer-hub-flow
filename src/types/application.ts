@@ -5,17 +5,18 @@ export type ApplicationStatus =
   | 'submitted' 
   | 'returned'
   | 'paid'
+  | 'completed'
   | 'rejected'
   // Legacy statuses (for existing applications only)
   | 'under_review' 
-  | 'approved' 
-  | 'completed';
+  | 'approved';
 
 export const NewApplicationStatuses = [
   'draft',
   'submitted',
   'returned',
   'paid',
+  'completed',
   'rejected'
 ] as const;
 
