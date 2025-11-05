@@ -302,7 +302,11 @@ const ApplicationsList = () => {
                         <TableCell className="px-3 py-2">
                           <Badge 
                             variant="secondary" 
-                            className={`${statusColors[app.status] || 'bg-gray-500'} text-white text-[10px] px-2 py-0.5 font-medium`}
+                            className={`${statusColors[app.status] || 'bg-gray-500'} ${
+                              app.status === 'draft' 
+                                ? 'text-yellow-950 dark:text-yellow-100' 
+                                : 'text-white'
+                            } text-[10px] px-2 py-0.5 font-medium`}
                           >
                             {app.status?.replace('_', ' ').toUpperCase() || 'UNKNOWN'}
                           </Badge>
