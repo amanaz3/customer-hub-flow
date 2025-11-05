@@ -136,9 +136,9 @@ const ApplicationsList = () => {
   }, [applications, searchTerm, statusFilter]);
 
   const statusColors: Record<string, string> = {
-    draft: 'bg-gray-500',
+    draft: 'bg-yellow-500',
     submitted: 'bg-blue-500',
-    under_review: 'bg-yellow-500',
+    under_review: 'bg-orange-500',
     approved: 'bg-green-500',
     rejected: 'bg-red-500',
     completed: 'bg-purple-500',
