@@ -100,7 +100,7 @@ Deno.serve(async (req) => {
       // Don't fail the whole operation if message fails
     }
 
-    // Create notification for the user
+    // Create notifications for relevant users
     if (customerId) {
       const { data: customer } = await supabase
         .from('customers')
@@ -108,23 +108,60 @@ Deno.serve(async (req) => {
         .eq('id', customerId)
         .single();
 
-      if (customer?.user_id) {
-        const { error: notifError } = await supabase
+      // Determine notification type based on status
+      let notificationType: 'success' | 'error' | 'warning' | 'info' = 'info';
+      if (newStatus === 'completed') {
+        notificationType = 'success';
+      } else if (newStatus === 'rejected') {
+        notificationType = 'error';
+      } else if (newStatus === 'returned') {
+        notificationType = 'warning';
+      }
+
+      const notificationTitle = 'Application Status Updated';
+      const notificationMessage = `Application status changed from ${previousStatus} to ${newStatus}`;
+      const actionUrl = `/applications/${applicationId}`;
+
+      // 1. Notify the user who owns the customer/application (if not the one making the change)
+      if (customer?.user_id && customer.user_id !== changedBy) {
+        await supabase
           .from('notifications')
           .insert({
             user_id: customer.user_id,
-            title: 'Application Status Updated',
-            message: `Application status changed to ${newStatus}`,
-            type: 'info',
+            title: notificationTitle,
+            message: notificationMessage,
+            type: notificationType,
             customer_id: customerId,
-            action_url: `/applications/${applicationId}`,
+            action_url: actionUrl,
             is_read: false,
           });
-
-        if (notifError) {
-          console.error('Error creating notification:', notifError);
-        }
       }
+
+      // 2. Notify all active admins (except the one making the change)
+      const { data: admins } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('role', 'admin')
+        .eq('is_active', true)
+        .neq('id', changedBy);
+
+      if (admins && admins.length > 0) {
+        const adminNotifications = admins.map(admin => ({
+          user_id: admin.id,
+          title: notificationTitle,
+          message: `${customer?.name}: ${notificationMessage}`,
+          type: notificationType,
+          customer_id: customerId,
+          action_url: actionUrl,
+          is_read: false,
+        }));
+
+        await supabase
+          .from('notifications')
+          .insert(adminNotifications);
+      }
+
+      console.log('Notifications created for application status change');
     }
 
     console.log('Application status updated successfully');
