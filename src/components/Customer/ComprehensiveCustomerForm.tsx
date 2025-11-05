@@ -801,6 +801,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     const isStep1Validated = isBasicInfoComplete && isSourceChannelComplete;
     
     if (isStep1Validated) {
+      // Automatically collapse Step 1 Customer Details outer card
+      setStep1Collapsed(true);
+      
       // Automatically expand Step 2 Application Details outer card
       setStep2Collapsed(false);
       
