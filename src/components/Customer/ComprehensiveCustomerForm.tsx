@@ -1783,7 +1783,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     ? "text-muted-foreground"
                     : "text-muted-foreground/50"
                 )}>
-                  Preview
+                  Service Selection
                 </div>
               </div>
             </div>
