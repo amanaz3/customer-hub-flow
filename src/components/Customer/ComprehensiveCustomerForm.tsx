@@ -266,6 +266,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [showFTAPassword, setShowFTAPassword] = useState(false);
   const hasUserInteractedWithCategory = useRef(false);
   const [step1Collapsed, setStep1Collapsed] = useState(false);
+  const [step2Collapsed, setStep2Collapsed] = useState(false);
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
   const modeLayoutRef = useRef<HTMLDivElement | null>(null);
@@ -3476,6 +3477,24 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   </Card>
                 </Collapsible>
 
+                {/* Step 2: Application Details (Service Selection + Deal Information) */}
+                <Collapsible open={!step2Collapsed} onOpenChange={(open) => setStep2Collapsed(!open)}>
+                  <Card className="border-2 rounded-lg bg-background shadow-md hover:shadow-lg transition-shadow">
+                    <CollapsibleTrigger asChild>
+                      <CardHeader className="pb-3 pt-4 px-4 bg-gradient-to-br from-primary/5 to-primary/10 border-b cursor-pointer hover:bg-gradient-to-br hover:from-primary/10 hover:to-primary/15 transition-all">
+                        <CardTitle className="text-sm font-semibold flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2">
+                            <div className="p-1.5 rounded-lg bg-primary/10">
+                              <Building2 className="h-4 w-4 text-primary" />
+                            </div>
+                            <span>Step 2: Application Details</span>
+                          </div>
+                          <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform duration-200", step2Collapsed && "rotate-180")} />
+                        </CardTitle>
+                      </CardHeader>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <CardContent className="p-3 space-y-1">
         {/* Service Selection */}
         <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow" data-section-id="service" style={{ scrollMarginTop: totalStickyOffset }}>
               <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-all group">
@@ -5475,6 +5494,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             </AccordionContent>
           </AccordionItem>
             )}
+                      </CardContent>
+                    </CollapsibleContent>
+                  </Card>
+                </Collapsible>
 
                 {/* Required Documents Section - GoAML */}
                 {hasGoAML && (
