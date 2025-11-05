@@ -1794,7 +1794,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     ? "text-foreground"
                     : "text-muted-foreground"
                 )}>
-                  Step 2
+                  Step 2 (Optional)
                 </div>
                 <div className={cn(
                   "text-[10px] font-semibold",
@@ -1802,7 +1802,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     ? "text-foreground" 
                     : "text-muted-foreground/50"
                 )}>
-                  Application Details (Optional){getStepLastExpandedCard(2) ? ` / ${getStepLastExpandedCard(2)}` : ''}
+                  Application Details{getStepLastExpandedCard(2) ? ` / ${getStepLastExpandedCard(2)}` : ''}
                 </div>
               </div>
             </div>
