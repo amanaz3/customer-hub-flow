@@ -266,10 +266,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [showFTAPassword, setShowFTAPassword] = useState(false);
   const hasUserInteractedWithCategory = useRef(false);
   const [step1Collapsed, setStep1Collapsed] = useState(false);
-  const [step2Collapsed, setStep2Collapsed] = useState(true);
-  const [step3Collapsed, setStep3Collapsed] = useState(true);
-  const [step4Collapsed, setStep4Collapsed] = useState(true);
-  const [progressStep, setProgressStep] = useState<1 | 2 | 3 | 4>(1);
+  const [step2Collapsed, setStep2Collapsed] = useState(false);
+  const [progressStep, setProgressStep] = useState<1 | 2 | 3>(1);
   const [activeSubcard, setActiveSubcard] = useState<string>('Customer Details / Basic Information');
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   
@@ -797,36 +795,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     
     setSectionsWithErrors(errorSections);
   }, [form.formState.errors]);
-
-  // Auto-expand Step 2 Application Details and Service Selection when Step 1 is validated
-  useEffect(() => {
-    const isStep1Validated = isBasicInfoComplete && isSourceChannelComplete;
-    
-    if (isStep1Validated) {
-      // Automatically collapse Step 1 Customer Details outer card
-      setStep1Collapsed(true);
-      
-      // Automatically expand Step 2 Application Details outer card
-      setStep2Collapsed(false);
-      
-      // Automatically expand Service Selection inner accordion if not already expanded
-      if (!accordionValue.includes('service')) {
-        setAccordionValue(prev => [...prev, 'service']);
-      }
-      
-      // Progress step will transition automatically via the accordion onValueChange handler
-    }
-  }, [isBasicInfoComplete, isSourceChannelComplete, accordionValue]);
-
-  // Auto-collapse Service Selection card when a product is selected (validated)
-  useEffect(() => {
-    if (isServiceSelectionComplete && accordionValue.includes('service') && customerMode === 'new') {
-      console.log('Service selection validated - collapsing service card');
-      
-      // Remove 'service' from accordionValue to collapse it
-      setAccordionValue(prev => prev.filter(v => v !== 'service'));
-    }
-  }, [isServiceSelectionComplete, accordionValue, customerMode]);
 
   // Auto-select Business Bank Account as default product when form loads
   useEffect(() => {
@@ -1802,7 +1770,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     ? "text-foreground" 
                     : "text-muted-foreground/50"
                 )}>
-                  Application Details (Optional){getStepLastExpandedCard(2) ? ` / ${getStepLastExpandedCard(2)}` : ''}
+                  Application Details{getStepLastExpandedCard(2) ? ` / ${getStepLastExpandedCard(2)}` : ''}
                 </div>
               </div>
             </div>
@@ -1832,7 +1800,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               </div>
             </div>
             
-            {/* Stage 3 - Upload Docs (Optional) */}
+            {/* Stage 3 - Preview */}
             <div className="flex flex-col items-center gap-1 flex-1 group cursor-pointer transition-transform hover:scale-105">
               <div 
                 className={cn(
@@ -1848,15 +1816,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
                   progressStep === 3 && "opacity-70 bg-purple-500 animate-pulse"
                 )} />
-                {progressStep > 3 ? (
-                  <svg className="w-4 h-4 relative z-10 animate-scale-in" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                ) : (
-                  <svg className="w-4 h-4 relative z-10" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                  </svg>
-                )}
+                <svg className="w-4 h-4 relative z-10" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
               </div>
               <div className="text-center space-y-0">
                 <div className={cn(
@@ -1875,74 +1838,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     ? "text-foreground" 
                     : "text-muted-foreground/50"
                 )}>
-                  Upload Docs (Optional)
-                </div>
-              </div>
-            </div>
-
-            {/* Connecting Line 3 with Enhanced Gradient */}
-            <div className="flex-1 relative px-1" style={{ maxWidth: '60px' }}>
-              <div className="relative h-1.5 flex items-center">
-                <div className={cn(
-                  "h-1.5 rounded-full transition-all duration-700 flex-1 relative overflow-hidden",
-                  progressStep >= 4
-                    ? "bg-gradient-to-r from-purple-400 via-amber-400 to-amber-500 shadow-sm shadow-amber-500/30" 
-                    : "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
-                )}>
-                  {progressStep >= 4 && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
-                  )}
-                </div>
-                <div className={cn(
-                  "absolute -right-2 w-8 h-8 rounded-full transition-all duration-500 flex items-center justify-center backdrop-blur-sm",
-                  progressStep >= 4
-                    ? "bg-gradient-to-br from-amber-500 to-amber-700 shadow-lg shadow-amber-500/70 ring-2 ring-amber-400/50 ring-offset-1 ring-offset-background" 
-                    : "bg-gray-400 dark:bg-gray-600 shadow-md"
-                )}>
-                  {/* Chevron Arrow - Always white for maximum contrast */}
-                  <div className="w-4 h-4 border-r-[2px] border-t-[2px] border-white rotate-45 transition-all duration-300" />
-                </div>
-              </div>
-            </div>
-            
-            {/* Stage 4 - Review & Save Draft */}
-            <div className="flex flex-col items-center gap-1 flex-1 group cursor-pointer transition-transform hover:scale-105">
-              <div 
-                className={cn(
-                  "flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-500 relative",
-                  progressStep === 4
-                    ? "bg-gradient-to-br from-amber-500 via-orange-500 to-amber-600 text-white shadow-lg shadow-amber-500/50 scale-110 -rotate-6" 
-                    : progressStep > 4
-                    ? "bg-gradient-to-br from-amber-400 via-orange-400 to-amber-500 text-white shadow-md shadow-amber-400/40 ring-1 ring-amber-300/50 ring-offset-1 ring-offset-background"
-                    : "bg-gradient-to-br from-gray-100 via-muted to-gray-200 dark:from-gray-800 dark:via-muted dark:to-gray-900 text-gray-400 dark:text-gray-600 opacity-50"
-                )}
-              >
-                <div className={cn(
-                  "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
-                  progressStep === 4 && "opacity-70 bg-amber-500 animate-pulse"
-                )} />
-                <svg className="w-4 h-4 relative z-10" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="text-center space-y-0">
-                <div className={cn(
-                  "text-[10px] font-extrabold tracking-wide",
-                  progressStep === 4
-                    ? "text-amber-600 dark:text-amber-400" 
-                    : progressStep > 4
-                    ? "text-foreground"
-                    : "text-muted-foreground"
-                )}>
-                  Step 4
-                </div>
-                <div className={cn(
-                  "text-[10px] font-semibold",
-                  progressStep >= 4
-                    ? "text-foreground" 
-                    : "text-muted-foreground/50"
-                )}>
-                  Review & Save Draft
+                  Review & Submit
                 </div>
               </div>
             </div>
@@ -3474,23 +3370,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 // Determine the most recently expanded item (last in array)
                 const lastExpanded = value[value.length - 1];
                 
-                // Check if Step 1 data is validated (basic info complete)
-                const isStep1Validated = isBasicInfoComplete && isSourceChannelComplete;
-                
                 // Update progress step and active subcard based on expanded items
-                // Only allow progress to Step 2 if Step 1 is validated
                 if (value.includes('service')) {
                   setServiceSelectionExpanded(true);
-                  // Only transition to step 2 if step 1 is validated
-                  if (isStep1Validated) {
-                    setProgressStep(2);
-                  }
+                  setProgressStep(2);
                   setActiveSubcard('Application Details / Service Selection');
                 } else if (value.includes('application')) {
-                  // Only transition to step 2 if step 1 is validated
-                  if (isStep1Validated) {
-                    setProgressStep(2);
-                  }
+                  setProgressStep(2);
                   setActiveSubcard('Application Details / Deal Information');
                 } else if (value.includes('lead')) {
                   setProgressStep(1);
