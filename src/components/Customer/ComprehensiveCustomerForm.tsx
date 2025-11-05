@@ -2236,7 +2236,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           )}
         </div>}
 
-        <CardContent className="space-y-1 pb-3 pt-2">
+        <CardContent className="space-y-1 pb-3 pt-0">
         {/* Customer Selection Content - Not Sticky */}
         <div className="space-y-1 relative z-0">
 
