@@ -798,18 +798,25 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     setSectionsWithErrors(errorSections);
   }, [form.formState.errors]);
 
-  // Disabled: Auto-expand logic removed - cards now only respond to manual user clicks
-  // useEffect(() => {
-  //   const isStep1Validated = isBasicInfoComplete && isSourceChannelComplete;
-  //   
-  //   if (isStep1Validated) {
-  //     setStep1Collapsed(true);
-  //     setStep2Collapsed(false);
-  //     if (!accordionValue.includes('service')) {
-  //       setAccordionValue(prev => [...prev, 'service']);
-  //     }
-  //   }
-  // }, [isBasicInfoComplete, isSourceChannelComplete, accordionValue]);
+  // Auto-expand Step 2 Application Details and Service Selection when Step 1 is validated
+  useEffect(() => {
+    const isStep1Validated = isBasicInfoComplete && isSourceChannelComplete;
+    
+    if (isStep1Validated) {
+      // Automatically collapse Step 1 Customer Details outer card
+      setStep1Collapsed(true);
+      
+      // Automatically expand Step 2 Application Details outer card
+      setStep2Collapsed(false);
+      
+      // Automatically expand Service Selection inner accordion if not already expanded
+      if (!accordionValue.includes('service')) {
+        setAccordionValue(prev => [...prev, 'service']);
+      }
+      
+      // Progress step will transition automatically via the accordion onValueChange handler
+    }
+  }, [isBasicInfoComplete, isSourceChannelComplete, accordionValue]);
 
   // Auto-collapse Service Selection card when a product is selected (validated)
   useEffect(() => {
@@ -1284,50 +1291,64 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       return;
     }
 
+    // Form validation
+    const validationErrors = validateForm(data);
+    if (validationErrors.length > 0) {
+      toast({
+        title: 'Validation Error',
+        description: validationErrors.join(', '),
+        variant: 'destructive',
+      });
+      return;
+    }
+
     setIsSubmitting(true);
     PerformanceMonitor.startTiming('application-create');
 
-    let customerId = selectedCustomerId;
-    let step1Success = false;
-    let step2Success = false;
-    const errors: string[] = [];
-
     try {
-      // ============================================================
-      // STEP 1: VALIDATE AND SAVE CUSTOMER DETAILS (ALWAYS SAVE)
-      // ============================================================
+      FeatureAnalytics.trackUserAction('application_create_attempt', {
+        license_type: data.license_type,
+        lead_source: data.lead_source,
+        amount: data.amount
+      }, user.id);
+
+      // Step 0: Encrypt FTA password if provided
+      let encryptedFTAPassword = null;
+      let ftaPasswordIV = null;
       
-      // Validate only Step 1 fields
-      const step1Errors: string[] = [];
-      
-      if (!data.name || data.name.trim().length < 2) {
-        step1Errors.push('Name must be at least 2 characters');
-      }
-      if (!validateEmail(data.email)) {
-        step1Errors.push('Please enter a valid email address');
-      }
-      if (!validatePhoneNumber(data.mobile)) {
-        step1Errors.push('Please enter a valid phone number');
-      }
-      if (!validateCompanyName(data.company)) {
-        step1Errors.push('Please enter a valid company name');
-      }
-      if (!data.license_type) {
-        step1Errors.push('License type is required');
+      if (data.fta_portal_password && data.fta_portal_password.trim()) {
+        try {
+          const { data: encryptResult, error: encryptError } = await supabase.functions.invoke('encrypt-fta-credentials', {
+            body: {
+              action: 'encrypt',
+              password: data.fta_portal_password.trim()
+            }
+          });
+
+          if (encryptError) {
+            console.error('FTA password encryption error:', encryptError);
+            throw new Error('Failed to encrypt FTA password');
+          }
+
+          encryptedFTAPassword = encryptResult.encrypted;
+          ftaPasswordIV = encryptResult.iv;
+          console.log('FTA password encrypted successfully');
+        } catch (encryptErr) {
+          console.error('Encryption failed:', encryptErr);
+          toast({
+            title: 'Encryption Error',
+            description: 'Failed to secure FTA password. Please try again.',
+            variant: 'destructive',
+          });
+          return;
+        }
       }
 
-      if (step1Errors.length > 0) {
-        toast({
-          title: 'Customer Details Invalid',
-          description: step1Errors.join(', '),
-          variant: 'destructive',
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
-      // Save Step 1 (Customer Details)
+      // Step 1: Find or create customer
+      let customerId = selectedCustomerId;
+      
       if (customerMode === 'new' || !selectedCustomerId) {
+        // Create new customer with basic info + license_type
         const { data: customer, error: customerError } = await supabase
           .from('customers')
           .insert([{
@@ -1335,10 +1356,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             email: data.email.toLowerCase().trim(),
             mobile: data.mobile.replace(/\s/g, ''),
             company: sanitizeInput(data.company.trim()),
-            license_type: data.license_type,
+            license_type: data.license_type, // license_type stays with customer
             user_id: user.id,
-            lead_source: 'Website',
-            amount: 0,
+            lead_source: 'Website', // Default value
+            amount: 0, // Default value, actual amount goes to application
             status: 'Draft',
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
@@ -1348,329 +1369,219 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
         if (customerError) {
           console.error('Customer creation error:', customerError);
-          toast({
-            title: 'Failed to Save Customer',
-            description: 'Could not save customer details. Please try again.',
-            variant: 'destructive',
-          });
-          setIsSubmitting(false);
-          return;
+          throw customerError;
         }
 
         customerId = customer.id;
-        step1Success = true;
-
-        toast({
-          title: 'Customer Details Saved ✓',
-          description: `${data.company} details saved successfully.`,
-        });
-
-        FeatureAnalytics.trackUserAction('customer_create_success', {
-          customer_id: customerId,
-          license_type: data.license_type,
-        }, user.id);
-      } else {
-        step1Success = true;
       }
 
-      // ============================================================
-      // STEP 2: TRY TO SAVE APPLICATION DETAILS (DON'T BLOCK IF FAILS)
-      // ============================================================
-      
-      try {
-        // Validate Step 2 fields
-        const step2Errors: string[] = [];
-        
-        if (!data.lead_source) {
-          step2Errors.push('Lead source is required');
-        }
-        if (!data.amount || data.amount <= 0) {
-          step2Errors.push('Amount must be greater than 0');
-        }
-        if (!data.annual_turnover || data.annual_turnover <= 0) {
-          step2Errors.push('Annual turnover must be greater than 0');
-        }
-        if (!data.product_id) {
-          step2Errors.push('Product/service selection is required');
-        }
-
-        if (step2Errors.length > 0) {
-          errors.push(...step2Errors);
-          throw new Error('Step 2 validation failed: ' + step2Errors.join(', '));
-        }
-
-        // Encrypt FTA password if provided
-        let encryptedFTAPassword = null;
-        let ftaPasswordIV = null;
-        
-        if (data.fta_portal_password && data.fta_portal_password.trim()) {
-          try {
-            const { data: encryptResult, error: encryptError } = await supabase.functions.invoke('encrypt-fta-credentials', {
-              body: {
-                action: 'encrypt',
-                password: data.fta_portal_password.trim()
-              }
-            });
-
-            if (encryptError) {
-              console.error('FTA password encryption error:', encryptError);
-              throw new Error('Failed to encrypt FTA password');
-            }
-
-            encryptedFTAPassword = encryptResult.encrypted;
-            ftaPasswordIV = encryptResult.iv;
-          } catch (encryptErr) {
-            console.error('Encryption failed:', encryptErr);
-            errors.push('FTA password encryption failed');
-            throw encryptErr;
-          }
-        }
-
-        // Create application with Step 2 data
-        const { data: application, error: appError } = await supabase
-          .from('account_applications')
-          .insert([{
-            customer_id: customerId,
-            application_type: 'license',
-            submission_source: 'web_form',
-            status: 'draft',
+      // Step 2: Create application with application-specific data
+      const { data: application, error: appError } = await supabase
+        .from('account_applications')
+        .insert([{
+          customer_id: customerId,
+          application_type: 'license',
+          submission_source: 'web_form',
+          status: 'draft',
             application_data: {
-              lead_source: data.lead_source,
-              amount: data.amount,
-              preferred_bank: data.bank_preference_1?.trim() || null,
-              preferred_bank_2: data.bank_preference_2?.trim() || null,
-              preferred_bank_3: data.bank_preference_3?.trim() || null,
-              annual_turnover: data.annual_turnover,
-              jurisdiction: data.jurisdiction ? sanitizeInput(data.jurisdiction.trim()) : null,
-              customer_notes: data.customer_notes ? sanitizeInput(data.customer_notes.trim()) : null,
-              nationality: data.nationality ? sanitizeInput(data.nationality.trim()) : null,
-              proposed_activity: data.proposed_activity ? sanitizeInput(data.proposed_activity.trim()) : null,
-              mainland_or_freezone: data.mainland_or_freezone,
-              number_of_shareholders: data.no_of_shareholders,
-              signatory_type: data.signatory_type,
-              business_activity_details: data.business_activity_details ? sanitizeInput(data.business_activity_details.trim()) : null,
-              minimum_balance_range: data.minimum_balance_range,
-              product_id: data.product_id,
-              user_id: user.id,
-              ...(data.company_incorporation_date && { company_incorporation_date: data.company_incorporation_date }),
-              ...(data.number_of_entries_per_month && { number_of_entries_per_month: data.number_of_entries_per_month }),
-              ...(data.vat_corporate_tax_status && { vat_corporate_tax_status: data.vat_corporate_tax_status }),
-              ...(data.wps_transfer_required !== undefined && { wps_transfer_required: data.wps_transfer_required }),
-              ...(data.accounting_software && { accounting_software: data.accounting_software }),
-              ...(data.monthly_transactions && { monthly_transactions: data.monthly_transactions }),
-              ...(data.vat_registered !== undefined && { vat_registered: data.vat_registered }),
-              ...(data.bank_accounts_count && { bank_accounts_count: data.bank_accounts_count }),
-              ...(data.employees_count !== undefined && { employees_count: data.employees_count }),
-              ...(data.service_start_date && { service_start_date: data.service_start_date }),
-              ...(data.has_previous_records !== undefined && { has_previous_records: data.has_previous_records }),
-              ...(data.reporting_frequency && { reporting_frequency: data.reporting_frequency }),
-              ...(data.tax_year_period && { tax_year_period: data.tax_year_period }),
-              ...(data.first_time_filing !== undefined && { first_time_filing: data.first_time_filing }),
-              ...(data.tax_registration_number && { tax_registration_number: data.tax_registration_number }),
-              ...(data.financial_year_end_date && { financial_year_end_date: data.financial_year_end_date }),
-              ...(data.has_foreign_operations !== undefined && { has_foreign_operations: data.has_foreign_operations }),
-              ...(data.tax_exemptions && { tax_exemptions: data.tax_exemptions }),
-              ...(data.previous_tax_consultant && { previous_tax_consultant: data.previous_tax_consultant }),
-              ...(data.filing_deadline && { filing_deadline: data.filing_deadline }),
-              ...(data.fta_portal_email && { fta_portal_email: data.fta_portal_email }),
-              ...(encryptedFTAPassword && { fta_portal_password_encrypted: encryptedFTAPassword }),
-              ...(ftaPasswordIV && { fta_portal_password_iv: ftaPasswordIV }),
-              ...(data.mlro_name && { mlro_name: sanitizeInput(data.mlro_name) }),
-              ...(data.mlro_email && { mlro_email: data.mlro_email }),
-              ...(data.mlro_phone && { mlro_phone: sanitizeInput(data.mlro_phone) }),
-              ...(data.aml_policy_required !== undefined && { aml_policy_required: data.aml_policy_required }),
-              ...(data.customer_full_legal_name && { customer_full_legal_name: sanitizeInput(data.customer_full_legal_name) }),
-              ...(data.customer_date_of_birth && { customer_date_of_birth: data.customer_date_of_birth }),
-              ...(data.customer_nationality && { customer_nationality: sanitizeInput(data.customer_nationality) }),
-              ...(data.customer_national_id && { customer_national_id: sanitizeInput(data.customer_national_id) }),
-              ...(data.customer_passport_number && { customer_passport_number: sanitizeInput(data.customer_passport_number) }),
-              ...(data.customer_id_expiry_date && { customer_id_expiry_date: data.customer_id_expiry_date }),
-              ...(data.customer_residential_address && { customer_residential_address: sanitizeInput(data.customer_residential_address) }),
-              ...(data.customer_contact_phone && { customer_contact_phone: sanitizeInput(data.customer_contact_phone) }),
-              ...(data.customer_contact_email && { customer_contact_email: data.customer_contact_email }),
-              ...(data.business_company_name && { business_company_name: sanitizeInput(data.business_company_name) }),
-              ...(data.business_registration_number && { business_registration_number: sanitizeInput(data.business_registration_number) }),
-              ...(data.business_trade_license_number && { business_trade_license_number: sanitizeInput(data.business_trade_license_number) }),
-              ...(data.business_trade_license_expiry && { business_trade_license_expiry: data.business_trade_license_expiry }),
-              ...(data.business_activity_sector && { business_activity_sector: sanitizeInput(data.business_activity_sector) }),
-              ...(data.business_company_address && { business_company_address: sanitizeInput(data.business_company_address) }),
-              ...(data.business_authorized_signatories && { business_authorized_signatories: sanitizeInput(data.business_authorized_signatories) }),
-              ...(data.business_beneficial_ownership && { business_beneficial_ownership: sanitizeInput(data.business_beneficial_ownership) }),
-              ...(data.business_ubo_information && { business_ubo_information: sanitizeInput(data.business_ubo_information) }),
-              ...(data.financial_source_of_funds && { financial_source_of_funds: sanitizeInput(data.financial_source_of_funds) }),
-              ...(data.financial_source_of_wealth && { financial_source_of_wealth: sanitizeInput(data.financial_source_of_wealth) }),
-              ...(data.financial_expected_monthly_volume && { financial_expected_monthly_volume: sanitizeInput(data.financial_expected_monthly_volume) }),
-              ...(data.financial_expected_annual_volume && { financial_expected_annual_volume: sanitizeInput(data.financial_expected_annual_volume) }),
-              ...(data.financial_account_purpose && { financial_account_purpose: sanitizeInput(data.financial_account_purpose) }),
-              ...(data.financial_anticipated_activity && { financial_anticipated_activity: sanitizeInput(data.financial_anticipated_activity) }),
-              ...(data.financial_employment_status && { financial_employment_status: data.financial_employment_status }),
-              ...(data.financial_employer_details && { financial_employer_details: sanitizeInput(data.financial_employer_details) }),
-              ...(data.financial_annual_income && { financial_annual_income: sanitizeInput(data.financial_annual_income) }),
-              ...(data.financial_annual_turnover && { financial_annual_turnover: sanitizeInput(data.financial_annual_turnover) }),
-              ...(data.risk_pep_status && { risk_pep_status: data.risk_pep_status }),
-              ...(data.risk_pep_details && { risk_pep_details: sanitizeInput(data.risk_pep_details) }),
-              ...(data.risk_sanctions_screening && { risk_sanctions_screening: sanitizeInput(data.risk_sanctions_screening) }),
-              ...(data.risk_adverse_media && { risk_adverse_media: sanitizeInput(data.risk_adverse_media) }),
-              ...(data.risk_country_risk && { risk_country_risk: sanitizeInput(data.risk_country_risk) }),
-              ...(data.risk_business_relationship_purpose && { risk_business_relationship_purpose: sanitizeInput(data.risk_business_relationship_purpose) }),
-            }
-          }])
-          .select()
-          .single();
-
-        if (appError) {
-          console.error('Application creation error:', appError);
-          errors.push('Application details could not be saved');
-          throw appError;
-        }
-
-        step2Success = true;
-        setCreatedCustomerId(application.id);
-
-        toast({
-          title: 'Application Details Saved ✓',
-          description: 'Application details saved successfully.',
-        });
-
-        FeatureAnalytics.trackUserAction('application_create_success', {
-          application_id: application.id,
-          customer_id: customerId,
-        }, user.id);
-
-        // ============================================================
-        // STEP 3: TRY TO CREATE DOCUMENTS (DON'T BLOCK IF FAILS)
-        // ============================================================
-        
-        try {
-          const defaultDocTypes = [
-            'Passport Copy',
-            'Emirates ID Copy',
-            'Trade License Copy',
-            'Memorandum of Association (MOA)',
-            'Bank Statements (Last 6 months)',
-            'Company Profile',
-            'Audited Financial Statements',
-            'Business Plan',
-            'Proof of Address'
-          ];
-
-          // Add shareholder documents
-          for (let i = 1; i <= data.no_of_shareholders; i++) {
-            const shareholderLabel = data.no_of_shareholders > 1 ? ` (Shareholder ${i})` : '';
-            defaultDocTypes.push(
-              `Authorized Signatory Passport${shareholderLabel}`,
-              `Authorized Signatory Emirates ID${shareholderLabel}`,
-              `Bank Statement${shareholderLabel}`
-            );
+            lead_source: data.lead_source,
+            amount: data.amount,
+            preferred_bank: data.bank_preference_1?.trim() || null,
+            preferred_bank_2: data.bank_preference_2?.trim() || null,
+            preferred_bank_3: data.bank_preference_3?.trim() || null,
+            annual_turnover: data.annual_turnover,
+            jurisdiction: data.jurisdiction ? sanitizeInput(data.jurisdiction.trim()) : null,
+            customer_notes: data.customer_notes ? sanitizeInput(data.customer_notes.trim()) : null,
+            nationality: data.nationality ? sanitizeInput(data.nationality.trim()) : null,
+            proposed_activity: data.proposed_activity ? sanitizeInput(data.proposed_activity.trim()) : null,
+            mainland_or_freezone: data.mainland_or_freezone,
+            number_of_shareholders: data.no_of_shareholders,
+            signatory_type: data.signatory_type,
+            business_activity_details: data.business_activity_details ? sanitizeInput(data.business_activity_details.trim()) : null,
+            minimum_balance_range: data.minimum_balance_range,
+            product_id: data.product_id,
+            user_id: user.id,
+            // Bookkeeping-specific fields
+            ...(data.company_incorporation_date && { company_incorporation_date: data.company_incorporation_date }),
+            ...(data.number_of_entries_per_month && { number_of_entries_per_month: data.number_of_entries_per_month }),
+            ...(data.vat_corporate_tax_status && { vat_corporate_tax_status: data.vat_corporate_tax_status }),
+            ...(data.wps_transfer_required !== undefined && { wps_transfer_required: data.wps_transfer_required }),
+            ...(data.accounting_software && { accounting_software: data.accounting_software }),
+            ...(data.monthly_transactions && { monthly_transactions: data.monthly_transactions }),
+            ...(data.vat_registered !== undefined && { vat_registered: data.vat_registered }),
+            ...(data.bank_accounts_count && { bank_accounts_count: data.bank_accounts_count }),
+            ...(data.employees_count !== undefined && { employees_count: data.employees_count }),
+            ...(data.service_start_date && { service_start_date: data.service_start_date }),
+            ...(data.has_previous_records !== undefined && { has_previous_records: data.has_previous_records }),
+            ...(data.reporting_frequency && { reporting_frequency: data.reporting_frequency }),
+            // Corporate tax filing fields
+            ...(data.tax_year_period && { tax_year_period: data.tax_year_period }),
+            ...(data.first_time_filing !== undefined && { first_time_filing: data.first_time_filing }),
+            ...(data.tax_registration_number && { tax_registration_number: data.tax_registration_number }),
+            ...(data.financial_year_end_date && { financial_year_end_date: data.financial_year_end_date }),
+            ...(data.has_foreign_operations !== undefined && { has_foreign_operations: data.has_foreign_operations }),
+            ...(data.tax_exemptions && { tax_exemptions: data.tax_exemptions }),
+            ...(data.previous_tax_consultant && { previous_tax_consultant: data.previous_tax_consultant }),
+            ...(data.filing_deadline && { filing_deadline: data.filing_deadline }),
+            // FTA Portal credentials (encrypted)
+            ...(data.fta_portal_email && { fta_portal_email: data.fta_portal_email }),
+            ...(encryptedFTAPassword && { fta_portal_password_encrypted: encryptedFTAPassword }),
+            ...(ftaPasswordIV && { fta_portal_password_iv: ftaPasswordIV }),
+            // AML/MLRO fields
+            ...(data.mlro_name && { mlro_name: sanitizeInput(data.mlro_name) }),
+            ...(data.mlro_email && { mlro_email: data.mlro_email }),
+            ...(data.mlro_phone && { mlro_phone: sanitizeInput(data.mlro_phone) }),
+            ...(data.aml_policy_required !== undefined && { aml_policy_required: data.aml_policy_required }),
+            // Customer Identification fields
+            ...(data.customer_full_legal_name && { customer_full_legal_name: sanitizeInput(data.customer_full_legal_name) }),
+            ...(data.customer_date_of_birth && { customer_date_of_birth: data.customer_date_of_birth }),
+            ...(data.customer_nationality && { customer_nationality: sanitizeInput(data.customer_nationality) }),
+            ...(data.customer_national_id && { customer_national_id: sanitizeInput(data.customer_national_id) }),
+            ...(data.customer_passport_number && { customer_passport_number: sanitizeInput(data.customer_passport_number) }),
+            ...(data.customer_id_expiry_date && { customer_id_expiry_date: data.customer_id_expiry_date }),
+            ...(data.customer_residential_address && { customer_residential_address: sanitizeInput(data.customer_residential_address) }),
+            ...(data.customer_contact_phone && { customer_contact_phone: sanitizeInput(data.customer_contact_phone) }),
+            ...(data.customer_contact_email && { customer_contact_email: data.customer_contact_email }),
+            // Business/Company Information fields
+            ...(data.business_company_name && { business_company_name: sanitizeInput(data.business_company_name) }),
+            ...(data.business_registration_number && { business_registration_number: sanitizeInput(data.business_registration_number) }),
+            ...(data.business_trade_license_number && { business_trade_license_number: sanitizeInput(data.business_trade_license_number) }),
+            ...(data.business_trade_license_expiry && { business_trade_license_expiry: data.business_trade_license_expiry }),
+            ...(data.business_activity_sector && { business_activity_sector: sanitizeInput(data.business_activity_sector) }),
+            ...(data.business_company_address && { business_company_address: sanitizeInput(data.business_company_address) }),
+            ...(data.business_authorized_signatories && { business_authorized_signatories: sanitizeInput(data.business_authorized_signatories) }),
+            ...(data.business_beneficial_ownership && { business_beneficial_ownership: sanitizeInput(data.business_beneficial_ownership) }),
+            ...(data.business_ubo_information && { business_ubo_information: sanitizeInput(data.business_ubo_information) }),
+            // Financial Profile fields
+            ...(data.financial_source_of_funds && { financial_source_of_funds: sanitizeInput(data.financial_source_of_funds) }),
+            ...(data.financial_source_of_wealth && { financial_source_of_wealth: sanitizeInput(data.financial_source_of_wealth) }),
+            ...(data.financial_expected_monthly_volume && { financial_expected_monthly_volume: sanitizeInput(data.financial_expected_monthly_volume) }),
+            ...(data.financial_expected_annual_volume && { financial_expected_annual_volume: sanitizeInput(data.financial_expected_annual_volume) }),
+            ...(data.financial_account_purpose && { financial_account_purpose: sanitizeInput(data.financial_account_purpose) }),
+            ...(data.financial_anticipated_activity && { financial_anticipated_activity: sanitizeInput(data.financial_anticipated_activity) }),
+            ...(data.financial_employment_status && { financial_employment_status: data.financial_employment_status }),
+            ...(data.financial_employer_details && { financial_employer_details: sanitizeInput(data.financial_employer_details) }),
+            ...(data.financial_annual_income && { financial_annual_income: sanitizeInput(data.financial_annual_income) }),
+            ...(data.financial_annual_turnover && { financial_annual_turnover: sanitizeInput(data.financial_annual_turnover) }),
+            // Risk Assessment fields
+            ...(data.risk_pep_status && { risk_pep_status: data.risk_pep_status }),
+            ...(data.risk_pep_details && { risk_pep_details: sanitizeInput(data.risk_pep_details) }),
+            ...(data.risk_sanctions_screening && { risk_sanctions_screening: sanitizeInput(data.risk_sanctions_screening) }),
+            ...(data.risk_adverse_media && { risk_adverse_media: sanitizeInput(data.risk_adverse_media) }),
+            ...(data.risk_country_risk && { risk_country_risk: sanitizeInput(data.risk_country_risk) }),
+            ...(data.risk_business_relationship_purpose && { risk_business_relationship_purpose: sanitizeInput(data.risk_business_relationship_purpose) }),
           }
+        }])
+        .select()
+        .single();
 
-          // Add Freezone-specific documents
-          if (data.license_type === 'Freezone') {
-            defaultDocTypes.push(
-              'Freezone License Copy',
-              'Lease Agreement (Freezone)',
-              'No Objection Certificate'
-            );
-          }
-
-          const documentsToInsert = defaultDocTypes.map(docType => ({
-            application_id: application.id,
-            document_type: docType,
-            is_uploaded: false,
-            file_path: null
-          }));
-
-          const { error: docsError } = await supabase
-            .from('application_documents')
-            .insert(documentsToInsert)
-            .select();
-
-          if (docsError) {
-            console.error('Error creating application documents:', docsError);
-            errors.push('Document templates could not be created');
-          }
-        } catch (docErr) {
-          console.error('Step 3 error:', docErr);
-          errors.push('Document setup failed');
-        }
-
-      } catch (step2Error) {
-        console.error('Step 2 error:', step2Error);
-        toast({
-          title: 'Application Details Error',
-          description: errors.join(', '),
-          variant: 'destructive',
-        });
+      if (appError) {
+        console.error('Application creation error:', appError);
+        throw appError;
       }
 
-      // ============================================================
-      // FINAL RESULT NOTIFICATION
-      // ============================================================
-      
+      // Step 3: Create default application documents
+      const defaultDocTypes = [
+        'Passport Copy',
+        'Emirates ID Copy',
+        'Trade License Copy',
+        'Memorandum of Association (MOA)',
+        'Bank Statements (Last 6 months)',
+        'Company Profile',
+        'Audited Financial Statements',
+        'Business Plan',
+        'Proof of Address'
+      ];
+
+      // Add shareholder documents
+      for (let i = 1; i <= data.no_of_shareholders; i++) {
+        const shareholderLabel = data.no_of_shareholders > 1 ? ` (Shareholder ${i})` : '';
+        defaultDocTypes.push(
+          `Authorized Signatory Passport${shareholderLabel}`,
+          `Authorized Signatory Emirates ID${shareholderLabel}`,
+          `Bank Statement${shareholderLabel}`
+        );
+      }
+
+      // Add Freezone-specific documents
+      if (data.license_type === 'Freezone') {
+        defaultDocTypes.push(
+          'Freezone License Copy',
+          'Lease Agreement (Freezone)',
+          'No Objection Certificate'
+        );
+      }
+
+      const documentsToInsert = defaultDocTypes.map(docType => ({
+        application_id: application.id,
+        document_type: docType,
+        is_uploaded: false,
+        file_path: null
+      }));
+
+      const { data: appDocs, error: docsError } = await supabase
+        .from('application_documents')
+        .insert(documentsToInsert)
+        .select();
+
+      if (docsError) {
+        console.error('Error creating application documents:', docsError);
+        // Don't fail the whole process if documents fail
+      }
+
+      // Note: appDocs are application_documents, not customer documents
+      // Store application ID for later reference
+      setCreatedCustomerId(application.id); // Store application ID for document upload
+
       PerformanceMonitor.endTiming('application-create');
+      
+      FeatureAnalytics.trackUserAction('application_create_success', {
+        application_id: application.id,
+        customer_id: customerId,
+        license_type: data.license_type,
+        lead_source: data.lead_source
+      }, user.id);
 
-      if (step1Success && step2Success) {
-        // Full success
-        toast({
-          title: 'Application Created ✓',
-          description: `Application for ${data.company} has been successfully created.`,
-        });
+      toast({
+        title: 'Application Created',
+        description: `Application for ${data.company} has been successfully created.`,
+      });
 
-        setShowSuccessTransition(true);
-        setTimeout(() => {
-          setShowSuccessTransition(false);
-          setCurrentStage('documents');
-        }, 2000);
-
-        if (onSuccess) {
-          onSuccess();
-        }
-      } else if (step1Success && !step2Success) {
-        // Partial success
-        toast({
-          title: 'Customer Saved - Application Incomplete',
-          description: `Customer details saved. However, application details could not be saved. ${errors.join(', ')}`,
-          variant: 'default',
-        });
-
-        if (onSuccess) {
-          onSuccess();
-        }
+      // Show success transition animation
+      setShowSuccessTransition(true);
+      
+      // Wait for animation then move to documents stage
+      setTimeout(() => {
+        setShowSuccessTransition(false);
+        setCurrentStage('documents');
+      }, 2000);
+      
+      // Trigger refresh in parent
+      if (onSuccess) {
+        onSuccess();
       }
 
     } catch (error) {
-      console.error('Critical error during form submission:', error);
+      console.error('Unexpected error:', error);
       ErrorTracker.captureError(error as Error, {
         userId: user.id,
         userRole: user.profile?.role,
-        page: 'application_create',
-        step1Success,
-        step2Success
+        page: 'application_create'
       });
 
       FeatureAnalytics.trackUserAction('application_create_failed', {
-        error: 'Critical error',
-        step1Success,
-        step2Success
+        error: 'Unexpected error'
       }, user.id);
 
-      if (step1Success) {
-        toast({
-          title: 'Customer Saved',
-          description: 'Customer details were saved, but there was an unexpected error with the application details.',
-          variant: 'default',
-        });
-      } else {
-        toast({
-          title: 'Error',
-          description: 'Failed to save customer details. Please try again.',
-          variant: 'destructive',
-        });
-      }
+      toast({
+        title: 'Error',
+        description: 'Failed to create application. Please try again.',
+        variant: 'destructive',
+      });
     } finally {
       setIsSubmitting(false);
     }
-  }, [user, toast, customerMode, selectedCustomerId, onSuccess]);
+  }, [user, toast, validateForm, customerMode, selectedCustomerId]);
 
   const handleDocumentUpload = useCallback(async (documentId: string, filePath: string) => {
     if (!createdCustomerId) return;
@@ -2040,7 +1951,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </Card>
       
       {/* Customer Selection Card - Sticky */}
-      <div ref={customerSelectionCardRef} className="sticky z-40 -mt-0.5" style={{ top: `${stageHeight}px` }}>
+      <div ref={customerSelectionCardRef} className="sticky z-40 -mt-px" style={{ top: `${stageHeight}px` }}>
         <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm rounded-t-none rounded-b-none border-t-0 mb-0">
         {/* Customer Mode Selection */}
         <div className="grid grid-cols-2 w-full border-b border-border">
@@ -2114,7 +2025,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </div>
       
       {/* Mode and Layout Selectors - Sticky */}
-      <Card ref={modeLayoutRef} className="sticky z-40 -mt-0.5 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm rounded-none border-t-0 mb-0" style={{ top: `${stageHeight + selectionHeight}px` }}>
+      <Card ref={modeLayoutRef} className="sticky z-40 -mt-px border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm rounded-none border-t-0 mb-0" style={{ top: `${stageHeight + selectionHeight}px` }}>
         <div className="px-3 py-1.5 bg-muted/30">
           <div className="flex items-center gap-4">
             {/* Expert/Simple Toggle */}
@@ -2229,7 +2140,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           )}
         </div>}
 
-        <CardContent className="space-y-1 pb-3 pt-0">
+        <CardContent className="space-y-1 pb-3 pt-2">
         {/* Customer Selection Content - Not Sticky */}
         <div className="space-y-1 relative z-0">
 
@@ -3018,8 +2929,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         /* Concept/Accordion Mode */
                         <Accordion type="multiple" value={accordionValue} onValueChange={(value) => {
                         setAccordionValue(value);
-                        // Control service selection visibility based on whether 'service' card is expanded
-                        setServiceSelectionExpanded(value.includes('service'));
+                        if (value.includes('service')) {
+                          setServiceSelectionExpanded(true);
+                        }
                       }} className="space-y-1">
                       {/* Basic Information */}
                       <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
@@ -3557,33 +3469,62 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-1">
               {formMode === 'concept' ? (
               <Accordion type="multiple" value={accordionValue} onValueChange={(value) => {
-                setAccordionValue(value);
+                // Auto-collapse previous inner card in the same step
+                const step1Cards = ['basic', 'lead'];
+                const step2Cards = ['service', 'application'];
+                
+                // Find newly opened cards
+                const newlyOpened = value.filter(v => !accordionValue.includes(v));
+                
+                // If a card was newly opened, close other cards in the same step
+                let filteredValue = value;
+                if (newlyOpened.length > 0) {
+                  const newCard = newlyOpened[0];
+                  
+                  if (step1Cards.includes(newCard)) {
+                    // Close other Step 1 cards
+                    filteredValue = value.filter(v => !step1Cards.includes(v) || v === newCard);
+                    
+                    // Expand Step 1 outer card, collapse Step 2 outer card
+                    setStep1Collapsed(false);
+                    setStep2Collapsed(true);
+                  } else if (step2Cards.includes(newCard)) {
+                    // Close other Step 2 cards
+                    filteredValue = value.filter(v => !step2Cards.includes(v) || v === newCard);
+                    
+                    // Collapse Step 1 outer card, expand Step 2 outer card
+                    setStep1Collapsed(true);
+                    setStep2Collapsed(false);
+                  }
+                }
+                
+                setAccordionValue(filteredValue);
                 
                 // Determine the most recently expanded item (last in array)
-                const lastExpanded = value[value.length - 1];
+                const lastExpanded = filteredValue[filteredValue.length - 1];
                 
                 // Check if Step 1 data is validated (basic info complete)
                 const isStep1Validated = isBasicInfoComplete && isSourceChannelComplete;
                 
                 // Update progress step and active subcard based on expanded items
                 // Only allow progress to Step 2 if Step 1 is validated
-                if (value.includes('service')) {
-                  setServiceSelectionExpanded(value.includes('service'));
+                if (filteredValue.includes('service')) {
+                  setServiceSelectionExpanded(true);
                   // Only transition to step 2 if step 1 is validated
                   if (isStep1Validated) {
                     setProgressStep(2);
                   }
                   setActiveSubcard('Application Details / Service Selection');
-                } else if (value.includes('application')) {
+                } else if (filteredValue.includes('application')) {
                   // Only transition to step 2 if step 1 is validated
                   if (isStep1Validated) {
                     setProgressStep(2);
                   }
                   setActiveSubcard('Application Details / Deal Information');
-                } else if (value.includes('lead')) {
+                } else if (filteredValue.includes('lead')) {
                   setProgressStep(1);
                   setActiveSubcard('Customer Details / Source & Channel');
-                } else if (value.includes('basic')) {
+                } else if (filteredValue.includes('basic')) {
                   setProgressStep(1);
                   setActiveSubcard('Customer Details / Basic Information');
                 } else if (lastExpanded === 'basic') {
