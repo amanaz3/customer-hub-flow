@@ -17,7 +17,6 @@ import {
   LazyApplicationsList,
   LazyCustomersList,
   LazyCustomerNew,
-  LazyApplicationNew,
   LazyCustomerDetail,
   LazyApplicationDetail,
   LazySecureUserManagement,
@@ -133,7 +132,7 @@ function App() {
                     <ProtectedRoute>
                       <MainLayout>
                         <PageErrorBoundary pageName="New Application">
-                          <LazyApplicationNew />
+                          <LazyCustomerNew />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>

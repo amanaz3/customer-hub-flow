@@ -8,7 +8,6 @@ const CustomerList = React.lazy(() => import('@/pages/CustomerList'));
 const ApplicationsList = React.lazy(() => import('@/pages/ApplicationsList'));
 const CustomersList = React.lazy(() => import('@/pages/CustomersList'));
 const CustomerNew = React.lazy(() => import('@/pages/CustomerNew'));
-const ApplicationNew = React.lazy(() => import('@/pages/ApplicationNew'));
 const CustomerDetail = React.lazy(() => import('@/pages/CustomerDetail'));
 const ApplicationDetail = React.lazy(() => import('@/pages/ApplicationDetail'));
 const SecureUserManagement = React.lazy(() => import('@/pages/SecureUserManagement'));
@@ -72,7 +71,6 @@ export const LazyCustomerList = withLazyLoading(CustomerList, "Loading customer 
 export const LazyApplicationsList = withLazyLoading(ApplicationsList, "Loading applications...");
 export const LazyCustomersList = withLazyLoading(CustomersList, "Loading customers...");
 export const LazyCustomerNew = withLazyLoading(CustomerNew, "Loading customer form...");
-export const LazyApplicationNew = withLazyLoading(ApplicationNew, "Loading application form...");
 export const LazyCustomerDetail = withLazyLoading(CustomerDetail, "Loading customer details...");
 export const LazyApplicationDetail = withLazyLoading(ApplicationDetail, "Loading application details...");
 export const LazySecureUserManagement = withLazyLoading(SecureUserManagement, "Loading user management...");
