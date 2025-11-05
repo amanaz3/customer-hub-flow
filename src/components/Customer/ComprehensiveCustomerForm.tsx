@@ -1824,7 +1824,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 aria-selected={false}
               >
                 <Building2 className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">New Customer</span>
+                <span className="hidden sm:inline">Create New Customer</span>
                 <span className="sm:hidden">New</span>
               </button>
             </>
@@ -1841,7 +1841,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 aria-selected={true}
               >
                 <Building2 className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">New Customer</span>
+                <span className="hidden sm:inline">Create New Customer</span>
                 <span className="sm:hidden">New</span>
               </button>
               
