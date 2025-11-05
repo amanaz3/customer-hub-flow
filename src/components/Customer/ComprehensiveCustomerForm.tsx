@@ -798,25 +798,18 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     setSectionsWithErrors(errorSections);
   }, [form.formState.errors]);
 
-  // Auto-expand Step 2 Application Details and Service Selection when Step 1 is validated
-  useEffect(() => {
-    const isStep1Validated = isBasicInfoComplete && isSourceChannelComplete;
-    
-    if (isStep1Validated) {
-      // Automatically collapse Step 1 Customer Details outer card
-      setStep1Collapsed(true);
-      
-      // Automatically expand Step 2 Application Details outer card
-      setStep2Collapsed(false);
-      
-      // Automatically expand Service Selection inner accordion if not already expanded
-      if (!accordionValue.includes('service')) {
-        setAccordionValue(prev => [...prev, 'service']);
-      }
-      
-      // Progress step will transition automatically via the accordion onValueChange handler
-    }
-  }, [isBasicInfoComplete, isSourceChannelComplete, accordionValue]);
+  // Disabled: Auto-expand logic removed - cards now only respond to manual user clicks
+  // useEffect(() => {
+  //   const isStep1Validated = isBasicInfoComplete && isSourceChannelComplete;
+  //   
+  //   if (isStep1Validated) {
+  //     setStep1Collapsed(true);
+  //     setStep2Collapsed(false);
+  //     if (!accordionValue.includes('service')) {
+  //       setAccordionValue(prev => [...prev, 'service']);
+  //     }
+  //   }
+  // }, [isBasicInfoComplete, isSourceChannelComplete, accordionValue]);
 
   // Auto-collapse Service Selection card when a product is selected (validated)
   useEffect(() => {
