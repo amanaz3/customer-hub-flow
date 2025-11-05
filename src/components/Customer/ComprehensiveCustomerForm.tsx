@@ -270,6 +270,37 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [progressStep, setProgressStep] = useState<1 | 2 | 3>(1);
   const [activeSubcard, setActiveSubcard] = useState<string>('Customer Details / Basic Information');
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  
+  // Generate label for all expanded cards
+  const getExpandedCardsLabel = () => {
+    if (hoveredCard) return hoveredCard;
+    
+    const cardNameMap: Record<string, string> = {
+      'basic': 'Basic Information',
+      'lead': 'Source & Channel',
+      'service': 'Service Selection',
+      'application': 'Deal Information',
+    };
+    
+    const expandedNames = accordionValue
+      .map(val => cardNameMap[val])
+      .filter(Boolean);
+    
+    if (expandedNames.length === 0) {
+      return activeSubcard;
+    } else if (expandedNames.length === 1) {
+      const singleCard = expandedNames[0];
+      // Determine which step this belongs to
+      if (singleCard === 'Basic Information' || singleCard === 'Source & Channel') {
+        return `Customer Details / ${singleCard}`;
+      } else {
+        return `Application Details / ${singleCard}`;
+      }
+    } else {
+      // Multiple cards expanded - show them all
+      return expandedNames.join(' • ');
+    }
+  };
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
   const modeLayoutRef = useRef<HTMLDivElement | null>(null);
@@ -1594,12 +1625,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         <CardContent className="relative pt-2 px-3 pb-1">
           {/* Active Section Indicator with Transition */}
           <div className="flex items-center justify-center mb-2">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 animate-fade-in">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
-              <span className="text-xs font-semibold text-primary transition-all duration-300">
-                {hoveredCard || activeSubcard}
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 animate-fade-in max-w-full">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse flex-shrink-0" />
+              <span className="text-xs font-semibold text-primary transition-all duration-300 truncate">
+                {getExpandedCardsLabel()}
               </span>
-              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse flex-shrink-0" />
             </div>
           </div>
           
