@@ -1,22 +1,26 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Building2, Mail, Phone, FileText, MessageSquare, Users } from 'lucide-react';
+import { ArrowLeft, Building2, Mail, Phone, FileText, MessageSquare, Users, RefreshCw } from 'lucide-react';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { ApplicationService } from '@/services/applicationService';
+import { supabase } from '@/integrations/supabase/client';
 import type { Application } from '@/types/application';
 
 const ApplicationDetail = () => {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, isAdmin } = useAuth();
   const { toast } = useToast();
   const [application, setApplication] = useState<Application | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedStatus, setSelectedStatus] = useState<string>('');
+  const [updatingStatus, setUpdatingStatus] = useState(false);
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -26,6 +30,7 @@ const ApplicationDetail = () => {
         setLoading(true);
         const data = await ApplicationService.fetchApplicationById(id);
         setApplication(data);
+        setSelectedStatus(data?.status || '');
       } catch (error) {
         console.error('Error fetching application:', error);
         toast({
@@ -40,6 +45,38 @@ const ApplicationDetail = () => {
 
     fetchApplication();
   }, [id, toast]);
+
+  const handleStatusUpdate = async () => {
+    if (!id || !selectedStatus || !user) return;
+
+    try {
+      setUpdatingStatus(true);
+      await ApplicationService.updateApplicationStatus(
+        id,
+        selectedStatus,
+        `Status updated by ${user.email}`,
+        user.id
+      );
+
+      // Refresh application data
+      const updatedApp = await ApplicationService.fetchApplicationById(id);
+      setApplication(updatedApp);
+
+      toast({
+        title: 'Success',
+        description: `Status updated to ${selectedStatus}`,
+      });
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update status',
+        variant: 'destructive',
+      });
+    } finally {
+      setUpdatingStatus(false);
+    }
+  };
 
   if (loading) {
     return <div className="p-8 text-center">Loading...</div>;
@@ -57,13 +94,33 @@ const ApplicationDetail = () => {
   }
 
   const statusColors: Record<string, string> = {
-    draft: 'bg-gray-500',
-    submitted: 'bg-blue-500',
-    under_review: 'bg-yellow-500',
-    approved: 'bg-green-500',
-    rejected: 'bg-red-500',
-    completed: 'bg-purple-500',
+    draft: 'bg-yellow-400 text-black',
+    submitted: 'bg-blue-500 text-white',
+    'under review': 'bg-orange-500 text-white',
+    'under_review': 'bg-orange-500 text-white',
+    approved: 'bg-green-500 text-white',
+    rejected: 'bg-red-500 text-white',
+    completed: 'bg-purple-500 text-white',
+    paid: 'bg-green-600 text-white',
+    'need more info': 'bg-amber-500 text-white',
+    'need_more_info': 'bg-amber-500 text-white',
   };
+
+  const getStatusColor = (status: string) => {
+    const normalizedStatus = status?.toLowerCase() || '';
+    return statusColors[normalizedStatus] || 'bg-gray-500 text-white';
+  };
+
+  const availableStatuses = [
+    { value: 'Draft', label: 'Draft' },
+    { value: 'Submitted', label: 'Submitted' },
+    { value: 'Under Review', label: 'Under Review' },
+    { value: 'Need More Info', label: 'Need More Info' },
+    { value: 'Approved', label: 'Approved' },
+    { value: 'Rejected', label: 'Rejected' },
+    { value: 'Paid', label: 'Paid' },
+    { value: 'Completed', label: 'Completed' },
+  ];
 
   return (
     <div className="space-y-6 p-6">
@@ -80,10 +137,60 @@ const ApplicationDetail = () => {
             </p>
           </div>
         </div>
-        <Badge className={statusColors[application.status] || 'bg-gray-500'}>
-          {application.status.replace('_', ' ').toUpperCase()}
+        <Badge className={getStatusColor(application.status)}>
+          {application.status?.replace(/_/g, ' ').toUpperCase()}
         </Badge>
       </div>
+
+      {/* Status Update Card - Admin Only */}
+      {isAdmin && (
+        <Card className="border-2 border-primary/20">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <RefreshCw className="h-5 w-5" />
+              Update Status
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+              <div className="flex-1 w-full">
+                <label className="text-sm font-medium mb-2 block">Select New Status</label>
+                <Select value={selectedStatus} onValueChange={setSelectedStatus}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Choose status..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {availableStatuses.map((status) => (
+                      <SelectItem key={status.value} value={status.value}>
+                        {status.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button 
+                onClick={handleStatusUpdate} 
+                disabled={updatingStatus || selectedStatus === application.status}
+                className="whitespace-nowrap"
+              >
+                {updatingStatus ? (
+                  <>
+                    <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                    Updating...
+                  </>
+                ) : (
+                  'Update Status'
+                )}
+              </Button>
+            </div>
+            {selectedStatus !== application.status && selectedStatus && (
+              <p className="text-sm text-muted-foreground mt-2">
+                Status will change from <strong>{application.status}</strong> to <strong>{selectedStatus}</strong>
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Customer Info Card */}
       {application.customer && (
