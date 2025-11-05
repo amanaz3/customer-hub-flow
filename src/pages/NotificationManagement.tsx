@@ -192,7 +192,7 @@ export default function NotificationManagement() {
                         checked={pref.is_enabled}
                         onCheckedChange={() => handleToggle(pref.status_type, pref.is_enabled)}
                         disabled={updating === pref.status_type}
-                        className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted"
+                        className="data-[state=checked]:bg-primary data-[state=unchecked]:bg-muted-foreground/30 border-2 border-border"
                       />
                     </div>
                   </div>
