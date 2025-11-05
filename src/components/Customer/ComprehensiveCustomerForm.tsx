@@ -796,6 +796,23 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     setSectionsWithErrors(errorSections);
   }, [form.formState.errors]);
 
+  // Auto-expand Step 2 Application Details and Service Selection when Step 1 is validated
+  useEffect(() => {
+    const isStep1Validated = isBasicInfoComplete && isSourceChannelComplete;
+    
+    if (isStep1Validated) {
+      // Automatically expand Step 2 Application Details outer card
+      setStep2Collapsed(false);
+      
+      // Automatically expand Service Selection inner accordion if not already expanded
+      if (!accordionValue.includes('service')) {
+        setAccordionValue(prev => [...prev, 'service']);
+      }
+      
+      // Progress step will transition automatically via the accordion onValueChange handler
+    }
+  }, [isBasicInfoComplete, isSourceChannelComplete, accordionValue]);
+
   // Auto-select Business Bank Account as default product when form loads
   useEffect(() => {
     console.log('Default product selection check:', {
