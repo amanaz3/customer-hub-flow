@@ -302,6 +302,28 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   };
 
+  // Get the last expanded card for a specific step
+  const getStepLastExpandedCard = (step: 1 | 2) => {
+    const cardNameMap: Record<string, string> = {
+      'basic': 'Basic Information',
+      'lead': 'Source & Channel',
+      'service': 'Service Selection',
+      'application': 'Deal Information',
+    };
+    
+    const step1Cards = ['basic', 'lead'];
+    const step2Cards = ['service', 'application'];
+    
+    const relevantCards = accordionValue
+      .filter(val => step === 1 ? step1Cards.includes(val) : step2Cards.includes(val));
+    
+    if (relevantCards.length === 0) return null;
+    
+    // Return the last expanded card for this step
+    const lastCard = relevantCards[relevantCards.length - 1];
+    return cardNameMap[lastCard] || null;
+  };
+
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
   const modeLayoutRef = useRef<HTMLDivElement | null>(null);
@@ -1677,7 +1699,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     ? "text-foreground" 
                     : "text-muted-foreground"
                 )}>
-                  Customer Details
+                  Customer Details{getStepLastExpandedCard(1) ? ` / ${getStepLastExpandedCard(1)}` : ''}
                 </div>
               </div>
             </div>
@@ -1748,7 +1770,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     ? "text-foreground" 
                     : "text-muted-foreground/50"
                 )}>
-                  Application Details
+                  Application Details{getStepLastExpandedCard(2) ? ` / ${getStepLastExpandedCard(2)}` : ''}
                 </div>
               </div>
             </div>
