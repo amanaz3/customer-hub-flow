@@ -3025,9 +3025,8 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         /* Concept/Accordion Mode */
                         <Accordion type="multiple" value={accordionValue} onValueChange={(value) => {
                         setAccordionValue(value);
-                        if (value.includes('service')) {
-                          setServiceSelectionExpanded(true);
-                        }
+                        // Control service selection visibility based on whether 'service' card is expanded
+                        setServiceSelectionExpanded(value.includes('service'));
                       }} className="space-y-1">
                       {/* Basic Information */}
                       <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
@@ -3576,7 +3575,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 // Update progress step and active subcard based on expanded items
                 // Only allow progress to Step 2 if Step 1 is validated
                 if (value.includes('service')) {
-                  setServiceSelectionExpanded(true);
+                  setServiceSelectionExpanded(value.includes('service'));
                   // Only transition to step 2 if step 1 is validated
                   if (isStep1Validated) {
                     setProgressStep(2);
