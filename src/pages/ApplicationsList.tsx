@@ -138,10 +138,19 @@ const ApplicationsList = () => {
   const statusColors: Record<string, string> = {
     draft: 'bg-yellow-400',
     submitted: 'bg-blue-500',
-    under_review: 'bg-orange-500',
+    'under review': 'bg-orange-500',
+    'under_review': 'bg-orange-500',
     approved: 'bg-green-500',
     rejected: 'bg-red-500',
     completed: 'bg-purple-500',
+    paid: 'bg-green-600',
+    'need more info': 'bg-amber-500',
+    'need_more_info': 'bg-amber-500',
+  };
+
+  const getStatusColor = (status: string) => {
+    const normalizedStatus = status?.toLowerCase() || '';
+    return statusColors[normalizedStatus] || 'bg-gray-500';
   };
 
   if (loading) {
@@ -301,14 +310,14 @@ const ApplicationsList = () => {
                         </TableCell>
                         <TableCell className="px-3 py-3">
                           <Badge 
-                            variant={app.status === 'draft' ? 'default' : 'secondary'} 
-                            className={`${statusColors[app.status] || 'bg-gray-500'} ${
-                              app.status === 'draft' 
+                            variant={app.status?.toLowerCase() === 'draft' ? 'default' : 'secondary'} 
+                            className={`${getStatusColor(app.status)} ${
+                              app.status?.toLowerCase() === 'draft' 
                                 ? 'bg-yellow-400 text-black dark:text-black ring-1 ring-yellow-600' 
                                 : 'text-white border-0'
                             } text-xs px-3 py-1 font-bold uppercase tracking-wide shadow-sm`}
                           >
-                            {app.status?.replace('_', ' ') || 'UNKNOWN'}
+                            {app.status?.replace(/_/g, ' ') || 'UNKNOWN'}
                           </Badge>
                         </TableCell>
                         <TableCell className="px-3 py-3 text-sm font-bold text-right">
