@@ -272,6 +272,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [progressStep, setProgressStep] = useState<1 | 2 | 3 | 4>(1);
   const [activeSubcard, setActiveSubcard] = useState<string>('Customer Details / Basic Information');
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
+  const [isStep1Valid, setIsStep1Valid] = useState(false);
+
+  // Watch Step 1 fields for validation
+  const watchStep1Fields = form.watch(['name', 'email', 'mobile', 'company', 'lead_source']);
+  
+  // Check if Step 1 is valid
+  useEffect(() => {
+    const [name, email, mobile, company, leadSource] = watchStep1Fields;
+    const isValid = !!(name && email && mobile && company && leadSource);
+    setIsStep1Valid(isValid);
+  }, [watchStep1Fields]);
   
   // Generate label for all expanded cards
   const getExpandedCardsLabel = () => {
