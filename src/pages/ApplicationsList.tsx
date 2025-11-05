@@ -149,14 +149,14 @@ const ApplicationsList = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 pb-6">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <div>
-          <h1 className="text-3xl font-bold">
+          <h1 className="text-2xl font-bold">
             {isAdmin ? 'All Applications' : 'My Applications'}
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-sm text-muted-foreground mt-0.5">
             {isAdmin 
               ? 'Manage all customer applications and view analytics' 
               : 'View and manage your applications'
@@ -197,17 +197,17 @@ const ApplicationsList = () => {
         </TabsList>
 
         {/* Applications Tab */}
-        <TabsContent value="applications" className="space-y-4 mt-6">
+        <TabsContent value="applications" className="space-y-3 mt-4">
           {/* Search and Filters */}
-          <div className="flex flex-col md:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 bg-card rounded-lg p-3 border">
             <Input
               placeholder="Search by company, contact, or type..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="md:max-w-sm"
+              className="flex-1"
             />
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="md:w-[180px]">
+              <SelectTrigger className="sm:w-[180px]">
                 <SelectValue placeholder="Filter by status" />
               </SelectTrigger>
               <SelectContent>
@@ -222,71 +222,117 @@ const ApplicationsList = () => {
             </Select>
           </div>
 
-          {/* Applications Table */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5" />
-                Applications List
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          {/* Compact Applications Table with Scroll */}
+          <div className="border rounded-lg bg-card overflow-hidden">
+            {/* Table Header - Sticky */}
+            <div className="bg-muted/50 border-b px-3 py-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <FileText className="h-4 w-4" />
+                Applications ({filteredApplications.length})
+              </div>
+            </div>
+            
+            {/* Scrollable Table Container */}
+            <div className="overflow-x-auto">
               <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Product/Service</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Contact</TableHead>
-                    <TableHead>Status</TableHead>
-                    <TableHead>Amount</TableHead>
-                    <TableHead>Created</TableHead>
-                    <TableHead>Actions</TableHead>
+                <TableHeader className="sticky top-0 bg-muted/30 backdrop-blur-sm z-10">
+                  <TableRow className="hover:bg-transparent border-b">
+                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Product/Service</TableHead>
+                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Type</TableHead>
+                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Company</TableHead>
+                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Contact</TableHead>
+                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Email</TableHead>
+                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Mobile</TableHead>
+                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Status</TableHead>
+                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold text-right">Amount</TableHead>
+                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Created</TableHead>
+                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold">Updated</TableHead>
+                    <TableHead className="h-9 px-3 py-2 text-xs font-semibold text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredApplications.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                        No applications found
+                      <TableCell colSpan={11} className="text-center py-12 text-muted-foreground">
+                        <FileText className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                        <p className="font-medium">No applications found</p>
+                        <p className="text-xs mt-1">Try adjusting your filters</p>
                       </TableCell>
                     </TableRow>
                   ) : (
                     filteredApplications.map((app) => (
-                      <TableRow key={app.id}>
-                        <TableCell className="font-medium">
-                          {app.product?.name || 'N/A'}
+                      <TableRow 
+                        key={app.id}
+                        className="hover:bg-muted/50 cursor-pointer transition-colors"
+                        onClick={() => navigate(`/applications/${app.id}`)}
+                      >
+                        <TableCell className="px-3 py-2 font-medium text-sm">
+                          <div className="flex items-center gap-1.5 min-w-[150px]">
+                            <div className="h-1.5 w-1.5 rounded-full bg-primary flex-shrink-0" />
+                            <span className="truncate">{app.product?.name || 'N/A'}</span>
+                          </div>
                         </TableCell>
-                        <TableCell>
-                          {app.application_type?.replace('_', ' ').toUpperCase() || 'N/A'}
+                        <TableCell className="px-3 py-2 text-xs">
+                          <span className="px-2 py-1 rounded-md bg-muted font-medium">
+                            {app.application_type?.replace('_', ' ').toUpperCase() || 'N/A'}
+                          </span>
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="px-3 py-2 text-sm">
                           <Button
                             variant="link"
-                            className="p-0 h-auto"
-                            onClick={() => navigate(`/customers/${app.customer?.id}`)}
+                            className="p-0 h-auto text-sm font-medium hover:underline"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/customers/${app.customer?.id}`);
+                            }}
                           >
-                            <Building2 className="h-4 w-4 mr-1" />
-                            {app.customer?.company || 'N/A'}
+                            <Building2 className="h-3.5 w-3.5 mr-1" />
+                            <span className="max-w-[200px] truncate">{app.customer?.company || 'N/A'}</span>
                           </Button>
                         </TableCell>
-                        <TableCell>{app.customer?.name || 'N/A'}</TableCell>
-                        <TableCell>
-                          <Badge className={statusColors[app.status] || 'bg-gray-500'}>
+                        <TableCell className="px-3 py-2 text-sm">
+                          <span className="max-w-[150px] truncate block">{app.customer?.name || 'N/A'}</span>
+                        </TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-muted-foreground">
+                          <span className="max-w-[180px] truncate block">{app.customer?.email || 'N/A'}</span>
+                        </TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-muted-foreground">
+                          {app.customer?.mobile || 'N/A'}
+                        </TableCell>
+                        <TableCell className="px-3 py-2">
+                          <Badge 
+                            variant="secondary" 
+                            className={`${statusColors[app.status] || 'bg-gray-500'} text-white text-[10px] px-2 py-0.5 font-medium`}
+                          >
                             {app.status?.replace('_', ' ').toUpperCase() || 'UNKNOWN'}
                           </Badge>
                         </TableCell>
-                        <TableCell>
-                          ${app.application_data?.amount?.toLocaleString() || '0'}
+                        <TableCell className="px-3 py-2 text-sm font-semibold text-right">
+                          <span className="text-primary">${app.application_data?.amount?.toLocaleString() || '0'}</span>
                         </TableCell>
-                        <TableCell>
-                          {new Date(app.created_at).toLocaleDateString()}
+                        <TableCell className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">
+                          {new Date(app.created_at).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })}
                         </TableCell>
-                        <TableCell>
+                        <TableCell className="px-3 py-2 text-xs text-muted-foreground whitespace-nowrap">
+                          {new Date(app.updated_at).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })}
+                        </TableCell>
+                        <TableCell className="px-3 py-2 text-right">
                           <Button
-                            variant="outline"
+                            variant="ghost"
                             size="sm"
-                            onClick={() => navigate(`/applications/${app.id}`)}
+                            className="h-7 px-2 text-xs"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/applications/${app.id}`);
+                            }}
                           >
                             View
                           </Button>
@@ -296,8 +342,8 @@ const ApplicationsList = () => {
                   )}
                 </TableBody>
               </Table>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
 
         {/* Analytics Tab */}
