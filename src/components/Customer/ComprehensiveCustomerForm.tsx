@@ -257,7 +257,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [existingCustomers, setExistingCustomers] = useState<any[]>([]);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string>('');
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
-  const [accordionValue, setAccordionValue] = useState<string[]>(['basic']);
+  const [accordionValue, setAccordionValue] = useState<string[]>([]);
   const [highlightDealInfo, setHighlightDealInfo] = useState(false);
   const [serviceSelectionExpanded, setServiceSelectionExpanded] = useState(false);
   const [sectionsWithErrors, setSectionsWithErrors] = useState<Set<string>>(new Set());
@@ -266,7 +266,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [showFTAPassword, setShowFTAPassword] = useState(false);
   const hasUserInteractedWithCategory = useRef(false);
   const [step1Collapsed, setStep1Collapsed] = useState(false);
-  const [step2Collapsed, setStep2Collapsed] = useState(true);
+  const [step2Collapsed, setStep2Collapsed] = useState(false);
   const [progressStep, setProgressStep] = useState<1 | 2 | 3>(1);
   const [activeSubcard, setActiveSubcard] = useState<string>('Customer Details / Basic Information');
   const [hoveredCard, setHoveredCard] = useState<string | null>(null);
@@ -815,6 +815,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       // Progress step will transition automatically via the accordion onValueChange handler
     }
   }, [isBasicInfoComplete, isSourceChannelComplete, accordionValue]);
+
+  // Auto-collapse Service Selection card when a product is selected (validated)
+  useEffect(() => {
+    if (isServiceSelectionComplete && accordionValue.includes('service') && customerMode === 'new') {
+      console.log('Service selection validated - collapsing service card');
+      
+      // Remove 'service' from accordionValue to collapse it
+      setAccordionValue(prev => prev.filter(v => v !== 'service'));
+    }
+  }, [isServiceSelectionComplete, accordionValue, customerMode]);
 
   // Auto-select Business Bank Account as default product when form loads
   useEffect(() => {
@@ -3400,9 +3410,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   if (step1Cards.includes(newCard)) {
                     // Close other Step 1 cards
                     filteredValue = value.filter(v => !step1Cards.includes(v) || v === newCard);
+                    
+                    // Expand Step 1 outer card, collapse Step 2 outer card
+                    setStep1Collapsed(false);
+                    setStep2Collapsed(true);
                   } else if (step2Cards.includes(newCard)) {
                     // Close other Step 2 cards
                     filteredValue = value.filter(v => !step2Cards.includes(v) || v === newCard);
+                    
+                    // Collapse Step 1 outer card, expand Step 2 outer card
+                    setStep1Collapsed(true);
+                    setStep2Collapsed(false);
                   }
                 }
                 
