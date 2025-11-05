@@ -116,68 +116,82 @@ export default function NotificationManagement() {
   }
 
   return (
-    <div className="container mx-auto py-8 px-4 max-w-4xl">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-2">Notification Management</h1>
-        <p className="text-muted-foreground">
-          Configure which application status changes trigger notifications for admins and users.
+    <div className="container mx-auto py-6 px-4 max-w-5xl">
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2">Notification Settings</h1>
+        <p className="text-sm text-muted-foreground">
+          Configure email notifications for application status changes
         </p>
       </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Application Status Notifications</CardTitle>
-          <CardDescription>
-            Enable or disable notifications for specific status changes. When enabled, both admins
-            and the user who submitted the application will receive notifications.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-6">
-          {preferences.map((pref) => (
-            <div
-              key={pref.id}
-              className="flex items-start justify-between space-x-4 py-6 px-4 rounded-lg hover:bg-accent/50 transition-colors border-b last:border-0"
-            >
-              <div className="space-y-1 flex-1">
-                <Label
-                  htmlFor={pref.status_type}
-                  className="text-lg font-semibold cursor-pointer"
+      <div className="grid gap-4">
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg">Status Change Notifications</CardTitle>
+            <CardDescription className="text-xs">
+              Toggle notifications for each status. Admins and submitters will be notified when enabled.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid gap-2">
+              {preferences.map((pref) => (
+                <div
+                  key={pref.id}
+                  className="group flex items-center justify-between gap-4 py-3 px-4 rounded-md border bg-card hover:bg-accent/50 transition-colors"
                 >
-                  {STATUS_LABELS[pref.status_type]?.label || pref.status_type}
-                </Label>
-                <p className="text-sm text-muted-foreground">
-                  {STATUS_LABELS[pref.status_type]?.description ||
-                    `Notify when status changes to ${pref.status_type}`}
-                </p>
-              </div>
-              <div className="flex items-center gap-4">
-                {updating === pref.status_type && (
-                  <Loader2 className="h-5 w-5 animate-spin text-primary" />
-                )}
-                <div className="flex flex-col items-center gap-2">
-                  <Switch
-                    id={pref.status_type}
-                    checked={pref.is_enabled}
-                    onCheckedChange={() => handleToggle(pref.status_type, pref.is_enabled)}
-                    disabled={updating === pref.status_type}
-                    className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500 scale-125"
-                  />
-                  <span className={`text-xs font-bold ${pref.is_enabled ? 'text-green-600' : 'text-red-600'}`}>
-                    {pref.is_enabled ? 'ON' : 'OFF'}
-                  </span>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-3">
+                      <Label
+                        htmlFor={pref.status_type}
+                        className="font-semibold cursor-pointer"
+                      >
+                        {STATUS_LABELS[pref.status_type]?.label || pref.status_type}
+                      </Label>
+                      {updating === pref.status_type && (
+                        <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                      )}
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-0.5">
+                      {STATUS_LABELS[pref.status_type]?.description ||
+                        `Notify when status changes to ${pref.status_type}`}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`text-xs font-medium min-w-[2.5rem] text-right ${
+                      pref.is_enabled ? 'text-primary' : 'text-muted-foreground'
+                    }`}>
+                      {pref.is_enabled ? 'ON' : 'OFF'}
+                    </span>
+                    <Switch
+                      id={pref.status_type}
+                      checked={pref.is_enabled}
+                      onCheckedChange={() => handleToggle(pref.status_type, pref.is_enabled)}
+                      disabled={updating === pref.status_type}
+                    />
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
-          ))}
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
 
-      <div className="mt-6 p-4 bg-muted rounded-lg">
-        <h3 className="font-medium mb-2">Who receives notifications?</h3>
-        <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-          <li>All active admins (except the one making the change)</li>
-          <li>The user who submitted the application (if different from the admin making the change)</li>
-        </ul>
+        <Card className="bg-muted/50">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium">Notification Recipients</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="text-sm text-muted-foreground space-y-1.5">
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>All active admins (except the one making the change)</span>
+              </li>
+              <li className="flex items-start gap-2">
+                <span className="text-primary mt-0.5">•</span>
+                <span>The user who submitted the application (if different from admin)</span>
+              </li>
+            </ul>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
