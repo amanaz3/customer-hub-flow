@@ -1669,88 +1669,22 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               </div>
             </div>
             
-            {/* Stage 2 */}
-            <div className="flex flex-col items-center gap-1 flex-1 group cursor-pointer transition-transform hover:scale-105">
-              <div className={cn(
-                "flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-500 relative",
-                currentStage === 'preview' 
-                  ? "bg-gradient-to-br from-blue-500 via-sky-500 to-blue-600 text-white shadow-lg shadow-blue-500/50 scale-110 -rotate-6" 
-                  : currentStage === 'documents'
-                  ? "bg-gradient-to-br from-blue-400 via-sky-400 to-blue-500 text-white shadow-md shadow-blue-400/40 ring-1 ring-blue-300/50 ring-offset-1 ring-offset-background"
-                  : "bg-gradient-to-br from-gray-100 via-muted to-gray-200 dark:from-gray-800 dark:via-muted dark:to-gray-900 text-gray-400 dark:text-gray-600"
-              )}>
-                <div className={cn(
-                  "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
-                  currentStage === 'preview' && "opacity-70 bg-blue-500 animate-pulse"
-                )} />
-                <svg className="w-4 h-4 relative z-10" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                </svg>
-              </div>
-              <div className="text-center space-y-0">
-                <div className={cn(
-                  "text-[10px] font-extrabold tracking-wide",
-                  currentStage === 'preview' 
-                    ? "text-blue-600 dark:text-blue-400" 
-                    : currentStage === 'documents'
-                    ? "text-foreground"
-                    : "text-muted-foreground"
-                )}>
-                  Step 2
-                </div>
-                <div className={cn(
-                  "text-[10px] font-semibold",
-                  currentStage === 'preview' || currentStage === 'documents'
-                    ? "text-foreground" 
-                    : "text-muted-foreground"
-                )}>
-                  Preview
-                </div>
-              </div>
-            </div>
-
-            {/* Connecting Line 2 with Enhanced Gradient */}
-            <div className="flex-1 relative px-1" style={{ maxWidth: '60px' }}>
-              <div className="relative h-1.5 flex items-center">
-                <div className={cn(
-                  "h-1.5 rounded-full transition-all duration-700 flex-1 relative overflow-hidden",
-                  createdCustomerId 
-                    ? "bg-gradient-to-r from-blue-400 via-purple-400 to-purple-500 shadow-sm shadow-purple-500/30" 
-                    : "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
-                )}>
-                  {createdCustomerId && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
-                  )}
-                </div>
-                <div className={cn(
-                  "absolute -right-2 w-8 h-8 rounded-full transition-all duration-500 flex items-center justify-center backdrop-blur-sm",
-                  createdCustomerId
-                    ? "bg-gradient-to-br from-purple-500 to-purple-700 shadow-lg shadow-purple-500/70 ring-2 ring-purple-400/50 ring-offset-1 ring-offset-background" 
-                    : "bg-gray-400 dark:bg-gray-600 shadow-md"
-                )}>
-                  {/* Chevron Arrow - Always white for maximum contrast */}
-                  <div className="w-4 h-4 border-r-[2px] border-t-[2px] border-white rotate-45 transition-all duration-300" />
-                </div>
-              </div>
-            </div>
-            
-            {/* Stage 3 */}
+            {/* Stage 2 - Documents */}
             <div className="flex flex-col items-center gap-1 flex-1 group cursor-pointer transition-transform hover:scale-105">
               <div 
                 className={cn(
                   "flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-500 relative",
                   currentStage === 'documents' && createdCustomerId
-                    ? "bg-gradient-to-br from-purple-500 via-violet-500 to-purple-600 text-white shadow-lg shadow-purple-500/50 scale-110 rotate-6" 
+                    ? "bg-gradient-to-br from-blue-500 via-sky-500 to-blue-600 text-white shadow-lg shadow-blue-500/50 scale-110 -rotate-6" 
                     : createdCustomerId 
-                    ? "bg-gradient-to-br from-gray-50 via-muted to-gray-100 dark:from-gray-800 dark:via-muted dark:to-gray-700 text-purple-600 dark:text-purple-400 border-2 border-purple-500/40 hover:border-purple-500 cursor-pointer hover:scale-110 hover:shadow-lg hover:shadow-purple-500/30 ring-1 ring-purple-300/30 ring-offset-1 ring-offset-background"
+                    ? "bg-gradient-to-br from-gray-50 via-muted to-gray-100 dark:from-gray-800 dark:via-muted dark:to-gray-700 text-blue-600 dark:text-blue-400 border-2 border-blue-500/40 hover:border-blue-500 cursor-pointer hover:scale-110 hover:shadow-lg hover:shadow-blue-500/30 ring-1 ring-blue-300/30 ring-offset-1 ring-offset-background"
                     : "bg-gradient-to-br from-gray-100 via-muted to-gray-200 dark:from-gray-800 dark:via-muted dark:to-gray-900 text-gray-400 dark:text-gray-600 opacity-50"
                 )}
                 onClick={() => createdCustomerId && setCurrentStage('documents')}
               >
                 <div className={cn(
                   "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
-                  currentStage === 'documents' && createdCustomerId && "opacity-70 bg-purple-500 animate-pulse"
+                  currentStage === 'documents' && createdCustomerId && "opacity-70 bg-blue-500 animate-pulse"
                 )} />
                 <Building2 className="w-4 h-4 relative z-10" />
                 {createdCustomerId && documents.length > 0 && (
@@ -1763,12 +1697,12 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 <div className={cn(
                   "text-[10px] font-extrabold tracking-wide",
                   currentStage === 'documents' && createdCustomerId
-                    ? "text-purple-600 dark:text-purple-400" 
+                    ? "text-blue-600 dark:text-blue-400" 
                     : createdCustomerId
                     ? "text-foreground"
                     : "text-muted-foreground"
                 )}>
-                  Step 3
+                  Step 2
                 </div>
                 <div className={cn(
                   "text-[10px] font-semibold",
@@ -1779,6 +1713,77 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     : "text-muted-foreground/50"
                 )}>
                   Docs
+                </div>
+              </div>
+            </div>
+
+            {/* Connecting Line 2 with Enhanced Gradient */}
+            <div className="flex-1 relative px-1" style={{ maxWidth: '60px' }}>
+              <div className="relative h-1.5 flex items-center">
+                <div className={cn(
+                  "h-1.5 rounded-full transition-all duration-700 flex-1 relative overflow-hidden",
+                  currentStage === 'preview'
+                    ? "bg-gradient-to-r from-blue-400 via-purple-400 to-purple-500 shadow-sm shadow-purple-500/30" 
+                    : "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
+                )}>
+                  {currentStage === 'preview' && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
+                  )}
+                </div>
+                <div className={cn(
+                  "absolute -right-2 w-8 h-8 rounded-full transition-all duration-500 flex items-center justify-center backdrop-blur-sm",
+                  currentStage === 'preview'
+                    ? "bg-gradient-to-br from-purple-500 to-purple-700 shadow-lg shadow-purple-500/70 ring-2 ring-purple-400/50 ring-offset-1 ring-offset-background" 
+                    : "bg-gray-400 dark:bg-gray-600 shadow-md"
+                )}>
+                  {/* Chevron Arrow - Always white for maximum contrast */}
+                  <div className="w-4 h-4 border-r-[2px] border-t-[2px] border-white rotate-45 transition-all duration-300" />
+                </div>
+              </div>
+            </div>
+            
+            {/* Stage 3 - Preview */}
+            <div className="flex flex-col items-center gap-1 flex-1 group cursor-pointer transition-transform hover:scale-105">
+              <div 
+                className={cn(
+                  "flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-500 relative",
+                  currentStage === 'preview'
+                    ? "bg-gradient-to-br from-purple-500 via-violet-500 to-purple-600 text-white shadow-lg shadow-purple-500/50 scale-110 rotate-6" 
+                    : currentStage === 'documents'
+                    ? "bg-gradient-to-br from-gray-50 via-muted to-gray-100 dark:from-gray-800 dark:via-muted dark:to-gray-700 text-purple-600 dark:text-purple-400 border-2 border-purple-500/40 hover:border-purple-500 cursor-pointer hover:scale-110 hover:shadow-lg hover:shadow-purple-500/30 ring-1 ring-purple-300/30 ring-offset-1 ring-offset-background"
+                    : "bg-gradient-to-br from-gray-100 via-muted to-gray-200 dark:from-gray-800 dark:via-muted dark:to-gray-900 text-gray-400 dark:text-gray-600 opacity-50"
+                )}
+                onClick={() => currentStage === 'documents' && setCurrentStage('preview')}
+              >
+                <div className={cn(
+                  "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
+                  currentStage === 'preview' && "opacity-70 bg-purple-500 animate-pulse"
+                )} />
+                <svg className="w-4 h-4 relative z-10" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </div>
+              <div className="text-center space-y-0">
+                <div className={cn(
+                  "text-[10px] font-extrabold tracking-wide",
+                  currentStage === 'preview'
+                    ? "text-purple-600 dark:text-purple-400" 
+                    : currentStage === 'documents'
+                    ? "text-foreground"
+                    : "text-muted-foreground"
+                )}>
+                  Step 3
+                </div>
+                <div className={cn(
+                  "text-[10px] font-semibold",
+                  currentStage === 'preview'
+                    ? "text-foreground" 
+                    : currentStage === 'documents'
+                    ? "text-muted-foreground"
+                    : "text-muted-foreground/50"
+                )}>
+                  Preview
                 </div>
               </div>
             </div>
