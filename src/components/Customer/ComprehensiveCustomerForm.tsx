@@ -1639,7 +1639,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     ? "text-foreground" 
                     : "text-muted-foreground"
                 )}>
-                  Create or Select
+                  Create or Select Customer
                 </div>
               </div>
             </div>
