@@ -816,16 +816,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   }, [isBasicInfoComplete, isSourceChannelComplete, accordionValue]);
 
-  // Auto-collapse Service Selection card when a product is selected (validated)
-  useEffect(() => {
-    if (isServiceSelectionComplete && accordionValue.includes('service') && customerMode === 'new') {
-      console.log('Service selection validated - collapsing service card');
-      
-      // Remove 'service' from accordionValue to collapse it
-      setAccordionValue(prev => prev.filter(v => v !== 'service'));
-    }
-  }, [isServiceSelectionComplete, accordionValue, customerMode]);
-
   // Auto-select Business Bank Account as default product when form loads
   useEffect(() => {
     console.log('Default product selection check:', {
@@ -3410,17 +3400,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   if (step1Cards.includes(newCard)) {
                     // Close other Step 1 cards
                     filteredValue = value.filter(v => !step1Cards.includes(v) || v === newCard);
-                    
-                    // Expand Step 1 outer card, collapse Step 2 outer card
-                    setStep1Collapsed(false);
-                    setStep2Collapsed(true);
                   } else if (step2Cards.includes(newCard)) {
                     // Close other Step 2 cards
                     filteredValue = value.filter(v => !step2Cards.includes(v) || v === newCard);
-                    
-                    // Collapse Step 1 outer card, expand Step 2 outer card
-                    setStep1Collapsed(true);
-                    setStep2Collapsed(false);
                   }
                 }
                 
