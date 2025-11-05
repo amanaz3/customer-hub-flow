@@ -182,8 +182,8 @@ export default function NotificationManagement() {
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={`text-xs font-semibold min-w-[2.5rem] text-right transition-colors duration-300 ${
-                        pref.is_enabled ? 'text-primary' : 'text-muted-foreground'
+                      <span className={`text-xs font-semibold min-w-[2.5rem] text-right transition-colors ${
+                        pref.is_enabled ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'
                       }`}>
                         {pref.is_enabled ? 'ON' : 'OFF'}
                       </span>
@@ -192,7 +192,7 @@ export default function NotificationManagement() {
                         checked={pref.is_enabled}
                         onCheckedChange={() => handleToggle(pref.status_type, pref.is_enabled)}
                         disabled={updating === pref.status_type}
-                        className="scale-110"
+                        className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
                       />
                     </div>
                   </div>
