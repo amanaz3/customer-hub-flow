@@ -3469,62 +3469,33 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <form onSubmit={form.handleSubmit(handleSubmit)} className="space-y-1">
               {formMode === 'concept' ? (
               <Accordion type="multiple" value={accordionValue} onValueChange={(value) => {
-                // Auto-collapse previous inner card in the same step
-                const step1Cards = ['basic', 'lead'];
-                const step2Cards = ['service', 'application'];
-                
-                // Find newly opened cards
-                const newlyOpened = value.filter(v => !accordionValue.includes(v));
-                
-                // If a card was newly opened, close other cards in the same step
-                let filteredValue = value;
-                if (newlyOpened.length > 0) {
-                  const newCard = newlyOpened[0];
-                  
-                  if (step1Cards.includes(newCard)) {
-                    // Close other Step 1 cards
-                    filteredValue = value.filter(v => !step1Cards.includes(v) || v === newCard);
-                    
-                    // Expand Step 1 outer card, collapse Step 2 outer card
-                    setStep1Collapsed(false);
-                    setStep2Collapsed(true);
-                  } else if (step2Cards.includes(newCard)) {
-                    // Close other Step 2 cards
-                    filteredValue = value.filter(v => !step2Cards.includes(v) || v === newCard);
-                    
-                    // Collapse Step 1 outer card, expand Step 2 outer card
-                    setStep1Collapsed(true);
-                    setStep2Collapsed(false);
-                  }
-                }
-                
-                setAccordionValue(filteredValue);
+                setAccordionValue(value);
                 
                 // Determine the most recently expanded item (last in array)
-                const lastExpanded = filteredValue[filteredValue.length - 1];
+                const lastExpanded = value[value.length - 1];
                 
                 // Check if Step 1 data is validated (basic info complete)
                 const isStep1Validated = isBasicInfoComplete && isSourceChannelComplete;
                 
                 // Update progress step and active subcard based on expanded items
                 // Only allow progress to Step 2 if Step 1 is validated
-                if (filteredValue.includes('service')) {
+                if (value.includes('service')) {
                   setServiceSelectionExpanded(true);
                   // Only transition to step 2 if step 1 is validated
                   if (isStep1Validated) {
                     setProgressStep(2);
                   }
                   setActiveSubcard('Application Details / Service Selection');
-                } else if (filteredValue.includes('application')) {
+                } else if (value.includes('application')) {
                   // Only transition to step 2 if step 1 is validated
                   if (isStep1Validated) {
                     setProgressStep(2);
                   }
                   setActiveSubcard('Application Details / Deal Information');
-                } else if (filteredValue.includes('lead')) {
+                } else if (value.includes('lead')) {
                   setProgressStep(1);
                   setActiveSubcard('Customer Details / Source & Channel');
-                } else if (filteredValue.includes('basic')) {
+                } else if (value.includes('basic')) {
                   setProgressStep(1);
                   setActiveSubcard('Customer Details / Basic Information');
                 } else if (lastExpanded === 'basic') {
