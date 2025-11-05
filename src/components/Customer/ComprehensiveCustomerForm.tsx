@@ -1712,7 +1712,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     ? "text-muted-foreground"
                     : "text-muted-foreground/50"
                 )}>
-                  Docs
+                  Customer Details
                 </div>
               </div>
             </div>
