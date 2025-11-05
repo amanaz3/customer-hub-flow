@@ -27,6 +27,10 @@ interface ApplicationWithCustomer {
     company: string;
     email: string;
     mobile: string;
+    product?: {
+      id: string;
+      name: string;
+    };
   };
 }
 
@@ -55,7 +59,11 @@ const ApplicationsList = () => {
             name,
             company,
             email,
-            mobile
+            mobile,
+            product:products!product_id (
+              id,
+              name
+            )
           )
         `)
         .order('created_at', { ascending: false });
@@ -193,7 +201,8 @@ const ApplicationsList = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Application Type</TableHead>
+                    <TableHead>Product/Service</TableHead>
+                    <TableHead>Type</TableHead>
                     <TableHead>Company</TableHead>
                     <TableHead>Contact</TableHead>
                     <TableHead>Status</TableHead>
@@ -205,7 +214,7 @@ const ApplicationsList = () => {
                 <TableBody>
                   {filteredApplications.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                         No applications found
                       </TableCell>
                     </TableRow>
@@ -213,6 +222,9 @@ const ApplicationsList = () => {
                     filteredApplications.map((app) => (
                       <TableRow key={app.id}>
                         <TableCell className="font-medium">
+                          {app.customer?.product?.name || 'N/A'}
+                        </TableCell>
+                        <TableCell>
                           {app.application_type?.replace('_', ' ').toUpperCase() || 'N/A'}
                         </TableCell>
                         <TableCell>
