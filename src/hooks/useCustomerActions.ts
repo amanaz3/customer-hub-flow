@@ -133,14 +133,14 @@ export const useCustomerActions = (
     }
   };
 
-  const updateCustomerStatus = async (customerId: string, status: string, comment: string, changedBy: string, role: string) => {
+  const updateApplicationStatus = async (applicationId: string, status: string, comment: string, changedBy: string, role: string) => {
     try {
-      console.log('Updating customer status:', { customerId, status, comment, changedBy, role });
+      console.log('Updating application status:', { applicationId, status, comment, changedBy, role });
       
-      // Use the edge function to properly track status history
-      const { data, error } = await supabase.functions.invoke('update-customer-status', {
+      // Use the edge function to properly track status changes
+      const { data, error } = await supabase.functions.invoke('update-application-status', {
         body: {
-          customerId,
+          applicationId,
           newStatus: status,
           comment,
           changedBy,
@@ -149,70 +149,47 @@ export const useCustomerActions = (
       });
 
       if (error) {
-        console.error('Error from update-customer-status function:', error);
-        throw new Error(error.message || 'Failed to update customer status');
+        console.error('Error from update-application-status function:', error);
+        throw new Error(error.message || 'Failed to update application status');
       }
 
       console.log('Status update response:', data);
 
-      // Update local state with the updated customer data
-      if (data.customer) {
-        setCustomers(customers.map(customer => 
-          customer.id === customerId 
-            ? { ...customer, status: data.customer.status, updated_at: data.customer.updated_at }
-            : customer
-        ));
-      }
-
-      // Refresh data to get latest status history
+      // Refresh data to get latest status
       await refreshData();
       
-      console.log('Customer status updated successfully and persisted to database');
+      console.log('Application status updated successfully and persisted to database');
     } catch (error) {
-      console.error('Error updating customer status:', error);
+      console.error('Error updating application status:', error);
       throw error;
     }
   };
 
-  const submitToAdmin = async (customerId: string, userId: string, userName: string) => {
-    const customer = customers.find(c => c.id === customerId);
-    if (!customer) {
-      throw new Error('Customer not found');
-    }
-
-    const previousStatus = customer.status;
-    
+  const submitApplicationToAdmin = async (applicationId: string, userId: string) => {
     try {
-      console.log('Submitting application to admin:', { customerId, userId, userName });
+      console.log('Submitting application to admin:', { applicationId, userId });
       
-      // Persist status change to database first
-      await CustomerService.updateCustomerStatus(customerId, 'Submitted', 'Application submitted to admin for review', userId, 'user');
+      // Update application status to 'submitted'
+      const { data, error } = await supabase.functions.invoke('update-application-status', {
+        body: {
+          applicationId,
+          newStatus: 'submitted',
+          comment: 'Application submitted to admin for review',
+          changedBy: userId,
+          changedByRole: 'user'
+        }
+      });
 
-      // Only update UI after successful database operation
-      setCustomers(
-        customers.map(customer => 
-          customer.id === customerId 
-            ? { ...customer, status: 'Submitted', updated_at: new Date().toISOString() }
-            : customer
-        )
-      );
+      if (error) {
+        throw new Error(error.message || 'Failed to submit application');
+      }
 
-      // Refresh data to ensure consistency across all users and get updated status history
+      // Refresh data to ensure consistency
       await refreshData();
 
       console.log('Application submitted to admin successfully, status changed to Submitted and persisted to database');
     } catch (error) {
       console.error('Error submitting to admin:', error);
-      
-      // Revert to previous status if database update fails
-      setCustomers(
-        customers.map(customer => 
-          customer.id === customerId 
-            ? { ...customer, status: previousStatus }
-            : customer
-        )
-      );
-      
       throw error;
     }
   };
@@ -330,8 +307,8 @@ export const useCustomerActions = (
     getCustomerById,
     getCustomersByUserId,
     uploadDocument,
-    updateCustomerStatus,
-    submitToAdmin,
+    updateApplicationStatus,
+    submitApplicationToAdmin,
     deleteDocument,
     replaceDocument
   };

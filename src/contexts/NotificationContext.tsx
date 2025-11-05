@@ -206,18 +206,24 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     console.log('Setting up real-time subscriptions for notifications...');
 
-    // Status changes subscription
-    const statusChangesSubscription = supabase
-      .channel('status_changes_notifications')
+    // Status changes subscription - now monitoring account_applications
+    const applicationStatusSubscription = supabase
+      .channel('application_status_notifications')
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: 'UPDATE',
           schema: 'public',
-          table: 'status_changes'
+          table: 'account_applications'
         },
         async (payload) => {
-          console.log('Status change detected:', payload);
+          console.log('Application status change detected:', payload);
+          
+          const oldStatus = payload.old?.status;
+          const newStatus = payload.new.status;
+          
+          // Only notify if status actually changed
+          if (oldStatus === newStatus) return;
           
           // Get customer info for notification
           const { data: customer } = await supabase
@@ -232,15 +238,14 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
           const isRelevant = isAdmin || customer.user_id === user.id;
           
           if (isRelevant) {
-            const statusChange = payload.new;
             addNotification({
-              title: `Status Updated: ${customer.name}`,
-              message: `${customer.company} status changed from ${statusChange.previous_status} to ${statusChange.new_status}`,
-              type: statusChange.new_status === 'Complete' ? 'success' : 
-                    statusChange.new_status === 'Rejected' ? 'error' : 'info',
+              title: `Application Status Updated: ${customer.name}`,
+              message: `${customer.company} application status changed from ${oldStatus} to ${newStatus}`,
+              type: newStatus === 'completed' ? 'success' : 
+                    newStatus === 'rejected' ? 'error' : 'info',
               customerName: customer.name,
               customerId: payload.new.customer_id,
-              actionUrl: `/customers/${payload.new.customer_id}`,
+              actionUrl: `/applications/${payload.new.id}`,
             });
           }
         }
@@ -386,7 +391,7 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
     // Cleanup function
     return () => {
       console.log('Cleaning up notification subscriptions...');
-      supabase.removeChannel(statusChangesSubscription);
+      supabase.removeChannel(applicationStatusSubscription);
       supabase.removeChannel(commentsSubscription);
       supabase.removeChannel(documentsSubscription);
       supabase.removeChannel(notificationsSubscription);

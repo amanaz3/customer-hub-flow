@@ -11,12 +11,12 @@ import { CustomerService } from '@/services/customerService';
 export const useStatusManager = () => {
   const [isUpdating, setIsUpdating] = useState(false);
   const { user, isAdmin } = useAuth();
-  const { updateCustomerStatus, refreshData } = useCustomer();
+  const { updateApplicationStatus, refreshData } = useCustomer();
   const { addNotification } = useNotifications();
   const { toast } = useToast();
 
   const updateStatus = async (
-    customerId: string, 
+    applicationId: string, 
     customerName: string,
     customerUserId: string,
     currentStatus: Status,
@@ -60,7 +60,7 @@ export const useStatusManager = () => {
       const changedByRole = isAdmin ? 'admin' : 'user';
       
       console.log('Updating status with full logging:', { 
-        customerId, 
+        applicationId, 
         currentStatus, 
         newStatus, 
         comment,
@@ -72,18 +72,9 @@ export const useStatusManager = () => {
       // Ensure comment is provided for admin actions if required
       const finalComment = comment || (isAdmin ? `Status updated by admin: ${changedByName}` : '');
       
-      // Update status in database through CustomerService to ensure persistence
-      await CustomerService.updateCustomerStatus(
-        customerId,
-        newStatus,
-        finalComment,
-        user.id, // Use user ID instead of name for RLS policies
-        changedByRole
-      );
-
-      // Update local state through context
-      await updateCustomerStatus(
-        customerId,
+      // Update application status
+      await updateApplicationStatus(
+        applicationId,
         newStatus,
         finalComment,
         user.id,
@@ -94,11 +85,11 @@ export const useStatusManager = () => {
       addNotification({
         title: 'Status Updated',
         message: `${customerName} status changed from ${currentStatus} to ${newStatus}${isAdmin ? ' by admin' : ''}`,
-        type: newStatus === 'Complete' ? 'success' : 
-              newStatus === 'Rejected' ? 'error' : 'info',
+        type: newStatus === 'Complete' || newStatus === 'completed' ? 'success' : 
+              newStatus === 'Rejected' || newStatus === 'rejected' ? 'error' : 'info',
         customerName: customerName,
-        customerId: customerId,
-        actionUrl: `/customers/${customerId}`,
+        customerId: applicationId,
+        actionUrl: `/applications/${applicationId}`,
       });
 
       // Show success toast

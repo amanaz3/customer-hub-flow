@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { supabase } from '@/lib/supabase';
 import CategorizedDocumentUpload from '@/components/Customer/CategorizedDocumentUpload';
 import CustomDocumentUpload from '@/components/Customer/CustomDocumentUpload';
 import CustomerStatusCard from '@/components/Customer/CustomerStatusCard';
@@ -28,8 +29,8 @@ const CustomerDetail = () => {
     getCustomerById, 
     updateCustomer, 
     uploadDocument, 
-    updateCustomerStatus,
-    submitToAdmin,
+    updateApplicationStatus,
+    submitApplicationToAdmin,
     refreshData
   } = useCustomer();
   
@@ -135,11 +136,11 @@ const CustomerDetail = () => {
     uploadDocument(customer.id, documentId, filePath);
   };
 
-  const handleStatusChange = (status: Status, commentText: string) => {
-    if (!customer || !user) return;
+  const handleStatusChange = (status: Status, commentText: string, applicationId?: string) => {
+    if (!customer || !user || !applicationId) return;
     
-    updateCustomerStatus(
-      customer.id, 
+    updateApplicationStatus(
+      applicationId, 
       status, 
       commentText, 
       user.id, 
@@ -156,15 +157,42 @@ const CustomerDetail = () => {
     }
   };
 
-  const handleSubmitApplication = () => {
+  const handleSubmitApplication = async () => {
     if (!customer || !user) return;
     
-    submitToAdmin(customer.id, user.id, user.profile?.name || user.email || 'Unknown User');
-    
-    toast({
-      title: "Application Submitted",
-      description: "Application submitted successfully and status changed to Submitted",
-    });
+    try {
+      // Find the customer's active application
+      const { data: applications, error } = await supabase
+        .from('account_applications')
+        .select('id')
+        .eq('customer_id', customer.id)
+        .eq('status', 'draft')
+        .limit(1);
+      
+      if (error) throw error;
+      
+      if (!applications || applications.length === 0) {
+        toast({
+          title: "No Application Found",
+          description: "No draft application found for this customer",
+          variant: "destructive",
+        });
+        return;
+      }
+      
+      await submitApplicationToAdmin(applications[0].id, user.id);
+      
+      toast({
+        title: "Application Submitted",
+        description: "Application submitted successfully and status changed to Submitted",
+      });
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to submit application",
+        variant: "destructive",
+      });
+    }
   };
 
   const mandatoryDocumentsUploaded = customer.documents
