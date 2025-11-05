@@ -240,33 +240,46 @@ export class ApplicationService {
   }
 
   /**
-   * Update application status
+   * Update application status (calls edge function to trigger notifications)
    */
   static async updateApplicationStatus(
     applicationId: string,
     status: string,
     comment?: string,
-    userId?: string
+    userId?: string,
+    userRole: 'admin' | 'manager' | 'user' = 'user'
   ): Promise<void> {
-    // Update application status
-    const { error: updateError } = await supabase
-      .from('account_applications')
-      .update({ 
-        status,
-        updated_at: new Date().toISOString() 
-      })
-      .eq('id', applicationId);
-
-    if (updateError) throw updateError;
-
-    // Add status change message if comment provided
-    if (comment && userId) {
-      await this.addApplicationMessage(
-        applicationId,
-        `Status changed to ${status}: ${comment}`,
-        userId,
-        'admin'
-      );
+    // Call the edge function to update status and create notifications
+    const { data: { session } } = await supabase.auth.getSession();
+    
+    if (!session) {
+      throw new Error('No active session');
     }
+
+    const response = await fetch(
+      `https://gddibkhyhcnejxthsyzu.supabase.co/functions/v1/update-application-status`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({
+          applicationId,
+          newStatus: status,
+          comment: comment || '',
+          changedBy: userId,
+          changedByRole: userRole,
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const error = await response.json();
+      throw new Error(error.error || 'Failed to update application status');
+    }
+
+    const result = await response.json();
+    console.log('Application status updated via edge function:', result);
   }
 }

@@ -55,7 +55,8 @@ const ApplicationDetail = () => {
         id,
         selectedStatus,
         `Status updated by ${user.email}`,
-        user.id
+        user.id,
+        isAdmin ? 'admin' : 'user'
       );
 
       // Refresh application data
@@ -64,7 +65,7 @@ const ApplicationDetail = () => {
 
       toast({
         title: 'Success',
-        description: `Status updated to ${selectedStatus}`,
+        description: `Status updated to ${selectedStatus}. Notifications sent to relevant users.`,
       });
     } catch (error) {
       console.error('Error updating status:', error);
