@@ -2040,7 +2040,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </Card>
       
       {/* Customer Selection Card - Sticky */}
-      <div ref={customerSelectionCardRef} className="sticky z-40 -mt-px" style={{ top: `${stageHeight}px` }}>
+      <div ref={customerSelectionCardRef} className="sticky z-40 -mt-0.5" style={{ top: `${stageHeight}px` }}>
         <Card className="w-full overflow-hidden relative z-10 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm rounded-t-none rounded-b-none border-t-0 mb-0">
         {/* Customer Mode Selection */}
         <div className="grid grid-cols-2 w-full border-b border-border">
@@ -2114,7 +2114,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
       </div>
       
       {/* Mode and Layout Selectors - Sticky */}
-      <Card ref={modeLayoutRef} className="sticky z-40 -mt-px border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm rounded-none border-t-0 mb-0" style={{ top: `${stageHeight + selectionHeight}px` }}>
+      <Card ref={modeLayoutRef} className="sticky z-40 -mt-0.5 border shadow-md bg-gradient-to-b from-background to-background/95 backdrop-blur-sm rounded-none border-t-0 mb-0" style={{ top: `${stageHeight + selectionHeight}px` }}>
         <div className="px-3 py-1.5 bg-muted/30">
           <div className="flex items-center gap-4">
             {/* Expert/Simple Toggle */}
