@@ -136,7 +136,7 @@ const ApplicationsList = () => {
   }, [applications, searchTerm, statusFilter]);
 
   const statusColors: Record<string, string> = {
-    draft: 'bg-yellow-500',
+    draft: 'bg-yellow-400',
     submitted: 'bg-blue-500',
     under_review: 'bg-orange-500',
     approved: 'bg-green-500',
@@ -301,10 +301,10 @@ const ApplicationsList = () => {
                         </TableCell>
                         <TableCell className="px-3 py-3">
                           <Badge 
-                            variant="secondary" 
+                            variant={app.status === 'draft' ? 'default' : 'secondary'} 
                             className={`${statusColors[app.status] || 'bg-gray-500'} ${
                               app.status === 'draft' 
-                                ? 'text-black dark:text-black border border-yellow-600 dark:border-yellow-400' 
+                                ? 'bg-yellow-400 text-black dark:text-black ring-1 ring-yellow-600' 
                                 : 'text-white border-0'
                             } text-xs px-3 py-1 font-bold uppercase tracking-wide shadow-sm`}
                           >
