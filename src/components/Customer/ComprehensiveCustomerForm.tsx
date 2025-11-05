@@ -1867,7 +1867,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     ? "text-foreground"
                     : "text-muted-foreground"
                 )}>
-                  Step 3
+                  Step 3 (Optional)
                 </div>
                 <div className={cn(
                   "text-[10px] font-semibold",
@@ -1875,7 +1875,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     ? "text-foreground" 
                     : "text-muted-foreground/50"
                 )}>
-                  Upload Docs (Optional)
+                  Upload Docs
                 </div>
               </div>
             </div>
