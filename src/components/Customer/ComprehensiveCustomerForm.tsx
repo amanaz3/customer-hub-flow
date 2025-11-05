@@ -269,6 +269,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [step2Collapsed, setStep2Collapsed] = useState(false);
   const [progressStep, setProgressStep] = useState<1 | 2 | 3>(1);
   const [activeSubcard, setActiveSubcard] = useState<string>('Customer Details / Basic Information');
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
   const modeLayoutRef = useRef<HTMLDivElement | null>(null);
@@ -1596,7 +1597,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 animate-fade-in">
               <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
               <span className="text-xs font-semibold text-primary transition-all duration-300">
-                {activeSubcard}
+                {hoveredCard || activeSubcard}
               </span>
               <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
             </div>
@@ -3350,7 +3351,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               }} className="space-y-1">
                 {/* Step 1: Customer Details (Basic Information + Source & Channel) */}
                 <Collapsible open={!step1Collapsed} onOpenChange={(open) => setStep1Collapsed(!open)}>
-                  <Card className="border-2 rounded-lg bg-background shadow-md hover:shadow-lg transition-shadow">
+                  <Card 
+                    className="border-2 rounded-lg bg-background shadow-md hover:shadow-lg transition-shadow"
+                    onMouseEnter={() => setHoveredCard('Customer Details')}
+                    onMouseLeave={() => setHoveredCard(null)}
+                    onFocus={() => setHoveredCard('Customer Details')}
+                    onBlur={() => setHoveredCard(null)}
+                  >
                     <CollapsibleTrigger asChild>
                       <CardHeader className="pb-3 pt-4 px-4 bg-gradient-to-br from-primary/5 to-primary/10 border-b cursor-pointer hover:bg-gradient-to-br hover:from-primary/10 hover:to-primary/15 transition-all">
                         <CardTitle className="text-sm font-semibold flex items-center justify-between w-full">
@@ -3367,7 +3374,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     <CollapsibleContent>
                       <CardContent className="p-3 space-y-1">
                     {/* Basic Information */}
-                    <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
+                    <AccordionItem 
+                      value="basic" 
+                      className="border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow" 
+                      data-section-id="basic" 
+                      style={{ scrollMarginTop: totalStickyOffset }}
+                      onMouseEnter={() => setHoveredCard('Customer Details / Basic Information')}
+                      onMouseLeave={() => setHoveredCard(null)}
+                      onFocus={() => setHoveredCard('Customer Details / Basic Information')}
+                      onBlur={() => setHoveredCard(null)}
+                    >
                       <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-all group">
                         <div className="flex items-center justify-between w-full gap-3">
                           <div className="flex items-center gap-3">
@@ -3452,7 +3468,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     </AccordionItem>
 
                     {/* Source & Channel */}
-                    <AccordionItem value="lead" className="border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow" data-section-id="lead" style={{ scrollMarginTop: totalStickyOffset }}>
+                    <AccordionItem 
+                      value="lead" 
+                      className="border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow" 
+                      data-section-id="lead" 
+                      style={{ scrollMarginTop: totalStickyOffset }}
+                      onMouseEnter={() => setHoveredCard('Customer Details / Source & Channel')}
+                      onMouseLeave={() => setHoveredCard(null)}
+                      onFocus={() => setHoveredCard('Customer Details / Source & Channel')}
+                      onBlur={() => setHoveredCard(null)}
+                    >
                       <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-all group">
                         <div className="flex items-center justify-between w-full gap-3">
                           <div className="flex items-center gap-3">
@@ -3509,7 +3534,13 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
 
                 {/* Step 2: Application Details (Service Selection + Deal Information) */}
                 <Collapsible open={!step2Collapsed} onOpenChange={(open) => setStep2Collapsed(!open)}>
-                  <Card className="border-2 rounded-lg bg-background shadow-md hover:shadow-lg transition-shadow">
+                  <Card 
+                    className="border-2 rounded-lg bg-background shadow-md hover:shadow-lg transition-shadow"
+                    onMouseEnter={() => setHoveredCard('Application Details')}
+                    onMouseLeave={() => setHoveredCard(null)}
+                    onFocus={() => setHoveredCard('Application Details')}
+                    onBlur={() => setHoveredCard(null)}
+                  >
                     <CollapsibleTrigger asChild>
                       <CardHeader className="pb-3 pt-4 px-4 bg-gradient-to-br from-primary/5 to-primary/10 border-b cursor-pointer hover:bg-gradient-to-br hover:from-primary/10 hover:to-primary/15 transition-all">
                         <CardTitle className="text-sm font-semibold flex items-center justify-between w-full">
@@ -3526,7 +3557,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                     <CollapsibleContent>
                       <CardContent className="p-3 space-y-1">
         {/* Service Selection */}
-        <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow" data-section-id="service" style={{ scrollMarginTop: totalStickyOffset }}>
+        <AccordionItem 
+          value="service" 
+          className="border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow" 
+          data-section-id="service" 
+          style={{ scrollMarginTop: totalStickyOffset }}
+          onMouseEnter={() => setHoveredCard('Application Details / Service Selection')}
+          onMouseLeave={() => setHoveredCard(null)}
+          onFocus={() => setHoveredCard('Application Details / Service Selection')}
+          onBlur={() => setHoveredCard(null)}
+        >
               <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-all group">
                 <div className="flex items-center justify-between w-full gap-3">
                   <div className="flex items-center gap-3">
@@ -3740,6 +3780,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
           )}
           data-section="deal-information"
           data-section-id="application"
+          onMouseEnter={() => setHoveredCard('Application Details / Deal Information')}
+          onMouseLeave={() => setHoveredCard(null)}
+          onFocus={() => setHoveredCard('Application Details / Deal Information')}
+          onBlur={() => setHoveredCard(null)}
         >
               <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-all group">
                 <div className="flex items-center justify-between w-full gap-3 flex-wrap">
