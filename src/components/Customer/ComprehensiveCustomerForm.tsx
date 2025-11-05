@@ -267,6 +267,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const hasUserInteractedWithCategory = useRef(false);
   const [step1Collapsed, setStep1Collapsed] = useState(false);
   const [step2Collapsed, setStep2Collapsed] = useState(false);
+  const [progressStep, setProgressStep] = useState<1 | 2 | 3>(1);
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
   const modeLayoutRef = useRef<HTMLDivElement | null>(null);
@@ -1607,17 +1608,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             <div className="flex flex-col items-center gap-1 flex-1 group cursor-pointer transition-transform hover:scale-105">
               <div className={cn(
                 "flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-500 relative",
-                currentStage === 'details' 
+                progressStep === 1 
                   ? "bg-gradient-to-br from-emerald-500 via-green-500 to-emerald-600 text-white shadow-lg shadow-emerald-500/50 scale-110 rotate-6" 
-                  : createdCustomerId
+                  : progressStep > 1
                   ? "bg-gradient-to-br from-emerald-400 via-green-400 to-emerald-500 text-white shadow-md shadow-emerald-400/40 ring-1 ring-emerald-300/50 ring-offset-1 ring-offset-background"
                   : "bg-gradient-to-br from-gray-100 via-muted to-gray-200 dark:from-gray-800 dark:via-muted dark:to-gray-900 text-gray-400 dark:text-gray-600"
               )}>
                 <div className={cn(
                   "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
-                  currentStage === 'details' && "opacity-70 bg-emerald-500 animate-pulse"
+                  progressStep === 1 && "opacity-70 bg-emerald-500 animate-pulse"
                 )} />
-                {createdCustomerId ? (
+                {progressStep > 1 ? (
                   <svg className="w-4 h-4 relative z-10 animate-scale-in" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
                   </svg>
@@ -1628,9 +1629,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <div className="text-center space-y-0">
                 <div className={cn(
                   "text-[10px] font-extrabold tracking-wide",
-                  currentStage === 'details' 
+                  progressStep === 1 
                     ? "text-emerald-600 dark:text-emerald-400" 
-                    : createdCustomerId
+                    : progressStep > 1
                     ? "text-foreground"
                     : "text-muted-foreground"
                 )}>
@@ -1638,11 +1639,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </div>
                 <div className={cn(
                   "text-[10px] font-semibold",
-                  currentStage === 'details' || createdCustomerId
+                  progressStep === 1 || progressStep > 1
                     ? "text-foreground" 
                     : "text-muted-foreground"
                 )}>
-                  Create or Select Customer
+                  Customer Details
                 </div>
               </div>
             </div>
@@ -1652,17 +1653,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <div className="relative h-1.5 flex items-center">
                 <div className={cn(
                   "h-1.5 rounded-full transition-all duration-700 flex-1 relative overflow-hidden",
-                  currentStage === 'preview' || currentStage === 'documents' 
+                  progressStep >= 2
                     ? "bg-gradient-to-r from-emerald-400 via-blue-400 to-blue-500 shadow-sm shadow-blue-500/30" 
                     : "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
                 )}>
-                  {(currentStage === 'preview' || currentStage === 'documents') && (
+                  {progressStep >= 2 && (
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
                   )}
                 </div>
                 <div className={cn(
                   "absolute -right-2 w-8 h-8 rounded-full transition-all duration-500 flex items-center justify-center backdrop-blur-sm",
-                  currentStage === 'preview' || currentStage === 'documents'
+                  progressStep >= 2
                     ? "bg-gradient-to-br from-blue-500 to-blue-700 shadow-lg shadow-blue-500/70 ring-2 ring-blue-400/50 ring-offset-1 ring-offset-background" 
                     : "bg-gray-400 dark:bg-gray-600 shadow-md"
                 )}>
@@ -1672,36 +1673,36 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               </div>
             </div>
             
-            {/* Stage 2 - Documents */}
+            {/* Stage 2 - Application Details */}
             <div className="flex flex-col items-center gap-1 flex-1 group cursor-pointer transition-transform hover:scale-105">
               <div 
                 className={cn(
                   "flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-500 relative",
-                  currentStage === 'documents' && createdCustomerId
+                  progressStep === 2
                     ? "bg-gradient-to-br from-blue-500 via-sky-500 to-blue-600 text-white shadow-lg shadow-blue-500/50 scale-110 -rotate-6" 
-                    : createdCustomerId 
-                    ? "bg-gradient-to-br from-gray-50 via-muted to-gray-100 dark:from-gray-800 dark:via-muted dark:to-gray-700 text-blue-600 dark:text-blue-400 border-2 border-blue-500/40 hover:border-blue-500 cursor-pointer hover:scale-110 hover:shadow-lg hover:shadow-blue-500/30 ring-1 ring-blue-300/30 ring-offset-1 ring-offset-background"
+                    : progressStep > 2 
+                    ? "bg-gradient-to-br from-blue-400 via-sky-400 to-blue-500 text-white shadow-md shadow-blue-400/40 ring-1 ring-blue-300/50 ring-offset-1 ring-offset-background"
                     : "bg-gradient-to-br from-gray-100 via-muted to-gray-200 dark:from-gray-800 dark:via-muted dark:to-gray-900 text-gray-400 dark:text-gray-600 opacity-50"
                 )}
-                onClick={() => createdCustomerId && setCurrentStage('documents')}
               >
                 <div className={cn(
                   "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
-                  currentStage === 'documents' && createdCustomerId && "opacity-70 bg-blue-500 animate-pulse"
+                  progressStep === 2 && "opacity-70 bg-blue-500 animate-pulse"
                 )} />
-                <Building2 className="w-4 h-4 relative z-10" />
-                {createdCustomerId && documents.length > 0 && (
-                  <div className="absolute -top-0.5 -right-0.5 w-4 h-4 bg-gradient-to-br from-emerald-400 via-green-400 to-emerald-500 rounded-full flex items-center justify-center text-white text-[8px] font-bold border border-background shadow-lg shadow-emerald-500/60 animate-scale-in ring-1 ring-emerald-300/50 ring-offset-0.5 ring-offset-background">
-                     {documents.filter(doc => doc.is_uploaded).length}
-                  </div>
+                {progressStep > 2 ? (
+                  <svg className="w-4 h-4 relative z-10 animate-scale-in" fill="none" stroke="currentColor" strokeWidth={3} viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <Building2 className="w-4 h-4 relative z-10" />
                 )}
               </div>
               <div className="text-center space-y-0">
                 <div className={cn(
                   "text-[10px] font-extrabold tracking-wide",
-                  currentStage === 'documents' && createdCustomerId
+                  progressStep === 2
                     ? "text-blue-600 dark:text-blue-400" 
-                    : createdCustomerId
+                    : progressStep > 2
                     ? "text-foreground"
                     : "text-muted-foreground"
                 )}>
@@ -1709,13 +1710,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </div>
                 <div className={cn(
                   "text-[10px] font-semibold",
-                  currentStage === 'documents' && createdCustomerId
+                  progressStep >= 2
                     ? "text-foreground" 
-                    : createdCustomerId
-                    ? "text-muted-foreground"
                     : "text-muted-foreground/50"
                 )}>
-                  Customer Details
+                  Application Details
                 </div>
               </div>
             </div>
@@ -1725,17 +1724,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <div className="relative h-1.5 flex items-center">
                 <div className={cn(
                   "h-1.5 rounded-full transition-all duration-700 flex-1 relative overflow-hidden",
-                  currentStage === 'preview'
+                  progressStep >= 3
                     ? "bg-gradient-to-r from-blue-400 via-purple-400 to-purple-500 shadow-sm shadow-purple-500/30" 
                     : "bg-gradient-to-r from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
                 )}>
-                  {currentStage === 'preview' && (
+                  {progressStep >= 3 && (
                     <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent animate-[slide-in-right_2s_ease-in-out_infinite]" />
                   )}
                 </div>
                 <div className={cn(
                   "absolute -right-2 w-8 h-8 rounded-full transition-all duration-500 flex items-center justify-center backdrop-blur-sm",
-                  currentStage === 'preview'
+                  progressStep >= 3
                     ? "bg-gradient-to-br from-purple-500 to-purple-700 shadow-lg shadow-purple-500/70 ring-2 ring-purple-400/50 ring-offset-1 ring-offset-background" 
                     : "bg-gray-400 dark:bg-gray-600 shadow-md"
                 )}>
@@ -1750,17 +1749,16 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <div 
                 className={cn(
                   "flex items-center justify-center w-8 h-8 rounded-xl transition-all duration-500 relative",
-                  currentStage === 'preview'
+                  progressStep === 3
                     ? "bg-gradient-to-br from-purple-500 via-violet-500 to-purple-600 text-white shadow-lg shadow-purple-500/50 scale-110 rotate-6" 
-                    : currentStage === 'documents'
-                    ? "bg-gradient-to-br from-gray-50 via-muted to-gray-100 dark:from-gray-800 dark:via-muted dark:to-gray-700 text-purple-600 dark:text-purple-400 border-2 border-purple-500/40 hover:border-purple-500 cursor-pointer hover:scale-110 hover:shadow-lg hover:shadow-purple-500/30 ring-1 ring-purple-300/30 ring-offset-1 ring-offset-background"
+                    : progressStep > 3
+                    ? "bg-gradient-to-br from-purple-400 via-violet-400 to-purple-500 text-white shadow-md shadow-purple-400/40 ring-1 ring-purple-300/50 ring-offset-1 ring-offset-background"
                     : "bg-gradient-to-br from-gray-100 via-muted to-gray-200 dark:from-gray-800 dark:via-muted dark:to-gray-900 text-gray-400 dark:text-gray-600 opacity-50"
                 )}
-                onClick={() => currentStage === 'documents' && setCurrentStage('preview')}
               >
                 <div className={cn(
                   "absolute inset-0 rounded-xl blur-lg opacity-0 transition-opacity duration-500",
-                  currentStage === 'preview' && "opacity-70 bg-purple-500 animate-pulse"
+                  progressStep === 3 && "opacity-70 bg-purple-500 animate-pulse"
                 )} />
                 <svg className="w-4 h-4 relative z-10" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -1770,9 +1768,9 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               <div className="text-center space-y-0">
                 <div className={cn(
                   "text-[10px] font-extrabold tracking-wide",
-                  currentStage === 'preview'
+                  progressStep === 3
                     ? "text-purple-600 dark:text-purple-400" 
-                    : currentStage === 'documents'
+                    : progressStep > 3
                     ? "text-foreground"
                     : "text-muted-foreground"
                 )}>
@@ -1780,13 +1778,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 </div>
                 <div className={cn(
                   "text-[10px] font-semibold",
-                  currentStage === 'preview'
+                  progressStep >= 3
                     ? "text-foreground" 
-                    : currentStage === 'documents'
-                    ? "text-muted-foreground"
                     : "text-muted-foreground/50"
                 )}>
-                  Service Selection
+                  Review & Submit
                 </div>
               </div>
             </div>
@@ -3314,8 +3310,11 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               {formMode === 'concept' ? (
               <Accordion type="multiple" value={accordionValue} onValueChange={(value) => {
                 setAccordionValue(value);
-                if (value.includes('service')) {
+                if (value.includes('service') || value.includes('application')) {
                   setServiceSelectionExpanded(true);
+                  setProgressStep(2);
+                } else if (value.includes('basic') || value.includes('lead')) {
+                  setProgressStep(1);
                 }
               }} className="space-y-1">
                 {/* Step 1: Customer Details (Basic Information + Source & Channel) */}
