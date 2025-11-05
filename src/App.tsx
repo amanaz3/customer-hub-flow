@@ -34,6 +34,7 @@ import CRMIntegration from '@/pages/CRMIntegration';
 import Analytics from '@/pages/Analytics';
 import TargetManagement from '@/pages/TargetManagement';
 import AgentHelpEditor from '@/pages/AgentHelpEditor';
+import DatabaseViewer from '@/pages/DatabaseViewer';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -264,6 +265,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Data Migration">
                           <LazyDataMigration />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/admin/database" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Database Viewer">
+                          <DatabaseViewer />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>

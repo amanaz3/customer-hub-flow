@@ -142,6 +142,12 @@ const Sidebar: React.FC = () => {
       roles: ['admin'],
     },
     {
+      name: 'Database Viewer',
+      path: '/admin/database',
+      icon: <Database className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
       name: 'Help Editor',
       path: '/admin/help-editor',
       icon: <BookOpen className="h-5 w-5" />,
@@ -157,7 +163,7 @@ const Sidebar: React.FC = () => {
 
   const isActiveRoute = (path: string) => {
     // Exact match for most routes
-    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/service-categories' || path === '/bundles' || path === '/analytics' || path === '/targets' || path === '/crm' || path === '/admin/migrate' || path === '/admin/help-editor') {
+    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/service-categories' || path === '/bundles' || path === '/analytics' || path === '/targets' || path === '/crm' || path === '/admin/migrate' || path === '/admin/database' || path === '/admin/help-editor') {
       return location.pathname === path;
     }
     
