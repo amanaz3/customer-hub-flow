@@ -1623,17 +1623,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         
         <CardContent className="relative pt-2 px-3 pb-1">
-          {/* Active Section Indicator with Transition */}
-          <div className="flex items-center justify-center mb-2">
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 animate-fade-in max-w-full">
-              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse flex-shrink-0" />
-              <span className="text-xs font-semibold text-primary transition-all duration-300 truncate">
-                {getExpandedCardsLabel()}
-              </span>
-              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse flex-shrink-0" />
-            </div>
-          </div>
-          
           {/* Progress Indicator Badge with Help Button */}
           <div className="flex items-center justify-between mb-1">
             <div className="flex-1" />
@@ -1829,6 +1818,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   Review & Submit
                 </div>
               </div>
+            </div>
+          </div>
+          
+          {/* Active Section Indicator with Transition */}
+          <div className="flex items-center justify-center mt-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 animate-fade-in max-w-full">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse flex-shrink-0" />
+              <span className="text-xs font-semibold text-primary transition-all duration-300 truncate">
+                {getExpandedCardsLabel()}
+              </span>
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse flex-shrink-0" />
             </div>
           </div>
         </CardContent>
