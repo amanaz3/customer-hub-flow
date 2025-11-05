@@ -3400,9 +3400,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                   if (step1Cards.includes(newCard)) {
                     // Close other Step 1 cards
                     filteredValue = value.filter(v => !step1Cards.includes(v) || v === newCard);
+                    
+                    // Expand Step 1 outer card, collapse Step 2 outer card
+                    setStep1Collapsed(false);
+                    setStep2Collapsed(true);
                   } else if (step2Cards.includes(newCard)) {
                     // Close other Step 2 cards
                     filteredValue = value.filter(v => !step2Cards.includes(v) || v === newCard);
+                    
+                    // Collapse Step 1 outer card, expand Step 2 outer card
+                    setStep1Collapsed(true);
+                    setStep2Collapsed(false);
                   }
                 }
                 
