@@ -1604,6 +1604,28 @@ export type Database = {
         Args: { expires_in_seconds?: number; file_path: string }
         Returns: string
       }
+      get_table_foreign_keys: {
+        Args: { p_table_name: string }
+        Returns: {
+          column_name: string
+          foreign_column_name: string
+          foreign_table_name: string
+        }[]
+      }
+      get_table_indexes: {
+        Args: { p_table_name: string }
+        Returns: {
+          column_names: string
+          index_name: string
+          is_unique: boolean
+        }[]
+      }
+      get_table_primary_keys: {
+        Args: { p_table_name: string }
+        Returns: {
+          column_name: string
+        }[]
+      }
       get_user_products: {
         Args: { user_uuid: string }
         Returns: {
