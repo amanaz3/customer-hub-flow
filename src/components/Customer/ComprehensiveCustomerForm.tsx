@@ -268,6 +268,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [step1Collapsed, setStep1Collapsed] = useState(false);
   const [step2Collapsed, setStep2Collapsed] = useState(false);
   const [progressStep, setProgressStep] = useState<1 | 2 | 3>(1);
+  const [activeSubcard, setActiveSubcard] = useState<string>('Customer Details / Basic Information');
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
   const modeLayoutRef = useRef<HTMLDivElement | null>(null);
@@ -1590,6 +1591,17 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
         <div className="absolute inset-x-0 bottom-0 h-px bg-gradient-to-r from-transparent via-border to-transparent" />
         
         <CardContent className="relative pt-2 px-3 pb-1">
+          {/* Active Section Indicator with Transition */}
+          <div className="flex items-center justify-center mb-2">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gradient-to-r from-primary/10 via-primary/5 to-primary/10 border border-primary/20 animate-fade-in">
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+              <span className="text-xs font-semibold text-primary transition-all duration-300">
+                {activeSubcard}
+              </span>
+              <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+            </div>
+          </div>
+          
           {/* Progress Indicator Badge with Help Button */}
           <div className="flex items-center justify-between mb-1">
             <div className="flex-1" />
@@ -3310,11 +3322,30 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
               {formMode === 'concept' ? (
               <Accordion type="multiple" value={accordionValue} onValueChange={(value) => {
                 setAccordionValue(value);
-                if (value.includes('service') || value.includes('application')) {
+                
+                // Determine the most recently expanded item (last in array)
+                const lastExpanded = value[value.length - 1];
+                
+                // Update progress step and active subcard based on expanded items
+                if (value.includes('service')) {
                   setServiceSelectionExpanded(true);
                   setProgressStep(2);
-                } else if (value.includes('basic') || value.includes('lead')) {
+                  setActiveSubcard('Application Details / Service Selection');
+                } else if (value.includes('application')) {
+                  setProgressStep(2);
+                  setActiveSubcard('Application Details / Deal Information');
+                } else if (value.includes('lead')) {
                   setProgressStep(1);
+                  setActiveSubcard('Customer Details / Source & Channel');
+                } else if (value.includes('basic')) {
+                  setProgressStep(1);
+                  setActiveSubcard('Customer Details / Basic Information');
+                } else if (lastExpanded === 'basic') {
+                  setProgressStep(1);
+                  setActiveSubcard('Customer Details / Basic Information');
+                } else if (lastExpanded === 'lead') {
+                  setProgressStep(1);
+                  setActiveSubcard('Customer Details / Source & Channel');
                 }
               }} className="space-y-1">
                 {/* Step 1: Customer Details (Basic Information + Source & Channel) */}
