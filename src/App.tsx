@@ -35,6 +35,7 @@ import Analytics from '@/pages/Analytics';
 import TargetManagement from '@/pages/TargetManagement';
 import AgentHelpEditor from '@/pages/AgentHelpEditor';
 import DatabaseViewer from '@/pages/DatabaseViewer';
+import NotificationManagement from '@/pages/NotificationManagement';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -113,6 +114,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Target Management">
                           <TargetManagement />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/notification-management" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Notification Management">
+                          <NotificationManagement />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>

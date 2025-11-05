@@ -102,6 +102,30 @@ Deno.serve(async (req) => {
 
     // Create notifications for relevant users
     if (customerId) {
+      // Check if notifications are enabled for this status
+      const { data: statusPref } = await supabase
+        .from('application_status_preferences')
+        .select('is_enabled')
+        .eq('status_type', newStatus.toLowerCase())
+        .single();
+
+      // Skip notifications if this status is disabled
+      if (statusPref && !statusPref.is_enabled) {
+        console.log(`Notifications disabled for status: ${newStatus}`);
+        return new Response(
+          JSON.stringify({ 
+            success: true,
+            application: updatedApplication,
+            previousStatus,
+            newStatus,
+            notificationsSent: false
+          }),
+          { 
+            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          }
+        );
+      }
+
       const { data: customer } = await supabase
         .from('customers')
         .select('user_id, name')

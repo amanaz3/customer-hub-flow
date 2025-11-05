@@ -166,6 +166,30 @@ export type Database = {
           },
         ]
       }
+      application_status_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          is_enabled: boolean
+          status_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          status_type: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          status_type?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       arr_performance: {
         Row: {
           actual_new_arr: number
