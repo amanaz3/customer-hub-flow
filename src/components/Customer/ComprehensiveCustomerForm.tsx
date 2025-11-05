@@ -302,37 +302,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
     }
   };
 
-  // Get expanded cards for a specific step
-  const getStepExpandedCards = (step: 1 | 2) => {
-    if (hoveredCard) {
-      if (step === 1 && (hoveredCard.includes('Customer Details') || hoveredCard === 'Customer Details')) {
-        return hoveredCard;
-      }
-      if (step === 2 && (hoveredCard.includes('Application Details') || hoveredCard === 'Application Details')) {
-        return hoveredCard;
-      }
-      return null;
-    }
-
-    const cardNameMap: Record<string, string> = {
-      'basic': 'Basic Information',
-      'lead': 'Source & Channel',
-      'service': 'Service Selection',
-      'application': 'Deal Information',
-    };
-    
-    const step1Cards = ['basic', 'lead'];
-    const step2Cards = ['service', 'application'];
-    
-    const relevantCards = accordionValue
-      .filter(val => step === 1 ? step1Cards.includes(val) : step2Cards.includes(val))
-      .map(val => cardNameMap[val])
-      .filter(Boolean);
-    
-    if (relevantCards.length === 0) return null;
-    if (relevantCards.length === 1) return relevantCards[0];
-    return relevantCards.join(' • ');
-  };
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
   const modeLayoutRef = useRef<HTMLDivElement | null>(null);
@@ -1710,13 +1679,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 )}>
                   Customer Details
                 </div>
-                {getStepExpandedCards(1) && (
-                  <div className="mt-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-emerald-500/10 via-emerald-500/5 to-emerald-500/10 border border-emerald-500/20 animate-fade-in">
-                    <div className="text-[9px] font-semibold text-emerald-600 dark:text-emerald-400 truncate max-w-[80px]">
-                      {getStepExpandedCards(1)}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
 
@@ -1788,13 +1750,6 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 )}>
                   Application Details
                 </div>
-                {getStepExpandedCards(2) && (
-                  <div className="mt-1 px-2 py-0.5 rounded-full bg-gradient-to-r from-blue-500/10 via-blue-500/5 to-blue-500/10 border border-blue-500/20 animate-fade-in">
-                    <div className="text-[9px] font-semibold text-blue-600 dark:text-blue-400 truncate max-w-[80px]">
-                      {getStepExpandedCards(2)}
-                    </div>
-                  </div>
-                )}
               </div>
             </div>
 
