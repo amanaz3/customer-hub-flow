@@ -29,7 +29,7 @@ import PerformanceMonitor from '@/utils/performanceMonitoring';
 import { validateEmail, validatePhoneNumber, validateCompanyName, sanitizeInput } from '@/utils/inputValidation';
 import { CreateCompanyDialog } from './CreateCompanyDialog';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
-import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search, Eye, EyeOff, Mail, Share2, Send, Zap, UserCog, Layers } from 'lucide-react';
+import { Building2, Plus, Save, Users, ClipboardList, Check, CircleDot, Circle, AlertCircle, Info, Search, Eye, EyeOff, Mail, Share2, Send, Zap, UserCog, Layers, ChevronDown } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { emailDocumentChecklist, shareViaWhatsApp, formatChecklistForSharing } from '@/utils/documentChecklistSharing';
 import { AgentHelpDialog } from './AgentHelpDialog';
@@ -39,6 +39,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { NavigationBlocker } from '@/components/Navigation/NavigationBlocker';
 import { StickyFormNavigation } from './StickyFormNavigation';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 
 // Form validation schema
 const formSchema = z.object({
@@ -264,6 +265,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
   const [productSearchTerm, setProductSearchTerm] = useState('');
   const [showFTAPassword, setShowFTAPassword] = useState(false);
   const hasUserInteractedWithCategory = useRef(false);
+  const [step1Collapsed, setStep1Collapsed] = useState(false);
   // Dynamic sticky measurements for consistent spacing
   const stageRef = useRef<HTMLDivElement | null>(null);
   const modeLayoutRef = useRef<HTMLDivElement | null>(null);
@@ -3316,16 +3318,23 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                 }
               }} className="space-y-1">
                 {/* Step 1: Customer Details (Basic Information + Source & Channel) */}
-                <Card className="border-2 rounded-lg bg-background shadow-md hover:shadow-lg transition-shadow">
-                  <CardHeader className="pb-3 pt-4 px-4 bg-gradient-to-br from-primary/5 to-primary/10 border-b">
-                    <CardTitle className="text-sm font-semibold flex items-center gap-2">
-                      <div className="p-1.5 rounded-lg bg-primary/10">
-                        <Users className="h-4 w-4 text-primary" />
-                      </div>
-                      <span>Step 1: Customer Details</span>
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent className="p-3 space-y-1">
+                <Collapsible open={!step1Collapsed} onOpenChange={(open) => setStep1Collapsed(!open)}>
+                  <Card className="border-2 rounded-lg bg-background shadow-md hover:shadow-lg transition-shadow">
+                    <CollapsibleTrigger asChild>
+                      <CardHeader className="pb-3 pt-4 px-4 bg-gradient-to-br from-primary/5 to-primary/10 border-b cursor-pointer hover:bg-gradient-to-br hover:from-primary/10 hover:to-primary/15 transition-all">
+                        <CardTitle className="text-sm font-semibold flex items-center justify-between w-full">
+                          <div className="flex items-center gap-2">
+                            <div className="p-1.5 rounded-lg bg-primary/10">
+                              <Users className="h-4 w-4 text-primary" />
+                            </div>
+                            <span>Step 1: Customer Details</span>
+                          </div>
+                          <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform duration-200", step1Collapsed && "rotate-180")} />
+                        </CardTitle>
+                      </CardHeader>
+                    </CollapsibleTrigger>
+                    <CollapsibleContent>
+                      <CardContent className="p-3 space-y-1">
                     {/* Basic Information */}
                     <AccordionItem value="basic" className="border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow" data-section-id="basic" style={{ scrollMarginTop: totalStickyOffset }}>
                       <AccordionTrigger className="px-4 py-2 hover:no-underline border-b-2 border-border/50 hover:border-primary/30 transition-all group">
@@ -3462,8 +3471,10 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
                         </div>
                       </AccordionContent>
                     </AccordionItem>
-                  </CardContent>
-                </Card>
+                      </CardContent>
+                    </CollapsibleContent>
+                  </Card>
+                </Collapsible>
 
         {/* Service Selection */}
         <AccordionItem value="service" className="border rounded-lg bg-background shadow-sm hover:shadow-md transition-shadow" data-section-id="service" style={{ scrollMarginTop: totalStickyOffset }}>
