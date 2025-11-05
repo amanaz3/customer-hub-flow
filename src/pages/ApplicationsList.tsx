@@ -304,7 +304,7 @@ const ApplicationsList = () => {
                             variant="secondary" 
                             className={`${statusColors[app.status] || 'bg-gray-500'} ${
                               app.status === 'draft' 
-                                ? 'text-yellow-950 dark:text-yellow-50 border border-yellow-600 dark:border-yellow-400' 
+                                ? 'text-black dark:text-black border border-yellow-600 dark:border-yellow-400' 
                                 : 'text-white border-0'
                             } text-xs px-3 py-1 font-bold uppercase tracking-wide shadow-sm`}
                           >
