@@ -5,6 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Separator } from "@/components/ui/separator";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -580,164 +581,170 @@ export default function NotificationManagement() {
         </TabsList>
 
         <TabsContent value="recommended" className="space-y-4">
-        <Card className="border-2 shadow-lg">
-          <CardHeader className="pb-4 border-b bg-gradient-to-r from-blue-500/5 to-cyan-500/5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-                <div>
-                  <CardTitle className="text-lg">Email Notifications</CardTitle>
-                  <CardDescription className="text-xs mt-1">
-                    Control email alerts sent to users' inboxes
-                  </CardDescription>
-                </div>
-              </div>
-              <Badge variant="outline" className="gap-1.5">
-                <Send className="h-3 w-3" />
-                Email
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="grid gap-3">
-              {preferences.map((pref, index) => {
-                const statusInfo = STATUS_LABELS[pref.status_type];
-                const StatusIcon = statusInfo?.icon || Bell;
-                return (
-                  <div key={pref.id}>
-                    <div
-                      className={`group relative flex items-center justify-between gap-4 py-3 px-4 rounded-lg border-2 transition-all duration-200 ${
-                        statusInfo?.color || 'bg-muted/30'
-                      } ${pref.is_enabled ? 'shadow-sm hover:shadow-md' : 'opacity-60 hover:opacity-80'}`}
-                    >
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className={`p-2 rounded-md ${pref.is_enabled ? 'bg-background/80 shadow-sm' : 'bg-background/40'}`}>
-                          <StatusIcon className="h-5 w-5" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <Label
-                            htmlFor={`email-${pref.status_type}`}
-                            className="text-sm font-semibold cursor-pointer block"
-                          >
-                            {statusInfo?.label || pref.status_type}
-                          </Label>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {statusInfo?.description || ''}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {updating === pref.status_type && (
-                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                        )}
-                        <Switch
-                          id={`email-${pref.status_type}`}
-                          checked={pref.is_enabled}
-                          onCheckedChange={() => handleToggle(pref.status_type, pref.is_enabled)}
-                          disabled={updating === pref.status_type}
-                          className={`${
-                            pref.is_enabled 
-                              ? 'data-[state=checked]:bg-green-600' 
-                              : 'data-[state=unchecked]:bg-gray-400'
-                          }`}
-                        />
-                        <Badge 
-                          variant={pref.is_enabled ? "default" : "secondary"}
-                          className="text-xs font-medium min-w-[60px] justify-center"
-                        >
-                          {pref.is_enabled ? 'Enabled' : 'Disabled'}
-                        </Badge>
+          <Accordion type="multiple" defaultValue={["email", "inapp"]} className="w-full space-y-4">
+            <AccordionItem value="email" className="border-2 rounded-lg shadow-lg overflow-hidden">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline bg-gradient-to-r from-blue-500/5 to-cyan-500/5 border-b">
+                <div className="flex items-center justify-between w-full pr-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-blue-500/10">
+                      <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div className="text-left">
+                      <div className="text-lg font-semibold">Email Notifications</div>
+                      <div className="text-xs text-muted-foreground font-normal mt-1">
+                        Control email alerts sent to users' inboxes
                       </div>
                     </div>
-                    {index < preferences.length - 1 && (
-                      <Separator className="my-2 opacity-50" />
-                    )}
                   </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+                  <Badge variant="outline" className="gap-1.5 mr-2">
+                    <Send className="h-3 w-3" />
+                    Email
+                  </Badge>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pt-6 pb-4">
+                <div className="grid gap-3">
+                  {preferences.map((pref, index) => {
+                    const statusInfo = STATUS_LABELS[pref.status_type];
+                    const StatusIcon = statusInfo?.icon || Bell;
+                    return (
+                      <div key={pref.id}>
+                        <div
+                          className={`group relative flex items-center justify-between gap-4 py-3 px-4 rounded-lg border-2 transition-all duration-200 ${
+                            statusInfo?.color || 'bg-muted/30'
+                          } ${pref.is_enabled ? 'shadow-sm hover:shadow-md' : 'opacity-60 hover:opacity-80'}`}
+                        >
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className={`p-2 rounded-md ${pref.is_enabled ? 'bg-background/80 shadow-sm' : 'bg-background/40'}`}>
+                              <StatusIcon className="h-5 w-5" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <Label
+                                htmlFor={`email-${pref.status_type}`}
+                                className="text-sm font-semibold cursor-pointer block"
+                              >
+                                {statusInfo?.label || pref.status_type}
+                              </Label>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                {statusInfo?.description || ''}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            {updating === pref.status_type && (
+                              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                            )}
+                            <Switch
+                              id={`email-${pref.status_type}`}
+                              checked={pref.is_enabled}
+                              onCheckedChange={() => handleToggle(pref.status_type, pref.is_enabled)}
+                              disabled={updating === pref.status_type}
+                              className={`${
+                                pref.is_enabled 
+                                  ? 'data-[state=checked]:bg-green-600' 
+                                  : 'data-[state=unchecked]:bg-gray-400'
+                              }`}
+                            />
+                            <Badge 
+                              variant={pref.is_enabled ? "default" : "secondary"}
+                              className="text-xs font-medium min-w-[60px] justify-center"
+                            >
+                              {pref.is_enabled ? 'Enabled' : 'Disabled'}
+                            </Badge>
+                          </div>
+                        </div>
+                        {index < preferences.length - 1 && (
+                          <Separator className="my-2 opacity-50" />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
 
-        <Card className="border-2 shadow-lg">
-          <CardHeader className="pb-4 border-b bg-gradient-to-r from-purple-500/5 to-pink-500/5">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <Bell className="h-5 w-5 text-purple-600 dark:text-purple-400" />
-                <div>
-                  <CardTitle className="text-lg">In-App Notifications</CardTitle>
-                  <CardDescription className="text-xs mt-1">
-                    Control alerts shown in the notification bell
-                  </CardDescription>
-                </div>
-              </div>
-              <Badge variant="outline" className="gap-1.5">
-                <Bell className="h-3 w-3" />
-                In-App
-              </Badge>
-            </div>
-          </CardHeader>
-          <CardContent className="pt-6">
-            <div className="grid gap-3">
-              {inAppPreferences.map((pref, index) => {
-                const statusInfo = STATUS_LABELS[pref.status_type];
-                const StatusIcon = statusInfo?.icon || Bell;
-                const key = `in-app-${pref.status_type}`;
-                return (
-                  <div key={pref.status_type}>
-                    <div
-                      className={`group relative flex items-center justify-between gap-4 py-3 px-4 rounded-lg border-2 transition-all duration-200 ${
-                        statusInfo?.color || 'bg-muted/30'
-                      } ${pref.is_enabled ? 'shadow-sm hover:shadow-md' : 'opacity-60 hover:opacity-80'}`}
-                    >
-                      <div className="flex items-center gap-3 flex-1 min-w-0">
-                        <div className={`p-2 rounded-md ${pref.is_enabled ? 'bg-background/80 shadow-sm' : 'bg-background/40'}`}>
-                          <StatusIcon className="h-5 w-5" />
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <Label
-                            htmlFor={`inapp-${pref.status_type}`}
-                            className="text-sm font-semibold cursor-pointer block"
-                          >
-                            {statusInfo?.label || pref.status_type}
-                          </Label>
-                          <p className="text-xs text-muted-foreground mt-0.5">
-                            {statusInfo?.description || ''}
-                          </p>
-                        </div>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        {updating === key && (
-                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                        )}
-                        <Switch
-                          id={`inapp-${pref.status_type}`}
-                          checked={pref.is_enabled}
-                          onCheckedChange={() => handleInAppToggle(pref.status_type, pref.is_enabled)}
-                          disabled={updating === key}
-                          className={`${
-                            pref.is_enabled 
-                              ? 'data-[state=checked]:bg-green-600' 
-                              : 'data-[state=unchecked]:bg-gray-400'
-                          }`}
-                        />
-                        <Badge 
-                          variant={pref.is_enabled ? "default" : "secondary"}
-                          className="text-xs font-medium min-w-[60px] justify-center"
-                        >
-                          {pref.is_enabled ? 'Enabled' : 'Disabled'}
-                        </Badge>
+            <AccordionItem value="inapp" className="border-2 rounded-lg shadow-lg overflow-hidden">
+              <AccordionTrigger className="px-6 py-4 hover:no-underline bg-gradient-to-r from-purple-500/5 to-pink-500/5 border-b">
+                <div className="flex items-center justify-between w-full pr-4">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-purple-500/10">
+                      <Bell className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                    </div>
+                    <div className="text-left">
+                      <div className="text-lg font-semibold">In-App Notifications</div>
+                      <div className="text-xs text-muted-foreground font-normal mt-1">
+                        Control alerts shown in the notification bell
                       </div>
                     </div>
-                    {index < inAppPreferences.length - 1 && (
-                      <Separator className="my-2 opacity-50" />
-                    )}
                   </div>
-                );
-              })}
-            </div>
-          </CardContent>
-        </Card>
+                  <Badge variant="outline" className="gap-1.5 mr-2">
+                    <Bell className="h-3 w-3" />
+                    In-App
+                  </Badge>
+                </div>
+              </AccordionTrigger>
+              <AccordionContent className="px-6 pt-6 pb-4">
+                <div className="grid gap-3">
+                  {inAppPreferences.map((pref, index) => {
+                    const statusInfo = STATUS_LABELS[pref.status_type];
+                    const StatusIcon = statusInfo?.icon || Bell;
+                    const key = `in-app-${pref.status_type}`;
+                    return (
+                      <div key={pref.status_type}>
+                        <div
+                          className={`group relative flex items-center justify-between gap-4 py-3 px-4 rounded-lg border-2 transition-all duration-200 ${
+                            statusInfo?.color || 'bg-muted/30'
+                          } ${pref.is_enabled ? 'shadow-sm hover:shadow-md' : 'opacity-60 hover:opacity-80'}`}
+                        >
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className={`p-2 rounded-md ${pref.is_enabled ? 'bg-background/80 shadow-sm' : 'bg-background/40'}`}>
+                              <StatusIcon className="h-5 w-5" />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <Label
+                                htmlFor={`inapp-${pref.status_type}`}
+                                className="text-sm font-semibold cursor-pointer block"
+                              >
+                                {statusInfo?.label || pref.status_type}
+                              </Label>
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                {statusInfo?.description || ''}
+                              </p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            {updating === key && (
+                              <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                            )}
+                            <Switch
+                              id={`inapp-${pref.status_type}`}
+                              checked={pref.is_enabled}
+                              onCheckedChange={() => handleInAppToggle(pref.status_type, pref.is_enabled)}
+                              disabled={updating === key}
+                              className={`${
+                                pref.is_enabled 
+                                  ? 'data-[state=checked]:bg-green-600' 
+                                  : 'data-[state=unchecked]:bg-gray-400'
+                              }`}
+                            />
+                            <Badge 
+                              variant={pref.is_enabled ? "default" : "secondary"}
+                              className="text-xs font-medium min-w-[60px] justify-center"
+                            >
+                              {pref.is_enabled ? 'Enabled' : 'Disabled'}
+                            </Badge>
+                          </div>
+                        </div>
+                        {index < inAppPreferences.length - 1 && (
+                          <Separator className="my-2 opacity-50" />
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </TabsContent>
 
         <TabsContent value="advanced" className="space-y-4">
@@ -787,27 +794,31 @@ export default function NotificationManagement() {
             </div>
           </CardHeader>
           
-          <CardContent className={`pt-6 space-y-6 transition-opacity duration-200 ${!advancedEnabled ? 'opacity-40 pointer-events-none' : ''}`}>
-            {/* Role-Based Email Notifications Section */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between pb-2">
-                <div className="flex items-center gap-3">
-                  <div className="p-1.5 rounded-md bg-blue-500/10">
-                    <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+          <CardContent className={`pt-6 transition-opacity duration-200 ${!advancedEnabled ? 'opacity-40 pointer-events-none' : ''}`}>
+            <Accordion type="multiple" defaultValue={["role-email", "role-inapp", "user-email", "user-inapp"]} className="w-full space-y-4">
+              {/* Role-Based Email Notifications */}
+              <AccordionItem value="role-email" className="border-2 rounded-lg overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 hover:no-underline bg-gradient-to-r from-blue-500/5 to-cyan-500/5">
+                  <div className="flex items-center justify-between w-full pr-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-1.5 rounded-md bg-blue-500/10">
+                        <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-sm font-semibold">Role-Based Email Notifications</div>
+                        <div className="text-xs text-muted-foreground font-normal mt-0.5">
+                          Configure which roles receive email notifications for each status
+                        </div>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="gap-1.5 mr-2">
+                      <Send className="h-3 w-3" />
+                      Email
+                    </Badge>
                   </div>
-                  <div>
-                    <h3 className="text-sm font-semibold">Role-Based Email Notifications</h3>
-                    <p className="text-xs text-muted-foreground">
-                      Configure which roles receive email notifications for each status
-                    </p>
-                  </div>
-                </div>
-                <Badge variant="outline" className="gap-1.5">
-                  <Send className="h-3 w-3" />
-                  Email
-                </Badge>
-              </div>
-              
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pt-4 pb-2">
+                  <div className="space-y-4">
               <Select 
                 value={selectedRoleStatus} 
                 onValueChange={setSelectedRoleStatus}
@@ -885,30 +896,33 @@ export default function NotificationManagement() {
                   </div>
                 </div>
               )}
-            </div>
-
-            <Separator className="my-6" />
-
-            {/* Role-Based In-App Notifications Section */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between pb-2">
-                <div className="flex items-center gap-3">
-                  <div className="p-1.5 rounded-md bg-cyan-500/10">
-                    <Shield className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
                   </div>
-                  <div>
-                    <h3 className="text-sm font-semibold">Role-Based In-App Notifications</h3>
-                    <p className="text-xs text-muted-foreground">
-                      Configure which roles receive in-app notifications for each status
-                    </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* Role-Based In-App Notifications */}
+              <AccordionItem value="role-inapp" className="border-2 rounded-lg overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 hover:no-underline bg-gradient-to-r from-cyan-500/5 to-teal-500/5">
+                  <div className="flex items-center justify-between w-full pr-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-1.5 rounded-md bg-cyan-500/10">
+                        <Shield className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-sm font-semibold">Role-Based In-App Notifications</div>
+                        <div className="text-xs text-muted-foreground font-normal mt-0.5">
+                          Configure which roles receive in-app notifications for each status
+                        </div>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="gap-1.5 mr-2">
+                      <Bell className="h-3 w-3" />
+                      In-App
+                    </Badge>
                   </div>
-                </div>
-                <Badge variant="outline" className="gap-1.5">
-                  <Bell className="h-3 w-3" />
-                  In-App
-                </Badge>
-              </div>
-              
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pt-4 pb-2">
+                  <div className="space-y-4">
               <Select 
                 value={selectedInAppRoleStatus} 
                 onValueChange={setSelectedInAppRoleStatus}
@@ -986,30 +1000,33 @@ export default function NotificationManagement() {
                   </div>
                 </div>
               )}
-            </div>
-
-            <Separator className="my-6" />
-
-            {/* User-Specific Email Notifications Section */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between pb-2">
-                <div className="flex items-center gap-3">
-                  <div className="p-1.5 rounded-md bg-purple-500/10">
-                    <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
                   </div>
-                  <div>
-                    <h3 className="text-sm font-semibold">User-Specific Email Notifications</h3>
-                    <p className="text-xs text-muted-foreground">
-                      Add individual users to receive email notifications
-                    </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* User-Specific Email Notifications */}
+              <AccordionItem value="user-email" className="border-2 rounded-lg overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 hover:no-underline bg-gradient-to-r from-purple-500/5 to-pink-500/5">
+                  <div className="flex items-center justify-between w-full pr-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-1.5 rounded-md bg-purple-500/10">
+                        <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-sm font-semibold">User-Specific Email Notifications</div>
+                        <div className="text-xs text-muted-foreground font-normal mt-0.5">
+                          Add individual users to receive email notifications
+                        </div>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="gap-1.5 mr-2">
+                      <Send className="h-3 w-3" />
+                      Email
+                    </Badge>
                   </div>
-                </div>
-                <Badge variant="outline" className="gap-1.5">
-                  <Send className="h-3 w-3" />
-                  Email
-                </Badge>
-              </div>
-              
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pt-4 pb-2">
+                  <div className="space-y-4">
               <Select 
                 value={selectedUserStatus} 
                 onValueChange={setSelectedUserStatus}
@@ -1100,30 +1117,33 @@ export default function NotificationManagement() {
                   </div>
                 </div>
               )}
-            </div>
-
-            <Separator className="my-6" />
-
-            {/* User-Specific In-App Notifications Section */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between pb-2">
-                <div className="flex items-center gap-3">
-                  <div className="p-1.5 rounded-md bg-pink-500/10">
-                    <Users className="h-4 w-4 text-pink-600 dark:text-pink-400" />
                   </div>
-                  <div>
-                    <h3 className="text-sm font-semibold">User-Specific In-App Notifications</h3>
-                    <p className="text-xs text-muted-foreground">
-                      Add individual users to receive in-app notifications
-                    </p>
+                </AccordionContent>
+              </AccordionItem>
+
+              {/* User-Specific In-App Notifications */}
+              <AccordionItem value="user-inapp" className="border-2 rounded-lg overflow-hidden">
+                <AccordionTrigger className="px-4 py-3 hover:no-underline bg-gradient-to-r from-pink-500/5 to-rose-500/5">
+                  <div className="flex items-center justify-between w-full pr-4">
+                    <div className="flex items-center gap-3">
+                      <div className="p-1.5 rounded-md bg-pink-500/10">
+                        <Users className="h-4 w-4 text-pink-600 dark:text-pink-400" />
+                      </div>
+                      <div className="text-left">
+                        <div className="text-sm font-semibold">User-Specific In-App Notifications</div>
+                        <div className="text-xs text-muted-foreground font-normal mt-0.5">
+                          Add individual users to receive in-app notifications
+                        </div>
+                      </div>
+                    </div>
+                    <Badge variant="outline" className="gap-1.5 mr-2">
+                      <Bell className="h-3 w-3" />
+                      In-App
+                    </Badge>
                   </div>
-                </div>
-                <Badge variant="outline" className="gap-1.5">
-                  <Bell className="h-3 w-3" />
-                  In-App
-                </Badge>
-              </div>
-              
+                </AccordionTrigger>
+                <AccordionContent className="px-4 pt-4 pb-2">
+                  <div className="space-y-4">
               <Select 
                 value={selectedInAppUserStatus} 
                 onValueChange={setSelectedInAppUserStatus}
@@ -1214,7 +1234,10 @@ export default function NotificationManagement() {
                   </div>
                 </div>
               )}
-            </div>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            </Accordion>
           </CardContent>
         </Card>
         </TabsContent>
