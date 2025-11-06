@@ -53,6 +53,18 @@ interface UserPreference {
   is_enabled: boolean;
 }
 
+interface InAppRolePreference {
+  status_type: string;
+  role: 'admin' | 'manager' | 'user';
+  is_enabled: boolean;
+}
+
+interface InAppUserPreference {
+  status_type: string;
+  user_id: string;
+  is_enabled: boolean;
+}
+
 interface Profile {
   id: string;
   email: string;
@@ -122,9 +134,13 @@ export default function NotificationManagement() {
   const [inAppPreferences, setInAppPreferences] = useState<InAppPreference[]>([]);
   const [rolePreferences, setRolePreferences] = useState<RolePreference[]>([]);
   const [userPreferences, setUserPreferences] = useState<UserPreference[]>([]);
+  const [inAppRolePreferences, setInAppRolePreferences] = useState<InAppRolePreference[]>([]);
+  const [inAppUserPreferences, setInAppUserPreferences] = useState<InAppUserPreference[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [selectedRoleStatus, setSelectedRoleStatus] = useState<string>("completed");
   const [selectedUserStatus, setSelectedUserStatus] = useState<string>("completed");
+  const [selectedInAppRoleStatus, setSelectedInAppRoleStatus] = useState<string>("completed");
+  const [selectedInAppUserStatus, setSelectedInAppUserStatus] = useState<string>("completed");
   const [advancedEnabled, setAdvancedEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
@@ -136,13 +152,15 @@ export default function NotificationManagement() {
 
   const fetchAllData = async () => {
     try {
-      const [prefsResult, inAppResult, rolePrefsResult, userPrefsResult, profilesResult, settingsResult] = await Promise.all([
+      const [prefsResult, inAppResult, rolePrefsResult, userPrefsResult, profilesResult, settingsResult, inAppRoleResult, inAppUserResult] = await Promise.all([
         supabase.from("application_status_preferences").select("*").order("status_type"),
-        supabase.from("notification_settings").select("*").like("setting_key", "in_app_%"),
+        supabase.from("notification_settings").select("*").like("setting_key", "in_app_%").not("setting_key", "like", "in_app_role_%").not("setting_key", "like", "in_app_user_%"),
         supabase.from("notification_role_preferences").select("*").order("status_type, role"),
         supabase.from("notification_user_preferences").select("*").order("status_type"),
         supabase.from("profiles").select("id, email, name, role").eq("is_active", true).order("email"),
         supabase.from("notification_settings").select("*").eq("setting_key", "advanced_notifications_enabled").single(),
+        supabase.from("notification_settings").select("*").like("setting_key", "in_app_role_%"),
+        supabase.from("notification_settings").select("*").like("setting_key", "in_app_user_%"),
       ]);
 
       if (prefsResult.error) throw prefsResult.error;
@@ -162,6 +180,35 @@ export default function NotificationManagement() {
         };
       });
       setInAppPreferences(inAppPrefs);
+      
+      // Parse in-app role preferences
+      const inAppRolePrefs: InAppRolePreference[] = [];
+      Object.keys(STATUS_LABELS).forEach(statusType => {
+        (['admin', 'manager', 'user'] as const).forEach(role => {
+          const key = `in_app_role_${role}_${statusType}`;
+          const existing = inAppRoleResult.data?.find(s => s.setting_key === key);
+          inAppRolePrefs.push({
+            status_type: statusType,
+            role,
+            is_enabled: existing?.setting_value ?? true
+          });
+        });
+      });
+      setInAppRolePreferences(inAppRolePrefs);
+      
+      // Parse in-app user preferences
+      const inAppUserPrefs: InAppUserPreference[] = [];
+      inAppUserResult.data?.forEach(setting => {
+        const match = setting.setting_key.match(/^in_app_user_(.+)_(.+)$/);
+        if (match) {
+          inAppUserPrefs.push({
+            user_id: match[1],
+            status_type: match[2],
+            is_enabled: setting.setting_value
+          });
+        }
+      });
+      setInAppUserPreferences(inAppUserPrefs);
       
       setRolePreferences(rolePrefsResult.data || []);
       setUserPreferences(userPrefsResult.data || []);
@@ -294,6 +341,110 @@ export default function NotificationManagement() {
         variant: "destructive",
       });
       console.error("Error updating user preference:", error);
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  const handleInAppRoleToggle = async (statusType: string, role: 'admin' | 'manager' | 'user', currentValue: boolean) => {
+    const key = `in-app-role-${statusType}-${role}`;
+    setUpdating(key);
+    try {
+      const settingKey = `in_app_role_${role}_${statusType}`;
+      const { data: existing } = await supabase
+        .from("notification_settings")
+        .select("*")
+        .eq("setting_key", settingKey)
+        .single();
+      
+      if (existing) {
+        const { error } = await supabase
+          .from("notification_settings")
+          .update({ 
+            setting_value: !currentValue,
+            updated_at: new Date().toISOString()
+          })
+          .eq("setting_key", settingKey);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("notification_settings")
+          .insert({ 
+            setting_key: settingKey,
+            setting_value: !currentValue
+          });
+        if (error) throw error;
+      }
+
+      setInAppRolePreferences(prev =>
+        prev.map(pref =>
+          pref.status_type === statusType && pref.role === role
+            ? { ...pref, is_enabled: !currentValue }
+            : pref
+        )
+      );
+
+      toast({
+        title: "Updated",
+        description: `${ROLE_LABELS[role]?.label} in-app notifications ${!currentValue ? "enabled" : "disabled"}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to update in-app role notification preference",
+        variant: "destructive",
+      });
+      console.error("Error updating in-app role preference:", error);
+    } finally {
+      setUpdating(null);
+    }
+  };
+
+  const handleInAppUserToggle = async (statusType: string, userId: string, currentEnabled: boolean) => {
+    const key = `in-app-user-${statusType}-${userId}`;
+    setUpdating(key);
+    
+    try {
+      const settingKey = `in_app_user_${userId}_${statusType}`;
+      
+      if (currentEnabled) {
+        const { error } = await supabase
+          .from("notification_settings")
+          .delete()
+          .eq("setting_key", settingKey);
+        if (error) throw error;
+
+        setInAppUserPreferences(prev =>
+          prev.filter(pref => !(pref.status_type === statusType && pref.user_id === userId))
+        );
+      } else {
+        const { error } = await supabase
+          .from("notification_settings")
+          .insert({ 
+            setting_key: settingKey,
+            setting_value: true
+          });
+        if (error) throw error;
+
+        setInAppUserPreferences(prev => [...prev, {
+          user_id: userId,
+          status_type: statusType,
+          is_enabled: true
+        }]);
+      }
+
+      const userEmail = profiles.find((p) => p.id === userId)?.email || "User";
+      toast({
+        title: "Updated",
+        description: `In-app notifications ${!currentEnabled ? "enabled" : "disabled"} for ${userEmail}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to update user in-app notification preference",
+        variant: "destructive",
+      });
+      console.error("Error updating user in-app preference:", error);
     } finally {
       setUpdating(null);
     }
@@ -637,18 +788,24 @@ export default function NotificationManagement() {
           </CardHeader>
           
           <CardContent className={`pt-6 space-y-6 transition-opacity duration-200 ${!advancedEnabled ? 'opacity-40 pointer-events-none' : ''}`}>
-            {/* Role-Based Notifications Section */}
+            {/* Role-Based Email Notifications Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-3 pb-2">
-                <div className="p-1.5 rounded-md bg-blue-500/10">
-                  <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+              <div className="flex items-center justify-between pb-2">
+                <div className="flex items-center gap-3">
+                  <div className="p-1.5 rounded-md bg-blue-500/10">
+                    <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold">Role-Based Email Notifications</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Configure which roles receive email notifications for each status
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-sm font-semibold">Role-Based Notifications</h3>
-                  <p className="text-xs text-muted-foreground">
-                    Configure which roles receive notifications for each status
-                  </p>
-                </div>
+                <Badge variant="outline" className="gap-1.5">
+                  <Send className="h-3 w-3" />
+                  Email
+                </Badge>
               </div>
               
               <Select 
@@ -732,18 +889,125 @@ export default function NotificationManagement() {
 
             <Separator className="my-6" />
 
-            {/* User-Specific Notifications Section */}
+            {/* Role-Based In-App Notifications Section */}
             <div className="space-y-4">
-              <div className="flex items-center gap-3 pb-2">
-                <div className="p-1.5 rounded-md bg-purple-500/10">
-                  <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+              <div className="flex items-center justify-between pb-2">
+                <div className="flex items-center gap-3">
+                  <div className="p-1.5 rounded-md bg-cyan-500/10">
+                    <Shield className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold">Role-Based In-App Notifications</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Configure which roles receive in-app notifications for each status
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <h3 className="text-sm font-semibold">User-Specific Notifications</h3>
-                  <p className="text-xs text-muted-foreground">
-                    Add individual users to receive notifications
-                  </p>
+                <Badge variant="outline" className="gap-1.5">
+                  <Bell className="h-3 w-3" />
+                  In-App
+                </Badge>
+              </div>
+              
+              <Select 
+                value={selectedInAppRoleStatus} 
+                onValueChange={setSelectedInAppRoleStatus}
+                disabled={!advancedEnabled}
+              >
+                <SelectTrigger className="w-full border-2 h-11 bg-background">
+                  <SelectValue placeholder="Select status type to configure" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-2 z-50">
+                  {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
+                    const StatusIcon = statusInfo.icon;
+                    return (
+                      <SelectItem 
+                        key={statusType} 
+                        value={statusType}
+                        className="cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2">
+                          <StatusIcon className="h-4 w-4" />
+                          <span className="font-medium">{statusInfo.label}</span>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+
+              {selectedInAppRoleStatus && advancedEnabled && (
+                <div className="border-2 rounded-lg p-4 bg-gradient-to-br from-background to-muted/30 shadow-sm">
+                  <div className="grid grid-cols-3 gap-3">
+                    {(['admin', 'manager', 'user'] as const).map((role) => {
+                      const pref = inAppRolePreferences.find(
+                        (p) => p.status_type === selectedInAppRoleStatus && p.role === role
+                      );
+                      const RoleIcon = ROLE_LABELS[role].icon;
+                      const updateKey = `in-app-role-${selectedInAppRoleStatus}-${role}`;
+                      
+                      return (
+                        <div
+                          key={role}
+                          className={`flex flex-col gap-3 p-3 rounded-lg border-2 transition-all duration-200 ${
+                            pref?.is_enabled 
+                              ? 'bg-primary/5 border-primary/40 shadow-sm' 
+                              : 'bg-muted/30 border-muted'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2">
+                            <RoleIcon className={`h-4 w-4 ${ROLE_LABELS[role].color}`} />
+                            <span className="text-xs font-semibold">{ROLE_LABELS[role].label}</span>
+                          </div>
+                          <div className="flex items-center justify-between">
+                            {updating === updateKey && (
+                              <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                            )}
+                            <Switch
+                              checked={pref?.is_enabled || false}
+                              onCheckedChange={() => handleInAppRoleToggle(selectedInAppRoleStatus, role, pref?.is_enabled || false)}
+                              disabled={updating === updateKey || !advancedEnabled}
+                              className={`ml-auto ${
+                                pref?.is_enabled 
+                                  ? 'data-[state=checked]:bg-green-600' 
+                                  : 'data-[state=unchecked]:bg-gray-400'
+                              }`}
+                            />
+                          </div>
+                          <Badge 
+                            variant={pref?.is_enabled ? "default" : "secondary"}
+                            className="text-[10px] w-full justify-center"
+                          >
+                            {pref?.is_enabled ? 'Active' : 'Inactive'}
+                          </Badge>
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
+              )}
+            </div>
+
+            <Separator className="my-6" />
+
+            {/* User-Specific Email Notifications Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-2">
+                <div className="flex items-center gap-3">
+                  <div className="p-1.5 rounded-md bg-purple-500/10">
+                    <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold">User-Specific Email Notifications</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Add individual users to receive email notifications
+                    </p>
+                  </div>
+                </div>
+                <Badge variant="outline" className="gap-1.5">
+                  <Send className="h-3 w-3" />
+                  Email
+                </Badge>
               </div>
               
               <Select 
@@ -816,6 +1080,120 @@ export default function NotificationManagement() {
                             <Switch
                               checked={isEnabled}
                               onCheckedChange={() => handleUserToggle(selectedUserStatus, profile.id, isEnabled)}
+                              disabled={updating === updateKey || !advancedEnabled}
+                              className={`${
+                                isEnabled 
+                                  ? 'data-[state=checked]:bg-green-600' 
+                                  : 'data-[state=unchecked]:bg-gray-400'
+                              }`}
+                            />
+                            <Badge 
+                              variant={isEnabled ? "default" : "secondary"}
+                              className="text-[10px] min-w-[60px] justify-center"
+                            >
+                              {isEnabled ? 'Active' : 'Inactive'}
+                            </Badge>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <Separator className="my-6" />
+
+            {/* User-Specific In-App Notifications Section */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between pb-2">
+                <div className="flex items-center gap-3">
+                  <div className="p-1.5 rounded-md bg-pink-500/10">
+                    <Users className="h-4 w-4 text-pink-600 dark:text-pink-400" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm font-semibold">User-Specific In-App Notifications</h3>
+                    <p className="text-xs text-muted-foreground">
+                      Add individual users to receive in-app notifications
+                    </p>
+                  </div>
+                </div>
+                <Badge variant="outline" className="gap-1.5">
+                  <Bell className="h-3 w-3" />
+                  In-App
+                </Badge>
+              </div>
+              
+              <Select 
+                value={selectedInAppUserStatus} 
+                onValueChange={setSelectedInAppUserStatus}
+                disabled={!advancedEnabled}
+              >
+                <SelectTrigger className="w-full border-2 h-11 bg-background">
+                  <SelectValue placeholder="Select status type to configure" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover border-2 z-50">
+                  {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
+                    const StatusIcon = statusInfo.icon;
+                    const userPrefs = inAppUserPreferences.filter((p) => p.status_type === statusType);
+                    return (
+                      <SelectItem 
+                        key={statusType} 
+                        value={statusType}
+                        className="cursor-pointer"
+                      >
+                        <div className="flex items-center justify-between gap-2 w-full">
+                          <div className="flex items-center gap-2">
+                            <StatusIcon className="h-4 w-4" />
+                            <span className="font-medium">{statusInfo.label}</span>
+                          </div>
+                          {userPrefs.length > 0 && (
+                            <Badge variant="secondary" className="text-[10px] h-5 px-2">
+                              {userPrefs.length}
+                            </Badge>
+                          )}
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+
+              {selectedInAppUserStatus && advancedEnabled && (
+                <div className="border-2 rounded-lg p-4 bg-gradient-to-br from-background to-muted/30 shadow-sm max-h-80 overflow-y-auto">
+                  <div className="grid gap-2">
+                    {profiles.map((profile) => {
+                      const isEnabled = inAppUserPreferences.some(
+                        (p) => p.status_type === selectedInAppUserStatus && p.user_id === profile.id
+                      );
+                      const updateKey = `in-app-user-${selectedInAppUserStatus}-${profile.id}`;
+                      const RoleIcon = ROLE_LABELS[profile.role].icon;
+                      
+                      return (
+                        <div
+                          key={profile.id}
+                          className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 ${
+                            isEnabled 
+                              ? 'bg-primary/5 border-primary/40 shadow-sm' 
+                              : 'bg-muted/30 border-muted hover:border-muted-foreground/20'
+                          }`}
+                        >
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className={`p-1.5 rounded-md ${isEnabled ? 'bg-background shadow-sm' : 'bg-background/40'}`}>
+                              <RoleIcon className={`h-4 w-4 ${ROLE_LABELS[profile.role].color}`} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <p className="text-sm font-medium truncate">{profile.name}</p>
+                              <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-3">
+                            {updating === updateKey && (
+                              <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                            )}
+                            <Switch
+                              checked={isEnabled}
+                              onCheckedChange={() => handleInAppUserToggle(selectedInAppUserStatus, profile.id, isEnabled)}
                               disabled={updating === updateKey || !advancedEnabled}
                               className={`${
                                 isEnabled 
