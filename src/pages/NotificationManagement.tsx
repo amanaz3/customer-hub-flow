@@ -274,11 +274,11 @@ export default function NotificationManagement() {
     try {
       const { error } = await supabase
         .from("notification_settings")
-        .upsert({
-          setting_key: "advanced_notifications_enabled",
+        .update({
           setting_value: enabled,
           updated_at: new Date().toISOString(),
-        });
+        })
+        .eq("setting_key", "advanced_notifications_enabled");
 
       if (error) throw error;
 
