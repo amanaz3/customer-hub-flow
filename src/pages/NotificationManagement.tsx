@@ -703,7 +703,7 @@ export default function NotificationManagement() {
               </AccordionTrigger>
               <AccordionContent className="px-6 pt-6 pb-4">
                 <div className="grid gap-3">
-                  {inAppPreferences.filter(pref => !['Need More Info', 'Ready for Bank'].includes(pref.status_type)).map((pref, index) => {
+                  {inAppPreferences.filter(pref => !['Sent to Bank', 'Need More Info', 'Ready for Bank'].includes(pref.status_type)).map((pref, index) => {
                     const statusInfo = STATUS_LABELS[pref.status_type];
                     const StatusIcon = statusInfo?.icon || Bell;
                     const key = `in-app-${pref.status_type}`;
@@ -753,7 +753,7 @@ export default function NotificationManagement() {
                             </Badge>
                           </div>
                         </div>
-                        {index < inAppPreferences.filter(p => !['Need More Info', 'Ready for Bank'].includes(p.status_type)).length - 1 && (
+                        {index < inAppPreferences.filter(p => !['Sent to Bank', 'Need More Info', 'Ready for Bank'].includes(p.status_type)).length - 1 && (
                           <Separator className="my-2 opacity-50" />
                         )}
                       </div>
@@ -1056,7 +1056,7 @@ export default function NotificationManagement() {
                         <SelectValue placeholder="Select status type to configure" />
                       </SelectTrigger>
                       <SelectContent className="bg-popover border-2 z-50">
-                        {Object.entries(STATUS_LABELS).filter(([statusType]) => !['Need More Info', 'Ready for Bank'].includes(statusType)).map(([statusType, statusInfo]) => {
+                        {Object.entries(STATUS_LABELS).filter(([statusType]) => !['Sent to Bank', 'Need More Info', 'Ready for Bank'].includes(statusType)).map(([statusType, statusInfo]) => {
                           const StatusIcon = statusInfo.icon;
                           return (
                             <SelectItem 
@@ -1141,7 +1141,7 @@ export default function NotificationManagement() {
                         <SelectValue placeholder="Select status type to configure" />
                       </SelectTrigger>
                       <SelectContent className="bg-popover border-2 z-50">
-                        {Object.entries(STATUS_LABELS).filter(([statusType]) => !['Need More Info', 'Ready for Bank'].includes(statusType)).map(([statusType, statusInfo]) => {
+                        {Object.entries(STATUS_LABELS).filter(([statusType]) => !['Sent to Bank', 'Need More Info', 'Ready for Bank'].includes(statusType)).map(([statusType, statusInfo]) => {
                           const StatusIcon = statusInfo.icon;
                           const userPrefs = inAppUserPreferences.filter((p) => p.status_type === statusType);
                           return (
