@@ -1,7 +1,12 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { Resend } from "npm:resend@2.0.0";
+import { createClient } from "https://esm.sh/@supabase/supabase-js@2.50.0";
 
 const resend = new Resend(Deno.env.get("RESEND_API_KEY"));
+const supabase = createClient(
+  Deno.env.get("SUPABASE_URL") ?? "",
+  Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
+);
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -16,6 +21,8 @@ interface NotificationEmailRequest {
   type: string;
   actionUrl?: string;
   customerName?: string;
+  userId?: string;
+  statusType?: string;
 }
 
 const getEmailTemplate = (data: NotificationEmailRequest) => {
@@ -111,8 +118,75 @@ const handler = async (req: Request): Promise<Response> => {
     console.log('Sending notification email:', { 
       to: emailData.recipientEmail, 
       type: emailData.type,
-      title: emailData.title 
+      title: emailData.title,
+      userId: emailData.userId,
+      statusType: emailData.statusType
     });
+
+    // Check if advanced notifications are enabled
+    const { data: advancedSetting } = await supabase
+      .from("notification_settings")
+      .select("setting_value")
+      .eq("setting_key", "advanced_notifications_enabled")
+      .single();
+
+    const advancedEnabled = advancedSetting?.setting_value ?? false;
+    console.log('Advanced notifications enabled:', advancedEnabled);
+
+    // If advanced notifications are enabled, check preferences
+    if (advancedEnabled && emailData.userId && emailData.statusType) {
+      // Get user's role
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", emailData.userId)
+        .single();
+
+      if (profile?.role) {
+        // Check role-based preference
+        const { data: rolePreference } = await supabase
+          .from("notification_role_preferences")
+          .select("is_enabled")
+          .eq("role", profile.role)
+          .eq("status_type", emailData.statusType)
+          .single();
+
+        console.log('Role preference:', { role: profile.role, statusType: emailData.statusType, enabled: rolePreference?.is_enabled });
+
+        // Check user-specific preference
+        const { data: userPreference } = await supabase
+          .from("notification_user_preferences")
+          .select("is_enabled")
+          .eq("user_id", emailData.userId)
+          .eq("status_type", emailData.statusType)
+          .single();
+
+        console.log('User preference:', { userId: emailData.userId, statusType: emailData.statusType, enabled: userPreference?.is_enabled });
+
+        // If either role or user preference explicitly disables it, skip email
+        if (rolePreference && !rolePreference.is_enabled) {
+          console.log('Email blocked by role preference');
+          return new Response(
+            JSON.stringify({ success: true, message: 'Email skipped due to role preference' }),
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json", ...corsHeaders },
+            }
+          );
+        }
+
+        if (userPreference && !userPreference.is_enabled) {
+          console.log('Email blocked by user preference');
+          return new Response(
+            JSON.stringify({ success: true, message: 'Email skipped due to user preference' }),
+            {
+              status: 200,
+              headers: { "Content-Type": "application/json", ...corsHeaders },
+            }
+          );
+        }
+      }
+    }
 
     const htmlContent = getEmailTemplate(emailData);
     
