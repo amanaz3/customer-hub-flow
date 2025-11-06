@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -316,15 +317,24 @@ export default function NotificationManagement() {
         </p>
       </div>
 
-      <div className="grid gap-3">
+      <Tabs defaultValue="recommended" className="w-full">
+        <TabsList className="grid w-full grid-cols-2 mb-4">
+          <TabsTrigger value="recommended">
+            <Bell className="h-4 w-4 mr-2" />
+            Recommended
+          </TabsTrigger>
+          <TabsTrigger value="advanced">
+            <Shield className="h-4 w-4 mr-2" />
+            Advanced
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="recommended" className="space-y-3">
         <Card>
           <CardHeader className="pb-2 space-y-0">
-            <div className="flex items-center justify-between">
-              <CardTitle className="text-base">Status Change Notifications</CardTitle>
-              <Badge variant="default" className="text-[10px] bg-blue-500">Recommended</Badge>
-            </div>
+            <CardTitle className="text-base">Status Change Notifications</CardTitle>
             <CardDescription className="text-[11px]">
-              Toggle notifications for each status
+              Toggle notifications for each status change
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-3">
@@ -382,7 +392,9 @@ export default function NotificationManagement() {
             </div>
           </CardContent>
         </Card>
+        </TabsContent>
 
+        <TabsContent value="advanced" className="space-y-3">
         <Card className="border-primary/30 bg-gradient-to-br from-background to-muted/20">
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
@@ -593,7 +605,8 @@ export default function NotificationManagement() {
             </div>
           </CardContent>
         </Card>
-      </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
