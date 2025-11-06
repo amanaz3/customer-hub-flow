@@ -108,6 +108,7 @@ export default function NotificationManagement() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [selectedRoleStatus, setSelectedRoleStatus] = useState<string>("completed");
   const [selectedUserStatus, setSelectedUserStatus] = useState<string>("completed");
+  const [advancedEnabled, setAdvancedEnabled] = useState(false);
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
   const { toast } = useToast();
@@ -118,11 +119,12 @@ export default function NotificationManagement() {
 
   const fetchAllData = async () => {
     try {
-      const [prefsResult, rolePrefsResult, userPrefsResult, profilesResult] = await Promise.all([
+      const [prefsResult, rolePrefsResult, userPrefsResult, profilesResult, settingsResult] = await Promise.all([
         supabase.from("application_status_preferences").select("*").order("status_type"),
         supabase.from("notification_role_preferences").select("*").order("status_type, role"),
         supabase.from("notification_user_preferences").select("*").order("status_type"),
         supabase.from("profiles").select("id, email, name, role").eq("is_active", true).order("email"),
+        supabase.from("notification_settings").select("*").eq("setting_key", "advanced_notifications_enabled").single(),
       ]);
 
       if (prefsResult.error) throw prefsResult.error;
@@ -134,6 +136,7 @@ export default function NotificationManagement() {
       setRolePreferences(rolePrefsResult.data || []);
       setUserPreferences(userPrefsResult.data || []);
       setProfiles(profilesResult.data || []);
+      setAdvancedEnabled(settingsResult.data?.setting_value || false);
     } catch (error: any) {
       toast({
         title: "Error",
@@ -266,6 +269,36 @@ export default function NotificationManagement() {
     }
   };
 
+  const handleAdvancedToggle = async (enabled: boolean) => {
+    setUpdating("advanced");
+    try {
+      const { error } = await supabase
+        .from("notification_settings")
+        .upsert({
+          setting_key: "advanced_notifications_enabled",
+          setting_value: enabled,
+          updated_at: new Date().toISOString(),
+        });
+
+      if (error) throw error;
+
+      setAdvancedEnabled(enabled);
+      toast({
+        title: "Updated",
+        description: `Advanced notifications ${enabled ? "enabled" : "disabled"}`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to update advanced notifications setting",
+        variant: "destructive",
+      });
+      console.error("Error updating advanced setting:", error);
+    } finally {
+      setUpdating(null);
+    }
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -284,6 +317,38 @@ export default function NotificationManagement() {
       </div>
 
       <div className="grid gap-3">
+        <Card className="border-primary/20">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-base">Advanced Notifications</CardTitle>
+                <CardDescription className="text-[11px]">
+                  Enable role-based and user-specific notification controls
+                </CardDescription>
+              </div>
+              <div className="relative">
+                <Switch
+                  checked={advancedEnabled}
+                  onCheckedChange={handleAdvancedToggle}
+                  disabled={updating === "advanced"}
+                  className={`scale-90 ${
+                    advancedEnabled 
+                      ? 'data-[state=checked]:bg-green-500' 
+                      : 'data-[state=unchecked]:bg-red-500'
+                  }`}
+                />
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  {advancedEnabled ? (
+                    <Check className="h-3 w-3 text-white" />
+                  ) : (
+                    <X className="h-3 w-3 text-white" />
+                  )}
+                </div>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
         <Card>
           <CardHeader className="pb-2 space-y-0">
             <CardTitle className="text-base">Status Change Notifications</CardTitle>
@@ -347,16 +412,27 @@ export default function NotificationManagement() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={!advancedEnabled ? "opacity-50" : ""}>
           <CardHeader className="pb-2 space-y-1">
-            <CardTitle className="text-base">Role-Based Notifications</CardTitle>
-            <CardDescription className="text-[11px]">
-              Configure which roles receive notifications
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-base">Role-Based Notifications</CardTitle>
+                <CardDescription className="text-[11px]">
+                  Configure which roles receive notifications
+                </CardDescription>
+              </div>
+              {!advancedEnabled && (
+                <Badge variant="secondary" className="text-[10px]">Muted</Badge>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="pt-3">
             <div className="space-y-3">
-              <Select value={selectedRoleStatus} onValueChange={setSelectedRoleStatus}>
+              <Select 
+                value={selectedRoleStatus} 
+                onValueChange={setSelectedRoleStatus}
+                disabled={!advancedEnabled}
+              >
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select status type" />
                 </SelectTrigger>
@@ -400,7 +476,7 @@ export default function NotificationManagement() {
                             <Switch
                               checked={pref?.is_enabled || false}
                               onCheckedChange={() => handleRoleToggle(selectedRoleStatus, role, pref?.is_enabled || false)}
-                              disabled={updating === updateKey}
+                              disabled={updating === updateKey || !advancedEnabled}
                               className={`scale-75 ${
                                 pref?.is_enabled 
                                   ? 'data-[state=checked]:bg-green-500' 
@@ -425,17 +501,28 @@ export default function NotificationManagement() {
           </CardContent>
         </Card>
 
-        <Card>
+        <Card className={!advancedEnabled ? "opacity-50" : ""}>
           <CardHeader className="pb-2 space-y-1">
-            <CardTitle className="text-base">User-Specific Notifications</CardTitle>
-            <CardDescription className="text-[11px]">
-              Add specific users to receive notifications
-            </CardDescription>
+            <div className="flex items-center justify-between">
+              <div>
+                <CardTitle className="text-base">User-Specific Notifications</CardTitle>
+                <CardDescription className="text-[11px]">
+                  Add specific users to receive notifications
+                </CardDescription>
+              </div>
+              {!advancedEnabled && (
+                <Badge variant="secondary" className="text-[10px]">Muted</Badge>
+              )}
+            </div>
           </CardHeader>
           <CardContent className="pt-3">
             <div className="space-y-3">
               <div className="flex items-center gap-2">
-                <Select value={selectedUserStatus} onValueChange={setSelectedUserStatus}>
+                <Select 
+                  value={selectedUserStatus} 
+                  onValueChange={setSelectedUserStatus}
+                  disabled={!advancedEnabled}
+                >
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select status type" />
                   </SelectTrigger>
@@ -489,7 +576,7 @@ export default function NotificationManagement() {
                             <Switch
                               checked={isEnabled}
                               onCheckedChange={() => handleUserToggle(selectedUserStatus, profile.id, isEnabled)}
-                              disabled={updating === updateKey}
+                              disabled={updating === updateKey || !advancedEnabled}
                               className={`scale-75 ${
                                 isEnabled 
                                   ? 'data-[state=checked]:bg-green-500' 
