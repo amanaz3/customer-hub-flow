@@ -74,41 +74,59 @@ interface Profile {
 }
 
 const STATUS_LABELS: Record<string, { label: string; description: string; icon: any; color: string }> = {
-  draft: {
+  Draft: {
     label: "Draft",
     description: "Application created but not submitted",
     icon: FileEdit,
     color: "bg-slate-500/10 border-slate-500/30 text-slate-600 dark:text-slate-400",
   },
-  submitted: {
+  Submitted: {
     label: "Submitted",
     description: "Application has been submitted",
     icon: Send,
     color: "bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400",
   },
-  returned: {
+  Returned: {
     label: "Returned",
     description: "Application returned for corrections",
     icon: ArrowLeftCircle,
     color: "bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400",
   },
-  paid: {
+  "Sent to Bank": {
+    label: "Sent to Bank",
+    description: "Application sent to bank for processing",
+    icon: Send,
+    color: "bg-indigo-500/10 border-indigo-500/30 text-indigo-600 dark:text-indigo-400",
+  },
+  Complete: {
+    label: "Complete",
+    description: "Application successfully completed",
+    icon: CheckCircle,
+    color: "bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400",
+  },
+  Rejected: {
+    label: "Rejected",
+    description: "Application rejected",
+    icon: XCircle,
+    color: "bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400",
+  },
+  "Need More Info": {
+    label: "Need More Info",
+    description: "Additional information required",
+    icon: Bell,
+    color: "bg-yellow-500/10 border-yellow-500/30 text-yellow-600 dark:text-yellow-400",
+  },
+  Paid: {
     label: "Paid",
     description: "Payment received for application",
     icon: DollarSign,
     color: "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400",
   },
-  completed: {
-    label: "Completed",
-    description: "Application successfully completed",
-    icon: CheckCircle,
-    color: "bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400",
-  },
-  rejected: {
-    label: "Rejected",
-    description: "Application rejected",
-    icon: XCircle,
-    color: "bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400",
+  "Ready for Bank": {
+    label: "Ready for Bank",
+    description: "Application ready to be sent to bank",
+    icon: Star,
+    color: "bg-purple-500/10 border-purple-500/30 text-purple-600 dark:text-purple-400",
   },
 };
 
