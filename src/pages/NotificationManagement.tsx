@@ -4,6 +4,7 @@ import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Separator } from "@/components/ui/separator";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +22,9 @@ import {
   UserCog,
   User,
   Check,
-  X
+  X,
+  Sparkles,
+  Star
 } from "lucide-react";
 
 interface StatusPreference {
@@ -51,36 +54,42 @@ interface Profile {
   role: 'admin' | 'manager' | 'user';
 }
 
-const STATUS_LABELS: Record<string, { label: string; description: string; icon: any }> = {
+const STATUS_LABELS: Record<string, { label: string; description: string; icon: any; color: string }> = {
   draft: {
     label: "Draft",
     description: "Application created but not submitted",
     icon: FileEdit,
+    color: "bg-slate-500/10 border-slate-500/30 text-slate-600 dark:text-slate-400",
   },
   submitted: {
     label: "Submitted",
     description: "Application has been submitted",
     icon: Send,
+    color: "bg-blue-500/10 border-blue-500/30 text-blue-600 dark:text-blue-400",
   },
   returned: {
     label: "Returned",
     description: "Application returned for corrections",
     icon: ArrowLeftCircle,
+    color: "bg-orange-500/10 border-orange-500/30 text-orange-600 dark:text-orange-400",
   },
   paid: {
     label: "Paid",
     description: "Payment received for application",
     icon: DollarSign,
+    color: "bg-emerald-500/10 border-emerald-500/30 text-emerald-600 dark:text-emerald-400",
   },
   completed: {
     label: "Completed",
     description: "Application successfully completed",
     icon: CheckCircle,
+    color: "bg-green-500/10 border-green-500/30 text-green-600 dark:text-green-400",
   },
   rejected: {
     label: "Rejected",
     description: "Application rejected",
     icon: XCircle,
+    color: "bg-red-500/10 border-red-500/30 text-red-600 dark:text-red-400",
   },
 };
 
@@ -309,83 +318,105 @@ export default function NotificationManagement() {
   }
 
   return (
-    <div className="container mx-auto py-4 px-4 max-w-6xl">
-      <div className="mb-4">
-        <h1 className="text-2xl font-bold mb-1">Notification Settings</h1>
-        <p className="text-xs text-muted-foreground">
-          Configure email notifications for application status changes
-        </p>
+    <div className="container mx-auto py-6 px-4 max-w-6xl">
+      <div className="mb-6 space-y-2">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
+            <Bell className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Notification Settings</h1>
+            <p className="text-sm text-muted-foreground">
+              Configure email notifications for application status changes
+            </p>
+          </div>
+        </div>
+        <Separator className="my-4" />
       </div>
 
       <Tabs defaultValue="recommended" className="w-full">
-        <TabsList className="grid w-full grid-cols-2 mb-4">
-          <TabsTrigger value="recommended">
-            <Bell className="h-4 w-4 mr-2" />
-            Recommended
+        <TabsList className="grid w-full grid-cols-2 mb-6 h-auto p-1 bg-muted/50">
+          <TabsTrigger 
+            value="recommended" 
+            className="gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-green-500 data-[state=active]:to-emerald-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all"
+          >
+            <Star className="h-4 w-4" />
+            <span className="font-semibold">Recommended</span>
           </TabsTrigger>
-          <TabsTrigger value="advanced">
-            <Shield className="h-4 w-4 mr-2" />
-            Advanced
+          <TabsTrigger 
+            value="advanced"
+            className="gap-2 data-[state=active]:bg-gradient-to-r data-[state=active]:from-violet-500 data-[state=active]:to-purple-500 data-[state=active]:text-white data-[state=active]:shadow-md transition-all"
+          >
+            <Sparkles className="h-4 w-4" />
+            <span className="font-semibold">Advanced</span>
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="recommended" className="space-y-3">
-        <Card>
-          <CardHeader className="pb-2 space-y-0">
-            <CardTitle className="text-base">Status Change Notifications</CardTitle>
-            <CardDescription className="text-[11px]">
-              Toggle notifications for each status change
+        <TabsContent value="recommended" className="space-y-4">
+        <Card className="border-2 shadow-lg">
+          <CardHeader className="pb-4 border-b bg-gradient-to-r from-green-500/5 to-emerald-500/5">
+            <div className="flex items-center gap-2">
+              <Bell className="h-5 w-5 text-green-600 dark:text-green-400" />
+              <CardTitle className="text-lg">Status Change Notifications</CardTitle>
+            </div>
+            <CardDescription className="text-xs">
+              Enable or disable email notifications for each application status
             </CardDescription>
           </CardHeader>
-          <CardContent className="pt-3">
-            <div className="grid gap-1.5">
-              {preferences.map((pref) => {
-                const StatusIcon = STATUS_LABELS[pref.status_type]?.icon || Bell;
+          <CardContent className="pt-6">
+            <div className="grid gap-3">
+              {preferences.map((pref, index) => {
+                const statusInfo = STATUS_LABELS[pref.status_type];
+                const StatusIcon = statusInfo?.icon || Bell;
                 return (
-                  <div
-                    key={pref.id}
-                    className="flex items-center justify-between gap-3 py-2 px-3 rounded-md border bg-card hover:bg-accent/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-2 flex-1 min-w-0">
-                      <div className={`p-1.5 rounded transition-colors ${
-                        pref.is_enabled ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
-                      }`}>
-                        <StatusIcon className="h-3.5 w-3.5" />
+                  <div key={pref.id}>
+                    <div
+                      className={`group relative flex items-center justify-between gap-4 py-3 px-4 rounded-lg border-2 transition-all duration-200 ${
+                        statusInfo?.color || 'bg-muted/30'
+                      } ${pref.is_enabled ? 'shadow-sm hover:shadow-md' : 'opacity-60 hover:opacity-80'}`}
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className={`p-2 rounded-md ${pref.is_enabled ? 'bg-background/80 shadow-sm' : 'bg-background/40'}`}>
+                          <StatusIcon className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <Label
+                            htmlFor={pref.status_type}
+                            className="text-sm font-semibold cursor-pointer block"
+                          >
+                            {statusInfo?.label || pref.status_type}
+                          </Label>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {statusInfo?.description || ''}
+                          </p>
+                        </div>
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <Label
-                          htmlFor={pref.status_type}
-                          className="text-sm font-medium cursor-pointer"
-                        >
-                          {STATUS_LABELS[pref.status_type]?.label || pref.status_type}
-                        </Label>
-                      </div>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      {updating === pref.status_type && (
-                        <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
-                      )}
-                      <div className="relative">
+                      <div className="flex items-center gap-3">
+                        {updating === pref.status_type && (
+                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                        )}
                         <Switch
                           id={pref.status_type}
                           checked={pref.is_enabled}
                           onCheckedChange={() => handleToggle(pref.status_type, pref.is_enabled)}
                           disabled={updating === pref.status_type}
-                          className={`scale-75 ${
+                          className={`${
                             pref.is_enabled 
-                              ? 'data-[state=checked]:bg-green-500' 
-                              : 'data-[state=unchecked]:bg-red-500'
+                              ? 'data-[state=checked]:bg-green-600' 
+                              : 'data-[state=unchecked]:bg-gray-400'
                           }`}
                         />
-                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                          {pref.is_enabled ? (
-                            <Check className="h-2.5 w-2.5 text-white" />
-                          ) : (
-                            <X className="h-2.5 w-2.5 text-white" />
-                          )}
-                        </div>
+                        <Badge 
+                          variant={pref.is_enabled ? "default" : "secondary"}
+                          className="text-xs font-medium min-w-[60px] justify-center"
+                        >
+                          {pref.is_enabled ? 'Enabled' : 'Disabled'}
+                        </Badge>
                       </div>
                     </div>
+                    {index < preferences.length - 1 && (
+                      <Separator className="my-2 opacity-50" />
+                    )}
                   </div>
                 );
               })}
@@ -394,65 +425,88 @@ export default function NotificationManagement() {
         </Card>
         </TabsContent>
 
-        <TabsContent value="advanced" className="space-y-3">
-        <Card className="border-primary/30 bg-gradient-to-br from-background to-muted/20">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CardTitle className="text-base">Advanced Notifications</CardTitle>
-                <Badge variant="secondary" className="text-[10px]">Advanced</Badge>
-              </div>
-              <div className="relative">
-                <Switch
-                  checked={advancedEnabled}
-                  onCheckedChange={handleAdvancedToggle}
-                  disabled={updating === "advanced"}
-                  className={`scale-90 ${
-                    advancedEnabled 
-                      ? 'data-[state=checked]:bg-green-500' 
-                      : 'data-[state=unchecked]:bg-red-500'
-                  }`}
-                />
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  {advancedEnabled ? (
-                    <Check className="h-3 w-3 text-white" />
-                  ) : (
-                    <X className="h-3 w-3 text-white" />
+        <TabsContent value="advanced" className="space-y-4">
+        <Card className="border-2 shadow-lg overflow-hidden">
+          <CardHeader className="pb-4 border-b bg-gradient-to-r from-violet-500/5 via-purple-500/5 to-fuchsia-500/5 relative">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-br from-violet-500/10 to-transparent rounded-full blur-2xl" />
+            <div className="relative">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-gradient-to-br from-violet-500/20 to-purple-500/20 border border-violet-500/30">
+                    <Sparkles className="h-5 w-5 text-violet-600 dark:text-violet-400" />
+                  </div>
+                  <div>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      Advanced Notifications
+                      <Badge className="bg-gradient-to-r from-violet-500 to-purple-500 text-white border-0">
+                        Pro
+                      </Badge>
+                    </CardTitle>
+                  </div>
+                </div>
+                <div className="flex items-center gap-3">
+                  {updating === "advanced" && (
+                    <Loader2 className="h-4 w-4 animate-spin text-primary" />
                   )}
+                  <Switch
+                    checked={advancedEnabled}
+                    onCheckedChange={handleAdvancedToggle}
+                    disabled={updating === "advanced"}
+                    className={`${
+                      advancedEnabled 
+                        ? 'data-[state=checked]:bg-green-600' 
+                        : 'data-[state=unchecked]:bg-gray-400'
+                    }`}
+                  />
+                  <Badge 
+                    variant={advancedEnabled ? "default" : "secondary"}
+                    className="text-xs font-medium min-w-[70px] justify-center"
+                  >
+                    {advancedEnabled ? 'Enabled' : 'Disabled'}
+                  </Badge>
                 </div>
               </div>
+              <CardDescription className="text-xs">
+                Fine-tune notification settings with role-based and user-specific controls
+              </CardDescription>
             </div>
-            <CardDescription className="text-[11px]">
-              Configure role-based and user-specific notification controls
-            </CardDescription>
           </CardHeader>
           
-          <CardContent className={`space-y-4 ${!advancedEnabled ? 'opacity-50' : ''}`}>
+          <CardContent className={`pt-6 space-y-6 transition-opacity duration-200 ${!advancedEnabled ? 'opacity-40 pointer-events-none' : ''}`}>
             {/* Role-Based Notifications Section */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Shield className="h-3.5 w-3.5 text-primary" />
-                <h3 className="text-sm font-semibold">Role-Based Notifications</h3>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 pb-2">
+                <div className="p-1.5 rounded-md bg-blue-500/10">
+                  <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold">Role-Based Notifications</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Configure which roles receive notifications for each status
+                  </p>
+                </div>
               </div>
-              <p className="text-[11px] text-muted-foreground mb-2">
-                Configure which roles receive notifications
-              </p>
+              
               <Select 
                 value={selectedRoleStatus} 
                 onValueChange={setSelectedRoleStatus}
                 disabled={!advancedEnabled}
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select status type" />
+                <SelectTrigger className="w-full border-2 h-11 bg-background">
+                  <SelectValue placeholder="Select status type to configure" />
                 </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
+                <SelectContent className="bg-popover border-2 z-50">
                   {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
                     const StatusIcon = statusInfo.icon;
                     return (
-                      <SelectItem key={statusType} value={statusType}>
+                      <SelectItem 
+                        key={statusType} 
+                        value={statusType}
+                        className="cursor-pointer"
+                      >
                         <div className="flex items-center gap-2">
-                          <StatusIcon className="h-3.5 w-3.5" />
-                          <span>{statusInfo.label}</span>
+                          <StatusIcon className="h-4 w-4" />
+                          <span className="font-medium">{statusInfo.label}</span>
                         </div>
                       </SelectItem>
                     );
@@ -461,8 +515,8 @@ export default function NotificationManagement() {
               </Select>
 
               {selectedRoleStatus && advancedEnabled && (
-                <div className="border rounded-md p-3 bg-card">
-                  <div className="grid grid-cols-3 gap-2">
+                <div className="border-2 rounded-lg p-4 bg-gradient-to-br from-background to-muted/30 shadow-sm">
+                  <div className="grid grid-cols-3 gap-3">
                     {(['admin', 'manager', 'user'] as const).map((role) => {
                       const pref = rolePreferences.find(
                         (p) => p.status_type === selectedRoleStatus && p.role === role
@@ -473,33 +527,37 @@ export default function NotificationManagement() {
                       return (
                         <div
                           key={role}
-                          className={`flex items-center justify-between p-2.5 rounded border transition-colors ${
-                            pref?.is_enabled ? 'bg-primary/5 border-primary/30' : 'bg-muted/30'
+                          className={`flex flex-col gap-3 p-3 rounded-lg border-2 transition-all duration-200 ${
+                            pref?.is_enabled 
+                              ? 'bg-primary/5 border-primary/40 shadow-sm' 
+                              : 'bg-muted/30 border-muted'
                           }`}
                         >
-                          <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <RoleIcon className={`h-3.5 w-3.5 flex-shrink-0 ${ROLE_LABELS[role].color}`} />
-                            <span className="text-xs font-medium truncate">{ROLE_LABELS[role].label}</span>
+                          <div className="flex items-center gap-2">
+                            <RoleIcon className={`h-4 w-4 ${ROLE_LABELS[role].color}`} />
+                            <span className="text-xs font-semibold">{ROLE_LABELS[role].label}</span>
                           </div>
-                          <div className="relative">
+                          <div className="flex items-center justify-between">
+                            {updating === updateKey && (
+                              <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                            )}
                             <Switch
                               checked={pref?.is_enabled || false}
                               onCheckedChange={() => handleRoleToggle(selectedRoleStatus, role, pref?.is_enabled || false)}
                               disabled={updating === updateKey || !advancedEnabled}
-                              className={`scale-75 ${
+                              className={`ml-auto ${
                                 pref?.is_enabled 
-                                  ? 'data-[state=checked]:bg-green-500' 
-                                  : 'data-[state=unchecked]:bg-red-500'
+                                  ? 'data-[state=checked]:bg-green-600' 
+                                  : 'data-[state=unchecked]:bg-gray-400'
                               }`}
                             />
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                              {pref?.is_enabled ? (
-                                <Check className="h-2.5 w-2.5 text-white" />
-                              ) : (
-                                <X className="h-2.5 w-2.5 text-white" />
-                              )}
-                            </div>
                           </div>
+                          <Badge 
+                            variant={pref?.is_enabled ? "default" : "secondary"}
+                            className="text-[10px] w-full justify-center"
+                          >
+                            {pref?.is_enabled ? 'Active' : 'Inactive'}
+                          </Badge>
                         </div>
                       );
                     })}
@@ -508,41 +566,47 @@ export default function NotificationManagement() {
               )}
             </div>
 
-            {/* Divider */}
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-            </div>
+            <Separator className="my-6" />
 
             {/* User-Specific Notifications Section */}
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Users className="h-3.5 w-3.5 text-primary" />
-                <h3 className="text-sm font-semibold">User-Specific Notifications</h3>
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 pb-2">
+                <div className="p-1.5 rounded-md bg-purple-500/10">
+                  <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-semibold">User-Specific Notifications</h3>
+                  <p className="text-xs text-muted-foreground">
+                    Add individual users to receive notifications
+                  </p>
+                </div>
               </div>
-              <p className="text-[11px] text-muted-foreground mb-2">
-                Add specific users to receive notifications
-              </p>
+              
               <Select 
                 value={selectedUserStatus} 
                 onValueChange={setSelectedUserStatus}
                 disabled={!advancedEnabled}
               >
-                <SelectTrigger className="w-full">
-                  <SelectValue placeholder="Select status type" />
+                <SelectTrigger className="w-full border-2 h-11 bg-background">
+                  <SelectValue placeholder="Select status type to configure" />
                 </SelectTrigger>
-                <SelectContent className="bg-popover z-50">
+                <SelectContent className="bg-popover border-2 z-50">
                   {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
                     const StatusIcon = statusInfo.icon;
                     const userPrefs = userPreferences.filter((p) => p.status_type === statusType);
                     return (
-                      <SelectItem key={statusType} value={statusType}>
-                        <div className="flex items-center gap-2">
-                          <StatusIcon className="h-3.5 w-3.5" />
-                          <span>{statusInfo.label}</span>
+                      <SelectItem 
+                        key={statusType} 
+                        value={statusType}
+                        className="cursor-pointer"
+                      >
+                        <div className="flex items-center justify-between gap-2 w-full">
+                          <div className="flex items-center gap-2">
+                            <StatusIcon className="h-4 w-4" />
+                            <span className="font-medium">{statusInfo.label}</span>
+                          </div>
                           {userPrefs.length > 0 && (
-                            <Badge variant="secondary" className="text-[10px] h-4 px-1.5 ml-auto">
+                            <Badge variant="secondary" className="text-[10px] h-5 px-2">
                               {userPrefs.length}
                             </Badge>
                           )}
@@ -554,8 +618,8 @@ export default function NotificationManagement() {
               </Select>
 
               {selectedUserStatus && advancedEnabled && (
-                <div className="border rounded-md p-2.5 bg-card">
-                  <div className="grid gap-1.5 max-h-60 overflow-y-auto pr-1">
+                <div className="border-2 rounded-lg p-4 bg-gradient-to-br from-background to-muted/30 shadow-sm max-h-80 overflow-y-auto">
+                  <div className="grid gap-2">
                     {profiles.map((profile) => {
                       const isEnabled = userPreferences.some(
                         (p) => p.status_type === selectedUserStatus && p.user_id === profile.id
@@ -566,35 +630,41 @@ export default function NotificationManagement() {
                       return (
                         <div
                           key={profile.id}
-                          className={`flex items-center justify-between p-2 px-2.5 rounded border transition-colors ${
-                            isEnabled ? 'bg-primary/5 border-primary/30' : 'bg-muted/30'
+                          className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 ${
+                            isEnabled 
+                              ? 'bg-primary/5 border-primary/40 shadow-sm' 
+                              : 'bg-muted/30 border-muted hover:border-muted-foreground/20'
                           }`}
                         >
-                          <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <RoleIcon className={`h-3.5 w-3.5 flex-shrink-0 ${ROLE_LABELS[profile.role].color}`} />
+                          <div className="flex items-center gap-3 flex-1 min-w-0">
+                            <div className={`p-1.5 rounded-md ${isEnabled ? 'bg-background shadow-sm' : 'bg-background/40'}`}>
+                              <RoleIcon className={`h-4 w-4 ${ROLE_LABELS[profile.role].color}`} />
+                            </div>
                             <div className="flex-1 min-w-0">
-                              <p className="text-xs font-medium truncate">{profile.name}</p>
-                              <p className="text-[10px] text-muted-foreground truncate">{profile.email}</p>
+                              <p className="text-sm font-medium truncate">{profile.name}</p>
+                              <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
                             </div>
                           </div>
-                          <div className="relative">
+                          <div className="flex items-center gap-3">
+                            {updating === updateKey && (
+                              <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                            )}
                             <Switch
                               checked={isEnabled}
                               onCheckedChange={() => handleUserToggle(selectedUserStatus, profile.id, isEnabled)}
                               disabled={updating === updateKey || !advancedEnabled}
-                              className={`scale-75 ${
+                              className={`${
                                 isEnabled 
-                                  ? 'data-[state=checked]:bg-green-500' 
-                                  : 'data-[state=unchecked]:bg-red-500'
+                                  ? 'data-[state=checked]:bg-green-600' 
+                                  : 'data-[state=unchecked]:bg-gray-400'
                               }`}
                             />
-                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                              {isEnabled ? (
-                                <Check className="h-2.5 w-2.5 text-white" />
-                              ) : (
-                                <X className="h-2.5 w-2.5 text-white" />
-                              )}
-                            </div>
+                            <Badge 
+                              variant={isEnabled ? "default" : "secondary"}
+                              className="text-[10px] min-w-[60px] justify-center"
+                            >
+                              {isEnabled ? 'Active' : 'Inactive'}
+                            </Badge>
                           </div>
                         </div>
                       );
