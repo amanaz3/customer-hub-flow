@@ -33,6 +33,12 @@ interface StatusPreference {
   is_enabled: boolean;
 }
 
+interface InAppPreference {
+  id?: string;
+  status_type: string;
+  is_enabled: boolean;
+}
+
 interface RolePreference {
   id: string;
   status_type: string;
@@ -113,6 +119,7 @@ const ROLE_LABELS: Record<string, { label: string; icon: any; color: string }> =
 
 export default function NotificationManagement() {
   const [preferences, setPreferences] = useState<StatusPreference[]>([]);
+  const [inAppPreferences, setInAppPreferences] = useState<InAppPreference[]>([]);
   const [rolePreferences, setRolePreferences] = useState<RolePreference[]>([]);
   const [userPreferences, setUserPreferences] = useState<UserPreference[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -129,8 +136,9 @@ export default function NotificationManagement() {
 
   const fetchAllData = async () => {
     try {
-      const [prefsResult, rolePrefsResult, userPrefsResult, profilesResult, settingsResult] = await Promise.all([
+      const [prefsResult, inAppResult, rolePrefsResult, userPrefsResult, profilesResult, settingsResult] = await Promise.all([
         supabase.from("application_status_preferences").select("*").order("status_type"),
+        supabase.from("notification_settings").select("*").like("setting_key", "in_app_%"),
         supabase.from("notification_role_preferences").select("*").order("status_type, role"),
         supabase.from("notification_user_preferences").select("*").order("status_type"),
         supabase.from("profiles").select("id, email, name, role").eq("is_active", true).order("email"),
@@ -143,6 +151,18 @@ export default function NotificationManagement() {
       if (profilesResult.error) throw profilesResult.error;
 
       setPreferences(prefsResult.data || []);
+      
+      // Parse in-app preferences
+      const inAppPrefs: InAppPreference[] = Object.keys(STATUS_LABELS).map(statusType => {
+        const existing = inAppResult.data?.find(s => s.setting_key === `in_app_${statusType}`);
+        return {
+          id: existing?.id,
+          status_type: statusType,
+          is_enabled: existing?.setting_value ?? true
+        };
+      });
+      setInAppPreferences(inAppPrefs);
+      
       setRolePreferences(rolePrefsResult.data || []);
       setUserPreferences(userPrefsResult.data || []);
       setProfiles(profilesResult.data || []);
@@ -279,6 +299,62 @@ export default function NotificationManagement() {
     }
   };
 
+  const handleInAppToggle = async (statusType: string, currentValue: boolean) => {
+    const key = `in-app-${statusType}`;
+    setUpdating(key);
+    try {
+      const settingKey = `in_app_${statusType}`;
+      const existingPref = inAppPreferences.find(p => p.status_type === statusType);
+      
+      if (existingPref?.id) {
+        // Update existing
+        const { error } = await supabase
+          .from("notification_settings")
+          .update({ 
+            setting_value: !currentValue,
+            updated_at: new Date().toISOString()
+          })
+          .eq("setting_key", settingKey);
+
+        if (error) throw error;
+      } else {
+        // Insert new
+        const { error } = await supabase
+          .from("notification_settings")
+          .insert({ 
+            setting_key: settingKey,
+            setting_value: !currentValue
+          });
+
+        if (error) throw error;
+      }
+
+      setInAppPreferences(prev =>
+        prev.map(pref =>
+          pref.status_type === statusType
+            ? { ...pref, is_enabled: !currentValue }
+            : pref
+        )
+      );
+
+      toast({
+        title: "Updated",
+        description: `In-app notifications ${!currentValue ? "enabled" : "disabled"} for ${
+          STATUS_LABELS[statusType]?.label || statusType
+        }`,
+      });
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: "Failed to update in-app notification preference",
+        variant: "destructive",
+      });
+      console.error("Error updating in-app preference:", error);
+    } finally {
+      setUpdating(null);
+    }
+  };
+
   const handleAdvancedToggle = async (enabled: boolean) => {
     setUpdating("advanced");
     try {
@@ -354,14 +430,22 @@ export default function NotificationManagement() {
 
         <TabsContent value="recommended" className="space-y-4">
         <Card className="border-2 shadow-lg">
-          <CardHeader className="pb-4 border-b bg-gradient-to-r from-green-500/5 to-emerald-500/5">
-            <div className="flex items-center gap-2">
-              <Bell className="h-5 w-5 text-green-600 dark:text-green-400" />
-              <CardTitle className="text-lg">Status Change Notifications</CardTitle>
+          <CardHeader className="pb-4 border-b bg-gradient-to-r from-blue-500/5 to-cyan-500/5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Bell className="h-5 w-5 text-blue-600 dark:text-blue-400" />
+                <div>
+                  <CardTitle className="text-lg">Email Notifications</CardTitle>
+                  <CardDescription className="text-xs mt-1">
+                    Control email alerts sent to users' inboxes
+                  </CardDescription>
+                </div>
+              </div>
+              <Badge variant="outline" className="gap-1.5">
+                <Send className="h-3 w-3" />
+                Email
+              </Badge>
             </div>
-            <CardDescription className="text-xs">
-              Enable or disable email notifications for each application status
-            </CardDescription>
           </CardHeader>
           <CardContent className="pt-6">
             <div className="grid gap-3">
@@ -381,7 +465,7 @@ export default function NotificationManagement() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <Label
-                            htmlFor={pref.status_type}
+                            htmlFor={`email-${pref.status_type}`}
                             className="text-sm font-semibold cursor-pointer block"
                           >
                             {statusInfo?.label || pref.status_type}
@@ -396,7 +480,7 @@ export default function NotificationManagement() {
                           <Loader2 className="h-4 w-4 animate-spin text-primary" />
                         )}
                         <Switch
-                          id={pref.status_type}
+                          id={`email-${pref.status_type}`}
                           checked={pref.is_enabled}
                           onCheckedChange={() => handleToggle(pref.status_type, pref.is_enabled)}
                           disabled={updating === pref.status_type}
@@ -415,6 +499,86 @@ export default function NotificationManagement() {
                       </div>
                     </div>
                     {index < preferences.length - 1 && (
+                      <Separator className="my-2 opacity-50" />
+                    )}
+                  </div>
+                );
+              })}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-2 shadow-lg">
+          <CardHeader className="pb-4 border-b bg-gradient-to-r from-purple-500/5 to-pink-500/5">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Bell className="h-5 w-5 text-purple-600 dark:text-purple-400" />
+                <div>
+                  <CardTitle className="text-lg">In-App Notifications</CardTitle>
+                  <CardDescription className="text-xs mt-1">
+                    Control alerts shown in the notification bell
+                  </CardDescription>
+                </div>
+              </div>
+              <Badge variant="outline" className="gap-1.5">
+                <Bell className="h-3 w-3" />
+                In-App
+              </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="pt-6">
+            <div className="grid gap-3">
+              {inAppPreferences.map((pref, index) => {
+                const statusInfo = STATUS_LABELS[pref.status_type];
+                const StatusIcon = statusInfo?.icon || Bell;
+                const key = `in-app-${pref.status_type}`;
+                return (
+                  <div key={pref.status_type}>
+                    <div
+                      className={`group relative flex items-center justify-between gap-4 py-3 px-4 rounded-lg border-2 transition-all duration-200 ${
+                        statusInfo?.color || 'bg-muted/30'
+                      } ${pref.is_enabled ? 'shadow-sm hover:shadow-md' : 'opacity-60 hover:opacity-80'}`}
+                    >
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className={`p-2 rounded-md ${pref.is_enabled ? 'bg-background/80 shadow-sm' : 'bg-background/40'}`}>
+                          <StatusIcon className="h-5 w-5" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <Label
+                            htmlFor={`inapp-${pref.status_type}`}
+                            className="text-sm font-semibold cursor-pointer block"
+                          >
+                            {statusInfo?.label || pref.status_type}
+                          </Label>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            {statusInfo?.description || ''}
+                          </p>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        {updating === key && (
+                          <Loader2 className="h-4 w-4 animate-spin text-primary" />
+                        )}
+                        <Switch
+                          id={`inapp-${pref.status_type}`}
+                          checked={pref.is_enabled}
+                          onCheckedChange={() => handleInAppToggle(pref.status_type, pref.is_enabled)}
+                          disabled={updating === key}
+                          className={`${
+                            pref.is_enabled 
+                              ? 'data-[state=checked]:bg-green-600' 
+                              : 'data-[state=unchecked]:bg-gray-400'
+                          }`}
+                        />
+                        <Badge 
+                          variant={pref.is_enabled ? "default" : "secondary"}
+                          className="text-xs font-medium min-w-[60px] justify-center"
+                        >
+                          {pref.is_enabled ? 'Enabled' : 'Disabled'}
+                        </Badge>
+                      </div>
+                    </div>
+                    {index < inAppPreferences.length - 1 && (
                       <Separator className="my-2 opacity-50" />
                     )}
                   </div>
