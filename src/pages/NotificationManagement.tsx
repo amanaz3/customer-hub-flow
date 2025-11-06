@@ -795,19 +795,19 @@ export default function NotificationManagement() {
           </CardHeader>
           
           <CardContent className={`pt-6 transition-opacity duration-200 ${!advancedEnabled ? 'opacity-40 pointer-events-none' : ''}`}>
-            <Accordion type="multiple" defaultValue={["role-email", "role-inapp", "user-email", "user-inapp"]} className="w-full space-y-4">
-              {/* Role-Based Email Notifications */}
-              <AccordionItem value="role-email" className="border-2 rounded-lg overflow-hidden">
+            <Accordion type="multiple" defaultValue={["email-notifications", "inapp-notifications"]} className="w-full space-y-4">
+              {/* Email Notifications */}
+              <AccordionItem value="email-notifications" className="border-2 rounded-lg overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 hover:no-underline bg-gradient-to-r from-blue-500/5 to-cyan-500/5">
                   <div className="flex items-center justify-between w-full pr-4">
                     <div className="flex items-center gap-3">
                       <div className="p-1.5 rounded-md bg-blue-500/10">
-                        <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                        <Send className="h-4 w-4 text-blue-600 dark:text-blue-400" />
                       </div>
                       <div className="text-left">
-                        <div className="text-sm font-semibold">Role-Based Email Notifications</div>
+                        <div className="text-sm font-semibold">Email Notifications</div>
                         <div className="text-xs text-muted-foreground font-normal mt-0.5">
-                          Configure which roles receive email notifications for each status
+                          Configure email notifications by role and user
                         </div>
                       </div>
                     </div>
@@ -817,101 +817,202 @@ export default function NotificationManagement() {
                     </Badge>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="px-4 pt-4 pb-2">
-                  <div className="space-y-4">
-              <Select 
-                value={selectedRoleStatus} 
-                onValueChange={setSelectedRoleStatus}
-                disabled={!advancedEnabled}
-              >
-                <SelectTrigger className="w-full border-2 h-11 bg-background">
-                  <SelectValue placeholder="Select status type to configure" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-2 z-50">
-                  {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
-                    const StatusIcon = statusInfo.icon;
-                    return (
-                      <SelectItem 
-                        key={statusType} 
-                        value={statusType}
-                        className="cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2">
-                          <StatusIcon className="h-4 w-4" />
-                          <span className="font-medium">{statusInfo.label}</span>
-                        </div>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
+                <AccordionContent className="px-4 pt-4 pb-4 space-y-6">
+                  {/* Role-Based Email */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 pb-2 border-b">
+                      <Shield className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                      <h4 className="text-sm font-semibold">Role-Based Configuration</h4>
+                    </div>
+                    <Select 
+                      value={selectedRoleStatus} 
+                      onValueChange={setSelectedRoleStatus}
+                      disabled={!advancedEnabled}
+                    >
+                      <SelectTrigger className="w-full border-2 h-11 bg-background">
+                        <SelectValue placeholder="Select status type to configure" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-2 z-50">
+                        {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
+                          const StatusIcon = statusInfo.icon;
+                          return (
+                            <SelectItem 
+                              key={statusType} 
+                              value={statusType}
+                              className="cursor-pointer"
+                            >
+                              <div className="flex items-center gap-2">
+                                <StatusIcon className="h-4 w-4" />
+                                <span className="font-medium">{statusInfo.label}</span>
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
 
-              {selectedRoleStatus && advancedEnabled && (
-                <div className="border-2 rounded-lg p-4 bg-gradient-to-br from-background to-muted/30 shadow-sm">
-                  <div className="grid grid-cols-3 gap-3">
-                    {(['admin', 'manager', 'user'] as const).map((role) => {
-                      const pref = rolePreferences.find(
-                        (p) => p.status_type === selectedRoleStatus && p.role === role
-                      );
-                      const RoleIcon = ROLE_LABELS[role].icon;
-                      const updateKey = `${selectedRoleStatus}-${role}`;
-                      
-                      return (
-                        <div
-                          key={role}
-                          className={`flex flex-col gap-3 p-3 rounded-lg border-2 transition-all duration-200 ${
-                            pref?.is_enabled 
-                              ? 'bg-primary/5 border-primary/40 shadow-sm' 
-                              : 'bg-muted/30 border-muted'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <RoleIcon className={`h-4 w-4 ${ROLE_LABELS[role].color}`} />
-                            <span className="text-xs font-semibold">{ROLE_LABELS[role].label}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            {updating === updateKey && (
-                              <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                            )}
-                            <Switch
-                              checked={pref?.is_enabled || false}
-                              onCheckedChange={() => handleRoleToggle(selectedRoleStatus, role, pref?.is_enabled || false)}
-                              disabled={updating === updateKey || !advancedEnabled}
-                              className={`ml-auto ${
-                                pref?.is_enabled 
-                                  ? 'data-[state=checked]:bg-green-600' 
-                                  : 'data-[state=unchecked]:bg-gray-400'
-                              }`}
-                            />
-                          </div>
-                          <Badge 
-                            variant={pref?.is_enabled ? "default" : "secondary"}
-                            className="text-[10px] w-full justify-center"
-                          >
-                            {pref?.is_enabled ? 'Active' : 'Inactive'}
-                          </Badge>
+                    {selectedRoleStatus && advancedEnabled && (
+                      <div className="border-2 rounded-lg p-4 bg-gradient-to-br from-background to-muted/30 shadow-sm">
+                        <div className="grid grid-cols-3 gap-3">
+                          {(['admin', 'manager', 'user'] as const).map((role) => {
+                            const pref = rolePreferences.find(
+                              (p) => p.status_type === selectedRoleStatus && p.role === role
+                            );
+                            const RoleIcon = ROLE_LABELS[role].icon;
+                            const updateKey = `${selectedRoleStatus}-${role}`;
+                            
+                            return (
+                              <div
+                                key={role}
+                                className={`flex flex-col gap-3 p-3 rounded-lg border-2 transition-all duration-200 ${
+                                  pref?.is_enabled 
+                                    ? 'bg-primary/5 border-primary/40 shadow-sm' 
+                                    : 'bg-muted/30 border-muted'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <RoleIcon className={`h-4 w-4 ${ROLE_LABELS[role].color}`} />
+                                  <span className="text-xs font-semibold">{ROLE_LABELS[role].label}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  {updating === updateKey && (
+                                    <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                                  )}
+                                  <Switch
+                                    checked={pref?.is_enabled || false}
+                                    onCheckedChange={() => handleRoleToggle(selectedRoleStatus, role, pref?.is_enabled || false)}
+                                    disabled={updating === updateKey || !advancedEnabled}
+                                    className={`ml-auto ${
+                                      pref?.is_enabled 
+                                        ? 'data-[state=checked]:bg-green-600' 
+                                        : 'data-[state=unchecked]:bg-gray-400'
+                                    }`}
+                                  />
+                                </div>
+                                <Badge 
+                                  variant={pref?.is_enabled ? "default" : "secondary"}
+                                  className="text-[10px] w-full justify-center"
+                                >
+                                  {pref?.is_enabled ? 'Active' : 'Inactive'}
+                                </Badge>
+                              </div>
+                            );
+                          })}
                         </div>
-                      );
-                    })}
+                      </div>
+                    )}
                   </div>
-                </div>
-              )}
+
+                  {/* User-Specific Email */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 pb-2 border-b">
+                      <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
+                      <h4 className="text-sm font-semibold">User-Specific Configuration</h4>
+                    </div>
+                    <Select 
+                      value={selectedUserStatus} 
+                      onValueChange={setSelectedUserStatus}
+                      disabled={!advancedEnabled}
+                    >
+                      <SelectTrigger className="w-full border-2 h-11 bg-background">
+                        <SelectValue placeholder="Select status type to configure" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-2 z-50">
+                        {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
+                          const StatusIcon = statusInfo.icon;
+                          const userPrefs = userPreferences.filter((p) => p.status_type === statusType);
+                          return (
+                            <SelectItem 
+                              key={statusType} 
+                              value={statusType}
+                              className="cursor-pointer"
+                            >
+                              <div className="flex items-center justify-between w-full gap-3">
+                                <div className="flex items-center gap-2">
+                                  <StatusIcon className="h-4 w-4" />
+                                  <span className="font-medium">{statusInfo.label}</span>
+                                </div>
+                                {userPrefs.length > 0 && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {userPrefs.length}
+                                  </Badge>
+                                )}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+
+                    {selectedUserStatus && advancedEnabled && (
+                      <div className="border-2 rounded-lg p-4 bg-gradient-to-br from-background to-muted/30 shadow-sm">
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {profiles.map((profile) => {
+                            const isEnabled = userPreferences.some(
+                              (p) => p.status_type === selectedUserStatus && p.user_id === profile.id
+                            );
+                            const updateKey = `${selectedUserStatus}-${profile.id}`;
+                            const RoleIcon = ROLE_LABELS[profile.role]?.icon;
+                            
+                            return (
+                              <div
+                                key={profile.id}
+                                className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 ${
+                                  isEnabled 
+                                    ? 'bg-primary/5 border-primary/40 shadow-sm' 
+                                    : 'bg-muted/30 border-muted'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                  <RoleIcon className={`h-4 w-4 flex-shrink-0 ${ROLE_LABELS[profile.role]?.color}`} />
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-xs font-semibold truncate">{profile.name}</div>
+                                    <div className="text-[10px] text-muted-foreground truncate">{profile.email}</div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  {updating === updateKey && (
+                                    <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                                  )}
+                                  <Switch
+                                    checked={isEnabled}
+                                    onCheckedChange={() => handleUserToggle(selectedUserStatus, profile.id, isEnabled)}
+                                    disabled={updating === updateKey || !advancedEnabled}
+                                    className={`${
+                                      isEnabled 
+                                        ? 'data-[state=checked]:bg-green-600' 
+                                        : 'data-[state=unchecked]:bg-gray-400'
+                                    }`}
+                                  />
+                                  <Badge 
+                                    variant={isEnabled ? "default" : "secondary"}
+                                    className="text-[10px] min-w-[50px] justify-center"
+                                  >
+                                    {isEnabled ? 'On' : 'Off'}
+                                  </Badge>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </AccordionContent>
               </AccordionItem>
 
-              {/* Role-Based In-App Notifications */}
-              <AccordionItem value="role-inapp" className="border-2 rounded-lg overflow-hidden">
+              {/* In-App Notifications */}
+              <AccordionItem value="inapp-notifications" className="border-2 rounded-lg overflow-hidden">
                 <AccordionTrigger className="px-4 py-3 hover:no-underline bg-gradient-to-r from-cyan-500/5 to-teal-500/5">
                   <div className="flex items-center justify-between w-full pr-4">
                     <div className="flex items-center gap-3">
                       <div className="p-1.5 rounded-md bg-cyan-500/10">
-                        <Shield className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                        <Bell className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
                       </div>
                       <div className="text-left">
-                        <div className="text-sm font-semibold">Role-Based In-App Notifications</div>
+                        <div className="text-sm font-semibold">In-App Notifications</div>
                         <div className="text-xs text-muted-foreground font-normal mt-0.5">
-                          Configure which roles receive in-app notifications for each status
+                          Configure in-app notifications by role and user
                         </div>
                       </div>
                     </div>
@@ -921,319 +1022,186 @@ export default function NotificationManagement() {
                     </Badge>
                   </div>
                 </AccordionTrigger>
-                <AccordionContent className="px-4 pt-4 pb-2">
-                  <div className="space-y-4">
-              <Select 
-                value={selectedInAppRoleStatus} 
-                onValueChange={setSelectedInAppRoleStatus}
-                disabled={!advancedEnabled}
-              >
-                <SelectTrigger className="w-full border-2 h-11 bg-background">
-                  <SelectValue placeholder="Select status type to configure" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-2 z-50">
-                  {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
-                    const StatusIcon = statusInfo.icon;
-                    return (
-                      <SelectItem 
-                        key={statusType} 
-                        value={statusType}
-                        className="cursor-pointer"
-                      >
-                        <div className="flex items-center gap-2">
-                          <StatusIcon className="h-4 w-4" />
-                          <span className="font-medium">{statusInfo.label}</span>
-                        </div>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-
-              {selectedInAppRoleStatus && advancedEnabled && (
-                <div className="border-2 rounded-lg p-4 bg-gradient-to-br from-background to-muted/30 shadow-sm">
-                  <div className="grid grid-cols-3 gap-3">
-                    {(['admin', 'manager', 'user'] as const).map((role) => {
-                      const pref = inAppRolePreferences.find(
-                        (p) => p.status_type === selectedInAppRoleStatus && p.role === role
-                      );
-                      const RoleIcon = ROLE_LABELS[role].icon;
-                      const updateKey = `in-app-role-${selectedInAppRoleStatus}-${role}`;
-                      
-                      return (
-                        <div
-                          key={role}
-                          className={`flex flex-col gap-3 p-3 rounded-lg border-2 transition-all duration-200 ${
-                            pref?.is_enabled 
-                              ? 'bg-primary/5 border-primary/40 shadow-sm' 
-                              : 'bg-muted/30 border-muted'
-                          }`}
-                        >
-                          <div className="flex items-center gap-2">
-                            <RoleIcon className={`h-4 w-4 ${ROLE_LABELS[role].color}`} />
-                            <span className="text-xs font-semibold">{ROLE_LABELS[role].label}</span>
-                          </div>
-                          <div className="flex items-center justify-between">
-                            {updating === updateKey && (
-                              <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                            )}
-                            <Switch
-                              checked={pref?.is_enabled || false}
-                              onCheckedChange={() => handleInAppRoleToggle(selectedInAppRoleStatus, role, pref?.is_enabled || false)}
-                              disabled={updating === updateKey || !advancedEnabled}
-                              className={`ml-auto ${
-                                pref?.is_enabled 
-                                  ? 'data-[state=checked]:bg-green-600' 
-                                  : 'data-[state=unchecked]:bg-gray-400'
-                              }`}
-                            />
-                          </div>
-                          <Badge 
-                            variant={pref?.is_enabled ? "default" : "secondary"}
-                            className="text-[10px] w-full justify-center"
-                          >
-                            {pref?.is_enabled ? 'Active' : 'Inactive'}
-                          </Badge>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
-
-              {/* User-Specific Email Notifications */}
-              <AccordionItem value="user-email" className="border-2 rounded-lg overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 hover:no-underline bg-gradient-to-r from-purple-500/5 to-pink-500/5">
-                  <div className="flex items-center justify-between w-full pr-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-1.5 rounded-md bg-purple-500/10">
-                        <Users className="h-4 w-4 text-purple-600 dark:text-purple-400" />
-                      </div>
-                      <div className="text-left">
-                        <div className="text-sm font-semibold">User-Specific Email Notifications</div>
-                        <div className="text-xs text-muted-foreground font-normal mt-0.5">
-                          Add individual users to receive email notifications
-                        </div>
-                      </div>
+                <AccordionContent className="px-4 pt-4 pb-4 space-y-6">
+                  {/* Role-Based In-App */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 pb-2 border-b">
+                      <Shield className="h-4 w-4 text-cyan-600 dark:text-cyan-400" />
+                      <h4 className="text-sm font-semibold">Role-Based Configuration</h4>
                     </div>
-                    <Badge variant="outline" className="gap-1.5 mr-2">
-                      <Send className="h-3 w-3" />
-                      Email
-                    </Badge>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pt-4 pb-2">
-                  <div className="space-y-4">
-              <Select 
-                value={selectedUserStatus} 
-                onValueChange={setSelectedUserStatus}
-                disabled={!advancedEnabled}
-              >
-                <SelectTrigger className="w-full border-2 h-11 bg-background">
-                  <SelectValue placeholder="Select status type to configure" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-2 z-50">
-                  {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
-                    const StatusIcon = statusInfo.icon;
-                    const userPrefs = userPreferences.filter((p) => p.status_type === statusType);
-                    return (
-                      <SelectItem 
-                        key={statusType} 
-                        value={statusType}
-                        className="cursor-pointer"
-                      >
-                        <div className="flex items-center justify-between gap-2 w-full">
-                          <div className="flex items-center gap-2">
-                            <StatusIcon className="h-4 w-4" />
-                            <span className="font-medium">{statusInfo.label}</span>
-                          </div>
-                          {userPrefs.length > 0 && (
-                            <Badge variant="secondary" className="text-[10px] h-5 px-2">
-                              {userPrefs.length}
-                            </Badge>
-                          )}
-                        </div>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-
-              {selectedUserStatus && advancedEnabled && (
-                <div className="border-2 rounded-lg p-4 bg-gradient-to-br from-background to-muted/30 shadow-sm max-h-80 overflow-y-auto">
-                  <div className="grid gap-2">
-                    {profiles.map((profile) => {
-                      const isEnabled = userPreferences.some(
-                        (p) => p.status_type === selectedUserStatus && p.user_id === profile.id
-                      );
-                      const updateKey = `${selectedUserStatus}-${profile.id}`;
-                      const RoleIcon = ROLE_LABELS[profile.role].icon;
-                      
-                      return (
-                        <div
-                          key={profile.id}
-                          className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 ${
-                            isEnabled 
-                              ? 'bg-primary/5 border-primary/40 shadow-sm' 
-                              : 'bg-muted/30 border-muted hover:border-muted-foreground/20'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <div className={`p-1.5 rounded-md ${isEnabled ? 'bg-background shadow-sm' : 'bg-background/40'}`}>
-                              <RoleIcon className={`h-4 w-4 ${ROLE_LABELS[profile.role].color}`} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">{profile.name}</p>
-                              <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            {updating === updateKey && (
-                              <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                            )}
-                            <Switch
-                              checked={isEnabled}
-                              onCheckedChange={() => handleUserToggle(selectedUserStatus, profile.id, isEnabled)}
-                              disabled={updating === updateKey || !advancedEnabled}
-                              className={`${
-                                isEnabled 
-                                  ? 'data-[state=checked]:bg-green-600' 
-                                  : 'data-[state=unchecked]:bg-gray-400'
-                              }`}
-                            />
-                            <Badge 
-                              variant={isEnabled ? "default" : "secondary"}
-                              className="text-[10px] min-w-[60px] justify-center"
+                    <Select 
+                      value={selectedInAppRoleStatus} 
+                      onValueChange={setSelectedInAppRoleStatus}
+                      disabled={!advancedEnabled}
+                    >
+                      <SelectTrigger className="w-full border-2 h-11 bg-background">
+                        <SelectValue placeholder="Select status type to configure" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-2 z-50">
+                        {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
+                          const StatusIcon = statusInfo.icon;
+                          return (
+                            <SelectItem 
+                              key={statusType} 
+                              value={statusType}
+                              className="cursor-pointer"
                             >
-                              {isEnabled ? 'Active' : 'Inactive'}
-                            </Badge>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+                              <div className="flex items-center gap-2">
+                                <StatusIcon className="h-4 w-4" />
+                                <span className="font-medium">{statusInfo.label}</span>
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
 
-              {/* User-Specific In-App Notifications */}
-              <AccordionItem value="user-inapp" className="border-2 rounded-lg overflow-hidden">
-                <AccordionTrigger className="px-4 py-3 hover:no-underline bg-gradient-to-r from-pink-500/5 to-rose-500/5">
-                  <div className="flex items-center justify-between w-full pr-4">
-                    <div className="flex items-center gap-3">
-                      <div className="p-1.5 rounded-md bg-pink-500/10">
-                        <Users className="h-4 w-4 text-pink-600 dark:text-pink-400" />
-                      </div>
-                      <div className="text-left">
-                        <div className="text-sm font-semibold">User-Specific In-App Notifications</div>
-                        <div className="text-xs text-muted-foreground font-normal mt-0.5">
-                          Add individual users to receive in-app notifications
+                    {selectedInAppRoleStatus && advancedEnabled && (
+                      <div className="border-2 rounded-lg p-4 bg-gradient-to-br from-background to-muted/30 shadow-sm">
+                        <div className="grid grid-cols-3 gap-3">
+                          {(['admin', 'manager', 'user'] as const).map((role) => {
+                            const pref = inAppRolePreferences.find(
+                              (p) => p.status_type === selectedInAppRoleStatus && p.role === role
+                            );
+                            const RoleIcon = ROLE_LABELS[role].icon;
+                            const updateKey = `in-app-role-${selectedInAppRoleStatus}-${role}`;
+                            
+                            return (
+                              <div
+                                key={role}
+                                className={`flex flex-col gap-3 p-3 rounded-lg border-2 transition-all duration-200 ${
+                                  pref?.is_enabled 
+                                    ? 'bg-primary/5 border-primary/40 shadow-sm' 
+                                    : 'bg-muted/30 border-muted'
+                                }`}
+                              >
+                                <div className="flex items-center gap-2">
+                                  <RoleIcon className={`h-4 w-4 ${ROLE_LABELS[role].color}`} />
+                                  <span className="text-xs font-semibold">{ROLE_LABELS[role].label}</span>
+                                </div>
+                                <div className="flex items-center justify-between">
+                                  {updating === updateKey && (
+                                    <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                                  )}
+                                  <Switch
+                                    checked={pref?.is_enabled || false}
+                                    onCheckedChange={() => handleInAppRoleToggle(selectedInAppRoleStatus, role, pref?.is_enabled || false)}
+                                    disabled={updating === updateKey || !advancedEnabled}
+                                    className={`ml-auto ${
+                                      pref?.is_enabled 
+                                        ? 'data-[state=checked]:bg-green-600' 
+                                        : 'data-[state=unchecked]:bg-gray-400'
+                                    }`}
+                                  />
+                                </div>
+                                <Badge 
+                                  variant={pref?.is_enabled ? "default" : "secondary"}
+                                  className="text-[10px] w-full justify-center"
+                                >
+                                  {pref?.is_enabled ? 'Active' : 'Inactive'}
+                                </Badge>
+                              </div>
+                            );
+                          })}
                         </div>
                       </div>
+                    )}
+                  </div>
+
+                  {/* User-Specific In-App */}
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2 pb-2 border-b">
+                      <Users className="h-4 w-4 text-teal-600 dark:text-teal-400" />
+                      <h4 className="text-sm font-semibold">User-Specific Configuration</h4>
                     </div>
-                    <Badge variant="outline" className="gap-1.5 mr-2">
-                      <Bell className="h-3 w-3" />
-                      In-App
-                    </Badge>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="px-4 pt-4 pb-2">
-                  <div className="space-y-4">
-              <Select 
-                value={selectedInAppUserStatus} 
-                onValueChange={setSelectedInAppUserStatus}
-                disabled={!advancedEnabled}
-              >
-                <SelectTrigger className="w-full border-2 h-11 bg-background">
-                  <SelectValue placeholder="Select status type to configure" />
-                </SelectTrigger>
-                <SelectContent className="bg-popover border-2 z-50">
-                  {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
-                    const StatusIcon = statusInfo.icon;
-                    const userPrefs = inAppUserPreferences.filter((p) => p.status_type === statusType);
-                    return (
-                      <SelectItem 
-                        key={statusType} 
-                        value={statusType}
-                        className="cursor-pointer"
-                      >
-                        <div className="flex items-center justify-between gap-2 w-full">
-                          <div className="flex items-center gap-2">
-                            <StatusIcon className="h-4 w-4" />
-                            <span className="font-medium">{statusInfo.label}</span>
-                          </div>
-                          {userPrefs.length > 0 && (
-                            <Badge variant="secondary" className="text-[10px] h-5 px-2">
-                              {userPrefs.length}
-                            </Badge>
-                          )}
-                        </div>
-                      </SelectItem>
-                    );
-                  })}
-                </SelectContent>
-              </Select>
-
-              {selectedInAppUserStatus && advancedEnabled && (
-                <div className="border-2 rounded-lg p-4 bg-gradient-to-br from-background to-muted/30 shadow-sm max-h-80 overflow-y-auto">
-                  <div className="grid gap-2">
-                    {profiles.map((profile) => {
-                      const isEnabled = inAppUserPreferences.some(
-                        (p) => p.status_type === selectedInAppUserStatus && p.user_id === profile.id
-                      );
-                      const updateKey = `in-app-user-${selectedInAppUserStatus}-${profile.id}`;
-                      const RoleIcon = ROLE_LABELS[profile.role].icon;
-                      
-                      return (
-                        <div
-                          key={profile.id}
-                          className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 ${
-                            isEnabled 
-                              ? 'bg-primary/5 border-primary/40 shadow-sm' 
-                              : 'bg-muted/30 border-muted hover:border-muted-foreground/20'
-                          }`}
-                        >
-                          <div className="flex items-center gap-3 flex-1 min-w-0">
-                            <div className={`p-1.5 rounded-md ${isEnabled ? 'bg-background shadow-sm' : 'bg-background/40'}`}>
-                              <RoleIcon className={`h-4 w-4 ${ROLE_LABELS[profile.role].color}`} />
-                            </div>
-                            <div className="flex-1 min-w-0">
-                              <p className="text-sm font-medium truncate">{profile.name}</p>
-                              <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-3">
-                            {updating === updateKey && (
-                              <Loader2 className="h-3 w-3 animate-spin text-primary" />
-                            )}
-                            <Switch
-                              checked={isEnabled}
-                              onCheckedChange={() => handleInAppUserToggle(selectedInAppUserStatus, profile.id, isEnabled)}
-                              disabled={updating === updateKey || !advancedEnabled}
-                              className={`${
-                                isEnabled 
-                                  ? 'data-[state=checked]:bg-green-600' 
-                                  : 'data-[state=unchecked]:bg-gray-400'
-                              }`}
-                            />
-                            <Badge 
-                              variant={isEnabled ? "default" : "secondary"}
-                              className="text-[10px] min-w-[60px] justify-center"
+                    <Select 
+                      value={selectedInAppUserStatus} 
+                      onValueChange={setSelectedInAppUserStatus}
+                      disabled={!advancedEnabled}
+                    >
+                      <SelectTrigger className="w-full border-2 h-11 bg-background">
+                        <SelectValue placeholder="Select status type to configure" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover border-2 z-50">
+                        {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
+                          const StatusIcon = statusInfo.icon;
+                          const userPrefs = inAppUserPreferences.filter((p) => p.status_type === statusType);
+                          return (
+                            <SelectItem 
+                              key={statusType} 
+                              value={statusType}
+                              className="cursor-pointer"
                             >
-                              {isEnabled ? 'Active' : 'Inactive'}
-                            </Badge>
-                          </div>
+                              <div className="flex items-center justify-between w-full gap-3">
+                                <div className="flex items-center gap-2">
+                                  <StatusIcon className="h-4 w-4" />
+                                  <span className="font-medium">{statusInfo.label}</span>
+                                </div>
+                                {userPrefs.length > 0 && (
+                                  <Badge variant="secondary" className="text-xs">
+                                    {userPrefs.length}
+                                  </Badge>
+                                )}
+                              </div>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+
+                    {selectedInAppUserStatus && advancedEnabled && (
+                      <div className="border-2 rounded-lg p-4 bg-gradient-to-br from-background to-muted/30 shadow-sm">
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {profiles.map((profile) => {
+                            const isEnabled = inAppUserPreferences.some(
+                              (p) => p.status_type === selectedInAppUserStatus && p.user_id === profile.id
+                            );
+                            const updateKey = `in-app-user-${selectedInAppUserStatus}-${profile.id}`;
+                            const RoleIcon = ROLE_LABELS[profile.role]?.icon;
+                            
+                            return (
+                              <div
+                                key={profile.id}
+                                className={`flex items-center justify-between p-3 rounded-lg border-2 transition-all duration-200 ${
+                                  isEnabled 
+                                    ? 'bg-primary/5 border-primary/40 shadow-sm' 
+                                    : 'bg-muted/30 border-muted'
+                                }`}
+                              >
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
+                                  <RoleIcon className={`h-4 w-4 flex-shrink-0 ${ROLE_LABELS[profile.role]?.color}`} />
+                                  <div className="flex-1 min-w-0">
+                                    <div className="text-xs font-semibold truncate">{profile.name}</div>
+                                    <div className="text-[10px] text-muted-foreground truncate">{profile.email}</div>
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2 flex-shrink-0">
+                                  {updating === updateKey && (
+                                    <Loader2 className="h-3 w-3 animate-spin text-primary" />
+                                  )}
+                                  <Switch
+                                    checked={isEnabled}
+                                    onCheckedChange={() => handleInAppUserToggle(selectedInAppUserStatus, profile.id, isEnabled)}
+                                    disabled={updating === updateKey || !advancedEnabled}
+                                    className={`${
+                                      isEnabled 
+                                        ? 'data-[state=checked]:bg-green-600' 
+                                        : 'data-[state=unchecked]:bg-gray-400'
+                                    }`}
+                                  />
+                                  <Badge 
+                                    variant={isEnabled ? "default" : "secondary"}
+                                    className="text-[10px] min-w-[50px] justify-center"
+                                  >
+                                    {isEnabled ? 'On' : 'Off'}
+                                  </Badge>
+                                </div>
+                              </div>
+                            );
+                          })}
                         </div>
-                      );
-                    })}
-                  </div>
-                </div>
-              )}
+                      </div>
+                    )}
                   </div>
                 </AccordionContent>
               </AccordionItem>
