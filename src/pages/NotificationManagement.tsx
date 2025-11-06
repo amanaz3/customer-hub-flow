@@ -317,41 +317,12 @@ export default function NotificationManagement() {
       </div>
 
       <div className="grid gap-3">
-        <Card className="border-primary/20">
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-base">Advanced Notifications</CardTitle>
-                <CardDescription className="text-[11px]">
-                  Enable role-based and user-specific notification controls
-                </CardDescription>
-              </div>
-              <div className="relative">
-                <Switch
-                  checked={advancedEnabled}
-                  onCheckedChange={handleAdvancedToggle}
-                  disabled={updating === "advanced"}
-                  className={`scale-90 ${
-                    advancedEnabled 
-                      ? 'data-[state=checked]:bg-green-500' 
-                      : 'data-[state=unchecked]:bg-red-500'
-                  }`}
-                />
-                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                  {advancedEnabled ? (
-                    <Check className="h-3 w-3 text-white" />
-                  ) : (
-                    <X className="h-3 w-3 text-white" />
-                  )}
-                </div>
-              </div>
-            </div>
-          </CardHeader>
-        </Card>
-
         <Card>
           <CardHeader className="pb-2 space-y-0">
-            <CardTitle className="text-base">Status Change Notifications</CardTitle>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-base">Status Change Notifications</CardTitle>
+              <Badge variant="default" className="text-[10px] bg-blue-500">Recommended</Badge>
+            </div>
             <CardDescription className="text-[11px]">
               Toggle notifications for each status
             </CardDescription>
@@ -412,22 +383,48 @@ export default function NotificationManagement() {
           </CardContent>
         </Card>
 
-        <Card className={!advancedEnabled ? "opacity-50" : ""}>
-          <CardHeader className="pb-2 space-y-1">
+        <Card className="border-primary/30 bg-gradient-to-br from-background to-muted/20">
+          <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-base">Role-Based Notifications</CardTitle>
-                <CardDescription className="text-[11px]">
-                  Configure which roles receive notifications
-                </CardDescription>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-base">Advanced Notifications</CardTitle>
+                <Badge variant="secondary" className="text-[10px]">Advanced</Badge>
               </div>
-              {!advancedEnabled && (
-                <Badge variant="secondary" className="text-[10px]">Muted</Badge>
-              )}
+              <div className="relative">
+                <Switch
+                  checked={advancedEnabled}
+                  onCheckedChange={handleAdvancedToggle}
+                  disabled={updating === "advanced"}
+                  className={`scale-90 ${
+                    advancedEnabled 
+                      ? 'data-[state=checked]:bg-green-500' 
+                      : 'data-[state=unchecked]:bg-red-500'
+                  }`}
+                />
+                <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                  {advancedEnabled ? (
+                    <Check className="h-3 w-3 text-white" />
+                  ) : (
+                    <X className="h-3 w-3 text-white" />
+                  )}
+                </div>
+              </div>
             </div>
+            <CardDescription className="text-[11px]">
+              Configure role-based and user-specific notification controls
+            </CardDescription>
           </CardHeader>
-          <CardContent className="pt-3">
-            <div className="space-y-3">
+          
+          <CardContent className={`space-y-4 ${!advancedEnabled ? 'opacity-50' : ''}`}>
+            {/* Role-Based Notifications Section */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Shield className="h-3.5 w-3.5 text-primary" />
+                <h3 className="text-sm font-semibold">Role-Based Notifications</h3>
+              </div>
+              <p className="text-[11px] text-muted-foreground mb-2">
+                Configure which roles receive notifications
+              </p>
               <Select 
                 value={selectedRoleStatus} 
                 onValueChange={setSelectedRoleStatus}
@@ -451,7 +448,7 @@ export default function NotificationManagement() {
                 </SelectContent>
               </Select>
 
-              {selectedRoleStatus && (
+              {selectedRoleStatus && advancedEnabled && (
                 <div className="border rounded-md p-3 bg-card">
                   <div className="grid grid-cols-3 gap-2">
                     {(['admin', 'manager', 'user'] as const).map((role) => {
@@ -498,57 +495,53 @@ export default function NotificationManagement() {
                 </div>
               )}
             </div>
-          </CardContent>
-        </Card>
 
-        <Card className={!advancedEnabled ? "opacity-50" : ""}>
-          <CardHeader className="pb-2 space-y-1">
-            <div className="flex items-center justify-between">
-              <div>
-                <CardTitle className="text-base">User-Specific Notifications</CardTitle>
-                <CardDescription className="text-[11px]">
-                  Add specific users to receive notifications
-                </CardDescription>
+            {/* Divider */}
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
               </div>
-              {!advancedEnabled && (
-                <Badge variant="secondary" className="text-[10px]">Muted</Badge>
-              )}
             </div>
-          </CardHeader>
-          <CardContent className="pt-3">
-            <div className="space-y-3">
-              <div className="flex items-center gap-2">
-                <Select 
-                  value={selectedUserStatus} 
-                  onValueChange={setSelectedUserStatus}
-                  disabled={!advancedEnabled}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select status type" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover z-50">
-                    {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
-                      const StatusIcon = statusInfo.icon;
-                      const userPrefs = userPreferences.filter((p) => p.status_type === statusType);
-                      return (
-                        <SelectItem key={statusType} value={statusType}>
-                          <div className="flex items-center gap-2">
-                            <StatusIcon className="h-3.5 w-3.5" />
-                            <span>{statusInfo.label}</span>
-                            {userPrefs.length > 0 && (
-                              <Badge variant="secondary" className="text-[10px] h-4 px-1.5 ml-auto">
-                                {userPrefs.length}
-                              </Badge>
-                            )}
-                          </div>
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              </div>
 
-              {selectedUserStatus && (
+            {/* User-Specific Notifications Section */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Users className="h-3.5 w-3.5 text-primary" />
+                <h3 className="text-sm font-semibold">User-Specific Notifications</h3>
+              </div>
+              <p className="text-[11px] text-muted-foreground mb-2">
+                Add specific users to receive notifications
+              </p>
+              <Select 
+                value={selectedUserStatus} 
+                onValueChange={setSelectedUserStatus}
+                disabled={!advancedEnabled}
+              >
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select status type" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
+                    const StatusIcon = statusInfo.icon;
+                    const userPrefs = userPreferences.filter((p) => p.status_type === statusType);
+                    return (
+                      <SelectItem key={statusType} value={statusType}>
+                        <div className="flex items-center gap-2">
+                          <StatusIcon className="h-3.5 w-3.5" />
+                          <span>{statusInfo.label}</span>
+                          {userPrefs.length > 0 && (
+                            <Badge variant="secondary" className="text-[10px] h-4 px-1.5 ml-auto">
+                              {userPrefs.length}
+                            </Badge>
+                          )}
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+
+              {selectedUserStatus && advancedEnabled && (
                 <div className="border rounded-md p-2.5 bg-card">
                   <div className="grid gap-1.5 max-h-60 overflow-y-auto pr-1">
                     {profiles.map((profile) => {
