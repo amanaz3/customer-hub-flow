@@ -46,8 +46,6 @@ const ApplicationsList = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
-  const [selectedMonth, setSelectedMonth] = useState<string>('all');
-  const [selectedYear, setSelectedYear] = useState<string>(new Date().getFullYear().toString());
 
   useEffect(() => {
     fetchApplications();
@@ -133,17 +131,9 @@ const ApplicationsList = () => {
       
       const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
 
-      // Date filtering
-      const appDate = new Date(app.created_at);
-      const appMonth = appDate.getMonth() + 1; // JavaScript months are 0-indexed
-      const appYear = appDate.getFullYear();
-      
-      const matchesMonth = selectedMonth === 'all' || appMonth === parseInt(selectedMonth);
-      const matchesYear = selectedYear === 'all' || appYear === parseInt(selectedYear);
-
-      return matchesSearch && matchesStatus && matchesMonth && matchesYear;
+      return matchesSearch && matchesStatus;
     });
-  }, [applications, searchTerm, statusFilter, selectedMonth, selectedYear]);
+  }, [applications, searchTerm, statusFilter]);
 
   const statusColors: Record<string, string> = {
     draft: 'bg-yellow-400',
@@ -237,38 +227,6 @@ const ApplicationsList = () => {
                 <SelectItem value="approved">Approved</SelectItem>
                 <SelectItem value="rejected">Rejected</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={selectedMonth} onValueChange={setSelectedMonth}>
-              <SelectTrigger className="sm:w-[140px]">
-                <SelectValue placeholder="Month" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Months</SelectItem>
-                <SelectItem value="1">January</SelectItem>
-                <SelectItem value="2">February</SelectItem>
-                <SelectItem value="3">March</SelectItem>
-                <SelectItem value="4">April</SelectItem>
-                <SelectItem value="5">May</SelectItem>
-                <SelectItem value="6">June</SelectItem>
-                <SelectItem value="7">July</SelectItem>
-                <SelectItem value="8">August</SelectItem>
-                <SelectItem value="9">September</SelectItem>
-                <SelectItem value="10">October</SelectItem>
-                <SelectItem value="11">November</SelectItem>
-                <SelectItem value="12">December</SelectItem>
-              </SelectContent>
-            </Select>
-            <Select value={selectedYear} onValueChange={setSelectedYear}>
-              <SelectTrigger className="sm:w-[120px]">
-                <SelectValue placeholder="Year" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Years</SelectItem>
-                <SelectItem value="2025">2025</SelectItem>
-                <SelectItem value="2024">2024</SelectItem>
-                <SelectItem value="2023">2023</SelectItem>
-                <SelectItem value="2022">2022</SelectItem>
               </SelectContent>
             </Select>
           </div>
