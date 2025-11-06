@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { supabase } from "@/lib/supabase";
 import { useToast } from "@/hooks/use-toast";
 import { Badge } from "@/components/ui/badge";
@@ -103,6 +104,8 @@ export default function NotificationManagement() {
   const [rolePreferences, setRolePreferences] = useState<RolePreference[]>([]);
   const [userPreferences, setUserPreferences] = useState<UserPreference[]>([]);
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [selectedRoleStatus, setSelectedRoleStatus] = useState<string>("completed");
+  const [selectedUserStatus, setSelectedUserStatus] = useState<string>("completed");
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState<string | null>(null);
   const { toast } = useToast();
@@ -330,119 +333,142 @@ export default function NotificationManagement() {
         </Card>
 
         <Card>
-          <CardHeader className="pb-2 space-y-0">
+          <CardHeader className="pb-2 space-y-1">
             <CardTitle className="text-base">Role-Based Notifications</CardTitle>
             <CardDescription className="text-[11px]">
               Configure which roles receive notifications
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-3">
-            <div className="grid gap-2">
-              {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
-                const StatusIcon = statusInfo.icon;
-                const rolePrefs = rolePreferences.filter((p) => p.status_type === statusType);
-                
-                return (
-                  <div key={statusType} className="border rounded-md p-2.5 bg-card">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="p-1 rounded bg-primary/10 text-primary">
-                        <StatusIcon className="h-3 w-3" />
-                      </div>
-                      <h3 className="font-medium text-xs">{statusInfo.label}</h3>
-                    </div>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      {(['admin', 'manager', 'user'] as const).map((role) => {
-                        const pref = rolePrefs.find((p) => p.role === role);
-                        const RoleIcon = ROLE_LABELS[role].icon;
-                        const updateKey = `${statusType}-${role}`;
-                        
-                        return (
-                          <div
-                            key={role}
-                            className={`flex items-center justify-between p-2 rounded border transition-colors ${
-                              pref?.is_enabled ? 'bg-primary/5 border-primary/30' : 'bg-muted/30'
-                            }`}
-                          >
-                            <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                              <RoleIcon className={`h-3 w-3 flex-shrink-0 ${ROLE_LABELS[role].color}`} />
-                              <span className="text-[11px] font-medium truncate">{ROLE_LABELS[role].label}</span>
-                            </div>
-                            <Switch
-                              checked={pref?.is_enabled || false}
-                              onCheckedChange={() => handleRoleToggle(statusType, role, pref?.is_enabled || false)}
-                              disabled={updating === updateKey}
-                              className="scale-[0.65]"
-                            />
+            <div className="space-y-3">
+              <Select value={selectedRoleStatus} onValueChange={setSelectedRoleStatus}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select status type" />
+                </SelectTrigger>
+                <SelectContent className="bg-popover z-50">
+                  {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
+                    const StatusIcon = statusInfo.icon;
+                    return (
+                      <SelectItem key={statusType} value={statusType}>
+                        <div className="flex items-center gap-2">
+                          <StatusIcon className="h-3.5 w-3.5" />
+                          <span>{statusInfo.label}</span>
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
+                </SelectContent>
+              </Select>
+
+              {selectedRoleStatus && (
+                <div className="border rounded-md p-3 bg-card">
+                  <div className="grid grid-cols-3 gap-2">
+                    {(['admin', 'manager', 'user'] as const).map((role) => {
+                      const pref = rolePreferences.find(
+                        (p) => p.status_type === selectedRoleStatus && p.role === role
+                      );
+                      const RoleIcon = ROLE_LABELS[role].icon;
+                      const updateKey = `${selectedRoleStatus}-${role}`;
+                      
+                      return (
+                        <div
+                          key={role}
+                          className={`flex items-center justify-between p-2.5 rounded border transition-colors ${
+                            pref?.is_enabled ? 'bg-primary/5 border-primary/30' : 'bg-muted/30'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <RoleIcon className={`h-3.5 w-3.5 flex-shrink-0 ${ROLE_LABELS[role].color}`} />
+                            <span className="text-xs font-medium truncate">{ROLE_LABELS[role].label}</span>
                           </div>
-                        );
-                      })}
-                    </div>
+                          <Switch
+                            checked={pref?.is_enabled || false}
+                            onCheckedChange={() => handleRoleToggle(selectedRoleStatus, role, pref?.is_enabled || false)}
+                            disabled={updating === updateKey}
+                            className="scale-75"
+                          />
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
 
         <Card>
-          <CardHeader className="pb-2 space-y-0">
+          <CardHeader className="pb-2 space-y-1">
             <CardTitle className="text-base">User-Specific Notifications</CardTitle>
             <CardDescription className="text-[11px]">
               Add specific users to receive notifications
             </CardDescription>
           </CardHeader>
           <CardContent className="pt-3">
-            <div className="grid gap-2">
-              {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
-                const StatusIcon = statusInfo.icon;
-                const userPrefs = userPreferences.filter((p) => p.status_type === statusType);
-                
-                return (
-                  <div key={statusType} className="border rounded-md p-2.5 bg-card">
-                    <div className="flex items-center gap-2 mb-2">
-                      <div className="p-1 rounded bg-primary/10 text-primary">
-                        <StatusIcon className="h-3 w-3" />
-                      </div>
-                      <h3 className="font-medium text-xs flex-1">{statusInfo.label}</h3>
-                      {userPrefs.length > 0 && (
-                        <Badge variant="secondary" className="text-[10px] h-4 px-1.5">
-                          {userPrefs.length}
-                        </Badge>
-                      )}
-                    </div>
-                    <div className="grid gap-1 max-h-40 overflow-y-auto pr-1">
-                      {profiles.map((profile) => {
-                        const isEnabled = userPrefs.some((p) => p.user_id === profile.id);
-                        const updateKey = `${statusType}-${profile.id}`;
-                        const RoleIcon = ROLE_LABELS[profile.role].icon;
-                        
-                        return (
-                          <div
-                            key={profile.id}
-                            className={`flex items-center justify-between p-1.5 px-2 rounded border transition-colors ${
-                              isEnabled ? 'bg-primary/5 border-primary/30' : 'bg-muted/30'
-                            }`}
-                          >
-                            <div className="flex items-center gap-1.5 flex-1 min-w-0">
-                              <RoleIcon className={`h-3 w-3 flex-shrink-0 ${ROLE_LABELS[profile.role].color}`} />
-                              <div className="flex-1 min-w-0">
-                                <p className="text-[11px] font-medium truncate">{profile.name}</p>
-                                <p className="text-[10px] text-muted-foreground truncate">{profile.email}</p>
-                              </div>
-                            </div>
-                            <Switch
-                              checked={isEnabled}
-                              onCheckedChange={() => handleUserToggle(statusType, profile.id, isEnabled)}
-                              disabled={updating === updateKey}
-                              className="scale-[0.65]"
-                            />
+            <div className="space-y-3">
+              <div className="flex items-center gap-2">
+                <Select value={selectedUserStatus} onValueChange={setSelectedUserStatus}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select status type" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover z-50">
+                    {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
+                      const StatusIcon = statusInfo.icon;
+                      const userPrefs = userPreferences.filter((p) => p.status_type === statusType);
+                      return (
+                        <SelectItem key={statusType} value={statusType}>
+                          <div className="flex items-center gap-2">
+                            <StatusIcon className="h-3.5 w-3.5" />
+                            <span>{statusInfo.label}</span>
+                            {userPrefs.length > 0 && (
+                              <Badge variant="secondary" className="text-[10px] h-4 px-1.5 ml-auto">
+                                {userPrefs.length}
+                              </Badge>
+                            )}
                           </div>
-                        );
-                      })}
-                    </div>
+                        </SelectItem>
+                      );
+                    })}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {selectedUserStatus && (
+                <div className="border rounded-md p-2.5 bg-card">
+                  <div className="grid gap-1.5 max-h-60 overflow-y-auto pr-1">
+                    {profiles.map((profile) => {
+                      const isEnabled = userPreferences.some(
+                        (p) => p.status_type === selectedUserStatus && p.user_id === profile.id
+                      );
+                      const updateKey = `${selectedUserStatus}-${profile.id}`;
+                      const RoleIcon = ROLE_LABELS[profile.role].icon;
+                      
+                      return (
+                        <div
+                          key={profile.id}
+                          className={`flex items-center justify-between p-2 px-2.5 rounded border transition-colors ${
+                            isEnabled ? 'bg-primary/5 border-primary/30' : 'bg-muted/30'
+                          }`}
+                        >
+                          <div className="flex items-center gap-2 flex-1 min-w-0">
+                            <RoleIcon className={`h-3.5 w-3.5 flex-shrink-0 ${ROLE_LABELS[profile.role].color}`} />
+                            <div className="flex-1 min-w-0">
+                              <p className="text-xs font-medium truncate">{profile.name}</p>
+                              <p className="text-[10px] text-muted-foreground truncate">{profile.email}</p>
+                            </div>
+                          </div>
+                          <Switch
+                            checked={isEnabled}
+                            onCheckedChange={() => handleUserToggle(selectedUserStatus, profile.id, isEnabled)}
+                            disabled={updating === updateKey}
+                            className="scale-75"
+                          />
+                        </div>
+                      );
+                    })}
                   </div>
-                );
-              })}
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
