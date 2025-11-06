@@ -18,7 +18,9 @@ import {
   Users,
   Shield,
   UserCog,
-  User
+  User,
+  Check,
+  X
 } from "lucide-react";
 
 interface StatusPreference {
@@ -317,13 +319,26 @@ export default function NotificationManagement() {
                       {updating === pref.status_type && (
                         <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
                       )}
-                      <Switch
-                        id={pref.status_type}
-                        checked={pref.is_enabled}
-                        onCheckedChange={() => handleToggle(pref.status_type, pref.is_enabled)}
-                        disabled={updating === pref.status_type}
-                        className="scale-75"
-                      />
+                      <div className="relative">
+                        <Switch
+                          id={pref.status_type}
+                          checked={pref.is_enabled}
+                          onCheckedChange={() => handleToggle(pref.status_type, pref.is_enabled)}
+                          disabled={updating === pref.status_type}
+                          className={`scale-75 ${
+                            pref.is_enabled 
+                              ? 'data-[state=checked]:bg-green-500' 
+                              : 'data-[state=unchecked]:bg-red-500'
+                          }`}
+                        />
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                          {pref.is_enabled ? (
+                            <Check className="h-2.5 w-2.5 text-white" />
+                          ) : (
+                            <X className="h-2.5 w-2.5 text-white" />
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 );
@@ -381,12 +396,25 @@ export default function NotificationManagement() {
                             <RoleIcon className={`h-3.5 w-3.5 flex-shrink-0 ${ROLE_LABELS[role].color}`} />
                             <span className="text-xs font-medium truncate">{ROLE_LABELS[role].label}</span>
                           </div>
-                          <Switch
-                            checked={pref?.is_enabled || false}
-                            onCheckedChange={() => handleRoleToggle(selectedRoleStatus, role, pref?.is_enabled || false)}
-                            disabled={updating === updateKey}
-                            className="scale-75"
-                          />
+                          <div className="relative">
+                            <Switch
+                              checked={pref?.is_enabled || false}
+                              onCheckedChange={() => handleRoleToggle(selectedRoleStatus, role, pref?.is_enabled || false)}
+                              disabled={updating === updateKey}
+                              className={`scale-75 ${
+                                pref?.is_enabled 
+                                  ? 'data-[state=checked]:bg-green-500' 
+                                  : 'data-[state=unchecked]:bg-red-500'
+                              }`}
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              {pref?.is_enabled ? (
+                                <Check className="h-2.5 w-2.5 text-white" />
+                              ) : (
+                                <X className="h-2.5 w-2.5 text-white" />
+                              )}
+                            </div>
+                          </div>
                         </div>
                       );
                     })}
@@ -457,12 +485,25 @@ export default function NotificationManagement() {
                               <p className="text-[10px] text-muted-foreground truncate">{profile.email}</p>
                             </div>
                           </div>
-                          <Switch
-                            checked={isEnabled}
-                            onCheckedChange={() => handleUserToggle(selectedUserStatus, profile.id, isEnabled)}
-                            disabled={updating === updateKey}
-                            className="scale-75"
-                          />
+                          <div className="relative">
+                            <Switch
+                              checked={isEnabled}
+                              onCheckedChange={() => handleUserToggle(selectedUserStatus, profile.id, isEnabled)}
+                              disabled={updating === updateKey}
+                              className={`scale-75 ${
+                                isEnabled 
+                                  ? 'data-[state=checked]:bg-green-500' 
+                                  : 'data-[state=unchecked]:bg-red-500'
+                              }`}
+                            />
+                            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+                              {isEnabled ? (
+                                <Check className="h-2.5 w-2.5 text-white" />
+                              ) : (
+                                <X className="h-2.5 w-2.5 text-white" />
+                              )}
+                            </div>
+                          </div>
                         </div>
                       );
                     })}
