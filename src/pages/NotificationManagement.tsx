@@ -270,67 +270,56 @@ export default function NotificationManagement() {
   }
 
   return (
-    <div className="container mx-auto py-6 px-4 max-w-5xl">
-      <div className="mb-6">
-        <h1 className="text-3xl font-bold mb-2">Notification Settings</h1>
-        <p className="text-sm text-muted-foreground">
+    <div className="container mx-auto py-4 px-4 max-w-6xl">
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold mb-1">Notification Settings</h1>
+        <p className="text-xs text-muted-foreground">
           Configure email notifications for application status changes
         </p>
       </div>
 
-      <div className="grid gap-4">
+      <div className="grid gap-3">
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Status Change Notifications</CardTitle>
-            <CardDescription className="text-xs">
-              Toggle notifications for each status. Admins and submitters will be notified when enabled.
+          <CardHeader className="pb-2 space-y-0">
+            <CardTitle className="text-base">Status Change Notifications</CardTitle>
+            <CardDescription className="text-[11px]">
+              Toggle notifications for each status
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid gap-2">
+          <CardContent className="pt-3">
+            <div className="grid gap-1.5">
               {preferences.map((pref) => {
                 const StatusIcon = STATUS_LABELS[pref.status_type]?.icon || Bell;
                 return (
                   <div
                     key={pref.id}
-                    className="group flex items-center justify-between gap-4 py-3 px-4 rounded-md border bg-card hover:bg-accent/50 transition-colors"
+                    className="flex items-center justify-between gap-3 py-2 px-3 rounded-md border bg-card hover:bg-accent/50 transition-colors"
                   >
-                    <div className="flex items-center gap-3 flex-1 min-w-0">
-                      <div className={`p-2 rounded-md transition-colors ${
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <div className={`p-1.5 rounded transition-colors ${
                         pref.is_enabled ? 'bg-primary/10 text-primary' : 'bg-muted text-muted-foreground'
                       }`}>
-                        <StatusIcon className="h-4 w-4" />
+                        <StatusIcon className="h-3.5 w-3.5" />
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <Label
-                            htmlFor={pref.status_type}
-                            className="font-semibold cursor-pointer"
-                          >
-                            {STATUS_LABELS[pref.status_type]?.label || pref.status_type}
-                          </Label>
-                          {updating === pref.status_type && (
-                            <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
-                          )}
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-0.5">
-                          {STATUS_LABELS[pref.status_type]?.description ||
-                            `Notify when status changes to ${pref.status_type}`}
-                        </p>
+                        <Label
+                          htmlFor={pref.status_type}
+                          className="text-sm font-medium cursor-pointer"
+                        >
+                          {STATUS_LABELS[pref.status_type]?.label || pref.status_type}
+                        </Label>
                       </div>
                     </div>
                     <div className="flex items-center gap-2">
-                      <span className={`text-xs font-semibold min-w-[2.5rem] text-right transition-colors ${
-                        pref.is_enabled ? 'text-green-600 dark:text-green-500' : 'text-red-600 dark:text-red-500'
-                      }`}>
-                        {pref.is_enabled ? 'ON' : 'OFF'}
-                      </span>
+                      {updating === pref.status_type && (
+                        <Loader2 className="h-3 w-3 animate-spin text-muted-foreground" />
+                      )}
                       <Switch
                         id={pref.status_type}
                         checked={pref.is_enabled}
                         onCheckedChange={() => handleToggle(pref.status_type, pref.is_enabled)}
                         disabled={updating === pref.status_type}
-                        className="data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500"
+                        className="scale-75"
                       />
                     </div>
                   </div>
@@ -341,30 +330,27 @@ export default function NotificationManagement() {
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">Role-Based Notifications</CardTitle>
-            <CardDescription className="text-xs">
-              Configure which roles receive notifications for each status change
+          <CardHeader className="pb-2 space-y-0">
+            <CardTitle className="text-base">Role-Based Notifications</CardTitle>
+            <CardDescription className="text-[11px]">
+              Configure which roles receive notifications
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid gap-4">
+          <CardContent className="pt-3">
+            <div className="grid gap-2">
               {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
                 const StatusIcon = statusInfo.icon;
                 const rolePrefs = rolePreferences.filter((p) => p.status_type === statusType);
                 
                 return (
-                  <div key={statusType} className="border rounded-lg p-4 bg-card">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-md bg-primary/10 text-primary">
-                        <StatusIcon className="h-4 w-4" />
+                  <div key={statusType} className="border rounded-md p-2.5 bg-card">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-1 rounded bg-primary/10 text-primary">
+                        <StatusIcon className="h-3 w-3" />
                       </div>
-                      <div>
-                        <h3 className="font-semibold text-sm">{statusInfo.label}</h3>
-                        <p className="text-xs text-muted-foreground">{statusInfo.description}</p>
-                      </div>
+                      <h3 className="font-medium text-xs">{statusInfo.label}</h3>
                     </div>
-                    <div className="grid grid-cols-3 gap-2">
+                    <div className="grid grid-cols-3 gap-1.5">
                       {(['admin', 'manager', 'user'] as const).map((role) => {
                         const pref = rolePrefs.find((p) => p.role === role);
                         const RoleIcon = ROLE_LABELS[role].icon;
@@ -373,19 +359,19 @@ export default function NotificationManagement() {
                         return (
                           <div
                             key={role}
-                            className={`flex items-center justify-between p-3 rounded-md border transition-colors ${
-                              pref?.is_enabled ? 'bg-primary/5 border-primary/30' : 'bg-muted/50'
+                            className={`flex items-center justify-between p-2 rounded border transition-colors ${
+                              pref?.is_enabled ? 'bg-primary/5 border-primary/30' : 'bg-muted/30'
                             }`}
                           >
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <RoleIcon className={`h-3.5 w-3.5 flex-shrink-0 ${ROLE_LABELS[role].color}`} />
-                              <span className="text-xs font-medium truncate">{ROLE_LABELS[role].label}</span>
+                            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                              <RoleIcon className={`h-3 w-3 flex-shrink-0 ${ROLE_LABELS[role].color}`} />
+                              <span className="text-[11px] font-medium truncate">{ROLE_LABELS[role].label}</span>
                             </div>
                             <Switch
                               checked={pref?.is_enabled || false}
                               onCheckedChange={() => handleRoleToggle(statusType, role, pref?.is_enabled || false)}
                               disabled={updating === updateKey}
-                              className="scale-75"
+                              className="scale-[0.65]"
                             />
                           </div>
                         );
@@ -399,35 +385,32 @@ export default function NotificationManagement() {
         </Card>
 
         <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">User-Specific Notifications</CardTitle>
-            <CardDescription className="text-xs">
-              Add specific users to receive notifications for status changes
+          <CardHeader className="pb-2 space-y-0">
+            <CardTitle className="text-base">User-Specific Notifications</CardTitle>
+            <CardDescription className="text-[11px]">
+              Add specific users to receive notifications
             </CardDescription>
           </CardHeader>
-          <CardContent>
-            <div className="grid gap-4">
+          <CardContent className="pt-3">
+            <div className="grid gap-2">
               {Object.entries(STATUS_LABELS).map(([statusType, statusInfo]) => {
                 const StatusIcon = statusInfo.icon;
                 const userPrefs = userPreferences.filter((p) => p.status_type === statusType);
                 
                 return (
-                  <div key={statusType} className="border rounded-lg p-4 bg-card">
-                    <div className="flex items-center gap-3 mb-3">
-                      <div className="p-2 rounded-md bg-primary/10 text-primary">
-                        <StatusIcon className="h-4 w-4" />
+                  <div key={statusType} className="border rounded-md p-2.5 bg-card">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="p-1 rounded bg-primary/10 text-primary">
+                        <StatusIcon className="h-3 w-3" />
                       </div>
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-sm">{statusInfo.label}</h3>
-                        <p className="text-xs text-muted-foreground">{statusInfo.description}</p>
-                      </div>
+                      <h3 className="font-medium text-xs flex-1">{statusInfo.label}</h3>
                       {userPrefs.length > 0 && (
-                        <Badge variant="secondary" className="text-xs">
-                          {userPrefs.length} {userPrefs.length === 1 ? 'user' : 'users'}
+                        <Badge variant="secondary" className="text-[10px] h-4 px-1.5">
+                          {userPrefs.length}
                         </Badge>
                       )}
                     </div>
-                    <div className="grid gap-2 max-h-48 overflow-y-auto">
+                    <div className="grid gap-1 max-h-40 overflow-y-auto pr-1">
                       {profiles.map((profile) => {
                         const isEnabled = userPrefs.some((p) => p.user_id === profile.id);
                         const updateKey = `${statusType}-${profile.id}`;
@@ -436,22 +419,22 @@ export default function NotificationManagement() {
                         return (
                           <div
                             key={profile.id}
-                            className={`flex items-center justify-between p-2 px-3 rounded-md border text-sm transition-colors ${
+                            className={`flex items-center justify-between p-1.5 px-2 rounded border transition-colors ${
                               isEnabled ? 'bg-primary/5 border-primary/30' : 'bg-muted/30'
                             }`}
                           >
-                            <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <RoleIcon className={`h-3.5 w-3.5 flex-shrink-0 ${ROLE_LABELS[profile.role].color}`} />
+                            <div className="flex items-center gap-1.5 flex-1 min-w-0">
+                              <RoleIcon className={`h-3 w-3 flex-shrink-0 ${ROLE_LABELS[profile.role].color}`} />
                               <div className="flex-1 min-w-0">
-                                <p className="text-xs font-medium truncate">{profile.name}</p>
-                                <p className="text-xs text-muted-foreground truncate">{profile.email}</p>
+                                <p className="text-[11px] font-medium truncate">{profile.name}</p>
+                                <p className="text-[10px] text-muted-foreground truncate">{profile.email}</p>
                               </div>
                             </div>
                             <Switch
                               checked={isEnabled}
                               onCheckedChange={() => handleUserToggle(statusType, profile.id, isEnabled)}
                               disabled={updating === updateKey}
-                              className="scale-75"
+                              className="scale-[0.65]"
                             />
                           </div>
                         );
