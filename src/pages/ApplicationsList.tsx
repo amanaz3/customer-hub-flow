@@ -18,9 +18,11 @@ import { useBulkStatusUpdate } from '@/hooks/useBulkStatusUpdate';
 import { BulkActionsToolbar } from '@/components/Customer/BulkActionsToolbar';
 import { BulkStatusChangeDialog } from '@/components/Customer/BulkStatusChangeDialog';
 import type { ApplicationStatus } from '@/types/application';
+import { formatApplicationReferenceWithHash } from '@/utils/referenceNumberFormatter';
 
 interface ApplicationWithCustomer {
   id: string;
+  reference_number: number;
   customer_id: string;
   status: ApplicationStatus;
   application_type: string;
@@ -72,6 +74,7 @@ const ApplicationsList = () => {
         .from('account_applications')
         .select(`
           *,
+          reference_number,
           customer:customers!customer_id (
             id,
             name,
@@ -138,10 +141,20 @@ const ApplicationsList = () => {
 
   const filteredApplications = useMemo(() => {
     return applications.filter(app => {
-      const matchesSearch = searchTerm === '' || 
-        app.customer?.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        app.application_type?.toLowerCase().includes(searchTerm.toLowerCase());
+      let matchesSearch = searchTerm === '';
+      
+      if (!matchesSearch) {
+        const searchLower = searchTerm.toLowerCase();
+        // Try to parse as reference number (supports "1001" or "#1001")
+        const refNum = searchTerm.replace(/^#/, '').trim();
+        const parsedRefNum = parseInt(refNum, 10);
+        
+        matchesSearch = 
+          app.customer?.company?.toLowerCase().includes(searchLower) ||
+          app.customer?.name?.toLowerCase().includes(searchLower) ||
+          app.application_type?.toLowerCase().includes(searchLower) ||
+          (!isNaN(parsedRefNum) && app.reference_number === parsedRefNum);
+      }
       
       const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
 
@@ -243,7 +256,7 @@ const ApplicationsList = () => {
           {/* Search and Filters */}
           <div className="flex flex-col sm:flex-row gap-3 bg-card rounded-lg p-3 border">
             <Input
-              placeholder="Search by company, contact, or type..."
+              placeholder="Search by ref #, company, contact, or type..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1"
@@ -288,6 +301,7 @@ const ApplicationsList = () => {
                         />
                       </TableHead>
                     )}
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Ref #</TableHead>
                     <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Product/Service</TableHead>
                     <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Type</TableHead>
                     <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Company</TableHead>
@@ -304,7 +318,7 @@ const ApplicationsList = () => {
                 <TableBody>
                   {filteredApplications.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={isAdmin ? 12 : 11} className="text-center py-12 text-muted-foreground">
+                      <TableCell colSpan={isAdmin ? 13 : 12} className="text-center py-12 text-muted-foreground">
                         <FileText className="h-12 w-12 mx-auto mb-3 opacity-20" />
                         <p className="font-medium">No applications found</p>
                         <p className="text-xs mt-1">Try adjusting your filters</p>
@@ -333,6 +347,9 @@ const ApplicationsList = () => {
                             />
                           </TableCell>
                         )}
+                        <TableCell className="px-3 py-3 font-mono font-bold text-sm text-primary">
+                          {formatApplicationReferenceWithHash(app.reference_number)}
+                        </TableCell>
                         <TableCell className="px-3 py-3 font-semibold text-sm">
                           <div className="flex items-center gap-2 min-w-[150px]">
                             <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0" />

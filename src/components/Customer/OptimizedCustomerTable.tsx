@@ -20,6 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
+import { formatCustomerReferenceWithHash } from '@/utils/referenceNumberFormatter';
 
 
 interface OptimizedCustomerTableProps {
@@ -247,6 +248,9 @@ const CustomerRow = memo(({
           </div>
         </TableCell>
       )}
+      <TableCell className="font-mono font-bold text-sm text-primary">
+        {formatCustomerReferenceWithHash(customer.reference_number)}
+      </TableCell>
       <TableCell className="font-medium">
         <div className="space-y-1">
           <div className="font-medium">{customer.name}</div>
@@ -337,6 +341,7 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({
                 </div>
               </TableHead>
             )}
+            <TableHead>Client #</TableHead>
             <TableHead>Customer Info</TableHead>
             <TableHead>Product</TableHead>
             <TableHead>Submitted by</TableHead>
@@ -351,7 +356,7 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({
           ) : (
             <TableRow>
               <TableCell 
-                colSpan={enableBulkSelection && isAdmin ? 7 : 6} 
+                colSpan={enableBulkSelection && isAdmin ? 8 : 7} 
                 className="text-center py-6 text-muted-foreground"
               >
                 No customers found
