@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCustomer } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
-import ComprehensiveCustomerForm from '@/components/Customer/ComprehensiveCustomerForm';
+import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
 import { RequiredDocumentsSidebar } from '@/components/Customer/RequiredDocumentsSidebar';
 
 const CustomerNew = () => {
@@ -57,15 +57,14 @@ const CustomerNew = () => {
     <div className="w-full relative">
       <div className="w-full bg-gradient-subtle -mx-3 sm:-mx-4 md:-mx-6 -mt-4 sm:-mt-2">
         <div className={`px-4 pb-4 transition-all duration-300 ${sidebarCollapsed ? 'lg:pr-12' : 'lg:pr-80'}`}>
-          {/* Multi-Step Form */}
-          <ComprehensiveCustomerForm 
+          {/* Simplified Form */}
+          <SimplifiedCustomerForm 
             onSuccess={handleSuccess}
             onProductChange={setSelectedProduct}
             onEmailChange={setCustomerEmail}
             onNameChange={setCustomerName}
             onMobileChange={setCustomerMobile}
             onCompanyChange={setCustomerCompany}
-            sidebarCollapsed={sidebarCollapsed}
           />
         </div>
       </div>
