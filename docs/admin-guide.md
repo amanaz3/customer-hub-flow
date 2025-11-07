@@ -237,45 +237,7 @@ The system includes three distinct roles to ensure proper data security and acce
 
 ---
 
-## 7. CRM Integration
-
-The system includes powerful CRM integration capabilities to connect with external systems and synchronize data.
-
-### CRM Dashboard
-Access the CRM Integration page to:
-- View connected CRM systems
-- Monitor sync status and history
-- Manage API keys and webhooks
-- Configure field mappings
-- View sync logs and error reports
-
-### Connecting a CRM
-1. Navigate to CRM Integration
-2. Click "Connect New CRM"
-3. Select CRM type (custom or standard integration)
-4. Enter API endpoint and authentication details
-5. Configure field mappings between your system and the CRM
-6. Set sync preferences (frequency, entities to sync)
-7. Test the connection
-8. Activate the integration
-
-### Managing Syncs
-- View sync history with detailed logs
-- Manually trigger syncs for specific entity types
-- Monitor success/failure rates
-- Review and resolve sync errors
-- Track when data was last synchronized
-
-### API Key Management
-- Create and manage API keys for external access
-- Set permissions for each key
-- Monitor key usage
-- Set expiration dates
-- Deactivate or delete keys as needed
-
----
-
-## 8. Project & Task Management
+## 7. Project & Task Management
 
 The system includes internal project and task tracking capabilities for team collaboration.
 
@@ -508,10 +470,6 @@ Customize the platform to fit your company's needs.
 - **Issue:** Document won't upload
 - **Solution:** Check file size (max 10MB) and format. Ensure stable internet connection
 
-### Sync Errors in CRM Integration
-- **Issue:** CRM sync failing
-- **Solution:** Check API credentials, review sync logs for specific errors, verify field mappings
-
 ### Can't Find a Customer
 - **Issue:** Search not returning results
 - **Solution:** Try broader search terms, check filters, verify spelling, ensure you have permission to view
@@ -532,27 +490,7 @@ For technical issues, questions about advanced features, or to request new integ
 ## Appendix: API Integration for Advanced Users
 
 ### Available API Endpoints
-The system exposes secure API endpoints for:
-- CRM data synchronization
-- Partner integrations
-- Custom reporting
-- Webhook integrations
-
-### API Key Management
-1. Generate API keys from CRM Integration page
-2. Set appropriate permissions per key
-3. Use keys in Authorization header: `Authorization: Bearer <api_key>`
-4. Monitor key usage in API Key Manager
-5. Rotate keys regularly for security
-
-### Webhook Configuration
-Set up webhooks to receive real-time notifications:
-- Application status changes
-- New customer creation
-- Payment receipts
-- Document uploads
-
-Webhooks deliver JSON payloads to your specified endpoint with event details.
+The system provides secure endpoints for custom integrations and reporting. Contact your system administrator for API documentation and access credentials.
 
 ---
 

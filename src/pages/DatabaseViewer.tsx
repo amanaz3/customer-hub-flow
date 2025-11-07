@@ -47,8 +47,6 @@ const AVAILABLE_TABLES = [
   'deals',
   'customer_services',
   'banks',
-  'crm_configurations',
-  'crm_sync_logs',
   'monthly_targets',
   'arr_targets',
   'logs',

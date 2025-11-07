@@ -119,12 +119,6 @@ const Sidebar: React.FC = () => {
       roles: ['admin'],
     },
     {
-      name: 'CRM Integration',
-      path: '/crm',
-      icon: <Link2 className="h-5 w-5" />,
-      roles: ['admin'],
-    },
-    {
       name: 'Analytics',
       path: '/analytics',
       icon: <BarChart3 className="h-5 w-5" />,
@@ -170,7 +164,7 @@ const Sidebar: React.FC = () => {
 
   const isActiveRoute = (path: string) => {
     // Exact match for most routes
-    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/service-categories' || path === '/bundles' || path === '/analytics' || path === '/targets' || path === '/notification-management' || path === '/crm' || path === '/admin/migrate' || path === '/admin/database' || path === '/admin/help-editor') {
+    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/service-categories' || path === '/bundles' || path === '/analytics' || path === '/targets' || path === '/notification-management' || path === '/admin/migrate' || path === '/admin/database' || path === '/admin/help-editor') {
       return location.pathname === path;
     }
     

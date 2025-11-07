@@ -30,7 +30,7 @@ import {
   LazyNotFound,
   PageLoadingFallback
 } from '@/components/LazyComponents';
-import CRMIntegration from '@/pages/CRMIntegration';
+
 import Analytics from '@/pages/Analytics';
 import TargetManagement from '@/pages/TargetManagement';
 import AgentHelpEditor from '@/pages/AgentHelpEditor';
@@ -241,15 +241,6 @@ function App() {
                     </ProtectedRoute>
                   } />
                   
-                  <Route path="/crm" element={
-                    <ProtectedRoute requireAdmin>
-                      <MainLayout>
-                        <PageErrorBoundary pageName="CRM Integration">
-                          <CRMIntegration />
-                        </PageErrorBoundary>
-                      </MainLayout>
-                    </ProtectedRoute>
-                  } />
                   
                   <Route path="/settings" element={
                     <ProtectedRoute>

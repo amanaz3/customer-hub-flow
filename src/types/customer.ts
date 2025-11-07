@@ -1,4 +1,4 @@
-// Separated Customer and Application data for better architecture and CRM integration
+// Customer and Application data structures
 
 export interface BaseCustomer {
   id: string;
