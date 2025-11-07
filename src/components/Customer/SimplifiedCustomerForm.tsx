@@ -19,6 +19,9 @@ import { BankAccountFields } from './fields/BankAccountFields';
 import { BookkeepingFields } from './fields/BookkeepingFields';
 import { VATFields } from './fields/VATFields';
 import { TaxFields } from './fields/TaxFields';
+import { ExistingCustomerSelector } from './ExistingCustomerSelector';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import type { Customer } from '@/types/customer';
 
 // Simplified form schema
 const formSchema = z.object({
@@ -76,6 +79,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedProductName, setSelectedProductName] = useState<string>('');
+  const [companyMode, setCompanyMode] = useState<'new' | 'existing'>('new');
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -91,8 +96,42 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       lead_source: 'Website',
       product_id: '',
       no_of_shareholders: 1,
+      annual_turnover: undefined,
+      jurisdiction: '',
+      nationality: '',
+      proposed_activity: '',
+      customer_notes: '',
+      mainland_or_freezone: undefined,
+      signatory_type: undefined,
+      uae_residency_status: undefined,
+      salary_range: '',
+      company_incorporation_date: '',
+      vat_registered: undefined,
+      trade_license_number: '',
+      nature_of_business: '',
+      monthly_gross_salary: undefined,
+      property_value: undefined,
+      vat_registration_type: '',
+      tax_year_period: '',
     },
   });
+
+  const handleExistingCustomerChange = (customerId: string | null, customer: Partial<Customer> | null) => {
+    setSelectedCustomerId(customerId);
+    if (customer) {
+      form.setValue('name', customer.name || '');
+      form.setValue('email', customer.email || '');
+      form.setValue('mobile', customer.mobile || '');
+      form.setValue('company', customer.company || '');
+      if (customer.licenseType) {
+        form.setValue('license_type', customer.licenseType as 'Mainland' | 'Freezone' | 'Offshore');
+      }
+      onNameChange?.(customer.name || '');
+      onEmailChange?.(customer.email || '');
+      onMobileChange?.(customer.mobile || '');
+      onCompanyChange?.(customer.company || '');
+    }
+  };
 
   // Fetch products
   const { data: products } = useQuery({
@@ -251,22 +290,54 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Step 1: Customer Information */}
               {currentStep === 1 && (
                 <>
-                  <FormField
-                    control={form.control}
-                    name="name"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Customer Name *</FormLabel>
-                        <FormControl>
-                          <Input {...field} onChange={(e) => {
-                            field.onChange(e);
-                            onNameChange?.(e.target.value);
-                          }} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                  <div className="space-y-4 pb-4 border-b">
+                    <FormLabel>Company Selection</FormLabel>
+                    <RadioGroup
+                      value={companyMode}
+                      onValueChange={(value: 'new' | 'existing') => setCompanyMode(value)}
+                      className="flex gap-4"
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="new" id="new" />
+                        <label htmlFor="new" className="text-sm cursor-pointer">
+                          Create New Company
+                        </label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="existing" id="existing" />
+                        <label htmlFor="existing" className="text-sm cursor-pointer">
+                          Select Existing Company
+                        </label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+
+                  {companyMode === 'existing' && user && (
+                    <ExistingCustomerSelector
+                      userId={user.id}
+                      value={selectedCustomerId}
+                      onChange={handleExistingCustomerChange}
+                    />
+                  )}
+
+                  {companyMode === 'new' && (
+                    <>
+                      <FormField
+                        control={form.control}
+                        name="name"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Customer Name *</FormLabel>
+                            <FormControl>
+                              <Input {...field} onChange={(e) => {
+                                field.onChange(e);
+                                onNameChange?.(e.target.value);
+                              }} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <FormField
@@ -370,19 +441,21 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     />
                   </div>
 
-                  <FormField
-                    control={form.control}
-                    name="nationality"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Nationality</FormLabel>
-                        <FormControl>
-                          <Input {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+                      <FormField
+                        control={form.control}
+                        name="nationality"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel>Nationality</FormLabel>
+                            <FormControl>
+                              <Input {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </>
+                  )}
                 </>
               )}
 
@@ -482,7 +555,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               <Button
                 type="button"
                 onClick={async () => {
-                  const isValid = await form.trigger();
+                  // Validate only fields in the current step
+                  let fieldsToValidate: (keyof FormData)[] = [];
+                  
+                  if (currentStep === 1) {
+                    fieldsToValidate = ['name', 'email', 'mobile', 'company', 'license_type', 'lead_source'];
+                  } else if (currentStep === 2) {
+                    fieldsToValidate = ['product_id', 'amount'];
+                  }
+                  
+                  const isValid = await form.trigger(fieldsToValidate);
                   if (isValid) {
                     setCurrentStep(prev => Math.min(3, prev + 1));
                   }
