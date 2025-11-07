@@ -1,14 +1,18 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from "recharts";
 import { MonthData } from "@/services/comparisonService";
 import { format } from "date-fns";
-import { BarChart3 } from "lucide-react";
+import { BarChart3, ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 interface TrendChartProps {
   data: MonthData[];
 }
 
 export const TrendChart = ({ data }: TrendChartProps) => {
+  const [isCollapsed, setIsCollapsed] = useState(true);
+  
   const chartData = data.map((month) => ({
     name: format(new Date(month.year, month.month - 1, 1), "MMM yy"),
     Applications: month.applications,
@@ -20,15 +24,27 @@ export const TrendChart = ({ data }: TrendChartProps) => {
   return (
     <Card className="shadow-sm">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <BarChart3 className="h-5 w-5 text-primary" />
-          6-Month Trend Analysis
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Track your performance trends over the last 6 months
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <BarChart3 className="h-5 w-5 text-primary" />
+              6-Month Trend Analysis
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Track your performance trends over the last 6 months
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+          >
+            {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+          </Button>
+        </div>
       </CardHeader>
-      <CardContent>
+      {!isCollapsed && (
+        <CardContent>
         <ResponsiveContainer width="100%" height={350}>
           <LineChart data={chartData}>
             <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
@@ -99,7 +115,8 @@ export const TrendChart = ({ data }: TrendChartProps) => {
         <div className="mt-4 text-xs text-muted-foreground">
           <p>* Revenue shown in thousands (K) for better visualization</p>
         </div>
-      </CardContent>
+        </CardContent>
+      )}
     </Card>
   );
 };
