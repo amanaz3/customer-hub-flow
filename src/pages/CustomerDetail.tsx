@@ -35,7 +35,7 @@ const CustomerDetailNew = () => {
       // Fetch customer with status from latest application
       const { data: customerData, error: customerError } = await supabase
         .from('customers')
-        .select('id, name, email, mobile, company, license_type, created_at, updated_at')
+        .select('id, name, email, mobile, company, license_type, reference_number, created_at, updated_at')
         .eq('id', id)
         .single();
 
@@ -72,6 +72,7 @@ const CustomerDetailNew = () => {
 
       setCustomer({
         ...mappedCustomer,
+        reference_number: customerData.reference_number,
         applications: applicationsData as Application[],
         documents: documentsData as Document[],
         status: latestStatus

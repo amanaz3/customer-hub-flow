@@ -2,6 +2,7 @@
 
 export interface BaseCustomer {
   id: string;
+  reference_number: number;
   name: string;
   email: string;
   mobile: string;

@@ -76,7 +76,7 @@ export const CreateCompanyDialog: React.FC<CreateCompanyDialogProps> = ({
             license_type: 'Mainland',
             lead_source: 'Website',
           },
-        ])
+        ] as any)
         .select()
         .single();
 

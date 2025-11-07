@@ -11,6 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ApplicationService } from '@/services/applicationService';
 import { supabase } from '@/integrations/supabase/client';
 import type { Application } from '@/types/application';
+import { formatApplicationReferenceWithHash } from '@/utils/referenceNumberFormatter';
 
 const ApplicationDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -132,9 +133,16 @@ const ApplicationDetail = () => {
             <ArrowLeft className="h-5 w-5" />
           </Button>
           <div>
-            <h1 className="text-3xl font-bold">Application Details</h1>
-            <p className="text-muted-foreground">
-              {application.application_type.replace('_', ' ').toUpperCase()} Application
+            <div className="flex items-center gap-3">
+              <h1 className="text-3xl font-bold">
+                {formatApplicationReferenceWithHash(application.reference_number)}
+              </h1>
+              <Badge variant="outline" className="font-mono text-sm">
+                {application.application_type.replace('_', ' ').toUpperCase()}
+              </Badge>
+            </div>
+            <p className="text-muted-foreground mt-1">
+              {application.customer?.name || 'Application Details'}
             </p>
           </div>
         </div>

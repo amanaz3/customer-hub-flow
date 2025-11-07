@@ -293,9 +293,9 @@ export class OptimizedCustomerService {
       customer_notes: customer.customer_notes,
     };
 
-    const { data, error } = await supabase
+    const { data, error} = await supabase
       .from('customers')
-      .insert(customerData)
+      .insert(customerData as any)
       .select()
       .single();
 

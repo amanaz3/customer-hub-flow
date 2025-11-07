@@ -1331,7 +1331,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             status: 'Draft',
             created_at: new Date().toISOString(),
             updated_at: new Date().toISOString()
-          }])
+          }] as any)
           .select()
           .single();
 
@@ -1439,7 +1439,7 @@ const ComprehensiveCustomerForm: React.FC<ComprehensiveCustomerFormProps> = ({
             ...(data.risk_country_risk && { risk_country_risk: sanitizeInput(data.risk_country_risk) }),
             ...(data.risk_business_relationship_purpose && { risk_business_relationship_purpose: sanitizeInput(data.risk_business_relationship_purpose) }),
           }
-        }])
+        }] as any)
         .select()
         .single();
 

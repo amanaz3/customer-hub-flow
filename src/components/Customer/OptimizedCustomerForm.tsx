@@ -128,7 +128,7 @@ const OptimizedCustomerForm: React.FC<OptimizedCustomerFormProps> = ({
           ...formData,
           user_id: user.id,
           status: 'Draft' as const
-        }])
+        }] as any)
         .select()
         .single();
 

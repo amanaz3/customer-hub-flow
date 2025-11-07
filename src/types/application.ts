@@ -34,6 +34,7 @@ export type SubmissionSource =
 
 export interface Application {
   id: string;
+  reference_number: number;
   customer_id: string;
   application_type: ApplicationType;
   submission_source: SubmissionSource;
