@@ -21,6 +21,7 @@ export type Database = {
           created_at: string
           customer_id: string | null
           id: string
+          reference_number: number
           status: string
           submission_source: string | null
           updated_at: string
@@ -31,6 +32,7 @@ export type Database = {
           created_at?: string
           customer_id?: string | null
           id?: string
+          reference_number: number
           status?: string
           submission_source?: string | null
           updated_at?: string
@@ -41,6 +43,7 @@ export type Database = {
           created_at?: string
           customer_id?: string | null
           id?: string
+          reference_number?: number
           status?: string
           submission_source?: string | null
           updated_at?: string
@@ -515,6 +518,7 @@ export type Database = {
           preferred_bank_2: string | null
           preferred_bank_3: string | null
           product_id: string | null
+          reference_number: number
           status: Database["public"]["Enums"]["customer_status"]
           updated_at: string | null
           user_id: string | null
@@ -538,6 +542,7 @@ export type Database = {
           preferred_bank_2?: string | null
           preferred_bank_3?: string | null
           product_id?: string | null
+          reference_number: number
           status?: Database["public"]["Enums"]["customer_status"]
           updated_at?: string | null
           user_id?: string | null
@@ -561,6 +566,7 @@ export type Database = {
           preferred_bank_2?: string | null
           preferred_bank_3?: string | null
           product_id?: string | null
+          reference_number?: number
           status?: Database["public"]["Enums"]["customer_status"]
           updated_at?: string | null
           user_id?: string | null
@@ -1665,6 +1671,8 @@ export type Database = {
         Returns: undefined
       }
       delete_product: { Args: { product_id: string }; Returns: undefined }
+      generate_application_reference: { Args: never; Returns: number }
+      generate_customer_reference: { Args: never; Returns: number }
       get_or_create_arr_target: {
         Args: { p_month: number; p_user_id: string; p_year: number }
         Returns: string
