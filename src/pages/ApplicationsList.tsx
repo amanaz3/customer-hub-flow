@@ -139,13 +139,13 @@ const ApplicationsList = () => {
     }
   };
 
-  // Separate active and rejected applications
+  // Separate active and rejected applications (case-insensitive)
   const activeApplications = useMemo(() => {
-    return applications.filter(app => app.status !== 'rejected');
+    return applications.filter(app => app.status?.toLowerCase() !== 'rejected');
   }, [applications]);
 
   const rejectedApplications = useMemo(() => {
-    return applications.filter(app => app.status === 'rejected');
+    return applications.filter(app => app.status?.toLowerCase() === 'rejected');
   }, [applications]);
 
   // Filter active applications with search and status
@@ -165,7 +165,7 @@ const ApplicationsList = () => {
           (!isNaN(parsedRefNum) && app.reference_number === parsedRefNum);
       }
       
-      const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
+      const matchesStatus = statusFilter === 'all' || app.status?.toLowerCase() === statusFilter.toLowerCase();
       return matchesSearch && matchesStatus;
     });
   }, [activeApplications, searchTerm, statusFilter]);
