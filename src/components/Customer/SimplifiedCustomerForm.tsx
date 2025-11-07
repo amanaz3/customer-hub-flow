@@ -185,7 +185,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
       const nextRefNumber = (maxRef?.reference_number || 0) + 1;
 
-      // Create customer
+      // Create customer - convert empty strings to null for optional fields
       const { data: customerData, error: customerError } = await supabase
         .from('customers')
         .insert([{
@@ -196,9 +196,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           amount: data.amount,
           license_type: data.license_type,
           lead_source: data.lead_source,
-          annual_turnover: data.annual_turnover,
-          jurisdiction: data.jurisdiction,
-          customer_notes: data.customer_notes,
+          annual_turnover: data.annual_turnover || null,
+          jurisdiction: data.jurisdiction || null,
+          nationality: data.nationality || null,
+          proposed_activity: data.proposed_activity || null,
+          customer_notes: data.customer_notes || null,
           product_id: data.product_id,
           status: 'Draft' as const,
           user_id: user.id,
