@@ -11,12 +11,18 @@ import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Checkbox } from '@/components/ui/checkbox';
 import ProductUsageAnalytics from '@/components/Analytics/ProductUsageAnalytics';
+import { useTableSelection } from '@/hooks/useTableSelection';
+import { useBulkStatusUpdate } from '@/hooks/useBulkStatusUpdate';
+import { BulkActionsToolbar } from '@/components/Customer/BulkActionsToolbar';
+import { BulkStatusChangeDialog } from '@/components/Customer/BulkStatusChangeDialog';
+import type { ApplicationStatus } from '@/types/application';
 
 interface ApplicationWithCustomer {
   id: string;
   customer_id: string;
-  status: string;
+  status: ApplicationStatus;
   application_type: string;
   created_at: string;
   updated_at: string;
@@ -46,6 +52,14 @@ const ApplicationsList = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  
+  // Bulk selection and actions
+  const selection = useTableSelection(applications);
+  const { updateApplicationsStatus, isLoading: isUpdating } = useBulkStatusUpdate();
+  const [bulkStatusDialog, setBulkStatusDialog] = useState<{
+    isOpen: boolean;
+    status: ApplicationStatus | null;
+  }>({ isOpen: false, status: null });
 
   useEffect(() => {
     fetchApplications();
@@ -153,6 +167,25 @@ const ApplicationsList = () => {
     return statusColors[normalizedStatus] || 'bg-gray-500';
   };
 
+  const handleBulkStatusChange = async (
+    applicationIds: string[],
+    newStatus: ApplicationStatus,
+    comment: string
+  ) => {
+    try {
+      await updateApplicationsStatus(applicationIds, newStatus, comment);
+      await fetchApplications();
+      selection.clearSelection();
+      setBulkStatusDialog({ isOpen: false, status: null });
+    } catch (error) {
+      console.error('Bulk status update failed:', error);
+    }
+  };
+
+  const openBulkStatusDialog = (status: ApplicationStatus) => {
+    setBulkStatusDialog({ isOpen: true, status });
+  };
+
   if (loading) {
     return <div className="p-8 text-center">Loading applications...</div>;
   }
@@ -246,6 +279,15 @@ const ApplicationsList = () => {
               <Table>
                 <TableHeader className="sticky top-0 bg-muted backdrop-blur-sm z-10">
                   <TableRow className="hover:bg-transparent border-b-2">
+                    {isAdmin && (
+                      <TableHead className="h-10 px-3 py-2 w-12">
+                        <Checkbox
+                          checked={selection.isAllSelected}
+                          onCheckedChange={selection.toggleAll}
+                          aria-label="Select all"
+                        />
+                      </TableHead>
+                    )}
                     <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Product/Service</TableHead>
                     <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Type</TableHead>
                     <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Company</TableHead>
@@ -262,7 +304,7 @@ const ApplicationsList = () => {
                 <TableBody>
                   {filteredApplications.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={11} className="text-center py-12 text-muted-foreground">
+                      <TableCell colSpan={isAdmin ? 12 : 11} className="text-center py-12 text-muted-foreground">
                         <FileText className="h-12 w-12 mx-auto mb-3 opacity-20" />
                         <p className="font-medium">No applications found</p>
                         <p className="text-xs mt-1">Try adjusting your filters</p>
@@ -273,8 +315,24 @@ const ApplicationsList = () => {
                       <TableRow 
                         key={app.id}
                         className="hover:bg-muted/50 cursor-pointer transition-colors border-b"
-                        onClick={() => navigate(`/applications/${app.id}`)}
+                        onClick={(e) => {
+                          if (!(e.target as HTMLElement).closest('.checkbox-cell')) {
+                            navigate(`/applications/${app.id}`);
+                          }
+                        }}
                       >
+                        {isAdmin && (
+                          <TableCell 
+                            className="px-3 py-3 checkbox-cell"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Checkbox
+                              checked={selection.isSelected(app.id)}
+                              onCheckedChange={() => selection.toggleItem(app.id)}
+                              aria-label={`Select ${app.customer?.company}`}
+                            />
+                          </TableCell>
+                        )}
                         <TableCell className="px-3 py-3 font-semibold text-sm">
                           <div className="flex items-center gap-2 min-w-[150px]">
                             <div className="h-2 w-2 rounded-full bg-primary flex-shrink-0" />
@@ -364,6 +422,33 @@ const ApplicationsList = () => {
           <ProductUsageAnalytics />
         </TabsContent>
       </Tabs>
+
+      {/* Bulk Actions Toolbar for Admins */}
+      {isAdmin && (
+        <>
+          <BulkActionsToolbar
+            selectedCount={selection.selectedCount}
+            isVisible={selection.selectedCount > 0}
+            onClearSelection={selection.clearSelection}
+            onRejectSelected={() => openBulkStatusDialog('rejected')}
+            onApproveSelected={() => openBulkStatusDialog('approved')}
+            onMarkAsPaidSelected={() => openBulkStatusDialog('paid')}
+            isLoading={isUpdating}
+            mode="applications"
+          />
+
+          {/* Bulk Status Change Dialog */}
+          {bulkStatusDialog.status && (
+            <BulkStatusChangeDialog
+              isOpen={bulkStatusDialog.isOpen}
+              onClose={() => setBulkStatusDialog({ isOpen: false, status: null })}
+              selectedApplications={selection.getSelectedItems()}
+              newStatus={bulkStatusDialog.status}
+              onConfirm={handleBulkStatusChange}
+            />
+          )}
+        </>
+      )}
     </div>
   );
 };

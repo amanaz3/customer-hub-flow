@@ -6,15 +6,22 @@ import {
   Users, 
   X, 
   ArrowRightLeft,
-  Loader2
+  Loader2,
+  XCircle,
+  CheckCircle,
+  DollarSign
 } from 'lucide-react';
 
 interface BulkActionsToolbarProps {
   selectedCount: number;
   isVisible: boolean;
   onClearSelection: () => void;
-  onReassignSelected: () => void;
+  onReassignSelected?: () => void;
+  onRejectSelected?: () => void;
+  onApproveSelected?: () => void;
+  onMarkAsPaidSelected?: () => void;
   isLoading?: boolean;
+  mode?: 'customers' | 'applications';
 }
 
 export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
@@ -22,7 +29,11 @@ export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
   isVisible,
   onClearSelection,
   onReassignSelected,
-  isLoading = false
+  onRejectSelected,
+  onApproveSelected,
+  onMarkAsPaidSelected,
+  isLoading = false,
+  mode = 'customers'
 }) => {
   if (!isVisible) return null;
 
@@ -46,20 +57,77 @@ export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
         <div className="h-6 w-px bg-border" />
 
         <div className="flex items-center gap-2">
-          <Button
-            variant="default"
-            size="sm"
-            onClick={onReassignSelected}
-            disabled={isLoading}
-            className="shadow-sm"
-          >
-            {isLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin mr-2" />
-            ) : (
-              <ArrowRightLeft className="h-4 w-4 mr-2" />
-            )}
-            Reassign Selected
-          </Button>
+          {mode === 'customers' && onReassignSelected && (
+            <Button
+              variant="default"
+              size="sm"
+              onClick={onReassignSelected}
+              disabled={isLoading}
+              className="shadow-sm"
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin mr-2" />
+              ) : (
+                <ArrowRightLeft className="h-4 w-4 mr-2" />
+              )}
+              Reassign
+            </Button>
+          )}
+
+          {mode === 'applications' && (
+            <>
+              {onRejectSelected && (
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={onRejectSelected}
+                  disabled={isLoading}
+                  className="shadow-sm bg-red-600 hover:bg-red-700"
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <XCircle className="h-4 w-4 mr-2" />
+                  )}
+                  Reject
+                </Button>
+              )}
+
+              {onApproveSelected && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={onApproveSelected}
+                  disabled={isLoading}
+                  className="shadow-sm bg-green-600 hover:bg-green-700"
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <CheckCircle className="h-4 w-4 mr-2" />
+                  )}
+                  Approve
+                </Button>
+              )}
+
+              {onMarkAsPaidSelected && (
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={onMarkAsPaidSelected}
+                  disabled={isLoading}
+                  className="shadow-sm bg-green-700 hover:bg-green-800"
+                >
+                  {isLoading ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <DollarSign className="h-4 w-4 mr-2" />
+                  )}
+                  Mark as Paid
+                </Button>
+              )}
+            </>
+          )}
 
           <Button
             variant="outline"
