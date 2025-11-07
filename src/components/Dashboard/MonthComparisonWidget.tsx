@@ -1,13 +1,16 @@
+import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, ChevronDown, ChevronUp } from "lucide-react";
 import { ComparisonData } from "@/services/comparisonService";
 import { format } from "date-fns";
+import { Button } from "@/components/ui/button";
 
 interface MonthComparisonWidgetProps {
   comparison: ComparisonData;
 }
 
 export const MonthComparisonWidget = ({ comparison }: MonthComparisonWidgetProps) => {
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const { current, previous, changes } = comparison;
 
   const getMonthLabel = (month: number, year: number) => {
@@ -79,15 +82,27 @@ export const MonthComparisonWidget = ({ comparison }: MonthComparisonWidgetProps
   return (
     <Card className="shadow-sm">
       <CardHeader className="pb-4">
-        <CardTitle className="text-lg flex items-center gap-2">
-          <TrendingUp className="h-5 w-5 text-primary" />
-          Month-over-Month Performance
-        </CardTitle>
-        <p className="text-sm text-muted-foreground">
-          Comparing {getMonthLabel(current.month, current.year)} to {getMonthLabel(previous.month, previous.year)}
-        </p>
+        <div className="flex items-center justify-between">
+          <div>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <TrendingUp className="h-5 w-5 text-primary" />
+              Month-over-Month Performance
+            </CardTitle>
+            <p className="text-sm text-muted-foreground">
+              Comparing {getMonthLabel(current.month, current.year)} to {getMonthLabel(previous.month, previous.year)}
+            </p>
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+          >
+            {isCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+          </Button>
+        </div>
       </CardHeader>
-      <CardContent>
+      {!isCollapsed && (
+        <CardContent>
         <div className="space-y-4">
           {metrics.map((metric) => (
             <div
@@ -134,7 +149,8 @@ export const MonthComparisonWidget = ({ comparison }: MonthComparisonWidgetProps
             </div>
           ))}
         </div>
-      </CardContent>
+        </CardContent>
+      )}
     </Card>
   );
 };
