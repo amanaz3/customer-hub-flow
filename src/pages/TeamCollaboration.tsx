@@ -22,8 +22,6 @@ import { CreateProjectDialog } from '@/components/Team/CreateProjectDialog';
 import { TaskCard } from '@/components/Team/TaskCard';
 import { TaskDetailDialog } from '@/components/Team/TaskDetailDialog';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
 
 interface TeamMember {
   id: string;
@@ -79,12 +77,6 @@ interface Application {
   customer_name?: string;
   customer_company?: string;
   customer_email?: string;
-  recent_action?: string;
-  recent_action_date?: string;
-  recent_action_by?: string;
-  assigned_user_id?: string;
-  assigned_user_name?: string;
-  comment_count?: number;
 }
 
 const TeamCollaboration: React.FC = () => {
@@ -106,10 +98,6 @@ const TeamCollaboration: React.FC = () => {
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>();
   const [caseStatusFilter, setCaseStatusFilter] = useState<string>('active');
   const [caseSearchQuery, setCaseSearchQuery] = useState('');
-  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
-  const [commentDialogOpen, setCommentDialogOpen] = useState(false);
-  const [newComment, setNewComment] = useState('');
-  const [loadingComment, setLoadingComment] = useState(false);
 
   useEffect(() => {
     fetchTeamData();
@@ -194,7 +182,7 @@ const TeamCollaboration: React.FC = () => {
       if (membersError) throw membersError;
       setTeamMembers(members || []);
 
-      // Fetch all applications with recent status changes
+      // Fetch all applications
       const { data: applicationsData, error: casesError } = await supabase
         .from('account_applications')
         .select(`
@@ -202,60 +190,19 @@ const TeamCollaboration: React.FC = () => {
           customers (
             name,
             company,
-            email,
-            user_id,
-            profiles:user_id (
-              name
-            )
+            email
           )
         `)
         .order('created_at', { ascending: false });
 
       if (casesError) throw casesError;
       
-      // Fetch recent status changes for each application
-      const applicationIds = (applicationsData || []).map((app: any) => app.id);
-      const { data: statusChangesData } = await supabase
-        .from('status_changes')
-        .select(`
-          customer_id,
-          new_status,
-          previous_status,
-          created_at,
-          changed_by,
-          comment,
-          profiles!status_changes_changed_by_fkey(name)
-        `)
-        .in('customer_id', (applicationsData || []).map((app: any) => app.customer_id))
-        .order('created_at', { ascending: false });
-
-      // Fetch comment counts
-      const customerIds = (applicationsData || []).map((app: any) => app.customer_id);
-      const { data: commentsData } = await supabase
-        .from('comments')
-        .select('customer_id')
-        .in('customer_id', customerIds);
-
-      const commentCounts = commentsData?.reduce((acc: any, comment: any) => {
-        acc[comment.customer_id] = (acc[comment.customer_id] || 0) + 1;
-        return acc;
-      }, {});
-
-      const applicationsWithCustomer: Application[] = (applicationsData || []).map((app: any) => {
-        const recentChange = statusChangesData?.find((sc: any) => sc.customer_id === app.customer_id);
-        return {
-          ...app,
-          customer_name: app.customers?.name,
-          customer_company: app.customers?.company,
-          customer_email: app.customers?.email,
-          assigned_user_id: app.customers?.user_id,
-          assigned_user_name: app.customers?.profiles?.name,
-          recent_action: recentChange ? `Status changed from ${recentChange.previous_status} to ${recentChange.new_status}` : null,
-          recent_action_date: recentChange?.created_at,
-          recent_action_by: recentChange?.profiles?.name,
-          comment_count: commentCounts?.[app.customer_id] || 0,
-        };
-      });
+      const applicationsWithCustomer: Application[] = (applicationsData || []).map((app: any) => ({
+        ...app,
+        customer_name: app.customers?.name,
+        customer_company: app.customers?.company,
+        customer_email: app.customers?.email,
+      }));
       
       setApplications(applicationsWithCustomer);
       setActiveCasesCount(applicationsWithCustomer.filter(app => 
@@ -339,36 +286,6 @@ const TeamCollaboration: React.FC = () => {
     );
     
     return activeUserIds.size;
-  };
-
-  const handleAddComment = async () => {
-    if (!newComment.trim() || !selectedApplicationId) return;
-
-    const selectedApp = applications.find(app => app.id === selectedApplicationId);
-    if (!selectedApp) return;
-
-    try {
-      setLoadingComment(true);
-      const { error } = await supabase
-        .from('comments')
-        .insert({
-          customer_id: selectedApp.customer_id,
-          comment: newComment.trim(),
-          created_by: user?.id,
-        });
-
-      if (error) throw error;
-
-      toast.success('Comment added successfully');
-      setNewComment('');
-      setCommentDialogOpen(false);
-      await fetchTeamData(); // Refresh data
-    } catch (error) {
-      console.error('Error adding comment:', error);
-      toast.error('Failed to add comment');
-    } finally {
-      setLoadingComment(false);
-    }
   };
 
   const filteredTasks = tasks.filter((task) => {
@@ -751,108 +668,34 @@ const TeamCollaboration: React.FC = () => {
                     rejected: 'bg-red-500/10 text-red-500',
                   }[app.status] || 'bg-gray-500/10 text-gray-500';
 
-                  const getNextStep = (status: string) => {
-                    const nextSteps: { [key: string]: string } = {
-                      draft: 'Complete application form and submit',
-                      pending: 'Awaiting initial review',
-                      in_review: 'Under review by team',
-                      waiting_for_documents: 'Upload required documents',
-                      waiting_for_information: 'Provide additional information',
-                      blocked: 'Resolve blocking issues',
-                      approved: 'Proceed to finalization',
-                      complete: 'Application completed',
-                      rejected: 'Application rejected',
-                    };
-                    return nextSteps[status] || 'No action required';
-                  };
-
                   return (
                     <div
                       key={app.id}
                       className="flex items-start justify-between p-4 rounded-md border bg-card hover:bg-accent/50 transition-colors"
                     >
-                      <div className="flex-1 min-w-0 space-y-2">
+                      <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
                           <p className="text-sm font-semibold text-foreground">
                             #{app.reference_number}
                           </p>
                           <Badge className={statusBadgeColor}>
-                            {app.status.replace(/_/g, ' ')}
+                            {app.status.replace('_', ' ')}
                           </Badge>
                         </div>
-                        
-                        <div>
-                          <p className="text-sm text-foreground font-medium">
-                            {app.customer_company || app.customer_name || 'Unknown'}
+                        <p className="text-sm text-foreground font-medium">
+                          {app.customer_company || app.customer_name || 'Unknown'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {app.application_type?.replace('_', ' ') || 'Application'}
+                        </p>
+                        {app.customer_email && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {app.customer_email}
                           </p>
-                          <p className="text-xs text-muted-foreground">
-                            {app.application_type?.replace(/_/g, ' ') || 'Application'}
-                          </p>
-                          {app.customer_email && (
-                            <p className="text-xs text-muted-foreground">
-                              {app.customer_email}
-                            </p>
-                          )}
-                        </div>
-
-                        {app.assigned_user_name && (
-                          <div className="flex items-center gap-2 py-1">
-                            <Avatar className="h-6 w-6">
-                              <AvatarFallback className="bg-primary/10 text-primary text-xs">
-                                {getInitials(app.assigned_user_name)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <p className="text-xs font-medium text-foreground">
-                                Assigned to: {app.assigned_user_name}
-                              </p>
-                            </div>
-                          </div>
                         )}
-
-                        {app.recent_action && (
-                          <div className="pt-2 border-t border-border/50">
-                            <p className="text-xs font-medium text-foreground flex items-center gap-1">
-                              <Activity className="h-3 w-3" />
-                              Recent Action:
-                            </p>
-                            <p className="text-xs text-muted-foreground ml-4">
-                              {app.recent_action}
-                            </p>
-                            {app.recent_action_by && (
-                              <p className="text-xs text-muted-foreground ml-4">
-                                by {app.recent_action_by} • {formatDate(app.recent_action_date!)}
-                              </p>
-                            )}
-                          </div>
-                        )}
-
-                        <div className="pt-2 border-t border-border/50">
-                          <p className="text-xs font-medium text-foreground flex items-center gap-1">
-                            <FileText className="h-3 w-3" />
-                            Next Step:
-                          </p>
-                          <p className="text-xs text-muted-foreground ml-4">
-                            {getNextStep(app.status)}
-                          </p>
-                        </div>
-
-                        <div className="flex items-center justify-between pt-2">
-                          <p className="text-xs text-muted-foreground">
-                            Created {formatDate(app.created_at)} • Updated {formatDate(app.updated_at)}
-                          </p>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setSelectedApplicationId(app.id);
-                              setCommentDialogOpen(true);
-                            }}
-                          >
-                            <MessageSquare className="h-3 w-3 mr-1" />
-                            Comments ({app.comment_count || 0})
-                          </Button>
-                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Created {formatDate(app.created_at)}
+                        </p>
                       </div>
                     </div>
                   );
@@ -977,41 +820,6 @@ const TeamCollaboration: React.FC = () => {
         onOpenChange={setTaskDetailOpen}
         onTaskUpdated={fetchTasks}
       />
-
-      {/* Comment Dialog */}
-      <Dialog open={commentDialogOpen} onOpenChange={setCommentDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Add Comment</DialogTitle>
-            <DialogDescription>
-              Add a note or comment about this case and the assigned agent's work.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4 py-4">
-            <Textarea
-              placeholder="Enter your comment here..."
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              rows={4}
-              className="resize-none"
-            />
-          </div>
-          <DialogFooter>
-            <Button
-              variant="outline"
-              onClick={() => {
-                setCommentDialogOpen(false);
-                setNewComment('');
-              }}
-            >
-              Cancel
-            </Button>
-            <Button onClick={handleAddComment} disabled={loadingComment || !newComment.trim()}>
-              {loadingComment ? 'Adding...' : 'Add Comment'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };
