@@ -66,12 +66,26 @@ interface Project {
   created_at: string;
 }
 
+interface Application {
+  id: string;
+  reference_number: number;
+  status: string;
+  application_type: string;
+  customer_id: string;
+  created_at: string;
+  updated_at: string;
+  customer_name?: string;
+  customer_company?: string;
+  customer_email?: string;
+}
+
 const TeamCollaboration: React.FC = () => {
   const { user } = useAuth();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
   const [activeCasesCount, setActiveCasesCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [createTaskOpen, setCreateTaskOpen] = useState(false);
@@ -167,13 +181,30 @@ const TeamCollaboration: React.FC = () => {
       setTeamMembers(members || []);
 
       // Fetch active cases count (uncompleted and unpaid applications)
-      const { count: casesCount, error: casesError } = await supabase
+      const { data: applicationsData, error: casesError } = await supabase
         .from('account_applications')
-        .select('*', { count: 'exact', head: true })
-        .not('status', 'in', '("complete","rejected")');
+        .select(`
+          *,
+          customers (
+            name,
+            company,
+            email
+          )
+        `)
+        .not('status', 'in', '("complete","rejected")')
+        .order('created_at', { ascending: false });
 
       if (casesError) throw casesError;
-      setActiveCasesCount(casesCount || 0);
+      
+      const applicationsWithCustomer: Application[] = (applicationsData || []).map((app: any) => ({
+        ...app,
+        customer_name: app.customers?.name,
+        customer_company: app.customers?.company,
+        customer_email: app.customers?.email,
+      }));
+      
+      setApplications(applicationsWithCustomer);
+      setActiveCasesCount(applicationsWithCustomer.length);
 
       // Fetch recent activity (status changes with user info)
       const { data: statusChanges, error: activityError } = await supabase
@@ -569,8 +600,54 @@ const TeamCollaboration: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="text-center py-12 text-muted-foreground">
-                {activeCasesCount} active case{activeCasesCount !== 1 ? 's' : ''} in progress
+              <div className="space-y-2">
+                {applications.map((app) => {
+                  const statusBadgeColor = {
+                    draft: 'bg-gray-500/10 text-gray-500',
+                    pending: 'bg-yellow-500/10 text-yellow-500',
+                    in_review: 'bg-blue-500/10 text-blue-500',
+                    approved: 'bg-green-500/10 text-green-500',
+                    complete: 'bg-green-500/10 text-green-500',
+                    rejected: 'bg-red-500/10 text-red-500',
+                  }[app.status] || 'bg-gray-500/10 text-gray-500';
+
+                  return (
+                    <div
+                      key={app.id}
+                      className="flex items-start justify-between p-4 rounded-md border bg-card hover:bg-accent/50 transition-colors"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center gap-2 mb-1">
+                          <p className="text-sm font-semibold text-foreground">
+                            #{app.reference_number}
+                          </p>
+                          <Badge className={statusBadgeColor}>
+                            {app.status.replace('_', ' ')}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-foreground font-medium">
+                          {app.customer_company || app.customer_name || 'Unknown'}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {app.application_type?.replace('_', ' ') || 'Application'}
+                        </p>
+                        {app.customer_email && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {app.customer_email}
+                          </p>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Created {formatDate(app.created_at)}
+                        </p>
+                      </div>
+                    </div>
+                  );
+                })}
+                {applications.length === 0 && (
+                  <div className="text-center py-12 text-muted-foreground">
+                    No active cases
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
