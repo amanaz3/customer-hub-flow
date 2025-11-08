@@ -142,7 +142,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Create New Task</DialogTitle>
           <DialogDescription>
@@ -150,13 +150,93 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           </DialogDescription>
         </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3">
+          <div className="space-y-1">
+            <Label htmlFor="title" className="text-sm">Title *</Label>
+            <Input
+              id="title"
+              value={formData.title}
+              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
+              placeholder="Task title..."
+              required
+              className="h-9"
+            />
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-sm">Type</Label>
+              <Select value={formData.type} onValueChange={(v) => setFormData({ ...formData, type: v as any })}>
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="task">Task</SelectItem>
+                  <SelectItem value="bug">Bug</SelectItem>
+                  <SelectItem value="feature">Feature</SelectItem>
+                  <SelectItem value="enhancement">Enhancement</SelectItem>
+                  <SelectItem value="system_issue">System Issue</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-sm">Priority</Label>
+              <Select value={formData.priority} onValueChange={(v) => setFormData({ ...formData, priority: v as any })}>
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="critical">Critical</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-sm">Status</Label>
+              <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v as any })}>
+                <SelectTrigger className="h-9">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todo">To Do</SelectItem>
+                  <SelectItem value="in_progress">In Progress</SelectItem>
+                  <SelectItem value="in_review">In Review</SelectItem>
+                  <SelectItem value="done">Done</SelectItem>
+                  <SelectItem value="blocked">Blocked</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-sm">Assign To</Label>
+              <Select value={formData.assigned_to || 'unassigned'} onValueChange={(v) => setFormData({ ...formData, assigned_to: v === 'unassigned' ? '' : v })}>
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="Unassigned" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                  {teamMembers.map((member) => (
+                    <SelectItem key={member.id} value={member.id}>
+                      {member.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
           {!projectId && (
-            <div className="space-y-2">
-              <Label htmlFor="project_id">Which project does this belong to?</Label>
+            <div className="space-y-1">
+              <Label className="text-sm">Project</Label>
               <Select value={formData.project_id || 'none'} onValueChange={(v) => setFormData({ ...formData, project_id: v === 'none' ? '' : v })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Select a project or leave unassigned" />
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="No project" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">No project</SelectItem>
@@ -170,55 +250,46 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
             </div>
           )}
 
-          <div className="space-y-2">
-            <Label htmlFor="title">Title *</Label>
-            <Input
-              id="title"
-              value={formData.title}
-              onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-              placeholder="Task title..."
-              required
-            />
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label className="text-sm">Module</Label>
+              <Select value={formData.module} onValueChange={(v) => setFormData({ ...formData, module: v })}>
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="cases">Cases</SelectItem>
+                  <SelectItem value="products">Products</SelectItem>
+                  <SelectItem value="notifications">Notifications</SelectItem>
+                  <SelectItem value="customers">Customers</SelectItem>
+                  <SelectItem value="analytics">Analytics</SelectItem>
+                  <SelectItem value="settings">Settings</SelectItem>
+                  <SelectItem value="auth">Authentication</SelectItem>
+                  <SelectItem value="reports">Reports</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-1">
+              <Label className="text-sm">Architecture</Label>
+              <Select value={formData.architectural_component} onValueChange={(v) => setFormData({ ...formData, architectural_component: v })}>
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="Select..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="frontend">Frontend</SelectItem>
+                  <SelectItem value="backend">Backend</SelectItem>
+                  <SelectItem value="database">Database</SelectItem>
+                  <SelectItem value="component_service">Component/Service</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="module">Module</Label>
-            <Select value={formData.module} onValueChange={(v) => setFormData({ ...formData, module: v })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select module..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="cases">Cases</SelectItem>
-                <SelectItem value="products">Products</SelectItem>
-                <SelectItem value="notifications">Notifications</SelectItem>
-                <SelectItem value="customers">Customers</SelectItem>
-                <SelectItem value="analytics">Analytics</SelectItem>
-                <SelectItem value="settings">Settings</SelectItem>
-                <SelectItem value="auth">Authentication</SelectItem>
-                <SelectItem value="reports">Reports</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="architectural_component">Architectural Component</Label>
-            <Select value={formData.architectural_component} onValueChange={(v) => setFormData({ ...formData, architectural_component: v })}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select architectural component..." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="frontend">Frontend</SelectItem>
-                <SelectItem value="backend">Backend</SelectItem>
-                <SelectItem value="database">Database</SelectItem>
-                <SelectItem value="component_service">Component/Service</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="category">Category</Label>
+          <div className="space-y-1">
+            <Label className="text-sm">Category</Label>
             <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
-              <SelectTrigger>
+              <SelectTrigger className="h-9">
                 <SelectValue placeholder="Select category..." />
               </SelectTrigger>
               <SelectContent>
@@ -235,107 +306,42 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
             </Select>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="mission">Mission</Label>
+          <div className="space-y-1">
+            <Label htmlFor="mission" className="text-sm">Mission</Label>
             <Input
               id="mission"
               value={formData.mission}
               onChange={(e) => setFormData({ ...formData, mission: e.target.value })}
-              placeholder="High-level goal or objective..."
+              placeholder="High-level goal..."
+              className="h-9"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="story">Story</Label>
+          <div className="space-y-1">
+            <Label htmlFor="story" className="text-sm">Story</Label>
             <Textarea
               id="story"
               value={formData.story}
               onChange={(e) => setFormData({ ...formData, story: e.target.value })}
-              placeholder="As a [user type], I want to [action] so that [benefit]..."
-              rows={3}
+              placeholder="As a [user], I want to [action]..."
+              rows={2}
+              className="text-sm"
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="description">Description</Label>
+          <div className="space-y-1">
+            <Label htmlFor="description" className="text-sm">Description</Label>
             <Textarea
               id="description"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
               placeholder="Add details..."
-              rows={4}
+              rows={2}
+              className="text-sm"
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="type">Type</Label>
-              <Select value={formData.type} onValueChange={(v) => setFormData({ ...formData, type: v as any })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="task">Task</SelectItem>
-                  <SelectItem value="bug">Bug</SelectItem>
-                  <SelectItem value="feature">Feature</SelectItem>
-                  <SelectItem value="enhancement">Enhancement</SelectItem>
-                  <SelectItem value="system_issue">System Issue</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="priority">Priority</Label>
-              <Select value={formData.priority} onValueChange={(v) => setFormData({ ...formData, priority: v as any })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="critical">Critical</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="status">Status</Label>
-              <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v as any })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todo">To Do</SelectItem>
-                  <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="in_review">In Review</SelectItem>
-                  <SelectItem value="done">Done</SelectItem>
-                  <SelectItem value="blocked">Blocked</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="assigned_to">Assign To</Label>
-              <Select value={formData.assigned_to || 'unassigned'} onValueChange={(v) => setFormData({ ...formData, assigned_to: v === 'unassigned' ? '' : v })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Unassigned" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="unassigned">Unassigned</SelectItem>
-                  {teamMembers.map((member) => (
-                    <SelectItem key={member.id} value={member.id}>
-                      {member.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-
-          <div className="flex justify-end gap-2 pt-4">
+          <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Cancel
             </Button>
