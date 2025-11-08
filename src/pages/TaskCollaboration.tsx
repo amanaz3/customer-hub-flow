@@ -162,6 +162,7 @@ const TaskCollaboration: React.FC = () => {
 
   const fetchProjects = async () => {
     try {
+      console.log('Fetching projects...');
       const { data, error } = await supabase
         .from('projects')
         .select(`
@@ -170,16 +171,23 @@ const TaskCollaboration: React.FC = () => {
         `)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching projects:', error);
+        throw error;
+      }
+
+      console.log('Projects fetched:', data);
 
       const projectsWithOwner: Project[] = (data || []).map((project: any) => ({
         ...project,
         owner_name: project.profiles?.name,
       }));
 
+      console.log('Projects with owner:', projectsWithOwner);
       setProjects(projectsWithOwner);
     } catch (error) {
       console.error('Error fetching projects:', error);
+      toast.error('Failed to load projects');
     }
   };
 
