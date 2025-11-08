@@ -199,6 +199,40 @@ const TaskCollaboration: React.FC = () => {
     }
   };
 
+  // Helper to remove a task from a project
+  const removeTaskFromProject = async (taskId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ project_id: null })
+        .eq('id', taskId);
+      if (error) throw error;
+      toast.success('Task removed from project');
+      await fetchTasks();
+    } catch (e) {
+      console.error('Error removing task from project:', e);
+      toast.error('Failed to remove task');
+    }
+  };
+
+  // Helper to delete a task
+  const deleteTask = async (taskId: string) => {
+    if (!confirm('Are you sure you want to delete this task?')) return;
+    
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskId);
+      if (error) throw error;
+      toast.success('Task deleted');
+      await fetchTasks();
+    } catch (e) {
+      console.error('Error deleting task:', e);
+      toast.error('Failed to delete task');
+    }
+  };
+
   // Real-time updates for tasks
   useRealtimeSubscription({
     table: 'tasks',
@@ -754,6 +788,9 @@ const TaskCollaboration: React.FC = () => {
                               setSelectedTaskId(task.id);
                               setTaskDetailOpen(true);
                             }}
+                            showActions
+                            onRemoveFromProject={removeTaskFromProject}
+                            onDelete={deleteTask}
                           />
                         ))}
                       {tasks.filter((t) => t.project_id === selectedProject.id).length === 0 && (
@@ -854,6 +891,8 @@ const TaskCollaboration: React.FC = () => {
                       setSelectedTaskId(task.id);
                       setTaskDetailOpen(true);
                     }}
+                    showActions
+                    onDelete={deleteTask}
                   />
                 ))}
                 {filteredTasks.length === 0 && (

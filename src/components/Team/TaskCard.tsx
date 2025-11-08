@@ -1,6 +1,7 @@
 import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import {
   AlertCircle,
@@ -12,6 +13,8 @@ import {
   Eye,
   Ban,
   Zap,
+  X,
+  Trash2,
 } from 'lucide-react';
 
 interface TaskCardProps {
@@ -29,9 +32,18 @@ interface TaskCardProps {
     architectural_component?: string | null;
   };
   onClick: () => void;
+  onRemoveFromProject?: (taskId: string) => void;
+  onDelete?: (taskId: string) => void;
+  showActions?: boolean;
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
+export const TaskCard: React.FC<TaskCardProps> = ({ 
+  task, 
+  onClick, 
+  onRemoveFromProject, 
+  onDelete,
+  showActions = false 
+}) => {
   const getTypeIcon = () => {
     switch (task.type) {
       case 'bug': return <Bug className="h-4 w-4" />;
@@ -82,11 +94,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
 
   return (
     <div
-      onClick={onClick}
-      className="group p-3 rounded-lg border bg-card hover:bg-accent/50 transition-all cursor-pointer"
+      className="group p-3 rounded-lg border bg-card hover:bg-accent/50 transition-all"
     >
       <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0">
+        <div className="flex-1 min-w-0 cursor-pointer" onClick={onClick}>
           <div className="flex items-center gap-2 mb-2">
             <span className={cn('flex-shrink-0', getPriorityColor())}>
               {getTypeIcon()}
@@ -130,13 +141,48 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
           </div>
         </div>
 
-        {task.assigned_to && task.assignee_name && (
-          <Avatar className="h-6 w-6 flex-shrink-0">
-            <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-              {getInitials(task.assignee_name)}
-            </AvatarFallback>
-          </Avatar>
-        )}
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {task.assigned_to && task.assignee_name && (
+            <Avatar className="h-6 w-6">
+              <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                {getInitials(task.assignee_name)}
+              </AvatarFallback>
+            </Avatar>
+          )}
+          
+          {showActions && (
+            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+              {onRemoveFromProject && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onRemoveFromProject(task.id);
+                  }}
+                  title="Remove from project"
+                >
+                  <X className="h-3 w-3" />
+                </Button>
+              )}
+              {onDelete && (
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  className="h-6 w-6 text-destructive hover:text-destructive"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onDelete(task.id);
+                  }}
+                  title="Delete task"
+                >
+                  <Trash2 className="h-3 w-3" />
+                </Button>
+              )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
