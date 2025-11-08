@@ -620,7 +620,7 @@ const TaskCollaboration: React.FC = () => {
             <FileText className="h-4 w-4 mr-2" />
             Cases ({activeCasesCount})
           </TabsTrigger>
-          <TabsTrigger value="products">
+          <TabsTrigger value="products" onClick={() => setSelectedProduct(null)}>
             <FolderKanban className="h-4 w-4 mr-2" />
             Products ({products.length})
           </TabsTrigger>
