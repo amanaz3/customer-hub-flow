@@ -543,6 +543,10 @@ const TeamCollaboration: React.FC = () => {
 
       <Tabs defaultValue="cases" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="cases">
+            <FileText className="h-4 w-4 mr-2" />
+            Cases ({activeCasesCount})
+          </TabsTrigger>
           <TabsTrigger value="projects">
             <FolderKanban className="h-4 w-4 mr-2" />
             Projects ({projects.length})
@@ -550,10 +554,6 @@ const TeamCollaboration: React.FC = () => {
           <TabsTrigger value="tasks">
             <ListTodo className="h-4 w-4 mr-2" />
             Tasks ({taskStats.total})
-          </TabsTrigger>
-          <TabsTrigger value="cases">
-            <FileText className="h-4 w-4 mr-2" />
-            Cases ({activeCasesCount})
           </TabsTrigger>
           <TabsTrigger value="members">Team Members</TabsTrigger>
           <TabsTrigger value="activity">Recent Activity</TabsTrigger>
