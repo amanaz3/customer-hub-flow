@@ -42,6 +42,10 @@ interface Task {
   project_id: string | null;
   created_at: string;
   created_by: string;
+  module: string | null;
+  category: string | null;
+  mission: string | null;
+  story: string | null;
 }
 
 interface Comment {
@@ -287,7 +291,75 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-2">
+              <Label>Module</Label>
+              <Select value={task.module || 'none'} onValueChange={(v) => handleUpdate({ module: v === 'none' ? null : v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="No module" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No module</SelectItem>
+                  <SelectItem value="cases">Cases</SelectItem>
+                  <SelectItem value="products">Products</SelectItem>
+                  <SelectItem value="notifications">Notifications</SelectItem>
+                  <SelectItem value="customers">Customers</SelectItem>
+                  <SelectItem value="analytics">Analytics</SelectItem>
+                  <SelectItem value="settings">Settings</SelectItem>
+                  <SelectItem value="auth">Authentication</SelectItem>
+                  <SelectItem value="reports">Reports</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Category</Label>
+              <Select value={task.category || 'none'} onValueChange={(v) => handleUpdate({ category: v === 'none' ? null : v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="No category" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No category</SelectItem>
+                  <SelectItem value="development">Development</SelectItem>
+                  <SelectItem value="usability_testing">Usability Testing</SelectItem>
+                  <SelectItem value="code_review">Code Review</SelectItem>
+                  <SelectItem value="design">Design</SelectItem>
+                  <SelectItem value="testing">Testing</SelectItem>
+                  <SelectItem value="documentation">Documentation</SelectItem>
+                  <SelectItem value="bug_fix">Bug Fix</SelectItem>
+                  <SelectItem value="performance">Performance</SelectItem>
+                  <SelectItem value="security">Security</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
+
+          {/* Mission */}
+          {(task.mission || editing) && (
+            <div className="space-y-2">
+              <Label>Mission</Label>
+              <Input
+                value={task.mission || ''}
+                onChange={(e) => setTask({ ...task, mission: e.target.value })}
+                onBlur={() => handleUpdate({ mission: task.mission })}
+                placeholder="High-level goal or objective..."
+              />
+            </div>
+          )}
+
+          {/* Story */}
+          {(task.story || editing) && (
+            <div className="space-y-2">
+              <Label>Story</Label>
+              <Textarea
+                value={task.story || ''}
+                onChange={(e) => setTask({ ...task, story: e.target.value })}
+                onBlur={() => handleUpdate({ story: task.story })}
+                placeholder="As a [user type], I want to [action] so that [benefit]..."
+                rows={3}
+              />
+            </div>
+          )}
 
           {/* Description */}
           <div className="space-y-2">

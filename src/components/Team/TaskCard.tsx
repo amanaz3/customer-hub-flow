@@ -24,6 +24,8 @@ interface TaskCardProps {
     assigned_to: string | null;
     assignee_name?: string;
     project_name?: string;
+    module?: string | null;
+    category?: string | null;
   };
   onClick: () => void;
 }
@@ -100,6 +102,18 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
                 {task.status.replace('_', ' ')}
               </span>
             </Badge>
+
+            {task.module && (
+              <Badge variant="secondary" className="text-xs">
+                {task.module}
+              </Badge>
+            )}
+
+            {task.category && (
+              <Badge variant="outline" className="text-xs bg-accent/50">
+                {task.category.replace('_', ' ')}
+              </Badge>
+            )}
 
             {task.project_name && (
               <Badge variant="outline" className="text-xs">

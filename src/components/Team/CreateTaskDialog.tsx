@@ -57,6 +57,10 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     status: 'todo' as const,
     assigned_to: '',
     project_id: projectId || '',
+    module: '',
+    category: '',
+    mission: '',
+    story: '',
   });
 
   useEffect(() => {
@@ -100,6 +104,10 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         status: formData.status,
         assigned_to: formData.assigned_to === 'unassigned' ? null : formData.assigned_to || null,
         project_id: formData.project_id === 'none' ? null : formData.project_id || null,
+        module: formData.module || null,
+        category: formData.category || null,
+        mission: formData.mission || null,
+        story: formData.story || null,
         created_by: user.id,
       }]);
 
@@ -116,6 +124,10 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         status: 'todo',
         assigned_to: '',
         project_id: projectId || '',
+        module: '',
+        category: '',
+        mission: '',
+        story: '',
       });
     } catch (error) {
       console.error('Error creating task:', error);
@@ -163,6 +175,66 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
               onChange={(e) => setFormData({ ...formData, title: e.target.value })}
               placeholder="Task title..."
               required
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="module">Module</Label>
+            <Select value={formData.module} onValueChange={(v) => setFormData({ ...formData, module: v })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select module..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="cases">Cases</SelectItem>
+                <SelectItem value="products">Products</SelectItem>
+                <SelectItem value="notifications">Notifications</SelectItem>
+                <SelectItem value="customers">Customers</SelectItem>
+                <SelectItem value="analytics">Analytics</SelectItem>
+                <SelectItem value="settings">Settings</SelectItem>
+                <SelectItem value="auth">Authentication</SelectItem>
+                <SelectItem value="reports">Reports</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="category">Category</Label>
+            <Select value={formData.category} onValueChange={(v) => setFormData({ ...formData, category: v })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select category..." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="development">Development</SelectItem>
+                <SelectItem value="usability_testing">Usability Testing</SelectItem>
+                <SelectItem value="code_review">Code Review</SelectItem>
+                <SelectItem value="design">Design</SelectItem>
+                <SelectItem value="testing">Testing</SelectItem>
+                <SelectItem value="documentation">Documentation</SelectItem>
+                <SelectItem value="bug_fix">Bug Fix</SelectItem>
+                <SelectItem value="performance">Performance</SelectItem>
+                <SelectItem value="security">Security</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="mission">Mission</Label>
+            <Input
+              id="mission"
+              value={formData.mission}
+              onChange={(e) => setFormData({ ...formData, mission: e.target.value })}
+              placeholder="High-level goal or objective..."
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="story">Story</Label>
+            <Textarea
+              id="story"
+              value={formData.story}
+              onChange={(e) => setFormData({ ...formData, story: e.target.value })}
+              placeholder="As a [user type], I want to [action] so that [benefit]..."
+              rows={3}
             />
           </div>
 

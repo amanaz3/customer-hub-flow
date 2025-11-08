@@ -1451,39 +1451,54 @@ export type Database = {
       tasks: {
         Row: {
           assigned_to: string | null
+          category: string | null
           created_at: string
           created_by: string
           description: string | null
           id: string
+          mission: string | null
+          module: string | null
           priority: Database["public"]["Enums"]["task_priority"]
+          product_id: string | null
           project_id: string | null
           status: Database["public"]["Enums"]["task_status"]
+          story: string | null
           title: string
           type: Database["public"]["Enums"]["task_type"]
           updated_at: string
         }
         Insert: {
           assigned_to?: string | null
+          category?: string | null
           created_at?: string
           created_by: string
           description?: string | null
           id?: string
+          mission?: string | null
+          module?: string | null
           priority?: Database["public"]["Enums"]["task_priority"]
+          product_id?: string | null
           project_id?: string | null
           status?: Database["public"]["Enums"]["task_status"]
+          story?: string | null
           title: string
           type?: Database["public"]["Enums"]["task_type"]
           updated_at?: string
         }
         Update: {
           assigned_to?: string | null
+          category?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
           id?: string
+          mission?: string | null
+          module?: string | null
           priority?: Database["public"]["Enums"]["task_priority"]
+          product_id?: string | null
           project_id?: string | null
           status?: Database["public"]["Enums"]["task_status"]
+          story?: string | null
           title?: string
           type?: Database["public"]["Enums"]["task_type"]
           updated_at?: string
@@ -1501,6 +1516,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
           {
