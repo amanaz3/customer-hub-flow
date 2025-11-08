@@ -379,6 +379,10 @@ const TeamCollaboration: React.FC = () => {
             <ListTodo className="h-4 w-4 mr-2" />
             Tasks ({taskStats.total})
           </TabsTrigger>
+          <TabsTrigger value="cases">
+            <FileText className="h-4 w-4 mr-2" />
+            Cases ({activeCasesCount})
+          </TabsTrigger>
           <TabsTrigger value="members">Team Members</TabsTrigger>
           <TabsTrigger value="activity">Recent Activity</TabsTrigger>
         </TabsList>
@@ -551,6 +555,22 @@ const TeamCollaboration: React.FC = () => {
                       : 'No tasks yet. Create your first task!'}
                   </div>
                 )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="cases" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Active Cases</CardTitle>
+              <CardDescription>
+                Applications currently in progress
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="text-center py-12 text-muted-foreground">
+                {activeCasesCount} active case{activeCasesCount !== 1 ? 's' : ''} in progress
               </div>
             </CardContent>
           </Card>
