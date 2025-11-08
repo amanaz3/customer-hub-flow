@@ -129,6 +129,7 @@ const TaskCollaboration: React.FC = () => {
   const [caseComments, setCaseComments] = useState<Record<string, CaseComment[]>>({});
   const [selectedCase, setSelectedCase] = useState<Application | null>(null);
   const [caseDetailTab, setCaseDetailTab] = useState<string>('overview');
+  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
 
   useEffect(() => {
     fetchTeamData();
@@ -563,77 +564,161 @@ const TaskCollaboration: React.FC = () => {
         </TabsList>
 
         <TabsContent value="projects" className="space-y-4">
-          <div className="flex justify-end mb-4">
-            <Button onClick={() => setCreateProjectOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              New Project
-            </Button>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {projects.map((project) => {
-              const projectTasks = tasks.filter((t) => t.project_id === project.id);
-              const statusBadgeColor = {
-                planning: 'bg-blue-500/10 text-blue-500',
-                active: 'bg-green-500/10 text-green-500',
-                on_hold: 'bg-yellow-500/10 text-yellow-500',
-                completed: 'bg-gray-500/10 text-gray-500',
-                cancelled: 'bg-red-500/10 text-red-500',
-              }[project.status] || 'bg-gray-500/10 text-gray-500';
+          {!selectedProject ? (
+            <>
+              <div className="flex justify-end mb-4">
+                <Button onClick={() => setCreateProjectOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Project
+                </Button>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {projects.map((project) => {
+                  const projectTasks = tasks.filter((t) => t.project_id === project.id);
+                  const statusBadgeColor = {
+                    planning: 'bg-blue-500/10 text-blue-500',
+                    active: 'bg-green-500/10 text-green-500',
+                    on_hold: 'bg-yellow-500/10 text-yellow-500',
+                    completed: 'bg-gray-500/10 text-gray-500',
+                    cancelled: 'bg-red-500/10 text-red-500',
+                  }[project.status] || 'bg-gray-500/10 text-gray-500';
 
-              return (
-                <Card key={project.id} className="hover:shadow-md transition-shadow">
-                  <CardHeader>
-                    <div className="flex items-start justify-between">
-                      <div className="flex-1">
-                        <CardTitle className="text-lg">{project.name}</CardTitle>
-                        {project.description && (
-                          <CardDescription className="mt-1 line-clamp-2">
-                            {project.description}
-                          </CardDescription>
-                        )}
-                      </div>
-                      <Badge className={statusBadgeColor}>
-                        {project.status.replace('_', ' ')}
+                  return (
+                    <Card 
+                      key={project.id} 
+                      className="hover:shadow-md transition-shadow cursor-pointer"
+                      onClick={() => setSelectedProject(project)}
+                    >
+                      <CardHeader>
+                        <div className="flex items-start justify-between">
+                          <div className="flex-1">
+                            <CardTitle className="text-lg">{project.name}</CardTitle>
+                            {project.description && (
+                              <CardDescription className="mt-1 line-clamp-2">
+                                {project.description}
+                              </CardDescription>
+                            )}
+                          </div>
+                          <Badge className={statusBadgeColor}>
+                            {project.status.replace('_', ' ')}
+                          </Badge>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {project.owner_name && (
+                            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                              <Users className="h-4 w-4" />
+                              <span>{project.owner_name}</span>
+                            </div>
+                          )}
+                          
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <ListTodo className="h-4 w-4" />
+                            <span>{projectTasks.length} tasks</span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  );
+                })}
+                {projects.length === 0 && (
+                  <div className="col-span-full text-center py-12 text-muted-foreground">
+                    No projects yet
+                  </div>
+                )}
+              </div>
+            </>
+          ) : (
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setSelectedProject(null)}
+                    >
+                      <ArrowRight className="h-4 w-4 rotate-180" />
+                    </Button>
+                    <div>
+                      <CardTitle>{selectedProject.name}</CardTitle>
+                      {selectedProject.description && (
+                        <CardDescription className="mt-1">
+                          {selectedProject.description}
+                        </CardDescription>
+                      )}
+                    </div>
+                  </div>
+                  <Button 
+                    onClick={() => {
+                      setSelectedProjectId(selectedProject.id);
+                      setCreateTaskOpen(true);
+                    }}
+                  >
+                    <Plus className="h-4 w-4 mr-2" />
+                    New Task
+                  </Button>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="p-3 rounded-lg border bg-card">
+                      <div className="text-sm text-muted-foreground mb-1">Status</div>
+                      <Badge className={
+                        {
+                          planning: 'bg-blue-500/10 text-blue-500',
+                          active: 'bg-green-500/10 text-green-500',
+                          on_hold: 'bg-yellow-500/10 text-yellow-500',
+                          completed: 'bg-gray-500/10 text-gray-500',
+                          cancelled: 'bg-red-500/10 text-red-500',
+                        }[selectedProject.status] || 'bg-gray-500/10 text-gray-500'
+                      }>
+                        {selectedProject.status.replace('_', ' ')}
                       </Badge>
                     </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {project.owner_name && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Users className="h-4 w-4" />
-                          <span>{project.owner_name}</span>
+                    {selectedProject.owner_name && (
+                      <div className="p-3 rounded-lg border bg-card">
+                        <div className="text-sm text-muted-foreground mb-1">Owner</div>
+                        <div className="text-sm font-medium">{selectedProject.owner_name}</div>
+                      </div>
+                    )}
+                    <div className="p-3 rounded-lg border bg-card">
+                      <div className="text-sm text-muted-foreground mb-1">Tasks</div>
+                      <div className="text-2xl font-bold">
+                        {tasks.filter((t) => t.project_id === selectedProject.id).length}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <h3 className="text-lg font-semibold mb-4">Project Tasks</h3>
+                    <div className="space-y-2">
+                      {tasks
+                        .filter((t) => t.project_id === selectedProject.id)
+                        .map((task) => (
+                          <TaskCard
+                            key={task.id}
+                            task={task}
+                            onClick={() => {
+                              setSelectedTaskId(task.id);
+                              setTaskDetailOpen(true);
+                            }}
+                          />
+                        ))}
+                      {tasks.filter((t) => t.project_id === selectedProject.id).length === 0 && (
+                        <div className="text-center py-12 text-muted-foreground">
+                          No tasks yet. Create your first task for this project!
                         </div>
                       )}
-                      
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <ListTodo className="h-4 w-4" />
-                        <span>{projectTasks.length} tasks</span>
-                      </div>
-
-                      <Button 
-                        className="w-full"
-                        size="sm"
-                        onClick={() => {
-                          setSelectedProjectId(project.id);
-                          setCreateTaskOpen(true);
-                        }}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add Task
-                      </Button>
                     </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
-            {projects.length === 0 && (
-              <div className="col-span-full text-center py-12 text-muted-foreground">
-                No projects yet
-              </div>
-            )}
-          </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </TabsContent>
 
         <TabsContent value="tasks" className="space-y-4">
