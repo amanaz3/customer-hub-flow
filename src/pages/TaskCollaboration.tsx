@@ -736,6 +736,13 @@ const TaskCollaboration: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="cases" className="space-y-4">
+          <div className="flex justify-end mb-4">
+            <Button onClick={() => window.location.href = '/customers/new'}>
+              <Plus className="h-4 w-4 mr-2" />
+              New Case
+            </Button>
+          </div>
+          
           <div className="flex flex-col gap-4">
             {/* Filters Bar */}
             <Card>
