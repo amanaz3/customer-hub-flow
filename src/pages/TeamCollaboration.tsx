@@ -330,12 +330,13 @@ const TeamCollaboration: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cases ({activeCasesCount})</CardTitle>
+            <CardTitle className="text-sm font-medium">Active Cases</CardTitle>
             <FileText className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
+            <div className="text-2xl font-bold">{activeCasesCount}</div>
             <p className="text-xs text-muted-foreground mt-1">
-              Active applications
+              In progress
             </p>
           </CardContent>
         </Card>
