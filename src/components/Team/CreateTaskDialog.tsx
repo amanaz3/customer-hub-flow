@@ -193,6 +193,10 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 <SelectItem value="settings">Settings</SelectItem>
                 <SelectItem value="auth">Authentication</SelectItem>
                 <SelectItem value="reports">Reports</SelectItem>
+                <SelectItem value="frontend">Frontend</SelectItem>
+                <SelectItem value="backend">Backend</SelectItem>
+                <SelectItem value="database">Database</SelectItem>
+                <SelectItem value="component_service">Component/Service</SelectItem>
               </SelectContent>
             </Select>
           </div>
