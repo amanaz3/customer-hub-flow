@@ -71,6 +71,7 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
   const [editing, setEditing] = useState(false);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
+  const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
 
   useEffect(() => {
     if (taskId && open) {
@@ -134,7 +135,8 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
 
       if (error) throw error;
 
-      toast.success('Task updated');
+      toast.success('Task saved');
+      setHasUnsavedChanges(false);
       fetchTask();
       onTaskUpdated();
     } catch (error) {
@@ -143,6 +145,15 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleSaveContent = async () => {
+    if (!task) return;
+    await handleUpdate({
+      description: task.description,
+      mission: task.mission,
+      story: task.story,
+    });
   };
 
   const handleAddComment = async () => {
@@ -384,43 +395,56 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
           </div>
 
           {/* Mission */}
-          {(task.mission || editing) && (
-            <div className="space-y-2">
-              <Label>Mission</Label>
-              <Input
-                value={task.mission || ''}
-                onChange={(e) => setTask({ ...task, mission: e.target.value })}
-                onBlur={() => handleUpdate({ mission: task.mission })}
-                placeholder="High-level goal or objective..."
-              />
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label>Mission</Label>
+            <Input
+              value={task.mission || ''}
+              onChange={(e) => {
+                setTask({ ...task, mission: e.target.value });
+                setHasUnsavedChanges(true);
+              }}
+              placeholder="High-level goal or objective..."
+            />
+          </div>
 
           {/* Story */}
-          {(task.story || editing) && (
-            <div className="space-y-2">
-              <Label>Story</Label>
-              <Textarea
-                value={task.story || ''}
-                onChange={(e) => setTask({ ...task, story: e.target.value })}
-                onBlur={() => handleUpdate({ story: task.story })}
-                placeholder="As a [user type], I want to [action] so that [benefit]..."
-                rows={3}
-              />
-            </div>
-          )}
+          <div className="space-y-2">
+            <Label>Story</Label>
+            <Textarea
+              value={task.story || ''}
+              onChange={(e) => {
+                setTask({ ...task, story: e.target.value });
+                setHasUnsavedChanges(true);
+              }}
+              placeholder="As a [user type], I want to [action] so that [benefit]..."
+              rows={3}
+            />
+          </div>
 
           {/* Description */}
           <div className="space-y-2">
             <Label>Description</Label>
             <Textarea
               value={task.description || ''}
-              onChange={(e) => setTask({ ...task, description: e.target.value })}
-              onBlur={() => handleUpdate({ description: task.description })}
+              onChange={(e) => {
+                setTask({ ...task, description: e.target.value });
+                setHasUnsavedChanges(true);
+              }}
               placeholder="Add a description..."
               rows={4}
             />
           </div>
+
+          {/* Save Button */}
+          {hasUnsavedChanges && (
+            <Button 
+              onClick={handleSaveContent} 
+              disabled={loading}
+              className="w-full"
+            >
+              {loading ? 'Saving...' : 'Save Changes'}
+            </Button>
+          )}
 
           <Separator />
 
