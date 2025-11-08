@@ -132,12 +132,6 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 {task.category.replace('_', ' ')}
               </Badge>
             )}
-
-            {task.project_name && (
-              <Badge variant="outline" className="text-xs">
-                {task.project_name}
-              </Badge>
-            )}
           </div>
         </div>
 
