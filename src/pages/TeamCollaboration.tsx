@@ -14,7 +14,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, FolderKanban } from 'lucide-react';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, FolderKanban, Flag } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CreateTaskDialog } from '@/components/Team/CreateTaskDialog';
@@ -77,6 +79,16 @@ interface Application {
   customer_name?: string;
   customer_company?: string;
   customer_email?: string;
+  priority?: string;
+  comments?: CaseComment[];
+}
+
+interface CaseComment {
+  id: string;
+  text: string;
+  created_by: string;
+  created_by_name: string;
+  created_at: string;
 }
 
 const TeamCollaboration: React.FC = () => {
@@ -98,6 +110,11 @@ const TeamCollaboration: React.FC = () => {
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>();
   const [caseStatusFilter, setCaseStatusFilter] = useState<string>('active');
   const [caseSearchQuery, setCaseSearchQuery] = useState('');
+  const [casePriorities, setCasePriorities] = useState<Record<string, string>>({});
+  const [selectedCaseId, setSelectedCaseId] = useState<string | null>(null);
+  const [commentDialogOpen, setCommentDialogOpen] = useState(false);
+  const [newComment, setNewComment] = useState('');
+  const [caseComments, setCaseComments] = useState<Record<string, CaseComment[]>>({});
 
   useEffect(() => {
     fetchTeamData();
@@ -202,6 +219,8 @@ const TeamCollaboration: React.FC = () => {
         customer_name: app.customers?.name,
         customer_company: app.customers?.company,
         customer_email: app.customers?.email,
+        priority: casePriorities[app.id] || 'medium',
+        comments: caseComments[app.id] || [],
       }));
       
       setApplications(applicationsWithCustomer);
@@ -314,6 +333,35 @@ const TeamCollaboration: React.FC = () => {
     
     return matchesSearch && matchesStatus;
   });
+
+  const handlePriorityChange = (caseId: string, priority: string) => {
+    setCasePriorities(prev => ({
+      ...prev,
+      [caseId]: priority
+    }));
+    toast.success('Priority updated');
+  };
+
+  const handleAddComment = () => {
+    if (!newComment.trim() || !selectedCaseId || !user) return;
+    
+    const comment: CaseComment = {
+      id: Date.now().toString(),
+      text: newComment,
+      created_by: user.id,
+      created_by_name: user.email || 'Unknown',
+      created_at: new Date().toISOString(),
+    };
+    
+    setCaseComments(prev => ({
+      ...prev,
+      [selectedCaseId]: [...(prev[selectedCaseId] || []), comment]
+    }));
+    
+    setNewComment('');
+    setCommentDialogOpen(false);
+    toast.success('Comment added');
+  };
 
   const taskStats = {
     total: tasks.length,
@@ -668,10 +716,17 @@ const TeamCollaboration: React.FC = () => {
                     rejected: 'bg-red-500/10 text-red-500',
                   }[app.status] || 'bg-gray-500/10 text-gray-500';
 
+                  const priorityColor = {
+                    critical: 'text-red-500',
+                    high: 'text-orange-500',
+                    medium: 'text-yellow-500',
+                    low: 'text-blue-500',
+                  }[app.priority || 'medium'] || 'text-yellow-500';
+
                   return (
                     <div
                       key={app.id}
-                      className="flex items-start justify-between p-4 rounded-md border bg-card hover:bg-accent/50 transition-colors"
+                      className="flex items-start justify-between p-4 rounded-md border bg-card hover:bg-accent/50 transition-colors gap-4"
                     >
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center gap-2 mb-1">
@@ -681,6 +736,12 @@ const TeamCollaboration: React.FC = () => {
                           <Badge className={statusBadgeColor}>
                             {app.status.replace('_', ' ')}
                           </Badge>
+                          <div className="flex items-center gap-1">
+                            <Flag className={`h-3 w-3 ${priorityColor}`} />
+                            <span className={`text-xs ${priorityColor} capitalize`}>
+                              {app.priority || 'medium'}
+                            </span>
+                          </div>
                         </div>
                         <p className="text-sm text-foreground font-medium">
                           {app.customer_company || app.customer_name || 'Unknown'}
@@ -696,6 +757,39 @@ const TeamCollaboration: React.FC = () => {
                         <p className="text-xs text-muted-foreground mt-1">
                           Created {formatDate(app.created_at)}
                         </p>
+                        {app.comments && app.comments.length > 0 && (
+                          <div className="mt-2 text-xs text-muted-foreground">
+                            {app.comments.length} comment{app.comments.length !== 1 ? 's' : ''}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Select
+                          value={app.priority || 'medium'}
+                          onValueChange={(value) => handlePriorityChange(app.id, value)}
+                        >
+                          <SelectTrigger className="w-32 h-8 text-xs">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="critical">Critical</SelectItem>
+                            <SelectItem value="high">High</SelectItem>
+                            <SelectItem value="medium">Medium</SelectItem>
+                            <SelectItem value="low">Low</SelectItem>
+                          </SelectContent>
+                        </Select>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="w-32 h-8 text-xs"
+                          onClick={() => {
+                            setSelectedCaseId(app.id);
+                            setCommentDialogOpen(true);
+                          }}
+                        >
+                          <MessageSquare className="h-3 w-3 mr-1" />
+                          Comments ({app.comments?.length || 0})
+                        </Button>
                       </div>
                     </div>
                   );
@@ -820,6 +914,50 @@ const TeamCollaboration: React.FC = () => {
         onOpenChange={setTaskDetailOpen}
         onTaskUpdated={fetchTasks}
       />
+
+      {/* Comments Dialog */}
+      <Dialog open={commentDialogOpen} onOpenChange={setCommentDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Case Comments</DialogTitle>
+            <DialogDescription>
+              Add comments about the assigned agent's work on this case
+            </DialogDescription>
+          </DialogHeader>
+          
+          {selectedCaseId && caseComments[selectedCaseId] && caseComments[selectedCaseId].length > 0 && (
+            <div className="space-y-2 max-h-60 overflow-y-auto mb-4">
+              {caseComments[selectedCaseId].map((comment) => (
+                <div key={comment.id} className="p-3 rounded-lg border bg-muted/50">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs font-medium">{comment.created_by_name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {formatDate(comment.created_at)}
+                    </span>
+                  </div>
+                  <p className="text-sm">{comment.text}</p>
+                </div>
+              ))}
+            </div>
+          )}
+          
+          <Textarea
+            placeholder="Add your comment about this case..."
+            value={newComment}
+            onChange={(e) => setNewComment(e.target.value)}
+            rows={4}
+          />
+          
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCommentDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleAddComment} disabled={!newComment.trim()}>
+              Add Comment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
