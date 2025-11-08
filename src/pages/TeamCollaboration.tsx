@@ -736,50 +736,48 @@ const TeamCollaboration: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="cases" className="space-y-4">
-          <Card className="h-[calc(100vh-300px)]">
-            <CardHeader className="pb-3">
-              <CardTitle>Cases Management</CardTitle>
-              <CardDescription>
-                View and manage all application cases
-              </CardDescription>
-              
-              {/* Filters */}
-              <div className="flex gap-3 pt-4">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search cases..."
-                    value={caseSearchQuery}
-                    onChange={(e) => setCaseSearchQuery(e.target.value)}
-                    className="pl-9"
-                  />
+          <div className="flex flex-col gap-4">
+            {/* Filters Bar */}
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex gap-3">
+                  <div className="flex-1 relative">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Search cases..."
+                      value={caseSearchQuery}
+                      onChange={(e) => setCaseSearchQuery(e.target.value)}
+                      className="pl-9"
+                    />
+                  </div>
+                  <Select value={caseStatusFilter} onValueChange={setCaseStatusFilter}>
+                    <SelectTrigger className="w-48">
+                      <SelectValue placeholder="Filter status" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      <SelectItem value="all">All Cases</SelectItem>
+                      <SelectItem value="active">Active Only</SelectItem>
+                      <SelectItem value="draft">Draft</SelectItem>
+                      <SelectItem value="pending">Pending</SelectItem>
+                      <SelectItem value="in_review">In Review</SelectItem>
+                      <SelectItem value="waiting_for_documents">Waiting for Documents</SelectItem>
+                      <SelectItem value="waiting_for_information">Waiting for Information</SelectItem>
+                      <SelectItem value="blocked">Blocked</SelectItem>
+                      <SelectItem value="approved">Approved</SelectItem>
+                      <SelectItem value="complete">Complete</SelectItem>
+                      <SelectItem value="rejected">Rejected</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-                <Select value={caseStatusFilter} onValueChange={setCaseStatusFilter}>
-                  <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Filter status" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-background z-50">
-                    <SelectItem value="all">All Cases</SelectItem>
-                    <SelectItem value="active">Active Only</SelectItem>
-                    <SelectItem value="draft">Draft</SelectItem>
-                    <SelectItem value="pending">Pending</SelectItem>
-                    <SelectItem value="in_review">In Review</SelectItem>
-                    <SelectItem value="waiting_for_documents">Waiting for Documents</SelectItem>
-                    <SelectItem value="waiting_for_information">Waiting for Information</SelectItem>
-                    <SelectItem value="blocked">Blocked</SelectItem>
-                    <SelectItem value="approved">Approved</SelectItem>
-                    <SelectItem value="complete">Complete</SelectItem>
-                    <SelectItem value="rejected">Rejected</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="p-0 h-[calc(100%-120px)]">
-              <ResizablePanelGroup direction="horizontal" className="h-full">
+              </CardContent>
+            </Card>
+
+            {/* Split Pane View */}
+            <div className="h-[calc(100vh-380px)] border rounded-lg bg-card">
+              <ResizablePanelGroup direction="horizontal" className="h-full rounded-lg">
                 {/* Left Panel - Case List */}
-                <ResizablePanel defaultSize={40} minSize={30}>
-                  <div className="h-full overflow-y-auto px-4">
+                <ResizablePanel defaultSize={40} minSize={30} className="p-4">
+                  <div className="h-full overflow-y-auto pr-2">
                     {filteredApplications.length === 0 ? (
                       <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
                         {caseSearchQuery || caseStatusFilter !== 'active'
@@ -871,11 +869,11 @@ const TeamCollaboration: React.FC = () => {
                   </div>
                 </ResizablePanel>
 
-                <ResizableHandle withHandle />
+                <ResizableHandle withHandle className="bg-border" />
 
                 {/* Right Panel - Case Details */}
-                <ResizablePanel defaultSize={60} minSize={40}>
-                  <div className="h-full overflow-y-auto px-4">
+                <ResizablePanel defaultSize={60} minSize={40} className="p-4">
+                  <div className="h-full overflow-y-auto pr-2">
                     {!selectedCase ? (
                       <div className="flex items-center justify-center h-full text-muted-foreground">
                         <div className="text-center">
@@ -1124,8 +1122,8 @@ const TeamCollaboration: React.FC = () => {
                   </div>
                 </ResizablePanel>
               </ResizablePanelGroup>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
         </TabsContent>
 
         <TabsContent value="members" className="space-y-4">
