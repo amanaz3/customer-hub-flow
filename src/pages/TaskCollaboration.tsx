@@ -130,6 +130,9 @@ const TaskCollaboration: React.FC = () => {
   const [selectedCase, setSelectedCase] = useState<Application | null>(null);
   const [caseDetailTab, setCaseDetailTab] = useState<string>('overview');
   const [selectedProject, setSelectedProject] = useState<Project | null>(null);
+  const [projectTaskSearch, setProjectTaskSearch] = useState('');
+  const [projectTaskStatusFilter, setProjectTaskStatusFilter] = useState<string>('all');
+  const [projectTaskPriorityFilter, setProjectTaskPriorityFilter] = useState<string>('all');
 
   useEffect(() => {
     fetchTeamData();
@@ -753,9 +756,63 @@ const TaskCollaboration: React.FC = () => {
 
                   <div className="border-t pt-4">
                     <h3 className="text-lg font-semibold mb-4">Project Tasks</h3>
+                    
+                    {/* Task Filters */}
+                    <div className="flex gap-2 mb-4">
+                      <div className="relative flex-1">
+                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Search tasks..."
+                          value={projectTaskSearch}
+                          onChange={(e) => setProjectTaskSearch(e.target.value)}
+                          className="pl-9"
+                        />
+                      </div>
+                      <Select value={projectTaskStatusFilter} onValueChange={setProjectTaskStatusFilter}>
+                        <SelectTrigger className="w-[150px] bg-background">
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background z-50">
+                          <SelectItem value="all">All Status</SelectItem>
+                          <SelectItem value="todo">To Do</SelectItem>
+                          <SelectItem value="in_progress">In Progress</SelectItem>
+                          <SelectItem value="in_review">In Review</SelectItem>
+                          <SelectItem value="done">Done</SelectItem>
+                          <SelectItem value="blocked">Blocked</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <Select value={projectTaskPriorityFilter} onValueChange={setProjectTaskPriorityFilter}>
+                        <SelectTrigger className="w-[150px] bg-background">
+                          <SelectValue placeholder="Priority" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-background z-50">
+                          <SelectItem value="all">All Priority</SelectItem>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="critical">Critical</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
                     <div className="space-y-2">
                       {tasks
                         .filter((t) => t.project_id === selectedProject.id)
+                        .filter((t) => {
+                          // Search filter
+                          if (projectTaskSearch && !t.title.toLowerCase().includes(projectTaskSearch.toLowerCase())) {
+                            return false;
+                          }
+                          // Status filter
+                          if (projectTaskStatusFilter !== 'all' && t.status !== projectTaskStatusFilter) {
+                            return false;
+                          }
+                          // Priority filter
+                          if (projectTaskPriorityFilter !== 'all' && t.priority !== projectTaskPriorityFilter) {
+                            return false;
+                          }
+                          return true;
+                        })
                         .map((task) => (
                           <TaskCard
                             key={task.id}
@@ -769,7 +826,23 @@ const TaskCollaboration: React.FC = () => {
                             onDelete={deleteTask}
                           />
                         ))}
-                      {tasks.filter((t) => t.project_id === selectedProject.id).length === 0 && (
+                      {tasks
+                        .filter((t) => t.project_id === selectedProject.id)
+                        .filter((t) => {
+                          // Search filter
+                          if (projectTaskSearch && !t.title.toLowerCase().includes(projectTaskSearch.toLowerCase())) {
+                            return false;
+                          }
+                          // Status filter
+                          if (projectTaskStatusFilter !== 'all' && t.status !== projectTaskStatusFilter) {
+                            return false;
+                          }
+                          // Priority filter
+                          if (projectTaskPriorityFilter !== 'all' && t.priority !== projectTaskPriorityFilter) {
+                            return false;
+                          }
+                          return true;
+                        }).length === 0 && (
                         <div className="text-center py-12 text-muted-foreground">
                           No tasks yet. Create your first task for this project!
                         </div>
