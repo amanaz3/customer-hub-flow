@@ -183,6 +183,22 @@ const TaskCollaboration: React.FC = () => {
     }
   };
 
+  // Helper to assign a task to a project
+  const assignTaskToProject = async (taskId: string, projectId: string) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ project_id: projectId })
+        .eq('id', taskId);
+      if (error) throw error;
+      toast.success('Task assigned to project');
+      await fetchTasks();
+    } catch (e) {
+      console.error('Error assigning task to project:', e);
+      toast.error('Failed to assign task');
+    }
+  };
+
   // Real-time updates for tasks
   useRealtimeSubscription({
     table: 'tasks',
@@ -690,6 +706,38 @@ const TaskCollaboration: React.FC = () => {
                       <div className="text-2xl font-bold">
                         {tasks.filter((t) => t.project_id === selectedProject.id).length}
                       </div>
+                    </div>
+                  </div>
+
+                  <div className="border-t pt-4">
+                    <h3 className="text-lg font-semibold mb-4">Unassigned Tasks</h3>
+                    <div className="space-y-2">
+                      {tasks
+                        .filter((t) => !t.project_id)
+                        .map((task) => (
+                          <div key={task.id} className="flex items-center gap-2">
+                            <TaskCard
+                              task={task}
+                              onClick={() => {
+                                setSelectedTaskId(task.id);
+                                setTaskDetailOpen(true);
+                              }}
+                            />
+                            <Button
+                              size="sm"
+                              variant="secondary"
+                              onClick={() => assignTaskToProject(task.id, selectedProject.id)}
+                              aria-label="Assign task to this project"
+                            >
+                              Assign to this project
+                            </Button>
+                          </div>
+                        ))}
+                      {tasks.filter((t) => !t.project_id).length === 0 && (
+                        <div className="text-center py-8 text-muted-foreground">
+                          No unassigned tasks
+                        </div>
+                      )}
                     </div>
                   </div>
 
