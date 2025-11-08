@@ -104,7 +104,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         priority: formData.priority,
         status: formData.status,
         assigned_to: formData.assigned_to === 'unassigned' ? null : formData.assigned_to || null,
-        project_id: formData.project_id === 'none' ? null : formData.project_id || null,
+        project_id: projectId ? projectId : (formData.project_id === 'none' ? null : formData.project_id || null),
         module: formData.module || null,
         category: formData.category || null,
         mission: formData.mission || null,
