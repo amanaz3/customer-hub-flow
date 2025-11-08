@@ -18,6 +18,7 @@ import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, Folde
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CreateTaskDialog } from '@/components/Team/CreateTaskDialog';
+import { CreateProjectDialog } from '@/components/Team/CreateProjectDialog';
 import { TaskCard } from '@/components/Team/TaskCard';
 import { TaskDetailDialog } from '@/components/Team/TaskDetailDialog';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
@@ -73,6 +74,7 @@ const TeamCollaboration: React.FC = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [createTaskOpen, setCreateTaskOpen] = useState(false);
+  const [createProjectOpen, setCreateProjectOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [taskDetailOpen, setTaskDetailOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -109,17 +111,6 @@ const TeamCollaboration: React.FC = () => {
     }
   };
 
-  // Real-time updates for tasks
-  useRealtimeSubscription({
-    table: 'tasks',
-    onUpdate: fetchTasks,
-  });
-
-  useRealtimeSubscription({
-    table: 'task_comments',
-    onUpdate: fetchTasks,
-  });
-
   const fetchProjects = async () => {
     try {
       const { data, error } = await supabase
@@ -142,6 +133,23 @@ const TeamCollaboration: React.FC = () => {
       console.error('Error fetching projects:', error);
     }
   };
+
+  // Real-time updates for tasks
+  useRealtimeSubscription({
+    table: 'tasks',
+    onUpdate: fetchTasks,
+  });
+
+  useRealtimeSubscription({
+    table: 'task_comments',
+    onUpdate: fetchTasks,
+  });
+
+  // Real-time updates for projects
+  useRealtimeSubscription({
+    table: 'projects',
+    onUpdate: fetchProjects,
+  });
 
   const fetchTeamData = async () => {
     try {
@@ -353,6 +361,13 @@ const TeamCollaboration: React.FC = () => {
         </TabsList>
 
         <TabsContent value="projects" className="space-y-4">
+          <div className="flex justify-end mb-4">
+            <Button onClick={() => setCreateProjectOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              New Project
+            </Button>
+          </div>
+          
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {projects.map((project) => {
               const projectTasks = tasks.filter((t) => t.project_id === project.id);
@@ -602,6 +617,15 @@ const TeamCollaboration: React.FC = () => {
       </Tabs>
 
       {/* Dialogs */}
+      <CreateProjectDialog
+        open={createProjectOpen}
+        onOpenChange={setCreateProjectOpen}
+        onProjectCreated={() => {
+          fetchProjects();
+          setCreateProjectOpen(false);
+        }}
+      />
+
       <CreateTaskDialog
         open={createTaskOpen}
         onOpenChange={(open) => {
