@@ -21,6 +21,7 @@ interface ActivityItem {
   id: string;
   type: string;
   user_name: string;
+  user_id: string;
   description: string;
   created_at: string;
 }
@@ -70,6 +71,7 @@ const TeamCollaboration: React.FC = () => {
         id: item.id,
         type: 'status_change',
         user_name: item.profiles?.name || 'Unknown User',
+        user_id: item.changed_by,
         description: `Changed status from ${item.previous_status} to ${item.new_status}`,
         created_at: item.created_at,
       }));
@@ -105,6 +107,20 @@ const TeamCollaboration: React.FC = () => {
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
     return date.toLocaleDateString();
+  };
+
+  // Count unique users active today
+  const getActiveToday = () => {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const activeUserIds = new Set(
+      recentActivity
+        .filter(activity => new Date(activity.created_at) >= today)
+        .map(activity => activity.user_id)
+    );
+    
+    return activeUserIds.size;
   };
 
   if (loading) {
@@ -160,7 +176,10 @@ const TeamCollaboration: React.FC = () => {
             <Activity className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{recentActivity.length}</div>
+            <div className="text-2xl font-bold">{getActiveToday()}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {recentActivity.filter(a => new Date(a.created_at) >= new Date(new Date().setHours(0, 0, 0, 0))).length} actions
+            </p>
           </CardContent>
         </Card>
 
