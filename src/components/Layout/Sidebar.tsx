@@ -24,7 +24,8 @@ import {
   Shield,
   FolderTree,
   BookOpen,
-  Bell
+  Bell,
+  UsersRound
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -92,6 +93,12 @@ const Sidebar: React.FC = () => {
       name: 'Customers',
       path: '/customers',
       icon: <Users className="h-5 w-5" />,
+      roles: ['admin', 'user'],
+    },
+    {
+      name: 'Team Collaboration',
+      path: '/team',
+      icon: <UsersRound className="h-5 w-5" />,
       roles: ['admin', 'user'],
     },
     {
@@ -164,7 +171,7 @@ const Sidebar: React.FC = () => {
 
   const isActiveRoute = (path: string) => {
     // Exact match for most routes
-    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/service-categories' || path === '/bundles' || path === '/analytics' || path === '/targets' || path === '/notification-management' || path === '/admin/migrate' || path === '/admin/database' || path === '/admin/help-editor') {
+    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/service-categories' || path === '/bundles' || path === '/analytics' || path === '/targets' || path === '/notification-management' || path === '/admin/migrate' || path === '/admin/database' || path === '/admin/help-editor' || path === '/team') {
       return location.pathname === path;
     }
     
