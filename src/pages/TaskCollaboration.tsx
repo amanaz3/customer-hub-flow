@@ -752,38 +752,6 @@ const TaskCollaboration: React.FC = () => {
                   </div>
 
                   <div className="border-t pt-4">
-                    <h3 className="text-lg font-semibold mb-4">Unassigned Tasks</h3>
-                    <div className="space-y-2">
-                      {tasks
-                        .filter((t) => !t.project_id)
-                        .map((task) => (
-                          <div key={task.id} className="flex items-center gap-2">
-                            <TaskCard
-                              task={task}
-                              onClick={() => {
-                                setSelectedTaskId(task.id);
-                                setTaskDetailOpen(true);
-                              }}
-                            />
-                            <Button
-                              size="sm"
-                              variant="secondary"
-                              onClick={() => assignTaskToProject(task.id, selectedProject.id)}
-                              aria-label="Assign task to this project"
-                            >
-                              Assign to this project
-                            </Button>
-                          </div>
-                        ))}
-                      {tasks.filter((t) => !t.project_id).length === 0 && (
-                        <div className="text-center py-8 text-muted-foreground">
-                          No unassigned tasks
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="border-t pt-4">
                     <h3 className="text-lg font-semibold mb-4">Project Tasks</h3>
                     <div className="space-y-2">
                       {tasks
