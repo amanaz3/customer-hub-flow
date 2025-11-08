@@ -5,9 +5,22 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Users, Activity, MessageSquare, FileText } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
+import { CreateTaskDialog } from '@/components/Team/CreateTaskDialog';
+import { TaskCard } from '@/components/Team/TaskCard';
+import { TaskDetailDialog } from '@/components/Team/TaskDetailDialog';
+import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 
 interface TeamMember {
   id: string;
@@ -26,15 +39,72 @@ interface ActivityItem {
   created_at: string;
 }
 
+interface Task {
+  id: string;
+  title: string;
+  description: string | null;
+  type: string;
+  priority: string;
+  status: string;
+  assigned_to: string | null;
+  project_id: string | null;
+  created_at: string;
+  assignee_name?: string;
+  project_name?: string;
+}
+
 const TeamCollaboration: React.FC = () => {
   const { user } = useAuth();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(true);
+  const [createTaskOpen, setCreateTaskOpen] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
+  const [taskDetailOpen, setTaskDetailOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [priorityFilter, setPriorityFilter] = useState<string>('all');
 
   useEffect(() => {
     fetchTeamData();
   }, []);
+
+  const fetchTasks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select(`
+          *,
+          profiles!tasks_assigned_to_fkey(name),
+          projects(name)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const tasksWithNames: Task[] = (data || []).map((task: any) => ({
+        ...task,
+        assignee_name: task.profiles?.name,
+        project_name: task.projects?.name,
+      }));
+
+      setTasks(tasksWithNames);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    }
+  };
+
+  // Real-time updates for tasks
+  useRealtimeSubscription({
+    table: 'tasks',
+    onUpdate: fetchTasks,
+  });
+
+  useRealtimeSubscription({
+    table: 'task_comments',
+    onUpdate: fetchTasks,
+  });
 
   const fetchTeamData = async () => {
     try {
@@ -77,6 +147,9 @@ const TeamCollaboration: React.FC = () => {
       }));
 
       setRecentActivity(activities);
+      
+      // Fetch tasks
+      await fetchTasks();
     } catch (error) {
       console.error('Error fetching team data:', error);
       toast.error('Failed to load team data');
@@ -121,6 +194,20 @@ const TeamCollaboration: React.FC = () => {
     );
     
     return activeUserIds.size;
+  };
+
+  const filteredTasks = tasks.filter((task) => {
+    const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
+    const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
+    return matchesSearch && matchesStatus && matchesPriority;
+  });
+
+  const taskStats = {
+    total: tasks.length,
+    todo: tasks.filter((t) => t.status === 'todo').length,
+    in_progress: tasks.filter((t) => t.status === 'in_progress').length,
+    done: tasks.filter((t) => t.status === 'done').length,
   };
 
   if (loading) {
@@ -196,11 +283,114 @@ const TeamCollaboration: React.FC = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="members" className="space-y-4">
+      <Tabs defaultValue="tasks" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="tasks">
+            <ListTodo className="h-4 w-4 mr-2" />
+            Tasks ({taskStats.total})
+          </TabsTrigger>
           <TabsTrigger value="members">Team Members</TabsTrigger>
           <TabsTrigger value="activity">Recent Activity</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="tasks" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div>
+                  <CardTitle>Team Tasks</CardTitle>
+                  <CardDescription>
+                    Track and manage team work
+                  </CardDescription>
+                </div>
+                <Button onClick={() => setCreateTaskOpen(true)}>
+                  <Plus className="h-4 w-4 mr-2" />
+                  New Task
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {/* Filters */}
+              <div className="flex gap-3 mb-6">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search tasks..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="todo">To Do</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="in_review">In Review</SelectItem>
+                    <SelectItem value="done">Done</SelectItem>
+                    <SelectItem value="blocked">Blocked</SelectItem>
+                  </SelectContent>
+                </Select>
+                <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Priority" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Priority</SelectItem>
+                    <SelectItem value="critical">Critical</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Task Stats */}
+              <div className="grid grid-cols-4 gap-4 mb-6">
+                <div className="p-3 rounded-lg border bg-card">
+                  <div className="text-2xl font-bold">{taskStats.todo}</div>
+                  <div className="text-xs text-muted-foreground">To Do</div>
+                </div>
+                <div className="p-3 rounded-lg border bg-card">
+                  <div className="text-2xl font-bold">{taskStats.in_progress}</div>
+                  <div className="text-xs text-muted-foreground">In Progress</div>
+                </div>
+                <div className="p-3 rounded-lg border bg-card">
+                  <div className="text-2xl font-bold">{taskStats.done}</div>
+                  <div className="text-xs text-muted-foreground">Done</div>
+                </div>
+                <div className="p-3 rounded-lg border bg-card">
+                  <div className="text-2xl font-bold">{taskStats.total}</div>
+                  <div className="text-xs text-muted-foreground">Total</div>
+                </div>
+              </div>
+
+              {/* Tasks List */}
+              <div className="space-y-2">
+                {filteredTasks.map((task) => (
+                  <TaskCard
+                    key={task.id}
+                    task={task}
+                    onClick={() => {
+                      setSelectedTaskId(task.id);
+                      setTaskDetailOpen(true);
+                    }}
+                  />
+                ))}
+                {filteredTasks.length === 0 && (
+                  <div className="text-center py-12 text-muted-foreground">
+                    {searchQuery || statusFilter !== 'all' || priorityFilter !== 'all'
+                      ? 'No tasks match your filters'
+                      : 'No tasks yet. Create your first task!'}
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
         <TabsContent value="members" className="space-y-4">
           <Card>
@@ -284,6 +474,19 @@ const TeamCollaboration: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      {/* Dialogs */}
+      <CreateTaskDialog
+        open={createTaskOpen}
+        onOpenChange={setCreateTaskOpen}
+        onTaskCreated={fetchTasks}
+      />
+      <TaskDetailDialog
+        taskId={selectedTaskId}
+        open={taskDetailOpen}
+        onOpenChange={setTaskDetailOpen}
+        onTaskUpdated={fetchTasks}
+      />
     </div>
   );
 };
