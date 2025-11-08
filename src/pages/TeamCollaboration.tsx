@@ -77,6 +77,9 @@ interface Application {
   customer_name?: string;
   customer_company?: string;
   customer_email?: string;
+  recent_action?: string;
+  recent_action_date?: string;
+  recent_action_by?: string;
 }
 
 const TeamCollaboration: React.FC = () => {
@@ -182,7 +185,7 @@ const TeamCollaboration: React.FC = () => {
       if (membersError) throw membersError;
       setTeamMembers(members || []);
 
-      // Fetch all applications
+      // Fetch all applications with recent status changes
       const { data: applicationsData, error: casesError } = await supabase
         .from('account_applications')
         .select(`
@@ -197,12 +200,34 @@ const TeamCollaboration: React.FC = () => {
 
       if (casesError) throw casesError;
       
-      const applicationsWithCustomer: Application[] = (applicationsData || []).map((app: any) => ({
-        ...app,
-        customer_name: app.customers?.name,
-        customer_company: app.customers?.company,
-        customer_email: app.customers?.email,
-      }));
+      // Fetch recent status changes for each application
+      const applicationIds = (applicationsData || []).map((app: any) => app.id);
+      const { data: statusChangesData } = await supabase
+        .from('status_changes')
+        .select(`
+          customer_id,
+          new_status,
+          previous_status,
+          created_at,
+          changed_by,
+          comment,
+          profiles!status_changes_changed_by_fkey(name)
+        `)
+        .in('customer_id', (applicationsData || []).map((app: any) => app.customer_id))
+        .order('created_at', { ascending: false });
+
+      const applicationsWithCustomer: Application[] = (applicationsData || []).map((app: any) => {
+        const recentChange = statusChangesData?.find((sc: any) => sc.customer_id === app.customer_id);
+        return {
+          ...app,
+          customer_name: app.customers?.name,
+          customer_company: app.customers?.company,
+          customer_email: app.customers?.email,
+          recent_action: recentChange ? `Status changed from ${recentChange.previous_status} to ${recentChange.new_status}` : null,
+          recent_action_date: recentChange?.created_at,
+          recent_action_by: recentChange?.profiles?.name,
+        };
+      });
       
       setApplications(applicationsWithCustomer);
       setActiveCasesCount(applicationsWithCustomer.filter(app => 
@@ -668,33 +693,79 @@ const TeamCollaboration: React.FC = () => {
                     rejected: 'bg-red-500/10 text-red-500',
                   }[app.status] || 'bg-gray-500/10 text-gray-500';
 
+                  const getNextStep = (status: string) => {
+                    const nextSteps: { [key: string]: string } = {
+                      draft: 'Complete application form and submit',
+                      pending: 'Awaiting initial review',
+                      in_review: 'Under review by team',
+                      waiting_for_documents: 'Upload required documents',
+                      waiting_for_information: 'Provide additional information',
+                      blocked: 'Resolve blocking issues',
+                      approved: 'Proceed to finalization',
+                      complete: 'Application completed',
+                      rejected: 'Application rejected',
+                    };
+                    return nextSteps[status] || 'No action required';
+                  };
+
                   return (
                     <div
                       key={app.id}
                       className="flex items-start justify-between p-4 rounded-md border bg-card hover:bg-accent/50 transition-colors"
                     >
-                      <div className="flex-1 min-w-0">
+                      <div className="flex-1 min-w-0 space-y-2">
                         <div className="flex items-center gap-2 mb-1">
                           <p className="text-sm font-semibold text-foreground">
                             #{app.reference_number}
                           </p>
                           <Badge className={statusBadgeColor}>
-                            {app.status.replace('_', ' ')}
+                            {app.status.replace(/_/g, ' ')}
                           </Badge>
                         </div>
-                        <p className="text-sm text-foreground font-medium">
-                          {app.customer_company || app.customer_name || 'Unknown'}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {app.application_type?.replace('_', ' ') || 'Application'}
-                        </p>
-                        {app.customer_email && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {app.customer_email}
+                        
+                        <div>
+                          <p className="text-sm text-foreground font-medium">
+                            {app.customer_company || app.customer_name || 'Unknown'}
                           </p>
+                          <p className="text-xs text-muted-foreground">
+                            {app.application_type?.replace(/_/g, ' ') || 'Application'}
+                          </p>
+                          {app.customer_email && (
+                            <p className="text-xs text-muted-foreground">
+                              {app.customer_email}
+                            </p>
+                          )}
+                        </div>
+
+                        {app.recent_action && (
+                          <div className="pt-2 border-t border-border/50">
+                            <p className="text-xs font-medium text-foreground flex items-center gap-1">
+                              <Activity className="h-3 w-3" />
+                              Recent Action:
+                            </p>
+                            <p className="text-xs text-muted-foreground ml-4">
+                              {app.recent_action}
+                            </p>
+                            {app.recent_action_by && (
+                              <p className="text-xs text-muted-foreground ml-4">
+                                by {app.recent_action_by} • {formatDate(app.recent_action_date!)}
+                              </p>
+                            )}
+                          </div>
                         )}
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Created {formatDate(app.created_at)}
+
+                        <div className="pt-2 border-t border-border/50">
+                          <p className="text-xs font-medium text-foreground flex items-center gap-1">
+                            <FileText className="h-3 w-3" />
+                            Next Step:
+                          </p>
+                          <p className="text-xs text-muted-foreground ml-4">
+                            {getNextStep(app.status)}
+                          </p>
+                        </div>
+
+                        <p className="text-xs text-muted-foreground">
+                          Created {formatDate(app.created_at)} • Updated {formatDate(app.updated_at)}
                         </p>
                       </div>
                     </div>
