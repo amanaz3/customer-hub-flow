@@ -137,7 +137,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="project_id">Which project does this belong to?</Label>
+            <Label htmlFor="project_id">Which project does this belong to? (optional)</Label>
             <Select value={formData.project_id || 'none'} onValueChange={(v) => setFormData({ ...formData, project_id: v === 'none' ? '' : v })}>
               <SelectTrigger>
                 <SelectValue placeholder="Select a project or leave unassigned" />
