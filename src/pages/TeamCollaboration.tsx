@@ -166,11 +166,12 @@ const TeamCollaboration: React.FC = () => {
       if (membersError) throw membersError;
       setTeamMembers(members || []);
 
-      // Fetch active cases count (customers not in Completed or Rejected status)
+      // Fetch active cases count (uncompleted and unpaid customers)
       const { count: casesCount, error: casesError } = await supabase
         .from('customers')
         .select('*', { count: 'exact', head: true })
-        .not('status', 'in', '("Completed","Rejected")');
+        .not('status', 'in', '("Completed","Rejected")')
+        .or('payment_received.is.null,payment_received.eq.false');
 
       if (casesError) throw casesError;
       setActiveCasesCount(casesCount || 0);
