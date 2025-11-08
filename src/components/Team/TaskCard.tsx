@@ -26,13 +26,14 @@ interface TaskCardProps {
     status: string;
     assigned_to: string | null;
     assignee_name?: string;
-    project_name?: string;
+    product_name?: string;
     module?: string | null;
     category?: string | null;
     architectural_component?: string | null;
   };
   onClick: () => void;
   onRemoveFromProject?: (taskId: string) => void;
+  onRemoveFromProduct?: (taskId: string) => void;
   onDelete?: (taskId: string) => void;
   showActions?: boolean;
 }
@@ -40,7 +41,8 @@ interface TaskCardProps {
 export const TaskCard: React.FC<TaskCardProps> = ({ 
   task, 
   onClick, 
-  onRemoveFromProject, 
+  onRemoveFromProject,
+  onRemoveFromProduct, 
   onDelete,
   showActions = false 
 }) => {
@@ -153,16 +155,20 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           
           {showActions && (
             <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              {onRemoveFromProject && (
+              {(onRemoveFromProject || onRemoveFromProduct) && (
                 <Button
                   size="icon"
                   variant="ghost"
                   className="h-6 w-6"
                   onClick={(e) => {
                     e.stopPropagation();
-                    onRemoveFromProject(task.id);
+                    if (onRemoveFromProduct) {
+                      onRemoveFromProduct(task.id);
+                    } else if (onRemoveFromProject) {
+                      onRemoveFromProject(task.id);
+                    }
                   }}
-                  title="Remove from project"
+                  title={onRemoveFromProduct ? "Remove from product" : "Remove from project"}
                 >
                   <X className="h-3 w-3" />
                 </Button>

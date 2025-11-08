@@ -26,6 +26,7 @@ interface CreateTaskDialogProps {
   onOpenChange: (open: boolean) => void;
   onTaskCreated: () => void;
   projectId?: string;
+  productId?: string;
 }
 
 interface TeamMember {
@@ -33,7 +34,7 @@ interface TeamMember {
   name: string;
 }
 
-interface Project {
+interface Product {
   id: string;
   name: string;
 }
@@ -43,11 +44,12 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   onOpenChange,
   onTaskCreated,
   projectId,
+  productId,
 }) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -56,7 +58,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     priority: 'medium' as const,
     status: 'todo' as const,
     assigned_to: '',
-    project_id: projectId || '',
+    product_id: productId || projectId || '',
     module: '',
     category: '',
     mission: '',
@@ -67,7 +69,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   useEffect(() => {
     if (open) {
       fetchTeamMembers();
-      fetchProjects();
+      fetchProducts();
     }
   }, [open]);
 
@@ -81,14 +83,21 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     if (data) setTeamMembers(data);
   };
 
-  const fetchProjects = async () => {
-    const { data } = await supabase
-      .from('projects')
-      .select('id, name')
-      .in('status', ['planning', 'active'])
-      .order('name');
-    
-    if (data) setProjects(data);
+  const fetchProducts = async () => {
+    try {
+      // Still querying 'projects' table since database hasn't been migrated yet
+      const { data, error } = await supabase
+        .from('projects')
+        .select('id, name')
+        .in('status', ['planning', 'active'])
+        .order('name');
+      
+      if (data && !error) {
+        setProducts(data as unknown as Product[]);
+      }
+    } catch (err) {
+      console.error('Error fetching products:', err);
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,6 +106,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
     setLoading(true);
     try {
+      // Still using 'project_id' column since database hasn't been migrated yet
       const { error } = await supabase.from('tasks').insert([{
         title: formData.title.trim(),
         description: formData.description || null,
@@ -104,7 +114,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         priority: formData.priority,
         status: formData.status,
         assigned_to: formData.assigned_to === 'unassigned' ? null : formData.assigned_to || null,
-        project_id: projectId ? projectId : (formData.project_id === 'none' ? null : formData.project_id || null),
+        project_id: productId ? productId : projectId ? projectId : (formData.product_id === 'none' ? null : formData.product_id || null),
         module: formData.module || null,
         category: formData.category || null,
         mission: formData.mission || null,
@@ -125,7 +135,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         priority: 'medium',
         status: 'todo',
         assigned_to: '',
-        project_id: projectId || '',
+        product_id: productId || projectId || '',
         module: '',
         category: '',
         mission: '',
@@ -231,18 +241,18 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
             </div>
           </div>
 
-          {!projectId && (
+          {!projectId && !productId && (
             <div className="space-y-1">
-              <Label className="text-sm">Project</Label>
-              <Select value={formData.project_id || 'none'} onValueChange={(v) => setFormData({ ...formData, project_id: v === 'none' ? '' : v })}>
+              <Label className="text-sm">Product</Label>
+              <Select value={formData.product_id || 'none'} onValueChange={(v) => setFormData({ ...formData, product_id: v === 'none' ? '' : v })}>
                 <SelectTrigger className="h-9">
-                  <SelectValue placeholder="No project" />
+                  <SelectValue placeholder="No product" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">No project</SelectItem>
-                  {projects.map((project) => (
-                    <SelectItem key={project.id} value={project.id}>
-                      {project.name}
+                  <SelectItem value="none">No product</SelectItem>
+                  {products.map((product) => (
+                    <SelectItem key={product.id} value={product.id}>
+                      {product.name}
                     </SelectItem>
                   ))}
                 </SelectContent>

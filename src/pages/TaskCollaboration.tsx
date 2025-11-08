@@ -21,7 +21,7 @@ import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, Folde
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CreateTaskDialog } from '@/components/Team/CreateTaskDialog';
-import { CreateProjectDialog } from '@/components/Team/CreateProjectDialog';
+import { CreateProductDialog } from '@/components/Team/CreateProductDialog';
 import { TaskCard } from '@/components/Team/TaskCard';
 import { TaskDetailDialog } from '@/components/Team/TaskDetailDialog';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
@@ -54,10 +54,15 @@ interface Task {
   project_id: string | null;
   created_at: string;
   assignee_name?: string;
-  project_name?: string;
+  product_name?: string;
+  module?: string | null;
+  category?: string | null;
+  architectural_component?: string | null;
+  mission?: string | null;
+  story?: string | null;
 }
 
-interface Project {
+interface Product {
   id: string;
   name: string;
   description: string | null;
@@ -108,18 +113,18 @@ const TaskCollaboration: React.FC = () => {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [projects, setProjects] = useState<Project[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [activeCasesCount, setActiveCasesCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [createTaskOpen, setCreateTaskOpen] = useState(false);
-  const [createProjectOpen, setCreateProjectOpen] = useState(false);
+  const [createProductOpen, setCreateProductOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
   const [taskDetailOpen, setTaskDetailOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
-  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>();
+  const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
   const [caseStatusFilter, setCaseStatusFilter] = useState<string>('active');
   const [caseSearchQuery, setCaseSearchQuery] = useState('');
   const [casePriorities, setCasePriorities] = useState<Record<string, string>>({});
@@ -129,10 +134,10 @@ const TaskCollaboration: React.FC = () => {
   const [caseComments, setCaseComments] = useState<Record<string, CaseComment[]>>({});
   const [selectedCase, setSelectedCase] = useState<Application | null>(null);
   const [caseDetailTab, setCaseDetailTab] = useState<string>('overview');
-  const [selectedProject, setSelectedProject] = useState<Project | null>(null);
-  const [projectTaskSearch, setProjectTaskSearch] = useState('');
-  const [projectTaskStatusFilter, setProjectTaskStatusFilter] = useState<string>('all');
-  const [projectTaskPriorityFilter, setProjectTaskPriorityFilter] = useState<string>('all');
+  const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [productTaskSearch, setProductTaskSearch] = useState('');
+  const [productTaskStatusFilter, setProductTaskStatusFilter] = useState<string>('all');
+  const [productTaskPriorityFilter, setProductTaskPriorityFilter] = useState<string>('all');
 
   useEffect(() => {
     fetchTeamData();
@@ -154,7 +159,7 @@ const TaskCollaboration: React.FC = () => {
       const tasksWithNames: Task[] = (data || []).map((task: any) => ({
         ...task,
         assignee_name: task.profiles?.name,
-        project_name: task.projects?.name,
+        product_name: task.projects?.name, // Still using 'projects' relation
       }));
 
       setTasks(tasksWithNames);
@@ -163,9 +168,10 @@ const TaskCollaboration: React.FC = () => {
     }
   };
 
-  const fetchProjects = async () => {
+  const fetchProducts = async () => {
     try {
-      console.log('Fetching projects...');
+      console.log('Fetching products...');
+      // Still querying 'projects' table since database hasn't been migrated yet
       const { data, error } = await supabase
         .from('projects')
         .select(`
@@ -175,53 +181,55 @@ const TaskCollaboration: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('Error fetching projects:', error);
+        console.error('Error fetching products:', error);
         throw error;
       }
 
-      console.log('Projects fetched:', data);
+      console.log('Products fetched:', data);
 
-      const projectsWithOwner: Project[] = (data || []).map((project: any) => ({
-        ...project,
-        owner_name: project.profiles?.name,
+      const productsWithOwner: Product[] = (data || []).map((product: any) => ({
+        ...product,
+        owner_name: product.profiles?.name,
       }));
 
-      console.log('Projects with owner:', projectsWithOwner);
-      setProjects(projectsWithOwner);
+      console.log('Products with owner:', productsWithOwner);
+      setProducts(productsWithOwner);
     } catch (error) {
-      console.error('Error fetching projects:', error);
-      toast.error('Failed to load projects');
+      console.error('Error fetching products:', error);
+      toast.error('Failed to load products');
     }
   };
 
-  // Helper to assign a task to a project
-  const assignTaskToProject = async (taskId: string, projectId: string) => {
+  // Helper to assign a task to a product
+  const assignTaskToProduct = async (taskId: string, productId: string) => {
     try {
+      // Still using 'project_id' column since database hasn't been migrated yet
       const { error } = await supabase
         .from('tasks')
-        .update({ project_id: projectId })
+        .update({ project_id: productId })
         .eq('id', taskId);
       if (error) throw error;
-      toast.success('Task assigned to project');
+      toast.success('Task assigned to product');
       await fetchTasks();
     } catch (e) {
-      console.error('Error assigning task to project:', e);
+      console.error('Error assigning task to product:', e);
       toast.error('Failed to assign task');
     }
   };
 
-  // Helper to remove a task from a project
-  const removeTaskFromProject = async (taskId: string) => {
+  // Helper to remove a task from a product
+  const removeTaskFromProduct = async (taskId: string) => {
     try {
+      // Still using 'project_id' column since database hasn't been migrated yet
       const { error } = await supabase
         .from('tasks')
         .update({ project_id: null })
         .eq('id', taskId);
       if (error) throw error;
-      toast.success('Task removed from project');
+      toast.success('Task removed from product');
       await fetchTasks();
     } catch (e) {
-      console.error('Error removing task from project:', e);
+      console.error('Error removing task from product:', e);
       toast.error('Failed to remove task');
     }
   };
@@ -255,10 +263,10 @@ const TaskCollaboration: React.FC = () => {
     onUpdate: fetchTasks,
   });
 
-  // Real-time updates for projects
+  // Real-time updates for products
   useRealtimeSubscription({
-    table: 'projects',
-    onUpdate: fetchProjects,
+    table: 'projects', // Still using 'projects' table since database hasn't been migrated yet
+    onUpdate: fetchProducts,
   });
 
   const fetchTeamData = async () => {
@@ -379,8 +387,8 @@ const TaskCollaboration: React.FC = () => {
       // Fetch tasks
       await fetchTasks();
       
-      // Fetch projects
-      await fetchProjects();
+      // Fetch products
+      await fetchProducts();
     } catch (error) {
       console.error('Error fetching team data:', error);
       toast.error('Failed to load team data');
@@ -580,15 +588,15 @@ const TaskCollaboration: React.FC = () => {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Projects</CardTitle>
+            <CardTitle className="text-sm font-medium">Active Products</CardTitle>
             <FolderKanban className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">
-              {projects.filter((p) => p.status === 'active').length}
+              {products.filter((p) => p.status === 'active').length}
             </div>
             <p className="text-xs text-muted-foreground mt-1">
-              {projects.length} total
+              {products.length} total
             </p>
           </CardContent>
         </Card>
@@ -612,9 +620,9 @@ const TaskCollaboration: React.FC = () => {
             <FileText className="h-4 w-4 mr-2" />
             Cases ({activeCasesCount})
           </TabsTrigger>
-          <TabsTrigger value="projects">
+          <TabsTrigger value="products">
             <FolderKanban className="h-4 w-4 mr-2" />
-            Projects ({projects.length})
+            Products ({products.length})
           </TabsTrigger>
           <TabsTrigger value="tasks">
             <ListTodo className="h-4 w-4 mr-2" />
@@ -624,69 +632,69 @@ const TaskCollaboration: React.FC = () => {
           <TabsTrigger value="activity">Recent Activity</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="projects" className="space-y-4">
-          {!selectedProject ? (
+        <TabsContent value="products" className="space-y-4">
+          {!selectedProduct ? (
             <>
               <div className="flex justify-end mb-4">
-                <Button onClick={() => setCreateProjectOpen(true)}>
+                <Button onClick={() => setCreateProductOpen(true)}>
                   <Plus className="h-4 w-4 mr-2" />
-                  New Project
+                  New Product
                 </Button>
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                {projects.map((project) => {
-                  const projectTasks = tasks.filter((t) => t.project_id === project.id);
+                {products.map((product) => {
+                  const productTasks = tasks.filter((t) => t.project_id === product.id); // Still using 'project_id'
                   const statusBadgeColor = {
                     planning: 'bg-blue-500/10 text-blue-500',
                     active: 'bg-green-500/10 text-green-500',
                     on_hold: 'bg-yellow-500/10 text-yellow-500',
                     completed: 'bg-gray-500/10 text-gray-500',
                     cancelled: 'bg-red-500/10 text-red-500',
-                  }[project.status] || 'bg-gray-500/10 text-gray-500';
+                  }[product.status] || 'bg-gray-500/10 text-gray-500';
 
                   return (
                     <Card 
-                      key={project.id} 
+                      key={product.id} 
                       className="hover:shadow-md transition-shadow cursor-pointer"
-                      onClick={() => setSelectedProject(project)}
+                      onClick={() => setSelectedProduct(product)}
                     >
                       <CardHeader>
                         <div className="flex items-start justify-between">
                           <div className="flex-1">
-                            <CardTitle className="text-lg">{project.name}</CardTitle>
-                            {project.description && (
+                            <CardTitle className="text-lg">{product.name}</CardTitle>
+                            {product.description && (
                               <CardDescription className="mt-1 line-clamp-2">
-                                {project.description}
+                                {product.description}
                               </CardDescription>
                             )}
                           </div>
                           <Badge className={statusBadgeColor}>
-                            {project.status.replace('_', ' ')}
+                            {product.status.replace('_', ' ')}
                           </Badge>
                         </div>
                       </CardHeader>
                       <CardContent>
                         <div className="space-y-3">
-                          {project.owner_name && (
+                          {product.owner_name && (
                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                               <Users className="h-4 w-4" />
-                              <span>{project.owner_name}</span>
+                              <span>{product.owner_name}</span>
                             </div>
                           )}
                           
                           <div className="flex items-center gap-2 text-sm text-muted-foreground">
                             <ListTodo className="h-4 w-4" />
-                            <span>{projectTasks.length} tasks</span>
+                            <span>{productTasks.length} tasks</span>
                           </div>
                         </div>
                       </CardContent>
                     </Card>
                   );
                 })}
-                {projects.length === 0 && (
+                {products.length === 0 && (
                   <div className="col-span-full text-center py-12 text-muted-foreground">
-                    No projects yet
+                    No products yet
                   </div>
                 )}
               </div>
@@ -699,22 +707,22 @@ const TaskCollaboration: React.FC = () => {
                     <Button
                       variant="ghost"
                       size="sm"
-                      onClick={() => setSelectedProject(null)}
+                      onClick={() => setSelectedProduct(null)}
                     >
                       <ArrowRight className="h-4 w-4 rotate-180" />
                     </Button>
                     <div>
-                      <CardTitle>{selectedProject.name}</CardTitle>
-                      {selectedProject.description && (
+                      <CardTitle>{selectedProduct.name}</CardTitle>
+                      {selectedProduct.description && (
                         <CardDescription className="mt-1">
-                          {selectedProject.description}
+                          {selectedProduct.description}
                         </CardDescription>
                       )}
                     </div>
                   </div>
                   <Button 
                     onClick={() => {
-                      setSelectedProjectId(selectedProject.id);
+                      setSelectedProductId(selectedProduct.id);
                       setCreateTaskOpen(true);
                     }}
                   >
@@ -735,27 +743,27 @@ const TaskCollaboration: React.FC = () => {
                           on_hold: 'bg-yellow-500/10 text-yellow-500',
                           completed: 'bg-gray-500/10 text-gray-500',
                           cancelled: 'bg-red-500/10 text-red-500',
-                        }[selectedProject.status] || 'bg-gray-500/10 text-gray-500'
+                        }[selectedProduct.status] || 'bg-gray-500/10 text-gray-500'
                       }>
-                        {selectedProject.status.replace('_', ' ')}
+                        {selectedProduct.status.replace('_', ' ')}
                       </Badge>
                     </div>
-                    {selectedProject.owner_name && (
+                    {selectedProduct.owner_name && (
                       <div className="p-3 rounded-lg border bg-card">
                         <div className="text-sm text-muted-foreground mb-1">Owner</div>
-                        <div className="text-sm font-medium">{selectedProject.owner_name}</div>
+                        <div className="text-sm font-medium">{selectedProduct.owner_name}</div>
                       </div>
                     )}
                     <div className="p-3 rounded-lg border bg-card">
                       <div className="text-sm text-muted-foreground mb-1">Tasks</div>
                       <div className="text-2xl font-bold">
-                        {tasks.filter((t) => t.project_id === selectedProject.id).length}
+                        {tasks.filter((t) => t.project_id === selectedProduct.id).length} {/* Still using 'project_id' */}
                       </div>
                     </div>
                   </div>
 
                   <div className="border-t pt-4">
-                    <h3 className="text-lg font-semibold mb-4">Project Tasks</h3>
+                    <h3 className="text-lg font-semibold mb-4">Product Tasks</h3>
                     
                     {/* Task Filters */}
                     <div className="flex gap-2 mb-4">
@@ -763,12 +771,12 @@ const TaskCollaboration: React.FC = () => {
                         <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                         <Input
                           placeholder="Search tasks..."
-                          value={projectTaskSearch}
-                          onChange={(e) => setProjectTaskSearch(e.target.value)}
+                          value={productTaskSearch}
+                          onChange={(e) => setProductTaskSearch(e.target.value)}
                           className="pl-9"
                         />
                       </div>
-                      <Select value={projectTaskStatusFilter} onValueChange={setProjectTaskStatusFilter}>
+                      <Select value={productTaskStatusFilter} onValueChange={setProductTaskStatusFilter}>
                         <SelectTrigger className="w-[150px] bg-background">
                           <SelectValue placeholder="Status" />
                         </SelectTrigger>
@@ -781,7 +789,7 @@ const TaskCollaboration: React.FC = () => {
                           <SelectItem value="blocked">Blocked</SelectItem>
                         </SelectContent>
                       </Select>
-                      <Select value={projectTaskPriorityFilter} onValueChange={setProjectTaskPriorityFilter}>
+                      <Select value={productTaskPriorityFilter} onValueChange={setProductTaskPriorityFilter}>
                         <SelectTrigger className="w-[150px] bg-background">
                           <SelectValue placeholder="Priority" />
                         </SelectTrigger>
@@ -797,18 +805,18 @@ const TaskCollaboration: React.FC = () => {
 
                     <div className="space-y-2">
                       {tasks
-                        .filter((t) => t.project_id === selectedProject.id)
+                        .filter((t) => t.project_id === selectedProduct.id) // Still using 'project_id'
                         .filter((t) => {
                           // Search filter
-                          if (projectTaskSearch && !t.title.toLowerCase().includes(projectTaskSearch.toLowerCase())) {
+                          if (productTaskSearch && !t.title.toLowerCase().includes(productTaskSearch.toLowerCase())) {
                             return false;
                           }
                           // Status filter
-                          if (projectTaskStatusFilter !== 'all' && t.status !== projectTaskStatusFilter) {
+                          if (productTaskStatusFilter !== 'all' && t.status !== productTaskStatusFilter) {
                             return false;
                           }
                           // Priority filter
-                          if (projectTaskPriorityFilter !== 'all' && t.priority !== projectTaskPriorityFilter) {
+                          if (productTaskPriorityFilter !== 'all' && t.priority !== productTaskPriorityFilter) {
                             return false;
                           }
                           return true;
@@ -822,29 +830,29 @@ const TaskCollaboration: React.FC = () => {
                               setTaskDetailOpen(true);
                             }}
                             showActions
-                            onRemoveFromProject={removeTaskFromProject}
+                            onRemoveFromProduct={removeTaskFromProduct}
                             onDelete={deleteTask}
                           />
                         ))}
                       {tasks
-                        .filter((t) => t.project_id === selectedProject.id)
+                        .filter((t) => t.project_id === selectedProduct.id) // Still using 'project_id'
                         .filter((t) => {
                           // Search filter
-                          if (projectTaskSearch && !t.title.toLowerCase().includes(projectTaskSearch.toLowerCase())) {
+                          if (productTaskSearch && !t.title.toLowerCase().includes(productTaskSearch.toLowerCase())) {
                             return false;
                           }
                           // Status filter
-                          if (projectTaskStatusFilter !== 'all' && t.status !== projectTaskStatusFilter) {
+                          if (productTaskStatusFilter !== 'all' && t.status !== productTaskStatusFilter) {
                             return false;
                           }
                           // Priority filter
-                          if (projectTaskPriorityFilter !== 'all' && t.priority !== projectTaskPriorityFilter) {
+                          if (productTaskPriorityFilter !== 'all' && t.priority !== productTaskPriorityFilter) {
                             return false;
                           }
                           return true;
                         }).length === 0 && (
                         <div className="text-center py-12 text-muted-foreground">
-                          No tasks yet. Create your first task for this project!
+                          No tasks yet. Create your first task for this product!
                         </div>
                       )}
                     </div>
@@ -1431,12 +1439,12 @@ const TaskCollaboration: React.FC = () => {
       </Tabs>
 
       {/* Dialogs */}
-      <CreateProjectDialog
-        open={createProjectOpen}
-        onOpenChange={setCreateProjectOpen}
-        onProjectCreated={() => {
-          fetchProjects();
-          setCreateProjectOpen(false);
+      <CreateProductDialog
+        open={createProductOpen}
+        onOpenChange={setCreateProductOpen}
+        onProductCreated={() => {
+          fetchProducts();
+          setCreateProductOpen(false);
         }}
       />
 
@@ -1444,10 +1452,10 @@ const TaskCollaboration: React.FC = () => {
         open={createTaskOpen}
         onOpenChange={(open) => {
           setCreateTaskOpen(open);
-          if (!open) setSelectedProjectId(undefined);
+          if (!open) setSelectedProductId(undefined);
         }}
         onTaskCreated={fetchTasks}
-        projectId={selectedProjectId}
+        productId={selectedProductId}
       />
       <TaskDetailDialog
         taskId={selectedTaskId}
