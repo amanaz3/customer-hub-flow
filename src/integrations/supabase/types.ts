@@ -1456,7 +1456,6 @@ export type Database = {
           description: string | null
           id: string
           priority: Database["public"]["Enums"]["task_priority"]
-          product_id: string | null
           project_id: string | null
           status: Database["public"]["Enums"]["task_status"]
           title: string
@@ -1470,7 +1469,6 @@ export type Database = {
           description?: string | null
           id?: string
           priority?: Database["public"]["Enums"]["task_priority"]
-          product_id?: string | null
           project_id?: string | null
           status?: Database["public"]["Enums"]["task_status"]
           title: string
@@ -1484,7 +1482,6 @@ export type Database = {
           description?: string | null
           id?: string
           priority?: Database["public"]["Enums"]["task_priority"]
-          product_id?: string | null
           project_id?: string | null
           status?: Database["public"]["Enums"]["task_status"]
           title?: string
@@ -1504,13 +1501,6 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "tasks_product_id_fkey"
-            columns: ["product_id"]
-            isOneToOne: false
-            referencedRelation: "products"
             referencedColumns: ["id"]
           },
           {
