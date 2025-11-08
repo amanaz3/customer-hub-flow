@@ -159,6 +159,23 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
             />
           </div>
 
+          <div className="space-y-2">
+            <Label htmlFor="project_id">Which project does this belong to?</Label>
+            <Select value={formData.project_id || 'none'} onValueChange={(v) => setFormData({ ...formData, project_id: v === 'none' ? '' : v })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a project or leave unassigned" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No project</SelectItem>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="type">Type</Label>
@@ -225,23 +242,6 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 </SelectContent>
               </Select>
             </div>
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="project_id">Project (Optional)</Label>
-            <Select value={formData.project_id || 'none'} onValueChange={(v) => setFormData({ ...formData, project_id: v === 'none' ? '' : v })}>
-              <SelectTrigger>
-                <SelectValue placeholder="No project" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No project</SelectItem>
-                {projects.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
