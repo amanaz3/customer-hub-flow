@@ -401,24 +401,24 @@ const TeamCollaboration: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {teamMembers.map((member) => (
                   <div
                     key={member.id}
-                    className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                    className="flex items-center justify-between p-2 rounded-md border bg-card hover:bg-accent/50 transition-colors"
                   >
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-primary text-primary-foreground">
+                    <div className="flex items-center gap-2">
+                      <Avatar className="h-7 w-7">
+                        <AvatarFallback className="bg-primary text-primary-foreground text-xs">
                           {getInitials(member.name)}
                         </AvatarFallback>
                       </Avatar>
                       <div>
-                        <p className="font-medium text-foreground">{member.name}</p>
-                        <p className="text-sm text-muted-foreground">{member.email}</p>
+                        <p className="text-sm font-medium text-foreground">{member.name}</p>
+                        <p className="text-xs text-muted-foreground">{member.email}</p>
                       </div>
                     </div>
-                    <Badge variant={member.role === 'admin' ? 'default' : 'secondary'}>
+                    <Badge variant={member.role === 'admin' ? 'default' : 'secondary'} className="text-xs">
                       {member.role}
                     </Badge>
                   </div>
@@ -437,28 +437,28 @@ const TeamCollaboration: React.FC = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
+              <div className="space-y-2">
                 {recentActivity.map((activity) => (
                   <div
                     key={activity.id}
-                    className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+                    className="flex items-start gap-2 p-2 rounded-md border bg-card hover:bg-accent/50 transition-colors"
                   >
-                    <div className="p-2 rounded-lg bg-primary/10">
+                    <div className="p-1.5 rounded-md bg-primary/10">
                       {activity.type === 'status_change' && (
-                        <FileText className="h-4 w-4 text-primary" />
+                        <FileText className="h-3 w-3 text-primary" />
                       )}
                       {activity.type === 'comment' && (
-                        <MessageSquare className="h-4 w-4 text-primary" />
+                        <MessageSquare className="h-3 w-3 text-primary" />
                       )}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">
+                      <p className="text-xs font-medium text-foreground">
                         {activity.user_name}
                       </p>
-                      <p className="text-sm text-muted-foreground">
+                      <p className="text-xs text-muted-foreground">
                         {activity.description}
                       </p>
-                      <p className="text-xs text-muted-foreground mt-1">
+                      <p className="text-[10px] text-muted-foreground mt-0.5">
                         {formatDate(activity.created_at)}
                       </p>
                     </div>
