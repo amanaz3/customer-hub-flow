@@ -567,7 +567,7 @@ const TeamCollaboration: React.FC = () => {
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="space-y-4">
             {projects.map((project) => {
               const projectTasks = tasks.filter((t) => t.project_id === project.id);
               const statusBadgeColor = {
@@ -579,38 +579,35 @@ const TeamCollaboration: React.FC = () => {
               }[project.status] || 'bg-gray-500/10 text-gray-500';
 
               return (
-                <Card key={project.id} className="hover:shadow-md transition-shadow">
+                <Card key={project.id}>
                   <CardHeader>
                     <div className="flex items-start justify-between">
                       <div className="flex-1">
-                        <CardTitle className="text-lg">{project.name}</CardTitle>
+                        <div className="flex items-center gap-3">
+                          <CardTitle className="text-xl">{project.name}</CardTitle>
+                          <Badge className={statusBadgeColor}>
+                            {project.status.replace('_', ' ')}
+                          </Badge>
+                        </div>
                         {project.description && (
-                          <CardDescription className="mt-1 line-clamp-2">
+                          <CardDescription className="mt-2">
                             {project.description}
                           </CardDescription>
                         )}
-                      </div>
-                      <Badge className={statusBadgeColor}>
-                        {project.status.replace('_', ' ')}
-                      </Badge>
-                    </div>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {project.owner_name && (
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Users className="h-4 w-4" />
-                          <span>{project.owner_name}</span>
+                        <div className="flex items-center gap-4 mt-3 text-sm text-muted-foreground">
+                          {project.owner_name && (
+                            <div className="flex items-center gap-2">
+                              <Users className="h-4 w-4" />
+                              <span>{project.owner_name}</span>
+                            </div>
+                          )}
+                          <div className="flex items-center gap-2">
+                            <ListTodo className="h-4 w-4" />
+                            <span>{projectTasks.length} tasks</span>
+                          </div>
                         </div>
-                      )}
-                      
-                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                        <ListTodo className="h-4 w-4" />
-                        <span>{projectTasks.length} tasks</span>
                       </div>
-
                       <Button 
-                        className="w-full"
                         size="sm"
                         onClick={() => {
                           setSelectedProjectId(project.id);
@@ -621,14 +618,41 @@ const TeamCollaboration: React.FC = () => {
                         Add Task
                       </Button>
                     </div>
+                  </CardHeader>
+                  <CardContent>
+                    {projectTasks.length > 0 ? (
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-medium text-muted-foreground mb-3">Project Tasks</h4>
+                        {projectTasks.map((task) => (
+                          <TaskCard
+                            key={task.id}
+                            task={task}
+                            onClick={() => {
+                              setSelectedTaskId(task.id);
+                              setTaskDetailOpen(true);
+                            }}
+                          />
+                        ))}
+                      </div>
+                    ) : (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <ListTodo className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p className="text-sm">No tasks yet</p>
+                        <p className="text-xs mt-1">Click "Add Task" to create the first task</p>
+                      </div>
+                    )}
                   </CardContent>
                 </Card>
               );
             })}
             {projects.length === 0 && (
-              <div className="col-span-full text-center py-12 text-muted-foreground">
-                No projects yet
-              </div>
+              <Card>
+                <CardContent className="text-center py-12">
+                  <FolderKanban className="h-12 w-12 mx-auto mb-4 opacity-50 text-muted-foreground" />
+                  <p className="text-muted-foreground">No projects yet</p>
+                  <p className="text-sm text-muted-foreground mt-1">Create your first project to get started</p>
+                </CardContent>
+              </Card>
             )}
           </div>
         </TabsContent>
