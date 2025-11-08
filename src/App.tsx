@@ -286,7 +286,7 @@ function App() {
                   <Route path="/team" element={
                     <ProtectedRoute>
                       <MainLayout>
-                        <PageErrorBoundary pageName="Task Collaboration">
+                        <PageErrorBoundary pageName="Task Assignment">
                           <TaskCollaboration />
                         </PageErrorBoundary>
                       </MainLayout>
