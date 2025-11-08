@@ -36,7 +36,7 @@ import TargetManagement from '@/pages/TargetManagement';
 import AgentHelpEditor from '@/pages/AgentHelpEditor';
 import DatabaseViewer from '@/pages/DatabaseViewer';
 import NotificationManagement from '@/pages/NotificationManagement';
-import TeamCollaboration from '@/pages/TeamCollaboration';
+import TaskCollaboration from '@/pages/TaskCollaboration';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -286,8 +286,8 @@ function App() {
                   <Route path="/team" element={
                     <ProtectedRoute>
                       <MainLayout>
-                        <PageErrorBoundary pageName="Team Collaboration">
-                          <TeamCollaboration />
+                        <PageErrorBoundary pageName="Task Collaboration">
+                          <TaskCollaboration />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>

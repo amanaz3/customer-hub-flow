@@ -103,7 +103,7 @@ interface RecentAction {
   created_at: string;
 }
 
-const TeamCollaboration: React.FC = () => {
+const TaskCollaboration: React.FC = () => {
   const { user } = useAuth();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
@@ -1282,4 +1282,4 @@ const TeamCollaboration: React.FC = () => {
   );
 };
 
-export default TeamCollaboration;
+export default TaskCollaboration;
