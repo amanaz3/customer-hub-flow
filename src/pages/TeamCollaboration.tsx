@@ -16,7 +16,8 @@ import {
 } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, FolderKanban, Flag } from 'lucide-react';
+import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
+import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, FolderKanban, Flag, Clock, ArrowRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CreateTaskDialog } from '@/components/Team/CreateTaskDialog';
@@ -126,6 +127,8 @@ const TeamCollaboration: React.FC = () => {
   const [commentDialogOpen, setCommentDialogOpen] = useState(false);
   const [newComment, setNewComment] = useState('');
   const [caseComments, setCaseComments] = useState<Record<string, CaseComment[]>>({});
+  const [selectedCase, setSelectedCase] = useState<Application | null>(null);
+  const [caseDetailTab, setCaseDetailTab] = useState<string>('overview');
 
   useEffect(() => {
     fetchTeamData();
@@ -733,20 +736,19 @@ const TeamCollaboration: React.FC = () => {
         </TabsContent>
 
         <TabsContent value="cases" className="space-y-4">
-          <Card>
-            <CardHeader>
+          <Card className="h-[calc(100vh-300px)]">
+            <CardHeader className="pb-3">
               <CardTitle>Cases Management</CardTitle>
               <CardDescription>
-                View and filter all application cases
+                View and manage all application cases
               </CardDescription>
-            </CardHeader>
-            <CardContent>
+              
               {/* Filters */}
-              <div className="flex gap-3 mb-6">
+              <div className="flex gap-3 pt-4">
                 <div className="flex-1 relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    placeholder="Search by reference, customer name, email..."
+                    placeholder="Search cases..."
                     value={caseSearchQuery}
                     onChange={(e) => setCaseSearchQuery(e.target.value)}
                     className="pl-9"
@@ -754,9 +756,9 @@ const TeamCollaboration: React.FC = () => {
                 </div>
                 <Select value={caseStatusFilter} onValueChange={setCaseStatusFilter}>
                   <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Filter by status" />
+                    <SelectValue placeholder="Filter status" />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className="bg-background z-50">
                     <SelectItem value="all">All Cases</SelectItem>
                     <SelectItem value="active">Active Only</SelectItem>
                     <SelectItem value="draft">Draft</SelectItem>
@@ -771,156 +773,357 @@ const TeamCollaboration: React.FC = () => {
                   </SelectContent>
                 </Select>
               </div>
+            </CardHeader>
+            
+            <CardContent className="p-0 h-[calc(100%-120px)]">
+              <ResizablePanelGroup direction="horizontal" className="h-full">
+                {/* Left Panel - Case List */}
+                <ResizablePanel defaultSize={40} minSize={30}>
+                  <div className="h-full overflow-y-auto px-4">
+                    {filteredApplications.length === 0 ? (
+                      <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                        {caseSearchQuery || caseStatusFilter !== 'active'
+                          ? 'No cases match your filters'
+                          : 'No cases found'}
+                      </div>
+                    ) : (
+                      <div className="space-y-2 py-2">
+                        {filteredApplications.map((app) => {
+                          const isSelected = selectedCase?.id === app.id;
+                          const statusBadgeColor = {
+                            draft: 'bg-gray-500/10 text-gray-500',
+                            pending: 'bg-yellow-500/10 text-yellow-500',
+                            in_review: 'bg-blue-500/10 text-blue-500',
+                            waiting_for_documents: 'bg-orange-500/10 text-orange-500',
+                            waiting_for_information: 'bg-orange-500/10 text-orange-500',
+                            blocked: 'bg-red-500/10 text-red-500',
+                            approved: 'bg-green-500/10 text-green-500',
+                            complete: 'bg-green-500/10 text-green-500',
+                            rejected: 'bg-red-500/10 text-red-500',
+                          }[app.status] || 'bg-gray-500/10 text-gray-500';
 
-              <div className="space-y-2">
-                {filteredApplications.map((app) => {
-                  const statusBadgeColor = {
-                    draft: 'bg-gray-500/10 text-gray-500',
-                    pending: 'bg-yellow-500/10 text-yellow-500',
-                    in_review: 'bg-blue-500/10 text-blue-500',
-                    waiting_for_documents: 'bg-orange-500/10 text-orange-500',
-                    waiting_for_information: 'bg-orange-500/10 text-orange-500',
-                    blocked: 'bg-red-500/10 text-red-500',
-                    approved: 'bg-green-500/10 text-green-500',
-                    complete: 'bg-green-500/10 text-green-500',
-                    rejected: 'bg-red-500/10 text-red-500',
-                  }[app.status] || 'bg-gray-500/10 text-gray-500';
+                          const priorityColor = {
+                            critical: 'text-red-500',
+                            high: 'text-orange-500',
+                            medium: 'text-yellow-500',
+                            low: 'text-blue-500',
+                          }[app.priority || 'medium'] || 'text-yellow-500';
 
-                  const priorityColor = {
-                    critical: 'text-red-500',
-                    high: 'text-orange-500',
-                    medium: 'text-yellow-500',
-                    low: 'text-blue-500',
-                  }[app.priority || 'medium'] || 'text-yellow-500';
-
-                  return (
-                    <div
-                      key={app.id}
-                      className="flex items-start justify-between p-4 rounded-md border bg-card hover:bg-accent/50 transition-colors gap-4"
-                    >
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2 mb-1">
-                          <p className="text-sm font-semibold text-foreground">
-                            #{app.reference_number}
-                          </p>
-                          <Badge className={statusBadgeColor}>
-                            {app.status.replace('_', ' ')}
-                          </Badge>
-                          <div className="flex items-center gap-1">
-                            <Flag className={`h-3 w-3 ${priorityColor}`} />
-                            <span className={`text-xs ${priorityColor} capitalize`}>
-                              {app.priority || 'medium'}
-                            </span>
-                          </div>
-                        </div>
-                        <p className="text-sm text-foreground font-medium">
-                          {app.customer_company || app.customer_name || 'Unknown'}
-                        </p>
-                        <p className="text-xs text-muted-foreground">
-                          {app.application_type?.replace('_', ' ') || 'Application'}
-                        </p>
-                        
-                        {/* Assigned To */}
-                        {app.assigned_to_name && (
-                          <div className="flex items-center gap-1.5 mt-2">
-                            <Avatar className="h-5 w-5">
-                              <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
-                                {getInitials(app.assigned_to_name)}
-                              </AvatarFallback>
-                            </Avatar>
-                            <div className="flex flex-col">
-                              <p className="text-xs font-medium text-foreground">
-                                Assigned to: {app.assigned_to_name}
+                          return (
+                            <div
+                              key={app.id}
+                              onClick={() => setSelectedCase(app)}
+                              className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                                isSelected
+                                  ? 'bg-primary/10 border-primary'
+                                  : 'bg-card hover:bg-accent/50 border-border'
+                              }`}
+                            >
+                              <div className="flex items-start justify-between mb-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm font-semibold text-foreground">
+                                    #{app.reference_number}
+                                  </span>
+                                  <Badge className={`${statusBadgeColor} text-xs`}>
+                                    {app.status.replace('_', ' ')}
+                                  </Badge>
+                                </div>
+                                <Flag className={`h-4 w-4 ${priorityColor}`} />
+                              </div>
+                              
+                              <p className="text-sm font-medium text-foreground mb-1">
+                                {app.customer_company || app.customer_name || 'Unknown'}
                               </p>
-                              <p className="text-[10px] text-muted-foreground">
-                                {app.assigned_to_email}
+                              
+                              {app.assigned_to_name && (
+                                <div className="flex items-center gap-1.5 mt-2">
+                                  <Avatar className="h-5 w-5">
+                                    <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
+                                      {getInitials(app.assigned_to_name)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <span className="text-xs text-muted-foreground">
+                                    {app.assigned_to_name}
+                                  </span>
+                                </div>
+                              )}
+                              {!app.assigned_to_name && (
+                                <span className="text-xs text-amber-600">⚠ Unassigned</span>
+                              )}
+                              
+                              <div className="flex items-center gap-3 mt-2 text-xs text-muted-foreground">
+                                <span className="flex items-center gap-1">
+                                  <Clock className="h-3 w-3" />
+                                  {formatDate(app.created_at)}
+                                </span>
+                                {app.comments && app.comments.length > 0 && (
+                                  <span className="flex items-center gap-1">
+                                    <MessageSquare className="h-3 w-3" />
+                                    {app.comments.length}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+                </ResizablePanel>
+
+                <ResizableHandle withHandle />
+
+                {/* Right Panel - Case Details */}
+                <ResizablePanel defaultSize={60} minSize={40}>
+                  <div className="h-full overflow-y-auto px-4">
+                    {!selectedCase ? (
+                      <div className="flex items-center justify-center h-full text-muted-foreground">
+                        <div className="text-center">
+                          <FileText className="h-12 w-12 mx-auto mb-3 opacity-20" />
+                          <p className="text-sm">Select a case to view details</p>
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="py-4">
+                        {/* Header */}
+                        <div className="mb-4">
+                          <div className="flex items-start justify-between mb-2">
+                            <div>
+                              <h3 className="text-xl font-semibold text-foreground">
+                                #{selectedCase.reference_number}
+                              </h3>
+                              <p className="text-sm text-muted-foreground">
+                                {selectedCase.application_type?.replace('_', ' ') || 'Application'}
                               </p>
                             </div>
+                            <Select
+                              value={selectedCase.priority || 'medium'}
+                              onValueChange={(value) => handlePriorityChange(selectedCase.id, value)}
+                            >
+                              <SelectTrigger className="w-32 h-9">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent className="bg-background z-50">
+                                <SelectItem value="critical">🔴 Critical</SelectItem>
+                                <SelectItem value="high">🟠 High</SelectItem>
+                                <SelectItem value="medium">🟡 Medium</SelectItem>
+                                <SelectItem value="low">🔵 Low</SelectItem>
+                              </SelectContent>
+                            </Select>
                           </div>
-                        )}
-                        {!app.assigned_to_name && (
-                          <p className="text-xs text-amber-600 mt-2">
-                            ⚠ Unassigned
-                          </p>
-                        )}
-                        
-                        {app.customer_email && (
-                          <p className="text-xs text-muted-foreground mt-1">
-                            Customer: {app.customer_email}
-                          </p>
-                        )}
-                        <p className="text-xs text-muted-foreground mt-1">
-                          Created {formatDate(app.created_at)}
-                        </p>
-                        
-                        {/* Recent Action */}
-                        {app.recent_action && (
-                          <div className="mt-2 p-2 rounded-md bg-muted/30 border border-border/50">
-                            <p className="text-xs font-medium text-foreground mb-1">Recent Action:</p>
-                            <p className="text-xs text-muted-foreground">
-                              {app.recent_action.changed_by_name} changed status from{' '}
-                              <span className="font-medium">{app.recent_action.previous_status}</span> to{' '}
-                              <span className="font-medium">{app.recent_action.new_status}</span>
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              {formatDate(app.recent_action.created_at)}
-                            </p>
-                          </div>
-                        )}
-                        
-                        {/* Next Steps */}
-                        {app.next_step && (
-                          <div className="mt-2 p-2 rounded-md bg-primary/5 border border-primary/20">
-                            <p className="text-xs font-medium text-primary mb-1">Next Step:</p>
-                            <p className="text-xs text-foreground">{app.next_step}</p>
-                          </div>
-                        )}
-                        
-                        {app.comments && app.comments.length > 0 && (
-                          <div className="mt-2 text-xs text-muted-foreground">
-                            {app.comments.length} comment{app.comments.length !== 1 ? 's' : ''}
-                          </div>
-                        )}
+                        </div>
+
+                        {/* Tabs */}
+                        <Tabs value={caseDetailTab} onValueChange={setCaseDetailTab}>
+                          <TabsList className="w-full justify-start">
+                            <TabsTrigger value="overview">Overview</TabsTrigger>
+                            <TabsTrigger value="comments">
+                              Comments ({selectedCase.comments?.length || 0})
+                            </TabsTrigger>
+                            <TabsTrigger value="history">History</TabsTrigger>
+                          </TabsList>
+
+                          <TabsContent value="overview" className="space-y-4 mt-4">
+                            {/* Customer Info */}
+                            <div className="p-4 rounded-lg border bg-card">
+                              <h4 className="text-sm font-semibold text-foreground mb-3">Customer Information</h4>
+                              <div className="space-y-2 text-sm">
+                                <div>
+                                  <span className="text-muted-foreground">Name:</span>
+                                  <span className="ml-2 text-foreground font-medium">
+                                    {selectedCase.customer_name || 'N/A'}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Company:</span>
+                                  <span className="ml-2 text-foreground font-medium">
+                                    {selectedCase.customer_company || 'N/A'}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Email:</span>
+                                  <span className="ml-2 text-foreground">
+                                    {selectedCase.customer_email || 'N/A'}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Assignment Info */}
+                            <div className="p-4 rounded-lg border bg-card">
+                              <h4 className="text-sm font-semibold text-foreground mb-3">Assignment</h4>
+                              {selectedCase.assigned_to_name ? (
+                                <div className="flex items-center gap-2">
+                                  <Avatar className="h-8 w-8">
+                                    <AvatarFallback className="bg-primary/10 text-primary text-sm">
+                                      {getInitials(selectedCase.assigned_to_name)}
+                                    </AvatarFallback>
+                                  </Avatar>
+                                  <div>
+                                    <p className="text-sm font-medium text-foreground">
+                                      {selectedCase.assigned_to_name}
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {selectedCase.assigned_to_email}
+                                    </p>
+                                  </div>
+                                </div>
+                              ) : (
+                                <p className="text-sm text-amber-600">⚠ This case is unassigned</p>
+                              )}
+                            </div>
+
+                            {/* Status & Next Steps */}
+                            <div className="p-4 rounded-lg border bg-card">
+                              <h4 className="text-sm font-semibold text-foreground mb-3">Status</h4>
+                              <Badge className={`mb-3 ${
+                                {
+                                  draft: 'bg-gray-500/10 text-gray-500',
+                                  pending: 'bg-yellow-500/10 text-yellow-500',
+                                  in_review: 'bg-blue-500/10 text-blue-500',
+                                  waiting_for_documents: 'bg-orange-500/10 text-orange-500',
+                                  waiting_for_information: 'bg-orange-500/10 text-orange-500',
+                                  blocked: 'bg-red-500/10 text-red-500',
+                                  approved: 'bg-green-500/10 text-green-500',
+                                  complete: 'bg-green-500/10 text-green-500',
+                                  rejected: 'bg-red-500/10 text-red-500',
+                                }[selectedCase.status] || 'bg-gray-500/10 text-gray-500'
+                              }`}>
+                                {selectedCase.status.replace('_', ' ')}
+                              </Badge>
+                              
+                              {selectedCase.next_step && (
+                                <div className="mt-3 p-3 rounded-md bg-primary/5 border border-primary/20">
+                                  <div className="flex items-start gap-2">
+                                    <ArrowRight className="h-4 w-4 text-primary mt-0.5" />
+                                    <div>
+                                      <p className="text-xs font-medium text-primary mb-1">Next Step:</p>
+                                      <p className="text-sm text-foreground">{selectedCase.next_step}</p>
+                                    </div>
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+
+                            {/* Recent Action */}
+                            {selectedCase.recent_action && (
+                              <div className="p-4 rounded-lg border bg-card">
+                                <h4 className="text-sm font-semibold text-foreground mb-3">Recent Action</h4>
+                                <div className="space-y-2">
+                                  <p className="text-sm text-muted-foreground">
+                                    <span className="font-medium text-foreground">
+                                      {selectedCase.recent_action.changed_by_name}
+                                    </span>
+                                    {' '}changed status from{' '}
+                                    <span className="font-medium text-foreground">
+                                      {selectedCase.recent_action.previous_status}
+                                    </span>
+                                    {' '}to{' '}
+                                    <span className="font-medium text-foreground">
+                                      {selectedCase.recent_action.new_status}
+                                    </span>
+                                  </p>
+                                  <p className="text-xs text-muted-foreground">
+                                    {formatDate(selectedCase.recent_action.created_at)}
+                                  </p>
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Timestamps */}
+                            <div className="p-4 rounded-lg border bg-card">
+                              <h4 className="text-sm font-semibold text-foreground mb-3">Timeline</h4>
+                              <div className="space-y-2 text-sm">
+                                <div>
+                                  <span className="text-muted-foreground">Created:</span>
+                                  <span className="ml-2 text-foreground">
+                                    {formatDate(selectedCase.created_at)}
+                                  </span>
+                                </div>
+                                <div>
+                                  <span className="text-muted-foreground">Last Updated:</span>
+                                  <span className="ml-2 text-foreground">
+                                    {formatDate(selectedCase.updated_at)}
+                                  </span>
+                                </div>
+                              </div>
+                            </div>
+                          </TabsContent>
+
+                          <TabsContent value="comments" className="space-y-4 mt-4">
+                            <div className="space-y-3">
+                              {selectedCase.comments && selectedCase.comments.length > 0 ? (
+                                selectedCase.comments.map((comment) => (
+                                  <div key={comment.id} className="p-3 rounded-lg border bg-card">
+                                    <div className="flex items-center justify-between mb-2">
+                                      <span className="text-sm font-medium text-foreground">
+                                        {comment.created_by_name}
+                                      </span>
+                                      <span className="text-xs text-muted-foreground">
+                                        {formatDate(comment.created_at)}
+                                      </span>
+                                    </div>
+                                    <p className="text-sm text-foreground">{comment.text}</p>
+                                  </div>
+                                ))
+                              ) : (
+                                <p className="text-sm text-muted-foreground text-center py-8">
+                                  No comments yet
+                                </p>
+                              )}
+                            </div>
+                            
+                            <Button
+                              onClick={() => {
+                                setSelectedCaseId(selectedCase.id);
+                                setCommentDialogOpen(true);
+                              }}
+                              className="w-full"
+                            >
+                              <MessageSquare className="h-4 w-4 mr-2" />
+                              Add Comment
+                            </Button>
+                          </TabsContent>
+
+                          <TabsContent value="history" className="space-y-4 mt-4">
+                            {selectedCase.recent_action ? (
+                              <div className="space-y-3">
+                                <div className="flex items-start gap-3 p-3 rounded-lg border bg-card">
+                                  <div className="p-2 rounded-full bg-primary/10">
+                                    <Activity className="h-4 w-4 text-primary" />
+                                  </div>
+                                  <div className="flex-1">
+                                    <p className="text-sm font-medium text-foreground mb-1">
+                                      Status Changed
+                                    </p>
+                                    <p className="text-sm text-muted-foreground mb-2">
+                                      {selectedCase.recent_action.changed_by_name} changed status from{' '}
+                                      <span className="font-medium text-foreground">
+                                        {selectedCase.recent_action.previous_status}
+                                      </span>
+                                      {' '}to{' '}
+                                      <span className="font-medium text-foreground">
+                                        {selectedCase.recent_action.new_status}
+                                      </span>
+                                    </p>
+                                    <p className="text-xs text-muted-foreground">
+                                      {formatDate(selectedCase.recent_action.created_at)}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-muted-foreground text-center py-8">
+                                No history available
+                              </p>
+                            )}
+                          </TabsContent>
+                        </Tabs>
                       </div>
-                      <div className="flex flex-col gap-2">
-                        <Select
-                          value={app.priority || 'medium'}
-                          onValueChange={(value) => handlePriorityChange(app.id, value)}
-                        >
-                          <SelectTrigger className="w-32 h-8 text-xs">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="critical">Critical</SelectItem>
-                            <SelectItem value="high">High</SelectItem>
-                            <SelectItem value="medium">Medium</SelectItem>
-                            <SelectItem value="low">Low</SelectItem>
-                          </SelectContent>
-                        </Select>
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          className="w-32 h-8 text-xs"
-                          onClick={() => {
-                            setSelectedCaseId(app.id);
-                            setCommentDialogOpen(true);
-                          }}
-                        >
-                          <MessageSquare className="h-3 w-3 mr-1" />
-                          Comments ({app.comments?.length || 0})
-                        </Button>
-                      </div>
-                    </div>
-                  );
-                })}
-                {filteredApplications.length === 0 && (
-                  <div className="text-center py-12 text-muted-foreground">
-                    {caseSearchQuery || caseStatusFilter !== 'active'
-                      ? 'No cases match your filters'
-                      : 'No cases found'}
+                    )}
                   </div>
-                )}
-              </div>
+                </ResizablePanel>
+              </ResizablePanelGroup>
             </CardContent>
           </Card>
         </TabsContent>
