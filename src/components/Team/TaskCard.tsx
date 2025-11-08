@@ -15,6 +15,7 @@ import {
   Zap,
   X,
   Trash2,
+  Flag,
 } from 'lucide-react';
 
 interface TaskCardProps {
@@ -67,11 +68,21 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
   const getPriorityColor = () => {
     switch (task.priority) {
-      case 'critical': return 'text-destructive';
-      case 'high': return 'text-orange-500';
-      case 'medium': return 'text-yellow-500';
-      case 'low': return 'text-muted-foreground';
-      default: return 'text-muted-foreground';
+      case 'critical': return 'bg-red-500/20 text-red-600 border-red-500/30';
+      case 'high': return 'bg-orange-500/20 text-orange-600 border-orange-500/30';
+      case 'medium': return 'bg-yellow-500/20 text-yellow-600 border-yellow-500/30';
+      case 'low': return 'bg-gray-500/20 text-gray-600 border-gray-500/30';
+      default: return 'bg-gray-500/20 text-gray-600 border-gray-500/30';
+    }
+  };
+
+  const getPriorityIcon = () => {
+    switch (task.priority) {
+      case 'critical': return <AlertCircle className="h-3 w-3" />;
+      case 'high': return <AlertCircle className="h-3 w-3" />;
+      case 'medium': return <Flag className="h-3 w-3" />;
+      case 'low': return <Flag className="h-3 w-3" />;
+      default: return <Flag className="h-3 w-3" />;
     }
   };
 
@@ -110,6 +121,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
+            <Badge variant="outline" className={cn('text-xs font-semibold', getPriorityColor())}>
+              <span className="flex items-center gap-1">
+                {getPriorityIcon()}
+                {task.priority}
+              </span>
+            </Badge>
+
             <Badge variant="outline" className={cn('text-xs', getStatusColor())}>
               <span className="flex items-center gap-1">
                 {getStatusIcon()}
