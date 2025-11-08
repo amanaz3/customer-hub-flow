@@ -14,7 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo } from 'lucide-react';
+import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, FolderKanban } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CreateTaskDialog } from '@/components/Team/CreateTaskDialog';
@@ -53,11 +53,24 @@ interface Task {
   project_name?: string;
 }
 
+interface Project {
+  id: string;
+  name: string;
+  description: string | null;
+  status: string;
+  start_date: string | null;
+  end_date: string | null;
+  owner_id: string | null;
+  owner_name?: string;
+  created_at: string;
+}
+
 const TeamCollaboration: React.FC = () => {
   const { user } = useAuth();
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [createTaskOpen, setCreateTaskOpen] = useState(false);
   const [selectedTaskId, setSelectedTaskId] = useState<string | null>(null);
@@ -65,6 +78,7 @@ const TeamCollaboration: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
+  const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>();
 
   useEffect(() => {
     fetchTeamData();
@@ -105,6 +119,29 @@ const TeamCollaboration: React.FC = () => {
     table: 'task_comments',
     onUpdate: fetchTasks,
   });
+
+  const fetchProjects = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('projects')
+        .select(`
+          *,
+          profiles!projects_owner_id_fkey(name)
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const projectsWithOwner: Project[] = (data || []).map((project: any) => ({
+        ...project,
+        owner_name: project.profiles?.name,
+      }));
+
+      setProjects(projectsWithOwner);
+    } catch (error) {
+      console.error('Error fetching projects:', error);
+    }
+  };
 
   const fetchTeamData = async () => {
     try {
@@ -150,6 +187,9 @@ const TeamCollaboration: React.FC = () => {
       
       // Fetch tasks
       await fetchTasks();
+      
+      // Fetch projects
+      await fetchProjects();
     } catch (error) {
       console.error('Error fetching team data:', error);
       toast.error('Failed to load team data');
@@ -283,8 +323,12 @@ const TeamCollaboration: React.FC = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="tasks" className="space-y-4">
+      <Tabs defaultValue="projects" className="space-y-4">
         <TabsList>
+          <TabsTrigger value="projects">
+            <FolderKanban className="h-4 w-4 mr-2" />
+            Projects ({projects.length})
+          </TabsTrigger>
           <TabsTrigger value="tasks">
             <ListTodo className="h-4 w-4 mr-2" />
             Tasks ({taskStats.total})
@@ -292,6 +336,73 @@ const TeamCollaboration: React.FC = () => {
           <TabsTrigger value="members">Team Members</TabsTrigger>
           <TabsTrigger value="activity">Recent Activity</TabsTrigger>
         </TabsList>
+
+        <TabsContent value="projects" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {projects.map((project) => {
+              const projectTasks = tasks.filter((t) => t.project_id === project.id);
+              const statusBadgeColor = {
+                planning: 'bg-blue-500/10 text-blue-500',
+                active: 'bg-green-500/10 text-green-500',
+                on_hold: 'bg-yellow-500/10 text-yellow-500',
+                completed: 'bg-gray-500/10 text-gray-500',
+                cancelled: 'bg-red-500/10 text-red-500',
+              }[project.status] || 'bg-gray-500/10 text-gray-500';
+
+              return (
+                <Card key={project.id} className="hover:shadow-md transition-shadow">
+                  <CardHeader>
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <CardTitle className="text-lg">{project.name}</CardTitle>
+                        {project.description && (
+                          <CardDescription className="mt-1 line-clamp-2">
+                            {project.description}
+                          </CardDescription>
+                        )}
+                      </div>
+                      <Badge className={statusBadgeColor}>
+                        {project.status.replace('_', ' ')}
+                      </Badge>
+                    </div>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {project.owner_name && (
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Users className="h-4 w-4" />
+                          <span>{project.owner_name}</span>
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <ListTodo className="h-4 w-4" />
+                        <span>{projectTasks.length} tasks</span>
+                      </div>
+
+                      <Button 
+                        className="w-full"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedProjectId(project.id);
+                          setCreateTaskOpen(true);
+                        }}
+                      >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Add Task
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+            {projects.length === 0 && (
+              <div className="col-span-full text-center py-12 text-muted-foreground">
+                No projects yet
+              </div>
+            )}
+          </div>
+        </TabsContent>
 
         <TabsContent value="tasks" className="space-y-4">
           <Card>
@@ -478,8 +589,12 @@ const TeamCollaboration: React.FC = () => {
       {/* Dialogs */}
       <CreateTaskDialog
         open={createTaskOpen}
-        onOpenChange={setCreateTaskOpen}
+        onOpenChange={(open) => {
+          setCreateTaskOpen(open);
+          if (!open) setSelectedProjectId(undefined);
+        }}
         onTaskCreated={fetchTasks}
+        projectId={selectedProjectId}
       />
       <TaskDetailDialog
         taskId={selectedTaskId}
