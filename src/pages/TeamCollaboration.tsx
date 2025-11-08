@@ -83,6 +83,8 @@ interface Application {
   comments?: CaseComment[];
   recent_action?: RecentAction;
   next_step?: string;
+  assigned_to_name?: string;
+  assigned_to_email?: string;
 }
 
 interface CaseComment {
@@ -208,7 +210,7 @@ const TeamCollaboration: React.FC = () => {
       if (membersError) throw membersError;
       setTeamMembers(members || []);
 
-      // Fetch all applications with recent status changes
+      // Fetch all applications with assigned user info
       const { data: applicationsData, error: casesError } = await supabase
         .from('account_applications')
         .select(`
@@ -216,7 +218,12 @@ const TeamCollaboration: React.FC = () => {
           customers (
             name,
             company,
-            email
+            email,
+            user_id,
+            profiles!customers_user_id_fkey (
+              name,
+              email
+            )
           )
         `)
         .order('created_at', { ascending: false });
@@ -263,6 +270,8 @@ const TeamCollaboration: React.FC = () => {
         customer_name: app.customers?.name,
         customer_company: app.customers?.company,
         customer_email: app.customers?.email,
+        assigned_to_name: app.customers?.profiles?.name,
+        assigned_to_email: app.customers?.profiles?.email,
         priority: casePriorities[app.id] || 'medium',
         comments: caseComments[app.id] || [],
         recent_action: recentActionsMap.get(app.customer_id),
@@ -810,9 +819,34 @@ const TeamCollaboration: React.FC = () => {
                         <p className="text-xs text-muted-foreground">
                           {app.application_type?.replace('_', ' ') || 'Application'}
                         </p>
+                        
+                        {/* Assigned To */}
+                        {app.assigned_to_name && (
+                          <div className="flex items-center gap-1.5 mt-2">
+                            <Avatar className="h-5 w-5">
+                              <AvatarFallback className="bg-primary/10 text-primary text-[10px]">
+                                {getInitials(app.assigned_to_name)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex flex-col">
+                              <p className="text-xs font-medium text-foreground">
+                                Assigned to: {app.assigned_to_name}
+                              </p>
+                              <p className="text-[10px] text-muted-foreground">
+                                {app.assigned_to_email}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                        {!app.assigned_to_name && (
+                          <p className="text-xs text-amber-600 mt-2">
+                            ⚠ Unassigned
+                          </p>
+                        )}
+                        
                         {app.customer_email && (
                           <p className="text-xs text-muted-foreground mt-1">
-                            {app.customer_email}
+                            Customer: {app.customer_email}
                           </p>
                         )}
                         <p className="text-xs text-muted-foreground mt-1">
