@@ -93,10 +93,13 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     setLoading(true);
     try {
       const { error } = await supabase.from('tasks').insert([{
-        ...formData,
         title: formData.title.trim(),
-        assigned_to: formData.assigned_to || null,
-        project_id: formData.project_id || null,
+        description: formData.description || null,
+        type: formData.type,
+        priority: formData.priority,
+        status: formData.status,
+        assigned_to: formData.assigned_to === 'unassigned' ? null : formData.assigned_to || null,
+        project_id: formData.project_id === 'none' ? null : formData.project_id || null,
         created_by: user.id,
       }]);
 
@@ -208,12 +211,12 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
             <div className="space-y-2">
               <Label htmlFor="assigned_to">Assign To</Label>
-              <Select value={formData.assigned_to} onValueChange={(v) => setFormData({ ...formData, assigned_to: v })}>
+              <Select value={formData.assigned_to || 'unassigned'} onValueChange={(v) => setFormData({ ...formData, assigned_to: v === 'unassigned' ? '' : v })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Unassigned" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Unassigned</SelectItem>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
                   {teamMembers.map((member) => (
                     <SelectItem key={member.id} value={member.id}>
                       {member.name}
@@ -226,12 +229,12 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
           <div className="space-y-2">
             <Label htmlFor="project_id">Project (Optional)</Label>
-            <Select value={formData.project_id} onValueChange={(v) => setFormData({ ...formData, project_id: v })}>
+            <Select value={formData.project_id || 'none'} onValueChange={(v) => setFormData({ ...formData, project_id: v === 'none' ? '' : v })}>
               <SelectTrigger>
                 <SelectValue placeholder="No project" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No project</SelectItem>
+                <SelectItem value="none">No project</SelectItem>
                 {projects.map((project) => (
                   <SelectItem key={project.id} value={project.id}>
                     {project.name}

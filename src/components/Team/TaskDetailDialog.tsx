@@ -271,14 +271,14 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
             <div className="space-y-2">
               <Label>Assignee</Label>
               <Select
-                value={task.assigned_to || ''}
-                onValueChange={(v) => handleUpdate({ assigned_to: v || null })}
+                value={task.assigned_to || 'unassigned'}
+                onValueChange={(v) => handleUpdate({ assigned_to: v === 'unassigned' ? null : v })}
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Unassigned" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Unassigned</SelectItem>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
                   {teamMembers.map((member) => (
                     <SelectItem key={member.id} value={member.id}>
                       {member.name}
