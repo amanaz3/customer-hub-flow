@@ -124,10 +124,13 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
   };
 
   const handleUpdate = async (updates: Partial<Task>) => {
-    if (!taskId) return;
+    if (!taskId || !task) return;
 
     setLoading(true);
     try {
+      // Update local state immediately
+      setTask({ ...task, ...updates });
+      
       const { error } = await supabase
         .from('tasks')
         .update(updates as any)
@@ -137,11 +140,12 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
 
       toast.success('Task saved');
       setHasUnsavedChanges(false);
-      fetchTask();
       onTaskUpdated();
     } catch (error) {
       console.error('Error updating task:', error);
       toast.error('Failed to update task');
+      // Revert local state on error
+      fetchTask();
     } finally {
       setLoading(false);
     }
