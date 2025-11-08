@@ -38,6 +38,11 @@ interface Project {
   name: string;
 }
 
+interface Product {
+  id: string;
+  name: string;
+}
+
 export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   open,
   onOpenChange,
@@ -48,6 +53,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   const [loading, setLoading] = useState(false);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -57,12 +63,14 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     status: 'todo' as const,
     assigned_to: '',
     project_id: projectId || '',
+    product_id: '',
   });
 
   useEffect(() => {
     if (open) {
       fetchTeamMembers();
       fetchProjects();
+      fetchProducts();
     }
   }, [open]);
 
@@ -86,6 +94,16 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     if (data) setProjects(data);
   };
 
+  const fetchProducts = async () => {
+    const { data } = await supabase
+      .from('products')
+      .select('id, name')
+      .eq('is_active', true)
+      .order('name');
+    
+    if (data) setProducts(data);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !formData.title.trim()) return;
@@ -100,6 +118,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         status: formData.status,
         assigned_to: formData.assigned_to === 'unassigned' ? null : formData.assigned_to || null,
         project_id: formData.project_id === 'none' ? null : formData.project_id || null,
+        product_id: formData.product_id === 'none' ? null : formData.product_id || null,
         created_by: user.id,
       }]);
 
@@ -116,6 +135,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         status: 'todo',
         assigned_to: '',
         project_id: projectId || '',
+        product_id: '',
       });
     } catch (error) {
       console.error('Error creating task:', error);
@@ -227,21 +247,40 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="project_id">Project (Optional)</Label>
-            <Select value={formData.project_id || 'none'} onValueChange={(v) => setFormData({ ...formData, project_id: v === 'none' ? '' : v })}>
-              <SelectTrigger>
-                <SelectValue placeholder="No project" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="none">No project</SelectItem>
-                {projects.map((project) => (
-                  <SelectItem key={project.id} value={project.id}>
-                    {project.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="project_id">Project (Optional)</Label>
+              <Select value={formData.project_id || 'none'} onValueChange={(v) => setFormData({ ...formData, project_id: v === 'none' ? '' : v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="No project" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No project</SelectItem>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="product_id">Product (Optional)</Label>
+              <Select value={formData.product_id || 'none'} onValueChange={(v) => setFormData({ ...formData, product_id: v === 'none' ? '' : v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="No product" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No product</SelectItem>
+                  {products.map((product) => (
+                    <SelectItem key={product.id} value={product.id}>
+                      {product.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
