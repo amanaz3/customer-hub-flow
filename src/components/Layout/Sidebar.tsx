@@ -96,7 +96,7 @@ const Sidebar: React.FC = () => {
       roles: ['admin', 'user'],
     },
     {
-      name: 'Team Collaboration',
+      name: 'Task Collaboration',
       path: '/team',
       icon: <UsersRound className="h-5 w-5" />,
       roles: ['admin', 'user'],
