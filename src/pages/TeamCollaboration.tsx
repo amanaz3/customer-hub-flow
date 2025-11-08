@@ -22,6 +22,8 @@ import { CreateProjectDialog } from '@/components/Team/CreateProjectDialog';
 import { TaskCard } from '@/components/Team/TaskCard';
 import { TaskDetailDialog } from '@/components/Team/TaskDetailDialog';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
 
 interface TeamMember {
   id: string;
@@ -80,6 +82,9 @@ interface Application {
   recent_action?: string;
   recent_action_date?: string;
   recent_action_by?: string;
+  assigned_user_id?: string;
+  assigned_user_name?: string;
+  comment_count?: number;
 }
 
 const TeamCollaboration: React.FC = () => {
@@ -101,6 +106,10 @@ const TeamCollaboration: React.FC = () => {
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>();
   const [caseStatusFilter, setCaseStatusFilter] = useState<string>('active');
   const [caseSearchQuery, setCaseSearchQuery] = useState('');
+  const [selectedApplicationId, setSelectedApplicationId] = useState<string | null>(null);
+  const [commentDialogOpen, setCommentDialogOpen] = useState(false);
+  const [newComment, setNewComment] = useState('');
+  const [loadingComment, setLoadingComment] = useState(false);
 
   useEffect(() => {
     fetchTeamData();
@@ -193,7 +202,11 @@ const TeamCollaboration: React.FC = () => {
           customers (
             name,
             company,
-            email
+            email,
+            user_id,
+            profiles:user_id (
+              name
+            )
           )
         `)
         .order('created_at', { ascending: false });
@@ -216,6 +229,18 @@ const TeamCollaboration: React.FC = () => {
         .in('customer_id', (applicationsData || []).map((app: any) => app.customer_id))
         .order('created_at', { ascending: false });
 
+      // Fetch comment counts
+      const customerIds = (applicationsData || []).map((app: any) => app.customer_id);
+      const { data: commentsData } = await supabase
+        .from('comments')
+        .select('customer_id')
+        .in('customer_id', customerIds);
+
+      const commentCounts = commentsData?.reduce((acc: any, comment: any) => {
+        acc[comment.customer_id] = (acc[comment.customer_id] || 0) + 1;
+        return acc;
+      }, {});
+
       const applicationsWithCustomer: Application[] = (applicationsData || []).map((app: any) => {
         const recentChange = statusChangesData?.find((sc: any) => sc.customer_id === app.customer_id);
         return {
@@ -223,9 +248,12 @@ const TeamCollaboration: React.FC = () => {
           customer_name: app.customers?.name,
           customer_company: app.customers?.company,
           customer_email: app.customers?.email,
+          assigned_user_id: app.customers?.user_id,
+          assigned_user_name: app.customers?.profiles?.name,
           recent_action: recentChange ? `Status changed from ${recentChange.previous_status} to ${recentChange.new_status}` : null,
           recent_action_date: recentChange?.created_at,
           recent_action_by: recentChange?.profiles?.name,
+          comment_count: commentCounts?.[app.customer_id] || 0,
         };
       });
       
@@ -311,6 +339,36 @@ const TeamCollaboration: React.FC = () => {
     );
     
     return activeUserIds.size;
+  };
+
+  const handleAddComment = async () => {
+    if (!newComment.trim() || !selectedApplicationId) return;
+
+    const selectedApp = applications.find(app => app.id === selectedApplicationId);
+    if (!selectedApp) return;
+
+    try {
+      setLoadingComment(true);
+      const { error } = await supabase
+        .from('comments')
+        .insert({
+          customer_id: selectedApp.customer_id,
+          comment: newComment.trim(),
+          created_by: user?.id,
+        });
+
+      if (error) throw error;
+
+      toast.success('Comment added successfully');
+      setNewComment('');
+      setCommentDialogOpen(false);
+      await fetchTeamData(); // Refresh data
+    } catch (error) {
+      console.error('Error adding comment:', error);
+      toast.error('Failed to add comment');
+    } finally {
+      setLoadingComment(false);
+    }
   };
 
   const filteredTasks = tasks.filter((task) => {
@@ -737,6 +795,21 @@ const TeamCollaboration: React.FC = () => {
                           )}
                         </div>
 
+                        {app.assigned_user_name && (
+                          <div className="flex items-center gap-2 py-1">
+                            <Avatar className="h-6 w-6">
+                              <AvatarFallback className="bg-primary/10 text-primary text-xs">
+                                {getInitials(app.assigned_user_name)}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <p className="text-xs font-medium text-foreground">
+                                Assigned to: {app.assigned_user_name}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
                         {app.recent_action && (
                           <div className="pt-2 border-t border-border/50">
                             <p className="text-xs font-medium text-foreground flex items-center gap-1">
@@ -764,9 +837,22 @@ const TeamCollaboration: React.FC = () => {
                           </p>
                         </div>
 
-                        <p className="text-xs text-muted-foreground">
-                          Created {formatDate(app.created_at)} • Updated {formatDate(app.updated_at)}
-                        </p>
+                        <div className="flex items-center justify-between pt-2">
+                          <p className="text-xs text-muted-foreground">
+                            Created {formatDate(app.created_at)} • Updated {formatDate(app.updated_at)}
+                          </p>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              setSelectedApplicationId(app.id);
+                              setCommentDialogOpen(true);
+                            }}
+                          >
+                            <MessageSquare className="h-3 w-3 mr-1" />
+                            Comments ({app.comment_count || 0})
+                          </Button>
+                        </div>
                       </div>
                     </div>
                   );
@@ -891,6 +977,41 @@ const TeamCollaboration: React.FC = () => {
         onOpenChange={setTaskDetailOpen}
         onTaskUpdated={fetchTasks}
       />
+
+      {/* Comment Dialog */}
+      <Dialog open={commentDialogOpen} onOpenChange={setCommentDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>Add Comment</DialogTitle>
+            <DialogDescription>
+              Add a note or comment about this case and the assigned agent's work.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <Textarea
+              placeholder="Enter your comment here..."
+              value={newComment}
+              onChange={(e) => setNewComment(e.target.value)}
+              rows={4}
+              className="resize-none"
+            />
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setCommentDialogOpen(false);
+                setNewComment('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button onClick={handleAddComment} disabled={loadingComment || !newComment.trim()}>
+              {loadingComment ? 'Adding...' : 'Add Comment'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
