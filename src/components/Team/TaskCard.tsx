@@ -115,6 +115,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               </span>
             </Badge>
 
+            <Badge variant="secondary" className="text-xs">
+              <span className="flex items-center gap-1">
+                {getTypeIcon()}
+                {task.type.replace('_', ' ')}
+              </span>
+            </Badge>
+
             {task.architectural_component && (
               <Badge variant="default" className="text-xs">
                 {task.architectural_component.replace('_', ' ')}
