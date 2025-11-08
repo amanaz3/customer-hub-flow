@@ -70,12 +70,14 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
   const [loading, setLoading] = useState(false);
   const [editing, setEditing] = useState(false);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
+  const [projects, setProjects] = useState<any[]>([]);
 
   useEffect(() => {
     if (taskId && open) {
       fetchTask();
       fetchComments();
       fetchTeamMembers();
+      fetchProjects();
     }
   }, [taskId, open]);
 
@@ -108,6 +110,16 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
       .eq('is_active', true);
     
     if (data) setTeamMembers(data);
+  };
+
+  const fetchProjects = async () => {
+    const { data } = await supabase
+      .from('projects')
+      .select('id, name')
+      .in('status', ['planning', 'active'])
+      .order('name');
+    
+    if (data) setProjects(data);
   };
 
   const handleUpdate = async (updates: Partial<Task>) => {
@@ -287,6 +299,26 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
                   {teamMembers.map((member) => (
                     <SelectItem key={member.id} value={member.id}>
                       {member.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Project</Label>
+              <Select
+                value={task.project_id || 'none'}
+                onValueChange={(v) => handleUpdate({ project_id: v === 'none' ? null : v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="No project" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No project</SelectItem>
+                  {projects.map((project) => (
+                    <SelectItem key={project.id} value={project.id}>
+                      {project.name}
                     </SelectItem>
                   ))}
                 </SelectContent>
