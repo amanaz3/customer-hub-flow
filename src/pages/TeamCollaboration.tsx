@@ -72,6 +72,7 @@ const TeamCollaboration: React.FC = () => {
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
+  const [activeCasesCount, setActiveCasesCount] = useState(0);
   const [loading, setLoading] = useState(true);
   const [createTaskOpen, setCreateTaskOpen] = useState(false);
   const [createProjectOpen, setCreateProjectOpen] = useState(false);
@@ -164,6 +165,15 @@ const TeamCollaboration: React.FC = () => {
 
       if (membersError) throw membersError;
       setTeamMembers(members || []);
+
+      // Fetch active cases count (customers not in Completed or Rejected status)
+      const { count: casesCount, error: casesError } = await supabase
+        .from('customers')
+        .select('*', { count: 'exact', head: true })
+        .not('status', 'in', '("Completed","Rejected")');
+
+      if (casesError) throw casesError;
+      setActiveCasesCount(casesCount || 0);
 
       // Fetch recent activity (status changes with user info)
       const { data: statusChanges, error: activityError } = await supabase
@@ -294,7 +304,7 @@ const TeamCollaboration: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium">Total Members</CardTitle>
@@ -314,6 +324,19 @@ const TeamCollaboration: React.FC = () => {
             <div className="text-2xl font-bold">{getActiveToday()}</div>
             <p className="text-xs text-muted-foreground mt-1">
               {recentActivity.filter(a => new Date(a.created_at) >= new Date(new Date().setHours(0, 0, 0, 0))).length} actions
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium">Active Cases</CardTitle>
+            <FileText className="h-4 w-4 text-muted-foreground" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold">{activeCasesCount}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              In progress
             </p>
           </CardContent>
         </Card>
