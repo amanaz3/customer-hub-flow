@@ -541,7 +541,7 @@ const TeamCollaboration: React.FC = () => {
         </Card>
       </div>
 
-      <Tabs defaultValue="projects" className="space-y-4">
+      <Tabs defaultValue="cases" className="space-y-4">
         <TabsList>
           <TabsTrigger value="projects">
             <FolderKanban className="h-4 w-4 mr-2" />
