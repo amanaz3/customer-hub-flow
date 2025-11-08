@@ -46,6 +46,7 @@ interface Task {
   category: string | null;
   mission: string | null;
   story: string | null;
+  architectural_component: string | null;
 }
 
 interface Comment {
@@ -308,6 +309,18 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
                   <SelectItem value="settings">Settings</SelectItem>
                   <SelectItem value="auth">Authentication</SelectItem>
                   <SelectItem value="reports">Reports</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Architectural Component</Label>
+              <Select value={task.architectural_component || 'none'} onValueChange={(v) => handleUpdate({ architectural_component: v === 'none' ? null : v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="No architectural component" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No architectural component</SelectItem>
                   <SelectItem value="frontend">Frontend</SelectItem>
                   <SelectItem value="backend">Backend</SelectItem>
                   <SelectItem value="database">Database</SelectItem>

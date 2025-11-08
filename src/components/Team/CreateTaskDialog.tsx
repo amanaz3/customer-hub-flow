@@ -61,6 +61,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     category: '',
     mission: '',
     story: '',
+    architectural_component: '',
   });
 
   useEffect(() => {
@@ -108,6 +109,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         category: formData.category || null,
         mission: formData.mission || null,
         story: formData.story || null,
+        architectural_component: formData.architectural_component || null,
         created_by: user.id,
       }]);
 
@@ -128,6 +130,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         category: '',
         mission: '',
         story: '',
+        architectural_component: '',
       });
     } catch (error) {
       console.error('Error creating task:', error);
@@ -193,6 +196,17 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 <SelectItem value="settings">Settings</SelectItem>
                 <SelectItem value="auth">Authentication</SelectItem>
                 <SelectItem value="reports">Reports</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="architectural_component">Architectural Component</Label>
+            <Select value={formData.architectural_component} onValueChange={(v) => setFormData({ ...formData, architectural_component: v })}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select architectural component..." />
+              </SelectTrigger>
+              <SelectContent>
                 <SelectItem value="frontend">Frontend</SelectItem>
                 <SelectItem value="backend">Backend</SelectItem>
                 <SelectItem value="database">Database</SelectItem>

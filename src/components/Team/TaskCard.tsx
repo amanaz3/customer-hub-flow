@@ -26,6 +26,7 @@ interface TaskCardProps {
     project_name?: string;
     module?: string | null;
     category?: string | null;
+    architectural_component?: string | null;
   };
   onClick: () => void;
 }
@@ -102,6 +103,12 @@ export const TaskCard: React.FC<TaskCardProps> = ({ task, onClick }) => {
                 {task.status.replace('_', ' ')}
               </span>
             </Badge>
+
+            {task.architectural_component && (
+              <Badge variant="default" className="text-xs">
+                {task.architectural_component.replace('_', ' ')}
+              </Badge>
+            )}
 
             {task.module && (
               <Badge variant="secondary" className="text-xs">

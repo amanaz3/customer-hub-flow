@@ -1450,6 +1450,7 @@ export type Database = {
       }
       tasks: {
         Row: {
+          architectural_component: string | null
           assigned_to: string | null
           category: string | null
           created_at: string
@@ -1468,6 +1469,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          architectural_component?: string | null
           assigned_to?: string | null
           category?: string | null
           created_at?: string
@@ -1486,6 +1488,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          architectural_component?: string | null
           assigned_to?: string | null
           category?: string | null
           created_at?: string
