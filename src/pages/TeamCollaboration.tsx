@@ -81,6 +81,8 @@ interface Application {
   customer_email?: string;
   priority?: string;
   comments?: CaseComment[];
+  recent_action?: RecentAction;
+  next_step?: string;
 }
 
 interface CaseComment {
@@ -88,6 +90,13 @@ interface CaseComment {
   text: string;
   created_by: string;
   created_by_name: string;
+  created_at: string;
+}
+
+interface RecentAction {
+  changed_by_name: string;
+  previous_status: string;
+  new_status: string;
   created_at: string;
 }
 
@@ -199,7 +208,7 @@ const TeamCollaboration: React.FC = () => {
       if (membersError) throw membersError;
       setTeamMembers(members || []);
 
-      // Fetch all applications
+      // Fetch all applications with recent status changes
       const { data: applicationsData, error: casesError } = await supabase
         .from('account_applications')
         .select(`
@@ -213,6 +222,41 @@ const TeamCollaboration: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (casesError) throw casesError;
+
+      // Fetch recent status changes for all applications
+      const customerIds = applicationsData?.map((app: any) => app.customer_id).filter(Boolean) || [];
+      let statusChangesData: any[] = [];
+      
+      if (customerIds.length > 0) {
+        const { data: statusData, error: statusError } = await supabase
+          .from('status_changes')
+          .select(`
+            customer_id,
+            previous_status,
+            new_status,
+            created_at,
+            profiles!status_changes_changed_by_fkey (name)
+          `)
+          .in('customer_id', customerIds)
+          .order('created_at', { ascending: false });
+
+        if (!statusError && statusData) {
+          statusChangesData = statusData;
+        }
+      }
+
+      // Create a map of customer_id to most recent status change
+      const recentActionsMap = new Map<string, RecentAction>();
+      statusChangesData.forEach((change: any) => {
+        if (!recentActionsMap.has(change.customer_id)) {
+          recentActionsMap.set(change.customer_id, {
+            changed_by_name: change.profiles?.name || 'Unknown',
+            previous_status: change.previous_status,
+            new_status: change.new_status,
+            created_at: change.created_at,
+          });
+        }
+      });
       
       const applicationsWithCustomer: Application[] = (applicationsData || []).map((app: any) => ({
         ...app,
@@ -221,6 +265,8 @@ const TeamCollaboration: React.FC = () => {
         customer_email: app.customers?.email,
         priority: casePriorities[app.id] || 'medium',
         comments: caseComments[app.id] || [],
+        recent_action: recentActionsMap.get(app.customer_id),
+        next_step: getNextStep(app.status),
       }));
       
       setApplications(applicationsWithCustomer);
@@ -361,6 +407,21 @@ const TeamCollaboration: React.FC = () => {
     setNewComment('');
     setCommentDialogOpen(false);
     toast.success('Comment added');
+  };
+
+  const getNextStep = (status: string): string => {
+    const nextSteps: Record<string, string> = {
+      'draft': 'Complete application form',
+      'pending': 'Review and validate information',
+      'in_review': 'Assess compliance requirements',
+      'waiting_for_documents': 'Upload required documents',
+      'waiting_for_information': 'Provide additional information',
+      'blocked': 'Resolve blocking issues',
+      'approved': 'Proceed with implementation',
+      'complete': 'Case closed successfully',
+      'rejected': 'Review rejection reasons',
+    };
+    return nextSteps[status] || 'Update case status';
   };
 
   const taskStats = {
@@ -757,6 +818,30 @@ const TeamCollaboration: React.FC = () => {
                         <p className="text-xs text-muted-foreground mt-1">
                           Created {formatDate(app.created_at)}
                         </p>
+                        
+                        {/* Recent Action */}
+                        {app.recent_action && (
+                          <div className="mt-2 p-2 rounded-md bg-muted/30 border border-border/50">
+                            <p className="text-xs font-medium text-foreground mb-1">Recent Action:</p>
+                            <p className="text-xs text-muted-foreground">
+                              {app.recent_action.changed_by_name} changed status from{' '}
+                              <span className="font-medium">{app.recent_action.previous_status}</span> to{' '}
+                              <span className="font-medium">{app.recent_action.new_status}</span>
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {formatDate(app.recent_action.created_at)}
+                            </p>
+                          </div>
+                        )}
+                        
+                        {/* Next Steps */}
+                        {app.next_step && (
+                          <div className="mt-2 p-2 rounded-md bg-primary/5 border border-primary/20">
+                            <p className="text-xs font-medium text-primary mb-1">Next Step:</p>
+                            <p className="text-xs text-foreground">{app.next_step}</p>
+                          </div>
+                        )}
+                        
                         {app.comments && app.comments.length > 0 && (
                           <div className="mt-2 text-xs text-muted-foreground">
                             {app.comments.length} comment{app.comments.length !== 1 ? 's' : ''}
