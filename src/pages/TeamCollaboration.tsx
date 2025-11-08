@@ -96,6 +96,8 @@ const TeamCollaboration: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [priorityFilter, setPriorityFilter] = useState<string>('all');
   const [selectedProjectId, setSelectedProjectId] = useState<string | undefined>();
+  const [caseStatusFilter, setCaseStatusFilter] = useState<string>('active');
+  const [caseSearchQuery, setCaseSearchQuery] = useState('');
 
   useEffect(() => {
     fetchTeamData();
@@ -180,7 +182,7 @@ const TeamCollaboration: React.FC = () => {
       if (membersError) throw membersError;
       setTeamMembers(members || []);
 
-      // Fetch active cases count (uncompleted and unpaid applications)
+      // Fetch all applications
       const { data: applicationsData, error: casesError } = await supabase
         .from('account_applications')
         .select(`
@@ -191,7 +193,6 @@ const TeamCollaboration: React.FC = () => {
             email
           )
         `)
-        .not('status', 'in', '("complete","rejected")')
         .order('created_at', { ascending: false });
 
       if (casesError) throw casesError;
@@ -204,7 +205,9 @@ const TeamCollaboration: React.FC = () => {
       }));
       
       setApplications(applicationsWithCustomer);
-      setActiveCasesCount(applicationsWithCustomer.length);
+      setActiveCasesCount(applicationsWithCustomer.filter(app => 
+        !['complete', 'rejected'].includes(app.status)
+      ).length);
 
       // Fetch recent activity (status changes with user info)
       const { data: statusChanges, error: activityError } = await supabase
@@ -290,6 +293,26 @@ const TeamCollaboration: React.FC = () => {
     const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
     const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
     return matchesSearch && matchesStatus && matchesPriority;
+  });
+
+  const filteredApplications = applications.filter((app) => {
+    const matchesSearch = 
+      caseSearchQuery === '' ||
+      app.reference_number.toString().includes(caseSearchQuery) ||
+      app.customer_name?.toLowerCase().includes(caseSearchQuery.toLowerCase()) ||
+      app.customer_company?.toLowerCase().includes(caseSearchQuery.toLowerCase()) ||
+      app.customer_email?.toLowerCase().includes(caseSearchQuery.toLowerCase());
+    
+    let matchesStatus = true;
+    if (caseStatusFilter === 'active') {
+      matchesStatus = !['complete', 'rejected'].includes(app.status);
+    } else if (caseStatusFilter === 'all') {
+      matchesStatus = true;
+    } else {
+      matchesStatus = app.status === caseStatusFilter;
+    }
+    
+    return matchesSearch && matchesStatus;
   });
 
   const taskStats = {
@@ -594,18 +617,52 @@ const TeamCollaboration: React.FC = () => {
         <TabsContent value="cases" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Active Cases</CardTitle>
+              <CardTitle>Cases Management</CardTitle>
               <CardDescription>
-                Applications currently in progress
+                View and filter all application cases
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Filters */}
+              <div className="flex gap-3 mb-6">
+                <div className="flex-1 relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search by reference, customer name, email..."
+                    value={caseSearchQuery}
+                    onChange={(e) => setCaseSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
+                </div>
+                <Select value={caseStatusFilter} onValueChange={setCaseStatusFilter}>
+                  <SelectTrigger className="w-48">
+                    <SelectValue placeholder="Filter by status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Cases</SelectItem>
+                    <SelectItem value="active">Active Only</SelectItem>
+                    <SelectItem value="draft">Draft</SelectItem>
+                    <SelectItem value="pending">Pending</SelectItem>
+                    <SelectItem value="in_review">In Review</SelectItem>
+                    <SelectItem value="waiting_for_documents">Waiting for Documents</SelectItem>
+                    <SelectItem value="waiting_for_information">Waiting for Information</SelectItem>
+                    <SelectItem value="blocked">Blocked</SelectItem>
+                    <SelectItem value="approved">Approved</SelectItem>
+                    <SelectItem value="complete">Complete</SelectItem>
+                    <SelectItem value="rejected">Rejected</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
               <div className="space-y-2">
-                {applications.map((app) => {
+                {filteredApplications.map((app) => {
                   const statusBadgeColor = {
                     draft: 'bg-gray-500/10 text-gray-500',
                     pending: 'bg-yellow-500/10 text-yellow-500',
                     in_review: 'bg-blue-500/10 text-blue-500',
+                    waiting_for_documents: 'bg-orange-500/10 text-orange-500',
+                    waiting_for_information: 'bg-orange-500/10 text-orange-500',
+                    blocked: 'bg-red-500/10 text-red-500',
                     approved: 'bg-green-500/10 text-green-500',
                     complete: 'bg-green-500/10 text-green-500',
                     rejected: 'bg-red-500/10 text-red-500',
@@ -643,9 +700,11 @@ const TeamCollaboration: React.FC = () => {
                     </div>
                   );
                 })}
-                {applications.length === 0 && (
+                {filteredApplications.length === 0 && (
                   <div className="text-center py-12 text-muted-foreground">
-                    No active cases
+                    {caseSearchQuery || caseStatusFilter !== 'active'
+                      ? 'No cases match your filters'
+                      : 'No cases found'}
                   </div>
                 )}
               </div>
