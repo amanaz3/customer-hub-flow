@@ -2,9 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -14,12 +11,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo } from 'lucide-react';
+import { Plus, Search, ListTodo } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
+import { SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { CreateTaskDialog } from '@/components/Team/CreateTaskDialog';
 import { TaskCard } from '@/components/Team/TaskCard';
 import { TaskDetailDialog } from '@/components/Team/TaskDetailDialog';
+import { TeamSidebar } from '@/components/Team/TeamSidebar';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 
 interface TeamMember {
@@ -158,30 +157,6 @@ const TeamCollaboration: React.FC = () => {
     }
   };
 
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
-
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString();
-  };
-
   // Count unique users active today
   const getActiveToday = () => {
     const today = new Date();
@@ -212,282 +187,168 @@ const TeamCollaboration: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto py-6 space-y-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <Skeleton className="h-8 w-64 mb-2" />
-            <Skeleton className="h-4 w-96" />
+      <SidebarProvider>
+        <div className="flex min-h-screen w-full">
+          <TeamSidebar teamMembers={[]} recentActivity={[]} activeToday={0} />
+          <div className="flex-1">
+            <header className="h-14 border-b flex items-center px-6">
+              <SidebarTrigger />
+              <h1 className="text-xl font-bold ml-4">Team Collaboration</h1>
+            </header>
+            <div className="container mx-auto py-6 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                {[1, 2, 3, 4].map((i) => (
+                  <Card key={i}>
+                    <CardHeader>
+                      <Skeleton className="h-6 w-32" />
+                    </CardHeader>
+                    <CardContent>
+                      <Skeleton className="h-24" />
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map((i) => (
-            <Card key={i}>
-              <CardHeader>
-                <Skeleton className="h-6 w-32" />
-              </CardHeader>
-              <CardContent>
-                <Skeleton className="h-24" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+      </SidebarProvider>
     );
   }
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Team Collaboration</h1>
-          <p className="text-muted-foreground mt-1">
-            View team members and recent activity
-          </p>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full">
+        <TeamSidebar
+          teamMembers={teamMembers}
+          recentActivity={recentActivity}
+          activeToday={getActiveToday()}
+        />
+        
+        <div className="flex-1 flex flex-col">
+          <header className="h-14 border-b flex items-center px-6 bg-background">
+            <SidebarTrigger />
+            <h1 className="text-xl font-bold ml-4">Team Collaboration</h1>
+          </header>
+
+          <main className="flex-1 overflow-auto">
+            <div className="container mx-auto py-6 space-y-6">
+              <Card>
+                <CardHeader>
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <ListTodo className="h-5 w-5" />
+                        Team Tasks ({taskStats.total})
+                      </CardTitle>
+                      <CardDescription>
+                        Track and manage team work
+                      </CardDescription>
+                    </div>
+                    <Button onClick={() => setCreateTaskOpen(true)}>
+                      <Plus className="h-4 w-4 mr-2" />
+                      New Task
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {/* Filters */}
+                  <div className="flex gap-3 mb-6">
+                    <div className="flex-1 relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Search tasks..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9"
+                      />
+                    </div>
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="todo">To Do</SelectItem>
+                        <SelectItem value="in_progress">In Progress</SelectItem>
+                        <SelectItem value="in_review">In Review</SelectItem>
+                        <SelectItem value="done">Done</SelectItem>
+                        <SelectItem value="blocked">Blocked</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Priority" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Priority</SelectItem>
+                        <SelectItem value="critical">Critical</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Task Stats */}
+                  <div className="grid grid-cols-4 gap-4 mb-6">
+                    <div className="p-3 rounded-lg border bg-card">
+                      <div className="text-2xl font-bold">{taskStats.todo}</div>
+                      <div className="text-xs text-muted-foreground">To Do</div>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-card">
+                      <div className="text-2xl font-bold">{taskStats.in_progress}</div>
+                      <div className="text-xs text-muted-foreground">In Progress</div>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-card">
+                      <div className="text-2xl font-bold">{taskStats.done}</div>
+                      <div className="text-xs text-muted-foreground">Done</div>
+                    </div>
+                    <div className="p-3 rounded-lg border bg-card">
+                      <div className="text-2xl font-bold">{taskStats.total}</div>
+                      <div className="text-xs text-muted-foreground">Total</div>
+                    </div>
+                  </div>
+
+                  {/* Tasks List */}
+                  <div className="space-y-2">
+                    {filteredTasks.map((task) => (
+                      <TaskCard
+                        key={task.id}
+                        task={task}
+                        onClick={() => {
+                          setSelectedTaskId(task.id);
+                          setTaskDetailOpen(true);
+                        }}
+                      />
+                    ))}
+                    {filteredTasks.length === 0 && (
+                      <div className="text-center py-12 text-muted-foreground">
+                        {searchQuery || statusFilter !== 'all' || priorityFilter !== 'all'
+                          ? 'No tasks match your filters'
+                          : 'No tasks yet. Create your first task!'}
+                      </div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </main>
+
+          {/* Dialogs */}
+          <CreateTaskDialog
+            open={createTaskOpen}
+            onOpenChange={setCreateTaskOpen}
+            onTaskCreated={fetchTasks}
+          />
+          <TaskDetailDialog
+            taskId={selectedTaskId}
+            open={taskDetailOpen}
+            onOpenChange={setTaskDetailOpen}
+            onTaskUpdated={fetchTasks}
+          />
         </div>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Members</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{teamMembers.length}</div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active Today</CardTitle>
-            <Activity className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{getActiveToday()}</div>
-            <p className="text-xs text-muted-foreground mt-1">
-              {recentActivity.filter(a => new Date(a.created_at) >= new Date(new Date().setHours(0, 0, 0, 0))).length} actions
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Admins</CardTitle>
-            <Users className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              {teamMembers.filter((m) => m.role === 'admin').length}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="tasks" className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="tasks">
-            <ListTodo className="h-4 w-4 mr-2" />
-            Tasks ({taskStats.total})
-          </TabsTrigger>
-          <TabsTrigger value="members">Team Members</TabsTrigger>
-          <TabsTrigger value="activity">Recent Activity</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="tasks" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Team Tasks</CardTitle>
-                  <CardDescription>
-                    Track and manage team work
-                  </CardDescription>
-                </div>
-                <Button onClick={() => setCreateTaskOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Task
-                </Button>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {/* Filters */}
-              <div className="flex gap-3 mb-6">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search tasks..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="todo">To Do</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
-                    <SelectItem value="in_review">In Review</SelectItem>
-                    <SelectItem value="done">Done</SelectItem>
-                    <SelectItem value="blocked">Blocked</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Priority" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Priority</SelectItem>
-                    <SelectItem value="critical">Critical</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="low">Low</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              {/* Task Stats */}
-              <div className="grid grid-cols-4 gap-4 mb-6">
-                <div className="p-3 rounded-lg border bg-card">
-                  <div className="text-2xl font-bold">{taskStats.todo}</div>
-                  <div className="text-xs text-muted-foreground">To Do</div>
-                </div>
-                <div className="p-3 rounded-lg border bg-card">
-                  <div className="text-2xl font-bold">{taskStats.in_progress}</div>
-                  <div className="text-xs text-muted-foreground">In Progress</div>
-                </div>
-                <div className="p-3 rounded-lg border bg-card">
-                  <div className="text-2xl font-bold">{taskStats.done}</div>
-                  <div className="text-xs text-muted-foreground">Done</div>
-                </div>
-                <div className="p-3 rounded-lg border bg-card">
-                  <div className="text-2xl font-bold">{taskStats.total}</div>
-                  <div className="text-xs text-muted-foreground">Total</div>
-                </div>
-              </div>
-
-              {/* Tasks List */}
-              <div className="space-y-2">
-                {filteredTasks.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    onClick={() => {
-                      setSelectedTaskId(task.id);
-                      setTaskDetailOpen(true);
-                    }}
-                  />
-                ))}
-                {filteredTasks.length === 0 && (
-                  <div className="text-center py-12 text-muted-foreground">
-                    {searchQuery || statusFilter !== 'all' || priorityFilter !== 'all'
-                      ? 'No tasks match your filters'
-                      : 'No tasks yet. Create your first task!'}
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="members" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Team Members</CardTitle>
-              <CardDescription>
-                All active team members in your organization
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {teamMembers.map((member) => (
-                  <div
-                    key={member.id}
-                    className="flex items-center justify-between p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-                  >
-                    <div className="flex items-center gap-4">
-                      <Avatar className="h-10 w-10">
-                        <AvatarFallback className="bg-primary text-primary-foreground">
-                          {getInitials(member.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="font-medium text-foreground">{member.name}</p>
-                        <p className="text-sm text-muted-foreground">{member.email}</p>
-                      </div>
-                    </div>
-                    <Badge variant={member.role === 'admin' ? 'default' : 'secondary'}>
-                      {member.role}
-                    </Badge>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="activity" className="space-y-4">
-          <Card>
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>
-                Latest actions from team members
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                {recentActivity.map((activity) => (
-                  <div
-                    key={activity.id}
-                    className="flex items-start gap-4 p-4 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
-                  >
-                    <div className="p-2 rounded-lg bg-primary/10">
-                      {activity.type === 'status_change' && (
-                        <FileText className="h-4 w-4 text-primary" />
-                      )}
-                      {activity.type === 'comment' && (
-                        <MessageSquare className="h-4 w-4 text-primary" />
-                      )}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground">
-                        {activity.user_name}
-                      </p>
-                      <p className="text-sm text-muted-foreground">
-                        {activity.description}
-                      </p>
-                      <p className="text-xs text-muted-foreground mt-1">
-                        {formatDate(activity.created_at)}
-                      </p>
-                    </div>
-                  </div>
-                ))}
-                {recentActivity.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground">
-                    No recent activity
-                  </div>
-                )}
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
-
-      {/* Dialogs */}
-      <CreateTaskDialog
-        open={createTaskOpen}
-        onOpenChange={setCreateTaskOpen}
-        onTaskCreated={fetchTasks}
-      />
-      <TaskDetailDialog
-        taskId={selectedTaskId}
-        open={taskDetailOpen}
-        onOpenChange={setTaskDetailOpen}
-        onTaskUpdated={fetchTasks}
-      />
-    </div>
+    </SidebarProvider>
   );
 };
 
