@@ -35,6 +35,32 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
   // Generate unique notification ID
   const generateNotificationId = () => `notif_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
 
+  // Helper function to extract status type from notification
+  const getStatusTypeFromNotification = (notification: Omit<Notification, 'id' | 'isRead' | 'createdAt'>): string | undefined => {
+    const title = notification.title.toLowerCase();
+    const message = notification.message.toLowerCase();
+    
+    // Extract status from common patterns
+    if (title.includes('draft')) return 'draft';
+    if (title.includes('submitted')) return 'submitted';
+    if (title.includes('under review') || title.includes('review')) return 'under_review';
+    if (title.includes('approved')) return 'approved';
+    if (title.includes('rejected')) return 'rejected';
+    if (title.includes('complete')) return 'complete';
+    if (title.includes('pending')) return 'pending';
+    
+    // Check message for status keywords
+    if (message.includes('draft')) return 'draft';
+    if (message.includes('submitted')) return 'submitted';
+    if (message.includes('under review') || message.includes('review')) return 'under_review';
+    if (message.includes('approved')) return 'approved';
+    if (message.includes('rejected')) return 'rejected';
+    if (message.includes('complete')) return 'complete';
+    if (message.includes('pending')) return 'pending';
+    
+    return undefined;
+  };
+
   const addNotification = useCallback(async (notification: Omit<Notification, 'id' | 'isRead' | 'createdAt'>) => {
     const newNotification: Notification = {
       ...notification,
@@ -96,6 +122,9 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
           if (recipientEmail) {
             console.log('[Email Notification] Sending email to:', recipientEmail);
+            const statusType = getStatusTypeFromNotification(notification);
+            console.log('[Email Notification] Extracted status type:', statusType);
+            
             const emailResult = await sendNotificationEmail({
               recipientEmail,
               recipientName,
@@ -104,6 +133,8 @@ export const NotificationProvider: React.FC<{ children: React.ReactNode }> = ({ 
               type: notificationType,
               actionUrl: notification.actionUrl ? `${window.location.origin}${notification.actionUrl}` : undefined,
               customerName: notification.customerName,
+              userId: user.id,
+              statusType: statusType,
             });
             console.log('[Email Notification] Email send result:', emailResult);
           } else {

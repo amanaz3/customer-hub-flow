@@ -8,6 +8,8 @@ export interface EmailNotificationData {
   type: string;
   actionUrl?: string;
   customerName?: string;
+  userId?: string;
+  statusType?: string;
 }
 
 export interface NotificationPreferences {
