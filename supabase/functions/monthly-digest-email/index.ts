@@ -215,7 +215,7 @@ async function sendDigestEmail(data: DigestData) {
 
   try {
     const result = await resend.emails.send({
-      from: "Amana Corporate <info@amanacorporate.com>",
+      from: "Amana Corporate <noreply@amanacorporate.com>",
       to: [data.email],
       subject: `📊 Daily Progress: ${data.status === "exceeded" ? "🎉" : data.status === "at risk" ? "⚠️" : "✅"} ${data.currentApplications}/${data.targetApplications} Applications`,
       html,
