@@ -35,6 +35,20 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Only admins can change status to "completed"
+    if (newStatus.toLowerCase() === 'completed' && changedByRole !== 'admin') {
+      console.error('Non-admin attempted to change status to completed');
+      return new Response(
+        JSON.stringify({ 
+          error: 'Only administrators can change status to completed'
+        }),
+        { 
+          status: 403,
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      );
+    }
+
     // Get current application to check previous status
     const { data: currentApplication, error: fetchError } = await supabase
       .from('account_applications')

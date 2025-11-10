@@ -157,7 +157,7 @@ const ApplicationDetail = () => {
     { value: 'Approved', label: 'Approved' },
     { value: 'Rejected', label: 'Rejected' },
     { value: 'Paid', label: 'Paid' },
-    { value: 'Completed', label: 'Completed' },
+    ...(isAdmin ? [{ value: 'Completed', label: 'Completed' }] : []),
   ];
 
   return (

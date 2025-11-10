@@ -96,6 +96,11 @@ serve(async (req) => {
       throw new Error(`Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}`);
     }
 
+    // Only admins can change status to "completed"
+    if (newStatus.toLowerCase() === 'completed' && !isAdmin) {
+      throw new Error('Only administrators can change status to completed');
+    }
+
     const result: BulkUpdateResult = {
       successCount: 0,
       failureCount: 0,
