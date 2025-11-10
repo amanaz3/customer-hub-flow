@@ -40,14 +40,18 @@ const ApplicationDetail = () => {
 
         // If application is completed, fetch the system completion time from status_changes
         if (data?.status.toLowerCase() === 'completed') {
-          const { data: statusChange } = await supabase
+          const { data: statusChange, error: statusError } = await supabase
             .from('status_changes')
             .select('created_at')
             .eq('customer_id', data.customer_id)
             .ilike('new_status', 'completed')
             .order('created_at', { ascending: false })
             .limit(1)
-            .single();
+            .maybeSingle();
+          
+          if (statusError) {
+            console.error('Error fetching status change:', statusError);
+          }
           
           setSystemCompletedTime(statusChange?.created_at || null);
         }
