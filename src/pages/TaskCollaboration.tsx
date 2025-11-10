@@ -438,7 +438,9 @@ const TaskCollaboration: React.FC = () => {
   const filteredTasks = tasks.filter((task) => {
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
-    const matchesPriority = priorityFilter === 'all' || task.priority === priorityFilter;
+    const matchesPriority = priorityFilter === 'all' || 
+                            task.priority === priorityFilter ||
+                            (priorityFilter === 'medium-high' && (task.priority === 'medium' || task.priority === 'high'));
     return matchesSearch && matchesStatus && matchesPriority;
   });
 
@@ -910,6 +912,7 @@ const TaskCollaboration: React.FC = () => {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">All Priority</SelectItem>
+                    <SelectItem value="medium-high">Medium & High</SelectItem>
                     <SelectItem value="critical">Critical</SelectItem>
                     <SelectItem value="high">High</SelectItem>
                     <SelectItem value="medium">Medium</SelectItem>
