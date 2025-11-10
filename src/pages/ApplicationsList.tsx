@@ -507,6 +507,13 @@ const ApplicationsList = () => {
               <Table>
                 <TableHeader className="sticky top-0 bg-muted backdrop-blur-sm z-10">
                   <TableRow className="hover:bg-transparent border-b-2">
+                    <TableHead className="h-10 px-3 py-2 w-12">
+                      <Checkbox
+                        checked={selection.isAllSelected}
+                        onCheckedChange={selection.toggleAll}
+                        aria-label="Select all"
+                      />
+                    </TableHead>
                     <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Ref #</TableHead>
                     <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Product/Service</TableHead>
                     <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Type</TableHead>
@@ -524,7 +531,7 @@ const ApplicationsList = () => {
                 <TableBody>
                   {filteredRejectedApplications.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={12} className="text-center py-12 text-muted-foreground">
+                      <TableCell colSpan={13} className="text-center py-12 text-muted-foreground">
                         <XCircle className="h-12 w-12 mx-auto mb-3 opacity-20 text-red-500" />
                         <p className="font-medium">No rejected applications</p>
                         <p className="text-xs mt-1">Rejected applications will appear here</p>
@@ -535,8 +542,22 @@ const ApplicationsList = () => {
                       <TableRow 
                         key={app.id}
                         className="hover:bg-muted/50 cursor-pointer transition-colors border-b"
-                        onClick={() => navigate(`/applications/${app.id}`)}
+                        onClick={(e) => {
+                          if (!(e.target as HTMLElement).closest('.checkbox-cell')) {
+                            navigate(`/applications/${app.id}`);
+                          }
+                        }}
                       >
+                        <TableCell 
+                          className="px-3 py-3 checkbox-cell"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Checkbox
+                            checked={selection.isSelected(app.id)}
+                            onCheckedChange={() => selection.toggleItem(app.id)}
+                            aria-label={`Select ${app.customer?.company}`}
+                          />
+                        </TableCell>
                         <TableCell className="px-3 py-3 font-mono font-bold text-sm text-primary">
                           {formatApplicationReferenceWithHash(app.reference_number)}
                         </TableCell>
