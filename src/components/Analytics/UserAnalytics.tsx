@@ -67,15 +67,15 @@ const UserAnalytics = () => {
       const userCustomers = customers.filter(customer => customer.user_id === user.id);
       
       const totalApplications = userCustomers.length;
-      const completedApplications = userCustomers.filter(c => c.status === 'Complete').length;
+      const completedApplications = userCustomers.filter(c => c.status === 'completed').length;
       const pendingApplications = userCustomers.filter(c => 
-        !['Complete', 'Paid', 'Rejected'].includes(c.status)
+        !['completed', 'paid', 'rejected'].includes(c.status)
       ).length;
-      const rejectedApplications = userCustomers.filter(c => c.status === 'Rejected').length;
-      const paidApplications = userCustomers.filter(c => c.status === 'Paid').length;
+      const rejectedApplications = userCustomers.filter(c => c.status === 'rejected').length;
+      const paidApplications = userCustomers.filter(c => c.status === 'paid').length;
       
       const totalRevenue = userCustomers
-        .filter(c => c.status === 'Complete' || c.status === 'Paid')
+        .filter(c => c.status === 'completed' || c.status === 'paid')
         .reduce((sum, c) => sum + c.amount, 0);
       
       const completionRate = totalApplications > 0 
