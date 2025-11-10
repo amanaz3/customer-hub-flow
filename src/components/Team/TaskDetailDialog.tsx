@@ -86,6 +86,7 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
   const [attachments, setAttachments] = useState<any[]>([]);
   const [showCloseWarning, setShowCloseWarning] = useState(false);
   const [lastSaved, setLastSaved] = useState<Date | null>(null);
+  const [saveTimeout, setSaveTimeout] = useState<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (taskId && open) {
@@ -185,13 +186,18 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
     }
   };
 
-  const handleSaveContent = async () => {
-    if (!task) return;
-    await handleUpdate({
-      description: task.description,
-      mission: task.mission,
-      story: task.story,
-    });
+  const debouncedSave = (updates: Partial<Task>) => {
+    setHasUnsavedChanges(true);
+    
+    if (saveTimeout) {
+      clearTimeout(saveTimeout);
+    }
+    
+    const timeout = setTimeout(async () => {
+      await handleUpdate(updates);
+    }, 1000);
+    
+    setSaveTimeout(timeout);
   };
 
   const handleAddComment = async () => {
@@ -249,11 +255,17 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
   };
 
   const handleCloseAttempt = (shouldOpen: boolean) => {
-    if (!shouldOpen && hasUnsavedChanges) {
-      setShowCloseWarning(true);
-    } else {
-      onOpenChange(shouldOpen);
+    if (!shouldOpen) {
+      // Clear any pending save timeout
+      if (saveTimeout) {
+        clearTimeout(saveTimeout);
+      }
+      if (hasUnsavedChanges) {
+        setShowCloseWarning(true);
+        return;
+      }
     }
+    onOpenChange(shouldOpen);
   };
 
   const handleForceClose = () => {
@@ -467,8 +479,9 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
             <Input
               value={task.mission || ''}
               onChange={(e) => {
-                setTask({ ...task, mission: e.target.value });
-                setHasUnsavedChanges(true);
+                const newValue = e.target.value;
+                setTask({ ...task, mission: newValue });
+                debouncedSave({ mission: newValue });
               }}
               placeholder="High-level goal or objective..."
             />
@@ -480,8 +493,9 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
             <Textarea
               value={task.story || ''}
               onChange={(e) => {
-                setTask({ ...task, story: e.target.value });
-                setHasUnsavedChanges(true);
+                const newValue = e.target.value;
+                setTask({ ...task, story: newValue });
+                debouncedSave({ story: newValue });
               }}
               placeholder="As a [user type], I want to [action] so that [benefit]..."
               rows={3}
@@ -494,24 +508,14 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
             <Textarea
               value={task.description || ''}
               onChange={(e) => {
-                setTask({ ...task, description: e.target.value });
-                setHasUnsavedChanges(true);
+                const newValue = e.target.value;
+                setTask({ ...task, description: newValue });
+                debouncedSave({ description: newValue });
               }}
               placeholder="Add a description..."
               rows={4}
             />
           </div>
-
-          {/* Save Button */}
-          {hasUnsavedChanges && (
-            <Button 
-              onClick={handleSaveContent} 
-              disabled={loading}
-              className="w-full"
-            >
-              {loading ? 'Saving...' : 'Save Changes'}
-            </Button>
-          )}
 
           <Separator />
 
