@@ -39,6 +39,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
   const [urlInput, setUrlInput] = useState('');
   const [urlTitle, setUrlTitle] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
+  const [recent, setRecent] = useState<TaskAttachment[]>([]);
   const handleAddUrl = async () => {
     if (!urlInput.trim() || !taskId) {
       toast.error('Please enter a valid URL');
@@ -47,18 +48,22 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      const { error } = await supabase.from('task_attachments').insert({
-        task_id: taskId,
-        attachment_type: 'url',
-        attachment_url: urlInput.trim(),
-        url_title: urlTitle.trim() || urlInput.trim(),
-        file_name: urlTitle.trim() || urlInput.trim(),
-        uploaded_by: user?.id,
-      });
+      const { data: inserted, error } = await supabase.from('task_attachments')
+        .insert({
+          task_id: taskId,
+          attachment_type: 'url',
+          attachment_url: urlInput.trim(),
+          url_title: urlTitle.trim() || urlInput.trim(),
+          file_name: urlTitle.trim() || urlInput.trim(),
+          uploaded_by: user?.id,
+        })
+        .select('*')
+        .single();
 
       if (error) throw error;
 
       toast.success('URL added successfully');
+      if (inserted) setRecent((prev) => [inserted as TaskAttachment, ...prev]);
       setUrlInput('');
       setUrlTitle('');
       setShowUrlDialog(false);
@@ -137,7 +142,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
           continue;
         }
         console.log('[TaskAttachments] Inserting DB record for attachment');
-        const { error: dbError } = await supabase
+        const { data: inserted, error: dbError } = await supabase
           .from('task_attachments')
           .insert({
             task_id: taskId,
@@ -147,7 +152,9 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
             file_size: file.size,
             file_type: file.type,
             uploaded_by: user.id,
-          });
+          })
+          .select('*')
+          .single();
 
         if (dbError) {
           console.error('Database error:', dbError);
@@ -156,6 +163,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
           toast.error(`Failed to save ${file.name}`);
           continue;
         }
+        if (inserted) setRecent((prev) => [inserted as TaskAttachment, ...prev]);
         
         uploadedCount++;
       }
@@ -274,7 +282,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
       <div className="flex items-center justify-between">
         <Label className="flex items-center gap-2">
           <Paperclip className="h-4 w-4" />
-          Attachments ({attachments.length})
+          Attachments ({(recent.length + attachments.length)})
         </Label>
         {allowUpload && taskId && (
           <div className="flex gap-2">
@@ -309,9 +317,9 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
         className="hidden"
       />
 
-      {attachments.length > 0 && (
+      {(recent.length + attachments.length) > 0 && (
         <div className="space-y-2">
-          {attachments.map((attachment) => {
+          {[...recent, ...attachments].map((attachment) => {
             const previewUrl = getAttachmentPreviewUrl(attachment);
             return (
               <div
