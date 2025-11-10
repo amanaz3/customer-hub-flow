@@ -15,7 +15,8 @@ const VALID_STATUSES = [
   'completed',
   'rejected',
   'under_review',
-  'approved'
+  'approved',
+  'need more info'
 ] as const;
 
 type ApplicationStatus = typeof VALID_STATUSES[number];
