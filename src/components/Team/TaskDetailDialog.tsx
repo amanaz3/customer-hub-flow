@@ -22,8 +22,18 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
-import { MessageSquare, Trash2 } from 'lucide-react';
+import { MessageSquare, Trash2, CheckCircle2, AlertCircle } from 'lucide-react';
 import { TaskAttachments } from './TaskAttachments';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface TaskDetailDialogProps {
   taskId: string | null;
@@ -74,6 +84,8 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
   const [projects, setProjects] = useState<any[]>([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [attachments, setAttachments] = useState<any[]>([]);
+  const [showCloseWarning, setShowCloseWarning] = useState(false);
+  const [lastSaved, setLastSaved] = useState<Date | null>(null);
 
   useEffect(() => {
     if (taskId && open) {
@@ -161,6 +173,7 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
 
       toast.success('Task saved');
       setHasUnsavedChanges(false);
+      setLastSaved(new Date());
       onTaskUpdated();
     } catch (error) {
       console.error('Error updating task:', error);
@@ -235,14 +248,43 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
     });
   };
 
+  const handleCloseAttempt = (shouldOpen: boolean) => {
+    if (!shouldOpen && hasUnsavedChanges) {
+      setShowCloseWarning(true);
+    } else {
+      onOpenChange(shouldOpen);
+    }
+  };
+
+  const handleForceClose = () => {
+    setHasUnsavedChanges(false);
+    setShowCloseWarning(false);
+    onOpenChange(false);
+  };
+
   if (!task) return null;
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <>
+      <Dialog open={open} onOpenChange={handleCloseAttempt}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <div className="flex items-center justify-between">
-            <DialogTitle>Task Details</DialogTitle>
+            <div className="flex items-center gap-3">
+              <DialogTitle>Task Details</DialogTitle>
+              {!hasUnsavedChanges && lastSaved && (
+                <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                  <CheckCircle2 className="h-3 w-3 text-green-600" />
+                  <span>All changes saved</span>
+                </div>
+              )}
+              {hasUnsavedChanges && (
+                <div className="flex items-center gap-1 text-xs text-amber-600">
+                  <AlertCircle className="h-3 w-3" />
+                  <span>Unsaved changes</span>
+                </div>
+              )}
+            </div>
             <Button variant="ghost" size="sm" onClick={handleDelete}>
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -530,6 +572,24 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
           </div>
         </div>
       </DialogContent>
-    </Dialog>
+      </Dialog>
+
+      <AlertDialog open={showCloseWarning} onOpenChange={setShowCloseWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Unsaved changes</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes. Are you sure you want to close without saving?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Continue editing</AlertDialogCancel>
+            <AlertDialogAction onClick={handleForceClose} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Discard changes
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
