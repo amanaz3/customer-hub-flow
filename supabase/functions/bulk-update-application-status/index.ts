@@ -204,12 +204,16 @@ serve(async (req) => {
             ? 'error'
             : 'info';
 
+        let adminProfiles = null;
+
         // If user made the change, notify admins
         if (!isAdmin) {
-          const { data: adminProfiles } = await supabase
+          const { data: profiles } = await supabase
             .from('profiles')
             .select('id')
             .eq('role', 'admin');
+
+          adminProfiles = profiles;
 
           if (adminProfiles && adminProfiles.length > 0) {
             const adminNotifications = adminProfiles.map(admin => ({
@@ -241,18 +245,53 @@ serve(async (req) => {
           });
         }
 
-        // Send email notification
+        // Send email notifications
         try {
-          await supabase.functions.invoke('send-notification-email', {
-            body: {
-              to: application.customer?.email,
-              subject: `Application Status Update - ${newStatus}`,
-              customerName: application.customer?.name,
-              status: newStatus,
-              comment: comment || '',
-              applicationId: applicationId,
-            },
-          });
+          // If user made the change, notify admins via email
+          if (!isAdmin && adminProfiles && adminProfiles.length > 0) {
+            for (const admin of adminProfiles) {
+              const { data: adminProfile } = await supabase
+                .from('profiles')
+                .select('email')
+                .eq('id', admin.id)
+                .single();
+
+              if (adminProfile?.email) {
+                await supabase.functions.invoke('send-notification-email', {
+                  body: {
+                    to: adminProfile.email,
+                    subject: `User Updated Application Status - ${newStatus}`,
+                    customerName: application.customer?.name,
+                    status: newStatus,
+                    comment: comment || '',
+                    applicationId: applicationId,
+                  },
+                });
+              }
+            }
+          }
+
+          // If admin made the change, notify assigned user via email
+          if (isAdmin && application.customer?.user_id && application.customer.user_id !== user.id) {
+            const { data: userProfile } = await supabase
+              .from('profiles')
+              .select('email')
+              .eq('id', application.customer.user_id)
+              .single();
+
+            if (userProfile?.email) {
+              await supabase.functions.invoke('send-notification-email', {
+                body: {
+                  to: userProfile.email,
+                  subject: `Application Status Updated - ${newStatus}`,
+                  customerName: application.customer?.name,
+                  status: newStatus,
+                  comment: comment || '',
+                  applicationId: applicationId,
+                },
+              });
+            }
+          }
         } catch (emailError) {
           console.error('Failed to send email notification:', emailError);
           // Don't fail the entire operation if email fails
