@@ -29,7 +29,7 @@ export const APPLICATION_STATUS_TRANSITIONS: ApplicationStatusTransition[] = [
   {
     from: 'returned',
     to: ['submitted'],
-    requiresAdmin: false,
+    requiresAdmin: true,
   },
   {
     from: 'paid',
