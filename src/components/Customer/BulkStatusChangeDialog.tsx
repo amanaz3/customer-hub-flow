@@ -55,6 +55,7 @@ export const BulkStatusChangeDialog: React.FC<BulkStatusChangeDialogProps> = ({
     paid: 'bg-green-600',
     completed: 'bg-purple-500',
     rejected: 'bg-red-500',
+    'need more info': 'bg-amber-500',
     under_review: 'bg-orange-500',
     approved: 'bg-green-500',
   };
@@ -66,6 +67,7 @@ export const BulkStatusChangeDialog: React.FC<BulkStatusChangeDialogProps> = ({
     paid: 'Paid',
     completed: 'Completed',
     rejected: 'Rejected',
+    'need more info': 'Need More Info',
     under_review: 'Under Review',
     approved: 'Approved',
   };
