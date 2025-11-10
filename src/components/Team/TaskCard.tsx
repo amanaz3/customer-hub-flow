@@ -181,6 +181,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         </div>
 
         <div className="flex items-center gap-2 flex-shrink-0">
+          {attachments.length > 0 && (
+            <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-muted text-muted-foreground">
+              <Paperclip className="h-3 w-3" />
+              <span className="text-xs font-medium">{attachments.length}</span>
+            </div>
+          )}
+          
           {task.assigned_to && task.assignee_name && (
             <Avatar className="h-6 w-6">
               <AvatarFallback className="bg-primary text-primary-foreground text-xs">
