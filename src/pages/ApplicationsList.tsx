@@ -326,15 +326,13 @@ const ApplicationsList = () => {
               <Table>
                 <TableHeader className="sticky top-0 bg-muted backdrop-blur-sm z-10">
                   <TableRow className="hover:bg-transparent border-b-2">
-                    {isAdmin && (
-                      <TableHead className="h-10 px-3 py-2 w-12">
-                        <Checkbox
-                          checked={selection.isAllSelected}
-                          onCheckedChange={selection.toggleAll}
-                          aria-label="Select all"
-                        />
-                      </TableHead>
-                    )}
+                    <TableHead className="h-10 px-3 py-2 w-12">
+                      <Checkbox
+                        checked={selection.isAllSelected}
+                        onCheckedChange={selection.toggleAll}
+                        aria-label="Select all"
+                      />
+                    </TableHead>
                     <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Ref #</TableHead>
                     <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Product/Service</TableHead>
                     <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Type</TableHead>
@@ -352,7 +350,7 @@ const ApplicationsList = () => {
                 <TableBody>
                   {filteredActiveApplications.length === 0 ? (
                     <TableRow>
-                      <TableCell colSpan={isAdmin ? 13 : 12} className="text-center py-12 text-muted-foreground">
+                      <TableCell colSpan={13} className="text-center py-12 text-muted-foreground">
                         <FileText className="h-12 w-12 mx-auto mb-3 opacity-20" />
                         <p className="font-medium">No applications found</p>
                         <p className="text-xs mt-1">Try adjusting your filters</p>
@@ -369,18 +367,16 @@ const ApplicationsList = () => {
                           }
                         }}
                       >
-                        {isAdmin && (
-                          <TableCell 
-                            className="px-3 py-3 checkbox-cell"
-                            onClick={(e) => e.stopPropagation()}
-                          >
-                            <Checkbox
-                              checked={selection.isSelected(app.id)}
-                              onCheckedChange={() => selection.toggleItem(app.id)}
-                              aria-label={`Select ${app.customer?.company}`}
-                            />
-                          </TableCell>
-                        )}
+                        <TableCell 
+                          className="px-3 py-3 checkbox-cell"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Checkbox
+                            checked={selection.isSelected(app.id)}
+                            onCheckedChange={() => selection.toggleItem(app.id)}
+                            aria-label={`Select ${app.customer?.company}`}
+                          />
+                        </TableCell>
                         <TableCell className="px-3 py-3 font-mono font-bold text-sm text-primary">
                           {formatApplicationReferenceWithHash(app.reference_number)}
                         </TableCell>
@@ -611,31 +607,27 @@ const ApplicationsList = () => {
         </TabsContent>
       </Tabs>
 
-      {/* Bulk Actions Toolbar for Admins */}
-      {isAdmin && (
-        <>
-          <BulkActionsToolbar
-            selectedCount={selection.selectedCount}
-            isVisible={selection.selectedCount > 0}
-            onClearSelection={selection.clearSelection}
-            onRejectSelected={() => openBulkStatusDialog('rejected')}
-            onApproveSelected={() => openBulkStatusDialog('approved')}
-            onMarkAsPaidSelected={() => openBulkStatusDialog('paid')}
-            isLoading={isUpdating}
-            mode="applications"
-          />
+      {/* Bulk Actions Toolbar */}
+      <BulkActionsToolbar
+        selectedCount={selection.selectedCount}
+        isVisible={selection.selectedCount > 0}
+        onClearSelection={selection.clearSelection}
+        onRejectSelected={() => openBulkStatusDialog('rejected')}
+        onApproveSelected={() => openBulkStatusDialog('approved')}
+        onMarkAsPaidSelected={() => openBulkStatusDialog('paid')}
+        isLoading={isUpdating}
+        mode="applications"
+      />
 
-          {/* Bulk Status Change Dialog */}
-          {bulkStatusDialog.status && (
-            <BulkStatusChangeDialog
-              isOpen={bulkStatusDialog.isOpen}
-              onClose={() => setBulkStatusDialog({ isOpen: false, status: null })}
-              selectedApplications={selection.getSelectedItems()}
-              newStatus={bulkStatusDialog.status}
-              onConfirm={handleBulkStatusChange}
-            />
-          )}
-        </>
+      {/* Bulk Status Change Dialog */}
+      {bulkStatusDialog.status && (
+        <BulkStatusChangeDialog
+          isOpen={bulkStatusDialog.isOpen}
+          onClose={() => setBulkStatusDialog({ isOpen: false, status: null })}
+          selectedApplications={selection.getSelectedItems()}
+          newStatus={bulkStatusDialog.status}
+          onConfirm={handleBulkStatusChange}
+        />
       )}
     </div>
   );

@@ -50,9 +50,7 @@ serve(async (req) => {
       .eq('id', user.id)
       .single();
 
-    if (profile?.role !== 'admin') {
-      throw new Error('Only admins can perform bulk status updates');
-    }
+    const isAdmin = profile?.role === 'admin';
 
     const { applicationIds, newStatus, comment, changedBy }: BulkUpdateRequest = await req.json();
 
@@ -97,6 +95,13 @@ serve(async (req) => {
           continue;
         }
 
+        // Check if non-admin user has permission to update this application
+        if (!isAdmin && application.customer?.user_id !== user.id) {
+          result.failureCount++;
+          result.errors.push(`Application ${applicationId}: Access denied - you can only update your own applications`);
+          continue;
+        }
+
         const previousStatus = application.status;
 
         // Update the application status
@@ -119,7 +124,7 @@ serve(async (req) => {
           await supabase.from('application_messages').insert({
             application_id: applicationId,
             sender_id: changedBy,
-            sender_type: 'admin',
+            sender_type: isAdmin ? 'admin' : 'user',
             message: `Status changed from ${previousStatus} to ${newStatus}: ${comment}`,
             is_read: false,
           });
