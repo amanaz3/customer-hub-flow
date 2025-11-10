@@ -612,9 +612,7 @@ const ApplicationsList = () => {
         selectedCount={selection.selectedCount}
         isVisible={selection.selectedCount > 0}
         onClearSelection={selection.clearSelection}
-        onRejectSelected={() => openBulkStatusDialog('rejected')}
-        onApproveSelected={() => openBulkStatusDialog('approved')}
-        onMarkAsPaidSelected={() => openBulkStatusDialog('paid')}
+        onStatusChange={openBulkStatusDialog}
         isLoading={isUpdating}
         mode="applications"
       />
