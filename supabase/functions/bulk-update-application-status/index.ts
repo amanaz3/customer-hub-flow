@@ -54,13 +54,16 @@ serve(async (req) => {
     const supabaseAuth = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } }
     });
-    
-    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser();
+
+    console.log('Auth header present, attempting getUser via token');
+    const { data: { user }, error: authError } = await supabaseAuth.auth.getUser(token);
 
     if (authError || !user) {
-      console.error('Auth error:', authError);
+      console.error('Auth error in bulk-update-application-status:', authError);
       throw new Error('Unauthorized');
     }
+
+    console.log('Authenticated user for bulk update:', user.id);
 
     // Use service role key for database operations (bypasses RLS)
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
