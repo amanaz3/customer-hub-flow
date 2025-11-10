@@ -123,7 +123,7 @@ const TaskCollaboration: React.FC = () => {
   const [taskDetailOpen, setTaskDetailOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('todo');
-  const [priorityFilter, setPriorityFilter] = useState<string>('all');
+  const [priorityFilter, setPriorityFilter] = useState<string>('medium-high');
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
   const [caseStatusFilter, setCaseStatusFilter] = useState<string>('active');
   const [caseSearchQuery, setCaseSearchQuery] = useState('');
