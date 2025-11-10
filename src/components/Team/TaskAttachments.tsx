@@ -44,6 +44,8 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
     ];
 
     setUploading(true);
+    let uploadedCount = 0;
+    
     try {
       for (const file of Array.from(files)) {
         if (!allowedTypes.includes(file.type)) {
@@ -71,6 +73,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
         }
 
         // Create database record
+        const { data: { user } } = await supabase.auth.getUser();
         const { error: dbError } = await supabase
           .from('task_attachments')
           .insert({
@@ -79,7 +82,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
             file_path: fileName,
             file_size: file.size,
             file_type: file.type,
-            uploaded_by: (await supabase.auth.getUser()).data.user?.id,
+            uploaded_by: user?.id,
           });
 
         if (dbError) {
@@ -89,10 +92,16 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
           toast.error(`Failed to save ${file.name}`);
           continue;
         }
+        
+        uploadedCount++;
       }
 
-      toast.success('Files uploaded successfully');
-      onAttachmentsChange?.();
+      if (uploadedCount > 0) {
+        toast.success(`${uploadedCount} file(s) uploaded successfully`);
+        if (onAttachmentsChange) {
+          onAttachmentsChange();
+        }
+      }
     } catch (error) {
       console.error('Error uploading files:', error);
       toast.error('Failed to upload files');
@@ -123,7 +132,9 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
       if (dbError) throw dbError;
 
       toast.success('Attachment removed');
-      onAttachmentsChange?.();
+      if (onAttachmentsChange) {
+        onAttachmentsChange();
+      }
     } catch (error) {
       console.error('Error removing attachment:', error);
       toast.error('Failed to remove attachment');
@@ -135,6 +146,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
       const { data } = supabase.storage
         .from('task-attachments')
         .getPublicUrl(attachment.file_path);
+      console.log('Preview URL for', attachment.file_name, ':', data.publicUrl);
       return data.publicUrl;
     }
     return null;

@@ -87,13 +87,20 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
 
   const fetchAttachments = async () => {
     if (!taskId) return;
-    const { data } = await supabase
+    
+    console.log('Fetching attachments for task:', taskId);
+    const { data, error } = await supabase
       .from('task_attachments')
       .select('*')
       .eq('task_id', taskId)
       .order('created_at', { ascending: false });
     
-    if (data) setAttachments(data);
+    if (error) {
+      console.error('Error fetching attachments:', error);
+    } else {
+      console.log('Fetched attachments:', data);
+      setAttachments(data || []);
+    }
   };
 
   const fetchTask = async () => {
