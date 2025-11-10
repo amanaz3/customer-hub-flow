@@ -174,32 +174,37 @@ export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
               </DropdownMenuTrigger>
               <DropdownMenuContent 
                 align="end" 
-                className="w-56 bg-card border-2 border-primary/20 shadow-2xl z-[100] p-2"
-                sideOffset={8}
+                className="w-64 bg-card/95 backdrop-blur-xl border-2 border-primary/30 shadow-2xl z-[100] p-3 animate-scale-in"
+                sideOffset={12}
               >
-                <div className="text-xs font-semibold text-muted-foreground px-2 py-1 mb-1">
+                <div className="text-xs font-bold text-foreground/70 px-3 py-2 mb-2 uppercase tracking-wider">
                   Select New Status
                 </div>
-                <DropdownMenuSeparator className="mb-2" />
-                {(Object.keys(STATUS_CONFIG) as ApplicationStatus[]).map((status) => {
-                  const config = STATUS_CONFIG[status];
-                  const Icon = config.icon;
-                  return (
-                    <DropdownMenuItem
-                      key={status}
-                      onClick={() => onStatusChange(status)}
-                      className={`
-                        ${config.bgColor} ${config.hoverColor} 
-                        cursor-pointer rounded-md mb-1 border border-transparent
-                        hover:border-current transition-all duration-200
-                        focus:ring-2 focus:ring-primary/50
-                      `}
-                    >
-                      <Icon className={`h-4 w-4 mr-2.5 ${config.color}`} />
-                      <span className={`${config.color} font-medium`}>{config.label}</span>
-                    </DropdownMenuItem>
-                  );
-                })}
+                <DropdownMenuSeparator className="mb-3 bg-border/50" />
+                <div className="space-y-1.5">
+                  {(Object.keys(STATUS_CONFIG) as ApplicationStatus[]).map((status) => {
+                    const config = STATUS_CONFIG[status];
+                    const Icon = config.icon;
+                    return (
+                      <DropdownMenuItem
+                        key={status}
+                        onClick={() => onStatusChange(status)}
+                        className={`
+                          ${config.bgColor} ${config.hoverColor} 
+                          cursor-pointer rounded-lg px-3 py-2.5
+                          border-2 border-transparent
+                          hover:border-current hover:shadow-md hover:scale-[1.02]
+                          transition-all duration-200 ease-out
+                          focus:ring-2 focus:ring-primary/50 focus:outline-none
+                          active:scale-[0.98]
+                        `}
+                      >
+                        <Icon className={`h-4 w-4 mr-3 ${config.color}`} />
+                        <span className={`${config.color} font-semibold text-sm`}>{config.label}</span>
+                      </DropdownMenuItem>
+                    );
+                  })}
+                </div>
               </DropdownMenuContent>
             </DropdownMenu>
           )}
