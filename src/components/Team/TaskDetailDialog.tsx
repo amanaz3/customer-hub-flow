@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '@/contexts/SecureAuthContext';
-import { supabase } from '@/lib/supabase';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Dialog,
   DialogContent,
@@ -109,7 +109,7 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
       .from('tasks')
       .select('*')
       .eq('id', taskId)
-      .single();
+      .maybeSingle();
     
     if (data) setTask(data);
   };
