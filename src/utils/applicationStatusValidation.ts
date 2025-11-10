@@ -38,7 +38,7 @@ export const APPLICATION_STATUS_TRANSITIONS: ApplicationStatusTransition[] = [
   },
   {
     from: 'rejected',
-    to: [],
+    to: ['submitted'],
     requiresAdmin: true,
   },
 ];
