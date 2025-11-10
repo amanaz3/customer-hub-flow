@@ -3,7 +3,8 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Button } from '@/components/ui/button';
 import { Calendar } from '@/components/ui/calendar';
 import { Label } from '@/components/ui/label';
-import { CalendarIcon } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { CalendarIcon, Clock } from 'lucide-react';
 import { format } from 'date-fns';
 
 interface CompletionDateDialogProps {
@@ -20,9 +21,14 @@ export const CompletionDateDialog = ({
   isLoading = false,
 }: CompletionDateDialogProps) => {
   const [selectedDate, setSelectedDate] = useState<Date>(new Date());
+  const [selectedTime, setSelectedTime] = useState<string>(format(new Date(), 'HH:mm'));
 
   const handleConfirm = () => {
-    onConfirm(selectedDate);
+    // Combine date and time
+    const [hours, minutes] = selectedTime.split(':').map(Number);
+    const completedDateTime = new Date(selectedDate);
+    completedDateTime.setHours(hours, minutes, 0, 0);
+    onConfirm(completedDateTime);
   };
 
   return (
@@ -31,10 +37,10 @@ export const CompletionDateDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CalendarIcon className="h-5 w-5" />
-            Set Completed Time
+            Set Completed Date & Time
           </DialogTitle>
           <DialogDescription>
-            Please select the date when this application was completed.
+            Please select the date and time when this application was completed.
           </DialogDescription>
         </DialogHeader>
         
@@ -52,6 +58,22 @@ export const CompletionDateDialog = ({
             </div>
             <p className="text-sm text-muted-foreground text-center">
               Selected: {format(selectedDate, 'PPP')}
+            </p>
+          </div>
+
+          <div className="space-y-2">
+            <Label className="flex items-center gap-2">
+              <Clock className="h-4 w-4" />
+              Completion Time
+            </Label>
+            <Input
+              type="time"
+              value={selectedTime}
+              onChange={(e) => setSelectedTime(e.target.value)}
+              className="w-full"
+            />
+            <p className="text-sm text-muted-foreground">
+              Selected time: {selectedTime}
             </p>
           </div>
         </div>
