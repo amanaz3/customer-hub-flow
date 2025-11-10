@@ -197,15 +197,15 @@ serve(async (req) => {
           });
         }
 
-        // Create notification for the customer's assigned user
-        if (application.customer?.user_id) {
-          const notificationType =
-            newStatus === 'completed' || newStatus === 'approved'
-              ? 'success'
-              : newStatus === 'rejected'
-              ? 'error'
-              : 'info';
+        const notificationType =
+          newStatus === 'completed' || newStatus === 'approved'
+            ? 'success'
+            : newStatus === 'rejected'
+            ? 'error'
+            : 'info';
 
+        // Notify the customer's assigned user (if not the one making the change)
+        if (application.customer?.user_id && application.customer.user_id !== user.id) {
           await supabase.from('notifications').insert({
             user_id: application.customer.user_id,
             type: notificationType,
@@ -216,6 +216,29 @@ serve(async (req) => {
             action_url: `/applications/${applicationId}`,
             is_read: false,
           });
+        }
+
+        // If non-admin user made the change, notify all admins
+        if (!isAdmin) {
+          const { data: adminProfiles } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('role', 'admin');
+
+          if (adminProfiles && adminProfiles.length > 0) {
+            const adminNotifications = adminProfiles.map(admin => ({
+              user_id: admin.id,
+              type: notificationType,
+              title: `User updated application status`,
+              message: `User has changed application status for ${application.customer?.name} to ${newStatus}${
+                comment ? `: ${comment}` : ''
+              }`,
+              action_url: `/applications/${applicationId}`,
+              is_read: false,
+            }));
+
+            await supabase.from('notifications').insert(adminNotifications);
+          }
         }
 
         // Send email notification
