@@ -12,6 +12,7 @@ import { ApplicationService } from '@/services/applicationService';
 import { supabase } from '@/integrations/supabase/client';
 import type { Application } from '@/types/application';
 import { formatApplicationReferenceWithHash } from '@/utils/referenceNumberFormatter';
+import { CompletionDateDialog } from '@/components/Customer/CompletionDateDialog';
 
 const ApplicationDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -22,6 +23,8 @@ const ApplicationDetail = () => {
   const [loading, setLoading] = useState(true);
   const [selectedStatus, setSelectedStatus] = useState<string>('');
   const [updatingStatus, setUpdatingStatus] = useState(false);
+  const [showCompletionDateDialog, setShowCompletionDateDialog] = useState(false);
+  const [pendingStatusUpdate, setPendingStatusUpdate] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -50,11 +53,39 @@ const ApplicationDetail = () => {
   const handleStatusUpdate = async () => {
     if (!id || !selectedStatus || !user) return;
 
+    // If changing to completed, show completion date dialog
+    if (selectedStatus.toLowerCase() === 'completed') {
+      setPendingStatusUpdate(selectedStatus);
+      setShowCompletionDateDialog(true);
+      return;
+    }
+
+    // Otherwise, proceed with normal status update
+    await performStatusUpdate(selectedStatus);
+  };
+
+  const performStatusUpdate = async (status: string, completionDate?: Date) => {
+    if (!id || !user) return;
+
     try {
       setUpdatingStatus(true);
+
+      // If completion date provided, update application_data first
+      if (completionDate) {
+        await supabase
+          .from('account_applications')
+          .update({
+            application_data: {
+              ...application?.application_data,
+              completion_date: completionDate.toISOString(),
+            }
+          })
+          .eq('id', id);
+      }
+
       await ApplicationService.updateApplicationStatus(
         id,
-        selectedStatus,
+        status,
         `Status updated by ${user.email}`,
         user.id,
         isAdmin ? 'admin' : 'user'
@@ -66,7 +97,7 @@ const ApplicationDetail = () => {
 
       toast({
         title: 'Success',
-        description: `Status updated to ${selectedStatus}. Notifications sent to relevant users.`,
+        description: `Status updated to ${status}. Notifications sent to relevant users.`,
       });
     } catch (error) {
       console.error('Error updating status:', error);
@@ -77,6 +108,14 @@ const ApplicationDetail = () => {
       });
     } finally {
       setUpdatingStatus(false);
+      setShowCompletionDateDialog(false);
+      setPendingStatusUpdate(null);
+    }
+  };
+
+  const handleCompletionDateConfirm = (date: Date) => {
+    if (pendingStatusUpdate) {
+      performStatusUpdate(pendingStatusUpdate, date);
     }
   };
 
@@ -126,6 +165,13 @@ const ApplicationDetail = () => {
 
   return (
     <div className="space-y-6 p-6">
+      <CompletionDateDialog
+        open={showCompletionDateDialog}
+        onOpenChange={setShowCompletionDateDialog}
+        onConfirm={handleCompletionDateConfirm}
+        isLoading={updatingStatus}
+      />
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
