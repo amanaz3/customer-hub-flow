@@ -31,7 +31,7 @@ export const CompletionDateDialog = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <CalendarIcon className="h-5 w-5" />
-            Set Completion Date
+            Set Completed Time
           </DialogTitle>
           <DialogDescription>
             Please select the date when this application was completed.
