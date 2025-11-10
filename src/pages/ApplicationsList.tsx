@@ -661,6 +661,7 @@ const ApplicationsList = () => {
         onStatusChange={openBulkStatusDialog}
         isLoading={isUpdating}
         mode="applications"
+        selectedStatuses={currentSelection.getSelectedItems().map(app => app.status)}
       />
 
       {/* Bulk Status Change Dialog */}

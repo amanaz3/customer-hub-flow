@@ -32,6 +32,7 @@ interface BulkActionsToolbarProps {
   onStatusChange?: (status: ApplicationStatus) => void;
   isLoading?: boolean;
   mode?: 'customers' | 'applications';
+  selectedStatuses?: ApplicationStatus[];
 }
 
 // Status configuration with UI labels and styling
@@ -114,9 +115,14 @@ export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
   onReassignSelected,
   onStatusChange,
   isLoading = false,
-  mode = 'customers'
+  mode = 'customers',
+  selectedStatuses = []
 }) => {
   if (!isVisible) return null;
+
+  // Filter out statuses that are already in the selection
+  const availableStatuses = (Object.keys(STATUS_CONFIG) as ApplicationStatus[])
+    .filter(status => !selectedStatuses.includes(status));
 
   return (
     <Card className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl border-2 border-primary bg-gradient-to-r from-primary/95 to-primary/90 backdrop-blur-md">
@@ -182,28 +188,34 @@ export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
                 </div>
                 <DropdownMenuSeparator className="mb-3 bg-border/50" />
                 <div className="space-y-1.5">
-                  {(Object.keys(STATUS_CONFIG) as ApplicationStatus[]).map((status) => {
-                    const config = STATUS_CONFIG[status];
-                    const Icon = config.icon;
-                    return (
-                      <DropdownMenuItem
-                        key={status}
-                        onClick={() => onStatusChange(status)}
-                        className={`
-                          ${config.bgColor} ${config.hoverColor} 
-                          cursor-pointer rounded-lg px-3 py-2.5
-                          border-2 border-transparent
-                          hover:border-current hover:shadow-md hover:scale-[1.02]
-                          transition-all duration-200 ease-out
-                          focus:ring-2 focus:ring-primary/50 focus:outline-none
-                          active:scale-[0.98]
-                        `}
-                      >
-                        <Icon className={`h-4 w-4 mr-3 ${config.color}`} />
-                        <span className={`${config.color} font-semibold text-sm`}>{config.label}</span>
-                      </DropdownMenuItem>
-                    );
-                  })}
+                  {availableStatuses.length === 0 ? (
+                    <div className="px-3 py-4 text-center text-sm text-muted-foreground">
+                      No other statuses available
+                    </div>
+                  ) : (
+                    availableStatuses.map((status) => {
+                      const config = STATUS_CONFIG[status];
+                      const Icon = config.icon;
+                      return (
+                        <DropdownMenuItem
+                          key={status}
+                          onClick={() => onStatusChange(status)}
+                          className={`
+                            ${config.bgColor} ${config.hoverColor} 
+                            cursor-pointer rounded-lg px-3 py-2.5
+                            border-2 border-transparent
+                            hover:border-current hover:shadow-md hover:scale-[1.02]
+                            transition-all duration-200 ease-out
+                            focus:ring-2 focus:ring-primary/50 focus:outline-none
+                            active:scale-[0.98]
+                          `}
+                        >
+                          <Icon className={`h-4 w-4 mr-3 ${config.color}`} />
+                          <span className={`${config.color} font-semibold text-sm`}>{config.label}</span>
+                        </DropdownMenuItem>
+                      );
+                    })
+                  )}
                 </div>
               </DropdownMenuContent>
             </DropdownMenu>
