@@ -73,12 +73,19 @@ Deno.serve(async (req) => {
     console.log('Previous status:', previousStatus, '-> New status:', newStatus);
 
     // Update application status
+    const updateData: any = { 
+      status: newStatus,
+      updated_at: new Date().toISOString() 
+    };
+
+    // If changing to completed, record the actual timestamp
+    if (newStatus.toLowerCase() === 'completed') {
+      updateData.completed_actual = new Date().toISOString();
+    }
+
     const { data: updatedApplication, error: updateError } = await supabase
       .from('account_applications')
-      .update({ 
-        status: newStatus,
-        updated_at: new Date().toISOString() 
-      })
+      .update(updateData)
       .eq('id', applicationId)
       .select()
       .single();

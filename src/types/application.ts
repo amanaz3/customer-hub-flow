@@ -44,6 +44,7 @@ export interface Application {
   created_at: string;
   updated_at: string;
   completed_at?: string;
+  completed_actual?: string;
   
   // Relations
   customer?: {
