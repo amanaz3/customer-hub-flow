@@ -77,7 +77,7 @@ const ApplicationDetail = () => {
           .update({
             application_data: {
               ...application?.application_data,
-              completed_time: completionDate.toISOString(),
+              completed_at: completionDate.toISOString(),
             }
           })
           .eq('id', id);

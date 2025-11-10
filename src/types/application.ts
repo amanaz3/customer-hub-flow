@@ -73,7 +73,7 @@ export interface ApplicationData {
   user_id?: string;
   nationality?: string;
   proposed_activity?: string;
-  completed_time?: string;
+  completed_at?: string;
   
   // Business Bank Account specific fields
   mainland_or_freezone?: 'mainland' | 'freezone';
