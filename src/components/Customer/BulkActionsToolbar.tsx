@@ -119,7 +119,7 @@ export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
   if (!isVisible) return null;
 
   return (
-    <Card className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 shadow-2xl border-2 border-primary bg-gradient-to-r from-primary/95 to-primary/90 backdrop-blur-md">
+    <Card className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl border-2 border-primary bg-gradient-to-r from-primary/95 to-primary/90 backdrop-blur-md">
       <div className="flex items-center gap-4 p-4">
         <div className="flex items-center gap-2">
           <div className="p-2 rounded-lg bg-white/20 backdrop-blur-sm">
