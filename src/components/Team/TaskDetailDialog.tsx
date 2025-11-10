@@ -23,6 +23,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
 import { toast } from 'sonner';
 import { MessageSquare, Trash2 } from 'lucide-react';
+import { TaskAttachments } from './TaskAttachments';
 
 interface TaskDetailDialogProps {
   taskId: string | null;
@@ -72,6 +73,7 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
+  const [attachments, setAttachments] = useState<any[]>([]);
 
   useEffect(() => {
     if (taskId && open) {
@@ -79,8 +81,20 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
       fetchComments();
       fetchTeamMembers();
       fetchProjects();
+      fetchAttachments();
     }
   }, [taskId, open]);
+
+  const fetchAttachments = async () => {
+    if (!taskId) return;
+    const { data } = await supabase
+      .from('task_attachments')
+      .select('*')
+      .eq('task_id', taskId)
+      .order('created_at', { ascending: false });
+    
+    if (data) setAttachments(data);
+  };
 
   const fetchTask = async () => {
     if (!taskId) return;
@@ -449,6 +463,16 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
               {loading ? 'Saving...' : 'Save Changes'}
             </Button>
           )}
+
+          <Separator />
+
+          {/* Attachments */}
+          <TaskAttachments
+            taskId={taskId || undefined}
+            attachments={attachments}
+            onAttachmentsChange={fetchAttachments}
+            allowUpload={true}
+          />
 
           <Separator />
 

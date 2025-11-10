@@ -20,6 +20,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
+import { TaskAttachments } from './TaskAttachments';
 
 interface CreateTaskDialogProps {
   open: boolean;
@@ -50,6 +51,8 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   const [loading, setLoading] = useState(false);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
+  const [createdTaskId, setCreatedTaskId] = useState<string | null>(null);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -106,24 +109,56 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
     setLoading(true);
     try {
-      // Still using 'project_id' column since database hasn't been migrated yet
-      const { error } = await supabase.from('tasks').insert([{
-        title: formData.title.trim(),
-        description: formData.description || null,
-        type: formData.type,
-        priority: formData.priority,
-        status: formData.status,
-        assigned_to: formData.assigned_to === 'unassigned' ? null : formData.assigned_to || null,
-        project_id: productId ? productId : projectId ? projectId : (formData.product_id === 'none' ? null : formData.product_id || null),
-        module: formData.module || null,
-        category: formData.category || null,
-        mission: formData.mission || null,
-        story: formData.story || null,
-        architectural_component: formData.architectural_component || null,
-        created_by: user.id,
-      }]);
+      // Create task first
+      const { data: taskData, error: taskError } = await supabase
+        .from('tasks')
+        .insert([{
+          title: formData.title.trim(),
+          description: formData.description || null,
+          type: formData.type,
+          priority: formData.priority,
+          status: formData.status,
+          assigned_to: formData.assigned_to === 'unassigned' ? null : formData.assigned_to || null,
+          project_id: productId ? productId : projectId ? projectId : (formData.product_id === 'none' ? null : formData.product_id || null),
+          module: formData.module || null,
+          category: formData.category || null,
+          mission: formData.mission || null,
+          story: formData.story || null,
+          architectural_component: formData.architectural_component || null,
+          created_by: user.id,
+        }])
+        .select()
+        .single();
 
-      if (error) throw error;
+      if (taskError) throw taskError;
+
+      // Upload attachments if any
+      if (uploadedFiles.length > 0 && taskData) {
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf'];
+        
+        for (const file of uploadedFiles) {
+          if (!allowedTypes.includes(file.type)) continue;
+          if (file.size > 10 * 1024 * 1024) continue;
+
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${taskData.id}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+
+          const { error: uploadError } = await supabase.storage
+            .from('task-attachments')
+            .upload(fileName, file);
+
+          if (!uploadError) {
+            await supabase.from('task_attachments').insert({
+              task_id: taskData.id,
+              file_name: file.name,
+              file_path: fileName,
+              file_size: file.size,
+              file_type: file.type,
+              uploaded_by: user.id,
+            });
+          }
+        }
+      }
 
       toast.success('Task created successfully');
       onTaskCreated();
@@ -142,12 +177,39 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         story: '',
         architectural_component: '',
       });
+      setUploadedFiles([]);
     } catch (error) {
       console.error('Error creating task:', error);
       toast.error('Failed to create task');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (!files) return;
+
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf'];
+    const validFiles: File[] = [];
+
+    for (const file of Array.from(files)) {
+      if (!allowedTypes.includes(file.type)) {
+        toast.error(`File type not allowed: ${file.name}`);
+        continue;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        toast.error(`File too large (max 10MB): ${file.name}`);
+        continue;
+      }
+      validFiles.push(file);
+    }
+
+    setUploadedFiles((prev) => [...prev, ...validFiles]);
+  };
+
+  const removeFile = (index: number) => {
+    setUploadedFiles((prev) => prev.filter((_, i) => i !== index));
   };
 
   return (
@@ -349,6 +411,49 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
               rows={2}
               className="text-sm"
             />
+          </div>
+
+          {/* Attachments */}
+          <div className="space-y-2">
+            <Label className="text-sm">Attachments</Label>
+            <div className="space-y-2">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => document.getElementById('create-task-file-upload')?.click()}
+              >
+                Add Files
+              </Button>
+              <input
+                id="create-task-file-upload"
+                type="file"
+                multiple
+                accept="image/jpeg,image/png,image/jpg,image/webp,application/pdf"
+                onChange={handleFileSelect}
+                className="hidden"
+              />
+              {uploadedFiles.length > 0 && (
+                <div className="space-y-2">
+                  {uploadedFiles.map((file, index) => (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-2 rounded border bg-muted/30"
+                    >
+                      <span className="text-sm truncate">{file.name}</span>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => removeFile(index)}
+                      >
+                        Remove
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex justify-end gap-2 pt-2">
