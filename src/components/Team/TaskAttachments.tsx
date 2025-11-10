@@ -29,6 +29,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
   allowUpload = true,
 }) => {
   const [uploading, setUploading] = useState(false);
+  const inputId = `task-file-upload-${taskId ?? 'new'}`;
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -178,7 +179,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
             variant="outline"
             size="sm"
             disabled={uploading}
-            onClick={() => document.getElementById('task-file-upload')?.click()}
+            onClick={() => document.getElementById(inputId)?.click()}
           >
             {uploading ? 'Uploading...' : 'Add Files'}
           </Button>
@@ -186,7 +187,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
       </div>
 
       <input
-        id="task-file-upload"
+        id={inputId}
         type="file"
         multiple
         accept="image/jpeg,image/png,image/jpg,image/webp,application/pdf"
