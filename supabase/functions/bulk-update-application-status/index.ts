@@ -204,8 +204,31 @@ serve(async (req) => {
             ? 'error'
             : 'info';
 
-        // Notify the customer's assigned user (if not the one making the change)
-        if (application.customer?.user_id && application.customer.user_id !== user.id) {
+        // If user made the change, notify admins
+        if (!isAdmin) {
+          const { data: adminProfiles } = await supabase
+            .from('profiles')
+            .select('id')
+            .eq('role', 'admin');
+
+          if (adminProfiles && adminProfiles.length > 0) {
+            const adminNotifications = adminProfiles.map(admin => ({
+              user_id: admin.id,
+              type: notificationType,
+              title: `User updated application status`,
+              message: `User has changed application status for ${application.customer?.name} to ${newStatus}${
+                comment ? `: ${comment}` : ''
+              }`,
+              action_url: `/applications/${applicationId}`,
+              is_read: false,
+            }));
+
+            await supabase.from('notifications').insert(adminNotifications);
+          }
+        }
+
+        // If admin made the change, notify the customer's assigned user (if not the one making the change)
+        if (isAdmin && application.customer?.user_id && application.customer.user_id !== user.id) {
           await supabase.from('notifications').insert({
             user_id: application.customer.user_id,
             type: notificationType,
