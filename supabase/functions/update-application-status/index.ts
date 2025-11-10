@@ -49,10 +49,10 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get current application to check previous status and completed_actual
+    // Get current application to check previous status
     const { data: currentApplication, error: fetchError } = await supabase
       .from('account_applications')
-      .select('status, customer_id, completed_actual')
+      .select('status, customer_id')
       .eq('id', applicationId)
       .single();
 
@@ -78,10 +78,8 @@ Deno.serve(async (req) => {
       updated_at: new Date().toISOString() 
     };
 
-    // If changing to completed, record the actual timestamp (only if not already set)
-    if (newStatus.toLowerCase() === 'completed' && !currentApplication.completed_actual) {
-      updateData.completed_actual = new Date().toISOString();
-    }
+    // Note: completed_actual is now automatically set by database trigger
+    // from status_changes.created_at to ensure consistency
 
     const { data: updatedApplication, error: updateError } = await supabase
       .from('account_applications')

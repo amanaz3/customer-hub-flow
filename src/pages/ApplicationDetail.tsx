@@ -86,13 +86,13 @@ const ApplicationDetail = () => {
     try {
       setUpdatingStatus(true);
 
-      // If completion date provided, update both completed_at and completed_actual
+      // If completion date provided, update only completed_at
+      // Note: completed_actual is automatically set by database trigger
       if (completionDate) {
         await supabase
           .from('account_applications')
           .update({
             completed_at: completionDate.toISOString(),
-            completed_actual: new Date().toISOString(),
           })
           .eq('id', id);
       }
