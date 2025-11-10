@@ -101,6 +101,12 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
       'image/jpg',
       'image/webp',
       'application/pdf',
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // DOCX
+      'application/msword', // DOC
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // XLSX
+      'application/vnd.ms-excel', // XLS
+      'application/vnd.openxmlformats-officedocument.presentationml.presentation', // PPTX
+      'application/vnd.ms-powerpoint', // PPT
     ];
 
     setUploading(true);
@@ -109,7 +115,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
     try {
       for (const file of Array.from(files)) {
         if (!allowedTypes.includes(file.type)) {
-          toast.error(`File type not allowed: ${file.name}`);
+          toast.error(`File type not allowed: ${file.name}. Supported: Images, PDF, Word, Excel, PowerPoint.`);
           continue;
         }
 
@@ -312,7 +318,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
         ref={inputRef}
         type="file"
         multiple
-        accept="image/jpeg,image/png,image/jpg,image/webp,application/pdf"
+        accept="image/jpeg,image/png,image/jpg,image/webp,application/pdf,application/vnd.openxmlformats-officedocument.wordprocessingml.document,application/msword,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet,application/vnd.ms-excel,application/vnd.openxmlformats-officedocument.presentationml.presentation,application/vnd.ms-powerpoint"
         onChange={handleFileUpload}
         className="hidden"
       />

@@ -135,7 +135,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
       // Upload attachments if any
       if (uploadedFiles.length > 0 && taskData) {
-        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf'];
+        const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.ms-powerpoint'];
         
         for (const file of uploadedFiles) {
           if (!allowedTypes.includes(file.type)) continue;
@@ -198,12 +198,12 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
-    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf'];
+    const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'application/msword', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.presentationml.presentation', 'application/vnd.ms-powerpoint'];
     const validFiles: File[] = [];
 
-    Array.from(files).forEach((file) => {
+      Array.from(files).forEach((file) => {
       if (!allowedTypes.includes(file.type)) {
-        toast.error(`File type not allowed: ${file.name}. Only images and PDFs are supported.`);
+        toast.error(`File type not allowed: ${file.name}. Supported: Images, PDF, Word, Excel, PowerPoint.`);
         return;
       }
       if (file.size > 10 * 1024 * 1024) {
