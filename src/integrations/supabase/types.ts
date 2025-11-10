@@ -22,7 +22,7 @@ export type Database = {
           customer_id: string | null
           id: string
           reference_number: number
-          status: string
+          status: Database["public"]["Enums"]["application_status"]
           submission_source: string | null
           updated_at: string
         }
@@ -33,7 +33,7 @@ export type Database = {
           customer_id?: string | null
           id?: string
           reference_number: number
-          status?: string
+          status?: Database["public"]["Enums"]["application_status"]
           submission_source?: string | null
           updated_at?: string
         }
@@ -44,7 +44,7 @@ export type Database = {
           customer_id?: string | null
           id?: string
           reference_number?: number
-          status?: string
+          status?: Database["public"]["Enums"]["application_status"]
           submission_source?: string | null
           updated_at?: string
         }
@@ -1845,6 +1845,16 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "user" | "manager"
+      application_status:
+        | "draft"
+        | "submitted"
+        | "returned"
+        | "paid"
+        | "completed"
+        | "rejected"
+        | "under_review"
+        | "approved"
+        | "need more info"
       customer_status:
         | "Draft"
         | "Submitted"
@@ -2015,6 +2025,17 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "user", "manager"],
+      application_status: [
+        "draft",
+        "submitted",
+        "returned",
+        "paid",
+        "completed",
+        "rejected",
+        "under_review",
+        "approved",
+        "need more info",
+      ],
       customer_status: [
         "Draft",
         "Submitted",
