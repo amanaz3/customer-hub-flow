@@ -16,7 +16,17 @@ import {
   X,
   Trash2,
   Flag,
+  Paperclip,
+  FileText,
 } from 'lucide-react';
+
+interface TaskAttachment {
+  id: string;
+  file_name: string;
+  file_path: string | null;
+  file_type: string | null;
+  attachment_type: 'file' | 'url';
+}
 
 interface TaskCardProps {
   task: {
@@ -32,6 +42,7 @@ interface TaskCardProps {
     category?: string | null;
     architectural_component?: string | null;
   };
+  attachments?: TaskAttachment[];
   onClick: () => void;
   onRemoveFromProject?: (taskId: string) => void;
   onRemoveFromProduct?: (taskId: string) => void;
@@ -40,13 +51,20 @@ interface TaskCardProps {
 }
 
 export const TaskCard: React.FC<TaskCardProps> = ({ 
-  task, 
+  task,
+  attachments = [],
   onClick, 
   onRemoveFromProject,
   onRemoveFromProduct, 
   onDelete,
   showActions = false 
 }) => {
+  const imageAttachments = attachments.filter(
+    (att) => att.attachment_type === 'file' && att.file_type?.startsWith('image/')
+  );
+  const otherAttachments = attachments.filter(
+    (att) => att.attachment_type !== 'file' || !att.file_type?.startsWith('image/')
+  );
   const getTypeIcon = () => {
     switch (task.type) {
       case 'bug': return <Bug className="h-4 w-4" />;
@@ -209,6 +227,54 @@ export const TaskCard: React.FC<TaskCardProps> = ({
           )}
         </div>
       </div>
+
+      {/* Attachments Preview */}
+      {attachments.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-border/50">
+          <div className="flex items-center gap-2">
+            {/* Image Thumbnails */}
+            {imageAttachments.length > 0 && (
+              <div className="flex gap-1">
+                {imageAttachments.slice(0, 3).map((att) => (
+                  <div
+                    key={att.id}
+                    className="w-10 h-10 rounded border bg-muted overflow-hidden flex-shrink-0"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onClick();
+                    }}
+                  >
+                    <img
+                      src={`https://gddibkhyhcnejxthsyzu.supabase.co/storage/v1/object/public/task-attachments/${att.file_path}`}
+                      alt={att.file_name}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                ))}
+                {imageAttachments.length > 3 && (
+                  <div className="w-10 h-10 rounded border bg-muted flex items-center justify-center text-xs font-medium text-muted-foreground">
+                    +{imageAttachments.length - 3}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Other Attachments Count */}
+            {otherAttachments.length > 0 && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <FileText className="h-3 w-3" />
+                <span>{otherAttachments.length}</span>
+              </div>
+            )}
+
+            {/* Total Attachments Badge */}
+            <div className="flex items-center gap-1 text-xs text-muted-foreground ml-auto">
+              <Paperclip className="h-3 w-3" />
+              <span>{attachments.length}</span>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

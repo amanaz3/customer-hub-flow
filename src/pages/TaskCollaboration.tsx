@@ -62,6 +62,15 @@ interface Task {
   story?: string | null;
 }
 
+interface TaskAttachment {
+  id: string;
+  task_id: string;
+  file_name: string;
+  file_path: string | null;
+  file_type: string | null;
+  attachment_type: 'file' | 'url';
+}
+
 interface Product {
   id: string;
   name: string;
@@ -138,9 +147,38 @@ const TaskCollaboration: React.FC = () => {
   const [productTaskSearch, setProductTaskSearch] = useState('');
   const [productTaskStatusFilter, setProductTaskStatusFilter] = useState<string>('all');
   const [productTaskPriorityFilter, setProductTaskPriorityFilter] = useState<string>('all');
+  const [taskAttachments, setTaskAttachments] = useState<Record<string, TaskAttachment[]>>({});
 
   useEffect(() => {
     fetchTeamData();
+    
+    // Subscribe to task_attachments changes
+    const attachmentChannel = supabase
+      .channel('task_attachments_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'task_attachments'
+        },
+        async (payload) => {
+          console.log('Attachment change detected:', payload);
+          // Refetch attachments for the affected task
+          if (payload.new && 'task_id' in payload.new) {
+            const taskId = (payload.new as any).task_id;
+            await fetchTaskAttachments([taskId]);
+          } else if (payload.old && 'task_id' in payload.old) {
+            const taskId = (payload.old as any).task_id;
+            await fetchTaskAttachments([taskId]);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      attachmentChannel.unsubscribe();
+    };
   }, []);
 
   const fetchTasks = async () => {
@@ -163,8 +201,41 @@ const TaskCollaboration: React.FC = () => {
       }));
 
       setTasks(tasksWithNames);
+      
+      // Fetch attachments for all tasks
+      await fetchTaskAttachments(tasksWithNames.map(t => t.id));
     } catch (error) {
       console.error('Error fetching tasks:', error);
+    }
+  };
+
+  const fetchTaskAttachments = async (taskIds: string[]) => {
+    if (taskIds.length === 0) return;
+    
+    try {
+      const { data, error } = await supabase
+        .from('task_attachments')
+        .select('id, task_id, file_name, file_path, file_type, attachment_type')
+        .in('task_id', taskIds);
+
+      if (error) throw error;
+
+      // Group attachments by task_id
+      const attachmentsByTask: Record<string, TaskAttachment[]> = {};
+      (data || []).forEach((att: TaskAttachment) => {
+        if (!attachmentsByTask[att.task_id]) {
+          attachmentsByTask[att.task_id] = [];
+        }
+        attachmentsByTask[att.task_id].push(att);
+      });
+
+      // Merge with existing attachments (update only the specified task IDs)
+      setTaskAttachments(prev => ({
+        ...prev,
+        ...attachmentsByTask
+      }));
+    } catch (error) {
+      console.error('Error fetching task attachments:', error);
     }
   };
 
@@ -827,6 +898,7 @@ const TaskCollaboration: React.FC = () => {
                           <TaskCard
                             key={task.id}
                             task={task}
+                            attachments={taskAttachments[task.id] || []}
                             onClick={() => {
                               setSelectedTaskId(task.id);
                               setTaskDetailOpen(true);
@@ -947,6 +1019,7 @@ const TaskCollaboration: React.FC = () => {
                   <TaskCard
                     key={task.id}
                     task={task}
+                    attachments={taskAttachments[task.id] || []}
                     onClick={() => {
                       setSelectedTaskId(task.id);
                       setTaskDetailOpen(true);
