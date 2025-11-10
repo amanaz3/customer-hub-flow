@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Building2, Mail, Phone, FileText, MessageSquare, Users, RefreshCw, Calendar, Clock } from 'lucide-react';
+import { ArrowLeft, Building2, Mail, Phone, FileText, MessageSquare, Users, RefreshCw, Calendar, Clock, AlertTriangle } from 'lucide-react';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -118,6 +118,42 @@ const ApplicationDetail = () => {
     } else if (pendingStatusUpdate) {
       performStatusUpdate(pendingStatusUpdate, date);
     }
+  };
+
+  const getBackdatingIndicator = (completedAt?: string, completedActual?: string) => {
+    if (!completedAt || !completedActual) return null;
+
+    const businessDate = new Date(completedAt);
+    const systemDate = new Date(completedActual);
+    const diffMs = systemDate.getTime() - businessDate.getTime();
+    const diffHours = diffMs / (1000 * 60 * 60);
+
+    if (diffHours < 24) return null; // No indicator needed
+
+    if (diffHours >= 72) {
+      return {
+        label: '72+ hours backdated',
+        variant: 'destructive' as const,
+        icon: AlertTriangle,
+        color: 'text-destructive',
+      };
+    } else if (diffHours >= 48) {
+      return {
+        label: '48+ hours backdated',
+        variant: 'secondary' as const,
+        icon: AlertTriangle,
+        color: 'text-orange-500',
+      };
+    } else if (diffHours >= 24) {
+      return {
+        label: '24+ hours backdated',
+        variant: 'outline' as const,
+        icon: Clock,
+        color: 'text-yellow-600',
+      };
+    }
+
+    return null;
   };
 
   const handleEditCompletionDate = async (newDate: Date) => {
@@ -411,10 +447,26 @@ const ApplicationDetail = () => {
                 {application.status.toLowerCase() === 'completed' && (
                   <div className="pt-4 border-t">
                     <div className="flex items-center justify-between mb-3">
-                      <h4 className="text-sm font-semibold flex items-center gap-2">
-                        <Calendar className="h-4 w-4" />
-                        Completion Details
-                      </h4>
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-sm font-semibold flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          Completion Details
+                        </h4>
+                        {(() => {
+                          const indicator = getBackdatingIndicator(
+                            application.completed_at,
+                            application.completed_actual
+                          );
+                          if (!indicator) return null;
+                          const IconComponent = indicator.icon;
+                          return (
+                            <Badge variant={indicator.variant} className="flex items-center gap-1">
+                              <IconComponent className="h-3 w-3" />
+                              {indicator.label}
+                            </Badge>
+                          );
+                        })()}
+                      </div>
                       {isAdmin && (
                         <Button
                           variant="outline"
