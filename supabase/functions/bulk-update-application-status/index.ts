@@ -34,52 +34,6 @@ interface BulkUpdateResult {
   errors: string[];
 }
 
-// Status transition validation
-const validateStatusTransition = (
-  from: ApplicationStatus,
-  to: ApplicationStatus,
-  isAdmin: boolean
-): { isValid: boolean; error?: string } => {
-  // Non-admin users can only change from 'draft' status
-  if (!isAdmin && from !== 'draft') {
-    return { isValid: false, error: 'Non-admin users can only change status from draft' };
-  }
-
-  // Non-admin users can only change draft to 'rejected' or 'submitted'
-  if (!isAdmin && from === 'draft' && to !== 'rejected' && to !== 'submitted') {
-    return { isValid: false, error: 'Non-admin users can only change draft to rejected or submitted' };
-  }
-
-  // Admin-only transitions
-  if (!isAdmin) {
-    // Already covered above: non-admin can only work with draft
-    return { isValid: true };
-  }
-
-  // Admin transitions - validate specific rules
-  if (from === 'draft' && (to === 'submitted' || to === 'rejected')) {
-    return { isValid: true };
-  }
-
-  if (from === 'submitted' && (to === 'returned' || to === 'paid' || to === 'rejected')) {
-    return { isValid: true };
-  }
-
-  if (from === 'returned' && to === 'submitted') {
-    return { isValid: true };
-  }
-
-  if (from === 'rejected' && to === 'submitted') {
-    return { isValid: true };
-  }
-
-  if (from === 'paid') {
-    return { isValid: false, error: 'Cannot change status from paid' };
-  }
-
-  return { isValid: false, error: `Invalid transition from ${from} to ${to}` };
-};
-
 serve(async (req) => {
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -180,19 +134,6 @@ serve(async (req) => {
         }
 
         const previousStatus = application.status;
-
-        // Validate status transition
-        const transitionValidation = validateStatusTransition(
-          previousStatus as ApplicationStatus,
-          newStatus,
-          isAdmin
-        );
-
-        if (!transitionValidation.isValid) {
-          result.failureCount++;
-          result.errors.push(`Application ${applicationId}: ${transitionValidation.error}`);
-          continue;
-        }
 
         // Update the application status
         const { error: updateError } = await supabase

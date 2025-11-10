@@ -33,7 +33,6 @@ interface BulkActionsToolbarProps {
   isLoading?: boolean;
   mode?: 'customers' | 'applications';
   selectedStatuses?: ApplicationStatus[];
-  userRole?: string;
 }
 
 // Status configuration with UI labels and styling
@@ -117,19 +116,13 @@ export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
   onStatusChange,
   isLoading = false,
   mode = 'customers',
-  selectedStatuses = [],
-  userRole
+  selectedStatuses = []
 }) => {
   if (!isVisible) return null;
 
   // Filter out statuses that are already in the selection
-  let availableStatuses = (Object.keys(STATUS_CONFIG) as ApplicationStatus[])
+  const availableStatuses = (Object.keys(STATUS_CONFIG) as ApplicationStatus[])
     .filter(status => !selectedStatuses.includes(status));
-  
-  // If user is admin, only allow changing to rejected
-  if (userRole === 'admin') {
-    availableStatuses = availableStatuses.filter(status => status === 'rejected');
-  }
 
   return (
     <Card className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl border-2 border-primary bg-gradient-to-r from-primary/95 to-primary/90 backdrop-blur-md">
