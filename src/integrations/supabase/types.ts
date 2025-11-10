@@ -1411,37 +1411,46 @@ export type Database = {
       }
       task_attachments: {
         Row: {
+          attachment_type: string
+          attachment_url: string | null
           created_at: string | null
           file_name: string
-          file_path: string
-          file_size: number
-          file_type: string
+          file_path: string | null
+          file_size: number | null
+          file_type: string | null
           id: string
           task_id: string
           updated_at: string | null
           uploaded_by: string
+          url_title: string | null
         }
         Insert: {
+          attachment_type?: string
+          attachment_url?: string | null
           created_at?: string | null
           file_name: string
-          file_path: string
-          file_size: number
-          file_type: string
+          file_path?: string | null
+          file_size?: number | null
+          file_type?: string | null
           id?: string
           task_id: string
           updated_at?: string | null
           uploaded_by: string
+          url_title?: string | null
         }
         Update: {
+          attachment_type?: string
+          attachment_url?: string | null
           created_at?: string | null
           file_name?: string
-          file_path?: string
-          file_size?: number
-          file_type?: string
+          file_path?: string | null
+          file_size?: number | null
+          file_type?: string | null
           id?: string
           task_id?: string
           updated_at?: string | null
           uploaded_by?: string
+          url_title?: string | null
         }
         Relationships: [
           {
