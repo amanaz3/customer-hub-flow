@@ -16,6 +16,12 @@ export const APPLICATION_STATUS_TRANSITIONS: ApplicationStatusTransition[] = [
     requiresDocuments: true,
   },
   {
+    from: 'draft',
+    to: ['rejected'],
+    requiresAdmin: false,
+    requiresDocuments: false,
+  },
+  {
     from: 'submitted',
     to: ['returned', 'paid', 'rejected'],
     requiresAdmin: true,
@@ -43,23 +49,33 @@ export const getAvailableApplicationTransitions = (
   isUserOwner: boolean,
   hasRequiredDocuments: boolean = false
 ): ApplicationStatus[] => {
-  const transition = APPLICATION_STATUS_TRANSITIONS.find(t => t.from === currentStatus);
+  const transitions = APPLICATION_STATUS_TRANSITIONS.filter(t => t.from === currentStatus);
   
-  if (!transition) return [];
+  if (transitions.length === 0) return [];
   
-  if (transition.requiresAdmin && !isAdmin) {
-    return [];
+  const availableStatuses: ApplicationStatus[] = [];
+  
+  for (const transition of transitions) {
+    // Check admin requirement
+    if (transition.requiresAdmin && !isAdmin) {
+      continue;
+    }
+    
+    // Check ownership
+    if (!isAdmin && !isUserOwner) {
+      continue;
+    }
+    
+    // Check documents requirement
+    if (transition.requiresDocuments && !hasRequiredDocuments) {
+      continue;
+    }
+    
+    // Add all valid target statuses from this transition
+    availableStatuses.push(...transition.to);
   }
   
-  if (!isAdmin && !isUserOwner) {
-    return [];
-  }
-  
-  if (transition.requiresDocuments && !hasRequiredDocuments) {
-    return [];
-  }
-  
-  return transition.to;
+  return [...new Set(availableStatuses)]; // Remove duplicates
 };
 
 export const validateApplicationStatusTransition = (
@@ -70,17 +86,21 @@ export const validateApplicationStatusTransition = (
   hasRequiredDocuments: boolean = false,
   comment?: string
 ): { isValid: boolean; error?: string } => {
-  const transition = APPLICATION_STATUS_TRANSITIONS.find(t => t.from === from);
+  // Find all transitions from the source status
+  const transitions = APPLICATION_STATUS_TRANSITIONS.filter(t => t.from === from);
   
-  if (!transition) {
+  if (transitions.length === 0) {
     return { isValid: false, error: 'Invalid current status' };
   }
   
-  if (!transition.to.includes(to)) {
+  // Find the specific transition that includes the target status
+  const matchingTransition = transitions.find(t => t.to.includes(to));
+  
+  if (!matchingTransition) {
     return { isValid: false, error: `Cannot transition from ${from} to ${to}` };
   }
   
-  if (transition.requiresAdmin && !isAdmin) {
+  if (matchingTransition.requiresAdmin && !isAdmin) {
     return { isValid: false, error: 'Admin access required for this transition' };
   }
   
@@ -88,11 +108,11 @@ export const validateApplicationStatusTransition = (
     return { isValid: false, error: 'You can only modify your own applications' };
   }
   
-  if (transition.requiresDocuments && !hasRequiredDocuments) {
+  if (matchingTransition.requiresDocuments && !hasRequiredDocuments) {
     return { isValid: false, error: 'All mandatory documents must be uploaded' };
   }
   
-  if (transition.requiresComment && (!comment || comment.trim().length === 0)) {
+  if (matchingTransition.requiresComment && (!comment || comment.trim().length === 0)) {
     return { isValid: false, error: 'Comment is required for this status change' };
   }
   
