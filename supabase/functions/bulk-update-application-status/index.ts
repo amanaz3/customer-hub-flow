@@ -232,8 +232,17 @@ serve(async (req) => {
         }
 
         // If admin made the change, notify the customer's assigned user (if not the one making the change)
+        console.log('Notification check:', {
+          isAdmin,
+          customerUserId: application.customer?.user_id,
+          currentUserId: user.id,
+          willNotify: isAdmin && application.customer?.user_id && application.customer.user_id !== user.id
+        });
+
         if (isAdmin && application.customer?.user_id && application.customer.user_id !== user.id) {
-          await supabase.from('notifications').insert({
+          console.log('Inserting in-app notification for assigned user:', application.customer.user_id);
+          
+          const { data: notifData, error: notifError } = await supabase.from('notifications').insert({
             user_id: application.customer.user_id,
             type: notificationType,
             title: `Application ${newStatus}`,
@@ -242,7 +251,13 @@ serve(async (req) => {
             }`,
             action_url: `/applications/${applicationId}`,
             is_read: false,
-          });
+          }).select();
+
+          if (notifError) {
+            console.error('Error inserting in-app notification:', notifError);
+          } else {
+            console.log('In-app notification created successfully:', notifData);
+          }
         }
 
         // Send email notifications
