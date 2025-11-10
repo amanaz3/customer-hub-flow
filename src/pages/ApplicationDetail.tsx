@@ -70,15 +70,12 @@ const ApplicationDetail = () => {
     try {
       setUpdatingStatus(true);
 
-      // If completion date provided, update application_data first
+      // If completion date provided, update completed_at column
       if (completionDate) {
         await supabase
           .from('account_applications')
           .update({
-            application_data: {
-              ...application?.application_data,
-              completed_at: completionDate.toISOString(),
-            }
+            completed_at: completionDate.toISOString(),
           })
           .eq('id', id);
       }

@@ -18,6 +18,7 @@ export type Database = {
         Row: {
           application_data: Json | null
           application_type: string | null
+          completed_at: string | null
           created_at: string
           customer_id: string | null
           id: string
@@ -29,6 +30,7 @@ export type Database = {
         Insert: {
           application_data?: Json | null
           application_type?: string | null
+          completed_at?: string | null
           created_at?: string
           customer_id?: string | null
           id?: string
@@ -40,6 +42,7 @@ export type Database = {
         Update: {
           application_data?: Json | null
           application_type?: string | null
+          completed_at?: string | null
           created_at?: string
           customer_id?: string | null
           id?: string
