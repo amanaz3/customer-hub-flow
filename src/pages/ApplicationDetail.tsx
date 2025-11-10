@@ -157,18 +157,40 @@ const ApplicationDetail = () => {
   };
 
   const handleEditCompletionDate = async (newDate: Date) => {
-    if (!id) return;
+    if (!id || !application?.completed_at || !user) return;
 
     try {
       setUpdatingStatus(true);
 
-      // Only update completed_at, keep completed_actual unchanged
-      await supabase
+      const previousDate = application.completed_at;
+      const newDateISO = newDate.toISOString();
+
+      // Update completed_at (keep completed_actual unchanged)
+      const { error: updateError } = await supabase
         .from('account_applications')
         .update({
-          completed_at: newDate.toISOString(),
+          completed_at: newDateISO,
         })
         .eq('id', id);
+
+      if (updateError) throw updateError;
+
+      // Log the change to completion_date_history
+      const { error: historyError } = await supabase
+        .from('completion_date_history')
+        .insert({
+          application_id: id,
+          previous_date: previousDate,
+          new_date: newDateISO,
+          changed_by: user.id,
+          changed_by_role: isAdmin ? 'admin' : 'user',
+          comment: 'Completion date adjusted',
+        });
+
+      if (historyError) {
+        console.error('Failed to log completion date change:', historyError);
+        // Don't fail the whole operation if audit logging fails
+      }
 
       // Refresh application data
       const updatedApp = await ApplicationService.fetchApplicationById(id);

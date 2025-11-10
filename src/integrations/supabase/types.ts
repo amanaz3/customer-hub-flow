@@ -440,6 +440,47 @@ export type Database = {
           },
         ]
       }
+      completion_date_history: {
+        Row: {
+          application_id: string
+          changed_by: string
+          changed_by_role: Database["public"]["Enums"]["app_role"]
+          comment: string | null
+          created_at: string
+          id: string
+          new_date: string
+          previous_date: string | null
+        }
+        Insert: {
+          application_id: string
+          changed_by: string
+          changed_by_role: Database["public"]["Enums"]["app_role"]
+          comment?: string | null
+          created_at?: string
+          id?: string
+          new_date: string
+          previous_date?: string | null
+        }
+        Update: {
+          application_id?: string
+          changed_by?: string
+          changed_by_role?: Database["public"]["Enums"]["app_role"]
+          comment?: string | null
+          created_at?: string
+          id?: string
+          new_date?: string
+          previous_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "completion_date_history_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "account_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       customer_services: {
         Row: {
           arr_contribution: number
