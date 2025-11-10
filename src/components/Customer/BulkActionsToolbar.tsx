@@ -162,7 +162,7 @@ export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
                   variant="default"
                   size="sm"
                   disabled={isLoading}
-                  className="shadow-sm"
+                  className="shadow-md bg-primary hover:bg-primary/90"
                 >
                   {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -172,7 +172,15 @@ export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
                   Change Status
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-48">
+              <DropdownMenuContent 
+                align="end" 
+                className="w-56 bg-card border-2 border-primary/20 shadow-2xl z-[100] p-2"
+                sideOffset={8}
+              >
+                <div className="text-xs font-semibold text-muted-foreground px-2 py-1 mb-1">
+                  Select New Status
+                </div>
+                <DropdownMenuSeparator className="mb-2" />
                 {(Object.keys(STATUS_CONFIG) as ApplicationStatus[]).map((status) => {
                   const config = STATUS_CONFIG[status];
                   const Icon = config.icon;
@@ -180,10 +188,15 @@ export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
                     <DropdownMenuItem
                       key={status}
                       onClick={() => onStatusChange(status)}
-                      className={`${config.bgColor} ${config.hoverColor} cursor-pointer`}
+                      className={`
+                        ${config.bgColor} ${config.hoverColor} 
+                        cursor-pointer rounded-md mb-1 border border-transparent
+                        hover:border-current transition-all duration-200
+                        focus:ring-2 focus:ring-primary/50
+                      `}
                     >
-                      <Icon className={`h-4 w-4 mr-2 ${config.color}`} />
-                      <span className={config.color}>{config.label}</span>
+                      <Icon className={`h-4 w-4 mr-2.5 ${config.color}`} />
+                      <span className={`${config.color} font-medium`}>{config.label}</span>
                     </DropdownMenuItem>
                   );
                 })}
