@@ -21,6 +21,7 @@ import {
 } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { TaskAttachments } from './TaskAttachments';
+import { Paperclip, X, FileText, Image as ImageIcon } from 'lucide-react';
 
 interface CreateTaskDialogProps {
   open: boolean;
@@ -188,24 +189,36 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
   const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (!files) return;
+    if (!files || files.length === 0) return;
 
     const allowedTypes = ['image/jpeg', 'image/png', 'image/jpg', 'image/webp', 'application/pdf'];
     const validFiles: File[] = [];
 
-    for (const file of Array.from(files)) {
+    Array.from(files).forEach((file) => {
       if (!allowedTypes.includes(file.type)) {
-        toast.error(`File type not allowed: ${file.name}`);
-        continue;
+        toast.error(`File type not allowed: ${file.name}. Only images and PDFs are supported.`);
+        return;
       }
       if (file.size > 10 * 1024 * 1024) {
         toast.error(`File too large (max 10MB): ${file.name}`);
-        continue;
+        return;
       }
       validFiles.push(file);
-    }
+    });
 
-    setUploadedFiles((prev) => [...prev, ...validFiles]);
+    if (validFiles.length > 0) {
+      setUploadedFiles((prev) => [...prev, ...validFiles]);
+      toast.success(`${validFiles.length} file(s) selected`);
+    }
+    
+    // Reset input to allow selecting the same file again
+    event.target.value = '';
+  };
+
+  const formatFileSize = (bytes: number) => {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
   };
 
   const removeFile = (index: number) => {
@@ -415,15 +428,23 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
 
           {/* Attachments */}
           <div className="space-y-2">
-            <Label className="text-sm">Attachments</Label>
+            <Label className="flex items-center gap-2 text-sm">
+              <Paperclip className="h-4 w-4" />
+              Attachments ({uploadedFiles.length})
+            </Label>
             <div className="space-y-2">
               <Button
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => document.getElementById('create-task-file-upload')?.click()}
+                onClick={() => {
+                  const input = document.getElementById('create-task-file-upload') as HTMLInputElement;
+                  if (input) input.click();
+                }}
+                className="w-full"
               >
-                Add Files
+                <Paperclip className="h-4 w-4 mr-2" />
+                Add Files (Images & PDFs)
               </Button>
               <input
                 id="create-task-file-upload"
@@ -438,16 +459,30 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                   {uploadedFiles.map((file, index) => (
                     <div
                       key={index}
-                      className="flex items-center justify-between p-2 rounded border bg-muted/30"
+                      className="flex items-center justify-between gap-3 p-3 rounded-lg border bg-muted/30"
                     >
-                      <span className="text-sm truncate">{file.name}</span>
+                      <div className="flex items-center gap-3 flex-1 min-w-0">
+                        <div className="text-muted-foreground">
+                          {file.type.startsWith('image/') ? (
+                            <ImageIcon className="h-4 w-4" />
+                          ) : (
+                            <FileText className="h-4 w-4" />
+                          )}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium truncate">{file.name}</p>
+                          <p className="text-xs text-muted-foreground">
+                            {formatFileSize(file.size)}
+                          </p>
+                        </div>
+                      </div>
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
                         onClick={() => removeFile(index)}
                       >
-                        Remove
+                        <X className="h-4 w-4" />
                       </Button>
                     </div>
                   ))}
