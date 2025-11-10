@@ -205,6 +205,23 @@ const ApplicationsList = () => {
     return statusColors[normalizedStatus] || 'bg-gray-500';
   };
 
+  const getStatusLabel = (status: string): string => {
+    const statusLabels: Record<string, string> = {
+      draft: 'Draft',
+      submitted: 'Submitted',
+      returned: 'Returned',
+      'need more info': 'Need More Info',
+      paid: 'Paid',
+      completed: 'Completed',
+      rejected: 'Rejected',
+      under_review: 'Under Review',
+      approved: 'Approved',
+    };
+    
+    const normalizedStatus = status?.toLowerCase() || '';
+    return statusLabels[normalizedStatus] || status?.replace(/_/g, ' ') || 'Unknown';
+  };
+
   const handleBulkStatusChange = async (
     applicationIds: string[],
     newStatus: ApplicationStatus,
@@ -421,9 +438,9 @@ const ApplicationsList = () => {
                               app.status?.toLowerCase() === 'draft' 
                                 ? 'bg-yellow-400 text-black dark:text-black ring-1 ring-yellow-600' 
                                 : 'text-white border-0'
-                            } text-xs px-3 py-1 font-bold uppercase tracking-wide shadow-sm`}
+                            } text-xs px-3 py-1 font-bold tracking-wide shadow-sm`}
                           >
-                            {app.status?.replace(/_/g, ' ') || 'UNKNOWN'}
+                            {getStatusLabel(app.status)}
                           </Badge>
                         </TableCell>
                         <TableCell className="px-3 py-3 text-sm font-bold text-right">
