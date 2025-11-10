@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -38,7 +38,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
   const [showUrlDialog, setShowUrlDialog] = useState(false);
   const [urlInput, setUrlInput] = useState('');
   const [urlTitle, setUrlTitle] = useState('');
-
+  const inputRef = useRef<HTMLInputElement>(null);
   const handleAddUrl = async () => {
     if (!urlInput.trim() || !taskId) {
       toast.error('Please enter a valid URL');
@@ -73,7 +73,22 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
-    if (!files || files.length === 0 || !taskId) return;
+    console.log('[TaskAttachments] file input change', {
+      hasFiles: !!files,
+      filesLength: files?.length,
+      taskId,
+    });
+    if (!files || files.length === 0) {
+      toast.error('No files selected');
+      return;
+    }
+    if (!taskId) {
+      console.warn('[TaskAttachments] Missing taskId, cannot upload');
+      toast.error('Task is not ready yet. Please try again.');
+      // Reset input so selecting the same file re-triggers onChange next time
+      event.target.value = '';
+      return;
+    }
 
     const allowedTypes = [
       'image/jpeg',
@@ -101,6 +116,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
         const fileExt = file.name.split('.').pop();
         const fileName = `${taskId}/${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
 
+        console.log('[TaskAttachments] Uploading to storage', { fileName, size: file.size, type: file.type });
         // Upload to storage
         const { error: uploadError } = await supabase.storage
           .from('task-attachments')
@@ -113,6 +129,14 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
         }
 
         const { data: { user } } = await supabase.auth.getUser();
+        if (!user?.id) {
+          console.warn('[TaskAttachments] No authenticated user found while saving DB record');
+          toast.error('Not authenticated. Please sign in again.');
+          // Clean up uploaded file since we cannot create DB record
+          await supabase.storage.from('task-attachments').remove([fileName]);
+          continue;
+        }
+        console.log('[TaskAttachments] Inserting DB record for attachment');
         const { error: dbError } = await supabase
           .from('task_attachments')
           .insert({
@@ -122,7 +146,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
             file_path: fileName,
             file_size: file.size,
             file_type: file.type,
-            uploaded_by: user?.id,
+            uploaded_by: user.id,
           });
 
         if (dbError) {
@@ -140,6 +164,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
         toast.success(`${uploadedCount} file(s) uploaded successfully`);
         // Small delay to ensure database consistency before refetch
         setTimeout(() => {
+          console.log('[TaskAttachments] Refreshing attachments after upload');
           if (onAttachmentsChange) {
             onAttachmentsChange();
           }
@@ -258,7 +283,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
               variant="outline"
               size="sm"
               disabled={uploading}
-              onClick={() => document.getElementById(inputId)?.click()}
+              onClick={() => inputRef.current?.click()}
             >
               {uploading ? 'Uploading...' : 'Add Files'}
             </Button>
@@ -276,6 +301,7 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
 
       <input
         id={inputId}
+        ref={inputRef}
         type="file"
         multiple
         accept="image/jpeg,image/png,image/jpg,image/webp,application/pdf"
