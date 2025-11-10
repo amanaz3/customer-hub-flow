@@ -130,6 +130,16 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
     }
   };
 
+  const getAttachmentPreviewUrl = (attachment: TaskAttachment): string | null => {
+    if (attachment.file_type.startsWith('image/')) {
+      const { data } = supabase.storage
+        .from('task-attachments')
+        .getPublicUrl(attachment.file_path);
+      return data.publicUrl;
+    }
+    return null;
+  };
+
   const handleDownloadAttachment = async (attachment: TaskAttachment) => {
     try {
       const { data, error } = await supabase.storage
@@ -197,46 +207,60 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
 
       {attachments.length > 0 && (
         <div className="space-y-2">
-          {attachments.map((attachment) => (
-            <div
-              key={attachment.id}
-              className="flex items-center justify-between p-3 rounded-lg border bg-muted/30"
-            >
-              <div className="flex items-center gap-3 flex-1 min-w-0">
-                <div className="text-muted-foreground">
-                  {getFileIcon(attachment.file_type)}
+          {attachments.map((attachment) => {
+            const previewUrl = getAttachmentPreviewUrl(attachment);
+            return (
+              <div
+                key={attachment.id}
+                className="flex items-center justify-between p-3 rounded-lg border bg-muted/30"
+              >
+                <div className="flex items-center gap-3 flex-1 min-w-0">
+                  {previewUrl ? (
+                    <div className="w-12 h-12 rounded overflow-hidden flex-shrink-0 border">
+                      <img 
+                        src={previewUrl} 
+                        alt={attachment.file_name}
+                        className="w-full h-full object-cover cursor-pointer hover:opacity-80 transition-opacity"
+                        onClick={() => window.open(previewUrl, '_blank')}
+                      />
+                    </div>
+                  ) : (
+                    <div className="text-muted-foreground flex-shrink-0">
+                      {getFileIcon(attachment.file_type)}
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium truncate">
+                      {attachment.file_name}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {formatFileSize(attachment.file_size)}
+                    </p>
+                  </div>
                 </div>
-                <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium truncate">
-                    {attachment.file_name}
-                  </p>
-                  <p className="text-xs text-muted-foreground">
-                    {formatFileSize(attachment.file_size)}
-                  </p>
-                </div>
-              </div>
-              <div className="flex items-center gap-1">
-                <Button
-                  type="button"
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleDownloadAttachment(attachment)}
-                >
-                  <Download className="h-4 w-4" />
-                </Button>
-                {allowUpload && (
+                <div className="flex items-center gap-1">
                   <Button
                     type="button"
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleRemoveAttachment(attachment)}
+                    onClick={() => handleDownloadAttachment(attachment)}
                   >
-                    <X className="h-4 w-4" />
+                    <Download className="h-4 w-4" />
                   </Button>
-                )}
+                  {allowUpload && (
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleRemoveAttachment(attachment)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>
