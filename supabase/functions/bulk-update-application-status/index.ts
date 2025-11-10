@@ -6,9 +6,23 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Valid application statuses from database enum
+const VALID_STATUSES = [
+  'draft',
+  'submitted',
+  'returned',
+  'paid',
+  'completed',
+  'rejected',
+  'under_review',
+  'approved'
+] as const;
+
+type ApplicationStatus = typeof VALID_STATUSES[number];
+
 interface BulkUpdateRequest {
   applicationIds: string[];
-  newStatus: string;
+  newStatus: ApplicationStatus;
   comment: string;
   changedBy: string;
 }
@@ -63,6 +77,11 @@ serve(async (req) => {
 
     if (!applicationIds || applicationIds.length === 0) {
       throw new Error('No application IDs provided');
+    }
+
+    // Validate status against database enum
+    if (!newStatus || !VALID_STATUSES.includes(newStatus as ApplicationStatus)) {
+      throw new Error(`Invalid status. Must be one of: ${VALID_STATUSES.join(', ')}`);
     }
 
     const result: BulkUpdateResult = {
