@@ -218,29 +218,6 @@ serve(async (req) => {
           });
         }
 
-        // If non-admin user made the change, notify all admins
-        if (!isAdmin) {
-          const { data: adminProfiles } = await supabase
-            .from('profiles')
-            .select('id')
-            .eq('role', 'admin');
-
-          if (adminProfiles && adminProfiles.length > 0) {
-            const adminNotifications = adminProfiles.map(admin => ({
-              user_id: admin.id,
-              type: notificationType,
-              title: `User updated application status`,
-              message: `User has changed application status for ${application.customer?.name} to ${newStatus}${
-                comment ? `: ${comment}` : ''
-              }`,
-              action_url: `/applications/${applicationId}`,
-              is_read: false,
-            }));
-
-            await supabase.from('notifications').insert(adminNotifications);
-          }
-        }
-
         // Send email notification
         try {
           await supabase.functions.invoke('send-notification-email', {
