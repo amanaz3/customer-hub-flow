@@ -662,6 +662,7 @@ const ApplicationsList = () => {
         isLoading={isUpdating}
         mode="applications"
         selectedStatuses={currentSelection.getSelectedItems().map(app => app.status)}
+        isAdmin={isAdmin}
       />
 
       {/* Bulk Status Change Dialog */}

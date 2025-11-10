@@ -135,6 +135,42 @@ serve(async (req) => {
 
         const previousStatus = application.status;
 
+        // Enforce business rules for bulk status changes
+        // Rule 1: Only rejected and submitted applications can be bulk changed
+        if (previousStatus !== 'rejected' && previousStatus !== 'submitted') {
+          result.failureCount++;
+          result.errors.push(`Application ${applicationId}: Bulk status change only allowed for rejected or submitted applications`);
+          continue;
+        }
+
+        // Rule 2: Only admin can change rejected to submitted
+        if (previousStatus === 'rejected' && newStatus === 'submitted' && !isAdmin) {
+          result.failureCount++;
+          result.errors.push(`Application ${applicationId}: Only admins can change rejected applications to submitted`);
+          continue;
+        }
+
+        // Rule 3: For rejected applications, only transition to submitted is allowed
+        if (previousStatus === 'rejected' && newStatus !== 'submitted') {
+          result.failureCount++;
+          result.errors.push(`Application ${applicationId}: Rejected applications can only be changed to submitted`);
+          continue;
+        }
+
+        // Rule 4: For submitted applications, only transition to rejected is allowed
+        if (previousStatus === 'submitted' && newStatus !== 'rejected') {
+          result.failureCount++;
+          result.errors.push(`Application ${applicationId}: Submitted applications can only be changed to rejected`);
+          continue;
+        }
+
+        // Rule 5: Non-admin cannot bulk change rejected applications at all
+        if (previousStatus === 'rejected' && !isAdmin) {
+          result.failureCount++;
+          result.errors.push(`Application ${applicationId}: Only admins can bulk change rejected applications`);
+          continue;
+        }
+
         // Update the application status
         const { error: updateError } = await supabase
           .from('account_applications')

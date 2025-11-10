@@ -33,6 +33,7 @@ interface BulkActionsToolbarProps {
   isLoading?: boolean;
   mode?: 'customers' | 'applications';
   selectedStatuses?: ApplicationStatus[];
+  isAdmin?: boolean;
 }
 
 // Status configuration with UI labels and styling
@@ -116,13 +117,58 @@ export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
   onStatusChange,
   isLoading = false,
   mode = 'customers',
-  selectedStatuses = []
+  selectedStatuses = [],
+  isAdmin = false
 }) => {
   if (!isVisible) return null;
 
-  // Filter out statuses that are already in the selection
-  const availableStatuses = (Object.keys(STATUS_CONFIG) as ApplicationStatus[])
-    .filter(status => !selectedStatuses.includes(status));
+  // Determine available statuses based on current selection and permissions
+  const getAvailableStatuses = (): ApplicationStatus[] => {
+    if (mode === 'customers') {
+      // For customers mode, keep existing logic
+      return (Object.keys(STATUS_CONFIG) as ApplicationStatus[])
+        .filter(status => !selectedStatuses.includes(status));
+    }
+
+    // For applications mode, enforce specific rules
+    const uniqueStatuses = Array.from(new Set(selectedStatuses));
+    
+    // If all selected applications are rejected
+    if (uniqueStatuses.length === 1 && uniqueStatuses[0] === 'rejected') {
+      // Only admin can change rejected to submitted
+      return isAdmin ? ['submitted'] : [];
+    }
+    
+    // If all selected applications are submitted
+    if (uniqueStatuses.length === 1 && uniqueStatuses[0] === 'submitted') {
+      // Both admin and users can change submitted to rejected
+      return ['rejected'];
+    }
+    
+    // For mixed or other statuses, no bulk status change allowed
+    return [];
+  };
+
+  const availableStatuses = getAvailableStatuses();
+  
+  // Hide the entire toolbar if:
+  // - Non-admin trying to change rejected applications
+  // - No available status options
+  if (mode === 'applications') {
+    const uniqueStatuses = Array.from(new Set(selectedStatuses));
+    const hasRejected = uniqueStatuses.includes('rejected');
+    
+    // Non-admin cannot bulk change rejected applications
+    if (!isAdmin && hasRejected) {
+      return null;
+    }
+    
+    // Only show toolbar if applications are rejected or submitted
+    const validStatuses = uniqueStatuses.every(s => s === 'rejected' || s === 'submitted');
+    if (!validStatuses) {
+      return null;
+    }
+  }
 
   return (
     <Card className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 shadow-2xl border-2 border-primary bg-gradient-to-r from-primary/95 to-primary/90 backdrop-blur-md">
