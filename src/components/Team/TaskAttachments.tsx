@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
@@ -40,6 +40,13 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
   const [urlTitle, setUrlTitle] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const [recent, setRecent] = useState<TaskAttachment[]>([]);
+
+  useEffect(() => {
+    // Clear optimistic items once parent provides fresh attachments to avoid duplicates
+    if (attachments && attachments.length >= 0) {
+      setRecent([]);
+    }
+  }, [attachments]);
   const handleAddUrl = async () => {
     if (!urlInput.trim() || !taskId) {
       toast.error('Please enter a valid URL');
@@ -198,12 +205,16 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
     if (!confirm(`Remove ${attachment.file_name}?`)) return;
 
     try {
-      // Delete from storage
-      const { error: storageError } = await supabase.storage
-        .from('task-attachments')
-        .remove([attachment.file_path]);
-
-      if (storageError) throw storageError;
+      // Delete from storage if it's a file with a valid path
+      if (attachment.attachment_type === 'file' && attachment.file_path) {
+        const { error: storageError } = await supabase.storage
+          .from('task-attachments')
+          .remove([attachment.file_path]);
+        if (storageError) {
+          // If file not found in storage, proceed to DB deletion anyway
+          console.warn('Storage delete warning:', storageError.message);
+        }
+      }
 
       // Delete from database
       const { error: dbError } = await supabase
@@ -212,6 +223,9 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
         .eq('id', attachment.id);
 
       if (dbError) throw dbError;
+
+      // Optimistically remove from local recent list
+      setRecent((prev) => prev.filter((a) => a.id !== attachment.id));
 
       toast.success('Attachment removed');
       if (onAttachmentsChange) {
