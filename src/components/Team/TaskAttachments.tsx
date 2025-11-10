@@ -138,9 +138,12 @@ export const TaskAttachments: React.FC<TaskAttachmentsProps> = ({
 
       if (uploadedCount > 0) {
         toast.success(`${uploadedCount} file(s) uploaded successfully`);
-        if (onAttachmentsChange) {
-          onAttachmentsChange();
-        }
+        // Small delay to ensure database consistency before refetch
+        setTimeout(() => {
+          if (onAttachmentsChange) {
+            onAttachmentsChange();
+          }
+        }, 500);
       }
     } catch (error) {
       console.error('Error uploading files:', error);
