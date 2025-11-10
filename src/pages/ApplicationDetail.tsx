@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Building2, Mail, Phone, FileText, MessageSquare, Users, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Building2, Mail, Phone, FileText, MessageSquare, Users, RefreshCw, Calendar, Clock } from 'lucide-react';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -25,6 +25,7 @@ const ApplicationDetail = () => {
   const [updatingStatus, setUpdatingStatus] = useState(false);
   const [showCompletionDateDialog, setShowCompletionDateDialog] = useState(false);
   const [pendingStatusUpdate, setPendingStatusUpdate] = useState<string | null>(null);
+  const [isEditingCompletionDate, setIsEditingCompletionDate] = useState(false);
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -112,8 +113,46 @@ const ApplicationDetail = () => {
   };
 
   const handleCompletionDateConfirm = (date: Date) => {
-    if (pendingStatusUpdate) {
+    if (isEditingCompletionDate) {
+      handleEditCompletionDate(date);
+    } else if (pendingStatusUpdate) {
       performStatusUpdate(pendingStatusUpdate, date);
+    }
+  };
+
+  const handleEditCompletionDate = async (newDate: Date) => {
+    if (!id) return;
+
+    try {
+      setUpdatingStatus(true);
+
+      // Only update completed_at, keep completed_actual unchanged
+      await supabase
+        .from('account_applications')
+        .update({
+          completed_at: newDate.toISOString(),
+        })
+        .eq('id', id);
+
+      // Refresh application data
+      const updatedApp = await ApplicationService.fetchApplicationById(id);
+      setApplication(updatedApp);
+
+      toast({
+        title: 'Success',
+        description: 'Completion date updated successfully',
+      });
+    } catch (error) {
+      console.error('Error updating completion date:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to update completion date',
+        variant: 'destructive',
+      });
+    } finally {
+      setUpdatingStatus(false);
+      setShowCompletionDateDialog(false);
+      setIsEditingCompletionDate(false);
     }
   };
 
@@ -352,19 +391,76 @@ const ApplicationDetail = () => {
                 </div>
               )}
 
-              <div className="pt-4 border-t grid grid-cols-2 gap-4 text-sm text-muted-foreground">
-                <div>
-                  <p>Created</p>
-                  <p className="font-medium text-foreground">
-                    {new Date(application.created_at).toLocaleString()}
-                  </p>
+              <div className="pt-4 border-t space-y-4">
+                <div className="grid grid-cols-2 gap-4 text-sm text-muted-foreground">
+                  <div>
+                    <p>Created</p>
+                    <p className="font-medium text-foreground">
+                      {new Date(application.created_at).toLocaleString()}
+                    </p>
+                  </div>
+                  <div>
+                    <p>Last Updated</p>
+                    <p className="font-medium text-foreground">
+                      {new Date(application.updated_at).toLocaleString()}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p>Last Updated</p>
-                  <p className="font-medium text-foreground">
-                    {new Date(application.updated_at).toLocaleString()}
-                  </p>
-                </div>
+
+                {/* Completion Timestamps - Only shown for completed applications */}
+                {application.status.toLowerCase() === 'completed' && (
+                  <div className="pt-4 border-t">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="text-sm font-semibold flex items-center gap-2">
+                        <Calendar className="h-4 w-4" />
+                        Completion Details
+                      </h4>
+                      {isAdmin && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setIsEditingCompletionDate(true);
+                            setShowCompletionDateDialog(true);
+                          }}
+                        >
+                          <Clock className="h-3 w-3 mr-1" />
+                          Edit Date
+                        </Button>
+                      )}
+                    </div>
+                    <div className="grid grid-cols-2 gap-4 text-sm">
+                      <div>
+                        <p className="text-muted-foreground flex items-center gap-1">
+                          <Calendar className="h-3 w-3" />
+                          Business Completion Date
+                        </p>
+                        <p className="font-medium text-foreground">
+                          {application.completed_at 
+                            ? new Date(application.completed_at).toLocaleString()
+                            : 'Not set'}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          When work was completed
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-muted-foreground flex items-center gap-1">
+                          <Clock className="h-3 w-3" />
+                          System Completion Time
+                        </p>
+                        <p className="font-medium text-foreground">
+                          {application.completed_actual 
+                            ? new Date(application.completed_actual).toLocaleString()
+                            : 'Not set'}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          When admin marked complete
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
