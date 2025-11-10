@@ -615,7 +615,6 @@ const ApplicationsList = () => {
         onRejectSelected={() => openBulkStatusDialog('rejected')}
         onApproveSelected={() => openBulkStatusDialog('approved')}
         onMarkAsPaidSelected={() => openBulkStatusDialog('paid')}
-        onCompletedSelected={() => openBulkStatusDialog('completed')}
         isLoading={isUpdating}
         mode="applications"
       />

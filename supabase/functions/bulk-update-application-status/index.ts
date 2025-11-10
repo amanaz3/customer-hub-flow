@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-// Valid application statuses from database
+// Valid application statuses from database enum
 const VALID_STATUSES = [
   'draft',
   'submitted',
@@ -15,8 +15,7 @@ const VALID_STATUSES = [
   'completed',
   'rejected',
   'under_review',
-  'approved',
-  'need more info'
+  'approved'
 ] as const;
 
 type ApplicationStatus = typeof VALID_STATUSES[number];
