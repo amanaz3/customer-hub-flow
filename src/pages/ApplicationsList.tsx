@@ -195,6 +195,7 @@ const ApplicationsList = () => {
     rejected: 'bg-red-500',
     completed: 'bg-purple-500',
     paid: 'bg-green-600',
+    returned: 'bg-orange-500',
     'need more info': 'bg-amber-500',
     'need_more_info': 'bg-amber-500',
   };

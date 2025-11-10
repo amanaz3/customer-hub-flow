@@ -63,6 +63,13 @@ const STATUS_CONFIG: Record<ApplicationStatus, {
     bgColor: 'bg-orange-100 dark:bg-orange-900',
     hoverColor: 'hover:bg-orange-200 dark:hover:bg-orange-800'
   },
+  'need more info': {
+    label: 'Need More Info',
+    icon: FileText,
+    color: 'text-amber-700',
+    bgColor: 'bg-amber-100 dark:bg-amber-900',
+    hoverColor: 'hover:bg-amber-200 dark:hover:bg-amber-800'
+  },
   paid: {
     label: 'Paid',
     icon: DollarSign,

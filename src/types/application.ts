@@ -7,6 +7,7 @@ export type ApplicationStatus =
   | 'paid'
   | 'completed'
   | 'rejected'
+  | 'need more info'
   // Legacy statuses (for existing applications only)
   | 'under_review' 
   | 'approved';
