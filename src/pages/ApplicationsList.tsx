@@ -54,9 +54,15 @@ const ApplicationsList = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [activeTab, setActiveTab] = useState('applications');
   
-  // Bulk selection and actions
-  const selection = useTableSelection(applications);
+  // Separate bulk selections for each tab
+  const activeSelection = useTableSelection(applications.filter(app => app.status !== 'rejected'));
+  const rejectedSelection = useTableSelection(applications.filter(app => app.status === 'rejected'));
+  
+  // Use the selection based on active tab
+  const currentSelection = activeTab === 'rejected' ? rejectedSelection : activeSelection;
+  
   const { updateApplicationsStatus, isLoading: isUpdating } = useBulkStatusUpdate();
   const [bulkStatusDialog, setBulkStatusDialog] = useState<{
     isOpen: boolean;
@@ -230,7 +236,8 @@ const ApplicationsList = () => {
     try {
       await updateApplicationsStatus(applicationIds, newStatus, comment);
       await fetchApplications();
-      selection.clearSelection();
+      // Clear selection for the current tab
+      currentSelection.clearSelection();
       setBulkStatusDialog({ isOpen: false, status: null });
     } catch (error) {
       console.error('Bulk status update failed:', error);
@@ -272,7 +279,7 @@ const ApplicationsList = () => {
       </div>
 
       {/* Tab-based Layout */}
-      <Tabs defaultValue="applications" className="w-full">
+      <Tabs defaultValue="applications" className="w-full" onValueChange={setActiveTab}>
         <TabsList className="grid w-full grid-cols-3 max-w-2xl">
           <TabsTrigger 
             value="applications" 
@@ -346,8 +353,8 @@ const ApplicationsList = () => {
                   <TableRow className="hover:bg-transparent border-b-2">
                     <TableHead className="h-10 px-3 py-2 w-12">
                       <Checkbox
-                        checked={selection.isAllSelected}
-                        onCheckedChange={selection.toggleAll}
+                        checked={activeSelection.isAllSelected}
+                        onCheckedChange={activeSelection.toggleAll}
                         aria-label="Select all"
                       />
                     </TableHead>
@@ -390,8 +397,8 @@ const ApplicationsList = () => {
                           onClick={(e) => e.stopPropagation()}
                         >
                           <Checkbox
-                            checked={selection.isSelected(app.id)}
-                            onCheckedChange={() => selection.toggleItem(app.id)}
+                            checked={activeSelection.isSelected(app.id)}
+                            onCheckedChange={() => activeSelection.toggleItem(app.id)}
                             aria-label={`Select ${app.customer?.company}`}
                           />
                         </TableCell>
@@ -509,8 +516,8 @@ const ApplicationsList = () => {
                   <TableRow className="hover:bg-transparent border-b-2">
                     <TableHead className="h-10 px-3 py-2 w-12">
                       <Checkbox
-                        checked={selection.isAllSelected}
-                        onCheckedChange={selection.toggleAll}
+                        checked={rejectedSelection.isAllSelected}
+                        onCheckedChange={rejectedSelection.toggleAll}
                         aria-label="Select all"
                       />
                     </TableHead>
@@ -553,8 +560,8 @@ const ApplicationsList = () => {
                           onClick={(e) => e.stopPropagation()}
                         >
                           <Checkbox
-                            checked={selection.isSelected(app.id)}
-                            onCheckedChange={() => selection.toggleItem(app.id)}
+                            checked={rejectedSelection.isSelected(app.id)}
+                            onCheckedChange={() => rejectedSelection.toggleItem(app.id)}
                             aria-label={`Select ${app.customer?.company}`}
                           />
                         </TableCell>
@@ -648,9 +655,9 @@ const ApplicationsList = () => {
 
       {/* Bulk Actions Toolbar */}
       <BulkActionsToolbar
-        selectedCount={selection.selectedCount}
-        isVisible={selection.selectedCount > 0}
-        onClearSelection={selection.clearSelection}
+        selectedCount={currentSelection.selectedCount}
+        isVisible={currentSelection.selectedCount > 0}
+        onClearSelection={currentSelection.clearSelection}
         onStatusChange={openBulkStatusDialog}
         isLoading={isUpdating}
         mode="applications"
@@ -661,7 +668,7 @@ const ApplicationsList = () => {
         <BulkStatusChangeDialog
           isOpen={bulkStatusDialog.isOpen}
           onClose={() => setBulkStatusDialog({ isOpen: false, status: null })}
-          selectedApplications={selection.getSelectedItems()}
+          selectedApplications={currentSelection.getSelectedItems()}
           newStatus={bulkStatusDialog.status}
           onConfirm={handleBulkStatusChange}
         />
