@@ -26,6 +26,7 @@ const ApplicationDetail = () => {
   const [showCompletionDateDialog, setShowCompletionDateDialog] = useState(false);
   const [pendingStatusUpdate, setPendingStatusUpdate] = useState<string | null>(null);
   const [isEditingCompletionDate, setIsEditingCompletionDate] = useState(false);
+  const [systemCompletedTime, setSystemCompletedTime] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -36,6 +37,20 @@ const ApplicationDetail = () => {
         const data = await ApplicationService.fetchApplicationById(id);
         setApplication(data);
         setSelectedStatus(data?.status || '');
+
+        // If application is completed, fetch the system completion time from status_changes
+        if (data?.status.toLowerCase() === 'completed') {
+          const { data: statusChange } = await supabase
+            .from('status_changes')
+            .select('created_at')
+            .eq('customer_id', data.customer_id)
+            .ilike('new_status', 'completed')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .single();
+          
+          setSystemCompletedTime(statusChange?.created_at || null);
+        }
       } catch (error) {
         console.error('Error fetching application:', error);
         toast({
@@ -524,8 +539,8 @@ const ApplicationDetail = () => {
                           System Completion Time
                         </p>
                         <p className="font-medium text-foreground">
-                          {application.completed_actual 
-                            ? new Date(application.completed_actual).toLocaleString()
+                          {systemCompletedTime 
+                            ? new Date(systemCompletedTime).toLocaleString()
                             : 'Not set'}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
