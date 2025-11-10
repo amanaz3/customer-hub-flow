@@ -119,32 +119,32 @@ export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
   if (!isVisible) return null;
 
   return (
-    <Card className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 shadow-xl border-primary/20 bg-background/95 backdrop-blur-sm">
+    <Card className="fixed bottom-6 left-1/2 transform -translate-x-1/2 z-50 shadow-2xl border-2 border-primary bg-gradient-to-r from-primary/95 to-primary/90 backdrop-blur-md">
       <div className="flex items-center gap-4 p-4">
         <div className="flex items-center gap-2">
-          <div className="p-2 rounded-lg bg-primary/10">
-            <Users className="h-4 w-4 text-primary" />
+          <div className="p-2 rounded-lg bg-white/20 backdrop-blur-sm">
+            <Users className="h-4 w-4 text-white" />
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="secondary" className="px-3 py-1">
+            <Badge variant="secondary" className="px-3 py-1 bg-white text-primary font-bold">
               {selectedCount} selected
             </Badge>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-sm text-white/90 font-medium">
               {selectedCount === 1 ? 'application' : 'applications'}
             </span>
           </div>
         </div>
 
-        <div className="h-6 w-px bg-border" />
+        <div className="h-8 w-px bg-white/20" />
 
         <div className="flex items-center gap-2">
           {mode === 'customers' && onReassignSelected && (
             <Button
-              variant="default"
+              variant="secondary"
               size="sm"
               onClick={onReassignSelected}
               disabled={isLoading}
-              className="shadow-sm"
+              className="shadow-md bg-white hover:bg-white/90 text-primary font-semibold"
             >
               {isLoading ? (
                 <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -159,10 +159,10 @@ export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
-                  variant="default"
+                  variant="secondary"
                   size="sm"
                   disabled={isLoading}
-                  className="shadow-md bg-primary hover:bg-primary/90"
+                  className="shadow-md bg-white hover:bg-white/90 text-primary font-semibold"
                 >
                   {isLoading ? (
                     <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -205,11 +205,11 @@ export const BulkActionsToolbar: React.FC<BulkActionsToolbarProps> = ({
           )}
 
           <Button
-            variant="outline"
+            variant="secondary"
             size="sm"
             onClick={onClearSelection}
             disabled={isLoading}
-            className="shadow-sm"
+            className="shadow-md bg-white/80 hover:bg-white text-primary border border-white/20"
           >
             <X className="h-4 w-4 mr-2" />
             Clear
