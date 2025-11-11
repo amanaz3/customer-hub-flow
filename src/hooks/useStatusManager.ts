@@ -23,6 +23,7 @@ export const useStatusManager = () => {
     newStatus: Status, 
     comment: string,
     hasRequiredDocuments: boolean = false,
+    completedAt?: Date,
     onSuccess?: () => void
   ) => {
     if (!user) {
@@ -72,13 +73,17 @@ export const useStatusManager = () => {
       // Ensure comment is provided for admin actions if required
       const finalComment = comment || (isAdmin ? `Status updated by admin: ${changedByName}` : '');
       
+      // Convert completedAt Date to ISO string if provided
+      const completedAtString = completedAt ? completedAt.toISOString() : undefined;
+      
       // Update application status
       await updateApplicationStatus(
         applicationId,
         newStatus,
         finalComment,
         user.id,
-        changedByRole
+        changedByRole,
+        completedAtString
       );
 
       // Add notification for status change (this will trigger real-time notification)

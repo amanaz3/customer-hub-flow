@@ -247,13 +247,27 @@ export class ApplicationService {
     status: string,
     comment?: string,
     userId?: string,
-    userRole: 'admin' | 'manager' | 'user' = 'user'
+    userRole: 'admin' | 'manager' | 'user' = 'user',
+    completedAt?: string
   ): Promise<void> {
     // Call the edge function to update status and create notifications
     const { data: { session } } = await supabase.auth.getSession();
     
     if (!session) {
       throw new Error('No active session');
+    }
+
+    const body: any = {
+      applicationId,
+      newStatus: status,
+      comment: comment || '',
+      changedBy: userId,
+      changedByRole: userRole,
+    };
+
+    // Add completedAt if provided (for completed status)
+    if (completedAt) {
+      body.completedAt = completedAt;
     }
 
     const response = await fetch(
@@ -264,13 +278,7 @@ export class ApplicationService {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${session.access_token}`,
         },
-        body: JSON.stringify({
-          applicationId,
-          newStatus: status,
-          comment: comment || '',
-          changedBy: userId,
-          changedByRole: userRole,
-        }),
+        body: JSON.stringify(body),
       }
     );
 

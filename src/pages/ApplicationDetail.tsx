@@ -90,23 +90,13 @@ const ApplicationDetail = () => {
     try {
       setUpdatingStatus(true);
 
-      // If completion date provided, update only completed_at
-      // Note: completed_actual is automatically set by database trigger
-      if (completionDate) {
-        await supabase
-          .from('account_applications')
-          .update({
-            completed_at: completionDate.toISOString(),
-          })
-          .eq('id', id);
-      }
-
       await ApplicationService.updateApplicationStatus(
         id,
         status,
         `Status updated by ${user.email}`,
         user.id,
-        isAdmin ? 'admin' : 'user'
+        isAdmin ? 'admin' : 'user',
+        completionDate?.toISOString()
       );
 
       // Refresh application data

@@ -16,9 +16,9 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { applicationId, newStatus, comment, changedBy, changedByRole } = await req.json();
+    const { applicationId, newStatus, comment, changedBy, changedByRole, completedAt } = await req.json();
 
-    console.log('Updating application status:', { applicationId, newStatus, comment, changedBy, changedByRole });
+    console.log('Updating application status:', { applicationId, newStatus, comment, changedBy, changedByRole, completedAt });
 
     // Validate required fields
     if (!applicationId || !newStatus || !changedBy || !changedByRole) {
@@ -78,8 +78,12 @@ Deno.serve(async (req) => {
       updated_at: new Date().toISOString() 
     };
 
-    // Note: completed_actual is now automatically set by database trigger
-    // from status_changes.created_at to ensure consistency
+    // If status is completed and completedAt is provided, set the completed_at timestamp
+    // completed_actual is automatically set by database trigger from application_status_changes.created_at
+    if (newStatus.toLowerCase() === 'completed' && completedAt) {
+      updateData.completed_at = completedAt;
+      console.log('Setting completed_at to:', completedAt);
+    }
 
     const { data: updatedApplication, error: updateError } = await supabase
       .from('account_applications')
@@ -117,6 +121,25 @@ Deno.serve(async (req) => {
     if (messageError) {
       console.error('Error adding status message:', messageError);
       // Don't fail the whole operation if message fails
+    }
+
+    // Record status change in application_status_changes table
+    const { error: statusChangeError } = await supabase
+      .from('application_status_changes')
+      .insert({
+        application_id: applicationId,
+        previous_status: previousStatus,
+        new_status: newStatus,
+        changed_by: changedBy,
+        changed_by_role: changedByRole,
+        comment: comment || null,
+      });
+
+    if (statusChangeError) {
+      console.error('Error recording status change:', statusChangeError);
+      // Don't fail the whole operation if status change recording fails
+    } else {
+      console.log('Status change recorded in application_status_changes table');
     }
 
     // Create notifications for relevant users

@@ -133,19 +133,26 @@ export const useCustomerActions = (
     }
   };
 
-  const updateApplicationStatus = async (applicationId: string, status: string, comment: string, changedBy: string, role: string) => {
+  const updateApplicationStatus = async (applicationId: string, status: string, comment: string, changedBy: string, role: string, completedAt?: string) => {
     try {
-      console.log('Updating application status:', { applicationId, status, comment, changedBy, role });
+      console.log('Updating application status:', { applicationId, status, comment, changedBy, role, completedAt });
       
       // Use the edge function to properly track status changes
+      const body: any = {
+        applicationId,
+        newStatus: status,
+        comment,
+        changedBy,
+        changedByRole: role
+      };
+
+      // Add completedAt if provided (for completed status)
+      if (completedAt) {
+        body.completedAt = completedAt;
+      }
+
       const { data, error } = await supabase.functions.invoke('update-application-status', {
-        body: {
-          applicationId,
-          newStatus: status,
-          comment,
-          changedBy,
-          changedByRole: role
-        }
+        body
       });
 
       if (error) {

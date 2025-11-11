@@ -18,7 +18,7 @@ interface CustomerContextType {
   setDocuments: (documents: Document[]) => void;
   refreshData: () => Promise<void>;
   uploadDocument: (customerId: string, documentId: string, filePath: string) => Promise<void>;
-  updateApplicationStatus: (applicationId: string, status: string, comment: string, changedBy: string, role: string) => void;
+  updateApplicationStatus: (applicationId: string, status: string, comment: string, changedBy: string, role: string, completedAt?: string) => void;
   submitApplicationToAdmin: (applicationId: string, userId: string) => void;
   deleteDocument: (customerId: string, documentId: string, filePath: string) => Promise<void>;
   replaceDocument: (customerId: string, documentId: string, oldFilePath: string, newFile: File) => Promise<void>;
