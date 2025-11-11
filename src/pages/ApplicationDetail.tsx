@@ -169,6 +169,16 @@ const ApplicationDetail = () => {
   const handleEditCompletionDate = async (newDate: Date) => {
     if (!id || !application?.completed_at || !user) return;
 
+    // Only admins can edit completion dates
+    if (!isAdmin) {
+      toast({
+        title: 'Unauthorized',
+        description: 'Only administrators can edit completion dates',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     try {
       setUpdatingStatus(true);
 
