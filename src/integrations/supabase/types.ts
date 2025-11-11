@@ -175,6 +175,47 @@ export type Database = {
           },
         ]
       }
+      application_status_changes: {
+        Row: {
+          application_id: string
+          changed_by: string
+          changed_by_role: Database["public"]["Enums"]["app_role"]
+          comment: string | null
+          created_at: string
+          id: string
+          new_status: Database["public"]["Enums"]["application_status"]
+          previous_status: Database["public"]["Enums"]["application_status"]
+        }
+        Insert: {
+          application_id: string
+          changed_by: string
+          changed_by_role: Database["public"]["Enums"]["app_role"]
+          comment?: string | null
+          created_at?: string
+          id?: string
+          new_status: Database["public"]["Enums"]["application_status"]
+          previous_status: Database["public"]["Enums"]["application_status"]
+        }
+        Update: {
+          application_id?: string
+          changed_by?: string
+          changed_by_role?: Database["public"]["Enums"]["app_role"]
+          comment?: string | null
+          created_at?: string
+          id?: string
+          new_status?: Database["public"]["Enums"]["application_status"]
+          previous_status?: Database["public"]["Enums"]["application_status"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_status_changes_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "account_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       application_status_preferences: {
         Row: {
           created_at: string
