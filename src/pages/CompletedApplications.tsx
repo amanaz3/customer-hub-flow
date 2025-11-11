@@ -63,11 +63,11 @@ const CompletedApplications = () => {
                 .eq('new_status', 'paid')
                 .order('created_at', { ascending: false })
                 .limit(1)
-                .single();
+                .maybeSingle(); // Use maybeSingle instead of single to avoid 406 errors
               
               return {
                 ...app,
-                paid_date: statusChange?.created_at
+                paid_date: statusChange?.created_at || app.updated_at // Fallback to updated_at if no status change
               };
             }
             return app;
