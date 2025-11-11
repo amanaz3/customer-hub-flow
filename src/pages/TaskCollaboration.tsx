@@ -507,15 +507,17 @@ const TaskCollaboration: React.FC = () => {
     return activeUserIds.size;
   };
 
-  // Calculate subtask counts for each task
-  const subtaskCounts = tasks.reduce((acc, task) => {
+  // Group tasks by parent
+  const parentTasks = tasks.filter(t => !t.parent_id);
+  const subtasksByParent = tasks.reduce((acc, task) => {
     if (task.parent_id) {
-      acc[task.parent_id] = (acc[task.parent_id] || 0) + 1;
+      if (!acc[task.parent_id]) acc[task.parent_id] = [];
+      acc[task.parent_id].push(task);
     }
     return acc;
-  }, {} as Record<string, number>);
+  }, {} as Record<string, typeof tasks>);
 
-  const filteredTasks = tasks.filter((task) => {
+  const filteredTasks = parentTasks.filter((task) => {
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesStatus = statusFilter === 'all' || task.status === statusFilter;
     const matchesPriority = priorityFilter === 'all' || 
@@ -1029,13 +1031,14 @@ const TaskCollaboration: React.FC = () => {
                     key={task.id}
                     task={task}
                     attachments={taskAttachments[task.id] || []}
+                    subtasks={subtasksByParent[task.id] || []}
+                    subtaskAttachments={taskAttachments}
                     onClick={() => {
                       setSelectedTaskId(task.id);
                       setTaskDetailOpen(true);
                     }}
                     showActions
                     onDelete={deleteTask}
-                    subtaskCount={subtaskCounts[task.id] || 0}
                   />
                 ))}
                 {filteredTasks.length === 0 && (

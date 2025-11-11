@@ -43,7 +43,7 @@ interface TaskCardProps {
     module?: string | null;
     category?: string | null;
     architectural_component?: string | null;
-    parent_id?: string | null; // Add parent_id
+    parent_id?: string | null;
   };
   attachments?: TaskAttachment[];
   onClick: () => void;
@@ -51,7 +51,8 @@ interface TaskCardProps {
   onRemoveFromProduct?: (taskId: string) => void;
   onDelete?: (taskId: string) => void;
   showActions?: boolean;
-  subtaskCount?: number; // Add subtask count
+  subtasks?: TaskCardProps['task'][];
+  subtaskAttachments?: Record<string, TaskAttachment[]>;
 }
 
 export const TaskCard: React.FC<TaskCardProps> = ({ 
@@ -62,7 +63,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   onRemoveFromProduct, 
   onDelete,
   showActions = false,
-  subtaskCount = 0,
+  subtasks = [],
+  subtaskAttachments = {},
 }) => {
   const imageAttachments = attachments.filter(
     (att) => att.attachment_type === 'file' && att.file_type?.startsWith('image/')
@@ -70,6 +72,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const otherAttachments = attachments.filter(
     (att) => att.attachment_type !== 'file' || !att.file_type?.startsWith('image/')
   );
+  
   const getTypeIcon = () => {
     switch (task.type) {
       case 'bug': return <Bug className="h-4 w-4" />;
@@ -129,132 +132,167 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   };
 
   return (
-    <div
-      className={cn(
-        "group p-3 rounded-lg border bg-card hover:bg-accent/50 transition-all",
-        task.parent_id && "ml-6 border-l-4 border-l-muted-foreground/30"
-      )}
-    >
-      <div className="flex items-start justify-between gap-3">
-        <div className="flex-1 min-w-0 cursor-pointer" onClick={onClick}>
-          <div className="flex items-center gap-2 mb-2">
-            {task.parent_id && (
-              <CornerDownRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-            )}
-            <span className={cn('flex-shrink-0', getPriorityColor())}>
-              {getTypeIcon()}
-            </span>
-            <h4 className="text-sm font-medium text-foreground truncate">
-              {task.title}
-            </h4>
-            {subtaskCount > 0 && (
-              <Badge variant="secondary" className="text-xs flex items-center gap-1">
-                <ListTree className="h-3 w-3" />
-                {subtaskCount}
-              </Badge>
-            )}
-          </div>
-
-          <div className="flex items-center gap-2 flex-wrap">
-            <Badge variant="outline" className={cn('text-xs font-semibold', getPriorityColor())}>
-              <span className="flex items-center gap-1">
-                {getPriorityIcon()}
-                {task.priority}
-              </span>
-            </Badge>
-
-            <Badge variant="outline" className={cn('text-xs', getStatusColor())}>
-              <span className="flex items-center gap-1">
-                {getStatusIcon()}
-                {task.status.replace('_', ' ')}
-              </span>
-            </Badge>
-
-            <Badge variant="secondary" className="text-xs">
-              <span className="flex items-center gap-1">
+    <div className="rounded-lg border bg-card transition-all hover:bg-accent/50">
+      <div className="group p-3 cursor-pointer" onClick={onClick}>
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 mb-2">
+              <span className={cn('flex-shrink-0', getPriorityColor())}>
                 {getTypeIcon()}
-                {task.type.replace('_', ' ')}
               </span>
-            </Badge>
+              <h4 className="text-sm font-medium text-foreground truncate">
+                {task.title}
+              </h4>
+              {subtasks.length > 0 && (
+                <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                  <ListTree className="h-3 w-3" />
+                  {subtasks.length}
+                </Badge>
+              )}
+            </div>
 
-            {task.architectural_component && (
-              <Badge variant="default" className="text-xs">
-                {task.architectural_component.replace('_', ' ')}
+            <div className="flex items-center gap-2 flex-wrap">
+              <Badge variant="outline" className={cn('text-xs font-semibold', getPriorityColor())}>
+                <span className="flex items-center gap-1">
+                  {getPriorityIcon()}
+                  {task.priority}
+                </span>
               </Badge>
-            )}
 
-            {task.module && (
+              <Badge variant="outline" className={cn('text-xs', getStatusColor())}>
+                <span className="flex items-center gap-1">
+                  {getStatusIcon()}
+                  {task.status.replace('_', ' ')}
+                </span>
+              </Badge>
+
               <Badge variant="secondary" className="text-xs">
-                {task.module}
+                <span className="flex items-center gap-1">
+                  {getTypeIcon()}
+                  {task.type.replace('_', ' ')}
+                </span>
               </Badge>
-            )}
 
-            {task.category && (
-              <Badge variant="outline" className="text-xs bg-accent/50">
-                {task.category.replace('_', ' ')}
-              </Badge>
+              {task.architectural_component && (
+                <Badge variant="default" className="text-xs">
+                  {task.architectural_component.replace('_', ' ')}
+                </Badge>
+              )}
+
+              {task.module && (
+                <Badge variant="secondary" className="text-xs">
+                  {task.module}
+                </Badge>
+              )}
+
+              {task.category && (
+                <Badge variant="outline" className="text-xs bg-accent/50">
+                  {task.category.replace('_', ' ')}
+                </Badge>
+              )}
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2 flex-shrink-0">
+            {attachments.length > 0 && (
+              <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-muted text-muted-foreground">
+                <Paperclip className="h-3 w-3" />
+                <span className="text-xs font-medium">{attachments.length}</span>
+              </div>
+            )}
+            
+            {task.assigned_to && task.assignee_name && (
+              <Avatar className="h-6 w-6">
+                <AvatarFallback className="bg-primary text-primary-foreground text-xs">
+                  {getInitials(task.assignee_name)}
+                </AvatarFallback>
+              </Avatar>
+            )}
+            
+            {showActions && (
+              <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                {(onRemoveFromProject || onRemoveFromProduct) && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-6 w-6"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (onRemoveFromProduct) {
+                        onRemoveFromProduct(task.id);
+                      } else if (onRemoveFromProject) {
+                        onRemoveFromProject(task.id);
+                      }
+                    }}
+                    title={onRemoveFromProduct ? "Remove from product" : "Remove from project"}
+                  >
+                    <X className="h-3 w-3" />
+                  </Button>
+                )}
+                {onDelete && (
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-6 w-6 text-destructive hover:text-destructive"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onDelete(task.id);
+                    }}
+                    title="Delete task"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
             )}
           </div>
-        </div>
-
-        <div className="flex items-center gap-2 flex-shrink-0">
-          {attachments.length > 0 && (
-            <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-muted text-muted-foreground">
-              <Paperclip className="h-3 w-3" />
-              <span className="text-xs font-medium">{attachments.length}</span>
-            </div>
-          )}
-          
-          {task.assigned_to && task.assignee_name && (
-            <Avatar className="h-6 w-6">
-              <AvatarFallback className="bg-primary text-primary-foreground text-xs">
-                {getInitials(task.assignee_name)}
-              </AvatarFallback>
-            </Avatar>
-          )}
-          
-          {showActions && (
-            <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-              {(onRemoveFromProject || onRemoveFromProduct) && (
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-6 w-6"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    if (onRemoveFromProduct) {
-                      onRemoveFromProduct(task.id);
-                    } else if (onRemoveFromProject) {
-                      onRemoveFromProject(task.id);
-                    }
-                  }}
-                  title={onRemoveFromProduct ? "Remove from product" : "Remove from project"}
-                >
-                  <X className="h-3 w-3" />
-                </Button>
-              )}
-              {onDelete && (
-                <Button
-                  size="icon"
-                  variant="ghost"
-                  className="h-6 w-6 text-destructive hover:text-destructive"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onDelete(task.id);
-                  }}
-                  title="Delete task"
-                >
-                  <Trash2 className="h-3 w-3" />
-                </Button>
-              )}
-            </div>
-          )}
         </div>
       </div>
 
+      {/* Subtasks */}
+      {subtasks.length > 0 && (
+        <div className="mt-2 ml-3 pl-3 border-l-2 border-muted space-y-2 pb-2">
+          {subtasks.map((subtask) => (
+            <div
+              key={subtask.id}
+              className="p-2 rounded-md bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"
+              onClick={(e) => {
+                e.stopPropagation();
+                onClick();
+              }}
+            >
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <CornerDownRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+                  <span className="text-xs font-medium truncate">{subtask.title}</span>
+                  <Badge variant="outline" className={cn('text-[10px] px-1 py-0', getStatusColor())}>
+                    {subtask.status.replace('_', ' ')}
+                  </Badge>
+                </div>
+                
+                {subtaskAttachments[subtask.id]?.length > 0 && (
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <Paperclip className="h-3 w-3" />
+                    <span className="text-xs">{subtaskAttachments[subtask.id].length}</span>
+                  </div>
+                )}
+                
+                {subtask.assigned_to && subtask.assignee_name && (
+                  <Avatar className="h-5 w-5">
+                    <AvatarFallback className="bg-primary text-primary-foreground text-[10px]">
+                      {getInitials(subtask.assignee_name)}
+                    </AvatarFallback>
+                  </Avatar>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+
       {/* Attachments Preview */}
       {attachments.length > 0 && (
-        <div className="mt-3 pt-3 border-t border-border/50">
+        <div className="mt-3 pt-3 border-t border-border/50 px-3 pb-3">
           <div className="flex items-center gap-2">
             {/* Image Thumbnails */}
             {imageAttachments.length > 0 && (
