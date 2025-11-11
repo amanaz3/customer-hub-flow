@@ -85,19 +85,18 @@ const CompletedApplications = () => {
     fetchApplications();
   }, [user, isAdmin]);
   
-  // Generate available months from the data
+  // Generate available months from the data (always show all months regardless of status filter)
   const availableMonths = useMemo(() => {
     const months = new Set<string>();
     
     applications.forEach(app => {
       let dateToUse: string | undefined;
       
-      if (statusFilter === 'completed' && app.status === 'completed') {
+      // Use the appropriate date based on application status
+      if (app.status === 'completed' && app.completed_at) {
         dateToUse = app.completed_at;
-      } else if (statusFilter === 'paid' && app.status === 'paid') {
+      } else if (app.status === 'paid' && app.paid_date) {
         dateToUse = app.paid_date;
-      } else if (statusFilter === 'all') {
-        dateToUse = app.status === 'completed' ? app.completed_at : app.paid_date;
       }
       
       if (dateToUse) {
@@ -107,7 +106,7 @@ const CompletedApplications = () => {
       }
     });
     
-    return Array.from(months).sort().map(monthKey => {
+    return Array.from(months).sort().reverse().map(monthKey => {
       const [year, month] = monthKey.split('-').map(Number);
       const date = new Date(year, month);
       return {
@@ -115,7 +114,7 @@ const CompletedApplications = () => {
         label: format(date, "MMMM yyyy")
       };
     });
-  }, [applications, statusFilter]);
+  }, [applications]);
 
   const { filteredApplications, completeCount, paidCount, totalRevenue } = useMemo(() => {
     // Apply status filter
