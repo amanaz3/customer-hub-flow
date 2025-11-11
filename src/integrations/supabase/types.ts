@@ -551,6 +551,8 @@ export type Database = {
           annual_turnover: number | null
           any_suitable_bank: boolean | null
           company: string
+          completed_actual: string | null
+          completed_at: string | null
           created_at: string | null
           customer_notes: string | null
           document_checklist_complete: boolean
@@ -575,6 +577,8 @@ export type Database = {
           annual_turnover?: number | null
           any_suitable_bank?: boolean | null
           company: string
+          completed_actual?: string | null
+          completed_at?: string | null
           created_at?: string | null
           customer_notes?: string | null
           document_checklist_complete?: boolean
@@ -599,6 +603,8 @@ export type Database = {
           annual_turnover?: number | null
           any_suitable_bank?: boolean | null
           company?: string
+          completed_actual?: string | null
+          completed_at?: string | null
           created_at?: string | null
           customer_notes?: string | null
           document_checklist_complete?: boolean
