@@ -13,6 +13,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Application } from '@/types/application';
 import { formatApplicationReferenceWithHash } from '@/utils/referenceNumberFormatter';
 import { CompletionDateDialog } from '@/components/Customer/CompletionDateDialog';
+import { CompletionDateHistory } from '@/components/Customer/CompletionDateHistory';
 
 const ApplicationDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -410,6 +411,12 @@ const ApplicationDetail = () => {
             <Users className="h-4 w-4 mr-2" />
             Owners ({application.owners?.length || 0})
           </TabsTrigger>
+          {application.status.toLowerCase() === 'completed' && (
+            <TabsTrigger value="history">
+              <Clock className="h-4 w-4 mr-2" />
+              Completion History
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="details">
@@ -653,6 +660,12 @@ const ApplicationDetail = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {application.status.toLowerCase() === 'completed' && (
+          <TabsContent value="history">
+            <CompletionDateHistory applicationId={application.id} />
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
