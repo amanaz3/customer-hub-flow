@@ -1,9 +1,6 @@
-
-import React, { useState, useMemo, memo } from 'react';
-import OptimizedCustomerTable from '@/components/Customer/OptimizedCustomerTable';
+import React, { useState, useMemo, memo, useEffect } from 'react';
 import LazyWrapper from '@/components/Performance/LazyWrapper';
 import { useAuth } from '@/contexts/SecureAuthContext';
-import { useCustomers } from '@/contexts/CustomerContext';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -12,24 +9,99 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { CalendarIcon, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
+import { Application } from '@/types/application';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { useNavigate } from 'react-router-dom';
+import { Badge } from '@/components/ui/badge';
+
+type ApplicationWithCustomer = Application & {
+  paid_date?: string;
+};
 
 const CompletedApplications = () => {
   const { user, isAdmin } = useAuth();
-  const { customers, getCustomersByUserId } = useCustomers();
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'Complete' | 'Paid'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'paid'>('all');
   const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
+  const [applications, setApplications] = useState<ApplicationWithCustomer[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Fetch applications
+  useEffect(() => {
+    const fetchApplications = async () => {
+      if (!user) return;
+      
+      setLoading(true);
+      try {
+        let query = supabase
+          .from('account_applications')
+          .select(`
+            *,
+            customer:customers(id, name, email, mobile, company, license_type, user_id)
+          `)
+          .in('status', ['completed', 'paid']);
+        
+        // Non-admins only see their own applications
+        if (!isAdmin) {
+          query = query.eq('customer.user_id', user.id);
+        }
+        
+        const { data, error } = await query;
+        
+        if (error) throw error;
+        
+        // For paid applications, fetch the paid date from application_status_changes
+        const applicationsWithPaidDate = await Promise.all(
+          (data || []).map(async (app: any) => {
+            if (app.status === 'paid') {
+              const { data: statusChange } = await supabase
+                .from('application_status_changes')
+                .select('created_at')
+                .eq('application_id', app.id)
+                .eq('new_status', 'paid')
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .single();
+              
+              return {
+                ...app,
+                paid_date: statusChange?.created_at
+              };
+            }
+            return app;
+          })
+        );
+        
+        setApplications(applicationsWithPaidDate);
+      } catch (error) {
+        console.error('Error fetching applications:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchApplications();
+  }, [user, isAdmin]);
   
   // Generate available months from the data
   const availableMonths = useMemo(() => {
-    const completedApplications = isAdmin 
-      ? customers.filter(c => c.status === 'Complete' || c.status === 'Paid')
-      : getCustomersByUserId(user?.id || '').filter(c => c.status === 'Complete' || c.status === 'Paid');
-    
     const months = new Set<string>();
-    completedApplications.forEach(customer => {
-      if (customer.created_at) {
-        const date = new Date(customer.created_at);
+    
+    applications.forEach(app => {
+      let dateToUse: string | undefined;
+      
+      if (statusFilter === 'completed' && app.status === 'completed') {
+        dateToUse = app.completed_at;
+      } else if (statusFilter === 'paid' && app.status === 'paid') {
+        dateToUse = app.paid_date;
+      } else if (statusFilter === 'all') {
+        dateToUse = app.status === 'completed' ? app.completed_at : app.paid_date;
+      }
+      
+      if (dateToUse) {
+        const date = new Date(dateToUse);
         const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
         months.add(monthKey);
       }
@@ -43,51 +115,58 @@ const CompletedApplications = () => {
         label: format(date, "MMMM yyyy")
       };
     });
-  }, [customers, isAdmin, user?.id, getCustomersByUserId]);
+  }, [applications, statusFilter]);
 
-  const { filteredCustomers, completeCount, paidCount, totalRevenue } = useMemo(() => {
-    // For regular users, show only their completed applications
-    // For admins, show all completed applications
-    const completedApplications = isAdmin 
-      ? customers.filter(c => c.status === 'Complete' || c.status === 'Paid')
-      : getCustomersByUserId(user?.id || '').filter(c => c.status === 'Complete' || c.status === 'Paid');
-    
+  const { filteredApplications, completeCount, paidCount, totalRevenue } = useMemo(() => {
     // Apply status filter
-    const statusFiltered = statusFilter === 'all' 
-      ? completedApplications 
-      : completedApplications.filter(c => c.status === statusFilter);
+    let statusFiltered = applications;
+    if (statusFilter === 'completed') {
+      statusFiltered = applications.filter(a => a.status === 'completed');
+    } else if (statusFilter === 'paid') {
+      statusFiltered = applications.filter(a => a.status === 'paid');
+    }
+    // 'all' shows both completed and paid (no additional filtering needed)
     
-    // Apply month filter
+    // Apply month filter (only when months are selected)
     const monthFiltered = selectedMonths.length > 0
-      ? statusFiltered.filter(customer => {
-          if (!customer.created_at) return false;
-          const customerDate = new Date(customer.created_at);
-          const monthKey = `${customerDate.getFullYear()}-${customerDate.getMonth()}`;
+      ? statusFiltered.filter(app => {
+          let dateToUse: string | undefined;
+          
+          if (app.status === 'completed') {
+            dateToUse = app.completed_at;
+          } else if (app.status === 'paid') {
+            dateToUse = app.paid_date;
+          }
+          
+          if (!dateToUse) return false;
+          
+          const appDate = new Date(dateToUse);
+          const monthKey = `${appDate.getFullYear()}-${appDate.getMonth()}`;
           return selectedMonths.includes(monthKey);
         })
       : statusFiltered;
     
     // Apply search filter
-    const searchFiltered = monthFiltered.filter(customer => 
-      customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.company.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      customer.email.toLowerCase().includes(searchTerm.toLowerCase())
+    const searchFiltered = monthFiltered.filter(app => 
+      app.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.customer?.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.customer?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      app.reference_number?.toString().includes(searchTerm)
     );
 
-    const complete = completedApplications.filter(c => c.status === 'Complete').length;
-    const paid = completedApplications.filter(c => c.status === 'Paid').length;
+    const complete = applications.filter(a => a.status === 'completed').length;
+    const paid = applications.filter(a => a.status === 'paid').length;
     
     // Calculate revenue from filtered results
-    const revenue = searchFiltered.reduce((sum, c) => sum + c.amount, 0);
+    const revenue = searchFiltered.reduce((sum, app) => sum + (app.application_data?.amount || 0), 0);
 
     return {
-      filteredCustomers: searchFiltered,
+      filteredApplications: searchFiltered,
       completeCount: complete,
       paidCount: paid,
-      totalCompleted: completedApplications.length,
       totalRevenue: revenue
     };
-  }, [customers, isAdmin, user?.id, getCustomersByUserId, searchTerm, statusFilter, selectedMonths]);
+  }, [applications, searchTerm, statusFilter, selectedMonths]);
 
   const toggleMonth = (monthKey: string) => {
     setSelectedMonths(prev => 
@@ -99,107 +178,167 @@ const CompletedApplications = () => {
 
   return (
     <div className="space-y-6">
-        <div>
-          <h1 className="text-3xl font-bold">Completed Applications</h1>
-          <p className="text-muted-foreground">
-            View completed applications {!isAdmin && 'you submitted'} (Revenue: {new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED' }).format(totalRevenue)})
-          </p>
-        </div>
-        
-        <LazyWrapper className="min-h-[100px]">
-          <div className="flex flex-col md:flex-row md:items-center gap-4">
-            <Input
-              placeholder="Search by name, company, or email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="md:max-w-xs"
-            />
-            
-            <Select value={statusFilter} onValueChange={(value: 'all' | 'Complete' | 'Paid') => setStatusFilter(value)}>
-              <SelectTrigger className="w-[150px]">
-                <SelectValue placeholder="Filter by status" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All</SelectItem>
-                <SelectItem value="Complete">Complete</SelectItem>
-                <SelectItem value="Paid">Paid</SelectItem>
-              </SelectContent>
-            </Select>
-            
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-[200px] justify-start text-left font-normal",
-                    selectedMonths.length === 0 && "text-muted-foreground"
-                  )}
-                >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {selectedMonths.length > 0 
-                    ? `${selectedMonths.length} month${selectedMonths.length > 1 ? 's' : ''} selected`
-                    : "Filter by months"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-4" align="start">
-                <div className="space-y-3">
-                  <div className="text-sm font-medium">Select months:</div>
-                  <div className="max-h-48 overflow-y-auto space-y-2">
-                    {availableMonths.map((month) => (
-                      <div key={month.key} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={month.key}
-                          checked={selectedMonths.includes(month.key)}
-                          onCheckedChange={() => toggleMonth(month.key)}
-                        />
-                        <label
-                          htmlFor={month.key}
-                          className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                        >
-                          {month.label}
-                        </label>
-                      </div>
-                    ))}
-                  </div>
-                  {selectedMonths.length > 0 && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => setSelectedMonths([])}
-                      className="w-full"
-                    >
-                      Clear all
-                    </Button>
-                  )}
-                </div>
-              </PopoverContent>
-            </Popover>
-            
-            {selectedMonths.length > 0 && (
+      <div>
+        <h1 className="text-3xl font-bold">Completed Applications</h1>
+        <p className="text-muted-foreground">
+          View completed applications {!isAdmin && 'you submitted'} (Revenue: {new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED' }).format(totalRevenue)})
+        </p>
+      </div>
+      
+      <LazyWrapper className="min-h-[100px]">
+        <div className="flex flex-col md:flex-row md:items-center gap-4">
+          <Input
+            placeholder="Search by name, company, email, or ref#..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="md:max-w-xs"
+          />
+          
+          <Select value={statusFilter} onValueChange={(value: 'all' | 'completed' | 'paid') => setStatusFilter(value)}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All (Completed & Paid)</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="paid">Paid</SelectItem>
+            </SelectContent>
+          </Select>
+          
+          <Popover>
+            <PopoverTrigger asChild>
               <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setSelectedMonths([])}
-                className="h-8 px-2 lg:px-3"
+                variant="outline"
+                className={cn(
+                  "w-[200px] justify-start text-left font-normal",
+                  selectedMonths.length === 0 && "text-muted-foreground"
+                )}
               >
-                Clear months
-                <X className="ml-2 h-4 w-4" />
+                <CalendarIcon className="mr-2 h-4 w-4" />
+                {selectedMonths.length > 0 
+                  ? `${selectedMonths.length} month${selectedMonths.length > 1 ? 's' : ''} selected`
+                  : "Filter by months"}
               </Button>
-            )}
-            
-            <div className="flex gap-2">
-              <div className="text-sm text-muted-foreground px-3 py-2 bg-muted rounded-md">
-                Complete: {completeCount} | Paid: {paidCount}
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-4" align="start">
+              <div className="space-y-3">
+                <div className="text-sm font-medium">Select months:</div>
+                <div className="max-h-48 overflow-y-auto space-y-2">
+                  {availableMonths.map((month) => (
+                    <div key={month.key} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={month.key}
+                        checked={selectedMonths.includes(month.key)}
+                        onCheckedChange={() => toggleMonth(month.key)}
+                      />
+                      <label
+                        htmlFor={month.key}
+                        className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                      >
+                        {month.label}
+                      </label>
+                    </div>
+                  ))}
+                </div>
+                {selectedMonths.length > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setSelectedMonths([])}
+                    className="w-full"
+                  >
+                    Clear all
+                  </Button>
+                )}
               </div>
+            </PopoverContent>
+          </Popover>
+          
+          {selectedMonths.length > 0 && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setSelectedMonths([])}
+              className="h-8 px-2 lg:px-3"
+            >
+              Clear months
+              <X className="ml-2 h-4 w-4" />
+            </Button>
+          )}
+          
+          <div className="flex gap-2">
+            <div className="text-sm text-muted-foreground px-3 py-2 bg-muted rounded-md">
+              Complete: {completeCount} | Paid: {paidCount}
             </div>
           </div>
-        </LazyWrapper>
-        
-        <LazyWrapper>
-          <OptimizedCustomerTable customers={filteredCustomers} />
-        </LazyWrapper>
-      </div>
-    );
-  };
+        </div>
+      </LazyWrapper>
+      
+      <LazyWrapper>
+        <div className="rounded-md border">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Ref#</TableHead>
+                <TableHead>Customer</TableHead>
+                <TableHead>Company</TableHead>
+                <TableHead>Application Type</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
+                <TableHead>Amount</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    Loading applications...
+                  </TableCell>
+                </TableRow>
+              ) : filteredApplications.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                    No applications found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredApplications.map((app) => (
+                  <TableRow 
+                    key={app.id}
+                    className="cursor-pointer hover:bg-muted/50"
+                    onClick={() => navigate(`/applications/${app.id}`)}
+                  >
+                    <TableCell className="font-medium">#{app.reference_number}</TableCell>
+                    <TableCell>{app.customer?.name}</TableCell>
+                    <TableCell>{app.customer?.company}</TableCell>
+                    <TableCell className="capitalize">{app.application_type?.replace('_', ' ')}</TableCell>
+                    <TableCell>
+                      <Badge variant={app.status === 'completed' ? 'default' : 'secondary'}>
+                        {app.status === 'completed' ? 'Completed' : 'Paid'}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {app.status === 'completed' && app.completed_at
+                        ? format(new Date(app.completed_at), 'dd MMM yyyy')
+                        : app.status === 'paid' && app.paid_date
+                        ? format(new Date(app.paid_date), 'dd MMM yyyy')
+                        : '-'}
+                    </TableCell>
+                    <TableCell>
+                      {new Intl.NumberFormat('en-AE', { 
+                        style: 'currency', 
+                        currency: 'AED' 
+                      }).format(app.application_data?.amount || 0)}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </LazyWrapper>
+    </div>
+  );
+};
 
 export default memo(CompletedApplications);
