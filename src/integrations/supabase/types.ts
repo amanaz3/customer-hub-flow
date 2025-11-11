@@ -1606,6 +1606,7 @@ export type Database = {
           id: string
           mission: string | null
           module: string | null
+          parent_id: string | null
           priority: Database["public"]["Enums"]["task_priority"]
           product_id: string | null
           project_id: string | null
@@ -1625,6 +1626,7 @@ export type Database = {
           id?: string
           mission?: string | null
           module?: string | null
+          parent_id?: string | null
           priority?: Database["public"]["Enums"]["task_priority"]
           product_id?: string | null
           project_id?: string | null
@@ -1644,6 +1646,7 @@ export type Database = {
           id?: string
           mission?: string | null
           module?: string | null
+          parent_id?: string | null
           priority?: Database["public"]["Enums"]["task_priority"]
           product_id?: string | null
           project_id?: string | null
@@ -1666,6 +1669,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
             referencedColumns: ["id"]
           },
           {

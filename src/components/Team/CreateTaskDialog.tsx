@@ -29,6 +29,7 @@ interface CreateTaskDialogProps {
   onTaskCreated: () => void;
   projectId?: string;
   productId?: string;
+  parentTaskId?: string; // New prop for creating subtasks
 }
 
 interface TeamMember {
@@ -41,17 +42,24 @@ interface Product {
   name: string;
 }
 
+interface ParentTask {
+  id: string;
+  title: string;
+}
+
 export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   open,
   onOpenChange,
   onTaskCreated,
   projectId,
   productId,
+  parentTaskId,
 }) => {
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
+  const [parentTasks, setParentTasks] = useState<ParentTask[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [createdTaskId, setCreatedTaskId] = useState<string | null>(null);
   
@@ -63,6 +71,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     status: 'todo' as const,
     assigned_to: '',
     product_id: productId || projectId || '',
+    parent_id: parentTaskId || '',
     module: '',
     category: '',
     mission: '',
@@ -74,6 +83,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     if (open) {
       fetchTeamMembers();
       fetchProducts();
+      fetchParentTasks();
     }
   }, [open]);
 
@@ -104,6 +114,22 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     }
   };
 
+  const fetchParentTasks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('id, title')
+        .is('parent_id', null) // Only fetch top-level tasks as potential parents
+        .order('title');
+      
+      if (data && !error) {
+        setParentTasks(data as ParentTask[]);
+      }
+    } catch (err) {
+      console.error('Error fetching parent tasks:', err);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !formData.title.trim()) return;
@@ -121,6 +147,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           status: formData.status,
           assigned_to: formData.assigned_to === 'unassigned' ? null : formData.assigned_to || null,
           project_id: productId ? productId : projectId ? projectId : (formData.product_id === 'none' ? null : formData.product_id || null),
+          parent_id: formData.parent_id || null,
           module: formData.module || null,
           category: formData.category || null,
           mission: formData.mission || null,
@@ -172,6 +199,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         status: 'todo',
         assigned_to: '',
         product_id: productId || projectId || '',
+        parent_id: parentTaskId || '',
         module: '',
         category: '',
         mission: '',
@@ -335,6 +363,26 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                   {products.map((product) => (
                     <SelectItem key={product.id} value={product.id}>
                       {product.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
+
+          {/* Parent Task Selection - Only show if not already a subtask */}
+          {!parentTaskId && (
+            <div className="space-y-1">
+              <Label className="text-sm">Parent Task (Optional)</Label>
+              <Select value={formData.parent_id || 'none'} onValueChange={(v) => setFormData({ ...formData, parent_id: v === 'none' ? '' : v })}>
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="No parent - main task" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No parent - main task</SelectItem>
+                  {parentTasks.map((task) => (
+                    <SelectItem key={task.id} value={task.id}>
+                      {task.title}
                     </SelectItem>
                   ))}
                 </SelectContent>

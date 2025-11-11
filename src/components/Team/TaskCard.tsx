@@ -18,6 +18,8 @@ import {
   Flag,
   Paperclip,
   FileText,
+  CornerDownRight,
+  ListTree,
 } from 'lucide-react';
 
 interface TaskAttachment {
@@ -41,6 +43,7 @@ interface TaskCardProps {
     module?: string | null;
     category?: string | null;
     architectural_component?: string | null;
+    parent_id?: string | null; // Add parent_id
   };
   attachments?: TaskAttachment[];
   onClick: () => void;
@@ -48,6 +51,7 @@ interface TaskCardProps {
   onRemoveFromProduct?: (taskId: string) => void;
   onDelete?: (taskId: string) => void;
   showActions?: boolean;
+  subtaskCount?: number; // Add subtask count
 }
 
 export const TaskCard: React.FC<TaskCardProps> = ({ 
@@ -57,7 +61,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   onRemoveFromProject,
   onRemoveFromProduct, 
   onDelete,
-  showActions = false 
+  showActions = false,
+  subtaskCount = 0,
 }) => {
   const imageAttachments = attachments.filter(
     (att) => att.attachment_type === 'file' && att.file_type?.startsWith('image/')
@@ -125,17 +130,29 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
   return (
     <div
-      className="group p-3 rounded-lg border bg-card hover:bg-accent/50 transition-all"
+      className={cn(
+        "group p-3 rounded-lg border bg-card hover:bg-accent/50 transition-all",
+        task.parent_id && "ml-6 border-l-4 border-l-muted-foreground/30"
+      )}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex-1 min-w-0 cursor-pointer" onClick={onClick}>
           <div className="flex items-center gap-2 mb-2">
+            {task.parent_id && (
+              <CornerDownRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
+            )}
             <span className={cn('flex-shrink-0', getPriorityColor())}>
               {getTypeIcon()}
             </span>
             <h4 className="text-sm font-medium text-foreground truncate">
               {task.title}
             </h4>
+            {subtaskCount > 0 && (
+              <Badge variant="secondary" className="text-xs flex items-center gap-1">
+                <ListTree className="h-3 w-3" />
+                {subtaskCount}
+              </Badge>
+            )}
           </div>
 
           <div className="flex items-center gap-2 flex-wrap">
