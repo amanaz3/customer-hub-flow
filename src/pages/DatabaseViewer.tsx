@@ -36,6 +36,8 @@ const AVAILABLE_TABLES = [
   'application_documents',
   'application_messages',
   'application_owners',
+  'application_status_changes',
+  'completion_date_history',
   'customers',
   'documents',
   'status_changes',
