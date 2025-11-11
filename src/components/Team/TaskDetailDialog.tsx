@@ -51,6 +51,7 @@ interface Task {
   status: string;
   assigned_to: string | null;
   project_id: string | null;
+  parent_id: string | null;
   created_at: string;
   created_by: string;
   module: string | null;
@@ -82,6 +83,7 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
   const [editing, setEditing] = useState(false);
   const [teamMembers, setTeamMembers] = useState<any[]>([]);
   const [projects, setProjects] = useState<any[]>([]);
+  const [parentTasks, setParentTasks] = useState<any[]>([]);
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [attachments, setAttachments] = useState<any[]>([]);
   const [showCloseWarning, setShowCloseWarning] = useState(false);
@@ -94,6 +96,7 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
       fetchComments();
       fetchTeamMembers();
       fetchProjects();
+      fetchParentTasks();
       fetchAttachments();
     }
   }, [taskId, open]);
@@ -155,6 +158,23 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
       .order('name');
     
     if (data) setProjects(data);
+  };
+
+  const fetchParentTasks = async () => {
+    if (!taskId) return;
+    
+    // Fetch all tasks except the current one and its subtasks (to prevent circular references)
+    const { data: allTasks } = await supabase
+      .from('tasks')
+      .select('id, title, parent_id')
+      .neq('id', taskId)
+      .order('title');
+    
+    if (allTasks) {
+      // Filter out subtasks of the current task
+      const validParents = allTasks.filter(t => t.parent_id !== taskId);
+      setParentTasks(validParents);
+    }
   };
 
   const handleUpdate = async (updates: Partial<Task>) => {
@@ -409,6 +429,26 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
                   {projects.map((project) => (
                     <SelectItem key={project.id} value={project.id}>
                       {project.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Parent Task</Label>
+              <Select
+                value={task.parent_id || 'none'}
+                onValueChange={(v) => handleUpdate({ parent_id: v === 'none' ? null : v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="No parent (top-level task)" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No parent (top-level task)</SelectItem>
+                  {parentTasks.map((parentTask) => (
+                    <SelectItem key={parentTask.id} value={parentTask.id}>
+                      {parentTask.title}
                     </SelectItem>
                   ))}
                 </SelectContent>
