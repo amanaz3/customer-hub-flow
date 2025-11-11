@@ -93,10 +93,10 @@ const CompletedApplications = () => {
       let dateToUse: string | undefined;
       
       // Use the appropriate date based on application status
-      if (app.status === 'completed' && app.completed_at) {
-        dateToUse = app.completed_at;
-      } else if (app.status === 'paid' && app.paid_date) {
-        dateToUse = app.paid_date;
+      if (app.status === 'completed') {
+        dateToUse = app.completed_at || app.completed_actual || app.updated_at || app.created_at;
+      } else if (app.status === 'paid') {
+        dateToUse = app.paid_date || app.updated_at || app.created_at;
       }
       
       if (dateToUse) {
@@ -219,7 +219,7 @@ const CompletedApplications = () => {
                   : "Filter by months"}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-4 bg-background z-50" align="start">
+            <PopoverContent className="w-auto p-4 bg-background z-[60] pointer-events-auto border shadow-md" align="start">
               <div className="space-y-3">
                 <div className="text-sm font-medium">Select months:</div>
                 {availableMonths.length === 0 ? (
