@@ -219,26 +219,32 @@ const CompletedApplications = () => {
                   : "Filter by months"}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-4" align="start">
+            <PopoverContent className="w-auto p-4 bg-background z-50" align="start">
               <div className="space-y-3">
                 <div className="text-sm font-medium">Select months:</div>
-                <div className="max-h-48 overflow-y-auto space-y-2">
-                  {availableMonths.map((month) => (
-                    <div key={month.key} className="flex items-center space-x-2">
-                      <Checkbox
-                        id={month.key}
-                        checked={selectedMonths.includes(month.key)}
-                        onCheckedChange={() => toggleMonth(month.key)}
-                      />
-                      <label
-                        htmlFor={month.key}
-                        className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
-                      >
-                        {month.label}
-                      </label>
-                    </div>
-                  ))}
-                </div>
+                {availableMonths.length === 0 ? (
+                  <div className="text-sm text-muted-foreground py-2">
+                    No months available. Applications data may still be loading.
+                  </div>
+                ) : (
+                  <div className="max-h-48 overflow-y-auto space-y-2">
+                    {availableMonths.map((month) => (
+                      <div key={month.key} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={month.key}
+                          checked={selectedMonths.includes(month.key)}
+                          onCheckedChange={() => toggleMonth(month.key)}
+                        />
+                        <label
+                          htmlFor={month.key}
+                          className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                        >
+                          {month.label}
+                        </label>
+                      </div>
+                    ))}
+                  </div>
+                )}
                 {selectedMonths.length > 0 && (
                   <Button
                     variant="outline"
