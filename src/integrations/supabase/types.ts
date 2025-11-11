@@ -1918,6 +1918,15 @@ export type Database = {
         | "Need More Info"
         | "Paid"
         | "Ready for Bank"
+        | "draft"
+        | "submitted"
+        | "returned"
+        | "paid"
+        | "completed"
+        | "rejected"
+        | "need more info"
+        | "under_review"
+        | "approved"
       document_category:
         | "mandatory"
         | "freezone"
@@ -2099,6 +2108,15 @@ export const Constants = {
         "Need More Info",
         "Paid",
         "Ready for Bank",
+        "draft",
+        "submitted",
+        "returned",
+        "paid",
+        "completed",
+        "rejected",
+        "need more info",
+        "under_review",
+        "approved",
       ],
       document_category: [
         "mandatory",
