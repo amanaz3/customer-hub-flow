@@ -123,24 +123,8 @@ Deno.serve(async (req) => {
       // Don't fail the whole operation if message fails
     }
 
-    // Record status change in application_status_changes table
-    const { error: statusChangeError } = await supabase
-      .from('application_status_changes')
-      .insert({
-        application_id: applicationId,
-        previous_status: previousStatus,
-        new_status: newStatus,
-        changed_by: changedBy,
-        changed_by_role: changedByRole,
-        comment: comment || null,
-      });
-
-    if (statusChangeError) {
-      console.error('Error recording status change:', statusChangeError);
-      // Don't fail the whole operation if status change recording fails
-    } else {
-      console.log('Status change recorded in application_status_changes table');
-    }
+    // Note: Status changes are now automatically logged to application_status_changes 
+    // table via database trigger (trigger_log_application_status_changes)
 
     // Create notifications for relevant users
     if (customerId) {
