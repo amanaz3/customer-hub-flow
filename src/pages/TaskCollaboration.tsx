@@ -52,6 +52,7 @@ interface Task {
   status: string;
   assigned_to: string | null;
   project_id: string | null;
+  parent_id?: string | null;
   created_at: string;
   assignee_name?: string;
   product_name?: string;
@@ -505,6 +506,14 @@ const TaskCollaboration: React.FC = () => {
     
     return activeUserIds.size;
   };
+
+  // Calculate subtask counts for each task
+  const subtaskCounts = tasks.reduce((acc, task) => {
+    if (task.parent_id) {
+      acc[task.parent_id] = (acc[task.parent_id] || 0) + 1;
+    }
+    return acc;
+  }, {} as Record<string, number>);
 
   const filteredTasks = tasks.filter((task) => {
     const matchesSearch = task.title.toLowerCase().includes(searchQuery.toLowerCase());
@@ -1026,6 +1035,7 @@ const TaskCollaboration: React.FC = () => {
                     }}
                     showActions
                     onDelete={deleteTask}
+                    subtaskCount={subtaskCounts[task.id] || 0}
                   />
                 ))}
                 {filteredTasks.length === 0 && (
