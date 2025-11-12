@@ -53,31 +53,7 @@ const CompletedApplications = () => {
         
         if (error) throw error;
         
-        // Fetch paid dates for all applications in a single query with JOIN
-        const appIds = (apps || []).map(app => app.id);
-        
-        const { data: paidStatuses } = await supabase
-          .from('application_status_changes')
-          .select('application_id, created_at')
-          .in('application_id', appIds)
-          .eq('new_status', 'paid')
-          .order('created_at', { ascending: false });
-        
-        // Create a map of application_id to paid_date (first occurrence)
-        const paidDateMap = new Map<string, string>();
-        (paidStatuses || []).forEach(status => {
-          if (!paidDateMap.has(status.application_id)) {
-            paidDateMap.set(status.application_id, status.created_at);
-          }
-        });
-        
-        // Merge paid dates with applications
-        const applicationsWithPaidDate = (apps || []).map((app: any) => ({
-          ...app,
-          paid_date: paidDateMap.get(app.id) || null
-        }));
-        
-        setApplications(applicationsWithPaidDate);
+        setApplications(apps || []);
       } catch (error) {
         console.error('Error fetching applications:', error);
       } finally {
