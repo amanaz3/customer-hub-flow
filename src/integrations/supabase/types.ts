@@ -1878,6 +1878,13 @@ export type Database = {
         Args: { expires_in_seconds?: number; file_path: string }
         Returns: string
       }
+      get_table_column_types: {
+        Args: { p_table_name: string }
+        Returns: {
+          column_name: string
+          data_type: string
+        }[]
+      }
       get_table_foreign_keys: {
         Args: { p_table_name: string }
         Returns: {

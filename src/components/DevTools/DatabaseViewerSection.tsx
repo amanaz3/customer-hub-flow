@@ -31,6 +31,7 @@ interface TableMetadata {
     foreignColumn: string;
   }>;
   uniqueKeys: string[];
+  columnTypes: Record<string, string>;
 }
 
 export function DatabaseViewerSection() {
@@ -42,7 +43,8 @@ export function DatabaseViewerSection() {
   const [metadata, setMetadata] = useState<TableMetadata>({
     primaryKeys: [],
     foreignKeys: [],
-    uniqueKeys: []
+    uniqueKeys: [],
+    columnTypes: {}
   });
   const { toast } = useToast();
 
@@ -63,10 +65,21 @@ export function DatabaseViewerSection() {
         p_table_name: tableName
       }) as any;
 
+      // Fetch column types
+      const { data: typeData } = await supabase.rpc('get_table_column_types' as any, {
+        p_table_name: tableName
+      }) as any;
+
       // Extract unique key columns (only single-column unique indexes)
       const uniqueKeys = idxData
         ?.filter((idx: any) => idx.is_unique && !idx.column_names.includes(','))
         .map((idx: any) => idx.column_names.trim()) || [];
+
+      // Build column types map
+      const columnTypes: Record<string, string> = {};
+      typeData?.forEach((row: any) => {
+        columnTypes[row.column_name] = row.data_type;
+      });
 
       setMetadata({
         primaryKeys: pkData?.map((row: any) => row.column_name) || [],
@@ -75,11 +88,12 @@ export function DatabaseViewerSection() {
           foreignTable: row.foreign_table_name,
           foreignColumn: row.foreign_column_name
         })) || [],
-        uniqueKeys
+        uniqueKeys,
+        columnTypes
       });
     } catch (error) {
       console.error('Error fetching table metadata:', error);
-      setMetadata({ primaryKeys: [], foreignKeys: [], uniqueKeys: [] });
+      setMetadata({ primaryKeys: [], foreignKeys: [], uniqueKeys: [], columnTypes: {} });
     }
   };
 
@@ -137,6 +151,18 @@ export function DatabaseViewerSection() {
     metadata.foreignKeys.find(fk => fk.column === column);
 
   const isUniqueKey = (column: string) => metadata.uniqueKeys.includes(column);
+
+  const getTypeColor = (dataType: string): string => {
+    const type = dataType.toLowerCase();
+    if (type === 'uuid') return 'bg-purple-500/10 text-purple-700 dark:text-purple-400';
+    if (type.includes('timestamp') || type.includes('date')) return 'bg-blue-500/10 text-blue-700 dark:text-blue-400';
+    if (type.includes('text') || type.includes('varchar') || type.includes('char')) return 'bg-green-500/10 text-green-700 dark:text-green-400';
+    if (type.includes('int') || type.includes('numeric') || type.includes('decimal') || type.includes('float')) return 'bg-orange-500/10 text-orange-700 dark:text-orange-400';
+    if (type === 'boolean') return 'bg-yellow-500/10 text-yellow-700 dark:text-yellow-400';
+    if (type === 'jsonb' || type === 'json') return 'bg-pink-500/10 text-pink-700 dark:text-pink-400';
+    if (type === 'user-defined') return 'bg-cyan-500/10 text-cyan-700 dark:text-cyan-400';
+    return 'bg-gray-500/10 text-gray-700 dark:text-gray-400';
+  };
 
   const formatValue = (value: any): string => {
     if (value === null) return 'NULL';
@@ -210,42 +236,51 @@ export function DatabaseViewerSection() {
                   const isPK = isPrimaryKey(column);
                   const fk = getForeignKey(column);
                   const isUnique = isUniqueKey(column);
+                  const dataType = metadata.columnTypes[column] || 'unknown';
                   
                   return (
                     <TableHead key={column} className="font-semibold">
                       <TooltipProvider>
-                        <div className="flex items-center gap-2">
-                          <span>{column}</span>
-                          {isPK && (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Key className="h-3 w-3 text-yellow-500" />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Primary Key</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          )}
-                          {fk && (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Link2 className="h-3 w-3 text-blue-500" />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Foreign Key → {fk.foreignTable}.{fk.foreignColumn}</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          )}
-                          {isUnique && !isPK && (
-                            <Tooltip>
-                              <TooltipTrigger asChild>
-                                <Star className="h-3 w-3 text-purple-500" />
-                              </TooltipTrigger>
-                              <TooltipContent>
-                                <p>Unique Key</p>
-                              </TooltipContent>
-                            </Tooltip>
-                          )}
+                        <div className="flex flex-col gap-1">
+                          <div className="flex items-center gap-2">
+                            <span>{column}</span>
+                            {isPK && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Key className="h-3 w-3 text-yellow-500" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Primary Key</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                            {fk && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Link2 className="h-3 w-3 text-blue-500" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Foreign Key → {fk.foreignTable}.{fk.foreignColumn}</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                            {isUnique && !isPK && (
+                              <Tooltip>
+                                <TooltipTrigger asChild>
+                                  <Star className="h-3 w-3 text-purple-500" />
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                  <p>Unique Key</p>
+                                </TooltipContent>
+                              </Tooltip>
+                            )}
+                          </div>
+                          <Badge 
+                            variant="outline" 
+                            className={`text-xs font-mono ${getTypeColor(dataType)}`}
+                          >
+                            {dataType}
+                          </Badge>
                         </div>
                       </TooltipProvider>
                     </TableHead>
