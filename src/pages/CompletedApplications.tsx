@@ -55,29 +55,6 @@ const CompletedApplications = () => {
         if (!isAdmin) {
           query = query.eq('customer.user_id', user.id);
         }
-
-        // Add month filtering for completed applications at database level
-        if (selectedMonths.length > 0 && statusFilter === 'completed') {
-          query = query.not('completed_at', 'is', null);
-          
-          if (selectedMonths.length === 1) {
-            // Single month: simple range filter
-            const [year, monthNum] = selectedMonths[0].split('-').map(Number);
-            const startDate = new Date(year, monthNum, 1).toISOString();
-            const endDate = new Date(year, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
-            query = query.gte('completed_at', startDate).lte('completed_at', endDate);
-          } else {
-            // Multiple months: build OR conditions
-            const orConditions = selectedMonths.map(monthKey => {
-              const [year, monthNum] = monthKey.split('-').map(Number);
-              const startDate = new Date(year, monthNum, 1).toISOString();
-              const endDate = new Date(year, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
-              return `completed_at.gte.${startDate},completed_at.lte.${endDate}`;
-            }).join(',');
-            
-            query = query.or(orConditions);
-          }
-        }
         
         const { data: baseApps, error: baseError } = await query;
         
@@ -115,7 +92,7 @@ const CompletedApplications = () => {
     };
     
     fetchApplications();
-  }, [user, isAdmin, statusFilter, selectedMonths]);
+  }, [user, isAdmin, statusFilter]);
   
   // Generate available months from the data (always show all months regardless of status filter)
   const availableMonths = useMemo(() => {
