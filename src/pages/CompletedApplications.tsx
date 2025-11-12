@@ -86,18 +86,20 @@ const CompletedApplications = () => {
   }, [applications]);
 
   const { filteredApplications, completeCount, paidCount, totalRevenue } = useMemo(() => {
-    // Apply status filter
+    // Apply status filter from account_applications.status
     let statusFiltered = applications;
     if (statusFilter === 'completed') {
+      // Filter by completed status in account_applications table
       statusFiltered = applications.filter(a => a.status === 'completed');
     } else if (statusFilter === 'paid') {
       statusFiltered = applications.filter(a => a.status === 'paid');
     }
     // 'all' shows both completed and paid (no additional filtering needed)
     
-    // Apply month filter (only when months are selected)
+    // Apply month filter using account_applications.completed_at
     const monthFiltered = selectedMonths.length > 0
       ? statusFiltered.filter(app => {
+          // Use completed_at from account_applications table for month filtering
           if (!app.completed_at) return false;
           
           const appDate = new Date(app.completed_at);
