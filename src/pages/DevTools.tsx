@@ -1,13 +1,17 @@
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Bell, Database, Wrench, ChevronDown, ChevronUp } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
-import { Bell, Database, Wrench } from "lucide-react";
+import { NotificationTestingSection } from "@/components/DevTools/NotificationTestingSection";
+import { DatabaseViewerSection } from "@/components/DevTools/DatabaseViewerSection";
 
 export default function DevTools() {
-  const navigate = useNavigate();
+  const [notificationOpen, setNotificationOpen] = useState(false);
+  const [databaseOpen, setDatabaseOpen] = useState(false);
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl">
+    <div className="container mx-auto p-6 max-w-6xl">
       <div className="mb-6">
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <Wrench className="w-8 h-8" />
@@ -19,45 +23,61 @@ export default function DevTools() {
       </div>
 
       <div className="grid gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Bell className="w-5 h-5" />
-              Notification Testing
-            </CardTitle>
-            <CardDescription>
-              Test in-app and email notifications without affecting production data
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button
-              onClick={() => navigate('/notification-testing')}
-              className="w-full"
-            >
-              Open Notification Testing
-            </Button>
-          </CardContent>
-        </Card>
+        <Collapsible open={notificationOpen} onOpenChange={setNotificationOpen}>
+          <Card>
+            <CollapsibleTrigger asChild>
+              <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Bell className="w-5 h-5" />
+                    <CardTitle>Notification Testing</CardTitle>
+                  </div>
+                  {notificationOpen ? (
+                    <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                  )}
+                </div>
+                <CardDescription>
+                  Test in-app and email notifications without affecting production data
+                </CardDescription>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="pt-0">
+                <NotificationTestingSection />
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
 
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Database className="w-5 h-5" />
-              Database Viewer
-            </CardTitle>
-            <CardDescription>
-              Browse and inspect database tables and records
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <Button
-              onClick={() => navigate('/admin/database')}
-              className="w-full"
-            >
-              Open Database Viewer
-            </Button>
-          </CardContent>
-        </Card>
+        <Collapsible open={databaseOpen} onOpenChange={setDatabaseOpen}>
+          <Card>
+            <CollapsibleTrigger asChild>
+              <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Database className="w-5 h-5" />
+                    <CardTitle>Database Viewer</CardTitle>
+                  </div>
+                  {databaseOpen ? (
+                    <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                  )}
+                </div>
+                <CardDescription>
+                  Browse and inspect database tables and records (showing 50 most recent rows)
+                </CardDescription>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="pt-0">
+                <DatabaseViewerSection />
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
       </div>
     </div>
   );
