@@ -37,6 +37,7 @@ import NotificationManagement from '@/pages/NotificationManagement';
 import NotificationTesting from '@/pages/NotificationTesting';
 import DevTools from '@/pages/DevTools';
 import TaskCollaboration from '@/pages/TaskCollaboration';
+import Manage from '@/pages/Manage';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -291,6 +292,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Task Assignment">
                           <TaskCollaboration />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/manage" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Manage">
+                          <Manage />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
