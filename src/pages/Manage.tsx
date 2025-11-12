@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Target, Activity } from "lucide-react";
+import { Users, MessageSquare, Target, Activity, Bell } from "lucide-react";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -31,10 +31,7 @@ const Manage = () => {
           </CardContent>
         </Card>
 
-        <Card 
-          className="hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => navigate('/notification-management')}
-        >
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="p-3 bg-primary/10 rounded-lg">
@@ -42,13 +39,35 @@ const Manage = () => {
               </div>
               <div>
                 <CardTitle>Messages</CardTitle>
-                <CardDescription>Manage notifications and messages</CardDescription>
+                <CardDescription>View and manage messages</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Configure notification settings, email templates, and message preferences.
+              View message history, templates, and communication logs.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/notification-management')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Bell className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Notification Settings</CardTitle>
+                <CardDescription>Configure notification preferences</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Manage notification settings, email templates, and message preferences.
             </p>
           </CardContent>
         </Card>
