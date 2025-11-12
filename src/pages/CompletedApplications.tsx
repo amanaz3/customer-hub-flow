@@ -64,10 +64,12 @@ const CompletedApplications = () => {
   }, [user, isAdmin]);
   
   // Generate available months from completed_at dates
+  // Generate available months from all applications
   const availableMonths = useMemo(() => {
     const months = new Set<string>();
     
     applications.forEach(app => {
+      // Use completed_at for all applications (both completed and paid should have this)
       if (app.completed_at) {
         const date = new Date(app.completed_at);
         const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
