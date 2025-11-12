@@ -37,6 +37,7 @@ import AgentHelpEditor from '@/pages/AgentHelpEditor';
 import DatabaseViewer from '@/pages/DatabaseViewer';
 import NotificationManagement from '@/pages/NotificationManagement';
 import NotificationTesting from '@/pages/NotificationTesting';
+import DevTools from '@/pages/DevTools';
 import TaskCollaboration from '@/pages/TaskCollaboration';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
@@ -136,6 +137,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Notification Testing">
                           <NotificationTesting />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/dev-tools" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Developer Tools">
+                          <DevTools />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
