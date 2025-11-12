@@ -1,7 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Users, MessageSquare, Target, Activity } from "lucide-react";
 
 const Manage = () => {
+  const navigate = useNavigate();
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -28,7 +31,10 @@ const Manage = () => {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/notification-management')}
+        >
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="p-3 bg-primary/10 rounded-lg">
