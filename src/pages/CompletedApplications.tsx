@@ -28,41 +28,53 @@ const CompletedApplications = () => {
   const [applications, setApplications] = useState<ApplicationWithCustomer[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Fetch applications
+  // Fetch applications with month filtering at database level
   useEffect(() => {
     const fetchApplications = async () => {
       if (!user) return;
       
       setLoading(true);
       try {
-        // Single query with JOIN to application_status_changes for paid applications
+        // Build base query
         let query = supabase
           .from('account_applications')
           .select(`
             *,
-            customer:customers(id, name, email, mobile, company, license_type, user_id),
-            paid_status_change:application_status_changes!application_status_changes_application_id_fkey(created_at)
+            customer:customers!inner(id, name, email, mobile, company, license_type, user_id)
           `)
-          .in('status', ['completed', 'paid'])
-          .eq('application_status_changes.new_status', 'paid')
-          .order('application_status_changes.created_at', { ascending: false, foreignTable: 'application_status_changes' })
-          .limit(1, { foreignTable: 'application_status_changes' });
+          .in('status', ['completed', 'paid']);
         
         // Non-admins only see their own applications
         if (!isAdmin) {
           query = query.eq('customer.user_id', user.id);
         }
         
-        const { data, error } = await query;
+        const { data: baseApps, error: baseError } = await query;
         
-        if (error) throw error;
+        if (baseError) throw baseError;
         
-        // Map the nested status change data to paid_date
-        const applicationsWithPaidDate = (data || []).map((app: any) => ({
-          ...app,
-          paid_date: app.paid_status_change?.[0]?.created_at || null,
-          has_status_change: !!(app.paid_status_change?.[0]?.created_at)
-        }));
+        // For paid applications, fetch paid_date from application_status_changes
+        const applicationsWithPaidDate = await Promise.all(
+          (baseApps || []).map(async (app: any) => {
+            if (app.status === 'paid') {
+              const { data: statusChange } = await supabase
+                .from('application_status_changes')
+                .select('created_at')
+                .eq('application_id', app.id)
+                .eq('new_status', 'paid')
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .maybeSingle();
+              
+              return {
+                ...app,
+                paid_date: statusChange?.created_at || null,
+                has_status_change: !!statusChange?.created_at
+              };
+            }
+            return { ...app, paid_date: null, has_status_change: false };
+          })
+        );
         
         setApplications(applicationsWithPaidDate);
       } catch (error) {
