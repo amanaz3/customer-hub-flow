@@ -53,22 +53,11 @@ const CompletedApplications = () => {
         if (error) throw error;
         
         // For paid applications, fetch the paid date from application_status_changes
-        console.log('📊 Fetching paid dates for applications...');
+        // Note: application_status_changes is a new table and won't have historical data
         const applicationsWithPaidDate = await Promise.all(
           (data || []).map(async (app: any) => {
             if (app.status === 'paid') {
-              console.log(`🔍 Query for app ${app.reference_number}:`, {
-                table: 'application_status_changes',
-                select: 'created_at',
-                filters: {
-                  application_id: app.id,
-                  new_status: 'paid'
-                },
-                orderBy: 'created_at DESC',
-                limit: 1
-              });
-              
-              const { data: statusChange, error } = await supabase
+              const { data: statusChange } = await supabase
                 .from('application_status_changes')
                 .select('created_at')
                 .eq('application_id', app.id)
@@ -77,17 +66,15 @@ const CompletedApplications = () => {
                 .limit(1)
                 .maybeSingle();
               
-              console.log(`✅ Result for app ${app.reference_number}:`, statusChange, error ? `Error: ${error.message}` : '');
-              
               return {
                 ...app,
-                paid_date: statusChange?.created_at || app.updated_at // Fallback to updated_at if no status change
+                paid_date: statusChange?.created_at || null, // Don't use fallback - null means no status change record
+                has_status_change: !!statusChange?.created_at
               };
             }
             return app;
           })
         );
-        console.log('📦 Total applications with paid dates:', applicationsWithPaidDate.length);
         
         setApplications(applicationsWithPaidDate);
       } catch (error) {
@@ -142,6 +129,7 @@ const CompletedApplications = () => {
     // 'all' shows both completed and paid (no additional filtering needed)
     
     // Apply month filter (only when months are selected)
+    // Note: Paid applications without status change records won't be included when filtering by month
     const monthFiltered = selectedMonths.length > 0
       ? statusFiltered.filter(app => {
           let dateToUse: string | undefined;
@@ -149,9 +137,10 @@ const CompletedApplications = () => {
           if (app.status === 'completed') {
             dateToUse = app.completed_at;
           } else if (app.status === 'paid') {
-            dateToUse = app.paid_date;
+            dateToUse = app.paid_date; // Will be null for legacy applications
           }
           
+          // If no date available, exclude from month-filtered results
           if (!dateToUse) return false;
           
           const appDate = new Date(dateToUse);
