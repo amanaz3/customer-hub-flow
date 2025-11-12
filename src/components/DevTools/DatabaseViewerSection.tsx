@@ -5,9 +5,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, RefreshCw, Key, Link2, Star } from 'lucide-react';
+import { Loader2, RefreshCw, Key, Link2, Star, Search } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Input } from '@/components/ui/input';
 
 const AVAILABLE_TABLES = [
   'account_applications',
@@ -40,6 +41,7 @@ export function DatabaseViewerSection() {
   const [columns, setColumns] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [rowCount, setRowCount] = useState(0);
+  const [searchTerm, setSearchTerm] = useState('');
   const [metadata, setMetadata] = useState<TableMetadata>({
     primaryKeys: [],
     foreignKeys: [],
@@ -172,6 +174,16 @@ export function DatabaseViewerSection() {
     return String(value);
   };
 
+  const filteredData = tableData.filter(row => {
+    if (!searchTerm.trim()) return true;
+    
+    const searchLower = searchTerm.toLowerCase();
+    return columns.some(column => {
+      const value = formatValue(row[column]).toLowerCase();
+      return value.includes(searchLower);
+    });
+  });
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
@@ -203,8 +215,21 @@ export function DatabaseViewerSection() {
         </Button>
       </div>
 
+      {selectedTable && tableData.length > 0 && (
+        <div className="relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search in table data..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-9"
+          />
+        </div>
+      )}
+
       {selectedTable && (
-        <div className="flex items-center gap-4 text-sm">
+        <div className="flex items-center gap-4 text-sm flex-wrap">
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground">Total Rows:</span>
             <Badge variant="secondary">{rowCount.toLocaleString()}</Badge>
@@ -213,6 +238,12 @@ export function DatabaseViewerSection() {
             <span className="text-muted-foreground">Showing:</span>
             <Badge variant="secondary">{tableData.length.toLocaleString()} rows</Badge>
           </div>
+          {searchTerm && (
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Filtered:</span>
+              <Badge variant="secondary">{filteredData.length.toLocaleString()} rows</Badge>
+            </div>
+          )}
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground">Columns:</span>
             <Badge variant="secondary">{columns.length}</Badge>
@@ -227,7 +258,7 @@ export function DatabaseViewerSection() {
         <div className="flex items-center justify-center py-8">
           <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
         </div>
-      ) : tableData.length > 0 ? (
+      ) : filteredData.length > 0 ? (
         <ScrollArea className="h-[400px] rounded-md border">
           <Table>
             <TableHeader>
@@ -289,7 +320,7 @@ export function DatabaseViewerSection() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {tableData.map((row, rowIndex) => (
+              {filteredData.map((row, rowIndex) => (
                 <TableRow key={rowIndex}>
                   {columns.map((column) => (
                     <TableCell key={column} className="max-w-xs truncate">
@@ -301,6 +332,10 @@ export function DatabaseViewerSection() {
             </TableBody>
           </Table>
         </ScrollArea>
+      ) : searchTerm && tableData.length > 0 ? (
+        <div className="text-center py-8 text-muted-foreground">
+          No results found for "{searchTerm}"
+        </div>
       ) : (
         <div className="text-center py-8 text-muted-foreground">
           Select a table to view its data
