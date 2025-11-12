@@ -35,6 +35,7 @@ const CompletedApplications = () => {
       
       setLoading(true);
       try {
+        // First fetch all applications with their customers
         let query = supabase
           .from('account_applications')
           .select(`
@@ -48,31 +49,33 @@ const CompletedApplications = () => {
           query = query.eq('customer.user_id', user.id);
         }
         
-        const { data, error } = await query;
+        const { data: apps, error } = await query;
         
         if (error) throw error;
         
-        // For paid applications, fetch the paid date from application_status_changes
-        const applicationsWithPaidDate = await Promise.all(
-          (data || []).map(async (app: any) => {
-            if (app.status === 'paid') {
-              const { data: statusChange } = await supabase
-                .from('application_status_changes')
-                .select('created_at')
-                .eq('application_id', app.id)
-                .eq('new_status', 'paid')
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .maybeSingle(); // Use maybeSingle instead of single to avoid 406 errors
-              
-              return {
-                ...app,
-                paid_date: statusChange?.created_at || app.updated_at // Fallback to updated_at if no status change
-              };
-            }
-            return app;
-          })
-        );
+        // Fetch paid dates for all applications in a single query with JOIN
+        const appIds = (apps || []).map(app => app.id);
+        
+        const { data: paidStatuses } = await supabase
+          .from('application_status_changes')
+          .select('application_id, created_at')
+          .in('application_id', appIds)
+          .eq('new_status', 'paid')
+          .order('created_at', { ascending: false });
+        
+        // Create a map of application_id to paid_date (first occurrence)
+        const paidDateMap = new Map<string, string>();
+        (paidStatuses || []).forEach(status => {
+          if (!paidDateMap.has(status.application_id)) {
+            paidDateMap.set(status.application_id, status.created_at);
+          }
+        });
+        
+        // Merge paid dates with applications
+        const applicationsWithPaidDate = (apps || []).map((app: any) => ({
+          ...app,
+          paid_date: paidDateMap.get(app.id) || null
+        }));
         
         setApplications(applicationsWithPaidDate);
       } catch (error) {
