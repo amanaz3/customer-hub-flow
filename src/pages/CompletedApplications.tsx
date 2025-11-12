@@ -35,13 +35,18 @@ const CompletedApplications = () => {
       
       setLoading(true);
       try {
+        // Single query with JOIN to application_status_changes for paid applications
         let query = supabase
           .from('account_applications')
           .select(`
             *,
-            customer:customers(id, name, email, mobile, company, license_type, user_id)
+            customer:customers(id, name, email, mobile, company, license_type, user_id),
+            paid_status_change:application_status_changes!application_status_changes_application_id_fkey(created_at)
           `)
-          .in('status', ['completed', 'paid']);
+          .in('status', ['completed', 'paid'])
+          .eq('application_status_changes.new_status', 'paid')
+          .order('application_status_changes.created_at', { ascending: false, foreignTable: 'application_status_changes' })
+          .limit(1, { foreignTable: 'application_status_changes' });
         
         // Non-admins only see their own applications
         if (!isAdmin) {
@@ -52,29 +57,12 @@ const CompletedApplications = () => {
         
         if (error) throw error;
         
-        // For paid applications, fetch the paid date from application_status_changes
-        // Note: application_status_changes is a new table and won't have historical data
-        const applicationsWithPaidDate = await Promise.all(
-          (data || []).map(async (app: any) => {
-            if (app.status === 'paid') {
-              const { data: statusChange } = await supabase
-                .from('application_status_changes')
-                .select('created_at')
-                .eq('application_id', app.id)
-                .eq('new_status', 'paid')
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .maybeSingle();
-              
-              return {
-                ...app,
-                paid_date: statusChange?.created_at || null, // Don't use fallback - null means no status change record
-                has_status_change: !!statusChange?.created_at
-              };
-            }
-            return app;
-          })
-        );
+        // Map the nested status change data to paid_date
+        const applicationsWithPaidDate = (data || []).map((app: any) => ({
+          ...app,
+          paid_date: app.paid_status_change?.[0]?.created_at || null,
+          has_status_change: !!(app.paid_status_change?.[0]?.created_at)
+        }));
         
         setApplications(applicationsWithPaidDate);
       } catch (error) {
