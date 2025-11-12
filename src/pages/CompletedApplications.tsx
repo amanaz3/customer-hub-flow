@@ -241,20 +241,19 @@ const CompletedApplications = () => {
                 <TableHead>Company</TableHead>
                 <TableHead>Application Type</TableHead>
                 <TableHead>Status</TableHead>
-                <TableHead>Completed Date</TableHead>
                 <TableHead>Amount</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     Loading applications...
                   </TableCell>
                 </TableRow>
               ) : filteredApplications.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
                     No applications found
                   </TableCell>
                 </TableRow>
@@ -273,11 +272,6 @@ const CompletedApplications = () => {
                       <Badge variant={app.status === 'completed' ? 'default' : 'secondary'}>
                         {app.status === 'completed' ? 'Completed' : 'Paid'}
                       </Badge>
-                    </TableCell>
-                    <TableCell>
-                      {app.completed_at
-                        ? format(new Date(app.completed_at), 'dd MMM yyyy')
-                        : '-'}
                     </TableCell>
                     <TableCell>
                       {new Intl.NumberFormat('en-AE', { 
