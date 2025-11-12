@@ -36,6 +36,9 @@ import AgentHelpEditor from '@/pages/AgentHelpEditor';
 import NotificationManagement from '@/pages/NotificationManagement';
 import NotificationTesting from '@/pages/NotificationTesting';
 import DevTools from '@/pages/DevTools';
+import DevToolsNotifications from '@/pages/DevToolsNotifications';
+import DevToolsDatabase from '@/pages/DevToolsDatabase';
+import DevToolsMigration from '@/pages/DevToolsMigration';
 import TaskCollaboration from '@/pages/TaskCollaboration';
 import Manage from '@/pages/Manage';
 import CustomerServicesManagement from '@/pages/CustomerServicesManagement';
@@ -148,6 +151,36 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Developer Tools">
                           <DevTools />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/dev-tools/notifications" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Notification Testing">
+                          <DevToolsNotifications />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/dev-tools/database" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Database Viewer">
+                          <DevToolsDatabase />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/dev-tools/migration" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Data Migration">
+                          <DevToolsMigration />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>

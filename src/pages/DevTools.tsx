@@ -1,16 +1,9 @@
-import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bell, Database, Wrench, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Button } from "@/components/ui/button";
-import { NotificationTestingSection } from "@/components/DevTools/NotificationTestingSection";
-import { DatabaseViewerSection } from "@/components/DevTools/DatabaseViewerSection";
-import { DataMigrationSection } from "@/components/DevTools/DataMigrationSection";
+import { Bell, Database, Wrench, RefreshCw } from "lucide-react";
 
 export default function DevTools() {
-  const [notificationOpen, setNotificationOpen] = useState(false);
-  const [databaseOpen, setDatabaseOpen] = useState(false);
-  const [migrationOpen, setMigrationOpen] = useState(false);
+  const navigate = useNavigate();
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
@@ -24,96 +17,69 @@ export default function DevTools() {
         </p>
       </div>
 
-      <div className="grid gap-6">
-        <Collapsible open={notificationOpen} onOpenChange={setNotificationOpen}>
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Bell className="w-5 h-5" />
-                  <CardTitle>Notification Testing</CardTitle>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                      {notificationOpen ? (
-                        <ChevronUp className="w-4 h-4" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4" />
-                      )}
-                    </Button>
-                  </CollapsibleTrigger>
-                </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/dev-tools/notifications')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Bell className="h-6 w-6 text-primary" />
               </div>
-              <CardDescription>
-                Test in-app and email notifications without affecting production data
-              </CardDescription>
-            </CardHeader>
-            <CollapsibleContent>
-              <CardContent className="pt-0">
-                <NotificationTestingSection />
-              </CardContent>
-            </CollapsibleContent>
-          </Card>
-        </Collapsible>
+              <div>
+                <CardTitle>Notification Testing</CardTitle>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <CardDescription>
+              Test in-app and email notifications without affecting production data
+            </CardDescription>
+          </CardContent>
+        </Card>
 
-        <Collapsible open={databaseOpen} onOpenChange={setDatabaseOpen}>
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Database className="w-5 h-5" />
-                  <CardTitle>Database Viewer</CardTitle>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                      {databaseOpen ? (
-                        <ChevronUp className="w-4 h-4" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4" />
-                      )}
-                    </Button>
-                  </CollapsibleTrigger>
-                </div>
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/dev-tools/database')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Database className="h-6 w-6 text-primary" />
               </div>
-              <CardDescription>
-                Browse and inspect database tables and records (showing 50 most recent rows)
-              </CardDescription>
-            </CardHeader>
-            <CollapsibleContent>
-              <CardContent className="pt-0">
-                <DatabaseViewerSection />
-              </CardContent>
-            </CollapsibleContent>
-          </Card>
-        </Collapsible>
+              <div>
+                <CardTitle>Database Viewer</CardTitle>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <CardDescription>
+              Browse and inspect database tables, schema, and records
+            </CardDescription>
+          </CardContent>
+        </Card>
 
-        <Collapsible open={migrationOpen} onOpenChange={setMigrationOpen}>
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <RefreshCw className="w-5 h-5" />
-                  <CardTitle>Data Migration</CardTitle>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0">
-                      {migrationOpen ? (
-                        <ChevronUp className="w-4 h-4" />
-                      ) : (
-                        <ChevronDown className="w-4 h-4" />
-                      )}
-                    </Button>
-                  </CollapsibleTrigger>
-                </div>
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/dev-tools/migration')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <RefreshCw className="h-6 w-6 text-primary" />
               </div>
-              <CardDescription>
-                Migrate customer records to the new applications architecture
-              </CardDescription>
-            </CardHeader>
-            <CollapsibleContent>
-              <CardContent className="pt-0">
-                <DataMigrationSection />
-              </CardContent>
-            </CollapsibleContent>
-          </Card>
-        </Collapsible>
+              <div>
+                <CardTitle>Data Migration</CardTitle>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <CardDescription>
+              Migrate customer records to the new applications architecture
+            </CardDescription>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
