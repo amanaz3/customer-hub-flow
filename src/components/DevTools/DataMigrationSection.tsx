@@ -58,6 +58,11 @@ export function DataMigrationSection() {
 
   return (
     <div className="space-y-4">
+      <div className="text-sm text-muted-foreground">
+        This will create application records in the account_applications table
+        for all existing customers, maintaining the link between customers and their applications.
+      </div>
+
       <Alert>
         <AlertTriangle className="h-4 w-4" />
         <AlertDescription>
@@ -65,22 +70,22 @@ export function DataMigrationSection() {
         </AlertDescription>
       </Alert>
 
-      <div className="space-y-2 text-sm">
-        <p className="font-medium">What This Migration Does:</p>
-        <ul className="space-y-1 ml-4">
-          <li>✅ Creates application records in <code className="bg-muted px-1 rounded">account_applications</code> table</li>
-          <li>✅ Links applications to their respective customers</li>
-          <li>✅ Preserves all application data (status, license type, banks, etc.)</li>
-          <li>✅ Maintains original timestamps (created_at, updated_at)</li>
-          <li>✅ Skips records that have already been migrated</li>
-          <li>⚠️ Original customer data remains untouched for safety</li>
-        </ul>
-      </div>
-
       <Button onClick={runMigration} disabled={loading} size="lg">
         {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
         Run Migration
       </Button>
+
+      <div className="rounded-lg border bg-card p-4">
+        <h3 className="font-semibold mb-3">What This Migration Does</h3>
+        <div className="space-y-2 text-sm">
+          <p>✅ Creates application records in <code className="bg-muted px-1 rounded">account_applications</code> table</p>
+          <p>✅ Links applications to their respective customers</p>
+          <p>✅ Preserves all application data (status, license type, banks, etc.)</p>
+          <p>✅ Maintains original timestamps (created_at, updated_at)</p>
+          <p>✅ Skips records that have already been migrated</p>
+          <p>⚠️ Original customer data remains untouched for safety</p>
+        </div>
+      </div>
 
       {result && (
         <Alert className="border-green-500 bg-green-50 dark:bg-green-950">
