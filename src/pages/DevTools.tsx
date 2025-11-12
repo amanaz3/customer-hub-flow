@@ -1,14 +1,16 @@
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bell, Database, Wrench, ChevronDown, ChevronUp } from "lucide-react";
+import { Bell, Database, Wrench, ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 import { NotificationTestingSection } from "@/components/DevTools/NotificationTestingSection";
 import { DatabaseViewerSection } from "@/components/DevTools/DatabaseViewerSection";
+import { DataMigrationSection } from "@/components/DevTools/DataMigrationSection";
 
 export default function DevTools() {
   const [notificationOpen, setNotificationOpen] = useState(false);
   const [databaseOpen, setDatabaseOpen] = useState(false);
+  const [migrationOpen, setMigrationOpen] = useState(false);
 
   return (
     <div className="container mx-auto p-6 max-w-6xl">
@@ -74,6 +76,34 @@ export default function DevTools() {
             <CollapsibleContent>
               <CardContent className="pt-0">
                 <DatabaseViewerSection />
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
+
+        <Collapsible open={migrationOpen} onOpenChange={setMigrationOpen}>
+          <Card>
+            <CollapsibleTrigger asChild>
+              <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <RefreshCw className="w-5 h-5" />
+                    <CardTitle>Data Migration</CardTitle>
+                  </div>
+                  {migrationOpen ? (
+                    <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                  )}
+                </div>
+                <CardDescription>
+                  Migrate customer records to the new applications architecture
+                </CardDescription>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="pt-0">
+                <DataMigrationSection />
               </CardContent>
             </CollapsibleContent>
           </Card>
