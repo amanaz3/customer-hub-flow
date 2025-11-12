@@ -21,6 +21,7 @@ const CompletedApplications = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'completed'>('all');
   const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
   const [applications, setApplications] = useState<ApplicationWithCustomer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,14 +33,14 @@ const CompletedApplications = () => {
       
       setLoading(true);
       try {
-        // Fetch all completed applications
+        // Fetch completed and paid applications
         let query = supabase
           .from('account_applications')
           .select(`
             *,
             customer:customers(id, name, email, mobile, company, license_type, user_id)
           `)
-          .eq('status', 'completed')
+          .in('status', ['completed', 'paid'])
           .order('completed_at', { ascending: false });
         
         // Non-admins only see their own applications
@@ -84,17 +85,24 @@ const CompletedApplications = () => {
     });
   }, [applications]);
 
-  const { filteredApplications, completeCount, totalRevenue } = useMemo(() => {
+  const { filteredApplications, completeCount, paidCount, totalRevenue } = useMemo(() => {
+    // Apply status filter
+    let statusFiltered = applications;
+    if (statusFilter === 'completed') {
+      statusFiltered = applications.filter(a => a.status === 'completed');
+    }
+    // 'all' shows both completed and paid (no additional filtering needed)
+    
     // Apply month filter (only when months are selected)
     const monthFiltered = selectedMonths.length > 0
-      ? applications.filter(app => {
+      ? statusFiltered.filter(app => {
           if (!app.completed_at) return false;
           
           const appDate = new Date(app.completed_at);
           const monthKey = `${appDate.getFullYear()}-${String(appDate.getMonth() + 1).padStart(2, '0')}`;
           return selectedMonths.includes(monthKey);
         })
-      : applications;
+      : statusFiltered;
     
     // Apply search filter
     const searchFiltered = monthFiltered.filter(app => 
@@ -104,15 +112,19 @@ const CompletedApplications = () => {
       app.reference_number?.toString().includes(searchTerm)
     );
     
+    const complete = applications.filter(a => a.status === 'completed').length;
+    const paid = applications.filter(a => a.status === 'paid').length;
+    
     // Calculate revenue from filtered results
     const revenue = searchFiltered.reduce((sum, app) => sum + (app.application_data?.amount || 0), 0);
 
     return {
       filteredApplications: searchFiltered,
-      completeCount: applications.length,
+      completeCount: complete,
+      paidCount: paid,
       totalRevenue: revenue
     };
-  }, [applications, searchTerm, selectedMonths]);
+  }, [applications, searchTerm, statusFilter, selectedMonths]);
 
   const toggleMonth = (monthKey: string) => {
     setSelectedMonths(prev => 
@@ -127,7 +139,7 @@ const CompletedApplications = () => {
       <div>
         <h1 className="text-3xl font-bold">Completed Applications</h1>
         <p className="text-muted-foreground">
-          Total: {completeCount} applications | Revenue: {new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED' }).format(totalRevenue)}
+          Completed: {completeCount} | Paid: {paidCount} | Revenue: {new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED' }).format(totalRevenue)}
         </p>
       </div>
       
@@ -139,6 +151,16 @@ const CompletedApplications = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="md:max-w-xs"
           />
+          
+          <Select value={statusFilter} onValueChange={(value: 'all' | 'completed') => setStatusFilter(value)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Filter by status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="completed">Completed</SelectItem>
+            </SelectContent>
+          </Select>
           
           <Popover>
             <PopoverTrigger asChild>
@@ -218,6 +240,7 @@ const CompletedApplications = () => {
                 <TableHead>Customer</TableHead>
                 <TableHead>Company</TableHead>
                 <TableHead>Application Type</TableHead>
+                <TableHead>Status</TableHead>
                 <TableHead>Completed Date</TableHead>
                 <TableHead>Amount</TableHead>
               </TableRow>
@@ -225,13 +248,13 @@ const CompletedApplications = () => {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     Loading applications...
                   </TableCell>
                 </TableRow>
               ) : filteredApplications.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     No applications found
                   </TableCell>
                 </TableRow>
@@ -246,6 +269,11 @@ const CompletedApplications = () => {
                     <TableCell>{app.customer?.name}</TableCell>
                     <TableCell>{app.customer?.company}</TableCell>
                     <TableCell className="capitalize">{app.application_type?.replace('_', ' ')}</TableCell>
+                    <TableCell>
+                      <Badge variant={app.status === 'completed' ? 'default' : 'secondary'}>
+                        {app.status === 'completed' ? 'Completed' : 'Paid'}
+                      </Badge>
+                    </TableCell>
                     <TableCell>
                       {app.completed_at
                         ? format(new Date(app.completed_at), 'dd MMM yyyy')
