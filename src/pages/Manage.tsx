@@ -12,7 +12,10 @@ const Manage = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/customer-services')}
+        >
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="p-3 bg-primary/10 rounded-lg">

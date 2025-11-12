@@ -110,18 +110,6 @@ const Sidebar: React.FC = () => {
       roles: ['admin'],
     },
     {
-      name: 'Service Categories',
-      path: '/service-categories',
-      icon: <FolderTree className="h-5 w-5" />,
-      roles: ['admin'],
-    },
-    {
-      name: 'Bundle Management',
-      path: '/bundles',
-      icon: <Package className="h-5 w-5" />,
-      roles: ['admin'],
-    },
-    {
       name: 'User Management',
       path: '/users',
       icon: <Shield className="h-5 w-5" />,
@@ -167,7 +155,7 @@ const Sidebar: React.FC = () => {
 
   const isActiveRoute = (path: string) => {
     // Exact match for most routes
-    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/service-categories' || path === '/bundles' || path === '/analytics' || path === '/targets' || path === '/dev-tools' || path === '/manage' || path === '/admin/help-editor' || path === '/team') {
+    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/analytics' || path === '/targets' || path === '/dev-tools' || path === '/manage' || path === '/admin/help-editor' || path === '/team') {
       return location.pathname === path;
     }
     

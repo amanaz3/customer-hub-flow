@@ -38,6 +38,7 @@ import NotificationTesting from '@/pages/NotificationTesting';
 import DevTools from '@/pages/DevTools';
 import TaskCollaboration from '@/pages/TaskCollaboration';
 import Manage from '@/pages/Manage';
+import CustomerServicesManagement from '@/pages/CustomerServicesManagement';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -302,6 +303,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Manage">
                           <Manage />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/customer-services" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Customer Services Management">
+                          <CustomerServicesManagement />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
