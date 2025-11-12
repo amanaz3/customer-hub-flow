@@ -10,7 +10,7 @@ import { useAuth } from '@/contexts/SecureAuthContext';
 const Settings = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
-  const isAdmin = user?.role === 'admin';
+  const isAdmin = user?.profile?.role === 'admin';
 
   return (
     <div className="space-y-6">
