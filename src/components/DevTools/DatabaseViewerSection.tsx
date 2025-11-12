@@ -5,7 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, RefreshCw, Key, Link2 } from 'lucide-react';
+import { Loader2, RefreshCw, Key, Link2, Star } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -30,6 +30,7 @@ interface TableMetadata {
     foreignTable: string;
     foreignColumn: string;
   }>;
+  uniqueKeys: string[];
 }
 
 export function DatabaseViewerSection() {
@@ -40,7 +41,8 @@ export function DatabaseViewerSection() {
   const [rowCount, setRowCount] = useState(0);
   const [metadata, setMetadata] = useState<TableMetadata>({
     primaryKeys: [],
-    foreignKeys: []
+    foreignKeys: [],
+    uniqueKeys: []
   });
   const { toast } = useToast();
 
@@ -56,17 +58,28 @@ export function DatabaseViewerSection() {
         p_table_name: tableName
       }) as any;
 
+      // Fetch unique indexes
+      const { data: idxData } = await supabase.rpc('get_table_indexes' as any, {
+        p_table_name: tableName
+      }) as any;
+
+      // Extract unique key columns (only single-column unique indexes)
+      const uniqueKeys = idxData
+        ?.filter((idx: any) => idx.is_unique && !idx.column_names.includes(','))
+        .map((idx: any) => idx.column_names.trim()) || [];
+
       setMetadata({
         primaryKeys: pkData?.map((row: any) => row.column_name) || [],
         foreignKeys: fkData?.map((row: any) => ({
           column: row.column_name,
           foreignTable: row.foreign_table_name,
           foreignColumn: row.foreign_column_name
-        })) || []
+        })) || [],
+        uniqueKeys
       });
     } catch (error) {
       console.error('Error fetching table metadata:', error);
-      setMetadata({ primaryKeys: [], foreignKeys: [] });
+      setMetadata({ primaryKeys: [], foreignKeys: [], uniqueKeys: [] });
     }
   };
 
@@ -122,6 +135,8 @@ export function DatabaseViewerSection() {
   
   const getForeignKey = (column: string) => 
     metadata.foreignKeys.find(fk => fk.column === column);
+
+  const isUniqueKey = (column: string) => metadata.uniqueKeys.includes(column);
 
   const formatValue = (value: any): string => {
     if (value === null) return 'NULL';
@@ -194,6 +209,7 @@ export function DatabaseViewerSection() {
                 {columns.map((column) => {
                   const isPK = isPrimaryKey(column);
                   const fk = getForeignKey(column);
+                  const isUnique = isUniqueKey(column);
                   
                   return (
                     <TableHead key={column} className="font-semibold">
@@ -217,6 +233,16 @@ export function DatabaseViewerSection() {
                               </TooltipTrigger>
                               <TooltipContent>
                                 <p>Foreign Key → {fk.foreignTable}.{fk.foreignColumn}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                          {isUnique && !isPK && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Star className="h-3 w-3 text-purple-500" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Unique Key</p>
                               </TooltipContent>
                             </Tooltip>
                           )}
