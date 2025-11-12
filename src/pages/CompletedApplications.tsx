@@ -53,17 +53,31 @@ const CompletedApplications = () => {
         if (error) throw error;
         
         // For paid applications, fetch the paid date from application_status_changes
+        console.log('📊 Fetching paid dates for applications...');
         const applicationsWithPaidDate = await Promise.all(
           (data || []).map(async (app: any) => {
             if (app.status === 'paid') {
-              const { data: statusChange } = await supabase
+              console.log(`🔍 Query for app ${app.reference_number}:`, {
+                table: 'application_status_changes',
+                select: 'created_at',
+                filters: {
+                  application_id: app.id,
+                  new_status: 'paid'
+                },
+                orderBy: 'created_at DESC',
+                limit: 1
+              });
+              
+              const { data: statusChange, error } = await supabase
                 .from('application_status_changes')
                 .select('created_at')
                 .eq('application_id', app.id)
                 .eq('new_status', 'paid')
                 .order('created_at', { ascending: false })
                 .limit(1)
-                .maybeSingle(); // Use maybeSingle instead of single to avoid 406 errors
+                .maybeSingle();
+              
+              console.log(`✅ Result for app ${app.reference_number}:`, statusChange, error ? `Error: ${error.message}` : '');
               
               return {
                 ...app,
@@ -73,6 +87,7 @@ const CompletedApplications = () => {
             return app;
           })
         );
+        console.log('📦 Total applications with paid dates:', applicationsWithPaidDate.length);
         
         setApplications(applicationsWithPaidDate);
       } catch (error) {
