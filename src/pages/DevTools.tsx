@@ -27,26 +27,24 @@ export default function DevTools() {
       <div className="grid gap-6">
         <Collapsible open={notificationOpen} onOpenChange={setNotificationOpen}>
           <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Bell className="w-5 h-5" />
-                  <CardTitle>Notification Testing</CardTitle>
+            <CollapsibleTrigger asChild>
+              <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Bell className="w-5 h-5" />
+                    <CardTitle>Notification Testing</CardTitle>
+                  </div>
+                  {notificationOpen ? (
+                    <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                  )}
                 </div>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    {notificationOpen ? (
-                      <ChevronUp className="w-4 h-4" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4" />
-                    )}
-                  </Button>
-                </CollapsibleTrigger>
-              </div>
-              <CardDescription>
-                Test in-app and email notifications without affecting production data
-              </CardDescription>
-            </CardHeader>
+                <CardDescription>
+                  Test in-app and email notifications without affecting production data
+                </CardDescription>
+              </CardHeader>
+            </CollapsibleTrigger>
             <CollapsibleContent>
               <CardContent className="pt-0">
                 <NotificationTestingSection />
@@ -57,26 +55,24 @@ export default function DevTools() {
 
         <Collapsible open={databaseOpen} onOpenChange={setDatabaseOpen}>
           <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Database className="w-5 h-5" />
-                  <CardTitle>Database Viewer</CardTitle>
+            <CollapsibleTrigger asChild>
+              <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <Database className="w-5 h-5" />
+                    <CardTitle>Database Viewer</CardTitle>
+                  </div>
+                  {databaseOpen ? (
+                    <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                  )}
                 </div>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    {databaseOpen ? (
-                      <ChevronUp className="w-4 h-4" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4" />
-                    )}
-                  </Button>
-                </CollapsibleTrigger>
-              </div>
-              <CardDescription>
-                Browse and inspect database tables and records (showing 50 most recent rows)
-              </CardDescription>
-            </CardHeader>
+                <CardDescription>
+                  Browse and inspect database tables and records (showing 50 most recent rows)
+                </CardDescription>
+              </CardHeader>
+            </CollapsibleTrigger>
             <CollapsibleContent>
               <CardContent className="pt-0">
                 <DatabaseViewerSection />
@@ -87,26 +83,24 @@ export default function DevTools() {
 
         <Collapsible open={migrationOpen} onOpenChange={setMigrationOpen}>
           <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <RefreshCw className="w-5 h-5" />
-                  <CardTitle>Data Migration</CardTitle>
+            <CollapsibleTrigger asChild>
+              <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <RefreshCw className="w-5 h-5" />
+                    <CardTitle>Data Migration</CardTitle>
+                  </div>
+                  {migrationOpen ? (
+                    <ChevronUp className="w-5 h-5 text-muted-foreground" />
+                  ) : (
+                    <ChevronDown className="w-5 h-5 text-muted-foreground" />
+                  )}
                 </div>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                    {migrationOpen ? (
-                      <ChevronUp className="w-4 h-4" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4" />
-                    )}
-                  </Button>
-                </CollapsibleTrigger>
-              </div>
-              <CardDescription>
-                Migrate customer records to the new applications architecture
-              </CardDescription>
-            </CardHeader>
+                <CardDescription>
+                  Migrate customer records to the new applications architecture
+                </CardDescription>
+              </CardHeader>
+            </CollapsibleTrigger>
             <CollapsibleContent>
               <CardContent className="pt-0">
                 <DataMigrationSection />
