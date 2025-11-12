@@ -28,25 +28,49 @@ const CompletedApplications = () => {
   const [applications, setApplications] = useState<ApplicationWithCustomer[]>([]);
   const [loading, setLoading] = useState(true);
   
-  // Fetch applications with month filtering at database level
+  // Fetch applications with database-level filtering
   useEffect(() => {
     const fetchApplications = async () => {
       if (!user) return;
       
       setLoading(true);
       try {
-        // Build base query
+        // Determine which statuses to fetch based on statusFilter
+        const statusesToFetch = statusFilter === 'all' 
+          ? ['completed', 'paid'] as const
+          : statusFilter === 'completed'
+          ? ['completed'] as const
+          : ['paid'] as const;
+
+        // Build base query with status filter
         let query = supabase
           .from('account_applications')
           .select(`
             *,
             customer:customers!inner(id, name, email, mobile, company, license_type, user_id)
           `)
-          .in('status', ['completed', 'paid']);
+          .in('status', statusesToFetch);
         
         // Non-admins only see their own applications
         if (!isAdmin) {
           query = query.eq('customer.user_id', user.id);
+        }
+
+        // Add month filtering for completed applications at database level
+        if (selectedMonths.length > 0 && (statusFilter === 'completed' || statusFilter === 'all')) {
+          // For completed, filter by completed_at (only if not null)
+          if (statusFilter === 'completed') {
+            query = query.not('completed_at', 'is', null);
+            
+            // Build OR conditions for each selected month
+            if (selectedMonths.length === 1) {
+              const [year, monthNum] = selectedMonths[0].split('-').map(Number);
+              const startDate = new Date(year, monthNum, 1).toISOString();
+              const endDate = new Date(year, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
+              query = query.gte('completed_at', startDate).lte('completed_at', endDate);
+            }
+            // Note: Multiple month filtering still requires JS (complex OR conditions in Supabase)
+          }
         }
         
         const { data: baseApps, error: baseError } = await query;
@@ -85,7 +109,7 @@ const CompletedApplications = () => {
     };
     
     fetchApplications();
-  }, [user, isAdmin]);
+  }, [user, isAdmin, statusFilter, selectedMonths]);
   
   // Generate available months from the data (always show all months regardless of status filter)
   const availableMonths = useMemo(() => {
