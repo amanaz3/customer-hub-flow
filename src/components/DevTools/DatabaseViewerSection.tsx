@@ -5,7 +5,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, RefreshCw, Key, Link2, Star, Search } from 'lucide-react';
+import { Loader2, RefreshCw, Key, Link2, Star, Search, Database } from 'lucide-react';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
@@ -229,7 +230,48 @@ export function DatabaseViewerSection() {
       )}
 
       {selectedTable && (
-        <div className="flex items-center gap-4 text-sm flex-wrap">
+        <>
+          <Alert>
+            <Database className="h-4 w-4" />
+            <AlertTitle>Database Table: {selectedTable}</AlertTitle>
+            <AlertDescription>
+              <div className="mt-2 space-y-1 text-sm">
+                <div><strong>Columns ({columns.length}):</strong></div>
+                <ul className="list-disc list-inside space-y-0.5 ml-2 max-h-40 overflow-y-auto">
+                  {columns.map((column) => {
+                    const isPK = isPrimaryKey(column);
+                    const fk = getForeignKey(column);
+                    const isUnique = isUniqueKey(column);
+                    const dataType = metadata.columnTypes[column] || 'unknown';
+                    
+                    return (
+                      <li key={column}>
+                        <code className="text-xs bg-muted px-1 py-0.5 rounded">{column}</code>
+                        {' - '}
+                        <span className="text-xs text-muted-foreground">{dataType}</span>
+                        {isPK && <Badge variant="outline" className="ml-1 text-xs bg-yellow-500/10 text-yellow-700 dark:text-yellow-400">PK</Badge>}
+                        {fk && <Badge variant="outline" className="ml-1 text-xs bg-blue-500/10 text-blue-700 dark:text-blue-400">FK → {fk.foreignTable}</Badge>}
+                        {isUnique && !isPK && <Badge variant="outline" className="ml-1 text-xs bg-purple-500/10 text-purple-700 dark:text-purple-400">Unique</Badge>}
+                      </li>
+                    );
+                  })}
+                </ul>
+                {metadata.foreignKeys.length > 0 && (
+                  <div className="mt-2">
+                    <strong>Relationships:</strong> This table references{' '}
+                    {metadata.foreignKeys.map((fk, idx) => (
+                      <span key={idx}>
+                        {idx > 0 && ', '}
+                        <code className="text-xs bg-muted px-1 py-0.5 rounded">{fk.foreignTable}</code>
+                      </span>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </AlertDescription>
+          </Alert>
+          
+          <div className="flex items-center gap-4 text-sm flex-wrap">
           <div className="flex items-center gap-2">
             <span className="text-muted-foreground">Total Rows:</span>
             <Badge variant="secondary">{rowCount.toLocaleString()}</Badge>
@@ -251,7 +293,8 @@ export function DatabaseViewerSection() {
           {rowCount > 50 && (
             <span className="text-xs text-muted-foreground">(limited to 50 rows)</span>
           )}
-        </div>
+          </div>
+        </>
       )}
 
       {isLoading ? (
