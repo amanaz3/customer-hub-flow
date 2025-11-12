@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Edit, Trash2, Package, Database, ExternalLink } from 'lucide-react';
+import { Plus, Edit, Trash2, Package, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { supabase } from '@/lib/supabase';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from '@/components/ui/badge';
-import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
@@ -262,27 +261,6 @@ const ProductManagement: React.FC = () => {
 
   return (
     <div className="container mx-auto py-6 space-y-6">
-      {/* Table Info Card */}
-      <Alert>
-        <Database className="h-4 w-4" />
-        <AlertTitle>Database Table: products</AlertTitle>
-        <AlertDescription>
-          <div className="mt-2 space-y-1 text-sm">
-            <div><strong>Columns:</strong></div>
-            <ul className="list-disc list-inside space-y-0.5 ml-2">
-              <li><code className="text-xs bg-muted px-1 py-0.5 rounded">id</code> - UUID (Primary Key)</li>
-              <li><code className="text-xs bg-muted px-1 py-0.5 rounded">name</code> - TEXT (Product Name)</li>
-              <li><code className="text-xs bg-muted px-1 py-0.5 rounded">description</code> - TEXT (Description, nullable)</li>
-              <li><code className="text-xs bg-muted px-1 py-0.5 rounded">service_category_id</code> - UUID (Foreign Key to service_category)</li>
-              <li><code className="text-xs bg-muted px-1 py-0.5 rounded">is_active</code> - BOOLEAN (Active Status)</li>
-              <li><code className="text-xs bg-muted px-1 py-0.5 rounded">created_at</code> - TIMESTAMP</li>
-              <li><code className="text-xs bg-muted px-1 py-0.5 rounded">updated_at</code> - TIMESTAMP</li>
-            </ul>
-            <div className="mt-2"><strong>Relationships:</strong> References <code className="text-xs bg-muted px-1 py-0.5 rounded">service_category</code> table. Customers reference this via <code className="text-xs bg-muted px-1 py-0.5 rounded">product_id</code></div>
-          </div>
-        </AlertDescription>
-      </Alert>
-
       <div className="flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Product Management</h1>
