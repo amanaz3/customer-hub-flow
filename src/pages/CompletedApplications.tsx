@@ -23,7 +23,7 @@ const CompletedApplications = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'paid'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'completed_actual' | 'paid'>('all');
   const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
   const [applications, setApplications] = useState<ApplicationWithCustomer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,7 +38,7 @@ const CompletedApplications = () => {
         // Determine which statuses to fetch based on statusFilter
         const statusesToFetch = statusFilter === 'all' 
           ? ['completed', 'paid'] as const
-          : statusFilter === 'completed'
+          : statusFilter === 'completed' || statusFilter === 'completed_actual'
           ? ['completed'] as const
           : ['paid'] as const;
 
@@ -57,25 +57,47 @@ const CompletedApplications = () => {
         }
 
         // Add database-level month filtering for completed applications
-        if (selectedMonths.length > 0 && (statusFilter === 'completed' || statusFilter === 'all')) {
-          // Filter completed applications by completed_at
-          query = query.not('completed_at', 'is', null);
-          
-          if (selectedMonths.length === 1) {
-            const [year, monthNum] = selectedMonths[0].split('-').map(Number);
-            const startDate = new Date(year, monthNum, 1).toISOString();
-            const endDate = new Date(year, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
-            query = query.gte('completed_at', startDate).lte('completed_at', endDate);
-          } else {
-            // Multiple months: build OR conditions
-            const orConditions = selectedMonths.map(monthKey => {
-              const [year, monthNum] = monthKey.split('-').map(Number);
+        if (selectedMonths.length > 0) {
+          if (statusFilter === 'completed' || statusFilter === 'all') {
+            // Filter completed applications by completed_at
+            query = query.not('completed_at', 'is', null);
+            
+            if (selectedMonths.length === 1) {
+              const [year, monthNum] = selectedMonths[0].split('-').map(Number);
               const startDate = new Date(year, monthNum, 1).toISOString();
               const endDate = new Date(year, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
-              return `completed_at.gte.${startDate},completed_at.lte.${endDate}`;
-            }).join(',');
+              query = query.gte('completed_at', startDate).lte('completed_at', endDate);
+            } else {
+              // Multiple months: build OR conditions
+              const orConditions = selectedMonths.map(monthKey => {
+                const [year, monthNum] = monthKey.split('-').map(Number);
+                const startDate = new Date(year, monthNum, 1).toISOString();
+                const endDate = new Date(year, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
+                return `completed_at.gte.${startDate},completed_at.lte.${endDate}`;
+              }).join(',');
+              
+              query = query.or(orConditions);
+            }
+          } else if (statusFilter === 'completed_actual') {
+            // Filter completed applications by completed_actual
+            query = query.not('completed_actual', 'is', null);
             
-            query = query.or(orConditions);
+            if (selectedMonths.length === 1) {
+              const [year, monthNum] = selectedMonths[0].split('-').map(Number);
+              const startDate = new Date(year, monthNum, 1).toISOString();
+              const endDate = new Date(year, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
+              query = query.gte('completed_actual', startDate).lte('completed_actual', endDate);
+            } else {
+              // Multiple months: build OR conditions
+              const orConditions = selectedMonths.map(monthKey => {
+                const [year, monthNum] = monthKey.split('-').map(Number);
+                const startDate = new Date(year, monthNum, 1).toISOString();
+                const endDate = new Date(year, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
+                return `completed_actual.gte.${startDate},completed_actual.lte.${endDate}`;
+              }).join(',');
+              
+              query = query.or(orConditions);
+            }
           }
         }
         
@@ -152,7 +174,7 @@ const CompletedApplications = () => {
         }
 
         // Handle completed applications (already filtered at DB level if months selected)
-        if (statusFilter === 'completed' || statusFilter === 'all') {
+        if (statusFilter === 'completed' || statusFilter === 'completed_actual' || statusFilter === 'all') {
           const completedApps = (baseApps || []).filter((app: any) => app.status === 'completed');
           const completedWithoutPaidDate = completedApps.map((app: any) => ({
             ...app,
@@ -179,9 +201,13 @@ const CompletedApplications = () => {
     applications.forEach(app => {
       let dateToUse: string | undefined;
       
-      // Use the appropriate date based on application status
+      // Use the appropriate date based on application status and filter
       if (app.status === 'completed') {
-        dateToUse = app.completed_at || app.completed_actual || app.updated_at || app.created_at;
+        if (statusFilter === 'completed_actual') {
+          dateToUse = app.completed_actual || app.completed_at || app.updated_at || app.created_at;
+        } else {
+          dateToUse = app.completed_at || app.completed_actual || app.updated_at || app.created_at;
+        }
       } else if (app.status === 'paid') {
         dateToUse = app.paid_date || app.updated_at || app.created_at;
       }
@@ -206,7 +232,7 @@ const CompletedApplications = () => {
   const { filteredApplications, completeCount, paidCount, totalRevenue } = useMemo(() => {
     // Apply status filter
     let statusFiltered = applications;
-    if (statusFilter === 'completed') {
+    if (statusFilter === 'completed' || statusFilter === 'completed_actual') {
       statusFiltered = applications.filter(a => a.status === 'completed');
     } else if (statusFilter === 'paid') {
       statusFiltered = applications.filter(a => a.status === 'paid');
@@ -263,13 +289,14 @@ const CompletedApplications = () => {
             className="md:max-w-xs"
           />
           
-          <Select value={statusFilter} onValueChange={(value: 'all' | 'completed' | 'paid') => setStatusFilter(value)}>
-            <SelectTrigger className="w-[200px]">
+          <Select value={statusFilter} onValueChange={(value: 'all' | 'completed' | 'completed_actual' | 'paid') => setStatusFilter(value)}>
+            <SelectTrigger className="w-[240px]">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All (Completed & Paid)</SelectItem>
               <SelectItem value="completed">Completed (Business)</SelectItem>
+              <SelectItem value="completed_actual">Completed (Actual)</SelectItem>
               <SelectItem value="paid">Paid</SelectItem>
             </SelectContent>
           </Select>
@@ -393,7 +420,9 @@ const CompletedApplications = () => {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      {app.status === 'completed' && app.completed_at
+                      {app.status === 'completed' && statusFilter === 'completed_actual' && app.completed_actual
+                        ? format(new Date(app.completed_actual), 'dd MMM yyyy')
+                        : app.status === 'completed' && app.completed_at
                         ? format(new Date(app.completed_at), 'dd MMM yyyy')
                         : app.status === 'paid' && app.paid_date
                         ? format(new Date(app.paid_date), 'dd MMM yyyy')
