@@ -35,30 +35,46 @@ const CompletedApplications = () => {
       
       setLoading(true);
       try {
+        // First fetch all applications with their customers
         let query = supabase
           .from('account_applications')
           .select(`
             *,
-            customer:customers(id, name, email, mobile, company, license_type, user_id),
-            paid_status:application_status_changes!application_status_changes_application_id_fkey(created_at)
+            customer:customers(id, name, email, mobile, company, license_type, user_id)
           `)
-          .in('status', ['completed', 'paid'])
-          .eq('paid_status.new_status', 'paid')
-          .order('paid_status.created_at', { ascending: false, foreignTable: 'application_status_changes' });
+          .in('status', ['completed', 'paid']);
         
         // Non-admins only see their own applications
         if (!isAdmin) {
           query = query.eq('customer.user_id', user.id);
         }
         
-        const { data, error } = await query;
+        const { data: apps, error } = await query;
         
         if (error) throw error;
         
-        // Map the paid_status to paid_date
-        const applicationsWithPaidDate = (data || []).map((app: any) => ({
+        // Fetch paid dates for all applications in a single query with JOIN
+        const appIds = (apps || []).map(app => app.id);
+        
+        const { data: paidStatuses } = await supabase
+          .from('application_status_changes')
+          .select('application_id, created_at')
+          .in('application_id', appIds)
+          .eq('new_status', 'paid')
+          .order('created_at', { ascending: false });
+        
+        // Create a map of application_id to paid_date (first occurrence)
+        const paidDateMap = new Map<string, string>();
+        (paidStatuses || []).forEach(status => {
+          if (!paidDateMap.has(status.application_id)) {
+            paidDateMap.set(status.application_id, status.created_at);
+          }
+        });
+        
+        // Merge paid dates with applications
+        const applicationsWithPaidDate = (apps || []).map((app: any) => ({
           ...app,
-          paid_date: app.paid_status?.[0]?.created_at || null
+          paid_date: paidDateMap.get(app.id) || null
         }));
         
         setApplications(applicationsWithPaidDate);
