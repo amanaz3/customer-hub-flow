@@ -39,9 +39,12 @@ const CompletedApplications = () => {
           .from('account_applications')
           .select(`
             *,
-            customer:customers(id, name, email, mobile, company, license_type, user_id)
+            customer:customers(id, name, email, mobile, company, license_type, user_id),
+            paid_status:application_status_changes!application_status_changes_application_id_fkey(created_at)
           `)
-          .in('status', ['completed', 'paid']);
+          .in('status', ['completed', 'paid'])
+          .eq('paid_status.new_status', 'paid')
+          .order('paid_status.created_at', { ascending: false, foreignTable: 'application_status_changes' });
         
         // Non-admins only see their own applications
         if (!isAdmin) {
@@ -52,27 +55,11 @@ const CompletedApplications = () => {
         
         if (error) throw error;
         
-        // For paid applications, fetch the paid date from application_status_changes
-        const applicationsWithPaidDate = await Promise.all(
-          (data || []).map(async (app: any) => {
-            if (app.status === 'paid') {
-              const { data: statusChange } = await supabase
-                .from('application_status_changes')
-                .select('created_at')
-                .eq('application_id', app.id)
-                .eq('new_status', 'paid')
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .maybeSingle(); // Use maybeSingle instead of single to avoid 406 errors
-              
-              return {
-                ...app,
-                paid_date: statusChange?.created_at || app.updated_at // Fallback to updated_at if no status change
-              };
-            }
-            return app;
-          })
-        );
+        // Map the paid_status to paid_date
+        const applicationsWithPaidDate = (data || []).map((app: any) => ({
+          ...app,
+          paid_date: app.paid_status?.[0]?.created_at || null
+        }));
         
         setApplications(applicationsWithPaidDate);
       } catch (error) {
