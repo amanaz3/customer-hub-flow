@@ -33,7 +33,6 @@ import {
 import Analytics from '@/pages/Analytics';
 import TargetManagement from '@/pages/TargetManagement';
 import AgentHelpEditor from '@/pages/AgentHelpEditor';
-import DatabaseViewer from '@/pages/DatabaseViewer';
 import NotificationManagement from '@/pages/NotificationManagement';
 import NotificationTesting from '@/pages/NotificationTesting';
 import DevTools from '@/pages/DevTools';
@@ -285,16 +284,7 @@ function App() {
                   } />
                   
                   <Route path="/admin/migrate" element={<Navigate to="/dev-tools" replace />} />
-                  
-                  <Route path="/admin/database" element={
-                    <ProtectedRoute requireAdmin>
-                      <MainLayout>
-                        <PageErrorBoundary pageName="Database Viewer">
-                          <DatabaseViewer />
-                        </PageErrorBoundary>
-                      </MainLayout>
-                    </ProtectedRoute>
-                  } />
+                  <Route path="/admin/database" element={<Navigate to="/dev-tools" replace />} />
                   
                   <Route path="/team" element={
                     <ProtectedRoute>
