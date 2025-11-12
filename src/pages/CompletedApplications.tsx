@@ -57,19 +57,25 @@ const CompletedApplications = () => {
         }
 
         // Add month filtering for completed applications at database level
-        if (selectedMonths.length > 0 && (statusFilter === 'completed' || statusFilter === 'all')) {
-          // For completed, filter by completed_at (only if not null)
-          if (statusFilter === 'completed') {
-            query = query.not('completed_at', 'is', null);
-            
-            // Build OR conditions for each selected month
-            if (selectedMonths.length === 1) {
-              const [year, monthNum] = selectedMonths[0].split('-').map(Number);
+        if (selectedMonths.length > 0 && statusFilter === 'completed') {
+          query = query.not('completed_at', 'is', null);
+          
+          if (selectedMonths.length === 1) {
+            // Single month: simple range filter
+            const [year, monthNum] = selectedMonths[0].split('-').map(Number);
+            const startDate = new Date(year, monthNum, 1).toISOString();
+            const endDate = new Date(year, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
+            query = query.gte('completed_at', startDate).lte('completed_at', endDate);
+          } else {
+            // Multiple months: build OR conditions
+            const orConditions = selectedMonths.map(monthKey => {
+              const [year, monthNum] = monthKey.split('-').map(Number);
               const startDate = new Date(year, monthNum, 1).toISOString();
               const endDate = new Date(year, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
-              query = query.gte('completed_at', startDate).lte('completed_at', endDate);
-            }
-            // Note: Multiple month filtering still requires JS (complex OR conditions in Supabase)
+              return `completed_at.gte.${startDate},completed_at.lte.${endDate}`;
+            }).join(',');
+            
+            query = query.or(orConditions);
           }
         }
         
