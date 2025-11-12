@@ -15,7 +15,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
 
-type ApplicationWithCustomer = Application;
+type ApplicationWithCustomer = Application & {
+  paid_date?: string;
+};
 
 const CompletedApplications = () => {
   const { user, isAdmin } = useAuth();
@@ -33,26 +35,46 @@ const CompletedApplications = () => {
       
       setLoading(true);
       try {
-        // Fetch completed and paid applications
         let query = supabase
           .from('account_applications')
           .select(`
             *,
             customer:customers(id, name, email, mobile, company, license_type, user_id)
           `)
-          .in('status', ['completed', 'paid'])
-          .order('completed_at', { ascending: false });
+          .in('status', ['completed', 'paid']);
         
         // Non-admins only see their own applications
         if (!isAdmin) {
           query = query.eq('customer.user_id', user.id);
         }
         
-        const { data: apps, error } = await query;
+        const { data, error } = await query;
         
         if (error) throw error;
         
-        setApplications(apps as ApplicationWithCustomer[] || []);
+        // For paid applications, fetch the paid date from application_status_changes
+        const applicationsWithPaidDate = await Promise.all(
+          (data || []).map(async (app: any) => {
+            if (app.status === 'paid') {
+              const { data: statusChange } = await supabase
+                .from('application_status_changes')
+                .select('created_at')
+                .eq('application_id', app.id)
+                .eq('new_status', 'paid')
+                .order('created_at', { ascending: false })
+                .limit(1)
+                .maybeSingle(); // Use maybeSingle instead of single to avoid 406 errors
+              
+              return {
+                ...app,
+                paid_date: statusChange?.created_at || app.updated_at // Fallback to updated_at if no status change
+              };
+            }
+            return app;
+          })
+        );
+        
+        setApplications(applicationsWithPaidDate);
       } catch (error) {
         console.error('Error fetching applications:', error);
       } finally {
@@ -63,23 +85,30 @@ const CompletedApplications = () => {
     fetchApplications();
   }, [user, isAdmin]);
   
-  // Generate available months from completed_at dates
-  // Generate available months from all applications
+  // Generate available months from the data (always show all months regardless of status filter)
   const availableMonths = useMemo(() => {
     const months = new Set<string>();
     
     applications.forEach(app => {
-      // Use completed_at for all applications (both completed and paid should have this)
-      if (app.completed_at) {
-        const date = new Date(app.completed_at);
-        const monthKey = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      let dateToUse: string | undefined;
+      
+      // Use the appropriate date based on application status
+      if (app.status === 'completed') {
+        dateToUse = app.completed_at || app.completed_actual || app.updated_at || app.created_at;
+      } else if (app.status === 'paid') {
+        dateToUse = app.paid_date || app.updated_at || app.created_at;
+      }
+      
+      if (dateToUse) {
+        const date = new Date(dateToUse);
+        const monthKey = `${date.getFullYear()}-${date.getMonth()}`;
         months.add(monthKey);
       }
     });
     
     return Array.from(months).sort().reverse().map(monthKey => {
-      const [year, month] = monthKey.split('-');
-      const date = new Date(parseInt(year), parseInt(month) - 1);
+      const [year, month] = monthKey.split('-').map(Number);
+      const date = new Date(year, month);
       return {
         key: monthKey,
         label: format(date, "MMMM yyyy")
@@ -88,24 +117,30 @@ const CompletedApplications = () => {
   }, [applications]);
 
   const { filteredApplications, completeCount, paidCount, totalRevenue } = useMemo(() => {
-    // Apply status filter from account_applications.status
+    // Apply status filter
     let statusFiltered = applications;
     if (statusFilter === 'completed') {
-      // Filter by completed status in account_applications table
       statusFiltered = applications.filter(a => a.status === 'completed');
     } else if (statusFilter === 'paid') {
       statusFiltered = applications.filter(a => a.status === 'paid');
     }
     // 'all' shows both completed and paid (no additional filtering needed)
     
-    // Apply month filter using account_applications.completed_at
+    // Apply month filter (only when months are selected)
     const monthFiltered = selectedMonths.length > 0
       ? statusFiltered.filter(app => {
-          // Use completed_at from account_applications table for month filtering
-          if (!app.completed_at) return false;
+          let dateToUse: string | undefined;
           
-          const appDate = new Date(app.completed_at);
-          const monthKey = `${appDate.getFullYear()}-${String(appDate.getMonth() + 1).padStart(2, '0')}`;
+          if (app.status === 'completed') {
+            dateToUse = app.completed_at;
+          } else if (app.status === 'paid') {
+            dateToUse = app.paid_date;
+          }
+          
+          if (!dateToUse) return false;
+          
+          const appDate = new Date(dateToUse);
+          const monthKey = `${appDate.getFullYear()}-${appDate.getMonth()}`;
           return selectedMonths.includes(monthKey);
         })
       : statusFiltered;
@@ -117,7 +152,7 @@ const CompletedApplications = () => {
       app.customer?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       app.reference_number?.toString().includes(searchTerm)
     );
-    
+
     const complete = applications.filter(a => a.status === 'completed').length;
     const paid = applications.filter(a => a.status === 'paid').length;
     
@@ -145,7 +180,7 @@ const CompletedApplications = () => {
       <div>
         <h1 className="text-3xl font-bold">Completed Applications</h1>
         <p className="text-muted-foreground">
-          Completed: {completeCount} | Paid: {paidCount} | Revenue: {new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED' }).format(totalRevenue)}
+          View completed applications {!isAdmin && 'you submitted'} (Revenue: {new Intl.NumberFormat('en-AE', { style: 'currency', currency: 'AED' }).format(totalRevenue)})
         </p>
       </div>
       
@@ -159,11 +194,11 @@ const CompletedApplications = () => {
           />
           
           <Select value={statusFilter} onValueChange={(value: 'all' | 'completed' | 'paid') => setStatusFilter(value)}>
-            <SelectTrigger className="w-[180px]">
+            <SelectTrigger className="w-[200px]">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All</SelectItem>
+              <SelectItem value="all">All (Completed & Paid)</SelectItem>
               <SelectItem value="completed">Completed</SelectItem>
               <SelectItem value="paid">Paid</SelectItem>
             </SelectContent>
@@ -184,31 +219,25 @@ const CompletedApplications = () => {
                   : "Filter by months"}
               </Button>
             </PopoverTrigger>
-            <PopoverContent 
-              className="w-auto p-4 bg-popover z-[100] pointer-events-auto border shadow-lg" 
-              align="start"
-              sideOffset={5}
-            >
-              <div className="space-y-3 pointer-events-auto">
-                <div className="text-sm font-medium text-popover-foreground">Select months:</div>
+            <PopoverContent className="w-auto p-4 bg-background z-[60] pointer-events-auto border shadow-md" align="start">
+              <div className="space-y-3">
+                <div className="text-sm font-medium">Select months:</div>
                 {availableMonths.length === 0 ? (
                   <div className="text-sm text-muted-foreground py-2">
                     No months available. Applications data may still be loading.
                   </div>
                 ) : (
-                  <div className="max-h-48 overflow-y-auto space-y-2 pointer-events-auto">
+                  <div className="max-h-48 overflow-y-auto space-y-2">
                     {availableMonths.map((month) => (
-                      <div key={month.key} className="flex items-center space-x-2 pointer-events-auto">
+                      <div key={month.key} className="flex items-center space-x-2">
                         <Checkbox
                           id={month.key}
                           checked={selectedMonths.includes(month.key)}
                           onCheckedChange={() => toggleMonth(month.key)}
-                          className="pointer-events-auto"
                         />
                         <label
                           htmlFor={month.key}
-                          className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer select-none pointer-events-auto"
-                          onClick={() => toggleMonth(month.key)}
+                          className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
                         >
                           {month.label}
                         </label>
@@ -221,7 +250,7 @@ const CompletedApplications = () => {
                     variant="outline"
                     size="sm"
                     onClick={() => setSelectedMonths([])}
-                    className="w-full pointer-events-auto"
+                    className="w-full"
                   >
                     Clear all
                   </Button>
@@ -241,6 +270,12 @@ const CompletedApplications = () => {
               <X className="ml-2 h-4 w-4" />
             </Button>
           )}
+          
+          <div className="flex gap-2">
+            <div className="text-sm text-muted-foreground px-3 py-2 bg-muted rounded-md">
+              Complete: {completeCount} | Paid: {paidCount}
+            </div>
+          </div>
         </div>
       </LazyWrapper>
       
@@ -254,19 +289,20 @@ const CompletedApplications = () => {
                 <TableHead>Company</TableHead>
                 <TableHead>Application Type</TableHead>
                 <TableHead>Status</TableHead>
+                <TableHead>Date</TableHead>
                 <TableHead>Amount</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     Loading applications...
                   </TableCell>
                 </TableRow>
               ) : filteredApplications.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={6} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
                     No applications found
                   </TableCell>
                 </TableRow>
@@ -285,6 +321,13 @@ const CompletedApplications = () => {
                       <Badge variant={app.status === 'completed' ? 'default' : 'secondary'}>
                         {app.status === 'completed' ? 'Completed' : 'Paid'}
                       </Badge>
+                    </TableCell>
+                    <TableCell>
+                      {app.status === 'completed' && app.completed_at
+                        ? format(new Date(app.completed_at), 'dd MMM yyyy')
+                        : app.status === 'paid' && app.paid_date
+                        ? format(new Date(app.paid_date), 'dd MMM yyyy')
+                        : '-'}
                     </TableCell>
                     <TableCell>
                       {new Intl.NumberFormat('en-AE', { 
