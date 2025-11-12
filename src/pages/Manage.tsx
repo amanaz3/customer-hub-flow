@@ -94,7 +94,10 @@ const Manage = () => {
           </CardContent>
         </Card>
 
-        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/team')}
+        >
           <CardHeader>
             <div className="flex items-center gap-3">
               <div className="p-3 bg-primary/10 rounded-lg">
@@ -102,13 +105,13 @@ const Manage = () => {
               </div>
               <div>
                 <CardTitle>Tracking</CardTitle>
-                <CardDescription>Monitor activities and performance</CardDescription>
+                <CardDescription>Task assignment and activity tracking</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent>
             <p className="text-sm text-muted-foreground">
-              Track user activities, performance metrics, and weekly activity summaries.
+              Assign tasks, track user activities, and monitor team performance metrics.
             </p>
           </CardContent>
         </Card>
