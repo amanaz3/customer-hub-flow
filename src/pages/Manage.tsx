@@ -1,14 +1,9 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Users, MessageSquare, Target, Activity, ChevronDown, ChevronUp } from "lucide-react";
-import NotificationManagement from "@/pages/NotificationManagement";
+import { Users, MessageSquare, Target, Activity, Bell } from "lucide-react";
 
 const Manage = () => {
   const navigate = useNavigate();
-  const [messagesOpen, setMessagesOpen] = useState(false);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -16,7 +11,7 @@ const Manage = () => {
         <h1 className="text-3xl font-bold">Manage</h1>
       </div>
 
-      <div className="grid grid-cols-1 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <Card 
           className="hover:shadow-lg transition-shadow cursor-pointer"
           onClick={() => navigate('/customer-services')}
@@ -39,37 +34,46 @@ const Manage = () => {
           </CardContent>
         </Card>
 
-        <Collapsible open={messagesOpen} onOpenChange={setMessagesOpen}>
-          <Card className="border-2 shadow-lg overflow-hidden col-span-full">
-            <CardHeader className="pb-4 border-b bg-gradient-to-r from-blue-500/5 to-purple-500/5">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div className="p-3 bg-primary/10 rounded-lg">
-                    <MessageSquare className="h-6 w-6 text-primary" />
-                  </div>
-                  <div>
-                    <CardTitle className="text-xl">Messages & Notifications</CardTitle>
-                    <CardDescription className="text-sm mt-1">
-                      Configure notification settings, email templates, and message preferences
-                    </CardDescription>
-                  </div>
-                </div>
-                <CollapsibleTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    {messagesOpen ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
-                  </Button>
-                </CollapsibleTrigger>
+        <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <MessageSquare className="h-6 w-6 text-primary" />
               </div>
-            </CardHeader>
-            <CollapsibleContent>
-              <CardContent className="p-0">
-                <NotificationManagement />
-              </CardContent>
-            </CollapsibleContent>
-          </Card>
-        </Collapsible>
+              <div>
+                <CardTitle>Messages</CardTitle>
+                <CardDescription>View and manage messages</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              View message history, templates, and communication logs.
+            </p>
+          </CardContent>
+        </Card>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/notification-management')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Bell className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Notification Settings</CardTitle>
+                <CardDescription>Configure notification preferences</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Manage notification settings, email templates, and message preferences.
+            </p>
+          </CardContent>
+        </Card>
 
         <Card className="hover:shadow-lg transition-shadow cursor-pointer">
           <CardHeader>
@@ -90,28 +94,27 @@ const Manage = () => {
           </CardContent>
         </Card>
 
-          <Card 
-            className="hover:shadow-lg transition-shadow cursor-pointer"
-            onClick={() => navigate('/team')}
-          >
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <div className="p-3 bg-primary/10 rounded-lg">
-                  <Activity className="h-6 w-6 text-primary" />
-                </div>
-                <div>
-                  <CardTitle>Tracking</CardTitle>
-                  <CardDescription>Task assignment and activity tracking</CardDescription>
-                </div>
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/team')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Activity className="h-6 w-6 text-primary" />
               </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Assign tasks, track user activities, and monitor team performance metrics.
-              </p>
-            </CardContent>
-          </Card>
-        </div>
+              <div>
+                <CardTitle>Tracking</CardTitle>
+                <CardDescription>Task assignment and activity tracking</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Assign tasks, track user activities, and monitor team performance metrics.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
