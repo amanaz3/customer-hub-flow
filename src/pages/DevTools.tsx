@@ -10,7 +10,7 @@ export default function DevTools() {
       <div className="mb-6">
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <Wrench className="w-8 h-8" />
-          Developer Tools
+          Admin Tools
         </h1>
         <p className="text-muted-foreground mt-2">
           Admin-only testing and debugging features

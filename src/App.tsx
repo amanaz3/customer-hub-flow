@@ -149,7 +149,7 @@ function App() {
                   <Route path="/dev-tools" element={
                     <ProtectedRoute requireAdmin>
                       <MainLayout>
-                        <PageErrorBoundary pageName="Developer Tools">
+                        <PageErrorBoundary pageName="Admin Tools">
                           <DevTools />
                         </PageErrorBoundary>
                       </MainLayout>

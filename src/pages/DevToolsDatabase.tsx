@@ -16,7 +16,7 @@ export default function DevToolsDatabase() {
           className="mb-4"
         >
           <ArrowLeft className="w-4 h-4 mr-2" />
-          Back to Developer Tools
+          Back to Admin Tools
         </Button>
         <h1 className="text-3xl font-bold flex items-center gap-2">
           <Database className="w-8 h-8" />
