@@ -129,15 +129,15 @@ const Sidebar: React.FC = () => {
       roles: ['admin'],
     },
     {
-      name: 'Developer Tools',
-      path: '/dev-tools',
-      icon: <Wrench className="h-5 w-5" />,
-      roles: ['admin'],
-    },
-    {
       name: 'Manage',
       path: '/manage',
       icon: <Layout className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
+      name: 'Developer Tools',
+      path: '/dev-tools',
+      icon: <Wrench className="h-5 w-5" />,
       roles: ['admin'],
     },
     {
