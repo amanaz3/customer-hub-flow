@@ -115,13 +115,22 @@ export function DatabaseViewerSection() {
         </Button>
       </div>
 
-      {rowCount > 0 && (
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Badge variant="secondary">
-            Showing {tableData.length} of {rowCount} rows
-          </Badge>
+      {selectedTable && (
+        <div className="flex items-center gap-4 text-sm">
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground">Total Rows:</span>
+            <Badge variant="secondary">{rowCount.toLocaleString()}</Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground">Showing:</span>
+            <Badge variant="secondary">{tableData.length.toLocaleString()} rows</Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-muted-foreground">Columns:</span>
+            <Badge variant="secondary">{columns.length}</Badge>
+          </div>
           {rowCount > 50 && (
-            <span className="text-xs">(limited to 50 rows)</span>
+            <span className="text-xs text-muted-foreground">(limited to 50 rows)</span>
           )}
         </div>
       )}
