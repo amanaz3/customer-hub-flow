@@ -36,6 +36,7 @@ import TargetManagement from '@/pages/TargetManagement';
 import AgentHelpEditor from '@/pages/AgentHelpEditor';
 import DatabaseViewer from '@/pages/DatabaseViewer';
 import NotificationManagement from '@/pages/NotificationManagement';
+import NotificationTesting from '@/pages/NotificationTesting';
 import TaskCollaboration from '@/pages/TaskCollaboration';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
@@ -125,6 +126,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Notification Management">
                           <NotificationManagement />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/notification-testing" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Notification Testing">
+                          <NotificationTesting />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
