@@ -27,7 +27,8 @@ import {
   Bell,
   UsersRound,
   Wrench,
-  Layout
+  Layout,
+  ListChecks
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -122,6 +123,12 @@ const Sidebar: React.FC = () => {
       roles: ['admin'],
     },
     {
+      name: 'Task Assignment',
+      path: '/team',
+      icon: <ListChecks className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
       name: 'Developer Tools',
       path: '/dev-tools',
       icon: <Wrench className="h-5 w-5" />,
@@ -149,7 +156,7 @@ const Sidebar: React.FC = () => {
 
   const isActiveRoute = (path: string) => {
     // Exact match for most routes
-    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/analytics' || path === '/targets' || path === '/dev-tools' || path === '/manage' || path === '/admin/help-editor') {
+    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/users' || path === '/dashboard' || path === '/products' || path === '/analytics' || path === '/targets' || path === '/team' || path === '/dev-tools' || path === '/manage' || path === '/admin/help-editor') {
       return location.pathname === path;
     }
     
