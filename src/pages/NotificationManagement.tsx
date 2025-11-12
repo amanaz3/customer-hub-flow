@@ -566,7 +566,8 @@ export default function NotificationManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="py-6 px-4 space-y-6">
+
       {/* Email Notifications */}
       <Collapsible open={emailOpen} onOpenChange={setEmailOpen}>
         <Card className="border-2 shadow-lg overflow-hidden">
