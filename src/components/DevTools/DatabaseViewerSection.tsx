@@ -5,8 +5,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Loader2, RefreshCw } from 'lucide-react';
+import { Loader2, RefreshCw, Key, Link2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 const AVAILABLE_TABLES = [
   'account_applications',
@@ -22,13 +23,52 @@ const AVAILABLE_TABLES = [
   'customer_services',
 ];
 
+interface TableMetadata {
+  primaryKeys: string[];
+  foreignKeys: Array<{
+    column: string;
+    foreignTable: string;
+    foreignColumn: string;
+  }>;
+}
+
 export function DatabaseViewerSection() {
   const [selectedTable, setSelectedTable] = useState<string>('account_applications');
   const [tableData, setTableData] = useState<any[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [rowCount, setRowCount] = useState(0);
+  const [metadata, setMetadata] = useState<TableMetadata>({
+    primaryKeys: [],
+    foreignKeys: []
+  });
   const { toast } = useToast();
+
+  const fetchTableMetadata = async (tableName: string) => {
+    try {
+      // Fetch primary keys
+      const { data: pkData } = await supabase.rpc('get_table_primary_keys' as any, {
+        p_table_name: tableName
+      }) as any;
+
+      // Fetch foreign keys
+      const { data: fkData } = await supabase.rpc('get_table_foreign_keys' as any, {
+        p_table_name: tableName
+      }) as any;
+
+      setMetadata({
+        primaryKeys: pkData?.map((row: any) => row.column_name) || [],
+        foreignKeys: fkData?.map((row: any) => ({
+          column: row.column_name,
+          foreignTable: row.foreign_table_name,
+          foreignColumn: row.foreign_column_name
+        })) || []
+      });
+    } catch (error) {
+      console.error('Error fetching table metadata:', error);
+      setMetadata({ primaryKeys: [], foreignKeys: [] });
+    }
+  };
 
   const fetchTableData = async (tableName: string) => {
     setIsLoading(true);
@@ -69,12 +109,19 @@ export function DatabaseViewerSection() {
 
   const handleTableChange = (tableName: string) => {
     setSelectedTable(tableName);
+    fetchTableMetadata(tableName);
     fetchTableData(tableName);
   };
 
   const handleRefresh = () => {
+    fetchTableMetadata(selectedTable);
     fetchTableData(selectedTable);
   };
+
+  const isPrimaryKey = (column: string) => metadata.primaryKeys.includes(column);
+  
+  const getForeignKey = (column: string) => 
+    metadata.foreignKeys.find(fk => fk.column === column);
 
   const formatValue = (value: any): string => {
     if (value === null) return 'NULL';
@@ -144,11 +191,40 @@ export function DatabaseViewerSection() {
           <Table>
             <TableHeader>
               <TableRow>
-                {columns.map((column) => (
-                  <TableHead key={column} className="font-semibold">
-                    {column}
-                  </TableHead>
-                ))}
+                {columns.map((column) => {
+                  const isPK = isPrimaryKey(column);
+                  const fk = getForeignKey(column);
+                  
+                  return (
+                    <TableHead key={column} className="font-semibold">
+                      <TooltipProvider>
+                        <div className="flex items-center gap-2">
+                          <span>{column}</span>
+                          {isPK && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Key className="h-3 w-3 text-yellow-500" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Primary Key</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                          {fk && (
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Link2 className="h-3 w-3 text-blue-500" />
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p>Foreign Key → {fk.foreignTable}.{fk.foreignColumn}</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          )}
+                        </div>
+                      </TooltipProvider>
+                    </TableHead>
+                  );
+                })}
               </TableRow>
             </TableHeader>
             <TableBody>
