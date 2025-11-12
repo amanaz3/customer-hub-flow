@@ -1,14 +1,9 @@
-import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Users, MessageSquare, Target, Activity, ChevronDown, ChevronUp } from "lucide-react";
-import NotificationManagement from "./NotificationManagement";
+import { Users, MessageSquare, Target, Activity } from "lucide-react";
 
 const Manage = () => {
   const navigate = useNavigate();
-  const [messagesOpen, setMessagesOpen] = useState(false);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -39,33 +34,27 @@ const Manage = () => {
           </CardContent>
         </Card>
 
-        <Collapsible open={messagesOpen} onOpenChange={setMessagesOpen}>
-          <Card className="hover:shadow-lg transition-shadow">
-            <CollapsibleTrigger asChild>
-              <CardHeader className="cursor-pointer">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="p-3 bg-primary/10 rounded-lg">
-                      <MessageSquare className="h-6 w-6 text-primary" />
-                    </div>
-                    <div>
-                      <CardTitle>Messages</CardTitle>
-                      <CardDescription>Notification settings and message preferences</CardDescription>
-                    </div>
-                  </div>
-                  <Button variant="ghost" size="sm">
-                    {messagesOpen ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </CardHeader>
-            </CollapsibleTrigger>
-            <CollapsibleContent>
-              <CardContent className="pt-0">
-                <NotificationManagement />
-              </CardContent>
-            </CollapsibleContent>
-          </Card>
-        </Collapsible>
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/messages')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <MessageSquare className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Messages</CardTitle>
+                <CardDescription>Notification settings and message preferences</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Manage email and in-app notification settings for application status changes.
+            </p>
+          </CardContent>
+        </Card>
 
         <Card className="hover:shadow-lg transition-shadow cursor-pointer">
           <CardHeader>

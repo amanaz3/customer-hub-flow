@@ -166,8 +166,8 @@ export default function NotificationManagement() {
   const { toast } = useToast();
   
   // Collapsible state
-  const [emailOpen, setEmailOpen] = useState(false);
-  const [inAppOpen, setInAppOpen] = useState(false);
+  const [emailOpen, setEmailOpen] = useState(true);
+  const [inAppOpen, setInAppOpen] = useState(true);
   const [advancedEmailOpen, setAdvancedEmailOpen] = useState(false);
   const [advancedInAppOpen, setAdvancedInAppOpen] = useState(false);
 
@@ -566,7 +566,22 @@ export default function NotificationManagement() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="container mx-auto py-6 px-4 max-w-6xl space-y-6">
+      <div className="mb-6 space-y-2">
+        <div className="flex items-center gap-3">
+          <div className="p-2 rounded-lg bg-gradient-to-br from-primary/20 to-primary/5 border border-primary/20">
+            <Bell className="h-6 w-6 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">Notification Settings</h1>
+            <p className="text-sm text-muted-foreground">
+              Configure email and in-app notifications for application status changes
+            </p>
+          </div>
+        </div>
+        <Separator className="my-4" />
+      </div>
+
       {/* Email Notifications */}
       <Collapsible open={emailOpen} onOpenChange={setEmailOpen}>
         <Card className="border-2 shadow-lg overflow-hidden">

@@ -39,6 +39,7 @@ import DevTools from '@/pages/DevTools';
 import TaskCollaboration from '@/pages/TaskCollaboration';
 import Manage from '@/pages/Manage';
 import CustomerServicesManagement from '@/pages/CustomerServicesManagement';
+import Messages from '@/pages/Messages';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -313,6 +314,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Customer Services Management">
                           <CustomerServicesManagement />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/messages" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Messages">
+                          <Messages />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
