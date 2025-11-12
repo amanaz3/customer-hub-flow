@@ -269,7 +269,7 @@ const CompletedApplications = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All (Completed & Paid)</SelectItem>
-              <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="completed">Completed (Business)</SelectItem>
               <SelectItem value="paid">Paid</SelectItem>
             </SelectContent>
           </Select>
