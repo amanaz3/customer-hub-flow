@@ -55,35 +55,113 @@ const CompletedApplications = () => {
         if (!isAdmin) {
           query = query.eq('customer.user_id', user.id);
         }
+
+        // Add database-level month filtering for completed applications
+        if (selectedMonths.length > 0 && (statusFilter === 'completed' || statusFilter === 'all')) {
+          // Filter completed applications by completed_at
+          query = query.not('completed_at', 'is', null);
+          
+          if (selectedMonths.length === 1) {
+            const [year, monthNum] = selectedMonths[0].split('-').map(Number);
+            const startDate = new Date(year, monthNum, 1).toISOString();
+            const endDate = new Date(year, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
+            query = query.gte('completed_at', startDate).lte('completed_at', endDate);
+          } else {
+            // Multiple months: build OR conditions
+            const orConditions = selectedMonths.map(monthKey => {
+              const [year, monthNum] = monthKey.split('-').map(Number);
+              const startDate = new Date(year, monthNum, 1).toISOString();
+              const endDate = new Date(year, monthNum + 1, 0, 23, 59, 59, 999).toISOString();
+              return `completed_at.gte.${startDate},completed_at.lte.${endDate}`;
+            }).join(',');
+            
+            query = query.or(orConditions);
+          }
+        }
         
         const { data: baseApps, error: baseError } = await query;
         
         if (baseError) throw baseError;
         
-        // For paid applications, fetch paid_date from application_status_changes
-        const applicationsWithPaidDate = await Promise.all(
-          (baseApps || []).map(async (app: any) => {
-            if (app.status === 'paid') {
-              const { data: statusChange } = await supabase
-                .from('application_status_changes')
-                .select('created_at')
-                .eq('application_id', app.id)
-                .eq('new_status', 'paid')
-                .order('created_at', { ascending: false })
-                .limit(1)
-                .maybeSingle();
-              
-              return {
-                ...app,
-                paid_date: statusChange?.created_at || null,
-                has_status_change: !!statusChange?.created_at
-              };
-            }
-            return { ...app, paid_date: null, has_status_change: false };
-          })
-        );
+        let finalApplications: ApplicationWithCustomer[] = [];
+
+        // Handle paid applications with month filtering at DB level
+        if (statusFilter === 'paid' || statusFilter === 'all') {
+          const paidApps = (baseApps || []).filter((app: any) => app.status === 'paid');
+          
+          if (selectedMonths.length > 0 && statusFilter === 'paid') {
+            // When month filtering is active for paid apps, join with status changes
+            const { data: paidWithDates, error: paidError } = await supabase
+              .from('account_applications')
+              .select(`
+                *,
+                customer:customers!inner(id, name, email, mobile, company, license_type, user_id),
+                application_status_changes!inner(created_at)
+              `)
+              .eq('status', 'paid')
+              .eq('application_status_changes.new_status', 'paid')
+              .then(async (result) => {
+                if (result.error) throw result.error;
+                
+                // Filter by month ranges in JS since complex OR conditions on joined tables are tricky
+                const filtered = (result.data || []).filter((app: any) => {
+                  const statusChanges = app.application_status_changes;
+                  if (!Array.isArray(statusChanges) || statusChanges.length === 0) return false;
+                  
+                  const paidDate = statusChanges[0]?.created_at;
+                  if (!paidDate) return false;
+                  
+                  const appDate = new Date(paidDate);
+                  const monthKey = `${appDate.getFullYear()}-${appDate.getMonth()}`;
+                  return selectedMonths.includes(monthKey);
+                });
+                
+                // Add paid_date to each app
+                return {
+                  data: filtered.map((app: any) => ({
+                    ...app,
+                    paid_date: app.application_status_changes?.[0]?.created_at || null
+                  })),
+                  error: null
+                };
+              });
+            
+            if (paidError) throw paidError;
+            finalApplications = [...finalApplications, ...(paidWithDates || [])];
+          } else {
+            // No month filtering or statusFilter is 'all', fetch paid_date separately
+            const paidWithDates = await Promise.all(
+              paidApps.map(async (app: any) => {
+                const { data: statusChange } = await supabase
+                  .from('application_status_changes')
+                  .select('created_at')
+                  .eq('application_id', app.id)
+                  .eq('new_status', 'paid')
+                  .order('created_at', { ascending: false })
+                  .limit(1)
+                  .maybeSingle();
+                
+                return {
+                  ...app,
+                  paid_date: statusChange?.created_at || null
+                };
+              })
+            );
+            finalApplications = [...finalApplications, ...paidWithDates];
+          }
+        }
+
+        // Handle completed applications (already filtered at DB level if months selected)
+        if (statusFilter === 'completed' || statusFilter === 'all') {
+          const completedApps = (baseApps || []).filter((app: any) => app.status === 'completed');
+          const completedWithoutPaidDate = completedApps.map((app: any) => ({
+            ...app,
+            paid_date: null
+          }));
+          finalApplications = [...finalApplications, ...completedWithoutPaidDate];
+        }
         
-        setApplications(applicationsWithPaidDate);
+        setApplications(finalApplications);
       } catch (error) {
         console.error('Error fetching applications:', error);
       } finally {
@@ -92,7 +170,7 @@ const CompletedApplications = () => {
     };
     
     fetchApplications();
-  }, [user, isAdmin, statusFilter]);
+  }, [user, isAdmin, statusFilter, selectedMonths]);
   
   // Generate available months from the data (always show all months regardless of status filter)
   const availableMonths = useMemo(() => {
@@ -135,29 +213,10 @@ const CompletedApplications = () => {
     }
     // 'all' shows both completed and paid (no additional filtering needed)
     
-    // Apply month filter (only when months are selected)
-    // Note: Paid applications without status change records won't be included when filtering by month
-    const monthFiltered = selectedMonths.length > 0
-      ? statusFiltered.filter(app => {
-          let dateToUse: string | undefined;
-          
-          if (app.status === 'completed') {
-            dateToUse = app.completed_at;
-          } else if (app.status === 'paid') {
-            dateToUse = app.paid_date; // Will be null for legacy applications
-          }
-          
-          // If no date available, exclude from month-filtered results
-          if (!dateToUse) return false;
-          
-          const appDate = new Date(dateToUse);
-          const monthKey = `${appDate.getFullYear()}-${appDate.getMonth()}`;
-          return selectedMonths.includes(monthKey);
-        })
-      : statusFiltered;
+    // Month filtering is now done at database level, no need for JS filtering
     
     // Apply search filter
-    const searchFiltered = monthFiltered.filter(app => 
+    const searchFiltered = statusFiltered.filter(app => 
       app.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       app.customer?.company?.toLowerCase().includes(searchTerm.toLowerCase()) ||
       app.customer?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -176,7 +235,7 @@ const CompletedApplications = () => {
       paidCount: paid,
       totalRevenue: revenue
     };
-  }, [applications, searchTerm, statusFilter, selectedMonths]);
+  }, [applications, searchTerm, statusFilter]);
 
   const toggleMonth = (monthKey: string) => {
     setSelectedMonths(prev => 
