@@ -21,7 +21,7 @@ const CompletedApplications = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState('');
-  const [statusFilter, setStatusFilter] = useState<'all' | 'completed'>('all');
+  const [statusFilter, setStatusFilter] = useState<'all' | 'completed' | 'paid'>('all');
   const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
   const [applications, setApplications] = useState<ApplicationWithCustomer[]>([]);
   const [loading, setLoading] = useState(true);
@@ -90,6 +90,8 @@ const CompletedApplications = () => {
     let statusFiltered = applications;
     if (statusFilter === 'completed') {
       statusFiltered = applications.filter(a => a.status === 'completed');
+    } else if (statusFilter === 'paid') {
+      statusFiltered = applications.filter(a => a.status === 'paid');
     }
     // 'all' shows both completed and paid (no additional filtering needed)
     
@@ -152,13 +154,14 @@ const CompletedApplications = () => {
             className="md:max-w-xs"
           />
           
-          <Select value={statusFilter} onValueChange={(value: 'all' | 'completed') => setStatusFilter(value)}>
+          <Select value={statusFilter} onValueChange={(value: 'all' | 'completed' | 'paid') => setStatusFilter(value)}>
             <SelectTrigger className="w-[180px]">
               <SelectValue placeholder="Filter by status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All</SelectItem>
               <SelectItem value="completed">Completed</SelectItem>
+              <SelectItem value="paid">Paid</SelectItem>
             </SelectContent>
           </Select>
           
