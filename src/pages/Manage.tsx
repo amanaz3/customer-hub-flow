@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Activity } from "lucide-react";
+import { Users, MessageSquare } from "lucide-react";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -52,28 +52,6 @@ const Manage = () => {
           <CardContent>
             <p className="text-sm text-muted-foreground">
               Manage email and in-app notification settings for application status changes.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card
-          className="hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => navigate('/team')}
-        >
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Activity className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <CardTitle>Tracking</CardTitle>
-                <CardDescription>Task assignment and activity tracking</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Assign tasks, track user activities, and monitor team performance metrics.
             </p>
           </CardContent>
         </Card>
