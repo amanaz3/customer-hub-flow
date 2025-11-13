@@ -335,7 +335,7 @@ function App() {
                   <Route path="/manage" element={
                     <ProtectedRoute requireAdmin>
                       <MainLayout>
-                        <PageErrorBoundary pageName="Manage">
+                        <PageErrorBoundary pageName="Configure">
                           <Manage />
                         </PageErrorBoundary>
                       </MainLayout>
