@@ -134,6 +134,7 @@ const TaskCollaboration: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('todo');
   const [priorityFilter, setPriorityFilter] = useState<string>('medium-high');
+  const [projectFilter, setProjectFilter] = useState<string>('all');
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
   const [caseStatusFilter, setCaseStatusFilter] = useState<string>('active');
   const [caseSearchQuery, setCaseSearchQuery] = useState('');
@@ -523,7 +524,8 @@ const TaskCollaboration: React.FC = () => {
     const matchesPriority = priorityFilter === 'all' || 
                             task.priority === priorityFilter ||
                             (priorityFilter === 'medium-high' && (task.priority === 'medium' || task.priority === 'high'));
-    return matchesSearch && matchesStatus && matchesPriority;
+    const matchesProject = projectFilter === 'all' || task.project_id === projectFilter;
+    return matchesSearch && matchesStatus && matchesPriority && matchesProject;
   });
 
   const filteredApplications = applications.filter((app) => {
@@ -976,6 +978,19 @@ const TaskCollaboration: React.FC = () => {
                     className="pl-9"
                   />
                 </div>
+                <Select value={projectFilter} onValueChange={setProjectFilter}>
+                  <SelectTrigger className="w-[180px]">
+                    <SelectValue placeholder="Project" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Projects</SelectItem>
+                    {products.map((product) => (
+                      <SelectItem key={product.id} value={product.id}>
+                        {product.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
                   <SelectTrigger className="w-40">
                     <SelectValue placeholder="Status" />
@@ -1043,7 +1058,7 @@ const TaskCollaboration: React.FC = () => {
                 ))}
                 {filteredTasks.length === 0 && (
                   <div className="text-center py-12 text-muted-foreground">
-                    {searchQuery || statusFilter !== 'all' || priorityFilter !== 'all'
+                    {searchQuery || statusFilter !== 'all' || priorityFilter !== 'all' || projectFilter !== 'all'
                       ? 'No tasks match your filters'
                       : 'No tasks yet. Create your first task!'}
                   </div>
