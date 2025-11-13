@@ -123,7 +123,7 @@ const Sidebar: React.FC = () => {
       roles: ['admin'],
     },
     {
-      name: 'Task Assignment',
+      name: 'Task Track Tasks',
       path: '/team',
       icon: <ListChecks className="h-5 w-5" />,
       roles: ['admin'],

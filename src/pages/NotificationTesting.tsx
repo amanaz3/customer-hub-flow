@@ -14,7 +14,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 
 const NOTIFICATION_TYPES = [
   { value: "status_change", label: "Application Status Change" },
-  { value: "task_assignment", label: "Task Assignment" },
+  { value: "task_assignment", label: "Task Track Tasks" },
   { value: "bulk_status_change", label: "Bulk Status Change" },
   { value: "document_upload", label: "Document Upload" },
   { value: "comment", label: "New Comment" },
