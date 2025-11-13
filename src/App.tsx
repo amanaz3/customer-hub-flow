@@ -40,7 +40,7 @@ import DevToolsNotifications from '@/pages/DevToolsNotifications';
 import DevToolsDatabase from '@/pages/DevToolsDatabase';
 import DevToolsMigration from '@/pages/DevToolsMigration';
 import TaskCollaboration from '@/pages/TaskCollaboration';
-import Manage from '@/pages/Manage';
+import Configure from '@/pages/Configure';
 import CustomerServicesManagement from '@/pages/CustomerServicesManagement';
 import Messages from '@/pages/Messages';
 import ErrorTracker from '@/utils/errorTracking';
@@ -336,7 +336,7 @@ function App() {
                     <ProtectedRoute requireAdmin>
                       <MainLayout>
                         <PageErrorBoundary pageName="Configure">
-                          <Manage />
+                          <Configure />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
