@@ -266,20 +266,22 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         <div className="flex items-center justify-between mb-4">
           {[1, 2, 3, 4].map((step) => (
             <div key={step} className="flex items-center flex-1">
-              <div 
-                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-200 ${
-                  currentStep >= step 
-                    ? 'border-primary bg-primary text-primary-foreground' 
-                    : 'border-border bg-background text-muted-foreground'
-                }`}
-                aria-current={currentStep === step ? 'step' : undefined}
-                aria-label={`Step ${step}: ${stepLabels[step - 1].title}`}
-              >
-                {currentStep > step ? (
-                  <Check className="w-5 h-5" />
-                ) : (
-                  <span className="text-sm font-semibold">{step}</span>
-                )}
+              <div className="flex flex-col items-center flex-1">
+                <div 
+                  className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-200 ${
+                    currentStep >= step 
+                      ? 'border-primary bg-primary text-primary-foreground' 
+                      : 'border-border bg-background text-muted-foreground'
+                  }`}
+                  aria-current={currentStep === step ? 'step' : undefined}
+                  aria-label={`Step ${step}: ${stepLabels[step - 1].title}`}
+                >
+                  {currentStep > step ? (
+                    <Check className="w-5 h-5" />
+                  ) : (
+                    <span className="text-sm font-semibold">{step}</span>
+                  )}
+                </div>
               </div>
               {step < 4 && (
                 <div className={`flex-1 h-0.5 mx-3 transition-all duration-200 ${
@@ -289,9 +291,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             </div>
           ))}
         </div>
-        <div className="flex justify-between">
+        <div className="flex items-start">
           {stepLabels.map((label, index) => (
-            <div key={index} className="flex-1 text-center px-2">
+            <div key={index} className="flex-1 flex flex-col items-center text-center px-2">
               <div className={`font-medium text-sm transition-all duration-200 ${
                 currentStep >= index + 1 ? 'text-foreground' : 'text-muted-foreground'
               }`}>
