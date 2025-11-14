@@ -54,15 +54,15 @@ const CustomerNew = () => {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-8">
+    <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-8 bg-gray-50">
       <div className="w-full max-w-[95%] lg:max-w-[90%] xl:max-w-[85%] 2xl:max-w-[80%] px-4 sm:px-6">
         {/* Page Header */}
-        <div className="mb-8 animate-fade-in">
-          <div className="space-y-2 text-center">
-            <h1 className="text-4xl font-bold tracking-tight text-foreground">
+        <div className="mb-6 pt-8">
+          <div className="space-y-1 text-center">
+            <h1 className="text-3xl font-semibold tracking-tight text-foreground">
               New Application
             </h1>
-            <p className="text-muted-foreground text-lg">
+            <p className="text-muted-foreground">
               Create a new customer application in 3 simple steps
             </p>
           </div>
