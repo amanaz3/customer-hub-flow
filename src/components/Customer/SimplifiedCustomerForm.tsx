@@ -265,7 +265,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   };
 
   const stepLabels = [
-    { title: '', desc: '' },
+    { title: 'Customer Selection', desc: 'New or existing customer' },
     { title: 'Service Selection', desc: 'Choose service and amount' },
     { title: 'Service Details', desc: 'Additional requirements' },
     { title: 'Confirmation', desc: 'Review and submit' }
@@ -331,13 +331,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           >
             <CardHeader className="border-b border-border pb-4 bg-muted/30">
               <CardTitle className="text-lg font-semibold text-foreground">
-                {currentStep === 1 && ''}
+                {currentStep === 1 && 'Customer Selection'}
                 {currentStep === 2 && 'Service Selection'}
                 {currentStep === 3 && 'Service Details'}
                 {currentStep === 4 && 'Confirmation'}
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                {currentStep === 1 && ''}
+                {currentStep === 1 && 'Choose to create a new customer or select an existing one'}
                 {currentStep === 2 && 'Select the service and specify the application amount'}
                 {currentStep === 3 && 'Provide additional details specific to the selected service'}
                 {currentStep === 4 && 'Review all information before submitting'}
