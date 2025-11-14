@@ -155,35 +155,41 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     }
   };
 
-  // Auto-progress to next step when all required fields are filled
+  // Auto-progress to next step when all required fields are VALID
   useEffect(() => {
     const subscription = form.watch((value) => {
       if (isSubmitting) return;
       
-      // Step 1: Check basic info
+      const errors = form.formState.errors;
+      
+      // Step 1: Check basic info is VALID (not just filled)
       if (currentStep === 1) {
-        const hasBasicInfo = value.name && value.mobile && value.country_of_residence;
-        const hasCompanyInfo = companyMode ? selectedCustomerId : true;
+        const nameValid = value.name && value.name.length >= 2 && !errors.name;
+        const mobileValid = value.mobile && value.mobile.length >= 10 && !errors.mobile;
+        const countryValid = value.country_of_residence && !errors.country_of_residence;
+        const companyValid = companyMode ? selectedCustomerId : true;
         
-        if (hasBasicInfo && hasCompanyInfo) {
+        if (nameValid && mobileValid && countryValid && companyValid) {
           setTimeout(() => setCurrentStep(2), 500);
         }
       }
       
-      // Step 2: Check service selection
+      // Step 2: Check service selection is VALID
       if (currentStep === 2) {
-        const hasServiceInfo = value.product_id && value.amount && value.amount > 0 && 
-                               value.license_type && value.lead_source;
+        const productValid = value.product_id && !errors.product_id;
+        const amountValid = value.amount && value.amount > 0 && !errors.amount;
+        const licenseValid = value.license_type && !errors.license_type;
+        const sourceValid = value.lead_source && !errors.lead_source;
         
-        if (hasServiceInfo) {
+        if (productValid && amountValid && licenseValid && sourceValid) {
           setTimeout(() => setCurrentStep(3), 500);
         }
       }
       
-      // Step 3: Auto-progress to confirmation
-      // Product-specific fields are mostly optional, so we auto-progress after a short delay
+      // Step 3: Auto-progress to confirmation after brief delay
+      // (Most fields here are optional)
       if (currentStep === 3 && value.product_id) {
-        setTimeout(() => setCurrentStep(4), 800);
+        setTimeout(() => setCurrentStep(4), 1000);
       }
     });
     
