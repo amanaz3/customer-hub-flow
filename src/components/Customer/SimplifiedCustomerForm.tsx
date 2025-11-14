@@ -233,6 +233,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         jurisdiction: data.jurisdiction,
         customer_notes: data.customer_notes,
         reference_number: nextRefNumber,
+        status: 'Submitted' as const,
       };
 
       const { data: customer, error } = await supabase
@@ -260,6 +261,117 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  // Save draft function - validates only filled fields
+  const saveDraft = async () => {
+    if (!user?.id) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to save a draft",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Check if step 1 mandatory fields are valid
+    const values = form.getValues();
+    const errors = form.formState.errors;
+    
+    const nameValid = values.name && values.name.length >= 2 && !errors.name;
+    const mobileValid = values.mobile && values.mobile.length >= 10 && !errors.mobile;
+    const countryValid = values.country_of_residence && !errors.country_of_residence;
+    
+    if (!nameValid || !mobileValid || !countryValid) {
+      toast({
+        title: "Cannot Save Draft",
+        description: "Please fill in Name, Mobile, and Country of Residence to save a draft",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setIsSubmitting(true);
+
+    try {
+      // Get next reference number
+      const { data: refData } = await supabase
+        .from('customers')
+        .select('reference_number')
+        .order('reference_number', { ascending: false })
+        .limit(1)
+        .single();
+      
+      const nextRefNumber = (refData?.reference_number || 0) + 1;
+
+      const customerData = {
+        name: values.name,
+        email: values.email || null,
+        mobile: values.mobile,
+        company: values.company || '',
+        amount: values.amount || 0,
+        license_type: values.license_type || 'Mainland',
+        lead_source: values.lead_source || 'Other',
+        user_id: user.id,
+        product_id: values.product_id || null,
+        annual_turnover: values.annual_turnover || null,
+        jurisdiction: values.jurisdiction || null,
+        customer_notes: values.customer_notes || null,
+        reference_number: nextRefNumber,
+        status: 'Draft' as const,
+      };
+
+      const { data: customer, error } = await supabase
+        .from('customers')
+        .insert([customerData])
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      toast({
+        title: "Draft Saved",
+        description: `Draft saved successfully with reference #${nextRefNumber}`,
+      });
+
+      form.reset();
+      onSuccess?.();
+    } catch (error: any) {
+      console.error('Error saving draft:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to save draft",
+        variant: "destructive",
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  // Validate if current step has all mandatory fields valid
+  const canProgressToNextStep = () => {
+    const values = form.getValues();
+    const errors = form.formState.errors;
+
+    if (currentStep === 1) {
+      const nameValid = values.name && values.name.length >= 2 && !errors.name;
+      const mobileValid = values.mobile && values.mobile.length >= 10 && !errors.mobile;
+      const countryValid = values.country_of_residence && !errors.country_of_residence;
+      const companyValid = companyMode ? selectedCustomerId : true;
+      
+      return nameValid && mobileValid && countryValid && companyValid;
+    }
+
+    if (currentStep === 2) {
+      const productValid = values.product_id && !errors.product_id;
+      const amountValid = values.amount && values.amount > 0 && !errors.amount;
+      const licenseValid = values.license_type && !errors.license_type;
+      const sourceValid = values.lead_source && !errors.lead_source;
+      
+      return productValid && amountValid && licenseValid && sourceValid;
+    }
+
+    return true; // Steps 3 and 4 don't have mandatory fields
   };
 
   const renderProductFields = () => {
@@ -1010,7 +1122,17 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           <Button
             type="button"
             size="icon"
-            onClick={() => setCurrentStep(prev => Math.min(4, prev + 1))}
+            onClick={() => {
+              if (canProgressToNextStep()) {
+                setCurrentStep(prev => Math.min(4, prev + 1));
+              } else {
+                toast({
+                  title: "Cannot Progress",
+                  description: "Please complete all mandatory fields before proceeding",
+                  variant: "destructive",
+                });
+              }
+            }}
             disabled={isSubmitting}
             className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 bg-primary text-primary-foreground"
             title="Next Step"
@@ -1023,12 +1145,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         <Button
           type="button"
           size="icon"
-          onClick={() => {
-            toast({
-              title: "Draft Saved",
-              description: "Your progress has been saved",
-            });
-          }}
+          onClick={saveDraft}
           disabled={isSubmitting}
           className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 bg-green-600 hover:bg-green-700 text-white"
           title="Save Draft"
