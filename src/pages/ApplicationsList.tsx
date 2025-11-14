@@ -18,7 +18,7 @@ import { useBulkStatusUpdate } from '@/hooks/useBulkStatusUpdate';
 import { BulkActionsToolbar } from '@/components/Customer/BulkActionsToolbar';
 import { BulkStatusChangeDialog } from '@/components/Customer/BulkStatusChangeDialog';
 import type { ApplicationStatus } from '@/types/application';
-import { formatApplicationReferenceWithHash } from '@/utils/referenceNumberFormatter';
+import { formatApplicationReferenceWithHashAuto } from '@/utils/referenceNumberFormatter';
 
 interface ApplicationWithCustomer {
   id: string;
@@ -55,6 +55,12 @@ const ApplicationsList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [activeTab, setActiveTab] = useState('applications');
+  
+  // Calculate max reference number for auto-scaling formatter
+  const maxReferenceNumber = useMemo(() => 
+    Math.max(...applications.map(a => a.reference_number), 0),
+    [applications]
+  );
   
   // Separate bulk selections for each tab
   const activeSelection = useTableSelection(applications.filter(app => app.status !== 'rejected'));
@@ -403,7 +409,7 @@ const ApplicationsList = () => {
                           />
                         </TableCell>
                         <TableCell className="px-3 py-3 font-mono font-bold text-sm text-primary">
-                          {formatApplicationReferenceWithHash(app.reference_number)}
+                          {formatApplicationReferenceWithHashAuto(app.reference_number, maxReferenceNumber)}
                         </TableCell>
                         <TableCell className="px-3 py-3 font-semibold text-sm">
                           <div className="flex items-center gap-2 min-w-[150px]">
@@ -566,7 +572,7 @@ const ApplicationsList = () => {
                           />
                         </TableCell>
                         <TableCell className="px-3 py-3 font-mono font-bold text-sm text-primary">
-                          {formatApplicationReferenceWithHash(app.reference_number)}
+                          {formatApplicationReferenceWithHashAuto(app.reference_number, maxReferenceNumber)}
                         </TableCell>
                         <TableCell className="px-3 py-3 font-semibold text-sm">
                           <div className="flex items-center gap-2 min-w-[150px]">
