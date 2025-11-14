@@ -544,22 +544,22 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 : 'bg-muted/30 text-muted-foreground'
                             } ${!isLast ? 'mr-3' : ''}`}
                             style={{
-                              clipPath: !isLast 
+                              clipPath: index === 0
+                                ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
+                                : !isLast 
                                 ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%)' 
-                                : index > 0 
-                                ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)'
-                                : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
+                                : 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)'
                             }}
                           >
                             {/* Highlight pulse effect for active step */}
                             {isActive && (
                               <div className="absolute inset-0 animate-pulse bg-primary/20" 
                                 style={{
-                                  clipPath: !isLast 
+                                  clipPath: index === 0
+                                    ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
+                                    : !isLast 
                                     ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%)' 
-                                    : index > 0 
-                                    ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)'
-                                    : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
+                                    : 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)'
                                 }}
                               />
                             )}
