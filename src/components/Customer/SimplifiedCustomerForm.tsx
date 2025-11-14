@@ -13,7 +13,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Check, Save, ArrowLeft, ArrowRight } from 'lucide-react';
+import { CustomerTypeSelector } from './CustomerTypeSelector';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { ValidationIcon } from './ValidationIcon';
 import { HomeFinanceFields } from './fields/HomeFinanceFields';
 import { BankAccountFields } from './fields/BankAccountFields';
@@ -95,6 +106,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedProductName, setSelectedProductName] = useState<string>('');
+  const [showModeChangeWarning, setShowModeChangeWarning] = useState(false);
+  const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -485,6 +498,28 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               </p>
             </CardHeader>
             <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-5">
+              {/* Customer Type Selector - Always Visible */}
+              <div className="transform transition-all duration-300 hover:scale-[1.01] pb-2 border-b border-border">
+                <CustomerTypeSelector
+                  value={companyMode ? 'existing' : 'new'}
+                  onChange={(value) => {
+                    // Check if user is past step 1 and trying to switch customer type
+                    if (currentStep > 1) {
+                      setPendingMode(value);
+                      setShowModeChangeWarning(true);
+                      return;
+                    }
+                    
+                    // Proceed with change if on step 1
+                    const newMode = value === 'existing';
+                    onModeChange?.(newMode);
+                    if (!newMode) {
+                      onCustomerSelect?.(null);
+                    }
+                  }}
+                />
+              </div>
+
               {/* Step 1: Customer Selection */}
               {currentStep === 1 && (
                 <div key="step-1" className="animate-fade-in space-y-4">
@@ -1280,6 +1315,40 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           <Save className="h-6 w-6" />
         </Button>
       </div>
+
+      {/* Mode Change Warning Dialog */}
+      <AlertDialog open={showModeChangeWarning} onOpenChange={setShowModeChangeWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Switch Customer Type?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your changes may not be saved. You will be returned to Step 1. Do you want to continue?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setPendingMode(null);
+              setShowModeChangeWarning(false);
+            }}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              if (pendingMode) {
+                const newMode = pendingMode === 'existing';
+                setCurrentStep(1);
+                onModeChange?.(newMode);
+                if (!newMode) {
+                  onCustomerSelect?.(null);
+                }
+                setPendingMode(null);
+              }
+              setShowModeChangeWarning(false);
+            }}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
