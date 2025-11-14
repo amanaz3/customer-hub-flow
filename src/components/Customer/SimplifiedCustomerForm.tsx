@@ -365,6 +365,111 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       onChange={(value) => onCustomerSelect?.(value)}
                     />
                   )}
+                  
+                  {/* Show basic info fields for new customers only */}
+                  {!companyMode && (
+                    <>
+                      {/* Basic Info Section */}
+                      <div className="space-y-4 pt-4">
+                        <div className="border-t border-border pt-4">
+                          <h3 className="text-sm font-semibold text-foreground mb-4">Basic Info</h3>
+                          <div className="space-y-4">
+                            <FormField
+                              control={form.control}
+                              name="name"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Full Name *</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      onChange={(e) => {
+                                        field.onChange(e);
+                                        onNameChange?.(e.target.value);
+                                      }}
+                                      placeholder="Enter full name"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="mobile"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Mobile Number *</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      onChange={(e) => {
+                                        field.onChange(e);
+                                        onMobileChange?.(e.target.value);
+                                      }}
+                                      placeholder="Enter mobile number"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+
+                            <FormField
+                              control={form.control}
+                              name="email"
+                              render={({ field }) => (
+                                <FormItem>
+                                  <FormLabel>Email Address *</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      type="email"
+                                      {...field} 
+                                      onChange={(e) => {
+                                        field.onChange(e);
+                                        onEmailChange?.(e.target.value);
+                                      }}
+                                      placeholder="Enter email address"
+                                    />
+                                  </FormControl>
+                                  <FormMessage />
+                                </FormItem>
+                              )}
+                            />
+                          </div>
+                        </div>
+
+                        {/* Channel Info Section */}
+                        <div className="border-t border-border pt-4">
+                          <h3 className="text-sm font-semibold text-foreground mb-4">Channel Info</h3>
+                          <FormField
+                            control={form.control}
+                            name="lead_source"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Lead Source *</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Select lead source" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent>
+                                    <SelectItem value="Website">Website</SelectItem>
+                                    <SelectItem value="Referral">Referral</SelectItem>
+                                    <SelectItem value="Social Media">Social Media</SelectItem>
+                                    <SelectItem value="Other">Other</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
+                        </div>
+                      </div>
+                    </>
+                  )}
                 </>
               )}
 
@@ -521,7 +626,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   let fieldsToValidate: (keyof FormData)[] = [];
                   
                   if (currentStep === 1) {
-                    // Step 1: Customer Selection - no validation needed
+                    // Step 1: Customer Selection
                     if (companyMode && !selectedCustomerId) {
                       toast({
                         title: "Selection Required",
@@ -530,7 +635,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       });
                       return;
                     }
-                    fieldsToValidate = [];
+                    // Validate basic info fields for new customers
+                    if (!companyMode) {
+                      fieldsToValidate = ['name', 'mobile', 'email', 'lead_source'];
+                    } else {
+                      fieldsToValidate = [];
+                    }
                   } else if (currentStep === 2) {
                     fieldsToValidate = ['product_id', 'amount'];
                   }
