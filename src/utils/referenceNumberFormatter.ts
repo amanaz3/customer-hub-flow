@@ -3,14 +3,45 @@
  */
 
 /**
+ * Calculate the number of digits needed for a reference number
+ * Minimum of 5 digits for consistency
+ */
+export const calculatePadding = (maxNumber: number): number => {
+  const digits = maxNumber.toString().length;
+  return Math.max(5, digits);
+};
+
+/**
+ * Format customer reference with auto-scaling padding based on max reference
+ * Examples:
+ * - max=99: 1 → "00001" (min 5 digits)
+ * - max=99999: 1 → "00001" (5 digits)
+ * - max=1000000: 1 → "0000001" (7 digits)
+ */
+export const formatCustomerReferenceAuto = (num: number, maxReference: number): string => {
+  const padding = calculatePadding(maxReference);
+  return num.toString().padStart(padding, '0');
+};
+
+/**
  * Format customer reference with leading zeros: 1 → "00001"
+ * @deprecated Use formatCustomerReferenceAuto for auto-scaling support
  */
 export const formatCustomerReference = (num: number): string => {
   return num.toString().padStart(5, '0');
 };
 
 /**
+ * Format application reference with auto-scaling padding based on max reference
+ */
+export const formatApplicationReferenceAuto = (num: number, maxReference: number): string => {
+  const padding = calculatePadding(maxReference);
+  return num.toString().padStart(padding, '0');
+};
+
+/**
  * Format application reference with leading zeros: 1001 → "1001"
+ * @deprecated Use formatApplicationReferenceAuto for auto-scaling support
  */
 export const formatApplicationReference = (num: number): string => {
   return num.toString().padStart(4, '0');
@@ -29,7 +60,22 @@ export const parseReferenceNumber = (input: string): number | null => {
 };
 
 /**
- * Format customer reference with hash prefix: 1 → "#001"
+ * Format customer reference with hash prefix and auto-scaling: 1 → "#00001"
+ */
+export const formatCustomerReferenceWithHashAuto = (num: number, maxReference: number): string => {
+  return `#${formatCustomerReferenceAuto(num, maxReference)}`;
+};
+
+/**
+ * Format application reference with hash prefix and auto-scaling: 1001 → "#01001"
+ */
+export const formatApplicationReferenceWithHashAuto = (num: number, maxReference: number): string => {
+  return `#${formatApplicationReferenceAuto(num, maxReference)}`;
+};
+
+/**
+ * Format customer reference with hash prefix: 1 → "#00001"
+ * @deprecated Use formatCustomerReferenceWithHashAuto for auto-scaling support
  */
 export const formatCustomerReferenceWithHash = (num: number): string => {
   return `#${formatCustomerReference(num)}`;
@@ -37,6 +83,7 @@ export const formatCustomerReferenceWithHash = (num: number): string => {
 
 /**
  * Format application reference with hash prefix: 1001 → "#1001"
+ * @deprecated Use formatApplicationReferenceWithHashAuto for auto-scaling support
  */
 export const formatApplicationReferenceWithHash = (num: number): string => {
   return `#${formatApplicationReference(num)}`;
