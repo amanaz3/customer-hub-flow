@@ -262,15 +262,15 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   return (
     <div className="w-full flex flex-col items-center">
       {/* Progress indicator */}
-      <div className="mb-8 bg-white rounded-lg p-6 border border-border w-full">
+      <div className="mb-8 bg-card rounded-lg p-6 border border-border w-full shadow-sm">
         <div className="flex items-center justify-between mb-4">
           {[1, 2, 3, 4].map((step) => (
             <div key={step} className="flex items-center flex-1">
               <div 
                 className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-200 ${
                   currentStep >= step 
-                    ? 'border-primary bg-primary text-white' 
-                    : 'border-border bg-white text-muted-foreground'
+                    ? 'border-primary bg-primary text-primary-foreground' 
+                    : 'border-border bg-background text-muted-foreground'
                 }`}
                 aria-current={currentStep === step ? 'step' : undefined}
                 aria-label={`Step ${step}: ${stepLabels[step - 1].title}`}
@@ -313,10 +313,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           className="space-y-6 w-full"
         >
           <Card 
-            className="border border-border bg-white"
+            className="border border-border bg-card shadow-sm"
           >
-            <CardHeader className="border-b border-border pb-4">
-              <CardTitle className="text-xl font-semibold">
+            <CardHeader className="border-b border-border pb-4 bg-muted/30">
+              <CardTitle className="text-xl font-semibold text-foreground">
                 {currentStep === 1 && 'Customer Selection'}
                 {currentStep === 2 && 'Service Selection'}
                 {currentStep === 3 && 'Service Details'}
@@ -608,37 +608,37 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Step 4: Confirmation */}
               {currentStep === 4 && (
                 <div className="space-y-6">
-                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
+                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-5">
                     <h3 className="font-semibold text-lg mb-4 text-foreground">Review Your Information</h3>
                     
                     <div className="space-y-4">
                       {/* Customer Information */}
                       <div>
                         <h4 className="font-medium text-sm text-muted-foreground mb-2">Customer Details</h4>
-                        <div className="bg-white rounded-md p-4 space-y-2">
+                        <div className="bg-card rounded-md p-4 border border-border space-y-2">
                           <div className="grid grid-cols-2 gap-2 text-sm">
                             <span className="text-muted-foreground">Type:</span>
-                            <span className="font-medium">{companyMode === 'new' ? 'New Customer' : 'Existing Customer'}</span>
+                            <span className="font-medium text-foreground">{companyMode === 'new' ? 'New Customer' : 'Existing Customer'}</span>
                             
                             {companyMode === 'new' && (
                               <>
                                 <span className="text-muted-foreground">Name:</span>
-                                <span className="font-medium">{form.getValues('name')}</span>
+                                <span className="font-medium text-foreground">{form.getValues('name')}</span>
                                 
                                 <span className="text-muted-foreground">Email:</span>
-                                <span className="font-medium">{form.getValues('email')}</span>
+                                <span className="font-medium text-foreground">{form.getValues('email')}</span>
                                 
                                 <span className="text-muted-foreground">Mobile:</span>
-                                <span className="font-medium">{form.getValues('mobile')}</span>
+                                <span className="font-medium text-foreground">{form.getValues('mobile')}</span>
                                 
                                 <span className="text-muted-foreground">Company:</span>
-                                <span className="font-medium">{form.getValues('company')}</span>
+                                <span className="font-medium text-foreground">{form.getValues('company')}</span>
                                 
                                 <span className="text-muted-foreground">License Type:</span>
-                                <span className="font-medium">{form.getValues('license_type')}</span>
+                                <span className="font-medium text-foreground">{form.getValues('license_type')}</span>
                                 
                                 <span className="text-muted-foreground">Lead Source:</span>
-                                <span className="font-medium">{form.getValues('lead_source')}</span>
+                                <span className="font-medium text-foreground">{form.getValues('lead_source')}</span>
                               </>
                             )}
                           </div>
@@ -648,18 +648,18 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       {/* Service Information */}
                       <div>
                         <h4 className="font-medium text-sm text-muted-foreground mb-2">Service Details</h4>
-                        <div className="bg-white rounded-md p-4 space-y-2">
+                        <div className="bg-card rounded-md p-4 border border-border space-y-2">
                           <div className="grid grid-cols-2 gap-2 text-sm">
                             <span className="text-muted-foreground">Service:</span>
-                            <span className="font-medium">{selectedProductName || 'Not selected'}</span>
+                            <span className="font-medium text-foreground">{selectedProductName || 'Not selected'}</span>
                             
                             <span className="text-muted-foreground">Amount:</span>
-                            <span className="font-medium">AED {form.getValues('amount')?.toLocaleString()}</span>
+                            <span className="font-medium text-foreground">AED {form.getValues('amount')?.toLocaleString()}</span>
                             
                             {form.getValues('customer_notes') && (
                               <>
                                 <span className="text-muted-foreground">Notes:</span>
-                                <span className="font-medium">{form.getValues('customer_notes')}</span>
+                                <span className="font-medium text-foreground">{form.getValues('customer_notes')}</span>
                               </>
                             )}
                           </div>
@@ -670,7 +670,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       {selectedProductName && (
                         <div>
                           <h4 className="font-medium text-sm text-muted-foreground mb-2">Additional Information</h4>
-                          <div className="bg-white rounded-md p-4 text-sm text-muted-foreground">
+                          <div className="bg-card rounded-md p-4 border border-border text-sm text-muted-foreground">
                             Service-specific details have been captured
                           </div>
                         </div>
@@ -678,8 +678,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     </div>
                   </div>
                   
-                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
-                    <p className="text-sm text-amber-900">
+                  <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-4">
+                    <p className="text-sm text-foreground">
                       <span className="font-semibold">Important:</span> Please review all information carefully before submitting. Once submitted, this application will be processed by our team.
                     </p>
                   </div>
@@ -690,7 +690,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
           {/* Required fields hint */}
           {currentStep < 4 && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-4">
               <p className="text-sm text-foreground">
                 <span className="font-medium">Required Fields:</span> Fields marked with <span className="text-destructive font-semibold">*</span> must be completed before proceeding
               </p>
