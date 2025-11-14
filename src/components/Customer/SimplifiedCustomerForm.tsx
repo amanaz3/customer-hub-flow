@@ -66,6 +66,8 @@ interface SimplifiedCustomerFormProps {
   onNameChange?: (name: string) => void;
   onMobileChange?: (mobile: string) => void;
   onCompanyChange?: (company: string) => void;
+  onModeChange?: (mode: 'new' | 'existing') => void;
+  onCustomerSelect?: (customerId: string | null) => void;
 }
 
 const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
@@ -75,6 +77,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   onNameChange,
   onMobileChange,
   onCompanyChange,
+  onModeChange,
+  onCustomerSelect,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -119,6 +123,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
   const handleExistingCustomerChange = (customerId: string | null, customer: Partial<Customer> | null) => {
     setSelectedCustomerId(customerId);
+    onCustomerSelect?.(customerId);
     if (customer) {
       form.setValue('name', customer.name || '');
       form.setValue('email', customer.email || '');
@@ -338,7 +343,14 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   <div className="space-y-4 pb-6 mb-6 border-b border-border">
                     <RadioGroup
                       value={companyMode}
-                      onValueChange={(value: 'new' | 'existing') => setCompanyMode(value)}
+                      onValueChange={(value: 'new' | 'existing') => {
+                        setCompanyMode(value);
+                        onModeChange?.(value);
+                        if (value === 'new') {
+                          setSelectedCustomerId(null);
+                          onCustomerSelect?.(null);
+                        }
+                      }}
                       className="grid grid-cols-1 md:grid-cols-2 gap-3"
                     >
                       <label
