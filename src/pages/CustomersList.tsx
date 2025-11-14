@@ -8,6 +8,7 @@ import { Building2, Mail, Phone, FileText } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
+import { formatCustomerReferenceWithPrefix } from '@/utils/referenceNumberFormatter';
 
 interface CustomerWithStats {
   id: string;
@@ -15,6 +16,7 @@ interface CustomerWithStats {
   company: string;
   email: string;
   mobile: string;
+  reference_number: number;
   created_at: string;
   updated_at: string;
   application_count: number;
@@ -46,6 +48,7 @@ const CustomersList = () => {
           company,
           email,
           mobile,
+          reference_number,
           created_at,
           updated_at
         `)
@@ -99,6 +102,12 @@ const CustomersList = () => {
     });
   }, [customers, searchTerm]);
 
+  // Calculate max reference number for formatting
+  const maxReferenceNumber = useMemo(() => 
+    Math.max(...customers.map(c => c.reference_number), 0),
+    [customers]
+  );
+
   if (loading) {
     return <div className="p-8 text-center">Loading customers...</div>;
   }
@@ -137,6 +146,7 @@ const CustomersList = () => {
           <Table>
             <TableHeader>
               <TableRow>
+                <TableHead>Reference</TableHead>
                 <TableHead>Company</TableHead>
                 <TableHead>Contact Person</TableHead>
                 <TableHead>Email</TableHead>
@@ -149,13 +159,16 @@ const CustomersList = () => {
             <TableBody>
               {filteredCustomers.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                     No customers found
                   </TableCell>
                 </TableRow>
               ) : (
                 filteredCustomers.map((customer) => (
                   <TableRow key={customer.id}>
+                    <TableCell className="font-mono font-bold text-sm text-primary">
+                      {formatCustomerReferenceWithPrefix(customer.reference_number, maxReferenceNumber, customer.created_at)}
+                    </TableCell>
                     <TableCell className="font-medium">
                       <div className="flex items-center gap-2">
                         <Building2 className="h-4 w-4 text-muted-foreground" />
