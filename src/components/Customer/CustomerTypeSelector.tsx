@@ -9,13 +9,6 @@ interface CustomerTypeSelectorProps {
 export const CustomerTypeSelector = ({ value, onChange }: CustomerTypeSelectorProps) => {
   return (
     <div className="space-y-3">
-      <div>
-        <h3 className="text-lg font-semibold">Customer Type</h3>
-        <p className="text-sm text-muted-foreground">
-          Are you creating an application for a new customer or an existing one?
-        </p>
-      </div>
-      
       <Tabs value={value} onValueChange={onChange} className="w-full">
         <TabsList className="grid w-full grid-cols-2 h-auto bg-background border-b-2 border-border p-0">
           <TabsTrigger 
