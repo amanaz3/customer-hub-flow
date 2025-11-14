@@ -259,7 +259,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   ];
 
   return (
-    <div className="w-full mx-auto" style={{
+    <div className="w-full flex flex-col items-center" style={{
       perspective: '2000px'
     }}>
       {/* Progress indicator */}
