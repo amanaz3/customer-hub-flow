@@ -350,7 +350,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-5">
               {/* Step 1: Customer Selection */}
               {currentStep === 1 && (
-                <>
+                <div key="step-1" className="animate-fade-in">
                   <CustomerTypeSelector
                     value={companyMode ? 'existing' : 'new'}
                     onChange={(value) => {
@@ -491,12 +491,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       </div>
                     </>
                   )}
-                </>
+                </div>
               )}
 
               {/* Step 2: Service Selection */}
               {currentStep === 2 && (
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                <div key="step-2" className="animate-fade-in">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <FormField
                     control={form.control}
                     name="product_id"
@@ -545,19 +546,20 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       </FormItem>
                     )}
                   />
+                  </div>
                 </div>
               )}
 
               {/* Step 3: Service Details */}
               {currentStep === 3 && (
-                <>
+                <div key="step-3" className="animate-fade-in">
                   {renderProductFields()}
-                </>
+                </div>
               )}
 
               {/* Step 4: Confirmation */}
               {currentStep === 4 && (
-                <>
+                <div key="step-4" className="animate-fade-in">
                   <div className="space-y-4">
                     <div className="rounded-lg bg-muted/30 p-4">
                       <h4 className="font-semibold text-foreground mb-3">Customer Information</h4>
@@ -617,7 +619,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       )}
                     />
                   </div>
-                </>
+                </div>
               )}
             </CardContent>
           </Card>
