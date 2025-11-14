@@ -108,42 +108,42 @@ export const ExistingCustomerSelector = ({
         {/* Results dropdown */}
         {hasQuery && filteredCustomers.length > 0 && (
           <div className="absolute z-50 w-full mt-2 border rounded-lg shadow-lg bg-popover">
-            <ScrollArea className="max-h-[300px]">
-              <div className="p-1">
+            <ScrollArea className="max-h-[400px]">
+              <div className="p-2">
                 {filteredCustomers.map((customer) => (
                   <button
                     key={customer.id}
                     onClick={() => handleSelect(customer.id)}
                     className={cn(
-                      "w-full text-left p-3 rounded-md hover:bg-muted transition-colors",
+                      "w-full text-left p-4 rounded-md hover:bg-muted transition-colors",
                       value === customer.id && "bg-muted"
                     )}
                   >
                     <div className="flex items-start gap-3">
                       <Check
                         className={cn(
-                          'mt-1 h-4 w-4 shrink-0 text-primary',
+                          'mt-1 h-5 w-5 shrink-0 text-primary',
                           value === customer.id ? 'opacity-100' : 'opacity-0'
                         )}
                       />
-                      <div className="flex-1 space-y-1">
+                      <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-2">
-                          <Building2 className="h-4 w-4 text-muted-foreground" />
-                          <span className="font-medium">{customer.company}</span>
+                          <Building2 className="h-5 w-5 text-muted-foreground" />
+                          <span className="font-semibold text-base">{customer.company}</span>
                           {applicationCounts[customer.id] > 0 && (
-                            <Badge variant="secondary" className="ml-auto">
-                              <FileText className="h-3 w-3 mr-1" />
+                            <Badge variant="secondary" className="ml-auto text-xs">
+                              <FileText className="h-3.5 w-3.5 mr-1" />
                               {applicationCounts[customer.id]} app{applicationCounts[customer.id] !== 1 ? 's' : ''}
                             </Badge>
                           )}
                         </div>
-                        <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                          <span className="flex items-center gap-1">
-                            <Mail className="h-3 w-3" />
+                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                          <span className="flex items-center gap-1.5">
+                            <Mail className="h-4 w-4" />
                             {customer.email}
                           </span>
-                          <span className="flex items-center gap-1">
-                            <Phone className="h-3 w-3" />
+                          <span className="flex items-center gap-1.5">
+                            <Phone className="h-4 w-4" />
                             {customer.mobile}
                           </span>
                         </div>
