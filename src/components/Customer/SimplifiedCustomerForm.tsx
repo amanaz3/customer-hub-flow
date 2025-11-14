@@ -377,7 +377,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             </div>
                             <h3 className="text-sm font-bold text-foreground tracking-tight">Basic Info</h3>
                           </div>
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <FormField
                               control={form.control}
                               name="name"
@@ -466,7 +466,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 const isError = hasValue && !!fieldState.error;
                                 
                                 return (
-                                  <FormItem className="md:col-span-2 relative">
+                                  <FormItem className="relative">
                                     <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Email Address *</FormLabel>
                                     <FormControl>
                                       <div className="relative group">
@@ -501,7 +501,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               control={form.control}
                               name="customer_type"
                               render={({ field }) => (
-                                <FormItem className="md:col-span-2 relative">
+                                <FormItem className="relative">
                                   <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Customer Type *</FormLabel>
                                   <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl>
@@ -527,7 +527,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               control={form.control}
                               name="country_of_residence"
                               render={({ field }) => (
-                                <FormItem className="md:col-span-2 relative">
+                                <FormItem className="relative">
                                   <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Country of Residence *</FormLabel>
                                   <FormControl>
                                     <div className="relative group">
