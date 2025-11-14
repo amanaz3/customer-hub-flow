@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, Check, Save, ArrowLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Save, ArrowLeft, ArrowRight } from 'lucide-react';
 import { CustomerTypeSelector } from './CustomerTypeSelector';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
 import { ValidationIcon } from './ValidationIcon';
@@ -1054,6 +1054,20 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           </Button>
         )}
         
+        {/* Next Step Button */}
+        {currentStep < 4 && (
+          <Button
+            type="button"
+            size="icon"
+            onClick={() => setCurrentStep(prev => Math.min(4, prev + 1))}
+            disabled={isSubmitting}
+            className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 bg-primary text-primary-foreground"
+            title="Next Step"
+          >
+            <ArrowRight className="h-5 w-5" />
+          </Button>
+        )}
+        
         {/* Save Draft Button */}
         <Button
           type="button"
@@ -1065,7 +1079,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             });
           }}
           disabled={isSubmitting}
-          className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 bg-primary text-primary-foreground"
+          className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 bg-green-600 hover:bg-green-700 text-white"
           title="Save Draft"
         >
           <Save className="h-6 w-6" />
