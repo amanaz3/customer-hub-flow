@@ -58,16 +58,20 @@ const CustomerNew = () => {
   return (
     <div className="w-full relative min-h-screen">
       {/* Page Header */}
-      <div className="mb-6">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold tracking-tight">New Application</h1>
-            <p className="text-muted-foreground mt-1">Create a new customer application in 3 simple steps</p>
+      <div className="mb-8 animate-fade-in">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="space-y-2">
+            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              New Application
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Create a new customer application in 3 simple steps
+            </p>
           </div>
           <Button 
             variant="outline" 
             onClick={() => navigate('/customers')}
-            className="gap-2"
+            className="gap-2 hover-scale shadow-sm"
           >
             <ChevronLeft className="h-4 w-4" />
             Back to Customers
@@ -102,11 +106,16 @@ const CustomerNew = () => {
       </div>
 
       {/* Mobile Notice for Required Documents */}
-      <div className="lg:hidden mt-6 bg-primary/10 border border-primary/20 rounded-lg p-4">
-        <h3 className="font-semibold text-primary mb-2">📋 Required Documents</h3>
-        <p className="text-sm text-muted-foreground">
-          After submitting this application, you'll receive an email with a list of required documents specific to your selected service.
-        </p>
+      <div className="lg:hidden mt-8 bg-gradient-to-br from-primary/10 to-primary/5 border-2 border-primary/20 rounded-xl p-6 shadow-sm animate-fade-in">
+        <div className="flex items-start gap-3">
+          <span className="text-3xl">📋</span>
+          <div>
+            <h3 className="font-semibold text-primary text-lg mb-2">Required Documents</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed">
+              After submitting this application, you'll receive an email with a detailed list of required documents specific to your selected service.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   );
