@@ -15,6 +15,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import NotificationDropdown from '@/components/Notifications/NotificationDropdown';
+import { ThemeToggle } from '@/components/ui/theme-toggle';
 
 const Navbar: React.FC = () => {
   const { user, signOut, isAdmin } = useAuth();
@@ -53,6 +54,7 @@ const Navbar: React.FC = () => {
         </div>
         
         <div className="flex items-center space-x-2 sm:space-x-3 lg:space-x-4 flex-shrink-0">
+          <ThemeToggle />
           <NotificationDropdown />
           
           <DropdownMenu>
