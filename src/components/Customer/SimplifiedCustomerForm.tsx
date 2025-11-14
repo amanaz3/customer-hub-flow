@@ -288,11 +288,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   
                   {/* Tab-Style Wizard - Positioned after customer selector */}
                   <div className="w-full">
-                    <div className="flex items-center border-b border-border bg-card rounded-t-lg overflow-hidden shadow-sm">
+                    <div className="flex items-center border-b border-border bg-card rounded-t-lg shadow-sm">
                       {stepLabels.map((label, index) => {
                         const stepNumber = index + 1;
                         const isActive = currentStep === stepNumber;
                         const isCompleted = currentStep > stepNumber;
+                        const isLast = index === stepLabels.length - 1;
                         
                         return (
                           <div
@@ -303,9 +304,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 : isCompleted 
                                 ? 'bg-primary/10 text-primary hover:bg-primary/20' 
                                 : 'bg-muted/30 text-muted-foreground'
-                            }`}
+                            } ${!isLast ? 'mr-4' : ''}`}
+                            style={{
+                              clipPath: !isLast 
+                                ? 'polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%, 16px 50%)' 
+                                : index > 0 
+                                ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 16px 50%)'
+                                : 'polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%)'
+                            }}
                           >
-                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3">
+                            <div className="flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2 sm:py-3">
                               <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
                                 isActive 
                                   ? 'bg-primary-foreground text-primary ring-2 ring-primary-foreground/30' 
@@ -625,11 +633,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 <div key="step-2" className="animate-fade-in space-y-4">
                   {/* Tab-Style Wizard */}
                   <div className="w-full">
-                    <div className="flex items-center border-b border-border bg-card rounded-t-lg overflow-hidden shadow-sm">
+                    <div className="flex items-center border-b border-border bg-card rounded-t-lg shadow-sm">
                       {stepLabels.map((label, index) => {
                         const stepNumber = index + 1;
                         const isActive = currentStep === stepNumber;
                         const isCompleted = currentStep > stepNumber;
+                        const isLast = index === stepLabels.length - 1;
                         
                         return (
                           <div
@@ -640,9 +649,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 : isCompleted 
                                 ? 'bg-primary/10 text-primary hover:bg-primary/20' 
                                 : 'bg-muted/30 text-muted-foreground'
-                            }`}
+                            } ${!isLast ? 'mr-4' : ''}`}
+                            style={{
+                              clipPath: !isLast 
+                                ? 'polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%, 16px 50%)' 
+                                : index > 0 
+                                ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 16px 50%)'
+                                : 'polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%)'
+                            }}
                           >
-                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3">
+                            <div className="flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2 sm:py-3">
                               <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
                                 isActive 
                                   ? 'bg-primary-foreground text-primary ring-2 ring-primary-foreground/30' 
@@ -743,11 +759,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 <div key="step-3" className="animate-fade-in space-y-4">
                   {/* Tab-Style Wizard */}
                   <div className="w-full">
-                    <div className="flex items-center border-b border-border bg-card rounded-t-lg overflow-hidden shadow-sm">
+                    <div className="flex items-center border-b border-border bg-card rounded-t-lg shadow-sm">
                       {stepLabels.map((label, index) => {
                         const stepNumber = index + 1;
                         const isActive = currentStep === stepNumber;
                         const isCompleted = currentStep > stepNumber;
+                        const isLast = index === stepLabels.length - 1;
                         
                         return (
                           <div
@@ -758,9 +775,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 : isCompleted 
                                 ? 'bg-primary/10 text-primary hover:bg-primary/20' 
                                 : 'bg-muted/30 text-muted-foreground'
-                            }`}
+                            } ${!isLast ? 'mr-4' : ''}`}
+                            style={{
+                              clipPath: !isLast 
+                                ? 'polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%, 16px 50%)' 
+                                : index > 0 
+                                ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 16px 50%)'
+                                : 'polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%)'
+                            }}
                           >
-                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3">
+                            <div className="flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2 sm:py-3">
                               <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
                                 isActive 
                                   ? 'bg-primary-foreground text-primary ring-2 ring-primary-foreground/30' 
@@ -800,11 +824,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 <div key="step-4" className="animate-fade-in space-y-4">
                   {/* Tab-Style Wizard */}
                   <div className="w-full">
-                    <div className="flex items-center border-b border-border bg-card rounded-t-lg overflow-hidden shadow-sm">
+                    <div className="flex items-center border-b border-border bg-card rounded-t-lg shadow-sm">
                       {stepLabels.map((label, index) => {
                         const stepNumber = index + 1;
                         const isActive = currentStep === stepNumber;
                         const isCompleted = currentStep > stepNumber;
+                        const isLast = index === stepLabels.length - 1;
                         
                         return (
                           <div
@@ -815,9 +840,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 : isCompleted 
                                 ? 'bg-primary/10 text-primary hover:bg-primary/20' 
                                 : 'bg-muted/30 text-muted-foreground'
-                            }`}
+                            } ${!isLast ? 'mr-4' : ''}`}
+                            style={{
+                              clipPath: !isLast 
+                                ? 'polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%, 16px 50%)' 
+                                : index > 0 
+                                ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 16px 50%)'
+                                : 'polygon(0 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 0 100%)'
+                            }}
                           >
-                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3">
+                            <div className="flex items-center gap-2 sm:gap-3 px-4 sm:px-5 py-2 sm:py-3">
                               <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
                                 isActive 
                                   ? 'bg-primary-foreground text-primary ring-2 ring-primary-foreground/30' 
