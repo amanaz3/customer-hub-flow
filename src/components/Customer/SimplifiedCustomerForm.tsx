@@ -339,34 +339,34 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     <RadioGroup
                       value={companyMode}
                       onValueChange={(value: 'new' | 'existing') => setCompanyMode(value)}
-                      className="grid grid-cols-1 md:grid-cols-2 gap-4"
+                      className="grid grid-cols-1 md:grid-cols-2 gap-3"
                     >
                       <label
                         htmlFor="new"
-                        className={`flex items-start space-x-4 p-5 rounded-xl border-2 cursor-pointer transition-all duration-200 hover-scale ${
+                        className={`flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
                           companyMode === 'new' 
-                            ? 'border-primary bg-gradient-to-br from-primary/10 to-primary/5 shadow-md' 
-                            : 'border-border hover:border-primary/50 hover:shadow-sm'
+                            ? 'border-primary bg-primary/5' 
+                            : 'border-border hover:border-primary/50'
                         }`}
                       >
-                        <RadioGroupItem value="new" id="new" className="mt-1" />
-                        <div className="space-y-1">
-                          <div className="font-semibold text-base">New Company</div>
-                          <div className="text-sm text-muted-foreground">First time customer registration</div>
+                        <RadioGroupItem value="new" id="new" className="mt-0.5" />
+                        <div className="space-y-0.5">
+                          <div className="font-medium text-sm">New Company</div>
+                          <div className="text-xs text-muted-foreground">First time customer registration</div>
                         </div>
                       </label>
                       <label
                         htmlFor="existing"
-                        className={`flex items-start space-x-4 p-5 rounded-xl border-2 cursor-pointer transition-all duration-200 hover-scale ${
+                        className={`flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
                           companyMode === 'existing' 
-                            ? 'border-primary bg-gradient-to-br from-primary/10 to-primary/5 shadow-md' 
-                            : 'border-border hover:border-primary/50 hover:shadow-sm'
+                            ? 'border-primary bg-primary/5' 
+                            : 'border-border hover:border-primary/50'
                         }`}
                       >
-                        <RadioGroupItem value="existing" id="existing" className="mt-1" />
-                        <div className="space-y-1">
-                          <div className="font-semibold text-base">Existing Company</div>
-                          <div className="text-sm text-muted-foreground">Additional service for current customer</div>
+                        <RadioGroupItem value="existing" id="existing" className="mt-0.5" />
+                        <div className="space-y-0.5">
+                          <div className="font-medium text-sm">Existing Company</div>
+                          <div className="text-xs text-muted-foreground">Additional service for current customer</div>
                         </div>
                       </label>
                     </RadioGroup>
