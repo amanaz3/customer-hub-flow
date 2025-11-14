@@ -15,6 +15,7 @@ import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { CustomerTypeSelector } from './CustomerTypeSelector';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
+import { ValidationIcon } from './ValidationIcon';
 import { HomeFinanceFields } from './fields/HomeFinanceFields';
 import { BankAccountFields } from './fields/BankAccountFields';
 import { GoAMLFields } from './fields/GoAMLFields';
@@ -167,6 +168,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         return;
       }
 
+      // Get next reference number
+      const { data: refData } = await supabase
+        .from('customers')
+        .select('reference_number')
+        .order('reference_number', { ascending: false })
+        .limit(1)
+        .single();
+      
+      const nextRefNumber = (refData?.reference_number || 0) + 1;
+
       const customerData = {
         name: data.name,
         email: data.email,
@@ -180,11 +191,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         annual_turnover: data.annual_turnover,
         jurisdiction: data.jurisdiction,
         customer_notes: data.customer_notes,
+        reference_number: nextRefNumber,
       };
 
       const { data: customer, error } = await supabase
         .from('customers')
-        .insert(customerData)
+        .insert([customerData])
         .select()
         .single();
 
@@ -215,12 +227,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     if (!productCategory) return null;
 
     const categoryMap: Record<string, JSX.Element> = {
-      'home_finance': <HomeFinanceFields control={form.control} />,
-      'bank_account': <BankAccountFields control={form.control} />,
-      'goaml': <GoAMLFields control={form.control} />,
-      'bookkeeping': <BookkeepingFields control={form.control} />,
-      'vat': <VATFields control={form.control} />,
-      'tax': <TaxFields control={form.control} />,
+      'home_finance': <HomeFinanceFields form={form} />,
+      'bank_account': <BankAccountFields form={form} />,
+      'goaml': <GoAMLFields form={form} />,
+      'bookkeeping': <BookkeepingFields form={form} />,
+      'vat': <VATFields form={form} />,
+      'tax': <TaxFields form={form} />,
     };
 
     return categoryMap[productCategory] || null;
@@ -369,95 +381,119 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             <FormField
                               control={form.control}
                               name="name"
-                              render={({ field }) => (
-                                <FormItem className="relative">
-                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Full Name *</FormLabel>
-                                  <FormControl>
-                                    <div className="relative group">
-                                      <Input 
-                                        {...field} 
-                                        onChange={(e) => {
-                                          field.onChange(e);
-                                          onNameChange?.(e.target.value);
-                                        }}
-                                        placeholder="John Doe"
-                                        className="h-11 text-sm pl-10 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
-                                          focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01] 
-                                          hover:border-primary/50 hover:bg-background/80
-                                          transition-all duration-300 
-                                          placeholder:text-muted-foreground/50"
-                                      />
-                                      <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                      </svg>
-                                    </div>
-                                  </FormControl>
-                                  <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
-                                </FormItem>
-                              )}
+                              render={({ field }) => {
+                                const fieldState = form.getFieldState('name');
+                                const hasValue = field.value && field.value.length > 0;
+                                const isValid = hasValue && !fieldState.error;
+                                const isError = hasValue && !!fieldState.error;
+                                
+                                return (
+                                  <FormItem className="relative">
+                                    <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Full Name *</FormLabel>
+                                    <FormControl>
+                                      <div className="relative group">
+                                        <Input 
+                                          {...field} 
+                                          onChange={(e) => {
+                                            field.onChange(e);
+                                            onNameChange?.(e.target.value);
+                                          }}
+                                          placeholder="John Doe"
+                                          className="h-11 text-sm pl-10 pr-11 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
+                                            focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01] 
+                                            hover:border-primary/50 hover:bg-background/80
+                                            transition-all duration-300 
+                                            placeholder:text-muted-foreground/50"
+                                        />
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        <ValidationIcon isValid={isValid} isError={isError} show={hasValue} />
+                                      </div>
+                                    </FormControl>
+                                    <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
+                                  </FormItem>
+                                );
+                              }}
                             />
 
                             <FormField
                               control={form.control}
                               name="mobile"
-                              render={({ field }) => (
-                                <FormItem className="relative">
-                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Mobile Number *</FormLabel>
-                                  <FormControl>
-                                    <div className="relative group">
-                                      <Input 
-                                        {...field} 
-                                        onChange={(e) => {
-                                          field.onChange(e);
-                                          onMobileChange?.(e.target.value);
-                                        }}
-                                        placeholder="+971 50 123 4567"
-                                        className="h-11 text-sm pl-10 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
-                                          focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
-                                          hover:border-primary/50 hover:bg-background/80
-                                          transition-all duration-300
-                                          placeholder:text-muted-foreground/50"
-                                      />
-                                      <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                      </svg>
-                                    </div>
-                                  </FormControl>
-                                  <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
-                                </FormItem>
-                              )}
+                              render={({ field }) => {
+                                const fieldState = form.getFieldState('mobile');
+                                const hasValue = field.value && field.value.length > 0;
+                                const isValid = hasValue && !fieldState.error;
+                                const isError = hasValue && !!fieldState.error;
+                                
+                                return (
+                                  <FormItem className="relative">
+                                    <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Mobile Number *</FormLabel>
+                                    <FormControl>
+                                      <div className="relative group">
+                                        <Input 
+                                          {...field} 
+                                          onChange={(e) => {
+                                            field.onChange(e);
+                                            onMobileChange?.(e.target.value);
+                                          }}
+                                          placeholder="+971 50 123 4567"
+                                          className="h-11 text-sm pl-10 pr-11 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
+                                            focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
+                                            hover:border-primary/50 hover:bg-background/80
+                                            transition-all duration-300
+                                            placeholder:text-muted-foreground/50"
+                                        />
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                        </svg>
+                                        <ValidationIcon isValid={isValid} isError={isError} show={hasValue} />
+                                      </div>
+                                    </FormControl>
+                                    <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
+                                  </FormItem>
+                                );
+                              }}
                             />
 
                             <FormField
                               control={form.control}
                               name="email"
-                              render={({ field }) => (
-                                <FormItem className="md:col-span-2 relative">
-                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Email Address *</FormLabel>
-                                  <FormControl>
-                                    <div className="relative group">
-                                      <Input 
-                                        type="email"
-                                        {...field} 
-                                        onChange={(e) => {
-                                          field.onChange(e);
-                                          onEmailChange?.(e.target.value);
-                                        }}
-                                        placeholder="john.doe@example.com"
-                                        className="h-11 text-sm pl-10 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
-                                          focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
-                                          hover:border-primary/50 hover:bg-background/80
-                                          transition-all duration-300
-                                          placeholder:text-muted-foreground/50"
-                                      />
-                                      <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                      </svg>
-                                    </div>
-                                  </FormControl>
-                                  <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
-                                </FormItem>
-                              )}
+                              render={({ field }) => {
+                                const fieldState = form.getFieldState('email');
+                                const hasValue = field.value && field.value.length > 0;
+                                const isValid = hasValue && !fieldState.error;
+                                const isError = hasValue && !!fieldState.error;
+                                
+                                return (
+                                  <FormItem className="md:col-span-2 relative">
+                                    <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Email Address *</FormLabel>
+                                    <FormControl>
+                                      <div className="relative group">
+                                        <Input 
+                                          type="email"
+                                          {...field} 
+                                          onChange={(e) => {
+                                            field.onChange(e);
+                                            onEmailChange?.(e.target.value);
+                                          }}
+                                          placeholder="john.doe@example.com"
+                                          className="h-11 text-sm pl-10 pr-11 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
+                                            focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
+                                            hover:border-primary/50 hover:bg-background/80
+                                            transition-all duration-300
+                                            placeholder:text-muted-foreground/50"
+                                        />
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                        </svg>
+                                        <ValidationIcon isValid={isValid} isError={isError} show={hasValue} />
+                                      </div>
+                                    </FormControl>
+                                    <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
+                                  </FormItem>
+                                );
+                              }}
                             />
 
                             {/* Customer Type Field */}
@@ -491,32 +527,40 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               <FormField
                                 control={form.control}
                                 name="company"
-                                render={({ field }) => (
-                                  <FormItem className="md:col-span-2 relative">
-                                    <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Company Name *</FormLabel>
-                                    <FormControl>
-                                      <div className="relative group">
-                                        <Input 
-                                          {...field} 
-                                          onChange={(e) => {
-                                            field.onChange(e);
-                                            onCompanyChange?.(e.target.value);
-                                          }}
-                                          placeholder="ABC Trading LLC"
-                                          className="h-11 text-sm pl-10 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
-                                            focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
-                                            hover:border-primary/50 hover:bg-background/80
-                                            transition-all duration-300
-                                            placeholder:text-muted-foreground/50"
-                                        />
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                        </svg>
-                                      </div>
-                                    </FormControl>
-                                    <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
-                                  </FormItem>
-                                )}
+                                render={({ field }) => {
+                                  const fieldState = form.getFieldState('company');
+                                  const hasValue = field.value && field.value.length > 0;
+                                  const isValid = hasValue && !fieldState.error;
+                                  const isError = hasValue && !!fieldState.error;
+                                  
+                                  return (
+                                    <FormItem className="md:col-span-2 relative animate-fade-in">
+                                      <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Company Name *</FormLabel>
+                                      <FormControl>
+                                        <div className="relative group">
+                                          <Input 
+                                            {...field} 
+                                            onChange={(e) => {
+                                              field.onChange(e);
+                                              onCompanyChange?.(e.target.value);
+                                            }}
+                                            placeholder="ABC Trading LLC"
+                                            className="h-11 text-sm pl-10 pr-11 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
+                                              focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
+                                              hover:border-primary/50 hover:bg-background/80
+                                              transition-all duration-300
+                                              placeholder:text-muted-foreground/50"
+                                          />
+                                          <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                          </svg>
+                                          <ValidationIcon isValid={isValid} isError={isError} show={hasValue} />
+                                        </div>
+                                      </FormControl>
+                                      <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
+                                    </FormItem>
+                                  );
+                                }}
                               />
                             )}
                           </div>
