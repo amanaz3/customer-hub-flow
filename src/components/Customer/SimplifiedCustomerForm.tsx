@@ -262,16 +262,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   return (
     <div className="w-full flex flex-col items-center">
       {/* Progress indicator */}
-      <div className="mb-8 bg-card rounded-lg p-6 border border-border w-full shadow-sm">
+      <div className="mb-8 bg-gradient-to-r from-card via-card to-primary/5 rounded-xl p-6 border border-border w-full shadow-sm">
         <div className="flex items-center justify-between mb-4">
           {[1, 2, 3, 4].map((step) => (
             <div key={step} className="flex items-center flex-1">
               <div className="flex flex-col items-center flex-1">
                 <div 
-                  className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-200 ${
+                  className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 ${
                     currentStep >= step 
-                      ? 'border-primary bg-primary text-primary-foreground' 
-                      : 'border-border bg-background text-muted-foreground'
+                      ? 'border-primary bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-md shadow-primary/20' 
+                      : 'border-border bg-card text-muted-foreground'
                   }`}
                   aria-current={currentStep === step ? 'step' : undefined}
                   aria-label={`Step ${step}: ${stepLabels[step - 1].title}`}
@@ -284,8 +284,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 </div>
               </div>
               {step < 4 && (
-                <div className={`flex-1 h-0.5 mx-3 transition-all duration-200 ${
-                  currentStep > step ? 'bg-primary' : 'bg-border'
+                <div className={`flex-1 h-0.5 mx-3 transition-all duration-300 ${
+                  currentStep > step ? 'bg-gradient-to-r from-primary to-primary/60' : 'bg-border'
                 }`} />
               )}
             </div>
@@ -315,9 +315,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           className="space-y-6 w-full"
         >
           <Card 
-            className="border border-border bg-card shadow-sm"
+            className="border border-border bg-gradient-to-br from-card to-card shadow-md hover:shadow-lg transition-shadow duration-300"
           >
-            <CardHeader className="border-b border-border pb-4 bg-muted/30">
+            <CardHeader className="border-b border-border pb-4 bg-gradient-to-r from-muted/40 to-transparent">
               <CardTitle className="text-xl font-semibold text-foreground">
                 {currentStep === 1 && 'Customer Selection'}
                 {currentStep === 2 && 'Service Selection'}
@@ -345,10 +345,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     >
                       <label
                         htmlFor="new"
-                        className={`flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                        className={`flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all duration-300 ${
                           companyMode === 'new' 
-                            ? 'border-primary bg-primary/5' 
-                            : 'border-border hover:border-primary/50'
+                            ? 'border-primary bg-gradient-to-br from-primary/10 to-primary/5 shadow-md shadow-primary/10' 
+                            : 'border-border hover:border-primary/50 hover:shadow-sm bg-card'
                         }`}
                       >
                         <RadioGroupItem value="new" id="new" className="mt-0.5" />
@@ -359,10 +359,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       </label>
                       <label
                         htmlFor="existing"
-                        className={`flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all duration-200 ${
+                        className={`flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all duration-300 ${
                           companyMode === 'existing' 
-                            ? 'border-primary bg-primary/5' 
-                            : 'border-border hover:border-primary/50'
+                            ? 'border-primary bg-gradient-to-br from-primary/10 to-primary/5 shadow-md shadow-primary/10' 
+                            : 'border-border hover:border-primary/50 hover:shadow-sm bg-card'
                         }`}
                       >
                         <RadioGroupItem value="existing" id="existing" className="mt-0.5" />
