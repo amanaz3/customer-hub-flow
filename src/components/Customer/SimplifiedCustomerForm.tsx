@@ -167,9 +167,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         const nameValid = value.name && value.name.length >= 2 && !errors.name;
         const mobileValid = value.mobile && value.mobile.length >= 10 && !errors.mobile;
         const countryValid = value.country_of_residence && !errors.country_of_residence;
+        const leadSourceValid = value.lead_source && !errors.lead_source;
         const companyValid = companyMode ? selectedCustomerId : true;
         
-        if (nameValid && mobileValid && countryValid && companyValid) {
+        if (nameValid && mobileValid && countryValid && leadSourceValid && companyValid) {
           setTimeout(() => setCurrentStep(2), 500);
         }
       }
@@ -281,11 +282,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     const nameValid = values.name && values.name.length >= 2 && !errors.name;
     const mobileValid = values.mobile && values.mobile.length >= 10 && !errors.mobile;
     const countryValid = values.country_of_residence && !errors.country_of_residence;
+    const leadSourceValid = values.lead_source && !errors.lead_source;
     
-    if (!nameValid || !mobileValid || !countryValid) {
+    if (!nameValid || !mobileValid || !countryValid || !leadSourceValid) {
       toast({
         title: "Cannot Save Draft",
-        description: "Please fill in Name, Mobile, and Country of Residence to save a draft",
+        description: "Please fill in Name, Mobile, Country of Residence, and Lead Source to save a draft",
         variant: "destructive",
       });
       return;
@@ -311,7 +313,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         company: values.company || '',
         amount: values.amount || 0,
         license_type: values.license_type || 'Mainland',
-        lead_source: values.lead_source || 'Other',
+        lead_source: values.lead_source,
         user_id: user.id,
         product_id: values.product_id || null,
         annual_turnover: values.annual_turnover || null,
@@ -357,9 +359,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       const nameValid = values.name && values.name.length >= 2 && !errors.name;
       const mobileValid = values.mobile && values.mobile.length >= 10 && !errors.mobile;
       const countryValid = values.country_of_residence && !errors.country_of_residence;
+      const leadSourceValid = values.lead_source && !errors.lead_source;
       const companyValid = companyMode ? selectedCustomerId : true;
       
-      return nameValid && mobileValid && countryValid && companyValid;
+      return nameValid && mobileValid && countryValid && leadSourceValid && companyValid;
     }
 
     if (currentStep === 2) {
