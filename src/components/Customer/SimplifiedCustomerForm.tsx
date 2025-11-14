@@ -1017,7 +1017,20 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     </div>
                   </div>
                   
-                  {renderProductFields()}
+                  {/* Service Details Card */}
+                  <div className="space-y-3 pt-3">
+                    <div className="rounded-lg border-2 border-border bg-gradient-to-br from-purple-50/50 via-purple-50/30 to-transparent dark:from-purple-950/20 dark:via-purple-950/10 dark:to-transparent p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-[1.01]">
+                      <div className="flex items-center gap-2 mb-3 group">
+                        <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <h3 className="text-sm font-bold text-foreground tracking-tight">Service Details</h3>
+                      </div>
+                      {renderProductFields()}
+                    </div>
+                  </div>
                 </div>
               )}
 
