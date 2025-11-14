@@ -19,6 +19,8 @@ import { BankAccountFields } from './fields/BankAccountFields';
 import { BookkeepingFields } from './fields/BookkeepingFields';
 import { VATFields } from './fields/VATFields';
 import { TaxFields } from './fields/TaxFields';
+import { ExistingCustomerSelector } from './ExistingCustomerSelector';
+import { CustomerTypeSelector } from './CustomerTypeSelector';
 
 // Simplified form schema
 const formSchema = z.object({
@@ -63,6 +65,10 @@ interface SimplifiedCustomerFormProps {
   onNameChange?: (name: string) => void;
   onMobileChange?: (mobile: string) => void;
   onCompanyChange?: (company: string) => void;
+  companyMode?: boolean;
+  selectedCustomerId?: string | null;
+  onModeChange?: (mode: boolean) => void;
+  onCustomerSelect?: (customerId: string | null) => void;
 }
 
 const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
@@ -72,6 +78,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   onNameChange,
   onMobileChange,
   onCompanyChange,
+  companyMode = false,
+  selectedCustomerId = null,
+  onModeChange,
+  onCustomerSelect,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -255,6 +265,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   };
 
   const stepLabels = [
+    { title: 'Customer Selection', desc: 'New or existing customer' },
     { title: 'Service Selection', desc: 'Choose service and amount' },
     { title: 'Service Details', desc: 'Additional requirements' },
     { title: 'Confirmation', desc: 'Review and submit' }
@@ -265,7 +276,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       {/* Progress indicator */}
       <div className="mb-8 bg-card rounded-lg p-6 border border-border w-full shadow-sm">
         <div className="flex items-center justify-between mb-5">
-          {[1, 2, 3].map((step) => (
+          {[1, 2, 3, 4].map((step) => (
             <div key={step} className="flex items-center flex-1">
               <div className="flex flex-col items-center flex-1">
                 <div 
@@ -284,7 +295,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   )}
                 </div>
               </div>
-              {step < 3 && (
+              {step < 4 && (
                 <div className={`flex-1 h-0.5 mx-3 transition-all ${
                   currentStep > step ? 'bg-primary' : 'bg-border'
                 }`} />
@@ -320,19 +331,45 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           >
             <CardHeader className="border-b border-border pb-4 bg-muted/30">
               <CardTitle className="text-lg font-semibold text-foreground">
-                {currentStep === 1 && 'Service Selection'}
-                {currentStep === 2 && 'Service Details'}
-                {currentStep === 3 && 'Confirmation'}
+                {currentStep === 1 && 'Customer Selection'}
+                {currentStep === 2 && 'Service Selection'}
+                {currentStep === 3 && 'Service Details'}
+                {currentStep === 4 && 'Confirmation'}
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                {currentStep === 1 && 'Select the service and specify the application amount'}
-                {currentStep === 2 && 'Provide additional details specific to the selected service'}
-                {currentStep === 3 && 'Review all information before submitting'}
+                {currentStep === 1 && 'Choose to create a new customer or select an existing one'}
+                {currentStep === 2 && 'Select the service and specify the application amount'}
+                {currentStep === 3 && 'Provide additional details specific to the selected service'}
+                {currentStep === 4 && 'Review all information before submitting'}
               </p>
             </CardHeader>
             <CardContent className="space-y-6 p-6">
-              {/* Step 1: Service Selection */}
+              {/* Step 1: Customer Selection */}
               {currentStep === 1 && (
+                <>
+                  <CustomerTypeSelector
+                    value={companyMode ? 'existing' : 'new'}
+                    onChange={(value) => {
+                      const newMode = value === 'existing';
+                      onModeChange?.(newMode);
+                      if (!newMode) {
+                        onCustomerSelect?.(null);
+                      }
+                    }}
+                  />
+                  
+                  {companyMode && user && (
+                    <ExistingCustomerSelector
+                      userId={user.id}
+                      value={selectedCustomerId || ''}
+                      onChange={(value) => onCustomerSelect?.(value)}
+                    />
+                  )}
+                </>
+              )}
+
+              {/* Step 2: Service Selection */}
+              {currentStep === 2 && (
                 <>
                   <FormField
                     control={form.control}
@@ -383,15 +420,15 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 </>
               )}
 
-              {/* Step 2: Service Details */}
-              {currentStep === 2 && (
+              {/* Step 3: Service Details */}
+              {currentStep === 3 && (
                 <>
                   {renderProductFields()}
                 </>
               )}
 
-              {/* Step 3: Confirmation */}
-              {currentStep === 3 && (
+              {/* Step 4: Confirmation */}
+              {currentStep === 4 && (
                 <>
                   <div className="space-y-4">
                     <div className="rounded-lg bg-muted/30 p-4">
@@ -472,11 +509,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
             <div className="flex flex-col items-center gap-1">
               <div className="text-sm font-medium text-muted-foreground">
-                Step {currentStep} of 3
+                Step {currentStep} of 4
               </div>
             </div>
 
-            {currentStep < 3 ? (
+            {currentStep < 4 ? (
               <Button
                 type="button"
                 onClick={async () => {
@@ -484,12 +521,23 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   let fieldsToValidate: (keyof FormData)[] = [];
                   
                   if (currentStep === 1) {
+                    // Step 1: Customer Selection - no validation needed
+                    if (companyMode && !selectedCustomerId) {
+                      toast({
+                        title: "Selection Required",
+                        description: "Please select an existing customer to continue",
+                        variant: "destructive",
+                      });
+                      return;
+                    }
+                    fieldsToValidate = [];
+                  } else if (currentStep === 2) {
                     fieldsToValidate = ['product_id', 'amount'];
                   }
                   
                   const isValid = fieldsToValidate.length === 0 || await form.trigger(fieldsToValidate);
                   if (isValid) {
-                    setCurrentStep(prev => Math.min(3, prev + 1));
+                    setCurrentStep(prev => Math.min(4, prev + 1));
                   } else {
                     toast({
                       title: "Validation Error",
