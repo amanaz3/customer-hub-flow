@@ -336,7 +336,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     }
   };
 
-  // Save draft function - validates only filled fields
+  // Save draft function - can save at any step if mandatory fields are validated
   const saveDraft = async () => {
     if (!user?.id) {
       toast({
@@ -359,7 +359,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     if (!nameValid || !mobileValid || !countryValid || !leadSourceValid) {
       toast({
         title: "Cannot Save Draft",
-        description: "Please fill in Name, Mobile, Country of Residence, and Lead Source to save a draft",
+        description: "Please complete all mandatory fields: Name, Mobile, Country of Residence, and Lead Source",
         variant: "destructive",
       });
       return;
@@ -374,7 +374,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         .select('reference_number')
         .order('reference_number', { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
       
       const nextRefNumber = (refData?.reference_number || 0) + 1;
 
@@ -405,7 +405,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
       toast({
         title: "Draft Saved",
-        description: `Draft saved successfully with reference #${nextRefNumber}`,
+        description: `Draft saved at Step ${currentStep} with reference #${nextRefNumber}`,
       });
 
       form.reset();
@@ -414,7 +414,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       console.error('Error saving draft:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to save draft",
+        description: error.message || "Failed to save draft. Please ensure all validated fields are correct.",
         variant: "destructive",
       });
     } finally {
