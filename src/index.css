@@ -15,41 +15,41 @@
     --popover: 0 0% 100%;
     --popover-foreground: 0 0% 10%;
 
-    /* Professional blue accent */
-    --primary: 217 89% 61%;
+    /* Vibrant blue primary (matching reference) */
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    /* Soft grey secondary */
+    /* Light grey secondary for inactive states */
     --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 10%;
+    --secondary-foreground: 0 0% 45%;
 
     /* Subtle muted areas */
     --muted: 0 0% 97%;
-    --muted-foreground: 0 0% 40%;
+    --muted-foreground: 0 0% 45%;
 
     /* Blue accent for highlights */
-    --accent: 217 89% 61%;
+    --accent: 217 91% 60%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
     /* Light, clean borders */
-    --border: 0 0% 92%;
-    --input: 0 0% 92%;
-    --ring: 217 89% 61%;
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 217 91% 60%;
 
     --radius: 0.5rem;
 
     /* Clean sidebar styling */
     --sidebar-background: 0 0% 99%;
     --sidebar-foreground: 0 0% 15%;
-    --sidebar-primary: 217 89% 61%;
+    --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 0 0% 97%;
     --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 0 0% 92%;
-    --sidebar-ring: 217 89% 61%;
+    --sidebar-border: 0 0% 90%;
+    --sidebar-ring: 217 91% 60%;
     
     /* Subtle, professional shadows */
     --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.04);
