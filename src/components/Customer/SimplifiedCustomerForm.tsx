@@ -481,16 +481,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           className="w-full"
         >
           <Card 
-            className="border border-gray-200 bg-white text-black shadow-[0_2px_12px_-3px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.12)] transition-shadow duration-300"
+            className="border-2 border-gray-200 bg-white shadow-2xl hover:shadow-3xl transition-shadow duration-300"
           >
-            <CardHeader className="border-b border-gray-200 pb-2 sm:pb-3 bg-gradient-to-r from-blue-600/10 via-blue-600/5 to-transparent px-4 sm:px-6 py-2 sm:py-3">
-              <CardTitle className="text-sm sm:text-base font-bold text-black tracking-tight">
+            <CardHeader className="border-b-2 border-gray-100 pb-3 sm:pb-4 bg-gradient-to-r from-blue-50 via-white to-blue-50 px-5 sm:px-7 py-4 sm:py-5">
+              <CardTitle className="text-lg sm:text-xl font-bold text-gray-900 tracking-tight">
                 {currentStep === 1 && 'Customer Selection'}
                 {currentStep === 2 && 'Service Selection'}
                 {currentStep === 3 && 'Service Details'}
                 {currentStep === 4 && 'Confirmation'}
               </CardTitle>
-              <p className="text-[11px] sm:text-xs text-gray-600 mt-0.5 font-medium">
+              <p className="text-xs sm:text-sm text-gray-600 mt-1 font-medium">
                 {currentStep === 1 && 'Choose customer type and provide customer information'}
                 {currentStep === 2 && 'Select the service and specify the application amount'}
                 {currentStep === 3 && 'Provide additional details specific to the selected service'}
@@ -499,7 +499,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             </CardHeader>
             <CardContent className="p-5 sm:p-7 space-y-5 sm:space-y-6">
               {/* Customer Type Selector - Always Visible */}
-              <div className="transform transition-all duration-300 hover:scale-[1.01] pb-2 border-b border-gray-200">
+              <div className="transform transition-all duration-300 hover:scale-[1.01] pb-4 border-b-2 border-gray-100">
                 <CustomerTypeSelector
                   value={companyMode ? 'existing' : 'new'}
                   onChange={(value) => {
@@ -526,7 +526,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   
                   {/* Tab-Style Wizard - Positioned after customer selector */}
                   <div className="w-full">
-                    <div className="flex items-center bg-gray-50 shadow-sm rounded-lg overflow-hidden">
+                    <div className="flex items-center bg-gradient-to-r from-gray-50 via-white to-gray-50 shadow-md border border-gray-200 rounded-xl overflow-hidden p-1">
                       {stepLabels.map((label, index) => {
                         const stepNumber = index + 1;
                         const isActive = currentStep === stepNumber;
@@ -615,9 +615,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     <div className={`transition-all duration-300 ${!companyMode ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
                       {/* Basic Info Section */}
                       <div className="space-y-3 pt-3">
-                        <div className="rounded-lg border-2 border-gray-300 bg-gradient-to-br from-gray-50 via-white to-gray-50 p-5 shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.01]">
+                        <div className="rounded-xl border-2 border-blue-100 bg-white shadow-lg p-5 transition-all duration-300 hover:shadow-xl hover:border-blue-200">
                           <div className="flex items-center gap-2 mb-4 group">
-                            <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
                               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                               </svg>
@@ -842,9 +842,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         </div>
 
                         {/* Channel Info Section */}
-                        <div className="rounded-lg border-2 border-gray-300 bg-gradient-to-br from-gray-50 via-white to-gray-50 p-5 shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.01]">
+                        <div className="rounded-xl border-2 border-purple-100 bg-white shadow-lg p-5 transition-all duration-300 hover:shadow-xl hover:border-purple-200">
                           <div className="flex items-center gap-2 mb-4 group">
-                            <div className="w-9 h-9 rounded-lg bg-purple-600 flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3">
+                            <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-purple-700 flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3">
                               <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                               </svg>
@@ -1097,9 +1097,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   
                   {/* Service Details Card */}
                   <div className="space-y-3 pt-3">
-                    <div className="rounded-lg border-2 border-gray-300 bg-gradient-to-br from-gray-50 via-white to-gray-50 p-5 shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.01]">
+                    <div className="rounded-xl border-2 border-purple-100 bg-white shadow-lg p-5 transition-all duration-300 hover:shadow-xl hover:border-purple-200">
                       <div className="flex items-center gap-2 mb-4 group">
-                        <div className="w-9 h-9 rounded-lg bg-purple-600 flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-purple-600 to-purple-700 flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
                           <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
