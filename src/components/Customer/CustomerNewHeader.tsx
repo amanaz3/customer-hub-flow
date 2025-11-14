@@ -8,9 +8,9 @@ interface CustomerNewHeaderProps {
 
 const CustomerNewHeader: React.FC<CustomerNewHeaderProps> = ({ title, description }) => {
   return (
-    <div className="mb-3">
-      <h1 className="text-2xl font-bold">{title}</h1>
-      <p className="text-sm text-muted-foreground">
+    <div className="mb-2">
+      <h1 className="text-xl font-bold">{title}</h1>
+      <p className="text-xs text-muted-foreground">
         {description}
       </p>
     </div>
