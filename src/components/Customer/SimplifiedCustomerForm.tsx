@@ -564,7 +564,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       <ExistingCustomerSelector
                         userId={user.id}
                         value={selectedCustomerId || ''}
-                        onChange={(value) => onCustomerSelect?.(value)}
+                        onChange={(customerId, customer) => {
+                          onCustomerSelect?.(customerId);
+                          // Ensure mode is set to existing when customer is selected
+                          if (customerId && !companyMode) {
+                            onModeChange?.(true);
+                          }
+                        }}
                       />
                     </div>
                   )}
