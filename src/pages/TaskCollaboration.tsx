@@ -478,9 +478,8 @@ const TaskCollaboration: React.FC = () => {
       }));
       
       setApplications(applicationsWithCustomer);
-      setActiveCasesCount(applicationsWithCustomer.filter(app => 
-        !['complete', 'rejected'].includes(app.status)
-      ).length);
+      // Since we're already filtering at DB level, all returned applications are active
+      setActiveCasesCount(applicationsWithCustomer.length);
 
       // Fetch recent activity (status changes with user info)
       const { data: statusChanges, error: activityError } = await supabase
