@@ -262,16 +262,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   return (
     <div className="w-full flex flex-col items-center">
       {/* Progress indicator */}
-      <div className="mb-8 bg-gradient-to-r from-card via-card to-primary/5 rounded-xl p-6 border border-border w-full shadow-sm">
-        <div className="flex items-center justify-between mb-4">
+      <div className="mb-8 bg-white rounded-xl p-6 border-2 border-slate-200 w-full shadow-lg">
+        <div className="flex items-center justify-between mb-5">
           {[1, 2, 3, 4].map((step) => (
             <div key={step} className="flex items-center flex-1">
               <div className="flex flex-col items-center flex-1">
                 <div 
-                  className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-300 ${
+                  className={`flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-300 ${
                     currentStep >= step 
-                      ? 'border-primary bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-md shadow-primary/20' 
-                      : 'border-border bg-card text-muted-foreground'
+                      ? 'border-blue-600 bg-blue-600 text-white shadow-lg shadow-blue-600/30' 
+                      : 'border-slate-300 bg-white text-slate-400'
                   }`}
                   aria-current={currentStep === step ? 'step' : undefined}
                   aria-label={`Step ${step}: ${stepLabels[step - 1].title}`}
@@ -284,8 +284,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 </div>
               </div>
               {step < 4 && (
-                <div className={`flex-1 h-0.5 mx-3 transition-all duration-300 ${
-                  currentStep > step ? 'bg-gradient-to-r from-primary to-primary/60' : 'bg-border'
+                <div className={`flex-1 h-1 mx-3 rounded-full transition-all duration-300 ${
+                  currentStep > step ? 'bg-blue-600' : 'bg-slate-200'
                 }`} />
               )}
             </div>
@@ -294,13 +294,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         <div className="flex items-start">
           {stepLabels.map((label, index) => (
             <div key={index} className="flex-1 flex flex-col items-center text-center px-2">
-              <div className={`font-medium text-sm transition-all duration-200 ${
-                currentStep >= index + 1 ? 'text-foreground' : 'text-muted-foreground'
+              <div className={`font-semibold text-sm transition-all duration-200 ${
+                currentStep >= index + 1 ? 'text-slate-900' : 'text-slate-400'
               }`}>
                 {label.title}
               </div>
-              <div className={`text-xs mt-1 transition-all duration-200 ${
-                currentStep >= index + 1 ? 'text-muted-foreground' : 'text-muted-foreground/60'
+              <div className={`text-xs mt-1.5 transition-all duration-200 ${
+                currentStep >= index + 1 ? 'text-slate-600' : 'text-slate-400'
               }`}>
                 {label.desc}
               </div>
@@ -315,25 +315,23 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           className="space-y-6 w-full"
         >
           <Card 
-            className="border border-border bg-gradient-to-br from-card to-card shadow-md hover:shadow-lg transition-shadow duration-300"
+            className="border-2 border-slate-200 bg-white shadow-lg"
           >
-            <CardHeader className="border-b border-border pb-4 bg-gradient-to-r from-muted/40 to-transparent">
-              <CardTitle className="text-xl font-semibold text-foreground">
+            <CardHeader className="border-b-2 border-slate-100 pb-5 bg-gradient-to-r from-slate-50 to-white">
+              <CardTitle className="text-xl font-semibold text-slate-900">
                 {currentStep === 1 && 'Customer Selection'}
                 {currentStep === 2 && 'Service Selection'}
                 {currentStep === 3 && 'Service Details'}
                 {currentStep === 4 && 'Confirmation'}
               </CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-sm text-slate-600 mt-1">
                 {currentStep === 1 && 'Choose whether this is a new or existing customer'}
                 {currentStep === 2 && 'Select the service and specify the application amount'}
                 {currentStep === 3 && 'Provide additional details specific to the selected service'}
                 {currentStep === 4 && 'Review all information before submitting'}
               </p>
             </CardHeader>
-            <CardContent className="space-y-6 p-8" style={{
-              background: 'linear-gradient(to bottom, hsl(var(--card)) 0%, hsl(var(--card) / 0.98) 100%)'
-            }}>
+            <CardContent className="space-y-6 p-8">
               {/* Step 1: Customer Information */}
               {currentStep === 1 && (
                 <>
@@ -345,30 +343,30 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     >
                       <label
                         htmlFor="new"
-                        className={`flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all duration-300 ${
+                        className={`flex items-start space-x-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
                           companyMode === 'new' 
-                            ? 'border-primary bg-gradient-to-br from-primary/10 to-primary/5 shadow-md shadow-primary/10' 
-                            : 'border-border hover:border-primary/50 hover:shadow-sm bg-card'
+                            ? 'border-blue-600 bg-blue-50 shadow-md' 
+                            : 'border-slate-200 hover:border-blue-300 hover:shadow-sm bg-white'
                         }`}
                       >
                         <RadioGroupItem value="new" id="new" className="mt-0.5" />
                         <div className="space-y-0.5">
-                          <div className="font-medium text-sm">New Company</div>
-                          <div className="text-xs text-muted-foreground">First time customer registration</div>
+                          <div className="font-semibold text-sm text-slate-900">New Company</div>
+                          <div className="text-xs text-slate-600">First time customer registration</div>
                         </div>
                       </label>
                       <label
                         htmlFor="existing"
-                        className={`flex items-start space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all duration-300 ${
+                        className={`flex items-start space-x-3 p-4 rounded-xl border-2 cursor-pointer transition-all duration-300 ${
                           companyMode === 'existing' 
-                            ? 'border-primary bg-gradient-to-br from-primary/10 to-primary/5 shadow-md shadow-primary/10' 
-                            : 'border-border hover:border-primary/50 hover:shadow-sm bg-card'
+                            ? 'border-blue-600 bg-blue-50 shadow-md' 
+                            : 'border-slate-200 hover:border-blue-300 hover:shadow-sm bg-white'
                         }`}
                       >
                         <RadioGroupItem value="existing" id="existing" className="mt-0.5" />
                         <div className="space-y-0.5">
-                          <div className="font-medium text-sm">Existing Company</div>
-                          <div className="text-xs text-muted-foreground">Additional service for current customer</div>
+                          <div className="font-semibold text-sm text-slate-900">Existing Company</div>
+                          <div className="text-xs text-slate-600">Additional service for current customer</div>
                         </div>
                       </label>
                     </RadioGroup>
