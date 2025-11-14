@@ -68,8 +68,8 @@ const CustomerNew = () => {
           </div>
         </div>
 
-        <div className="w-full">
-          <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pr-12' : 'lg:pr-80'}`}>
+        <div className="w-full flex justify-center">
+          <div className="w-full max-w-4xl">
             {/* Simplified Form */}
             <SimplifiedCustomerForm
             onSuccess={handleSuccess}
