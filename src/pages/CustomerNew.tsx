@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCustomer } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
@@ -24,6 +24,13 @@ const CustomerNew = () => {
   // Customer selection state
   const [companyMode, setCompanyMode] = useState<boolean>(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  
+  // Auto-show sidebar when customer is selected
+  useEffect(() => {
+    if (selectedCustomerId && companyMode) {
+      setSidebarHidden(false);
+    }
+  }, [selectedCustomerId, companyMode]);
 
   const handleSuccess = () => {
     refreshData();
