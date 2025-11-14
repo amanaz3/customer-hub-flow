@@ -284,7 +284,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     currentStep >= step 
                       ? 'border-primary bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-[0_2px_8px_rgba(59,130,246,0.3)]' 
                       : 'border-border bg-background text-muted-foreground hover:border-primary/30'
-                  } ${currentStep === step ? 'scale-110 ring-4 ring-primary/20' : ''}`}
+                  } ${currentStep === step ? 'scale-110 ring-4 ring-primary/20 animate-pulse' : ''}`}
                   aria-current={currentStep === step ? 'step' : undefined}
                   aria-label={`Step ${step}: ${stepLabels[step - 1].title}`}
                 >
@@ -350,8 +350,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-5">
               {/* Step 1: Customer Selection */}
               {currentStep === 1 && (
-                <div key="step-1" className="animate-fade-in">
-                  <CustomerTypeSelector
+                <div key="step-1" className="animate-fade-in space-y-4">
+                  <div className="transform transition-all duration-300 hover:scale-[1.01]">
+                    <CustomerTypeSelector
                     value={companyMode ? 'existing' : 'new'}
                     onChange={(value) => {
                       const newMode = value === 'existing';
@@ -361,13 +362,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       }
                     }}
                   />
+                  </div>
                   
                   {companyMode && user && (
+                    <div className="transform transition-all duration-300 hover:scale-[1.01]">
                     <ExistingCustomerSelector
                       userId={user.id}
                       value={selectedCustomerId || ''}
                       onChange={(value) => onCustomerSelect?.(value)}
                     />
+                    </div>
                   )}
                   
                   {/* Show basic info fields for new customers only */}
@@ -375,9 +379,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     <>
                       {/* Basic Info Section */}
                       <div className="space-y-3 pt-3">
-                        <div className="rounded-lg border border-border/50 bg-gradient-to-br from-blue-50/50 via-blue-50/30 to-transparent dark:from-blue-950/20 dark:via-blue-950/10 dark:to-transparent p-4 shadow-sm">
-                          <div className="flex items-center gap-2 mb-3">
-                            <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center shadow-sm">
+                        <div className="rounded-lg border border-border/50 bg-gradient-to-br from-blue-50/50 via-blue-50/30 to-transparent dark:from-blue-950/20 dark:via-blue-950/10 dark:to-transparent p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-[1.01]">
+                          <div className="flex items-center gap-2 mb-3 group">
+                            <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
                               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                               </svg>
@@ -399,7 +403,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                         onNameChange?.(e.target.value);
                                       }}
                                       placeholder="Enter full name"
-                                      className="h-9 text-sm border-border/60 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all"
+                                      className="h-9 text-sm border-border/60 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 focus:scale-[1.02] transition-all duration-300"
                                     />
                                   </FormControl>
                                   <FormMessage className="text-xs" />
@@ -421,7 +425,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                         onMobileChange?.(e.target.value);
                                       }}
                                       placeholder="Enter mobile number"
-                                      className="h-9 text-sm border-border/60 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all"
+                                      className="h-9 text-sm border-border/60 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 focus:scale-[1.02] transition-all duration-300"
                                     />
                                   </FormControl>
                                   <FormMessage className="text-xs" />
@@ -444,7 +448,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                         onEmailChange?.(e.target.value);
                                       }}
                                       placeholder="Enter email address"
-                                      className="h-9 text-sm border-border/60 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 transition-all"
+                                      className="h-9 text-sm border-border/60 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 focus:scale-[1.02] transition-all duration-300"
                                     />
                                   </FormControl>
                                   <FormMessage className="text-xs" />
@@ -455,9 +459,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         </div>
 
                         {/* Channel Info Section */}
-                        <div className="rounded-lg border border-border/50 bg-gradient-to-br from-purple-50/50 via-purple-50/30 to-transparent dark:from-purple-950/20 dark:via-purple-950/10 dark:to-transparent p-4 shadow-sm">
-                          <div className="flex items-center gap-2 mb-3">
-                            <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center shadow-sm">
+                        <div className="rounded-lg border border-border/50 bg-gradient-to-br from-purple-50/50 via-purple-50/30 to-transparent dark:from-purple-950/20 dark:via-purple-950/10 dark:to-transparent p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-[1.01]">
+                          <div className="flex items-center gap-2 mb-3 group">
+                            <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3">
                               <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                               </svg>
@@ -497,7 +501,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Step 2: Service Selection */}
               {currentStep === 2 && (
                 <div key="step-2" className="animate-fade-in">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 transform transition-all duration-300">
                   <FormField
                     control={form.control}
                     name="product_id"
@@ -631,7 +635,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               variant="outline"
               onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
               disabled={currentStep === 1 || isSubmitting}
-              className="h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm hover:bg-muted/50 hover:shadow-sm transition-all duration-300 disabled:opacity-50"
+              className="h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm hover:bg-muted/50 hover:shadow-sm hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50"
             >
               <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
               <span className="hidden sm:inline">Previous</span>
@@ -682,7 +686,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     });
                   }
                 }}
-                className="h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 hover:scale-105"
+                className="h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary hover:shadow-lg hover:shadow-primary/20 hover:scale-105 active:scale-95 transition-all duration-300"
               >
                 <span className="hidden sm:inline">Next Step</span>
                 <span className="sm:hidden">Next</span>
@@ -692,7 +696,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               <Button 
                 type="submit" 
                 disabled={isSubmitting} 
-                className="h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-600 hover:shadow-lg hover:shadow-green-500/20 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100"
+                className="h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-600 hover:shadow-lg hover:shadow-green-500/20 hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100"
               >
                 {isSubmitting ? (
                   <>
