@@ -54,8 +54,8 @@ const CustomerNew = () => {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-8 bg-background">
-      <div className="w-full max-w-[95%] lg:max-w-[90%] xl:max-w-[85%] 2xl:max-w-[80%] px-4 sm:px-6">
+    <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-8 bg-white">
+      <div className="w-full max-w-[95%] lg:max-w-[90%] xl:max-w-[85%] 2xl:max-w-[80%] px-4 sm:px-6 bg-muted/30 rounded-xl py-8">
         <div className="w-full flex justify-center">
           <div className="w-full max-w-4xl">
             {/* Simplified Form */}
