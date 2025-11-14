@@ -4,49 +4,57 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 15%;
+    /* Clean neutral light background */
+    --background: 0 0% 99%;
+    --foreground: 0 0% 10%;
 
+    /* Cards with pure white */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 15%;
+    --card-foreground: 0 0% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 15%;
+    --popover-foreground: 0 0% 10%;
 
-    --primary: 217 91% 60%;
+    /* Professional blue accent */
+    --primary: 217 89% 61%;
     --primary-foreground: 0 0% 100%;
 
+    /* Soft grey secondary */
     --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 15%;
+    --secondary-foreground: 0 0% 10%;
 
+    /* Subtle muted areas */
     --muted: 0 0% 97%;
-    --muted-foreground: 0 0% 45%;
+    --muted-foreground: 0 0% 40%;
 
-    --accent: 217 91% 60%;
+    /* Blue accent for highlights */
+    --accent: 217 89% 61%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 0 0% 90%;
-    --input: 0 0% 90%;
-    --ring: 217 91% 60%;
+    /* Light, clean borders */
+    --border: 0 0% 92%;
+    --input: 0 0% 92%;
+    --ring: 217 89% 61%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 0 0% 98%;
-    --sidebar-foreground: 0 0% 20%;
-    --sidebar-primary: 0 0% 15%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 96%;
-    --sidebar-accent-foreground: 0 0% 15%;
-    --sidebar-border: 0 0% 90%;
-    --sidebar-ring: 217 91% 60%;
+    /* Clean sidebar styling */
+    --sidebar-background: 0 0% 99%;
+    --sidebar-foreground: 0 0% 15%;
+    --sidebar-primary: 217 89% 61%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 0 0% 97%;
+    --sidebar-accent-foreground: 0 0% 10%;
+    --sidebar-border: 0 0% 92%;
+    --sidebar-ring: 217 89% 61%;
     
-    /* Clean shadows */
-    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.1), 0 2px 4px -2px hsl(0 0% 0% / 0.1);
-    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.1), 0 4px 6px -4px hsl(0 0% 0% / 0.1);
+    /* Subtle, professional shadows */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.04);
+    --shadow-md: 0 2px 8px -2px hsl(0 0% 0% / 0.08);
+    --shadow-lg: 0 4px 16px -4px hsl(0 0% 0% / 0.1);
   }
 
   .dark {
@@ -115,20 +123,53 @@
 
   body {
     @apply bg-background text-foreground overflow-hidden;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    font-weight: 400;
+    letter-spacing: -0.011em;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
   }
 
-  /* Responsive text scaling */
+  /* Responsive text scaling with better readability */
   html {
-    font-size: clamp(14px, 1.2vw, 16px);
+    font-size: 16px;
   }
 
-  /* Responsive headings */
-  h1 { font-size: clamp(1.75rem, 4vw, 2.5rem); }
-  h2 { font-size: clamp(1.5rem, 3.5vw, 2.25rem); }
-  h3 { font-size: clamp(1.25rem, 3vw, 1.875rem); }
-  h4 { font-size: clamp(1.125rem, 2.5vw, 1.5rem); }
-  h5 { font-size: clamp(1rem, 2vw, 1.25rem); }
-  h6 { font-size: clamp(0.875rem, 1.5vw, 1rem); }
+  /* Clean, professional headings with consistent hierarchy */
+  h1 { 
+    font-size: clamp(1.875rem, 4vw, 2.5rem);
+    font-weight: 600;
+    letter-spacing: -0.025em;
+    line-height: 1.2;
+  }
+  h2 { 
+    font-size: clamp(1.5rem, 3.5vw, 2rem);
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    line-height: 1.3;
+  }
+  h3 { 
+    font-size: clamp(1.25rem, 3vw, 1.5rem);
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.4;
+  }
+  h4 { 
+    font-size: clamp(1.125rem, 2.5vw, 1.25rem);
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    line-height: 1.4;
+  }
+  h5 { 
+    font-size: clamp(1rem, 2vw, 1.125rem);
+    font-weight: 600;
+    line-height: 1.5;
+  }
+  h6 { 
+    font-size: clamp(0.875rem, 1.5vw, 1rem);
+    font-weight: 600;
+    line-height: 1.5;
+  }
 
   /* Smooth transitions for responsive elements */
   .responsive-transition {
