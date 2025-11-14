@@ -499,7 +499,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             </CardHeader>
             <CardContent className="p-4 sm:p-6 space-y-5">
               {/* Customer Type Selector - Always Visible */}
-              <div className="transform transition-all duration-300 hover:scale-[1.01] pb-2 border-b border-border">
+              <div className="transform transition-all duration-300 hover:scale-[1.01] -mt-2 border-b border-border">
                 <CustomerTypeSelector
                   value={companyMode ? 'existing' : 'new'}
                   onChange={(value) => {
