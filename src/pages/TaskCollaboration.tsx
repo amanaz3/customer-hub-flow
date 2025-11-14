@@ -412,7 +412,7 @@ const TaskCollaboration: React.FC = () => {
             )
           )
         `)
-        .not('status', 'in', '(completed,complete,paid,rejected)')
+        .not('status', 'in', '(completed,paid,rejected)')
         .order('created_at', { ascending: false });
 
       if (casesError) throw casesError;
@@ -590,7 +590,7 @@ const TaskCollaboration: React.FC = () => {
     
     let matchesStatus = true;
     if (caseStatusFilter === 'active') {
-      matchesStatus = !['completed', 'complete', 'paid', 'rejected'].includes(app.status.toLowerCase());
+      matchesStatus = !['completed', 'paid', 'rejected'].includes(app.status.toLowerCase());
     } else if (caseStatusFilter === 'all') {
       matchesStatus = true;
     } else {
