@@ -660,7 +660,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 
                                 return (
                                   <FormItem className="relative">
-                                    <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Mobile Number *</FormLabel>
+                                    <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Mobile Number /Whatsapp^</FormLabel>
                                     <FormControl>
                                       <div className="relative group">
                                         <Input 
