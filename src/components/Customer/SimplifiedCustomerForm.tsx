@@ -259,11 +259,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   ];
 
   return (
-    <div className="w-full mx-auto" style={{
+    <div className="w-full mx-auto flex flex-col items-center" style={{
       perspective: '2000px'
     }}>
       {/* Progress indicator */}
-      <div className="mb-10 bg-gradient-to-br from-card to-card/50 rounded-2xl p-8 border-2 animate-fade-in" style={{
+      <div className="w-full mb-10 bg-gradient-to-br from-card to-card/50 rounded-2xl p-8 border-2 animate-fade-in" style={{
         boxShadow: '0 15px 40px -10px rgba(0, 0, 0, 0.25), 0 8px 16px -8px rgba(0, 0, 0, 0.15)',
         transform: 'translateZ(20px)',
       }}>
@@ -314,7 +314,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       <Form {...form}>
         <form 
           onSubmit={form.handleSubmit(onSubmit)} 
-          className="space-y-8"
+          className="space-y-8 w-full"
           onFocus={() => setIsFormFocused(true)}
           onBlur={() => setIsFormFocused(false)}
         >
