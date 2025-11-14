@@ -59,7 +59,7 @@ const CustomerNew = () => {
         {/* Page Header */}
         <div className="mb-8 animate-fade-in">
           <div className="space-y-2 text-center">
-            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+            <h1 className="text-4xl font-bold tracking-tight text-foreground">
               New Application
             </h1>
             <p className="text-muted-foreground text-lg">
