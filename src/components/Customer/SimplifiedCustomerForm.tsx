@@ -249,6 +249,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     
     return () => subscription.unsubscribe();
   }, [currentStep, form, companyMode, selectedCustomerId, isSubmitting, user]);
+  
+  // Auto-switch to existing customer tab when a customer is selected
+  useEffect(() => {
+    if (selectedCustomerId && !companyMode) {
+      onModeChange?.(true);
+    }
+  }, [selectedCustomerId, companyMode, onModeChange]);
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
@@ -553,7 +560,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   </div>
                   
                   {companyMode && user && (
-                    <div className="transform transition-all duration-300 hover:scale-[1.01]">
+                    <div className={`transform transition-all duration-300 ${companyMode ? 'opacity-100 scale-100' : 'opacity-40 scale-95 pointer-events-none'}`}>
                       <ExistingCustomerSelector
                         userId={user.id}
                         value={selectedCustomerId || ''}
@@ -564,7 +571,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   
                   {/* Show basic info fields for new customers only */}
                   {!companyMode && (
-                    <>
+                    <div className={`transition-all duration-300 ${!companyMode ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
                       {/* Basic Info Section */}
                       <div className="space-y-3 pt-3">
                         <div className="rounded-lg border-2 border-border bg-gradient-to-br from-blue-50/50 via-blue-50/30 to-transparent dark:from-blue-950/20 dark:via-blue-950/10 dark:to-transparent p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-[1.01]">
@@ -831,7 +838,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                           />
                         </div>
                       </div>
-                    </>
+                    </div>
                   )}
                 </div>
               )}
