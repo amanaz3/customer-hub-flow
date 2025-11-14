@@ -15,6 +15,16 @@ import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Check, Save, ArrowLeft, ArrowRight } from 'lucide-react';
 import { CustomerTypeSelector } from './CustomerTypeSelector';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { ValidationIcon } from './ValidationIcon';
 import { HomeFinanceFields } from './fields/HomeFinanceFields';
 import { BankAccountFields } from './fields/BankAccountFields';
@@ -96,6 +106,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedProductName, setSelectedProductName] = useState<string>('');
+  const [showModeChangeWarning, setShowModeChangeWarning] = useState(false);
+  const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -491,6 +503,14 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 <CustomerTypeSelector
                   value={companyMode ? 'existing' : 'new'}
                   onChange={(value) => {
+                    // Check if user is past step 1 and trying to switch customer type
+                    if (currentStep > 1) {
+                      setPendingMode(value);
+                      setShowModeChangeWarning(true);
+                      return;
+                    }
+                    
+                    // Proceed with change if on step 1
                     const newMode = value === 'existing';
                     onModeChange?.(newMode);
                     if (!newMode) {
@@ -1235,6 +1255,40 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           <Save className="h-6 w-6" />
         </Button>
       </div>
+
+      {/* Mode Change Warning Dialog */}
+      <AlertDialog open={showModeChangeWarning} onOpenChange={setShowModeChangeWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Switch Customer Type?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Your changes may not be saved. You will be returned to Step 1. Do you want to continue?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => {
+              setPendingMode(null);
+              setShowModeChangeWarning(false);
+            }}>
+              Cancel
+            </AlertDialogCancel>
+            <AlertDialogAction onClick={() => {
+              if (pendingMode) {
+                const newMode = pendingMode === 'existing';
+                setCurrentStep(1);
+                onModeChange?.(newMode);
+                if (!newMode) {
+                  onCustomerSelect?.(null);
+                }
+                setPendingMode(null);
+              }
+              setShowModeChangeWarning(false);
+            }}>
+              Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };
