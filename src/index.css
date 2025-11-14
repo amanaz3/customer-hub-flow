@@ -5,8 +5,8 @@
 @layer base {
   :root {
     /* Clean neutral light background */
-    --background: 0 0% 99%;
-    --foreground: 0 0% 10%;
+    --background: 0 0% 98%;
+    --foreground: 0 0% 5%;
 
     /* Cards with pure white */
     --card: 0 0% 100%;
