@@ -19,9 +19,6 @@ import { BankAccountFields } from './fields/BankAccountFields';
 import { BookkeepingFields } from './fields/BookkeepingFields';
 import { VATFields } from './fields/VATFields';
 import { TaxFields } from './fields/TaxFields';
-import { ExistingCustomerSelector } from './ExistingCustomerSelector';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import type { Customer } from '@/types/customer';
 
 // Simplified form schema
 const formSchema = z.object({
@@ -66,8 +63,6 @@ interface SimplifiedCustomerFormProps {
   onNameChange?: (name: string) => void;
   onMobileChange?: (mobile: string) => void;
   onCompanyChange?: (company: string) => void;
-  onModeChange?: (mode: 'new' | 'existing') => void;
-  onCustomerSelect?: (customerId: string | null) => void;
 }
 
 const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
@@ -77,15 +72,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   onNameChange,
   onMobileChange,
   onCompanyChange,
-  onModeChange,
-  onCustomerSelect,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [selectedProductName, setSelectedProductName] = useState<string>('');
-  const [companyMode, setCompanyMode] = useState<'new' | 'existing'>('new');
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
-  const [isFormFocused, setIsFormFocused] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -121,24 +111,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     },
   });
 
-  const handleExistingCustomerChange = (customerId: string | null, customer: Partial<Customer> | null) => {
-    setSelectedCustomerId(customerId);
-    onCustomerSelect?.(customerId);
-    if (customer) {
-      form.setValue('name', customer.name || '');
-      form.setValue('email', customer.email || '');
-      form.setValue('mobile', customer.mobile || '');
-      form.setValue('company', customer.company || '');
-      if (customer.licenseType) {
-        form.setValue('license_type', customer.licenseType as 'Mainland' | 'Freezone' | 'Offshore');
-      }
-      onNameChange?.(customer.name || '');
-      onEmailChange?.(customer.email || '');
-      onMobileChange?.(customer.mobile || '');
-      onCompanyChange?.(customer.company || '');
-    }
-  };
-
   // Fetch products
   const { data: products } = useQuery({
     queryKey: ['products'],
@@ -147,6 +119,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         .from('products')
         .select('*')
         .order('name');
+      
       if (error) throw error;
       return data;
     },
@@ -154,19 +127,41 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
   const handleProductChange = (productId: string) => {
     const product = products?.find(p => p.id === productId);
-    setSelectedProductName(product?.name || '');
-    onProductChange?.(product?.name || null);
+    const productName = product?.name || '';
+    setSelectedProductName(productName);
+    onProductChange?.(productName);
   };
 
-  const getProductCategory = (productName: string): string => {
-    const name = productName.toLowerCase();
-    if (name.includes('goaml') || name.includes('aml')) return 'goaml';
-    if (name.includes('home') && name.includes('finance')) return 'home_finance';
-    if (name.includes('bank') && name.includes('account')) return 'bank_account';
-    if (name.includes('bookkeeping') || name.includes('accounting')) return 'bookkeeping';
-    if (name.includes('vat')) return 'vat';
-    if (name.includes('tax')) return 'tax';
-    return 'other';
+  const getProductCategory = (productName: string): string | null => {
+    if (!productName) return null;
+    const productLower = productName.toLowerCase();
+    
+    if (productLower.includes('aml') || productLower.includes('goaml')) {
+      return 'goaml';
+    }
+    
+    if ((productLower.includes('home') && productLower.includes('finance')) || 
+        productLower.includes('mortgage')) {
+      return 'home_finance';
+    }
+    
+    if (productLower.includes('bank') && productLower.includes('account')) {
+      return 'bank_account';
+    }
+    
+    if (productLower.includes('bookkeeping') || productLower.includes('accounting')) {
+      return 'bookkeeping';
+    }
+    
+    if (productLower.includes('vat')) {
+      return 'vat';
+    }
+    
+    if (productLower.includes('tax')) {
+      return 'tax';
+    }
+    
+    return null;
   };
 
   const onSubmit = async (data: FormData) => {
@@ -180,8 +175,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     }
 
     setIsSubmitting(true);
+
     try {
-      // Get the next reference number
+      // Get next reference number
       const { data: maxRef } = await supabase
         .from('customers')
         .select('reference_number')
@@ -191,7 +187,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
       const nextRefNumber = (maxRef?.reference_number || 0) + 1;
 
-      // Create customer - convert empty strings to null for optional fields
+      // Create customer
       const { data: customerData, error: customerError } = await supabase
         .from('customers')
         .insert([{
@@ -199,9 +195,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           email: data.email,
           mobile: data.mobile,
           company: data.company,
-          amount: data.amount,
           license_type: data.license_type,
           lead_source: data.lead_source,
+          amount: data.amount,
+          no_of_shareholders: data.no_of_shareholders,
           annual_turnover: data.annual_turnover || null,
           jurisdiction: data.jurisdiction || null,
           nationality: data.nationality || null,
@@ -258,7 +255,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   };
 
   const stepLabels = [
-    { title: 'Customer Selection', desc: 'New or existing customer' },
     { title: 'Service Selection', desc: 'Choose service and amount' },
     { title: 'Service Details', desc: 'Additional requirements' },
     { title: 'Confirmation', desc: 'Review and submit' }
@@ -269,7 +265,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       {/* Progress indicator */}
       <div className="mb-8 bg-card rounded-lg p-6 border border-border w-full shadow-sm">
         <div className="flex items-center justify-between mb-5">
-          {[1, 2, 3, 4].map((step) => (
+          {[1, 2, 3].map((step) => (
             <div key={step} className="flex items-center flex-1">
               <div className="flex flex-col items-center flex-1">
                 <div 
@@ -288,7 +284,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   )}
                 </div>
               </div>
-              {step < 4 && (
+              {step < 3 && (
                 <div className={`flex-1 h-0.5 mx-3 transition-all ${
                   currentStep > step ? 'bg-primary' : 'bg-border'
                 }`} />
@@ -324,215 +320,19 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           >
             <CardHeader className="border-b border-border pb-4 bg-muted/30">
               <CardTitle className="text-lg font-semibold text-foreground">
-                {currentStep === 1 && 'Customer Selection'}
-                {currentStep === 2 && 'Service Selection'}
-                {currentStep === 3 && 'Service Details'}
-                {currentStep === 4 && 'Confirmation'}
+                {currentStep === 1 && 'Service Selection'}
+                {currentStep === 2 && 'Service Details'}
+                {currentStep === 3 && 'Confirmation'}
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                {currentStep === 1 && 'Choose whether this is a new or existing customer'}
-                {currentStep === 2 && 'Select the service and specify the application amount'}
-                {currentStep === 3 && 'Provide additional details specific to the selected service'}
-                {currentStep === 4 && 'Review all information before submitting'}
+                {currentStep === 1 && 'Select the service and specify the application amount'}
+                {currentStep === 2 && 'Provide additional details specific to the selected service'}
+                {currentStep === 3 && 'Review all information before submitting'}
               </p>
             </CardHeader>
             <CardContent className="space-y-6 p-6">
-              {/* Step 1: Customer Information */}
+              {/* Step 1: Service Selection */}
               {currentStep === 1 && (
-                <>
-                  <div className="space-y-4 pb-6 mb-6 border-b border-border">
-                    <RadioGroup
-                      value={companyMode}
-                      onValueChange={(value: 'new' | 'existing') => {
-                        setCompanyMode(value);
-                        onModeChange?.(value);
-                        if (value === 'new') {
-                          setSelectedCustomerId(null);
-                          onCustomerSelect?.(null);
-                        }
-                      }}
-                      className="grid grid-cols-1 md:grid-cols-2 gap-3"
-                    >
-                      <label
-                        htmlFor="new"
-                        className={`flex items-start space-x-3 p-4 rounded-md border cursor-pointer transition-all ${
-                          companyMode === 'new' 
-                            ? 'border-primary bg-primary/5' 
-                            : 'border-border hover:border-primary/50 bg-card'
-                        }`}
-                      >
-                        <RadioGroupItem value="new" id="new" className="mt-0.5" />
-                        <div className="space-y-0.5">
-                          <div className="font-medium text-sm text-foreground">New Company</div>
-                          <div className="text-xs text-muted-foreground">First time customer registration</div>
-                        </div>
-                      </label>
-                      <label
-                        htmlFor="existing"
-                        className={`flex items-start space-x-3 p-4 rounded-md border cursor-pointer transition-all ${
-                          companyMode === 'existing' 
-                            ? 'border-primary bg-primary/5' 
-                            : 'border-border hover:border-primary/50 bg-card'
-                        }`}
-                      >
-                        <RadioGroupItem value="existing" id="existing" className="mt-0.5" />
-                        <div className="space-y-0.5">
-                          <div className="font-medium text-sm text-foreground">Existing Company</div>
-                          <div className="text-xs text-muted-foreground">Additional service for current customer</div>
-                        </div>
-                      </label>
-                    </RadioGroup>
-                  </div>
-
-                  {companyMode === 'existing' && user && (
-                    <ExistingCustomerSelector
-                      userId={user.id}
-                      value={selectedCustomerId}
-                      onChange={handleExistingCustomerChange}
-                    />
-                  )}
-
-                  {companyMode === 'new' && (
-                    <>
-                      <FormField
-                        control={form.control}
-                        name="name"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Customer Name *</FormLabel>
-                            <FormControl>
-                              <Input {...field} onChange={(e) => {
-                                field.onChange(e);
-                                onNameChange?.(e.target.value);
-                              }} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email *</FormLabel>
-                          <FormControl>
-                            <Input type="email" {...field} onChange={(e) => {
-                              field.onChange(e);
-                              onEmailChange?.(e.target.value);
-                            }} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="mobile"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Mobile *</FormLabel>
-                          <FormControl>
-                            <Input {...field} onChange={(e) => {
-                              field.onChange(e);
-                              onMobileChange?.(e.target.value);
-                            }} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                  <FormField
-                    control={form.control}
-                    name="company"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Company Name *</FormLabel>
-                        <FormControl>
-                          <Input {...field} onChange={(e) => {
-                            field.onChange(e);
-                            onCompanyChange?.(e.target.value);
-                          }} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <FormField
-                      control={form.control}
-                      name="license_type"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>License Type *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="Mainland">Mainland</SelectItem>
-                              <SelectItem value="Freezone">Freezone</SelectItem>
-                              <SelectItem value="Offshore">Offshore</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="lead_source"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Lead Source *</FormLabel>
-                          <Select onValueChange={field.onChange} defaultValue={field.value}>
-                            <FormControl>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                            </FormControl>
-                            <SelectContent>
-                              <SelectItem value="Website">Website</SelectItem>
-                              <SelectItem value="Referral">Referral</SelectItem>
-                              <SelectItem value="Social Media">Social Media</SelectItem>
-                              <SelectItem value="Other">Other</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                  </div>
-
-                      <FormField
-                        control={form.control}
-                        name="nationality"
-                        render={({ field }) => (
-                          <FormItem>
-                            <FormLabel>Nationality</FormLabel>
-                            <FormControl>
-                              <Input {...field} />
-                            </FormControl>
-                            <FormMessage />
-                          </FormItem>
-                        )}
-                      />
-                    </>
-                  )}
-                </>
-              )}
-
-              {/* Step 2: Service Selection */}
-              {currentStep === 2 && (
                 <>
                   <FormField
                     control={form.control}
@@ -550,7 +350,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
-                            {products?.map((product) => (
+                            {products?.map((product: any) => (
                               <SelectItem key={product.id} value={product.id}>
                                 {product.name}
                               </SelectItem>
@@ -571,138 +371,94 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         <FormControl>
                           <Input 
                             type="number" 
+                            step="0.01"
                             {...field} 
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} 
                           />
                         </FormControl>
                         <FormMessage />
                       </FormItem>
                     )}
                   />
-
-                  <FormField
-                    control={form.control}
-                    name="customer_notes"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Notes</FormLabel>
-                        <FormControl>
-                          <Textarea {...field} rows={4} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </>
               )}
 
-              {/* Step 3: Service Details */}
-              {currentStep === 3 && (
+              {/* Step 2: Service Details */}
+              {currentStep === 2 && (
                 <>
                   {renderProductFields()}
-                  
-                  {!selectedProductName && (
-                    <div className="text-center py-8 text-muted-foreground">
-                      Please select a service in the previous step to see relevant fields.
-                    </div>
-                  )}
                 </>
               )}
 
-              {/* Step 4: Confirmation */}
-              {currentStep === 4 && (
-                <div className="space-y-6">
-                  <div className="bg-primary/5 border border-primary/20 rounded-lg p-5">
-                    <h3 className="font-semibold text-lg mb-4 text-foreground">Review Your Information</h3>
-                    
-                    <div className="space-y-4">
-                      {/* Customer Information */}
-                      <div>
-                        <h4 className="font-medium text-sm text-muted-foreground mb-2">Customer Details</h4>
-                        <div className="bg-card rounded-md p-4 border border-border space-y-2">
-                          <div className="grid grid-cols-2 gap-2 text-sm">
-                            <span className="text-muted-foreground">Type:</span>
-                            <span className="font-medium text-foreground">{companyMode === 'new' ? 'New Customer' : 'Existing Customer'}</span>
-                            
-                            {companyMode === 'new' && (
-                              <>
-                                <span className="text-muted-foreground">Name:</span>
-                                <span className="font-medium text-foreground">{form.getValues('name')}</span>
-                                
-                                <span className="text-muted-foreground">Email:</span>
-                                <span className="font-medium text-foreground">{form.getValues('email')}</span>
-                                
-                                <span className="text-muted-foreground">Mobile:</span>
-                                <span className="font-medium text-foreground">{form.getValues('mobile')}</span>
-                                
-                                <span className="text-muted-foreground">Company:</span>
-                                <span className="font-medium text-foreground">{form.getValues('company')}</span>
-                                
-                                <span className="text-muted-foreground">License Type:</span>
-                                <span className="font-medium text-foreground">{form.getValues('license_type')}</span>
-                                
-                                <span className="text-muted-foreground">Lead Source:</span>
-                                <span className="font-medium text-foreground">{form.getValues('lead_source')}</span>
-                              </>
-                            )}
-                          </div>
+              {/* Step 3: Confirmation */}
+              {currentStep === 3 && (
+                <>
+                  <div className="space-y-4">
+                    <div className="rounded-lg bg-muted/30 p-4">
+                      <h4 className="font-semibold text-foreground mb-3">Customer Information</h4>
+                      <dl className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">Name:</dt>
+                          <dd className="font-medium text-foreground">{form.watch('name')}</dd>
                         </div>
-                      </div>
-
-                      {/* Service Information */}
-                      <div>
-                        <h4 className="font-medium text-sm text-muted-foreground mb-2">Service Details</h4>
-                        <div className="bg-card rounded-md p-4 border border-border space-y-2">
-                          <div className="grid grid-cols-2 gap-2 text-sm">
-                            <span className="text-muted-foreground">Service:</span>
-                            <span className="font-medium text-foreground">{selectedProductName || 'Not selected'}</span>
-                            
-                            <span className="text-muted-foreground">Amount:</span>
-                            <span className="font-medium text-foreground">AED {form.getValues('amount')?.toLocaleString()}</span>
-                            
-                            {form.getValues('customer_notes') && (
-                              <>
-                                <span className="text-muted-foreground">Notes:</span>
-                                <span className="font-medium text-foreground">{form.getValues('customer_notes')}</span>
-                              </>
-                            )}
-                          </div>
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">Email:</dt>
+                          <dd className="font-medium text-foreground">{form.watch('email')}</dd>
                         </div>
-                      </div>
-
-                      {/* Additional Service Details */}
-                      {selectedProductName && (
-                        <div>
-                          <h4 className="font-medium text-sm text-muted-foreground mb-2">Additional Information</h4>
-                          <div className="bg-card rounded-md p-4 border border-border text-sm text-muted-foreground">
-                            Service-specific details have been captured
-                          </div>
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">Mobile:</dt>
+                          <dd className="font-medium text-foreground">{form.watch('mobile')}</dd>
                         </div>
-                      )}
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">Company:</dt>
+                          <dd className="font-medium text-foreground">{form.watch('company')}</dd>
+                        </div>
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">License Type:</dt>
+                          <dd className="font-medium text-foreground">{form.watch('license_type')}</dd>
+                        </div>
+                      </dl>
                     </div>
+
+                    <div className="rounded-lg bg-muted/30 p-4">
+                      <h4 className="font-semibold text-foreground mb-3">Service Information</h4>
+                      <dl className="space-y-2 text-sm">
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">Service:</dt>
+                          <dd className="font-medium text-foreground">{selectedProductName}</dd>
+                        </div>
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">Amount:</dt>
+                          <dd className="font-medium text-foreground">AED {form.watch('amount')?.toLocaleString()}</dd>
+                        </div>
+                      </dl>
+                    </div>
+
+                    <FormField
+                      control={form.control}
+                      name="customer_notes"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Additional Notes (Optional)</FormLabel>
+                          <FormControl>
+                            <Textarea 
+                              {...field}
+                              rows={4}
+                              placeholder="Add any additional information or special requirements"
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
                   </div>
-                  
-                  <div className="bg-destructive/5 border border-destructive/20 rounded-lg p-4">
-                    <p className="text-sm text-foreground">
-                      <span className="font-semibold">Important:</span> Please review all information carefully before submitting. Once submitted, this application will be processed by our team.
-                    </p>
-                  </div>
-                </div>
+                </>
               )}
             </CardContent>
           </Card>
 
-          {/* Required fields hint */}
-          {currentStep < 4 && (
-            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4 mb-4">
-              <p className="text-sm text-foreground">
-                <span className="font-medium">Required Fields:</span> Fields marked with <span className="text-destructive font-semibold">*</span> must be completed before proceeding
-              </p>
-            </div>
-          )}
-
-          {/* Navigation buttons */}
-          <div className="flex justify-between items-center gap-4 pt-2">
+          {/* Navigation Buttons */}
+          <div className="flex justify-between items-center py-4">
             <Button
               type="button"
               variant="outline"
@@ -716,11 +472,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
             <div className="flex flex-col items-center gap-1">
               <div className="text-sm font-medium text-muted-foreground">
-                Step {currentStep} of 4
+                Step {currentStep} of 3
               </div>
             </div>
 
-            {currentStep < 4 ? (
+            {currentStep < 3 ? (
               <Button
                 type="button"
                 onClick={async () => {
@@ -728,16 +484,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   let fieldsToValidate: (keyof FormData)[] = [];
                   
                   if (currentStep === 1) {
-                    if (companyMode === 'new') {
-                      fieldsToValidate = ['name', 'email', 'mobile', 'company', 'license_type', 'lead_source'];
-                    }
-                  } else if (currentStep === 2) {
                     fieldsToValidate = ['product_id', 'amount'];
                   }
                   
                   const isValid = fieldsToValidate.length === 0 || await form.trigger(fieldsToValidate);
                   if (isValid) {
-                    setCurrentStep(prev => Math.min(4, prev + 1));
+                    setCurrentStep(prev => Math.min(3, prev + 1));
                   } else {
                     toast({
                       title: "Validation Error",

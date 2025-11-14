@@ -4,7 +4,6 @@ import { useCustomer } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
 import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
 import { RequiredDocumentsSidebar } from '@/components/Customer/RequiredDocumentsSidebar';
-import { CustomerEventsSidebar } from '@/components/Customer/CustomerEventsSidebar';
 
 const CustomerNew = () => {
   const { refreshData } = useCustomer();
@@ -18,8 +17,6 @@ const CustomerNew = () => {
   const [customerMobile, setCustomerMobile] = useState<string>('');
   const [customerCompany, setCustomerCompany] = useState<string>('');
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(false);
-  const [companyMode, setCompanyMode] = useState<'new' | 'existing'>('new');
-  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
 
   const handleSuccess = () => {
     refreshData();
@@ -69,26 +66,20 @@ const CustomerNew = () => {
             onNameChange={setCustomerName}
             onMobileChange={setCustomerMobile}
             onCompanyChange={setCustomerCompany}
-            onModeChange={setCompanyMode}
-            onCustomerSelect={setSelectedCustomerId}
           />
         </div>
       </div>
       
-      {/* Conditional Sidebar - Hidden on mobile/tablet */}
+      {/* Sticky Sidebar - Hidden on mobile/tablet */}
       <div className="hidden lg:block">
-        {companyMode === 'existing' && selectedCustomerId ? (
-          <CustomerEventsSidebar customerId={selectedCustomerId} />
-        ) : (
-          <RequiredDocumentsSidebar
-            productType={getProductType()}
-            customerEmail={customerEmail}
-            customerName={customerName}
-            customerMobile={customerMobile}
-            customerCompany={customerCompany}
-            onCollapsedChange={setSidebarCollapsed}
-          />
-        )}
+        <RequiredDocumentsSidebar
+          productType={getProductType()}
+          customerEmail={customerEmail}
+          customerName={customerName}
+          customerMobile={customerMobile}
+          customerCompany={customerCompany}
+          onCollapsedChange={setSidebarCollapsed}
+        />
       </div>
 
         {/* Mobile Notice for Required Documents */}
