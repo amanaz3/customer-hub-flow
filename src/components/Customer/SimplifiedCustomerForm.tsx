@@ -497,7 +497,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 {currentStep === 4 && 'Review all information before submitting'}
               </p>
             </CardHeader>
-            <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-5">
+            <CardContent className="p-5 sm:p-7 space-y-5 sm:space-y-6">
               {/* Customer Type Selector - Always Visible */}
               <div className="transform transition-all duration-300 hover:scale-[1.01] pb-2 border-b border-gray-200">
                 <CustomerTypeSelector
@@ -615,14 +615,14 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     <div className={`transition-all duration-300 ${!companyMode ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
                       {/* Basic Info Section */}
                       <div className="space-y-3 pt-3">
-                        <div className="rounded-lg border-2 border-border bg-gradient-to-br from-blue-50/50 via-blue-50/30 to-transparent dark:from-blue-950/20 dark:via-blue-950/10 dark:to-transparent p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-[1.01]">
-                          <div className="flex items-center gap-2 mb-3 group">
-                            <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div className="rounded-lg border-2 border-gray-300 bg-gradient-to-br from-gray-50 via-white to-gray-50 p-5 shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.01]">
+                          <div className="flex items-center gap-2 mb-4 group">
+                            <div className="w-9 h-9 rounded-lg bg-blue-600 flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                               </svg>
                             </div>
-                            <h3 className="text-sm font-bold text-foreground tracking-tight">Basic Info</h3>
+                            <h3 className="text-base font-bold text-gray-900 tracking-tight">Basic Info</h3>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                             <FormField
@@ -636,7 +636,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 
                                 return (
                                   <FormItem className="relative">
-                                    <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Full Name *</FormLabel>
+                                    <FormLabel className="text-sm font-bold text-gray-900 ml-1 mb-2">Full Name *</FormLabel>
                                     <FormControl>
                                       <div className="relative group">
                                         <Input 
@@ -646,13 +646,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                             onNameChange?.(e.target.value);
                                           }}
                                           placeholder="John Doe"
-                                          className="h-11 text-sm pl-10 pr-11 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
-                                            focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01] 
-                                            hover:border-primary/50 hover:bg-background/80
+                                          className="h-12 text-base pl-11 pr-11 border-2 border-gray-300 bg-white rounded-lg
+                                            focus:border-blue-600 focus:ring-4 focus:ring-blue-100 focus:scale-[1.01] 
+                                            hover:border-gray-400
                                             transition-all duration-300 
-                                            placeholder:text-muted-foreground/50"
+                                            placeholder:text-gray-400 font-medium"
                                         />
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-blue-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
                                         </svg>
                                         <ValidationIcon isValid={isValid} isError={isError} show={hasValue} />
@@ -810,7 +810,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                   
                                   return (
                                     <FormItem className="md:col-span-2 relative animate-fade-in">
-                                      <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Company Name *</FormLabel>
+                                      <FormLabel className="text-sm font-bold text-gray-900 ml-1 mb-2">Company Name *</FormLabel>
                                       <FormControl>
                                         <div className="relative group">
                                           <Input 
@@ -820,13 +820,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                               onCompanyChange?.(e.target.value);
                                             }}
                                             placeholder="ABC Trading LLC"
-                                            className="h-11 text-sm pl-10 pr-11 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
-                                              focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
-                                              hover:border-primary/50 hover:bg-background/80
+                                            className="h-12 text-base pl-11 pr-11 border-2 border-gray-300 bg-white rounded-lg font-medium
+                                              focus:border-blue-600 focus:ring-4 focus:ring-blue-100 focus:scale-[1.01]
+                                              hover:border-gray-400
                                               transition-all duration-300
-                                              placeholder:text-muted-foreground/50"
+                                              placeholder:text-gray-400"
                                           />
-                                          <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3.5 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-500 group-focus-within:text-blue-600 transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                                           </svg>
                                           <ValidationIcon isValid={isValid} isError={isError} show={hasValue} />
@@ -842,14 +842,14 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         </div>
 
                         {/* Channel Info Section */}
-                        <div className="rounded-lg border-2 border-border bg-gradient-to-br from-purple-50/50 via-purple-50/30 to-transparent dark:from-purple-950/20 dark:via-purple-950/10 dark:to-transparent p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-[1.01]">
-                          <div className="flex items-center gap-2 mb-3 group">
-                            <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <div className="rounded-lg border-2 border-gray-300 bg-gradient-to-br from-gray-50 via-white to-gray-50 p-5 shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.01]">
+                          <div className="flex items-center gap-2 mb-4 group">
+                            <div className="w-9 h-9 rounded-lg bg-purple-600 flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
                               </svg>
                             </div>
-                            <h3 className="text-sm font-bold text-foreground tracking-tight">Channel Info</h3>
+                            <h3 className="text-base font-bold text-gray-900 tracking-tight">Channel Info</h3>
                           </div>
                           <FormField
                             control={form.control}
@@ -963,15 +963,15 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     name="product_id"
                     render={({ field }) => (
                       <FormItem className="md:col-span-2 relative">
-                        <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Select Service *</FormLabel>
+                        <FormLabel className="text-sm font-bold text-gray-900 ml-1 mb-2">Select Service *</FormLabel>
                         <Select onValueChange={(value) => {
                           field.onChange(value);
                           handleProductChange(value);
                         }} value={field.value}>
                           <FormControl>
-                            <SelectTrigger className="h-12 text-sm border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
-                              focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background
-                              hover:border-primary/50 hover:bg-background/80
+                            <SelectTrigger className="h-12 text-base border-2 border-gray-300 bg-white rounded-lg font-medium
+                              focus:border-blue-600 focus:ring-4 focus:ring-blue-100
+                              hover:border-gray-400
                               transition-all duration-300">
                               <SelectValue placeholder="🎯 Choose a service" />
                             </SelectTrigger>
@@ -1097,14 +1097,14 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   
                   {/* Service Details Card */}
                   <div className="space-y-3 pt-3">
-                    <div className="rounded-lg border-2 border-border bg-gradient-to-br from-purple-50/50 via-purple-50/30 to-transparent dark:from-purple-950/20 dark:via-purple-950/10 dark:to-transparent p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-[1.01]">
-                      <div className="flex items-center gap-2 mb-3 group">
-                        <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <div className="rounded-lg border-2 border-gray-300 bg-gradient-to-br from-gray-50 via-white to-gray-50 p-5 shadow-md transition-all duration-300 hover:shadow-lg hover:scale-[1.01]">
+                      <div className="flex items-center gap-2 mb-4 group">
+                        <div className="w-9 h-9 rounded-lg bg-purple-600 flex items-center justify-center shadow-md transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                           </svg>
                         </div>
-                        <h3 className="text-sm font-bold text-foreground tracking-tight">Service Details</h3>
+                        <h3 className="text-base font-bold text-gray-900 tracking-tight">Service Details</h3>
                       </div>
                       {renderProductFields()}
                     </div>
@@ -1186,28 +1186,28 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   </div>
                   
                   <div className="space-y-4">
-                    <div className="rounded-lg bg-muted/30 p-4">
-                      <h4 className="font-semibold text-foreground mb-3">Customer Information</h4>
-                      <dl className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <dt className="text-muted-foreground">Name:</dt>
-                          <dd className="font-medium text-foreground">{form.watch('name')}</dd>
+                    <div className="rounded-lg bg-blue-50 border-2 border-blue-200 p-5 shadow-sm">
+                      <h4 className="font-bold text-gray-900 mb-4 text-base">Customer Information</h4>
+                      <dl className="space-y-3 text-sm">
+                        <div className="flex justify-between items-center py-2 border-b border-blue-100">
+                          <dt className="text-gray-600 font-medium">Name:</dt>
+                          <dd className="font-semibold text-gray-900">{form.watch('name')}</dd>
                         </div>
-                        <div className="flex justify-between">
-                          <dt className="text-muted-foreground">Email:</dt>
-                          <dd className="font-medium text-foreground">{form.watch('email')}</dd>
+                        <div className="flex justify-between items-center py-2 border-b border-blue-100">
+                          <dt className="text-gray-600 font-medium">Email:</dt>
+                          <dd className="font-semibold text-gray-900">{form.watch('email')}</dd>
                         </div>
-                        <div className="flex justify-between">
-                          <dt className="text-muted-foreground">Mobile:</dt>
-                          <dd className="font-medium text-foreground">{form.watch('mobile')}</dd>
+                        <div className="flex justify-between items-center py-2 border-b border-blue-100">
+                          <dt className="text-gray-600 font-medium">Mobile:</dt>
+                          <dd className="font-semibold text-gray-900">{form.watch('mobile')}</dd>
                         </div>
-                        <div className="flex justify-between">
-                          <dt className="text-muted-foreground">Customer Type:</dt>
-                          <dd className="font-medium text-foreground capitalize">{form.watch('customer_type')}</dd>
+                        <div className="flex justify-between items-center py-2 border-b border-blue-100">
+                          <dt className="text-gray-600 font-medium">Customer Type:</dt>
+                          <dd className="font-semibold text-gray-900 capitalize">{form.watch('customer_type')}</dd>
                         </div>
-                        <div className="flex justify-between">
-                          <dt className="text-muted-foreground">Country of Residence:</dt>
-                          <dd className="font-medium text-foreground">{form.watch('country_of_residence')}</dd>
+                        <div className="flex justify-between items-center py-2 border-b border-blue-100">
+                          <dt className="text-gray-600 font-medium">Country of Residence:</dt>
+                          <dd className="font-semibold text-gray-900">{form.watch('country_of_residence')}</dd>
                         </div>
                         {form.watch('customer_type') === 'company' && form.watch('company') && (
                           <div className="flex justify-between">
@@ -1222,16 +1222,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       </dl>
                     </div>
 
-                    <div className="rounded-lg bg-muted/30 p-4">
-                      <h4 className="font-semibold text-foreground mb-3">Service Information</h4>
-                      <dl className="space-y-2 text-sm">
-                        <div className="flex justify-between">
-                          <dt className="text-muted-foreground">Service:</dt>
-                          <dd className="font-medium text-foreground">{selectedProductName}</dd>
+                    <div className="rounded-lg bg-green-50 border-2 border-green-200 p-5 shadow-sm">
+                      <h4 className="font-bold text-gray-900 mb-4 text-base">Service Information</h4>
+                      <dl className="space-y-3 text-sm">
+                        <div className="flex justify-between items-center py-2 border-b border-green-100">
+                          <dt className="text-gray-600 font-medium">Service:</dt>
+                          <dd className="font-semibold text-gray-900">{selectedProductName}</dd>
                         </div>
-                        <div className="flex justify-between">
-                          <dt className="text-muted-foreground">Amount:</dt>
-                          <dd className="font-medium text-foreground">AED {form.watch('amount')?.toLocaleString()}</dd>
+                        <div className="flex justify-between items-center py-2 border-b border-green-100">
+                          <dt className="text-gray-600 font-medium">Amount:</dt>
+                          <dd className="font-semibold text-gray-900">AED {form.watch('amount')?.toLocaleString()}</dd>
                         </div>
                       </dl>
                     </div>
@@ -1241,12 +1241,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       name="customer_notes"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Additional Notes (Optional)</FormLabel>
+                          <FormLabel className="text-sm font-bold text-gray-900">Additional Notes (Optional)</FormLabel>
                           <FormControl>
                             <Textarea 
                               {...field}
                               rows={4}
                               placeholder="Add any additional information or special requirements"
+                              className="border-2 border-gray-300 bg-white text-base font-medium focus:border-blue-600 focus:ring-4 focus:ring-blue-100"
                             />
                           </FormControl>
                           <FormMessage />
@@ -1272,7 +1273,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             variant="outline"
             onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
             disabled={isSubmitting}
-            className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 bg-background border-2 border-border"
+            className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 bg-white border-2 border-gray-300 hover:border-blue-600 text-gray-700 hover:text-blue-600"
             title="Previous Step"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -1296,7 +1297,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               }
             }}
             disabled={isSubmitting}
-            className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 bg-primary text-primary-foreground"
+            className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 bg-blue-600 hover:bg-blue-700 text-white"
             title="Next Step"
           >
             <ArrowRight className="h-5 w-5" />
@@ -1309,7 +1310,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           size="icon"
           onClick={saveDraft}
           disabled={isSubmitting}
-          className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 bg-green-600 hover:bg-green-700 text-white"
+          className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 bg-blue-600 hover:bg-blue-700 text-white"
           title="Save Draft"
         >
           <Save className="h-6 w-6" />
