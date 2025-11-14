@@ -336,14 +336,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {currentStep === 1 && (
                 <>
                   <div className="space-y-5 pb-8 mb-8 border-b-2">
-                    <div className="space-y-3">
-                      <FormLabel className="text-lg font-semibold flex items-center gap-2">
-                        🏢 Company Selection
-                      </FormLabel>
-                      <p className="text-sm text-muted-foreground leading-relaxed">
-                        Choose whether this is a new company or an application for an existing customer
-                      </p>
-                    </div>
                     <RadioGroup
                       value={companyMode}
                       onValueChange={(value: 'new' | 'existing') => setCompanyMode(value)}
