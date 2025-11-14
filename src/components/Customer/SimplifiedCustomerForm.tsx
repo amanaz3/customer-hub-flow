@@ -481,16 +481,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           className="w-full"
         >
           <Card 
-            className="border border-border bg-card shadow-[0_2px_12px_-3px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.12)] transition-shadow duration-300"
+            className="border border-gray-800 bg-black text-white shadow-[0_2px_12px_-3px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.12)] transition-shadow duration-300"
           >
-            <CardHeader className="border-b border-border pb-2 sm:pb-3 bg-gradient-to-r from-primary/5 via-primary/3 to-transparent px-4 sm:px-6 py-2 sm:py-3">
-              <CardTitle className="text-sm sm:text-base font-bold text-foreground tracking-tight">
+            <CardHeader className="border-b border-gray-800 pb-2 sm:pb-3 bg-gradient-to-r from-blue-600/10 via-blue-600/5 to-transparent px-4 sm:px-6 py-2 sm:py-3">
+              <CardTitle className="text-sm sm:text-base font-bold text-white tracking-tight">
                 {currentStep === 1 && 'Customer Selection'}
                 {currentStep === 2 && 'Service Selection'}
                 {currentStep === 3 && 'Service Details'}
                 {currentStep === 4 && 'Confirmation'}
               </CardTitle>
-              <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 font-medium">
+              <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5 font-medium">
                 {currentStep === 1 && 'Choose customer type and provide customer information'}
                 {currentStep === 2 && 'Select the service and specify the application amount'}
                 {currentStep === 3 && 'Provide additional details specific to the selected service'}
@@ -499,7 +499,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             </CardHeader>
             <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-5">
               {/* Customer Type Selector - Always Visible */}
-              <div className="transform transition-all duration-300 hover:scale-[1.01] pb-2 border-b border-border">
+              <div className="transform transition-all duration-300 hover:scale-[1.01] pb-2 border-b border-gray-800">
                 <CustomerTypeSelector
                   value={companyMode ? 'existing' : 'new'}
                   onChange={(value) => {
@@ -526,7 +526,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   
                   {/* Tab-Style Wizard - Positioned after customer selector */}
                   <div className="w-full">
-                    <div className="flex items-center bg-card shadow-sm rounded-lg overflow-hidden">
+                    <div className="flex items-center bg-gray-900 shadow-sm rounded-lg overflow-hidden">
                       {stepLabels.map((label, index) => {
                         const stepNumber = index + 1;
                         const isActive = currentStep === stepNumber;
@@ -538,10 +538,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             key={stepNumber}
                             className={`flex-1 relative transition-all duration-500 ${
                               isActive 
-                                ? 'bg-primary text-primary-foreground shadow-lg scale-105 z-10' 
+                                ? 'bg-blue-600 text-white shadow-lg scale-105 z-10' 
                                 : isCompleted 
-                                ? 'bg-primary/10 text-primary hover:bg-primary/20' 
-                                : 'bg-muted/30 text-muted-foreground'
+                                ? 'bg-blue-600/20 text-blue-400 hover:bg-blue-600/30' 
+                                : 'bg-gray-800 text-gray-400'
                             } ${!isLast ? 'mr-3' : ''}`}
                             style={{
                               clipPath: index === 0
@@ -553,7 +553,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                           >
                             {/* Highlight pulse effect for active step */}
                             {isActive && (
-                              <div className="absolute inset-0 animate-pulse bg-primary/20" 
+                              <div className="absolute inset-0 animate-pulse bg-blue-400/20"
                                 style={{
                                   clipPath: index === 0
                                     ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
@@ -567,10 +567,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             <div className="flex items-center gap-2 px-3 py-2 relative z-10">
                               <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full font-bold text-xs transition-all duration-500 ${
                                 isActive 
-                                  ? 'bg-primary-foreground text-primary shadow-md animate-scale-in' 
+                                  ? 'bg-white text-blue-600 shadow-md animate-scale-in' 
                                   : isCompleted 
-                                  ? 'bg-primary text-primary-foreground' 
-                                  : 'bg-background text-muted-foreground'
+                                  ? 'bg-blue-600 text-white' 
+                                  : 'bg-gray-700 text-gray-400'
                               }`}>
                                 {isCompleted ? (
                                   <Check className="w-4 h-4 stroke-[3] animate-fade-in" />
