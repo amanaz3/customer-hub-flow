@@ -526,7 +526,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   
                   {/* Tab-Style Wizard - Positioned after customer selector */}
                   <div className="w-full">
-                    <div className="flex items-center bg-card shadow-sm">
+                    <div className="flex items-center bg-card shadow-sm rounded-lg overflow-hidden">
                       {stepLabels.map((label, index) => {
                         const stepNumber = index + 1;
                         const isActive = currentStep === stepNumber;
@@ -536,9 +536,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         return (
                           <div
                             key={stepNumber}
-                            className={`flex-1 relative transition-all duration-300 ${
+                            className={`flex-1 relative transition-all duration-500 ${
                               isActive 
-                                ? 'bg-primary text-primary-foreground' 
+                                ? 'bg-primary text-primary-foreground shadow-lg scale-105 z-10' 
                                 : isCompleted 
                                 ? 'bg-primary/10 text-primary hover:bg-primary/20' 
                                 : 'bg-muted/30 text-muted-foreground'
@@ -551,23 +551,38 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
                             }}
                           >
-                            <div className="flex items-center gap-2 px-3 py-2">
-                              <div className={`flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full font-bold text-xs transition-all duration-300 ${
+                            {/* Highlight pulse effect for active step */}
+                            {isActive && (
+                              <div className="absolute inset-0 animate-pulse bg-primary/20" 
+                                style={{
+                                  clipPath: !isLast 
+                                    ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%)' 
+                                    : index > 0 
+                                    ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)'
+                                    : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
+                                }}
+                              />
+                            )}
+                            
+                            <div className="flex items-center gap-2 px-3 py-2 relative z-10">
+                              <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full font-bold text-xs transition-all duration-500 ${
                                 isActive 
-                                  ? 'bg-primary-foreground text-primary' 
+                                  ? 'bg-primary-foreground text-primary shadow-md animate-scale-in' 
                                   : isCompleted 
                                   ? 'bg-primary text-primary-foreground' 
                                   : 'bg-background text-muted-foreground'
                               }`}>
                                 {isCompleted ? (
-                                  <Check className="w-3 h-3 stroke-[3]" />
+                                  <Check className="w-4 h-4 stroke-[3] animate-fade-in" />
                                 ) : (
-                                  stepNumber
+                                  <span className={isActive ? 'animate-scale-in' : ''}>
+                                    {stepNumber}
+                                  </span>
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className={`font-semibold text-xs truncate transition-all duration-300 ${
-                                  isActive ? 'scale-105' : 'scale-100'
+                                <div className={`font-semibold text-xs truncate transition-all duration-500 ${
+                                  isActive ? 'scale-110 font-bold' : 'scale-100'
                                 }`}>
                                   {label.title}
                                 </div>
@@ -874,7 +889,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 <div key="step-2" className="animate-fade-in space-y-4">
                   {/* Tab-Style Wizard */}
                   <div className="w-full">
-                    <div className="flex items-center bg-card shadow-sm">
+                    <div className="flex items-center bg-card shadow-sm rounded-lg overflow-hidden">
                       {stepLabels.map((label, index) => {
                         const stepNumber = index + 1;
                         const isActive = currentStep === stepNumber;
@@ -884,9 +899,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         return (
                           <div
                             key={stepNumber}
-                            className={`flex-1 relative transition-all duration-300 ${
+                            className={`flex-1 relative transition-all duration-500 ${
                               isActive 
-                                ? 'bg-primary text-primary-foreground' 
+                                ? 'bg-primary text-primary-foreground shadow-lg scale-105 z-10' 
                                 : isCompleted 
                                 ? 'bg-primary/10 text-primary hover:bg-primary/20' 
                                 : 'bg-muted/30 text-muted-foreground'
@@ -899,23 +914,38 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
                             }}
                           >
-                            <div className="flex items-center gap-2 px-3 py-2">
-                              <div className={`flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full font-bold text-xs transition-all duration-300 ${
+                            {/* Highlight pulse effect for active step */}
+                            {isActive && (
+                              <div className="absolute inset-0 animate-pulse bg-primary/20" 
+                                style={{
+                                  clipPath: !isLast 
+                                    ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%)' 
+                                    : index > 0 
+                                    ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)'
+                                    : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
+                                }}
+                              />
+                            )}
+                            
+                            <div className="flex items-center gap-2 px-3 py-2 relative z-10">
+                              <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full font-bold text-xs transition-all duration-500 ${
                                 isActive 
-                                  ? 'bg-primary-foreground text-primary' 
+                                  ? 'bg-primary-foreground text-primary shadow-md animate-scale-in' 
                                   : isCompleted 
                                   ? 'bg-primary text-primary-foreground' 
                                   : 'bg-background text-muted-foreground'
                               }`}>
                                 {isCompleted ? (
-                                  <Check className="w-3 h-3 stroke-[3]" />
+                                  <Check className="w-4 h-4 stroke-[3] animate-fade-in" />
                                 ) : (
-                                  stepNumber
+                                  <span className={isActive ? 'animate-scale-in' : ''}>
+                                    {stepNumber}
+                                  </span>
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className={`font-semibold text-xs truncate transition-all duration-300 ${
-                                  isActive ? 'scale-105' : 'scale-100'
+                                <div className={`font-semibold text-xs truncate transition-all duration-500 ${
+                                  isActive ? 'scale-110 font-bold' : 'scale-100'
                                 }`}>
                                   {label.title}
                                 </div>
@@ -997,7 +1027,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 <div key="step-3" className="animate-fade-in space-y-4">
                   {/* Tab-Style Wizard */}
                   <div className="w-full">
-                    <div className="flex items-center bg-card shadow-sm">
+                    <div className="flex items-center bg-card shadow-sm rounded-lg overflow-hidden">
                       {stepLabels.map((label, index) => {
                         const stepNumber = index + 1;
                         const isActive = currentStep === stepNumber;
@@ -1007,9 +1037,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         return (
                           <div
                             key={stepNumber}
-                            className={`flex-1 relative transition-all duration-300 ${
+                            className={`flex-1 relative transition-all duration-500 ${
                               isActive 
-                                ? 'bg-primary text-primary-foreground' 
+                                ? 'bg-primary text-primary-foreground shadow-lg scale-105 z-10' 
                                 : isCompleted 
                                 ? 'bg-primary/10 text-primary hover:bg-primary/20' 
                                 : 'bg-muted/30 text-muted-foreground'
@@ -1022,23 +1052,38 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
                             }}
                           >
-                            <div className="flex items-center gap-2 px-3 py-2">
-                              <div className={`flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full font-bold text-xs transition-all duration-300 ${
+                            {/* Highlight pulse effect for active step */}
+                            {isActive && (
+                              <div className="absolute inset-0 animate-pulse bg-primary/20" 
+                                style={{
+                                  clipPath: !isLast 
+                                    ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%)' 
+                                    : index > 0 
+                                    ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)'
+                                    : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
+                                }}
+                              />
+                            )}
+                            
+                            <div className="flex items-center gap-2 px-3 py-2 relative z-10">
+                              <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full font-bold text-xs transition-all duration-500 ${
                                 isActive 
-                                  ? 'bg-primary-foreground text-primary' 
+                                  ? 'bg-primary-foreground text-primary shadow-md animate-scale-in' 
                                   : isCompleted 
                                   ? 'bg-primary text-primary-foreground' 
                                   : 'bg-background text-muted-foreground'
                               }`}>
                                 {isCompleted ? (
-                                  <Check className="w-3 h-3 stroke-[3]" />
+                                  <Check className="w-4 h-4 stroke-[3] animate-fade-in" />
                                 ) : (
-                                  stepNumber
+                                  <span className={isActive ? 'animate-scale-in' : ''}>
+                                    {stepNumber}
+                                  </span>
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className={`font-semibold text-xs truncate transition-all duration-300 ${
-                                  isActive ? 'scale-105' : 'scale-100'
+                                <div className={`font-semibold text-xs truncate transition-all duration-500 ${
+                                  isActive ? 'scale-110 font-bold' : 'scale-100'
                                 }`}>
                                   {label.title}
                                 </div>
@@ -1072,7 +1117,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 <div key="step-4" className="animate-fade-in space-y-4">
                   {/* Tab-Style Wizard */}
                   <div className="w-full">
-                    <div className="flex items-center bg-card shadow-sm">
+                    <div className="flex items-center bg-card shadow-sm rounded-lg overflow-hidden">
                       {stepLabels.map((label, index) => {
                         const stepNumber = index + 1;
                         const isActive = currentStep === stepNumber;
@@ -1082,9 +1127,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         return (
                           <div
                             key={stepNumber}
-                            className={`flex-1 relative transition-all duration-300 ${
+                            className={`flex-1 relative transition-all duration-500 ${
                               isActive 
-                                ? 'bg-primary text-primary-foreground' 
+                                ? 'bg-primary text-primary-foreground shadow-lg scale-105 z-10' 
                                 : isCompleted 
                                 ? 'bg-primary/10 text-primary hover:bg-primary/20' 
                                 : 'bg-muted/30 text-muted-foreground'
@@ -1097,23 +1142,38 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
                             }}
                           >
-                            <div className="flex items-center gap-2 px-3 py-2">
-                              <div className={`flex-shrink-0 flex items-center justify-center w-5 h-5 rounded-full font-bold text-xs transition-all duration-300 ${
+                            {/* Highlight pulse effect for active step */}
+                            {isActive && (
+                              <div className="absolute inset-0 animate-pulse bg-primary/20" 
+                                style={{
+                                  clipPath: !isLast 
+                                    ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%)' 
+                                    : index > 0 
+                                    ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)'
+                                    : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
+                                }}
+                              />
+                            )}
+                            
+                            <div className="flex items-center gap-2 px-3 py-2 relative z-10">
+                              <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full font-bold text-xs transition-all duration-500 ${
                                 isActive 
-                                  ? 'bg-primary-foreground text-primary' 
+                                  ? 'bg-primary-foreground text-primary shadow-md animate-scale-in' 
                                   : isCompleted 
                                   ? 'bg-primary text-primary-foreground' 
                                   : 'bg-background text-muted-foreground'
                               }`}>
                                 {isCompleted ? (
-                                  <Check className="w-3 h-3 stroke-[3]" />
+                                  <Check className="w-4 h-4 stroke-[3] animate-fade-in" />
                                 ) : (
-                                  stepNumber
+                                  <span className={isActive ? 'animate-scale-in' : ''}>
+                                    {stepNumber}
+                                  </span>
                                 )}
                               </div>
                               <div className="flex-1 min-w-0">
-                                <div className={`font-semibold text-xs truncate transition-all duration-300 ${
-                                  isActive ? 'scale-105' : 'scale-100'
+                                <div className={`font-semibold text-xs truncate transition-all duration-500 ${
+                                  isActive ? 'scale-110 font-bold' : 'scale-100'
                                 }`}>
                                   {label.title}
                                 </div>
