@@ -224,4 +224,22 @@
   .shadow-elegant {
     box-shadow: var(--shadow-elegant);
   }
+
+  /* Glow pulse animation */
+  @keyframes glow-pulse {
+    0%, 100% {
+      box-shadow: 0 0 40px rgba(59, 130, 246, 0.4),
+                  0 0 80px rgba(59, 130, 246, 0.2),
+                  0 20px 60px -15px rgba(0, 0, 0, 0.3);
+    }
+    50% {
+      box-shadow: 0 0 60px rgba(59, 130, 246, 0.6),
+                  0 0 100px rgba(59, 130, 246, 0.3),
+                  0 20px 60px -15px rgba(0, 0, 0, 0.3);
+    }
+  }
+
+  .animate-glow-pulse {
+    animation: glow-pulse 2s ease-in-out infinite;
+  }
 }

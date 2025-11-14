@@ -81,6 +81,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [selectedProductName, setSelectedProductName] = useState<string>('');
   const [companyMode, setCompanyMode] = useState<'new' | 'existing'>('new');
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [isFormFocused, setIsFormFocused] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -311,11 +312,21 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       </div>
 
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <Card className="border-2 shadow-2xl overflow-hidden animate-fade-in transform hover:scale-[1.01] transition-transform duration-300" style={{
-            boxShadow: '0 20px 60px -15px rgba(0, 0, 0, 0.3), 0 10px 20px -10px rgba(0, 0, 0, 0.2)',
-            transform: 'perspective(1000px) rotateX(2deg)',
-          }}>
+        <form 
+          onSubmit={form.handleSubmit(onSubmit)} 
+          className="space-y-8"
+          onFocus={() => setIsFormFocused(true)}
+          onBlur={() => setIsFormFocused(false)}
+        >
+          <Card 
+            className={`border-2 overflow-hidden animate-fade-in transform hover:scale-[1.01] transition-all duration-500 ${
+              isFormFocused ? 'ring-4 ring-primary/30 animate-glow-pulse border-primary/50' : 'shadow-2xl'
+            }`}
+            style={{
+              transform: 'perspective(1000px) rotateX(2deg)',
+              transition: 'all 0.5s ease',
+            }}
+          >
             <CardHeader className="bg-gradient-subtle border-b-2 pb-6">
               <CardTitle className="text-2xl font-bold">
                 {currentStep === 1 && '👤 Customer Information'}
