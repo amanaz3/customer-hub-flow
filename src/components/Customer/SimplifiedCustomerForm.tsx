@@ -274,33 +274,44 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   return (
     <div className="w-full flex flex-col items-center">
       {/* Enhanced Progress indicator */}
-      <div className="mb-4 sm:mb-6 bg-gradient-to-br from-card via-card to-primary/5 rounded-xl p-3 sm:p-4 border border-border/50 w-full shadow-[0_4px_12px_-2px_rgba(0,0,0,0.08)]">
-        <div className="flex items-center justify-between mb-3 sm:mb-4">
+      <div className="mb-4 sm:mb-6 bg-gradient-to-br from-card via-muted/30 to-primary/5 rounded-xl p-4 sm:p-5 border border-border/50 w-full shadow-[0_4px_16px_-2px_rgba(0,0,0,0.12)] backdrop-blur-sm">
+        <div className="flex items-center justify-between mb-4 sm:mb-5">
           {[1, 2, 3, 4].map((step) => (
             <div key={step} className="flex items-center flex-1">
-              <div className="flex flex-col items-center flex-1">
+              <div className="flex flex-col items-center flex-1 group">
                 <div 
-                  className={`flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 transition-all duration-300 ${
+                  className={`relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 rounded-full border-3 transition-all duration-500 ${
                     currentStep >= step 
-                      ? 'border-primary bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-[0_2px_8px_rgba(59,130,246,0.3)]' 
-                      : 'border-border bg-background text-muted-foreground hover:border-primary/30'
-                  } ${currentStep === step ? 'scale-110 ring-4 ring-primary/20 animate-pulse' : ''}`}
+                      ? 'border-primary bg-gradient-to-br from-primary via-primary/90 to-primary/70 text-primary-foreground shadow-[0_4px_20px_rgba(59,130,246,0.5)]' 
+                      : 'border-border/60 bg-gradient-to-br from-background to-muted/30 text-muted-foreground hover:border-primary/40 hover:scale-105'
+                  } ${currentStep === step ? 'scale-[1.2] ring-4 ring-primary/30 animate-pulse shadow-[0_0_24px_rgba(59,130,246,0.6)]' : ''}`}
                   aria-current={currentStep === step ? 'step' : undefined}
                   aria-label={`Step ${step}: ${stepLabels[step - 1].title}`}
                 >
                   {currentStep > step ? (
-                    <Check className="w-4 h-4 animate-scale-in" />
+                    <>
+                      <Check className="w-5 h-5 sm:w-6 sm:h-6 animate-scale-in font-bold stroke-[3]" />
+                      <div className="absolute inset-0 rounded-full bg-gradient-to-br from-white/20 to-transparent animate-[shimmer_1.5s_ease-in-out]" />
+                    </>
                   ) : (
-                    <span className="text-xs sm:text-sm font-bold">{step}</span>
+                    <span className="text-sm sm:text-base font-bold z-10">{step}</span>
+                  )}
+                  {currentStep === step && (
+                    <div className="absolute inset-0 rounded-full bg-gradient-to-br from-primary/50 via-transparent to-transparent animate-[ping_1.5s_ease-in-out_infinite] opacity-75" />
                   )}
                 </div>
               </div>
               {step < 4 && (
-                <div className={`flex-1 h-1 mx-1.5 sm:mx-2 rounded-full transition-all duration-500 relative overflow-hidden ${
-                  currentStep > step ? 'bg-gradient-to-r from-primary to-primary/60' : 'bg-border'
+                <div className={`flex-1 h-2 mx-2 sm:mx-3 rounded-full transition-all duration-700 relative overflow-hidden ${
+                  currentStep > step 
+                    ? 'bg-gradient-to-r from-primary via-primary/80 to-primary/60 shadow-[0_2px_12px_rgba(59,130,246,0.4)]' 
+                    : 'bg-gradient-to-r from-border/40 to-border/20'
                 }`}>
                   {currentStep > step && (
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent animate-[shimmer_2s_ease-in-out_infinite]" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-[shimmer_2s_ease-in-out_infinite]" />
+                  )}
+                  {currentStep === step && (
+                    <div className="absolute inset-0 bg-gradient-to-r from-primary/60 via-primary/40 to-transparent w-1/2 animate-[slide-in-right_0.8s_ease-out]" />
                   )}
                 </div>
               )}
@@ -309,14 +320,18 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         </div>
         <div className="hidden sm:flex items-start">
           {stepLabels.map((label, index) => (
-            <div key={index} className="flex-1 flex flex-col items-center text-center px-1">
-              <div className={`font-bold text-xs transition-all ${
-                currentStep >= index + 1 ? 'text-foreground' : 'text-muted-foreground'
-              }`}>
+            <div key={index} className="flex-1 flex flex-col items-center text-center px-1 transition-all duration-300">
+              <div className={`font-bold text-xs sm:text-sm transition-all duration-300 ${
+                currentStep >= index + 1 
+                  ? 'text-foreground scale-105' 
+                  : 'text-muted-foreground scale-100'
+              } ${currentStep === index + 1 ? 'text-primary' : ''}`}>
                 {label.title}
               </div>
-              <div className={`text-[10px] mt-0.5 transition-all ${
-                currentStep >= index + 1 ? 'text-muted-foreground' : 'text-muted-foreground/60'
+              <div className={`text-[10px] sm:text-xs mt-1 transition-all duration-300 ${
+                currentStep >= index + 1 
+                  ? 'text-muted-foreground opacity-100' 
+                  : 'text-muted-foreground/60 opacity-70'
               }`}>
                 {label.desc}
               </div>
