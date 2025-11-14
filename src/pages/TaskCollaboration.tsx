@@ -590,7 +590,7 @@ const TaskCollaboration: React.FC = () => {
     
     let matchesStatus = true;
     if (caseStatusFilter === 'active') {
-      matchesStatus = !['complete', 'rejected'].includes(app.status);
+      matchesStatus = !['completed', 'complete', 'paid', 'rejected'].includes(app.status.toLowerCase());
     } else if (caseStatusFilter === 'all') {
       matchesStatus = true;
     } else {
