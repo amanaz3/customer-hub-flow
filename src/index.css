@@ -20,12 +20,12 @@
     --primary-foreground: 0 0% 100%;
 
     /* Light grey secondary for inactive states */
-    --secondary: 0 0% 96%;
-    --secondary-foreground: 0 0% 45%;
+    --secondary: 0 0% 88%;
+    --secondary-foreground: 0 0% 35%;
 
     /* Subtle muted areas */
     --muted: 0 0% 97%;
-    --muted-foreground: 0 0% 45%;
+    --muted-foreground: 0 0% 35%;
 
     /* Blue accent for highlights */
     --accent: 217 91% 60%;
@@ -33,10 +33,14 @@
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
+    
+    /* Success state for completed items */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
 
     /* Light, clean borders */
     --border: 0 0% 90%;
-    --input: 0 0% 90%;
+    --input: 0 0% 88%;
     --ring: 217 91% 60%;
 
     --radius: 0.5rem;
