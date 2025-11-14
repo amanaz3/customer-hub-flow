@@ -258,9 +258,14 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   ];
 
   return (
-    <div className="max-w-4xl mx-auto">
+    <div className="max-w-4xl mx-auto" style={{
+      perspective: '2000px'
+    }}>
       {/* Progress indicator */}
-      <div className="mb-10 bg-gradient-to-br from-card to-card/50 rounded-2xl p-8 border-2 shadow-lg animate-fade-in">
+      <div className="mb-10 bg-gradient-to-br from-card to-card/50 rounded-2xl p-8 border-2 animate-fade-in" style={{
+        boxShadow: '0 15px 40px -10px rgba(0, 0, 0, 0.25), 0 8px 16px -8px rgba(0, 0, 0, 0.15)',
+        transform: 'translateZ(20px)',
+      }}>
         <div className="flex items-center justify-between mb-6">
           {[1, 2, 3].map((step) => (
             <div key={step} className="flex items-center flex-1">
@@ -307,7 +312,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-          <Card className="border-2 shadow-lg overflow-hidden animate-fade-in">
+          <Card className="border-2 shadow-2xl overflow-hidden animate-fade-in transform hover:scale-[1.01] transition-transform duration-300" style={{
+            boxShadow: '0 20px 60px -15px rgba(0, 0, 0, 0.3), 0 10px 20px -10px rgba(0, 0, 0, 0.2)',
+            transform: 'perspective(1000px) rotateX(2deg)',
+          }}>
             <CardHeader className="bg-gradient-subtle border-b-2 pb-6">
               <CardTitle className="text-2xl font-bold">
                 {currentStep === 1 && '👤 Customer Information'}
@@ -320,7 +328,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 {currentStep === 3 && 'Provide additional details specific to the selected service'}
               </p>
             </CardHeader>
-            <CardContent className="space-y-6 p-8">
+            <CardContent className="space-y-6 p-8" style={{
+              background: 'linear-gradient(to bottom, hsl(var(--card)) 0%, hsl(var(--card) / 0.98) 100%)'
+            }}>
               {/* Step 1: Customer Information */}
               {currentStep === 1 && (
                 <>
