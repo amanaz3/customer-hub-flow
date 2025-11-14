@@ -117,7 +117,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       name: '',
       email: '',
       mobile: '',
-      customer_type: 'individual',
+      customer_type: 'company',
       country_of_residence: '',
       company: '',
       amount: 0,
