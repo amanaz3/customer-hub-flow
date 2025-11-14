@@ -1,28 +1,27 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { z } from 'zod';
+import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/SecureAuthContext';
-import { supabase } from '@/lib/supabase';
-import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
-import { GoAMLFields } from './fields/GoAMLFields';
+import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { CustomerTypeSelector } from './CustomerTypeSelector';
+import { ExistingCustomerSelector } from './ExistingCustomerSelector';
 import { HomeFinanceFields } from './fields/HomeFinanceFields';
 import { BankAccountFields } from './fields/BankAccountFields';
+import { GoAMLFields } from './fields/GoAMLFields';
 import { BookkeepingFields } from './fields/BookkeepingFields';
 import { VATFields } from './fields/VATFields';
 import { TaxFields } from './fields/TaxFields';
-import { ExistingCustomerSelector } from './ExistingCustomerSelector';
-import { CustomerTypeSelector } from './CustomerTypeSelector';
 
-// Simplified form schema
 const formSchema = z.object({
   customer_type: z.enum(['personal', 'business'], {
     required_error: "Please select customer type",
@@ -103,7 +102,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      customer_type: 'personal',
+      customer_type: 'business',
       name: '',
       email: '',
       mobile: '',
@@ -133,13 +132,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     },
   });
 
-  // Fetch products
   const { data: products } = useQuery({
     queryKey: ['products'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('products')
         .select('*')
+        .eq('is_active', true)
         .order('name');
       
       if (error) throw error;
@@ -149,105 +148,60 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
   const handleProductChange = (productId: string) => {
     const product = products?.find(p => p.id === productId);
-    const productName = product?.name || '';
-    setSelectedProductName(productName);
-    onProductChange?.(productName);
-  };
-
-  const getProductCategory = (productName: string): string | null => {
-    if (!productName) return null;
-    const productLower = productName.toLowerCase();
-    
-    if (productLower.includes('aml') || productLower.includes('goaml')) {
-      return 'goaml';
+    if (product) {
+      setSelectedProductName(product.name);
+      onProductChange?.(product.name);
     }
-    
-    if ((productLower.includes('home') && productLower.includes('finance')) || 
-        productLower.includes('mortgage')) {
-      return 'home_finance';
-    }
-    
-    if (productLower.includes('bank') && productLower.includes('account')) {
-      return 'bank_account';
-    }
-    
-    if (productLower.includes('bookkeeping') || productLower.includes('accounting')) {
-      return 'bookkeeping';
-    }
-    
-    if (productLower.includes('vat')) {
-      return 'vat';
-    }
-    
-    if (productLower.includes('tax')) {
-      return 'tax';
-    }
-    
-    return null;
   };
 
   const onSubmit = async (data: FormData) => {
-    if (!user) {
-      toast({
-        title: "Error",
-        description: "You must be logged in to create a customer",
-        variant: "destructive",
-      });
-      return;
-    }
-
     setIsSubmitting(true);
-
+    
     try {
-      // Get next reference number
-      const { data: maxRef } = await supabase
-        .from('customers')
-        .select('reference_number')
-        .order('reference_number', { ascending: false })
-        .limit(1)
-        .single();
+      if (!user?.id) {
+        toast({
+          title: "Error",
+          description: "You must be logged in to create a customer",
+          variant: "destructive",
+        });
+        return;
+      }
 
-      const nextRefNumber = (maxRef?.reference_number || 0) + 1;
+      const customerData = {
+        name: data.name,
+        email: data.email,
+        mobile: data.mobile,
+        company: data.company || '',
+        amount: data.amount,
+        license_type: data.license_type,
+        lead_source: data.lead_source,
+        user_id: user.id,
+        product_id: data.product_id,
+        annual_turnover: data.annual_turnover,
+        jurisdiction: data.jurisdiction,
+        customer_notes: data.customer_notes,
+      };
 
-      // Create customer
-      const { data: customerData, error: customerError } = await supabase
+      const { data: customer, error } = await supabase
         .from('customers')
-        .insert([{
-          name: data.name,
-          email: data.email,
-          mobile: data.mobile,
-          company: data.company,
-          license_type: data.license_type,
-          lead_source: data.lead_source,
-          amount: data.amount,
-          no_of_shareholders: data.no_of_shareholders,
-          annual_turnover: data.annual_turnover || null,
-          jurisdiction: data.jurisdiction || null,
-          nationality: data.nationality || null,
-          proposed_activity: data.proposed_activity || null,
-          customer_notes: data.customer_notes || null,
-          product_id: data.product_id,
-          status: 'Draft' as const,
-          user_id: user.id,
-          reference_number: nextRefNumber,
-        }])
+        .insert(customerData)
         .select()
         .single();
 
-      if (customerError) throw customerError;
-      if (!customerData) throw new Error('Failed to create customer');
+      if (error) throw error;
 
       toast({
         title: "Success",
-        description: "Customer and application created successfully",
+        description: "Customer created successfully",
       });
 
+      form.reset();
       onSuccess?.();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating customer:', error);
       toast({
         title: "Error",
-        description: "Failed to create customer. Please try again.",
+        description: error.message || "Failed to create customer",
         variant: "destructive",
       });
     } finally {
@@ -256,29 +210,25 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   };
 
   const renderProductFields = () => {
-    const category = getProductCategory(selectedProductName);
+    const productCategory = products?.find(p => p.id === form.watch('product_id'))?.service_category_id;
     
-    switch (category) {
-      case 'goaml':
-        return <GoAMLFields form={form} />;
-      case 'home_finance':
-        return <HomeFinanceFields form={form} />;
-      case 'bank_account':
-        return <BankAccountFields form={form} />;
-      case 'bookkeeping':
-        return <BookkeepingFields form={form} />;
-      case 'vat':
-        return <VATFields form={form} />;
-      case 'tax':
-        return <TaxFields form={form} />;
-      default:
-        return null;
-    }
+    if (!productCategory) return null;
+
+    const categoryMap: Record<string, JSX.Element> = {
+      'home_finance': <HomeFinanceFields control={form.control} />,
+      'bank_account': <BankAccountFields control={form.control} />,
+      'goaml': <GoAMLFields control={form.control} />,
+      'bookkeeping': <BookkeepingFields control={form.control} />,
+      'vat': <VATFields control={form.control} />,
+      'tax': <TaxFields control={form.control} />,
+    };
+
+    return categoryMap[productCategory] || null;
   };
 
   const stepLabels = [
-    { title: 'Customer Selection', desc: 'New or existing customer' },
-    { title: 'Service Selection', desc: 'Choose service and amount' },
+    { title: 'Customer Selection', desc: 'Choose customer type' },
+    { title: 'Service Selection', desc: 'Select service and amount' },
     { title: 'Service Details', desc: 'Additional requirements' },
     { title: 'Confirmation', desc: 'Review and submit' }
   ];
@@ -380,24 +330,24 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 <div key="step-1" className="animate-fade-in space-y-4">
                   <div className="transform transition-all duration-300 hover:scale-[1.01]">
                     <CustomerTypeSelector
-                    value={companyMode ? 'existing' : 'new'}
-                    onChange={(value) => {
-                      const newMode = value === 'existing';
-                      onModeChange?.(newMode);
-                      if (!newMode) {
-                        onCustomerSelect?.(null);
-                      }
-                    }}
-                  />
+                      value={companyMode ? 'existing' : 'new'}
+                      onChange={(value) => {
+                        const newMode = value === 'existing';
+                        onModeChange?.(newMode);
+                        if (!newMode) {
+                          onCustomerSelect?.(null);
+                        }
+                      }}
+                    />
                   </div>
                   
                   {companyMode && user && (
                     <div className="transform transition-all duration-300 hover:scale-[1.01]">
-                    <ExistingCustomerSelector
-                      userId={user.id}
-                      value={selectedCustomerId || ''}
-                      onChange={(value) => onCustomerSelect?.(value)}
-                    />
+                      <ExistingCustomerSelector
+                        userId={user.id}
+                        value={selectedCustomerId || ''}
+                        onChange={(value) => onCustomerSelect?.(value)}
+                      />
                     </div>
                   )}
                   
@@ -416,50 +366,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             <h3 className="text-sm font-bold text-foreground tracking-tight">Basic Info</h3>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                            {/* Customer Type Selector */}
-                            <FormField
-                              control={form.control}
-                              name="customer_type"
-                              render={({ field }) => (
-                                <FormItem className="md:col-span-2 relative">
-                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Customer Type *</FormLabel>
-                                  <FormControl>
-                                    <div className="grid grid-cols-2 gap-3">
-                                      <button
-                                        type="button"
-                                        onClick={() => field.onChange('personal')}
-                                        className={`h-11 rounded-lg border-2 transition-all duration-300 flex items-center justify-center gap-2 font-medium text-sm ${
-                                          field.value === 'personal'
-                                            ? 'border-primary bg-primary/10 text-primary shadow-[0_0_12px_rgba(59,130,246,0.3)]'
-                                            : 'border-border/60 bg-background/50 hover:border-primary/50 hover:bg-background/80'
-                                        }`}
-                                      >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
-                                        Personal
-                                      </button>
-                                      <button
-                                        type="button"
-                                        onClick={() => field.onChange('business')}
-                                        className={`h-11 rounded-lg border-2 transition-all duration-300 flex items-center justify-center gap-2 font-medium text-sm ${
-                                          field.value === 'business'
-                                            ? 'border-primary bg-primary/10 text-primary shadow-[0_0_12px_rgba(59,130,246,0.3)]'
-                                            : 'border-border/60 bg-background/50 hover:border-primary/50 hover:bg-background/80'
-                                        }`}
-                                      >
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                        </svg>
-                                        Business
-                                      </button>
-                                    </div>
-                                  </FormControl>
-                                  <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
-                                </FormItem>
-                              )}
-                            />
-
                             <FormField
                               control={form.control}
                               name="name"
@@ -553,6 +459,66 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 </FormItem>
                               )}
                             />
+
+                            {/* Customer Type Field */}
+                            <FormField
+                              control={form.control}
+                              name="customer_type"
+                              render={({ field }) => (
+                                <FormItem className="md:col-span-2 relative">
+                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Customer Type *</FormLabel>
+                                  <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger className="h-11 text-sm border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
+                                        focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background
+                                        hover:border-primary/50 hover:bg-background/80
+                                        transition-all duration-300">
+                                        <SelectValue placeholder="Select customer type" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="z-50 bg-background border-border shadow-lg">
+                                      <SelectItem value="personal">👤 Personal</SelectItem>
+                                      <SelectItem value="business">🏢 Business</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Conditional Company Field - only show for business */}
+                            {form.watch('customer_type') === 'business' && (
+                              <FormField
+                                control={form.control}
+                                name="company"
+                                render={({ field }) => (
+                                  <FormItem className="md:col-span-2 relative">
+                                    <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Company Name *</FormLabel>
+                                    <FormControl>
+                                      <div className="relative group">
+                                        <Input 
+                                          {...field} 
+                                          onChange={(e) => {
+                                            field.onChange(e);
+                                            onCompanyChange?.(e.target.value);
+                                          }}
+                                          placeholder="ABC Trading LLC"
+                                          className="h-11 text-sm pl-10 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
+                                            focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
+                                            hover:border-primary/50 hover:bg-background/80
+                                            transition-all duration-300
+                                            placeholder:text-muted-foreground/50"
+                                        />
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                      </div>
+                                    </FormControl>
+                                    <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
+                                  </FormItem>
+                                )}
+                              />
+                            )}
                           </div>
                         </div>
 
@@ -581,7 +547,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                       <SelectValue placeholder="How did you find us?" />
                                     </SelectTrigger>
                                   </FormControl>
-                                  <SelectContent>
+                                  <SelectContent className="z-50 bg-background border-border shadow-lg">
                                     <SelectItem value="Website">🌐 Website</SelectItem>
                                     <SelectItem value="Referral">🤝 Referral</SelectItem>
                                     <SelectItem value="Social Media">📱 Social Media</SelectItem>
@@ -621,7 +587,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               <SelectValue placeholder="🎯 Choose a service" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent>
+                          <SelectContent className="z-50 bg-background border-border shadow-lg">
                             {products?.map((product: any) => (
                               <SelectItem key={product.id} value={product.id} className="py-3">
                                 {product.name}
@@ -694,9 +660,15 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                           <dd className="font-medium text-foreground">{form.watch('mobile')}</dd>
                         </div>
                         <div className="flex justify-between">
-                          <dt className="text-muted-foreground">Company:</dt>
-                          <dd className="font-medium text-foreground">{form.watch('company')}</dd>
+                          <dt className="text-muted-foreground">Type:</dt>
+                          <dd className="font-medium text-foreground">{form.watch('customer_type') === 'business' ? '🏢 Business' : '👤 Personal'}</dd>
                         </div>
+                        {form.watch('customer_type') === 'business' && (
+                          <div className="flex justify-between">
+                            <dt className="text-muted-foreground">Company:</dt>
+                            <dd className="font-medium text-foreground">{form.watch('company')}</dd>
+                          </div>
+                        )}
                         <div className="flex justify-between">
                           <dt className="text-muted-foreground">License Type:</dt>
                           <dd className="font-medium text-foreground">{form.watch('license_type')}</dd>
@@ -764,41 +736,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             {currentStep < 4 ? (
               <Button
                 type="button"
-                onClick={async () => {
-                  // Validate only fields in the current step
-                  let fieldsToValidate: (keyof FormData)[] = [];
-                  
-                  if (currentStep === 1) {
-                    // Step 1: Customer Selection
-                    if (companyMode && !selectedCustomerId) {
-                      toast({
-                        title: "Selection Required",
-                        description: "Please select an existing customer to continue",
-                        variant: "destructive",
-                      });
-                      return;
-                    }
-                    // Validate basic info fields for new customers
-                    if (!companyMode) {
-                      fieldsToValidate = ['name', 'mobile', 'email', 'lead_source'];
-                    } else {
-                      fieldsToValidate = [];
-                    }
-                  } else if (currentStep === 2) {
-                    fieldsToValidate = ['product_id', 'amount'];
-                  }
-                  
-                  const isValid = fieldsToValidate.length === 0 || await form.trigger(fieldsToValidate);
-                  if (isValid) {
-                    setCurrentStep(prev => Math.min(4, prev + 1));
-                  } else {
-                    toast({
-                      title: "Validation Error",
-                      description: "Please fill in all required fields before proceeding",
-                      variant: "destructive",
-                    });
-                  }
-                }}
+                onClick={() => setCurrentStep(prev => Math.min(4, prev + 1))}
+                disabled={isSubmitting}
                 className="h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary hover:shadow-lg hover:shadow-primary/20 hover:scale-105 active:scale-95 transition-all duration-300"
               >
                 <span className="hidden sm:inline">Next Step</span>
