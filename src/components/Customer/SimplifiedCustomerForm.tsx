@@ -25,7 +25,7 @@ import { TaxFields } from './fields/TaxFields';
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Enter a valid email address"),
+  email: z.string().email("Enter a valid email address").optional().or(z.literal('')),
   mobile: z.string().min(10, "Enter a valid phone number"),
   customer_type: z.enum(['individual', 'company']),
   country_of_residence: z.string().min(1, "Country of residence is required"),
