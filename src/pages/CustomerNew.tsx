@@ -63,7 +63,7 @@ const CustomerNew = () => {
               New Application
             </h1>
             <p className="text-muted-foreground">
-              Create a new customer application in 3 simple steps
+              Create a new customer application in 4 simple steps
             </p>
           </div>
         </div>
