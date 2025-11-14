@@ -247,59 +247,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
   return (
     <div className="w-full flex flex-col items-center">
-      {/* Tab-Style Wizard */}
-      <div className="mb-4 sm:mb-6 w-full">
-        <div className="flex items-center border-b border-border bg-card rounded-t-lg overflow-hidden shadow-sm">
-          {stepLabels.map((label, index) => {
-            const stepNumber = index + 1;
-            const isActive = currentStep === stepNumber;
-            const isCompleted = currentStep > stepNumber;
-            
-            return (
-              <div
-                key={stepNumber}
-                className={`flex-1 relative transition-all duration-300 ${
-                  isActive 
-                    ? 'bg-primary text-primary-foreground' 
-                    : isCompleted 
-                    ? 'bg-primary/10 text-primary hover:bg-primary/20' 
-                    : 'bg-muted/30 text-muted-foreground'
-                }`}
-              >
-                <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4">
-                  <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
-                    isActive 
-                      ? 'bg-primary-foreground text-primary ring-2 ring-primary-foreground/30' 
-                      : isCompleted 
-                      ? 'bg-primary text-primary-foreground' 
-                      : 'bg-background text-muted-foreground'
-                  }`}>
-                    {isCompleted ? (
-                      <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
-                    ) : (
-                      stepNumber
-                    )}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className={`font-semibold text-xs sm:text-sm truncate transition-all duration-300 ${
-                      isActive ? 'scale-105' : 'scale-100'
-                    }`}>
-                      {label.title}
-                    </div>
-                    <div className="hidden sm:block text-[10px] opacity-80 truncate mt-0.5">
-                      {label.desc}
-                    </div>
-                  </div>
-                </div>
-                {isActive && (
-                  <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary-foreground animate-[slide-in-right_0.5s_ease-out]" />
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
       <Form {...form}>
         <form 
           onSubmit={form.handleSubmit(onSubmit)} 
@@ -337,6 +284,59 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         }
                       }}
                     />
+                  </div>
+                  
+                  {/* Tab-Style Wizard - Positioned after customer selector */}
+                  <div className="w-full">
+                    <div className="flex items-center border-b border-border bg-card rounded-t-lg overflow-hidden shadow-sm">
+                      {stepLabels.map((label, index) => {
+                        const stepNumber = index + 1;
+                        const isActive = currentStep === stepNumber;
+                        const isCompleted = currentStep > stepNumber;
+                        
+                        return (
+                          <div
+                            key={stepNumber}
+                            className={`flex-1 relative transition-all duration-300 ${
+                              isActive 
+                                ? 'bg-primary text-primary-foreground' 
+                                : isCompleted 
+                                ? 'bg-primary/10 text-primary hover:bg-primary/20' 
+                                : 'bg-muted/30 text-muted-foreground'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4">
+                              <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
+                                isActive 
+                                  ? 'bg-primary-foreground text-primary ring-2 ring-primary-foreground/30' 
+                                  : isCompleted 
+                                  ? 'bg-primary text-primary-foreground' 
+                                  : 'bg-background text-muted-foreground'
+                              }`}>
+                                {isCompleted ? (
+                                  <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
+                                ) : (
+                                  stepNumber
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className={`font-semibold text-xs sm:text-sm truncate transition-all duration-300 ${
+                                  isActive ? 'scale-105' : 'scale-100'
+                                }`}>
+                                  {label.title}
+                                </div>
+                                <div className="hidden sm:block text-[10px] opacity-80 truncate mt-0.5">
+                                  {label.desc}
+                                </div>
+                              </div>
+                            </div>
+                            {isActive && (
+                              <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary-foreground animate-[slide-in-right_0.5s_ease-out]" />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
                   </div>
                   
                   {companyMode && user && (
@@ -625,7 +625,60 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
               {/* Step 2: Service Selection */}
               {currentStep === 2 && (
-                <div key="step-2" className="animate-fade-in">
+                <div key="step-2" className="animate-fade-in space-y-4">
+                  {/* Tab-Style Wizard */}
+                  <div className="w-full">
+                    <div className="flex items-center border-b border-border bg-card rounded-t-lg overflow-hidden shadow-sm">
+                      {stepLabels.map((label, index) => {
+                        const stepNumber = index + 1;
+                        const isActive = currentStep === stepNumber;
+                        const isCompleted = currentStep > stepNumber;
+                        
+                        return (
+                          <div
+                            key={stepNumber}
+                            className={`flex-1 relative transition-all duration-300 ${
+                              isActive 
+                                ? 'bg-primary text-primary-foreground' 
+                                : isCompleted 
+                                ? 'bg-primary/10 text-primary hover:bg-primary/20' 
+                                : 'bg-muted/30 text-muted-foreground'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4">
+                              <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
+                                isActive 
+                                  ? 'bg-primary-foreground text-primary ring-2 ring-primary-foreground/30' 
+                                  : isCompleted 
+                                  ? 'bg-primary text-primary-foreground' 
+                                  : 'bg-background text-muted-foreground'
+                              }`}>
+                                {isCompleted ? (
+                                  <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
+                                ) : (
+                                  stepNumber
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className={`font-semibold text-xs sm:text-sm truncate transition-all duration-300 ${
+                                  isActive ? 'scale-105' : 'scale-100'
+                                }`}>
+                                  {label.title}
+                                </div>
+                                <div className="hidden sm:block text-[10px] opacity-80 truncate mt-0.5">
+                                  {label.desc}
+                                </div>
+                              </div>
+                            </div>
+                            {isActive && (
+                              <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary-foreground animate-[slide-in-right_0.5s_ease-out]" />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 transform transition-all duration-300">
                   <FormField
                     control={form.control}
@@ -693,14 +746,120 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
               {/* Step 3: Service Details */}
               {currentStep === 3 && (
-                <div key="step-3" className="animate-fade-in">
+                <div key="step-3" className="animate-fade-in space-y-4">
+                  {/* Tab-Style Wizard */}
+                  <div className="w-full">
+                    <div className="flex items-center border-b border-border bg-card rounded-t-lg overflow-hidden shadow-sm">
+                      {stepLabels.map((label, index) => {
+                        const stepNumber = index + 1;
+                        const isActive = currentStep === stepNumber;
+                        const isCompleted = currentStep > stepNumber;
+                        
+                        return (
+                          <div
+                            key={stepNumber}
+                            className={`flex-1 relative transition-all duration-300 ${
+                              isActive 
+                                ? 'bg-primary text-primary-foreground' 
+                                : isCompleted 
+                                ? 'bg-primary/10 text-primary hover:bg-primary/20' 
+                                : 'bg-muted/30 text-muted-foreground'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4">
+                              <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
+                                isActive 
+                                  ? 'bg-primary-foreground text-primary ring-2 ring-primary-foreground/30' 
+                                  : isCompleted 
+                                  ? 'bg-primary text-primary-foreground' 
+                                  : 'bg-background text-muted-foreground'
+                              }`}>
+                                {isCompleted ? (
+                                  <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
+                                ) : (
+                                  stepNumber
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className={`font-semibold text-xs sm:text-sm truncate transition-all duration-300 ${
+                                  isActive ? 'scale-105' : 'scale-100'
+                                }`}>
+                                  {label.title}
+                                </div>
+                                <div className="hidden sm:block text-[10px] opacity-80 truncate mt-0.5">
+                                  {label.desc}
+                                </div>
+                              </div>
+                            </div>
+                            {isActive && (
+                              <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary-foreground animate-[slide-in-right_0.5s_ease-out]" />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  
                   {renderProductFields()}
                 </div>
               )}
 
               {/* Step 4: Confirmation */}
               {currentStep === 4 && (
-                <div key="step-4" className="animate-fade-in">
+                <div key="step-4" className="animate-fade-in space-y-4">
+                  {/* Tab-Style Wizard */}
+                  <div className="w-full">
+                    <div className="flex items-center border-b border-border bg-card rounded-t-lg overflow-hidden shadow-sm">
+                      {stepLabels.map((label, index) => {
+                        const stepNumber = index + 1;
+                        const isActive = currentStep === stepNumber;
+                        const isCompleted = currentStep > stepNumber;
+                        
+                        return (
+                          <div
+                            key={stepNumber}
+                            className={`flex-1 relative transition-all duration-300 ${
+                              isActive 
+                                ? 'bg-primary text-primary-foreground' 
+                                : isCompleted 
+                                ? 'bg-primary/10 text-primary hover:bg-primary/20' 
+                                : 'bg-muted/30 text-muted-foreground'
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4">
+                              <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
+                                isActive 
+                                  ? 'bg-primary-foreground text-primary ring-2 ring-primary-foreground/30' 
+                                  : isCompleted 
+                                  ? 'bg-primary text-primary-foreground' 
+                                  : 'bg-background text-muted-foreground'
+                              }`}>
+                                {isCompleted ? (
+                                  <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4 stroke-[3]" />
+                                ) : (
+                                  stepNumber
+                                )}
+                              </div>
+                              <div className="flex-1 min-w-0">
+                                <div className={`font-semibold text-xs sm:text-sm truncate transition-all duration-300 ${
+                                  isActive ? 'scale-105' : 'scale-100'
+                                }`}>
+                                  {label.title}
+                                </div>
+                                <div className="hidden sm:block text-[10px] opacity-80 truncate mt-0.5">
+                                  {label.desc}
+                                </div>
+                              </div>
+                            </div>
+                            {isActive && (
+                              <div className="absolute bottom-0 left-0 right-0 h-1 bg-primary-foreground animate-[slide-in-right_0.5s_ease-out]" />
+                            )}
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+                  
                   <div className="space-y-4">
                     <div className="rounded-lg bg-muted/30 p-4">
                       <h4 className="font-semibold text-foreground mb-3">Customer Information</h4>
