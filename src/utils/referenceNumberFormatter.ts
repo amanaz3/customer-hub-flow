@@ -61,9 +61,10 @@ export const parseReferenceNumber = (input: string): number | null => {
 
 /**
  * Format customer reference with CUST-yyyy- prefix and auto-scaling: 1 → "CUST-2025-00001"
+ * Year is extracted from the customer's created_at timestamp from database
  */
-export const formatCustomerReferenceWithPrefix = (num: number, maxReference: number, createdAt?: string): string => {
-  const year = createdAt ? new Date(createdAt).getFullYear() : new Date().getFullYear();
+export const formatCustomerReferenceWithPrefix = (num: number, maxReference: number, createdAt: string): string => {
+  const year = new Date(createdAt).getFullYear();
   return `CUST-${year}-${formatCustomerReferenceAuto(num, maxReference)}`;
 };
 
