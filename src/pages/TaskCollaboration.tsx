@@ -154,6 +154,42 @@ const TaskCollaboration: React.FC = () => {
   useEffect(() => {
     fetchTeamData();
     
+    // Subscribe to task changes (status, priority, assignee updates)
+    const taskChannel = supabase
+      .channel('tasks_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'tasks'
+        },
+        (payload) => {
+          console.log('Task change detected:', payload);
+          // Refetch all tasks when any task changes
+          fetchTasks();
+        }
+      )
+      .subscribe();
+    
+    // Subscribe to case/application changes
+    const caseChannel = supabase
+      .channel('applications_changes')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'account_applications'
+        },
+        (payload) => {
+          console.log('Case/Application change detected:', payload);
+          // Refetch all data when any case changes
+          fetchTeamData();
+        }
+      )
+      .subscribe();
+    
     // Subscribe to task_attachments changes
     const attachmentChannel = supabase
       .channel('task_attachments_changes')
@@ -179,6 +215,8 @@ const TaskCollaboration: React.FC = () => {
       .subscribe();
 
     return () => {
+      taskChannel.unsubscribe();
+      caseChannel.unsubscribe();
       attachmentChannel.unsubscribe();
     };
   }, []);
