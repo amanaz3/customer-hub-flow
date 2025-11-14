@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCustomer } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
-import { ChevronLeft } from 'lucide-react';
 import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
 import { RequiredDocumentsSidebar } from '@/components/Customer/RequiredDocumentsSidebar';
 
@@ -60,23 +58,13 @@ const CustomerNew = () => {
       <div className="w-full max-w-5xl px-6">
         {/* Page Header */}
         <div className="mb-8 animate-fade-in">
-          <div className="flex items-center justify-between flex-wrap gap-4">
-            <div className="space-y-2">
-              <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
-                New Application
-              </h1>
-              <p className="text-muted-foreground text-lg">
-                Create a new customer application in 3 simple steps
-              </p>
-            </div>
-            <Button 
-              variant="outline" 
-              onClick={() => navigate('/customers')}
-              className="gap-2 hover-scale shadow-sm"
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Back to Customers
-            </Button>
+          <div className="space-y-2 text-center">
+            <h1 className="text-4xl font-bold tracking-tight bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
+              New Application
+            </h1>
+            <p className="text-muted-foreground text-lg">
+              Create a new customer application in 3 simple steps
+            </p>
           </div>
         </div>
 
