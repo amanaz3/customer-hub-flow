@@ -4,61 +4,61 @@
 
 @layer base {
   :root {
-    /* Fintech light blue-gray background */
-    --background: 220 14% 96%;
-    --foreground: 222 47% 11%;
+    /* Modern fintech clean off-white background */
+    --background: 210 20% 98%;
+    --foreground: 215 28% 17%;
 
-    /* Pure white cards with strong shadows */
+    /* Pure white cards */
     --card: 0 0% 100%;
-    --card-foreground: 222 47% 11%;
+    --card-foreground: 215 28% 17%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222 47% 11%;
+    --popover-foreground: 215 28% 17%;
 
-    /* Deep royal blue primary - trust & security */
-    --primary: 221 83% 53%;
+    /* Vibrant teal primary - innovation & growth */
+    --primary: 187 85% 43%;
     --primary-foreground: 0 0% 100%;
 
-    /* Light blue-gray secondary for inactive states */
-    --secondary: 220 13% 91%;
-    --secondary-foreground: 222 47% 30%;
+    /* Light gray secondary for inactive states */
+    --secondary: 210 16% 93%;
+    --secondary-foreground: 215 28% 35%;
 
-    /* Subtle blue-gray muted areas */
-    --muted: 220 14% 95%;
-    --muted-foreground: 222 47% 30%;
+    /* Subtle muted areas */
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 28% 35%;
 
-    /* Blue accent for highlights */
-    --accent: 221 83% 53%;
+    /* Purple accent for premium features */
+    --accent: 263 70% 50%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
     /* Financial green for completed items */
-    --success: 142 71% 45%;
+    --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
 
-    /* Subtle blue-gray borders */
-    --border: 220 13% 91%;
-    --input: 220 13% 91%;
-    --ring: 221 83% 53%;
+    /* Clean borders */
+    --border: 210 16% 93%;
+    --input: 210 16% 93%;
+    --ring: 187 85% 43%;
 
     --radius: 0.5rem;
 
-    /* Professional sidebar with royal blue */
-    --sidebar-background: 220 14% 98%;
-    --sidebar-foreground: 222 47% 11%;
-    --sidebar-primary: 221 83% 53%;
+    /* Modern sidebar with teal */
+    --sidebar-background: 210 20% 99%;
+    --sidebar-foreground: 215 28% 17%;
+    --sidebar-primary: 187 85% 43%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 14% 95%;
-    --sidebar-accent-foreground: 222 47% 11%;
-    --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 221 83% 53%;
+    --sidebar-accent: 210 20% 96%;
+    --sidebar-accent-foreground: 215 28% 17%;
+    --sidebar-border: 210 16% 93%;
+    --sidebar-ring: 187 85% 43%;
     
-    /* Strong, defined shadows for financial clarity */
-    --shadow-sm: 0 1px 3px 0 hsl(220 14% 0% / 0.08);
-    --shadow-md: 0 4px 12px -2px hsl(220 14% 0% / 0.12);
-    --shadow-lg: 0 8px 24px -4px hsl(220 14% 0% / 0.16);
+    /* Clean, modern shadows */
+    --shadow-sm: 0 1px 3px 0 hsl(210 20% 0% / 0.06);
+    --shadow-md: 0 4px 12px -2px hsl(210 20% 0% / 0.1);
+    --shadow-lg: 0 8px 24px -4px hsl(210 20% 0% / 0.14);
   }
 
   .dark {
