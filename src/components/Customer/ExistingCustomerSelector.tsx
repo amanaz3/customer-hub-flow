@@ -171,34 +171,6 @@ export const ExistingCustomerSelector = ({
         )}
       </div>
 
-      {selectedCustomer && (
-        <div className="p-4 border rounded-lg bg-muted/50 space-y-2">
-          <p className="text-sm font-medium">Selected Customer Details</p>
-          <div className="grid grid-cols-2 gap-2 text-sm">
-            <div>
-              <span className="text-muted-foreground">Name:</span>
-              <p className="font-medium">{selectedCustomer.name}</p>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Company:</span>
-              <p className="font-medium">{selectedCustomer.company}</p>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Email:</span>
-              <p className="font-medium">{selectedCustomer.email}</p>
-            </div>
-            <div>
-              <span className="text-muted-foreground">Mobile:</span>
-              <p className="font-medium">{selectedCustomer.mobile}</p>
-            </div>
-          </div>
-          {applicationCounts[selectedCustomer.id] > 0 && (
-            <p className="text-xs text-muted-foreground pt-2 border-t">
-              This customer has {applicationCounts[selectedCustomer.id]} existing application(s)
-            </p>
-          )}
-        </div>
-      )}
     </div>
   );
 };
