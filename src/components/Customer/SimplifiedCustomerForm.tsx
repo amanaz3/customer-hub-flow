@@ -259,35 +259,30 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   ];
 
   return (
-    <div className="w-full flex flex-col items-center" style={{
-      perspective: '2000px'
-    }}>
+    <div className="w-full flex flex-col items-center">
       {/* Progress indicator */}
-      <div className="mb-10 bg-gradient-to-br from-card to-card/50 rounded-2xl p-8 border-2 animate-fade-in" style={{
-        boxShadow: '0 15px 40px -10px rgba(0, 0, 0, 0.25), 0 8px 16px -8px rgba(0, 0, 0, 0.15)',
-        transform: 'translateZ(20px)',
-      }}>
-        <div className="flex items-center justify-between mb-6">
+      <div className="mb-8 bg-white rounded-lg p-6 border border-border w-full">
+        <div className="flex items-center justify-between mb-4">
           {[1, 2, 3].map((step) => (
             <div key={step} className="flex items-center flex-1">
               <div 
-                className={`flex items-center justify-center w-14 h-14 rounded-full border-3 transition-all duration-300 ${
+                className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-200 ${
                   currentStep >= step 
-                    ? 'border-primary bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-elegant scale-110 animate-scale-in' 
-                    : 'border-border bg-muted/50 text-muted-foreground'
+                    ? 'border-primary bg-primary text-white' 
+                    : 'border-border bg-white text-muted-foreground'
                 }`}
                 aria-current={currentStep === step ? 'step' : undefined}
                 aria-label={`Step ${step}: ${stepLabels[step - 1].title}`}
               >
                 {currentStep > step ? (
-                  <Check className="w-7 h-7 animate-scale-in" />
+                  <Check className="w-5 h-5" />
                 ) : (
-                  <span className="text-xl font-bold">{step}</span>
+                  <span className="text-sm font-semibold">{step}</span>
                 )}
               </div>
               {step < 3 && (
-                <div className={`flex-1 h-1.5 mx-4 rounded-full transition-all duration-300 ${
-                  currentStep > step ? 'bg-gradient-to-r from-primary to-primary/60' : 'bg-border'
+                <div className={`flex-1 h-0.5 mx-3 transition-all duration-200 ${
+                  currentStep > step ? 'bg-primary' : 'bg-border'
                 }`} />
               )}
             </div>
@@ -295,14 +290,14 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         </div>
         <div className="flex justify-between">
           {stepLabels.map((label, index) => (
-            <div key={index} className="flex-1 text-center px-3">
-              <div className={`font-semibold text-base transition-all duration-200 ${
+            <div key={index} className="flex-1 text-center px-2">
+              <div className={`font-medium text-sm transition-all duration-200 ${
                 currentStep >= index + 1 ? 'text-foreground' : 'text-muted-foreground'
               }`}>
                 {label.title}
               </div>
-              <div className={`text-sm mt-1.5 transition-all duration-200 ${
-                currentStep >= index + 1 ? 'text-muted-foreground' : 'text-muted-foreground/50'
+              <div className={`text-xs mt-1 transition-all duration-200 ${
+                currentStep >= index + 1 ? 'text-muted-foreground' : 'text-muted-foreground/60'
               }`}>
                 {label.desc}
               </div>
@@ -314,26 +309,18 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       <Form {...form}>
         <form 
           onSubmit={form.handleSubmit(onSubmit)} 
-          className="space-y-8"
-          onFocus={() => setIsFormFocused(true)}
-          onBlur={() => setIsFormFocused(false)}
+          className="space-y-6 w-full"
         >
           <Card 
-            className={`border-2 overflow-hidden animate-fade-in transform hover:scale-[1.01] transition-all duration-500 ${
-              isFormFocused ? 'ring-4 ring-primary/30 animate-glow-pulse border-primary/50' : 'shadow-2xl'
-            }`}
-            style={{
-              transform: 'perspective(1000px) rotateX(2deg)',
-              transition: 'all 0.5s ease',
-            }}
+            className="border border-border bg-white"
           >
-            <CardHeader className="bg-gradient-subtle border-b-2 pb-6">
-              <CardTitle className="text-2xl font-bold">
-                {currentStep === 1 && '👤 Customer Information'}
-                {currentStep === 2 && '🎯 Service Selection'}
-                {currentStep === 3 && '📝 Service Details'}
+            <CardHeader className="border-b border-border pb-4">
+              <CardTitle className="text-xl font-semibold">
+                {currentStep === 1 && 'Customer Information'}
+                {currentStep === 2 && 'Service Selection'}
+                {currentStep === 3 && 'Service Details'}
               </CardTitle>
-              <p className="text-sm text-muted-foreground mt-2">
+              <p className="text-sm text-muted-foreground mt-1">
                 {currentStep === 1 && 'Enter the customer contact details and company information'}
                 {currentStep === 2 && 'Select the service and specify the application amount'}
                 {currentStep === 3 && 'Provide additional details specific to the selected service'}
@@ -618,18 +605,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           </Card>
 
           {/* Required fields hint */}
-          <div className="bg-gradient-to-r from-primary/10 to-primary/5 border-l-4 border-primary rounded-xl p-5 mb-6 animate-fade-in">
-            <div className="flex items-start gap-3">
-              <span className="text-xl">ℹ️</span>
-              <div>
-                <p className="text-sm font-medium text-foreground mb-1">
-                  Required Fields
-                </p>
-                <p className="text-sm text-muted-foreground leading-relaxed">
-                  Fields marked with <span className="text-destructive font-semibold">*</span> must be completed before proceeding to the next step
-                </p>
-              </div>
-            </div>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <p className="text-sm text-foreground">
+              <span className="font-medium">Required Fields:</span> Fields marked with <span className="text-destructive font-semibold">*</span> must be completed before proceeding
+            </p>
           </div>
 
           {/* Navigation buttons */}
@@ -639,25 +618,15 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               variant="outline"
               onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
               disabled={currentStep === 1 || isSubmitting}
-              className="min-w-[130px] h-12 text-base hover-scale shadow-sm"
+              className="min-w-[130px] h-11"
             >
-              <ChevronLeft className="w-5 h-5 mr-2" />
+              <ChevronLeft className="w-4 h-4 mr-2" />
               Previous
             </Button>
 
             <div className="flex flex-col items-center gap-1">
-              <div className="text-sm font-semibold text-foreground">
+              <div className="text-sm font-medium text-muted-foreground">
                 Step {currentStep} of 3
-              </div>
-              <div className="flex gap-1">
-                {[1, 2, 3].map((dot) => (
-                  <div
-                    key={dot}
-                    className={`w-2 h-2 rounded-full transition-all duration-200 ${
-                      currentStep >= dot ? 'bg-primary scale-125' : 'bg-border'
-                    }`}
-                  />
-                ))}
               </div>
             </div>
 
@@ -679,22 +648,22 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     setCurrentStep(prev => Math.min(3, prev + 1));
                   } else {
                     toast({
-                      title: "⚠️ Validation Error",
+                      title: "Validation Error",
                       description: "Please fill in all required fields before proceeding",
                       variant: "destructive",
                     });
                   }
                 }}
-                className="min-w-[130px] h-12 text-base bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-md hover-scale"
+                className="min-w-[130px] h-11"
               >
                 Next Step
-                <ChevronRight className="w-5 h-5 ml-2" />
+                <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
               <Button 
                 type="submit" 
                 disabled={isSubmitting} 
-                className="min-w-[130px] h-12 text-base bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-md hover-scale"
+                className="min-w-[130px] h-11"
               >
                 {isSubmitting ? (
                   <>
