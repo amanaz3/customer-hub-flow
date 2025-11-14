@@ -55,7 +55,7 @@ const CustomerNew = () => {
 
   return (
     <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-8">
-      <div className="w-full max-w-5xl px-6">
+      <div className="w-full max-w-7xl px-6">
         {/* Page Header */}
         <div className="mb-8 animate-fade-in">
           <div className="space-y-2 text-center">
