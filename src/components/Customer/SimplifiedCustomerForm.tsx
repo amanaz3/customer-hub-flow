@@ -983,57 +983,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             </CardContent>
           </Card>
 
-          {/* Enhanced Navigation Buttons */}
-          <div className="flex justify-between items-center py-3 sm:py-4 px-4 sm:px-0">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
-              disabled={currentStep === 1 || isSubmitting}
-              className="h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm hover:bg-muted/50 hover:shadow-sm hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50"
-            >
-              <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-              <span className="hidden sm:inline">Previous</span>
-              <span className="sm:hidden">Back</span>
-            </Button>
-
-            <div className="flex flex-col items-center gap-0.5">
-              <div className="text-xs sm:text-sm font-bold text-foreground">
-                Step <span className="text-primary">{currentStep}</span> of 4
-              </div>
-            </div>
-
-            {currentStep < 4 ? (
-              <Button
-                type="button"
-                onClick={() => setCurrentStep(prev => Math.min(4, prev + 1))}
-                disabled={isSubmitting}
-                className="h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm bg-gradient-to-r from-primary to-primary/90 hover:from-primary/90 hover:to-primary hover:shadow-lg hover:shadow-primary/20 hover:scale-105 active:scale-95 transition-all duration-300"
-              >
-                <span className="hidden sm:inline">Next Step</span>
-                <span className="sm:hidden">Next</span>
-                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" />
-              </Button>
-            ) : (
-              <Button 
-                type="submit" 
-                disabled={isSubmitting} 
-                className="h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm bg-gradient-to-r from-green-600 to-green-500 hover:from-green-500 hover:to-green-600 hover:shadow-lg hover:shadow-green-500/20 hover:scale-105 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:hover:scale-100"
-              >
-                {isSubmitting ? (
-                  <>
-                    <span className="animate-pulse">Creating...</span>
-                  </>
-                ) : (
-                  <>
-                    <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
-                    <span className="hidden sm:inline">Create Application</span>
-                    <span className="sm:hidden">Create</span>
-                  </>
-                )}
-              </Button>
-            )}
-          </div>
         </form>
       </Form>
       
