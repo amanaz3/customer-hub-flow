@@ -408,20 +408,29 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               control={form.control}
                               name="name"
                               render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-xs font-semibold">Full Name *</FormLabel>
+                                <FormItem className="relative">
+                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Full Name *</FormLabel>
                                   <FormControl>
-                                    <Input 
-                                      {...field} 
-                                      onChange={(e) => {
-                                        field.onChange(e);
-                                        onNameChange?.(e.target.value);
-                                      }}
-                                      placeholder="Enter full name"
-                                      className="h-9 text-sm border-border/60 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 focus:scale-[1.02] transition-all duration-300"
-                                    />
+                                    <div className="relative group">
+                                      <Input 
+                                        {...field} 
+                                        onChange={(e) => {
+                                          field.onChange(e);
+                                          onNameChange?.(e.target.value);
+                                        }}
+                                        placeholder="John Doe"
+                                        className="h-11 text-sm pl-10 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
+                                          focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01] 
+                                          hover:border-primary/50 hover:bg-background/80
+                                          transition-all duration-300 
+                                          placeholder:text-muted-foreground/50"
+                                      />
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                      </svg>
+                                    </div>
                                   </FormControl>
-                                  <FormMessage className="text-xs" />
+                                  <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
                                 </FormItem>
                               )}
                             />
@@ -430,20 +439,29 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               control={form.control}
                               name="mobile"
                               render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel className="text-xs font-semibold">Mobile Number *</FormLabel>
+                                <FormItem className="relative">
+                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Mobile Number *</FormLabel>
                                   <FormControl>
-                                    <Input 
-                                      {...field} 
-                                      onChange={(e) => {
-                                        field.onChange(e);
-                                        onMobileChange?.(e.target.value);
-                                      }}
-                                      placeholder="Enter mobile number"
-                                      className="h-9 text-sm border-border/60 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 focus:scale-[1.02] transition-all duration-300"
-                                    />
+                                    <div className="relative group">
+                                      <Input 
+                                        {...field} 
+                                        onChange={(e) => {
+                                          field.onChange(e);
+                                          onMobileChange?.(e.target.value);
+                                        }}
+                                        placeholder="+971 50 123 4567"
+                                        className="h-11 text-sm pl-10 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
+                                          focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
+                                          hover:border-primary/50 hover:bg-background/80
+                                          transition-all duration-300
+                                          placeholder:text-muted-foreground/50"
+                                      />
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                                      </svg>
+                                    </div>
                                   </FormControl>
-                                  <FormMessage className="text-xs" />
+                                  <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
                                 </FormItem>
                               )}
                             />
@@ -452,21 +470,30 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               control={form.control}
                               name="email"
                               render={({ field }) => (
-                                <FormItem className="md:col-span-2">
-                                  <FormLabel className="text-xs font-semibold">Email Address *</FormLabel>
+                                <FormItem className="md:col-span-2 relative">
+                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Email Address *</FormLabel>
                                   <FormControl>
-                                    <Input 
-                                      type="email"
-                                      {...field} 
-                                      onChange={(e) => {
-                                        field.onChange(e);
-                                        onEmailChange?.(e.target.value);
-                                      }}
-                                      placeholder="Enter email address"
-                                      className="h-9 text-sm border-border/60 focus:border-blue-400 focus:ring-2 focus:ring-blue-400/20 focus:scale-[1.02] transition-all duration-300"
-                                    />
+                                    <div className="relative group">
+                                      <Input 
+                                        type="email"
+                                        {...field} 
+                                        onChange={(e) => {
+                                          field.onChange(e);
+                                          onEmailChange?.(e.target.value);
+                                        }}
+                                        placeholder="john.doe@example.com"
+                                        className="h-11 text-sm pl-10 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
+                                          focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
+                                          hover:border-primary/50 hover:bg-background/80
+                                          transition-all duration-300
+                                          placeholder:text-muted-foreground/50"
+                                      />
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                                      </svg>
+                                    </div>
                                   </FormControl>
-                                  <FormMessage className="text-xs" />
+                                  <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
                                 </FormItem>
                               )}
                             />
@@ -487,22 +514,25 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             control={form.control}
                             name="lead_source"
                             render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs font-semibold">Lead Source *</FormLabel>
+                              <FormItem className="relative">
+                                <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Lead Source *</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                   <FormControl>
-                                    <SelectTrigger className="h-9 text-sm">
-                                      <SelectValue placeholder="Select lead source" />
+                                    <SelectTrigger className="h-11 text-sm border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
+                                      focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background
+                                      hover:border-primary/50 hover:bg-background/80
+                                      transition-all duration-300">
+                                      <SelectValue placeholder="How did you find us?" />
                                     </SelectTrigger>
                                   </FormControl>
                                   <SelectContent>
-                                    <SelectItem value="Website">Website</SelectItem>
-                                    <SelectItem value="Referral">Referral</SelectItem>
-                                    <SelectItem value="Social Media">Social Media</SelectItem>
-                                    <SelectItem value="Other">Other</SelectItem>
+                                    <SelectItem value="Website">🌐 Website</SelectItem>
+                                    <SelectItem value="Referral">🤝 Referral</SelectItem>
+                                    <SelectItem value="Social Media">📱 Social Media</SelectItem>
+                                    <SelectItem value="Other">📋 Other</SelectItem>
                                   </SelectContent>
                                 </Select>
-                                <FormMessage className="text-xs" />
+                                <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
                               </FormItem>
                             )}
                           />
@@ -521,26 +551,29 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     control={form.control}
                     name="product_id"
                     render={({ field }) => (
-                      <FormItem className="md:col-span-2">
-                        <FormLabel className="text-xs">Select Service *</FormLabel>
+                      <FormItem className="md:col-span-2 relative">
+                        <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Select Service *</FormLabel>
                         <Select onValueChange={(value) => {
                           field.onChange(value);
                           handleProductChange(value);
                         }} value={field.value}>
                           <FormControl>
-                            <SelectTrigger className="h-9 text-sm">
-                              <SelectValue placeholder="Choose a service" />
+                            <SelectTrigger className="h-12 text-sm border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
+                              focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background
+                              hover:border-primary/50 hover:bg-background/80
+                              transition-all duration-300">
+                              <SelectValue placeholder="🎯 Choose a service" />
                             </SelectTrigger>
                           </FormControl>
                           <SelectContent>
                             {products?.map((product: any) => (
-                              <SelectItem key={product.id} value={product.id}>
+                              <SelectItem key={product.id} value={product.id} className="py-3">
                                 {product.name}
                               </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage className="text-xs" />
+                        <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
                       </FormItem>
                     )}
                   />
@@ -549,19 +582,28 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     control={form.control}
                     name="amount"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel className="text-xs">Amount (AED) *</FormLabel>
+                      <FormItem className="relative">
+                        <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Amount (AED) *</FormLabel>
                         <FormControl>
-                          <Input 
-                            type="number" 
-                            step="0.01"
-                            {...field} 
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                            placeholder="0.00"
-                            className="h-9 text-sm"
-                          />
+                          <div className="relative group">
+                            <Input 
+                              type="number" 
+                              step="0.01"
+                              {...field} 
+                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                              placeholder="0.00"
+                              className="h-11 text-sm pl-10 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
+                                focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
+                                hover:border-primary/50 hover:bg-background/80
+                                transition-all duration-300
+                                placeholder:text-muted-foreground/50"
+                            />
+                            <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
                         </FormControl>
-                        <FormMessage className="text-xs" />
+                        <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
                       </FormItem>
                     )}
                   />
