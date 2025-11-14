@@ -481,7 +481,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           className="w-full"
         >
           <Card 
-            className="border border-border bg-card shadow-[0_2px_12px_-3px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.12)] transition-shadow duration-300"
+            className="border border-border bg-card shadow-md hover:shadow-lg transition-shadow duration-300"
           >
             <CardHeader className="border-b border-border pb-2 sm:pb-3 bg-gradient-to-r from-primary/5 via-primary/3 to-transparent px-4 sm:px-6 py-2 sm:py-3">
               <CardTitle className="text-sm sm:text-base font-bold text-foreground tracking-tight">
@@ -497,7 +497,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 {currentStep === 4 && 'Review all information before submitting'}
               </p>
             </CardHeader>
-            <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-5">
+            <CardContent className="p-4 sm:p-6 space-y-5">
               {/* Customer Type Selector - Always Visible */}
               <div className="transform transition-all duration-300 hover:scale-[1.01] pb-2 border-b border-border">
                 <CustomerTypeSelector
@@ -1127,12 +1127,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         return (
                           <div
                             key={stepNumber}
-                            className={`flex-1 relative transition-all duration-500 ${
+                            className={`flex-1 relative transition-all duration-200 ${
                               isActive 
-                                ? 'bg-primary text-primary-foreground shadow-lg scale-105 z-10' 
+                                ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20' 
                                 : isCompleted 
-                                ? 'bg-primary/10 text-primary hover:bg-primary/20' 
-                                : 'bg-muted/30 text-muted-foreground'
+                                ? 'bg-success text-success-foreground shadow-sm hover:shadow-md' 
+                                : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
                             } ${!isLast ? 'mr-3' : ''}`}
                             style={{
                               clipPath: !isLast 
@@ -1142,18 +1142,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
                             }}
                           >
-                            {/* Highlight pulse effect for active step */}
-                            {isActive && (
-                              <div className="absolute inset-0 animate-pulse bg-primary/20" 
-                                style={{
-                                  clipPath: !isLast 
-                                    ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%)' 
-                                    : index > 0 
-                                    ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)'
-                                    : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
-                                }}
-                              />
-                            )}
+                            {/* Removed pulse effect for cleaner look */}
                             
                             <div className="flex items-center gap-2 px-3 py-2 relative z-10">
                               <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full font-bold text-xs transition-all duration-500 ${
@@ -1272,7 +1261,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             variant="outline"
             onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
             disabled={isSubmitting}
-            className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 bg-background border-2 border-border"
+            className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 bg-background border-2 border-border"
             title="Previous Step"
           >
             <ArrowLeft className="h-5 w-5" />
@@ -1296,7 +1285,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               }
             }}
             disabled={isSubmitting}
-            className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 bg-primary text-primary-foreground"
+            className="h-12 w-12 rounded-full shadow-md hover:shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 bg-primary text-primary-foreground"
             title="Next Step"
           >
             <ArrowRight className="h-5 w-5" />
@@ -1309,7 +1298,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           size="icon"
           onClick={saveDraft}
           disabled={isSubmitting}
-          className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-110 active:scale-95 bg-green-600 hover:bg-green-700 text-white"
+          className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 bg-success hover:bg-success/90 text-success-foreground"
           title="Save Draft"
         >
           <Save className="h-6 w-6" />
