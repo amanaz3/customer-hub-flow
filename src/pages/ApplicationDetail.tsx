@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ApplicationService } from '@/services/applicationService';
 import { supabase } from '@/integrations/supabase/client';
 import type { Application } from '@/types/application';
-import { formatApplicationReferenceWithHash } from '@/utils/referenceNumberFormatter';
+import { formatApplicationReferenceWithHashAuto } from '@/utils/referenceNumberFormatter';
 import { CompletionDateDialog } from '@/components/Customer/CompletionDateDialog';
 import { CompletionDateHistory } from '@/components/Customer/CompletionDateHistory';
 
@@ -28,6 +28,7 @@ const ApplicationDetail = () => {
   const [pendingStatusUpdate, setPendingStatusUpdate] = useState<string | null>(null);
   const [isEditingCompletionDate, setIsEditingCompletionDate] = useState(false);
   const [systemCompletedTime, setSystemCompletedTime] = useState<string | null>(null);
+  const [maxApplicationRef, setMaxApplicationRef] = useState<number>(0);
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -38,6 +39,15 @@ const ApplicationDetail = () => {
         const data = await ApplicationService.fetchApplicationById(id);
         setApplication(data);
         setSelectedStatus(data?.status || '');
+        
+        // Fetch max reference number for auto-scaling formatter
+        const { data: maxRefData } = await supabase
+          .from('account_applications')
+          .select('reference_number')
+          .order('reference_number', { ascending: false })
+          .limit(1)
+          .single();
+        setMaxApplicationRef(maxRefData?.reference_number || 0);
 
         // If application is completed, fetch the system completion time from status_changes
         if (data?.status.toLowerCase() === 'completed') {
@@ -296,7 +306,7 @@ const ApplicationDetail = () => {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold">
-                {formatApplicationReferenceWithHash(application.reference_number)}
+                {formatApplicationReferenceWithHashAuto(application.reference_number, maxApplicationRef)}
               </h1>
               <Badge variant="outline" className="font-mono text-sm">
                 {application.application_type.replace('_', ' ').toUpperCase()}

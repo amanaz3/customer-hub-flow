@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
-import { formatCustomerReferenceWithHash } from '@/utils/referenceNumberFormatter';
+import { formatCustomerReferenceWithHashAuto } from '@/utils/referenceNumberFormatter';
 
 
 interface OptimizedCustomerTableProps {
@@ -208,7 +208,8 @@ const CustomerRow = memo(({
   onUpdate, 
   enableBulkSelection, 
   isSelected, 
-  onToggleSelection 
+  onToggleSelection,
+  maxReferenceNumber
 }: { 
   customer: Customer; 
   onClick: (id: string) => void;
@@ -216,6 +217,7 @@ const CustomerRow = memo(({
   enableBulkSelection?: boolean;
   isSelected?: boolean;
   onToggleSelection?: (id: string) => void;
+  maxReferenceNumber: number;
 }) => {
   const handleClick = (e: React.MouseEvent) => {
     // Don't navigate if clicking on checkbox or select elements
@@ -249,7 +251,7 @@ const CustomerRow = memo(({
         </TableCell>
       )}
       <TableCell className="font-mono font-bold text-sm text-primary">
-        {formatCustomerReferenceWithHash(customer.reference_number)}
+        {formatCustomerReferenceWithHashAuto(customer.reference_number, maxReferenceNumber)}
       </TableCell>
       <TableCell className="font-medium">
         <div className="space-y-1">
@@ -289,6 +291,12 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({
 }) => {
   const navigate = useNavigate();
   const { isAdmin } = useAuth();
+  
+  // Calculate max reference number for auto-scaling formatter
+  const maxReferenceNumber = useMemo(() => 
+    Math.max(...customers.map(c => c.reference_number), 0),
+    [customers]
+  );
 
   const handleRowClick = useMemo(() => 
     (id: string) => navigate(`/customers/${id}`), 
@@ -316,9 +324,10 @@ const OptimizedCustomerTable: React.FC<OptimizedCustomerTableProps> = ({
         enableBulkSelection={enableBulkSelection}
         isSelected={selection?.isSelected(customer.id)}
         onToggleSelection={selection?.toggleItem}
+        maxReferenceNumber={maxReferenceNumber}
       />
     )), 
-    [customers, handleRowClick, onDataChange, enableBulkSelection, selection]
+    [customers, handleRowClick, onDataChange, enableBulkSelection, selection, maxReferenceNumber]
   );
 
   const handleSelectAllChange = (e: React.MouseEvent) => {
