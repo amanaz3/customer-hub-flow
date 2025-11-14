@@ -4,28 +4,28 @@
 
 @layer base {
   :root {
-    /* Clean neutral light background */
-    --background: 0 0% 98%;
-    --foreground: 0 0% 5%;
+    /* Clean blue-gray light background */
+    --background: 210 20% 98%;
+    --foreground: 215 25% 15%;
 
-    /* Cards with pure white */
-    --card: 0 0% 100%;
-    --card-foreground: 0 0% 5%;
+    /* Cards with subtle blue-gray white */
+    --card: 210 20% 100%;
+    --card-foreground: 215 25% 15%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 5%;
+    --popover: 210 20% 100%;
+    --popover-foreground: 215 25% 15%;
 
     /* Vibrant blue primary (matching reference) */
     --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    /* Light grey secondary for inactive states */
-    --secondary: 0 0% 88%;
-    --secondary-foreground: 0 0% 35%;
+    /* Light blue-gray secondary for inactive states */
+    --secondary: 210 15% 88%;
+    --secondary-foreground: 215 15% 40%;
 
-    /* Subtle muted areas */
-    --muted: 0 0% 97%;
-    --muted-foreground: 0 0% 35%;
+    /* Subtle blue-gray muted areas */
+    --muted: 210 20% 96%;
+    --muted-foreground: 215 15% 40%;
 
     /* Blue accent for highlights */
     --accent: 217 91% 60%;
@@ -38,21 +38,21 @@
     --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
 
-    /* Light, clean borders */
-    --border: 0 0% 90%;
-    --input: 0 0% 88%;
+    /* Light, clean borders with blue-gray tint */
+    --border: 210 15% 88%;
+    --input: 210 15% 88%;
     --ring: 217 91% 60%;
 
     --radius: 0.5rem;
 
-    /* Clean sidebar styling */
-    --sidebar-background: 0 0% 99%;
-    --sidebar-foreground: 0 0% 15%;
+    /* Clean sidebar styling with blue-gray */
+    --sidebar-background: 210 20% 99%;
+    --sidebar-foreground: 215 25% 15%;
     --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 0 0% 97%;
-    --sidebar-accent-foreground: 0 0% 10%;
-    --sidebar-border: 0 0% 90%;
+    --sidebar-accent: 210 20% 97%;
+    --sidebar-accent-foreground: 215 25% 15%;
+    --sidebar-border: 210 15% 88%;
     --sidebar-ring: 217 91% 60%;
     
     /* Subtle, professional shadows */
