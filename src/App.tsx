@@ -3,6 +3,7 @@ import React, { useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Toaster } from '@/components/ui/toaster';
+import { ThemeProvider } from '@/components/theme-provider';
 import { AuthProvider } from '@/contexts/SecureAuthContext';
 import { CustomerProvider } from '@/contexts/CustomerContext';
 import { NotificationProvider } from '@/contexts/NotificationContext';
@@ -77,14 +78,15 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ErrorBoundary
-        onError={(error, errorInfo) => {
-          // Log application-level errors
-          ErrorTracker.captureError(error, { component: 'App', ...errorInfo });
-        }}
-      >
-        <Router>
-          <AuthProvider>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+        <ErrorBoundary
+          onError={(error, errorInfo) => {
+            // Log application-level errors
+            ErrorTracker.captureError(error, { component: 'App', ...errorInfo });
+          }}
+        >
+          <Router>
+            <AuthProvider>
             <CustomerProvider>
               <NotificationProvider>
                 <div className="min-h-screen bg-background">
@@ -372,9 +374,10 @@ function App() {
               </NotificationProvider>
             </CustomerProvider>
           </AuthProvider>
-          <Toaster />
         </Router>
       </ErrorBoundary>
+      <Toaster />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }
