@@ -251,30 +251,53 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     }
   };
 
+  const stepLabels = [
+    { title: 'Customer Info', desc: 'Basic contact details' },
+    { title: 'Service Selection', desc: 'Choose product and amount' },
+    { title: 'Service Details', desc: 'Additional requirements' }
+  ];
+
   return (
-    <div className="max-w-4xl mx-auto py-6">
+    <div className="max-w-4xl mx-auto">
       {/* Progress indicator */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between mb-2">
+      <div className="mb-8 bg-card rounded-lg p-6 border shadow-sm">
+        <div className="flex items-center justify-between mb-4">
           {[1, 2, 3].map((step) => (
             <div key={step} className="flex items-center flex-1">
-              <div className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-colors ${
-                currentStep >= step ? 'border-primary bg-primary text-primary-foreground' : 'border-muted bg-background text-muted-foreground'
-              }`}>
-                {currentStep > step ? <Check className="w-5 h-5" /> : step}
+              <div 
+                className={`flex items-center justify-center w-12 h-12 rounded-full border-2 transition-all duration-200 ${
+                  currentStep >= step 
+                    ? 'border-primary bg-primary text-primary-foreground shadow-md scale-110' 
+                    : 'border-border bg-muted text-muted-foreground'
+                }`}
+                aria-current={currentStep === step ? 'step' : undefined}
+                aria-label={`Step ${step}: ${stepLabels[step - 1].title}`}
+              >
+                {currentStep > step ? <Check className="w-6 h-6" /> : <span className="text-lg font-semibold">{step}</span>}
               </div>
               {step < 3 && (
-                <div className={`flex-1 h-0.5 mx-2 transition-colors ${
-                  currentStep > step ? 'bg-primary' : 'bg-muted'
+                <div className={`flex-1 h-1 mx-3 rounded-full transition-all duration-200 ${
+                  currentStep > step ? 'bg-primary' : 'bg-border'
                 }`} />
               )}
             </div>
           ))}
         </div>
-        <div className="flex justify-between text-sm">
-          <span className={currentStep >= 1 ? 'text-foreground' : 'text-muted-foreground'}>Customer Info</span>
-          <span className={currentStep >= 2 ? 'text-foreground' : 'text-muted-foreground'}>Service Selection</span>
-          <span className={currentStep >= 3 ? 'text-foreground' : 'text-muted-foreground'}>Service Details</span>
+        <div className="flex justify-between">
+          {stepLabels.map((label, index) => (
+            <div key={index} className="flex-1 text-center px-2">
+              <div className={`font-medium text-sm transition-colors ${
+                currentStep >= index + 1 ? 'text-foreground' : 'text-muted-foreground'
+              }`}>
+                {label.title}
+              </div>
+              <div className={`text-xs mt-1 transition-colors ${
+                currentStep >= index + 1 ? 'text-muted-foreground' : 'text-muted-foreground/60'
+              }`}>
+                {label.desc}
+              </div>
+            </div>
+          ))}
         </div>
       </div>
 
@@ -292,25 +315,46 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Step 1: Customer Information */}
               {currentStep === 1 && (
                 <>
-                  <div className="space-y-4 pb-4 border-b">
-                    <FormLabel>Company Selection</FormLabel>
+                  <div className="space-y-4 pb-6 mb-6 border-b">
+                    <div className="space-y-2">
+                      <FormLabel className="text-base">Company Selection</FormLabel>
+                      <p className="text-sm text-muted-foreground">
+                        Choose whether this is a new company or an application for an existing customer
+                      </p>
+                    </div>
                     <RadioGroup
                       value={companyMode}
                       onValueChange={(value: 'new' | 'existing') => setCompanyMode(value)}
-                      className="flex gap-4"
+                      className="grid grid-cols-2 gap-4"
                     >
-                      <div className="flex items-center space-x-2">
+                      <label
+                        htmlFor="new"
+                        className={`flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                          companyMode === 'new' 
+                            ? 'border-primary bg-primary/5 shadow-sm' 
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                      >
                         <RadioGroupItem value="new" id="new" />
-                        <label htmlFor="new" className="text-sm cursor-pointer">
-                          Create New Company
-                        </label>
-                      </div>
-                      <div className="flex items-center space-x-2">
+                        <div>
+                          <div className="font-medium">New Company</div>
+                          <div className="text-xs text-muted-foreground">First time customer</div>
+                        </div>
+                      </label>
+                      <label
+                        htmlFor="existing"
+                        className={`flex items-center space-x-3 p-4 rounded-lg border-2 cursor-pointer transition-all ${
+                          companyMode === 'existing' 
+                            ? 'border-primary bg-primary/5 shadow-sm' 
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                      >
                         <RadioGroupItem value="existing" id="existing" />
-                        <label htmlFor="existing" className="text-sm cursor-pointer">
-                          Select Existing Company
-                        </label>
-                      </div>
+                        <div>
+                          <div className="font-medium">Existing Company</div>
+                          <div className="text-xs text-muted-foreground">Additional service</div>
+                        </div>
+                      </label>
                     </RadioGroup>
                   </div>
 
@@ -541,17 +585,29 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             </CardContent>
           </Card>
 
+          {/* Required fields hint */}
+          <div className="bg-muted/50 rounded-lg p-4 mb-4">
+            <p className="text-sm text-muted-foreground">
+              <span className="text-destructive font-medium">*</span> Required fields must be filled to proceed to the next step
+            </p>
+          </div>
+
           {/* Navigation buttons */}
-          <div className="flex justify-between">
+          <div className="flex justify-between items-center gap-4">
             <Button
               type="button"
               variant="outline"
               onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
               disabled={currentStep === 1 || isSubmitting}
+              className="min-w-[120px]"
             >
               <ChevronLeft className="w-4 h-4 mr-2" />
               Previous
             </Button>
+
+            <div className="text-sm text-muted-foreground">
+              Step {currentStep} of 3
+            </div>
 
             {currentStep < 3 ? (
               <Button
@@ -569,15 +625,22 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   const isValid = await form.trigger(fieldsToValidate);
                   if (isValid) {
                     setCurrentStep(prev => Math.min(3, prev + 1));
+                  } else {
+                    toast({
+                      title: "Validation Error",
+                      description: "Please fill in all required fields before proceeding",
+                      variant: "destructive",
+                    });
                   }
                 }}
+                className="min-w-[120px]"
               >
                 Next
                 <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             ) : (
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting ? 'Creating...' : 'Create Customer'}
+              <Button type="submit" disabled={isSubmitting} className="min-w-[120px]">
+                {isSubmitting ? 'Creating...' : 'Create Application'}
               </Button>
             )}
           </div>

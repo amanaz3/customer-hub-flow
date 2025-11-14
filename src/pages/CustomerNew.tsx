@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCustomer } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { ChevronLeft } from 'lucide-react';
 import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
 import { RequiredDocumentsSidebar } from '@/components/Customer/RequiredDocumentsSidebar';
 
@@ -54,11 +56,29 @@ const CustomerNew = () => {
   };
 
   return (
-    <div className="w-full relative">
-      <div className="w-full bg-gradient-subtle -mx-3 sm:-mx-4 md:-mx-6 -mt-4 sm:-mt-2">
-        <div className={`px-4 pb-4 transition-all duration-300 ${sidebarCollapsed ? 'lg:pr-12' : 'lg:pr-80'}`}>
+    <div className="w-full relative min-h-screen">
+      {/* Page Header */}
+      <div className="mb-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">New Application</h1>
+            <p className="text-muted-foreground mt-1">Create a new customer application in 3 simple steps</p>
+          </div>
+          <Button 
+            variant="outline" 
+            onClick={() => navigate('/customers')}
+            className="gap-2"
+          >
+            <ChevronLeft className="h-4 w-4" />
+            Back to Customers
+          </Button>
+        </div>
+      </div>
+
+      <div className="w-full">
+        <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:pr-12' : 'lg:pr-80'}`}>
           {/* Simplified Form */}
-          <SimplifiedCustomerForm 
+          <SimplifiedCustomerForm
             onSuccess={handleSuccess}
             onProductChange={setSelectedProduct}
             onEmailChange={setCustomerEmail}
@@ -79,6 +99,14 @@ const CustomerNew = () => {
           customerCompany={customerCompany}
           onCollapsedChange={setSidebarCollapsed}
         />
+      </div>
+
+      {/* Mobile Notice for Required Documents */}
+      <div className="lg:hidden mt-6 bg-primary/10 border border-primary/20 rounded-lg p-4">
+        <h3 className="font-semibold text-primary mb-2">📋 Required Documents</h3>
+        <p className="text-sm text-muted-foreground">
+          After submitting this application, you'll receive an email with a list of required documents specific to your selected service.
+        </p>
       </div>
     </div>
   );
