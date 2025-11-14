@@ -253,9 +253,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   };
 
   const stepLabels = [
-    { title: 'Customer Info', desc: 'Basic contact details' },
-    { title: 'Service Selection', desc: 'Choose product and amount' },
-    { title: 'Service Details', desc: 'Additional requirements' }
+    { title: 'Customer Selection', desc: 'New or existing customer' },
+    { title: 'Service Selection', desc: 'Choose service and amount' },
+    { title: 'Service Details', desc: 'Additional requirements' },
+    { title: 'Confirmation', desc: 'Review and submit' }
   ];
 
   return (
@@ -263,7 +264,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       {/* Progress indicator */}
       <div className="mb-8 bg-white rounded-lg p-6 border border-border w-full">
         <div className="flex items-center justify-between mb-4">
-          {[1, 2, 3].map((step) => (
+          {[1, 2, 3, 4].map((step) => (
             <div key={step} className="flex items-center flex-1">
               <div 
                 className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all duration-200 ${
@@ -280,7 +281,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   <span className="text-sm font-semibold">{step}</span>
                 )}
               </div>
-              {step < 3 && (
+              {step < 4 && (
                 <div className={`flex-1 h-0.5 mx-3 transition-all duration-200 ${
                   currentStep > step ? 'bg-primary' : 'bg-border'
                 }`} />
@@ -316,14 +317,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           >
             <CardHeader className="border-b border-border pb-4">
               <CardTitle className="text-xl font-semibold">
-                {currentStep === 1 && 'Customer Information'}
+                {currentStep === 1 && 'Customer Selection'}
                 {currentStep === 2 && 'Service Selection'}
                 {currentStep === 3 && 'Service Details'}
+                {currentStep === 4 && 'Confirmation'}
               </CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
-                {currentStep === 1 && 'Enter the customer contact details and company information'}
+                {currentStep === 1 && 'Choose whether this is a new or existing customer'}
                 {currentStep === 2 && 'Select the service and specify the application amount'}
                 {currentStep === 3 && 'Provide additional details specific to the selected service'}
+                {currentStep === 4 && 'Review all information before submitting'}
               </p>
             </CardHeader>
             <CardContent className="space-y-6 p-8" style={{
@@ -601,15 +604,98 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   )}
                 </>
               )}
+
+              {/* Step 4: Confirmation */}
+              {currentStep === 4 && (
+                <div className="space-y-6">
+                  <div className="bg-blue-50 border border-blue-200 rounded-lg p-5">
+                    <h3 className="font-semibold text-lg mb-4 text-foreground">Review Your Information</h3>
+                    
+                    <div className="space-y-4">
+                      {/* Customer Information */}
+                      <div>
+                        <h4 className="font-medium text-sm text-muted-foreground mb-2">Customer Details</h4>
+                        <div className="bg-white rounded-md p-4 space-y-2">
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <span className="text-muted-foreground">Type:</span>
+                            <span className="font-medium">{companyMode === 'new' ? 'New Customer' : 'Existing Customer'}</span>
+                            
+                            {companyMode === 'new' && (
+                              <>
+                                <span className="text-muted-foreground">Name:</span>
+                                <span className="font-medium">{form.getValues('name')}</span>
+                                
+                                <span className="text-muted-foreground">Email:</span>
+                                <span className="font-medium">{form.getValues('email')}</span>
+                                
+                                <span className="text-muted-foreground">Mobile:</span>
+                                <span className="font-medium">{form.getValues('mobile')}</span>
+                                
+                                <span className="text-muted-foreground">Company:</span>
+                                <span className="font-medium">{form.getValues('company')}</span>
+                                
+                                <span className="text-muted-foreground">License Type:</span>
+                                <span className="font-medium">{form.getValues('license_type')}</span>
+                                
+                                <span className="text-muted-foreground">Lead Source:</span>
+                                <span className="font-medium">{form.getValues('lead_source')}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Service Information */}
+                      <div>
+                        <h4 className="font-medium text-sm text-muted-foreground mb-2">Service Details</h4>
+                        <div className="bg-white rounded-md p-4 space-y-2">
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <span className="text-muted-foreground">Service:</span>
+                            <span className="font-medium">{selectedProductName || 'Not selected'}</span>
+                            
+                            <span className="text-muted-foreground">Amount:</span>
+                            <span className="font-medium">AED {form.getValues('amount')?.toLocaleString()}</span>
+                            
+                            {form.getValues('customer_notes') && (
+                              <>
+                                <span className="text-muted-foreground">Notes:</span>
+                                <span className="font-medium">{form.getValues('customer_notes')}</span>
+                              </>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Additional Service Details */}
+                      {selectedProductName && (
+                        <div>
+                          <h4 className="font-medium text-sm text-muted-foreground mb-2">Additional Information</h4>
+                          <div className="bg-white rounded-md p-4 text-sm text-muted-foreground">
+                            Service-specific details have been captured
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="bg-amber-50 border border-amber-200 rounded-lg p-4">
+                    <p className="text-sm text-amber-900">
+                      <span className="font-semibold">Important:</span> Please review all information carefully before submitting. Once submitted, this application will be processed by our team.
+                    </p>
+                  </div>
+                </div>
+              )}
             </CardContent>
           </Card>
 
           {/* Required fields hint */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-            <p className="text-sm text-foreground">
-              <span className="font-medium">Required Fields:</span> Fields marked with <span className="text-destructive font-semibold">*</span> must be completed before proceeding
-            </p>
-          </div>
+          {currentStep < 4 && (
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+              <p className="text-sm text-foreground">
+                <span className="font-medium">Required Fields:</span> Fields marked with <span className="text-destructive font-semibold">*</span> must be completed before proceeding
+              </p>
+            </div>
+          )}
 
           {/* Navigation buttons */}
           <div className="flex justify-between items-center gap-4 pt-2">
@@ -626,11 +712,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
             <div className="flex flex-col items-center gap-1">
               <div className="text-sm font-medium text-muted-foreground">
-                Step {currentStep} of 3
+                Step {currentStep} of 4
               </div>
             </div>
 
-            {currentStep < 3 ? (
+            {currentStep < 4 ? (
               <Button
                 type="button"
                 onClick={async () => {
@@ -638,14 +724,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   let fieldsToValidate: (keyof FormData)[] = [];
                   
                   if (currentStep === 1) {
-                    fieldsToValidate = ['name', 'email', 'mobile', 'company', 'license_type', 'lead_source'];
+                    if (companyMode === 'new') {
+                      fieldsToValidate = ['name', 'email', 'mobile', 'company', 'license_type', 'lead_source'];
+                    }
                   } else if (currentStep === 2) {
                     fieldsToValidate = ['product_id', 'amount'];
                   }
                   
-                  const isValid = await form.trigger(fieldsToValidate);
+                  const isValid = fieldsToValidate.length === 0 || await form.trigger(fieldsToValidate);
                   if (isValid) {
-                    setCurrentStep(prev => Math.min(3, prev + 1));
+                    setCurrentStep(prev => Math.min(4, prev + 1));
                   } else {
                     toast({
                       title: "Validation Error",
