@@ -27,7 +27,9 @@ const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Enter a valid email address"),
   mobile: z.string().min(10, "Enter a valid phone number"),
-  company: z.string().min(1, "Company name is required"),
+  customer_type: z.enum(['individual', 'company']),
+  country_of_residence: z.string().min(1, "Country of residence is required"),
+  company: z.string().optional(),
   amount: z.number().min(0.01, "Amount must be greater than 0"),
   license_type: z.enum(['Mainland', 'Freezone', 'Offshore']),
   lead_source: z.enum(['Website', 'Referral', 'Social Media', 'Other']),
@@ -54,6 +56,14 @@ const formSchema = z.object({
   property_value: z.number().optional(),
   vat_registration_type: z.string().optional(),
   tax_year_period: z.string().optional(),
+}).refine((data) => {
+  if (data.customer_type === 'company' && !data.company) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Company name is required for company type",
+  path: ["company"],
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -95,6 +105,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       name: '',
       email: '',
       mobile: '',
+      customer_type: 'individual',
+      country_of_residence: '',
       company: '',
       amount: 0,
       license_type: 'Mainland',
@@ -484,8 +496,63 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               }}
                             />
 
-                            {/* Company Field */}
+                            {/* Customer Type Field */}
                             <FormField
+                              control={form.control}
+                              name="customer_type"
+                              render={({ field }) => (
+                                <FormItem className="md:col-span-2 relative">
+                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Customer Type *</FormLabel>
+                                  <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger className="h-11 text-sm border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
+                                        focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background
+                                        hover:border-primary/50 hover:bg-background/80
+                                        transition-all duration-300">
+                                        <SelectValue placeholder="Select customer type" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="z-50 bg-background border-border shadow-lg">
+                                      <SelectItem value="individual">👤 Individual</SelectItem>
+                                      <SelectItem value="company">🏢 Company</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Country of Residence Field */}
+                            <FormField
+                              control={form.control}
+                              name="country_of_residence"
+                              render={({ field }) => (
+                                <FormItem className="md:col-span-2 relative">
+                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Country of Residence *</FormLabel>
+                                  <FormControl>
+                                    <div className="relative group">
+                                      <Input 
+                                        {...field}
+                                        placeholder="United Arab Emirates"
+                                        className="h-11 text-sm pl-10 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
+                                          focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
+                                          hover:border-primary/50 hover:bg-background/80
+                                          transition-all duration-300
+                                          placeholder:text-muted-foreground/50"
+                                      />
+                                      <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                      </svg>
+                                    </div>
+                                  </FormControl>
+                                  <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
+                                </FormItem>
+                              )}
+                            />
+
+                            {/* Conditional Company Field - only show for company type */}
+                            {form.watch('customer_type') === 'company' && (
+                              <FormField
                                 control={form.control}
                                 name="company"
                                 render={({ field }) => {
@@ -523,6 +590,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                   );
                                 }}
                               />
+                            )}
                           </div>
                         </div>
 
@@ -664,9 +732,19 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                           <dd className="font-medium text-foreground">{form.watch('mobile')}</dd>
                         </div>
                         <div className="flex justify-between">
-                          <dt className="text-muted-foreground">Company:</dt>
-                          <dd className="font-medium text-foreground">{form.watch('company')}</dd>
+                          <dt className="text-muted-foreground">Customer Type:</dt>
+                          <dd className="font-medium text-foreground capitalize">{form.watch('customer_type')}</dd>
                         </div>
+                        <div className="flex justify-between">
+                          <dt className="text-muted-foreground">Country of Residence:</dt>
+                          <dd className="font-medium text-foreground">{form.watch('country_of_residence')}</dd>
+                        </div>
+                        {form.watch('customer_type') === 'company' && form.watch('company') && (
+                          <div className="flex justify-between">
+                            <dt className="text-muted-foreground">Company:</dt>
+                            <dd className="font-medium text-foreground">{form.watch('company')}</dd>
+                          </div>
+                        )}
                         <div className="flex justify-between">
                           <dt className="text-muted-foreground">License Type:</dt>
                           <dd className="font-medium text-foreground">{form.watch('license_type')}</dd>
