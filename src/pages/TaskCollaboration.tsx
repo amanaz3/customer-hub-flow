@@ -25,6 +25,7 @@ import { CreateProductDialog } from '@/components/Team/CreateProductDialog';
 import { TaskCard } from '@/components/Team/TaskCard';
 import { TaskDetailDialog } from '@/components/Team/TaskDetailDialog';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
+import { formatApplicationReferenceWithHashAuto } from '@/utils/referenceNumberFormatter';
 
 interface TeamMember {
   id: string;
@@ -126,6 +127,7 @@ const TaskCollaboration: React.FC = () => {
   const [products, setProducts] = useState<Product[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [activeCasesCount, setActiveCasesCount] = useState(0);
+  const [maxReferenceNumber, setMaxReferenceNumber] = useState<number>(0);
   const [loading, setLoading] = useState(true);
   const [createTaskOpen, setCreateTaskOpen] = useState(false);
   const [createProductOpen, setCreateProductOpen] = useState(false);
@@ -413,6 +415,18 @@ const TaskCollaboration: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (casesError) throw casesError;
+
+      // Fetch max reference number for auto-scaling formatter
+      const { data: maxRefData } = await supabase
+        .from('account_applications')
+        .select('reference_number')
+        .order('reference_number', { ascending: false })
+        .limit(1)
+        .single();
+      
+      if (maxRefData?.reference_number) {
+        setMaxReferenceNumber(maxRefData.reference_number);
+      }
 
       // Fetch recent status changes for all applications
       const customerIds = applicationsData?.map((app: any) => app.customer_id).filter(Boolean) || [];
@@ -1191,7 +1205,7 @@ const TaskCollaboration: React.FC = () => {
                               <div className="flex items-start justify-between mb-2">
                                 <div className="flex items-center gap-2">
                                   <span className="text-sm font-semibold text-foreground">
-                                    #{app.reference_number}
+                                    {formatApplicationReferenceWithHashAuto(app.reference_number, maxReferenceNumber)}
                                   </span>
                                   <Badge className={`${statusBadgeColor} text-xs`}>
                                     {app.status.replace('_', ' ')}
@@ -1259,7 +1273,7 @@ const TaskCollaboration: React.FC = () => {
                           <div className="flex items-start justify-between mb-2">
                             <div>
                               <h3 className="text-xl font-semibold text-foreground">
-                                #{selectedCase.reference_number}
+                                {formatApplicationReferenceWithHashAuto(selectedCase.reference_number, maxReferenceNumber)}
                               </h3>
                               <p className="text-sm text-muted-foreground">
                                 {selectedCase.application_type?.replace('_', ' ') || 'Application'}
