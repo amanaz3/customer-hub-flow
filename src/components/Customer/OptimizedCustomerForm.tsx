@@ -64,14 +64,13 @@ const OptimizedCustomerForm: React.FC<OptimizedCustomerFormProps> = ({
     const errors: string[] = [];
     
     if (!formData.name.trim()) errors.push('Name is required');
-    if (!formData.email.trim()) errors.push('Email is required');
     if (!formData.mobile.trim()) errors.push('Mobile is required');
     if (!formData.company.trim()) errors.push('Company is required');
     if (formData.amount <= 0) errors.push('Amount must be greater than 0');
     
-    // Email validation
+    // Email validation (only if provided)
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (formData.email && !emailRegex.test(formData.email)) {
+    if (formData.email && formData.email.trim() && !emailRegex.test(formData.email)) {
       errors.push('Please enter a valid email address');
     }
     

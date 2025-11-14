@@ -29,7 +29,7 @@ interface HelpContent {
 
 const defaultContent: HelpContent = {
   overview: "This form follows a 2-stage process:\n1. Customer Details - Collect all customer information and application details\n2. Document Upload - Upload required documents after customer is created",
-  required_basic: "Customer Name (Full legal name)\nEmail Address (Valid format required)\nMobile Number (10-20 digits)\nCompany Name (Existing or create new)",
+  required_basic: "Customer Name (Full legal name)\nEmail Address (Optional - Valid format if provided)\nMobile Number (10-20 digits)\nCompany Name (Existing or create new)",
   required_application: "Product/Service Selection (Required)\nLicense Type (Mainland/Freezone/Offshore)\nApplication Amount (Must be greater than 0)\nAnnual Turnover (Required for most services)\nLead Source (Where customer came from)",
   company_tips: "Existing Company: Search and select from dropdown\nNew Company: Click '+ Create New Company' button to add a new company to the system\n💡 Tip: Always check if company exists before creating new one",
   bank_account_fields: "Mainland or Freezone status\nSignatory type (Single/Joint)\nBusiness activity details\nMinimum balance range preference",
