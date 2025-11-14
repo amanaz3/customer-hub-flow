@@ -308,20 +308,20 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           <Card 
             className="border border-border bg-card shadow-[0_2px_12px_-3px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.12)] transition-shadow duration-300"
           >
-            <CardHeader className="border-b border-border pb-3 sm:pb-4 bg-gradient-to-r from-primary/5 via-primary/3 to-transparent px-4 sm:px-6 py-3 sm:py-4">
-              <CardTitle className="text-base sm:text-lg font-bold text-foreground tracking-tight">
-                {currentStep === 1 && 'Customer Selection'}
-                {currentStep === 2 && 'Service Selection'}
-                {currentStep === 3 && 'Service Details'}
-                {currentStep === 4 && 'Confirmation'}
-              </CardTitle>
-              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 font-medium">
-                {currentStep === 1 && 'Choose to create a new customer or select an existing one'}
-                {currentStep === 2 && 'Select the service and specify the application amount'}
-                {currentStep === 3 && 'Provide additional details specific to the selected service'}
-                {currentStep === 4 && 'Review all information before submitting'}
-              </p>
-            </CardHeader>
+            {currentStep !== 1 && (
+              <CardHeader className="border-b border-border pb-3 sm:pb-4 bg-gradient-to-r from-primary/5 via-primary/3 to-transparent px-4 sm:px-6 py-3 sm:py-4">
+                <CardTitle className="text-base sm:text-lg font-bold text-foreground tracking-tight">
+                  {currentStep === 2 && 'Service Selection'}
+                  {currentStep === 3 && 'Service Details'}
+                  {currentStep === 4 && 'Confirmation'}
+                </CardTitle>
+                <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1 font-medium">
+                  {currentStep === 2 && 'Select the service and specify the application amount'}
+                  {currentStep === 3 && 'Provide additional details specific to the selected service'}
+                  {currentStep === 4 && 'Review all information before submitting'}
+                </p>
+              </CardHeader>
+            )}
             <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-5">
               {/* Step 1: Customer Selection */}
               {currentStep === 1 && (
