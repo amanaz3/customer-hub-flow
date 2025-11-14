@@ -18,7 +18,7 @@ import { useBulkStatusUpdate } from '@/hooks/useBulkStatusUpdate';
 import { BulkActionsToolbar } from '@/components/Customer/BulkActionsToolbar';
 import { BulkStatusChangeDialog } from '@/components/Customer/BulkStatusChangeDialog';
 import type { ApplicationStatus } from '@/types/application';
-import { formatApplicationReferenceWithHashAuto } from '@/utils/referenceNumberFormatter';
+import { formatApplicationReferenceWithPrefix } from '@/utils/referenceNumberFormatter';
 
 interface ApplicationWithCustomer {
   id: string;
@@ -409,7 +409,7 @@ const ApplicationsList = () => {
                           />
                         </TableCell>
                         <TableCell className="px-3 py-3 font-mono font-bold text-sm text-primary">
-                          {formatApplicationReferenceWithHashAuto(app.reference_number, maxReferenceNumber)}
+                          {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at)}
                         </TableCell>
                         <TableCell className="px-3 py-3 font-semibold text-sm">
                           <div className="flex items-center gap-2 min-w-[150px]">
@@ -572,7 +572,7 @@ const ApplicationsList = () => {
                           />
                         </TableCell>
                         <TableCell className="px-3 py-3 font-mono font-bold text-sm text-primary">
-                          {formatApplicationReferenceWithHashAuto(app.reference_number, maxReferenceNumber)}
+                          {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at)}
                         </TableCell>
                         <TableCell className="px-3 py-3 font-semibold text-sm">
                           <div className="flex items-center gap-2 min-w-[150px]">

@@ -14,6 +14,7 @@ import { Application } from '@/types/application';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useNavigate } from 'react-router-dom';
 import { Badge } from '@/components/ui/badge';
+import { formatApplicationReferenceWithPrefix } from '@/utils/referenceNumberFormatter';
 
 type ApplicationWithCustomer = Application & {
   paid_date?: string;
@@ -27,6 +28,7 @@ const CompletedApplications = () => {
   const [selectedMonths, setSelectedMonths] = useState<string[]>([]);
   const [applications, setApplications] = useState<ApplicationWithCustomer[]>([]);
   const [loading, setLoading] = useState(true);
+  const [maxReferenceNumber, setMaxReferenceNumber] = useState<number>(0);
   
   // Fetch applications with database-level filtering
   useEffect(() => {
@@ -184,6 +186,18 @@ const CompletedApplications = () => {
         }
         
         setApplications(finalApplications);
+        
+        // Fetch max reference number for formatting
+        const { data: maxRefData } = await supabase
+          .from('account_applications')
+          .select('reference_number')
+          .order('reference_number', { ascending: false })
+          .limit(1)
+          .single();
+        
+        if (maxRefData?.reference_number) {
+          setMaxReferenceNumber(maxRefData.reference_number);
+        }
       } catch (error) {
         console.error('Error fetching applications:', error);
       } finally {
@@ -410,7 +424,9 @@ const CompletedApplications = () => {
                     className="cursor-pointer hover:bg-muted/50"
                     onClick={() => navigate(`/applications/${app.id}`)}
                   >
-                    <TableCell className="font-medium">#{app.reference_number}</TableCell>
+                    <TableCell className="font-mono font-bold text-sm text-primary">
+                      {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at)}
+                    </TableCell>
                     <TableCell>{app.customer?.name}</TableCell>
                     <TableCell>{app.customer?.company}</TableCell>
                     <TableCell className="capitalize">{app.application_type?.replace('_', ' ')}</TableCell>

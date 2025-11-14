@@ -25,7 +25,7 @@ import { CreateProductDialog } from '@/components/Team/CreateProductDialog';
 import { TaskCard } from '@/components/Team/TaskCard';
 import { TaskDetailDialog } from '@/components/Team/TaskDetailDialog';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
-import { formatApplicationReferenceWithHashAuto } from '@/utils/referenceNumberFormatter';
+import { formatApplicationReferenceWithPrefix } from '@/utils/referenceNumberFormatter';
 
 interface TeamMember {
   id: string;
@@ -1205,7 +1205,7 @@ const TaskCollaboration: React.FC = () => {
                               <div className="flex items-start justify-between mb-2">
                                 <div className="flex items-center gap-2">
                                   <span className="text-sm font-semibold text-foreground">
-                                    {formatApplicationReferenceWithHashAuto(app.reference_number, maxReferenceNumber)}
+                                    {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at)}
                                   </span>
                                   <Badge className={`${statusBadgeColor} text-xs`}>
                                     {app.status.replace('_', ' ')}
@@ -1273,7 +1273,7 @@ const TaskCollaboration: React.FC = () => {
                           <div className="flex items-start justify-between mb-2">
                             <div>
                               <h3 className="text-xl font-semibold text-foreground">
-                                {formatApplicationReferenceWithHashAuto(selectedCase.reference_number, maxReferenceNumber)}
+                                {formatApplicationReferenceWithPrefix(selectedCase.reference_number, maxReferenceNumber, selectedCase.created_at)}
                               </h3>
                               <p className="text-sm text-muted-foreground">
                                 {selectedCase.application_type?.replace('_', ' ') || 'Application'}
