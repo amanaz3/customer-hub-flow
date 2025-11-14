@@ -3,10 +3,10 @@
  */
 
 /**
- * Format customer reference with leading zeros: 1 → "001"
+ * Format customer reference with leading zeros: 1 → "00001"
  */
 export const formatCustomerReference = (num: number): string => {
-  return num.toString().padStart(3, '0');
+  return num.toString().padStart(5, '0');
 };
 
 /**
