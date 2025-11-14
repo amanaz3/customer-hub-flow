@@ -311,21 +311,23 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               </CardHeader>
             )}
             <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-5">
+              {/* Customer Type Selector - Always Visible */}
+              <div className="transform transition-all duration-300 hover:scale-[1.01] pb-2 border-b border-border">
+                <CustomerTypeSelector
+                  value={companyMode ? 'existing' : 'new'}
+                  onChange={(value) => {
+                    const newMode = value === 'existing';
+                    onModeChange?.(newMode);
+                    if (!newMode) {
+                      onCustomerSelect?.(null);
+                    }
+                  }}
+                />
+              </div>
+
               {/* Step 1: Customer Selection */}
               {currentStep === 1 && (
                 <div key="step-1" className="animate-fade-in space-y-4">
-                  <div className="transform transition-all duration-300 hover:scale-[1.01]">
-                    <CustomerTypeSelector
-                      value={companyMode ? 'existing' : 'new'}
-                      onChange={(value) => {
-                        const newMode = value === 'existing';
-                        onModeChange?.(newMode);
-                        if (!newMode) {
-                          onCustomerSelect?.(null);
-                        }
-                      }}
-                    />
-                  </div>
                   
                   {/* Tab-Style Wizard - Positioned after customer selector */}
                   <div className="w-full">
