@@ -24,10 +24,13 @@ import { CustomerTypeSelector } from './CustomerTypeSelector';
 
 // Simplified form schema
 const formSchema = z.object({
+  customer_type: z.enum(['personal', 'business'], {
+    required_error: "Please select customer type",
+  }),
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Enter a valid email address"),
   mobile: z.string().min(10, "Enter a valid phone number"),
-  company: z.string().min(1, "Company name is required"),
+  company: z.string().optional(),
   amount: z.number().min(0.01, "Amount must be greater than 0"),
   license_type: z.enum(['Mainland', 'Freezone', 'Offshore']),
   lead_source: z.enum(['Website', 'Referral', 'Social Media', 'Other']),
@@ -54,6 +57,14 @@ const formSchema = z.object({
   property_value: z.number().optional(),
   vat_registration_type: z.string().optional(),
   tax_year_period: z.string().optional(),
+}).refine((data) => {
+  if (data.customer_type === 'business') {
+    return data.company && data.company.length > 0;
+  }
+  return true;
+}, {
+  message: "Company name is required for business customers",
+  path: ["company"],
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -92,6 +103,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      customer_type: 'personal',
       name: '',
       email: '',
       mobile: '',
@@ -404,6 +416,50 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             <h3 className="text-sm font-bold text-foreground tracking-tight">Basic Info</h3>
                           </div>
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            {/* Customer Type Selector */}
+                            <FormField
+                              control={form.control}
+                              name="customer_type"
+                              render={({ field }) => (
+                                <FormItem className="md:col-span-2 relative">
+                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Customer Type *</FormLabel>
+                                  <FormControl>
+                                    <div className="grid grid-cols-2 gap-3">
+                                      <button
+                                        type="button"
+                                        onClick={() => field.onChange('personal')}
+                                        className={`h-11 rounded-lg border-2 transition-all duration-300 flex items-center justify-center gap-2 font-medium text-sm ${
+                                          field.value === 'personal'
+                                            ? 'border-primary bg-primary/10 text-primary shadow-[0_0_12px_rgba(59,130,246,0.3)]'
+                                            : 'border-border/60 bg-background/50 hover:border-primary/50 hover:bg-background/80'
+                                        }`}
+                                      >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        Personal
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => field.onChange('business')}
+                                        className={`h-11 rounded-lg border-2 transition-all duration-300 flex items-center justify-center gap-2 font-medium text-sm ${
+                                          field.value === 'business'
+                                            ? 'border-primary bg-primary/10 text-primary shadow-[0_0_12px_rgba(59,130,246,0.3)]'
+                                            : 'border-border/60 bg-background/50 hover:border-primary/50 hover:bg-background/80'
+                                        }`}
+                                      >
+                                        <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                                        </svg>
+                                        Business
+                                      </button>
+                                    </div>
+                                  </FormControl>
+                                  <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
+                                </FormItem>
+                              )}
+                            />
+
                             <FormField
                               control={form.control}
                               name="name"
