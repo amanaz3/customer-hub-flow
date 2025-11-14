@@ -305,7 +305,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 : 'bg-muted/30 text-muted-foreground'
                             }`}
                           >
-                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4">
+                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3">
                               <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
                                 isActive 
                                   ? 'bg-primary-foreground text-primary ring-2 ring-primary-foreground/30' 
@@ -324,9 +324,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                   isActive ? 'scale-105' : 'scale-100'
                                 }`}>
                                   {label.title}
-                                </div>
-                                <div className="hidden sm:block text-[10px] opacity-80 truncate mt-0.5">
-                                  {label.desc}
                                 </div>
                               </div>
                             </div>
@@ -645,7 +642,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 : 'bg-muted/30 text-muted-foreground'
                             }`}
                           >
-                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4">
+                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3">
                               <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
                                 isActive 
                                   ? 'bg-primary-foreground text-primary ring-2 ring-primary-foreground/30' 
@@ -664,9 +661,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                   isActive ? 'scale-105' : 'scale-100'
                                 }`}>
                                   {label.title}
-                                </div>
-                                <div className="hidden sm:block text-[10px] opacity-80 truncate mt-0.5">
-                                  {label.desc}
                                 </div>
                               </div>
                             </div>
@@ -766,7 +760,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 : 'bg-muted/30 text-muted-foreground'
                             }`}
                           >
-                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4">
+                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3">
                               <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
                                 isActive 
                                   ? 'bg-primary-foreground text-primary ring-2 ring-primary-foreground/30' 
@@ -785,9 +779,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                   isActive ? 'scale-105' : 'scale-100'
                                 }`}>
                                   {label.title}
-                                </div>
-                                <div className="hidden sm:block text-[10px] opacity-80 truncate mt-0.5">
-                                  {label.desc}
                                 </div>
                               </div>
                             </div>
@@ -826,7 +817,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 : 'bg-muted/30 text-muted-foreground'
                             }`}
                           >
-                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-3 sm:py-4">
+                            <div className="flex items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 sm:py-3">
                               <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 sm:w-7 sm:h-7 rounded-full font-bold text-xs sm:text-sm transition-all duration-300 ${
                                 isActive 
                                   ? 'bg-primary-foreground text-primary ring-2 ring-primary-foreground/30' 
@@ -845,9 +836,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                   isActive ? 'scale-105' : 'scale-100'
                                 }`}>
                                   {label.title}
-                                </div>
-                                <div className="hidden sm:block text-[10px] opacity-80 truncate mt-0.5">
-                                  {label.desc}
                                 </div>
                               </div>
                             </div>
