@@ -481,16 +481,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           className="w-full"
         >
           <Card 
-            className="border border-gray-800 bg-black text-white shadow-[0_2px_12px_-3px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.12)] transition-shadow duration-300"
+            className="border border-gray-200 bg-white text-black shadow-[0_2px_12px_-3px_rgba(0,0,0,0.08)] hover:shadow-[0_4px_16px_-4px_rgba(0,0,0,0.12)] transition-shadow duration-300"
           >
-            <CardHeader className="border-b border-gray-800 pb-2 sm:pb-3 bg-gradient-to-r from-blue-600/10 via-blue-600/5 to-transparent px-4 sm:px-6 py-2 sm:py-3">
-              <CardTitle className="text-sm sm:text-base font-bold text-white tracking-tight">
+            <CardHeader className="border-b border-gray-200 pb-2 sm:pb-3 bg-gradient-to-r from-blue-600/10 via-blue-600/5 to-transparent px-4 sm:px-6 py-2 sm:py-3">
+              <CardTitle className="text-sm sm:text-base font-bold text-black tracking-tight">
                 {currentStep === 1 && 'Customer Selection'}
                 {currentStep === 2 && 'Service Selection'}
                 {currentStep === 3 && 'Service Details'}
                 {currentStep === 4 && 'Confirmation'}
               </CardTitle>
-              <p className="text-[11px] sm:text-xs text-gray-400 mt-0.5 font-medium">
+              <p className="text-[11px] sm:text-xs text-gray-600 mt-0.5 font-medium">
                 {currentStep === 1 && 'Choose customer type and provide customer information'}
                 {currentStep === 2 && 'Select the service and specify the application amount'}
                 {currentStep === 3 && 'Provide additional details specific to the selected service'}
@@ -499,7 +499,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             </CardHeader>
             <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-5">
               {/* Customer Type Selector - Always Visible */}
-              <div className="transform transition-all duration-300 hover:scale-[1.01] pb-2 border-b border-gray-800">
+              <div className="transform transition-all duration-300 hover:scale-[1.01] pb-2 border-b border-gray-200">
                 <CustomerTypeSelector
                   value={companyMode ? 'existing' : 'new'}
                   onChange={(value) => {
@@ -526,7 +526,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   
                   {/* Tab-Style Wizard - Positioned after customer selector */}
                   <div className="w-full">
-                    <div className="flex items-center bg-gray-900 shadow-sm rounded-lg overflow-hidden">
+                    <div className="flex items-center bg-gray-50 shadow-sm rounded-lg overflow-hidden">
                       {stepLabels.map((label, index) => {
                         const stepNumber = index + 1;
                         const isActive = currentStep === stepNumber;
@@ -540,8 +540,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               isActive 
                                 ? 'bg-blue-600 text-white shadow-lg scale-105 z-10' 
                                 : isCompleted 
-                                ? 'bg-blue-600/20 text-blue-400 hover:bg-blue-600/30' 
-                                : 'bg-gray-800 text-gray-400'
+                                ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' 
+                                : 'bg-gray-100 text-gray-500'
                             } ${!isLast ? 'mr-3' : ''}`}
                             style={{
                               clipPath: index === 0
@@ -570,7 +570,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                   ? 'bg-white text-blue-600 shadow-md animate-scale-in' 
                                   : isCompleted 
                                   ? 'bg-blue-600 text-white' 
-                                  : 'bg-gray-700 text-gray-400'
+                                  : 'bg-white text-gray-500'
                               }`}>
                                 {isCompleted ? (
                                   <Check className="w-4 h-4 stroke-[3] animate-fade-in" />
