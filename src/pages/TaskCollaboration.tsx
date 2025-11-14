@@ -412,6 +412,7 @@ const TaskCollaboration: React.FC = () => {
             )
           )
         `)
+        .not('status', 'in', '(completed,complete,paid,rejected)')
         .order('created_at', { ascending: false });
 
       if (casesError) throw casesError;
