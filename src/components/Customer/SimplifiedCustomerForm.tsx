@@ -273,17 +273,17 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
   return (
     <div className="w-full flex flex-col items-center">
-      {/* Progress indicator */}
-      <div className="mb-8 bg-card rounded-lg p-6 border border-border w-full shadow-sm">
-        <div className="flex items-center justify-between mb-5">
+      {/* Compact Progress indicator */}
+      <div className="mb-4 sm:mb-6 bg-card rounded-lg p-3 sm:p-4 border border-border w-full shadow-soft">
+        <div className="flex items-center justify-between mb-3 sm:mb-4">
           {[1, 2, 3, 4].map((step) => (
             <div key={step} className="flex items-center flex-1">
               <div className="flex flex-col items-center flex-1">
                 <div 
-                  className={`flex items-center justify-center w-10 h-10 rounded-full border-2 transition-all ${
+                  className={`flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full border-2 transition-all ${
                     currentStep >= step 
                       ? 'border-primary bg-primary text-primary-foreground' 
-                      : 'border-muted-foreground/30 bg-background text-muted-foreground'
+                      : 'border-border bg-background text-muted-foreground'
                   }`}
                   aria-current={currentStep === step ? 'step' : undefined}
                   aria-label={`Step ${step}: ${stepLabels[step - 1].title}`}
@@ -291,27 +291,27 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   {currentStep > step ? (
                     <Check className="w-4 h-4" />
                   ) : (
-                    <span className="text-sm font-medium">{step}</span>
+                    <span className="text-xs sm:text-sm font-semibold">{step}</span>
                   )}
                 </div>
               </div>
               {step < 4 && (
-                <div className={`flex-1 h-0.5 mx-3 transition-all ${
+                <div className={`flex-1 h-0.5 mx-1.5 sm:mx-2 transition-all ${
                   currentStep > step ? 'bg-primary' : 'bg-border'
                 }`} />
               )}
             </div>
           ))}
         </div>
-        <div className="flex items-start">
+        <div className="hidden sm:flex items-start">
           {stepLabels.map((label, index) => (
-            <div key={index} className="flex-1 flex flex-col items-center text-center px-2">
+            <div key={index} className="flex-1 flex flex-col items-center text-center px-1">
               <div className={`font-medium text-xs transition-all ${
                 currentStep >= index + 1 ? 'text-foreground' : 'text-muted-foreground'
               }`}>
                 {label.title}
               </div>
-              <div className={`text-xs mt-1 transition-all ${
+              <div className={`text-[10px] mt-0.5 transition-all ${
                 currentStep >= index + 1 ? 'text-muted-foreground' : 'text-muted-foreground/60'
               }`}>
                 {label.desc}
@@ -324,26 +324,26 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       <Form {...form}>
         <form 
           onSubmit={form.handleSubmit(onSubmit)} 
-          className="space-y-6 w-full"
+          className="w-full"
         >
           <Card 
-            className="border border-border bg-card shadow-sm"
+            className="border border-border bg-card shadow-elegant"
           >
-            <CardHeader className="border-b border-border pb-4 bg-muted/30">
-              <CardTitle className="text-lg font-semibold text-foreground">
+            <CardHeader className="border-b border-border pb-3 sm:pb-4 bg-muted/20 px-4 sm:px-6 py-3 sm:py-4">
+              <CardTitle className="text-base sm:text-lg font-semibold text-foreground">
                 {currentStep === 1 && 'Customer Selection'}
                 {currentStep === 2 && 'Service Selection'}
                 {currentStep === 3 && 'Service Details'}
                 {currentStep === 4 && 'Confirmation'}
               </CardTitle>
-              <p className="text-sm text-muted-foreground mt-1">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5 sm:mt-1">
                 {currentStep === 1 && 'Choose to create a new customer or select an existing one'}
                 {currentStep === 2 && 'Select the service and specify the application amount'}
                 {currentStep === 3 && 'Provide additional details specific to the selected service'}
                 {currentStep === 4 && 'Review all information before submitting'}
               </p>
             </CardHeader>
-            <CardContent className="space-y-6 p-6">
+            <CardContent className="p-4 sm:p-6 space-y-4 sm:space-y-5">
               {/* Step 1: Customer Selection */}
               {currentStep === 1 && (
                 <>
@@ -370,16 +370,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   {!companyMode && (
                     <>
                       {/* Basic Info Section */}
-                      <div className="space-y-4 pt-4">
-                        <div className="border-t border-border pt-4">
-                          <h3 className="text-sm font-semibold text-foreground mb-4">Basic Info</h3>
-                          <div className="space-y-4">
+                      <div className="space-y-3 pt-3">
+                        <div className="border-t border-border pt-3">
+                          <h3 className="text-xs sm:text-sm font-semibold text-foreground mb-3">Basic Info</h3>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <FormField
                               control={form.control}
                               name="name"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Full Name *</FormLabel>
+                                  <FormLabel className="text-xs">Full Name *</FormLabel>
                                   <FormControl>
                                     <Input 
                                       {...field} 
@@ -388,9 +388,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                         onNameChange?.(e.target.value);
                                       }}
                                       placeholder="Enter full name"
+                                      className="h-9 text-sm"
                                     />
                                   </FormControl>
-                                  <FormMessage />
+                                  <FormMessage className="text-xs" />
                                 </FormItem>
                               )}
                             />
@@ -400,7 +401,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               name="mobile"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel>Mobile Number *</FormLabel>
+                                  <FormLabel className="text-xs">Mobile Number *</FormLabel>
                                   <FormControl>
                                     <Input 
                                       {...field} 
@@ -409,9 +410,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                         onMobileChange?.(e.target.value);
                                       }}
                                       placeholder="Enter mobile number"
+                                      className="h-9 text-sm"
                                     />
                                   </FormControl>
-                                  <FormMessage />
+                                  <FormMessage className="text-xs" />
                                 </FormItem>
                               )}
                             />
@@ -420,8 +422,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               control={form.control}
                               name="email"
                               render={({ field }) => (
-                                <FormItem>
-                                  <FormLabel>Email Address *</FormLabel>
+                                <FormItem className="md:col-span-2">
+                                  <FormLabel className="text-xs">Email Address *</FormLabel>
                                   <FormControl>
                                     <Input 
                                       type="email"
@@ -431,9 +433,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                         onEmailChange?.(e.target.value);
                                       }}
                                       placeholder="Enter email address"
+                                      className="h-9 text-sm"
                                     />
                                   </FormControl>
-                                  <FormMessage />
+                                  <FormMessage className="text-xs" />
                                 </FormItem>
                               )}
                             />
@@ -441,17 +444,17 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         </div>
 
                         {/* Channel Info Section */}
-                        <div className="border-t border-border pt-4">
-                          <h3 className="text-sm font-semibold text-foreground mb-4">Channel Info</h3>
+                        <div className="border-t border-border pt-3">
+                          <h3 className="text-xs sm:text-sm font-semibold text-foreground mb-3">Channel Info</h3>
                           <FormField
                             control={form.control}
                             name="lead_source"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel>Lead Source *</FormLabel>
+                                <FormLabel className="text-xs">Lead Source *</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                   <FormControl>
-                                    <SelectTrigger>
+                                    <SelectTrigger className="h-9 text-sm">
                                       <SelectValue placeholder="Select lead source" />
                                     </SelectTrigger>
                                   </FormControl>
@@ -462,7 +465,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                     <SelectItem value="Other">Other</SelectItem>
                                   </SelectContent>
                                 </Select>
-                                <FormMessage />
+                                <FormMessage className="text-xs" />
                               </FormItem>
                             )}
                           />
@@ -475,19 +478,19 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
               {/* Step 2: Service Selection */}
               {currentStep === 2 && (
-                <>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   <FormField
                     control={form.control}
                     name="product_id"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Select Service *</FormLabel>
+                      <FormItem className="md:col-span-2">
+                        <FormLabel className="text-xs">Select Service *</FormLabel>
                         <Select onValueChange={(value) => {
                           field.onChange(value);
                           handleProductChange(value);
                         }} value={field.value}>
                           <FormControl>
-                            <SelectTrigger>
+                            <SelectTrigger className="h-9 text-sm">
                               <SelectValue placeholder="Choose a service" />
                             </SelectTrigger>
                           </FormControl>
@@ -499,7 +502,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             ))}
                           </SelectContent>
                         </Select>
-                        <FormMessage />
+                        <FormMessage className="text-xs" />
                       </FormItem>
                     )}
                   />
@@ -509,20 +512,22 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     name="amount"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Amount (AED) *</FormLabel>
+                        <FormLabel className="text-xs">Amount (AED) *</FormLabel>
                         <FormControl>
                           <Input 
                             type="number" 
                             step="0.01"
                             {...field} 
-                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)} 
+                            onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
+                            placeholder="0.00"
+                            className="h-9 text-sm"
                           />
                         </FormControl>
-                        <FormMessage />
+                        <FormMessage className="text-xs" />
                       </FormItem>
                     )}
                   />
-                </>
+                </div>
               )}
 
               {/* Step 3: Service Details */}
@@ -599,21 +604,22 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             </CardContent>
           </Card>
 
-          {/* Navigation Buttons */}
-          <div className="flex justify-between items-center py-4">
+          {/* Compact Navigation Buttons */}
+          <div className="flex justify-between items-center py-3 sm:py-4 px-4 sm:px-0">
             <Button
               type="button"
               variant="outline"
               onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
               disabled={currentStep === 1 || isSubmitting}
-              className="min-w-[130px] h-11"
+              className="h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm"
             >
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              Previous
+              <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+              <span className="hidden sm:inline">Previous</span>
+              <span className="sm:hidden">Back</span>
             </Button>
 
-            <div className="flex flex-col items-center gap-1">
-              <div className="text-sm font-medium text-muted-foreground">
+            <div className="flex flex-col items-center gap-0.5">
+              <div className="text-xs sm:text-sm font-medium text-muted-foreground">
                 Step {currentStep} of 4
               </div>
             </div>
@@ -656,16 +662,17 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     });
                   }
                 }}
-                className="min-w-[130px] h-11"
+                className="h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm"
               >
-                Next Step
-                <ChevronRight className="w-4 h-4 ml-2" />
+                <span className="hidden sm:inline">Next Step</span>
+                <span className="sm:hidden">Next</span>
+                <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4 ml-1 sm:ml-2" />
               </Button>
             ) : (
               <Button 
                 type="submit" 
                 disabled={isSubmitting} 
-                className="min-w-[130px] h-11"
+                className="h-9 sm:h-10 px-3 sm:px-4 text-xs sm:text-sm"
               >
                 {isSubmitting ? (
                   <>
@@ -673,7 +680,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   </>
                 ) : (
                   <>
-                    ✓ Create Application
+                    <Check className="w-3 h-3 sm:w-4 sm:h-4 mr-1 sm:mr-2" />
+                    <span className="hidden sm:inline">Create Application</span>
+                    <span className="sm:hidden">Create</span>
                   </>
                 )}
               </Button>
