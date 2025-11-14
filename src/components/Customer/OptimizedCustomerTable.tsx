@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
-import { formatCustomerReferenceWithHashAuto } from '@/utils/referenceNumberFormatter';
+import { formatCustomerReferenceWithPrefix } from '@/utils/referenceNumberFormatter';
 
 
 interface OptimizedCustomerTableProps {
@@ -251,7 +251,7 @@ const CustomerRow = memo(({
         </TableCell>
       )}
       <TableCell className="font-mono font-bold text-sm text-primary">
-        {formatCustomerReferenceWithHashAuto(customer.reference_number, maxReferenceNumber)}
+        {formatCustomerReferenceWithPrefix(customer.reference_number, maxReferenceNumber, customer.created_at)}
       </TableCell>
       <TableCell className="font-medium">
         <div className="space-y-1">

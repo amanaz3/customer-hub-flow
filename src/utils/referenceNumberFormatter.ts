@@ -60,7 +60,16 @@ export const parseReferenceNumber = (input: string): number | null => {
 };
 
 /**
+ * Format customer reference with CUST-yyyy- prefix and auto-scaling: 1 → "CUST-2025-00001"
+ */
+export const formatCustomerReferenceWithPrefix = (num: number, maxReference: number, createdAt?: string): string => {
+  const year = createdAt ? new Date(createdAt).getFullYear() : new Date().getFullYear();
+  return `CUST-${year}-${formatCustomerReferenceAuto(num, maxReference)}`;
+};
+
+/**
  * Format customer reference with hash prefix and auto-scaling: 1 → "#00001"
+ * @deprecated Use formatCustomerReferenceWithPrefix for CUST-yyyy- format
  */
 export const formatCustomerReferenceWithHashAuto = (num: number, maxReference: number): string => {
   return `#${formatCustomerReferenceAuto(num, maxReference)}`;
