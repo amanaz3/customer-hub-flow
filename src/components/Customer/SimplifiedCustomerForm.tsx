@@ -24,13 +24,10 @@ import { VATFields } from './fields/VATFields';
 import { TaxFields } from './fields/TaxFields';
 
 const formSchema = z.object({
-  customer_type: z.enum(['personal', 'business'], {
-    required_error: "Please select customer type",
-  }),
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Enter a valid email address"),
   mobile: z.string().min(10, "Enter a valid phone number"),
-  company: z.string().optional(),
+  company: z.string().min(1, "Company name is required"),
   amount: z.number().min(0.01, "Amount must be greater than 0"),
   license_type: z.enum(['Mainland', 'Freezone', 'Offshore']),
   lead_source: z.enum(['Website', 'Referral', 'Social Media', 'Other']),
@@ -57,14 +54,6 @@ const formSchema = z.object({
   property_value: z.number().optional(),
   vat_registration_type: z.string().optional(),
   tax_year_period: z.string().optional(),
-}).refine((data) => {
-  if (data.customer_type === 'business') {
-    return data.company && data.company.length > 0;
-  }
-  return true;
-}, {
-  message: "Company name is required for business customers",
-  path: ["company"],
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -103,7 +92,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      customer_type: 'business',
       name: '',
       email: '',
       mobile: '',
@@ -496,35 +484,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               }}
                             />
 
-                            {/* Customer Type Field */}
+                            {/* Company Field */}
                             <FormField
-                              control={form.control}
-                              name="customer_type"
-                              render={({ field }) => (
-                                <FormItem className="md:col-span-2 relative">
-                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Customer Type *</FormLabel>
-                                  <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl>
-                                      <SelectTrigger className="h-11 text-sm border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
-                                        focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background
-                                        hover:border-primary/50 hover:bg-background/80
-                                        transition-all duration-300">
-                                        <SelectValue placeholder="Select customer type" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent className="z-50 bg-background border-border shadow-lg">
-                                      <SelectItem value="personal">👤 Personal</SelectItem>
-                                      <SelectItem value="business">🏢 Business</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
-                                </FormItem>
-                              )}
-                            />
-
-                            {/* Conditional Company Field - only show for business */}
-                            {form.watch('customer_type') === 'business' && (
-                              <FormField
                                 control={form.control}
                                 name="company"
                                 render={({ field }) => {
@@ -562,7 +523,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                   );
                                 }}
                               />
-                            )}
                           </div>
                         </div>
 
@@ -704,15 +664,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                           <dd className="font-medium text-foreground">{form.watch('mobile')}</dd>
                         </div>
                         <div className="flex justify-between">
-                          <dt className="text-muted-foreground">Type:</dt>
-                          <dd className="font-medium text-foreground">{form.watch('customer_type') === 'business' ? '🏢 Business' : '👤 Personal'}</dd>
+                          <dt className="text-muted-foreground">Company:</dt>
+                          <dd className="font-medium text-foreground">{form.watch('company')}</dd>
                         </div>
-                        {form.watch('customer_type') === 'business' && (
-                          <div className="flex justify-between">
-                            <dt className="text-muted-foreground">Company:</dt>
-                            <dd className="font-medium text-foreground">{form.watch('company')}</dd>
-                          </div>
-                        )}
                         <div className="flex justify-between">
                           <dt className="text-muted-foreground">License Type:</dt>
                           <dd className="font-medium text-foreground">{form.watch('license_type')}</dd>
