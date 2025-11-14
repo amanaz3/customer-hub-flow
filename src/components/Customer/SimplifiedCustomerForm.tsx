@@ -155,6 +155,57 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     }
   };
 
+  // Auto-save draft when progressing from step 1 to step 2
+  const autoSaveDraft = async () => {
+    if (!user?.id) return;
+
+    const values = form.getValues();
+    
+    try {
+      // Get next reference number
+      const { data: refData } = await supabase
+        .from('customers')
+        .select('reference_number')
+        .order('reference_number', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      
+      const nextRefNumber = (refData?.reference_number || 0) + 1;
+
+      const customerData = {
+        name: values.name,
+        email: values.email || null,
+        mobile: values.mobile,
+        company: values.company || '',
+        amount: values.amount || 0,
+        license_type: values.license_type || 'Mainland',
+        lead_source: values.lead_source,
+        user_id: user.id,
+        product_id: values.product_id || null,
+        annual_turnover: values.annual_turnover || null,
+        jurisdiction: values.jurisdiction || null,
+        customer_notes: values.customer_notes || null,
+        reference_number: nextRefNumber,
+        status: 'Draft' as const,
+      };
+
+      const { data: customer, error } = await supabase
+        .from('customers')
+        .insert([customerData])
+        .select()
+        .single();
+
+      if (!error) {
+        toast({
+          title: "Auto-saved",
+          description: `Draft automatically saved with reference #${nextRefNumber}`,
+        });
+      }
+    } catch (error: any) {
+      console.error('Error auto-saving draft:', error);
+    }
+  };
+
   // Auto-progress to next step when all required fields are VALID
   useEffect(() => {
     const subscription = form.watch((value) => {
@@ -171,6 +222,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         const companyValid = companyMode ? selectedCustomerId : true;
         
         if (nameValid && mobileValid && countryValid && leadSourceValid && companyValid) {
+          // Auto-save before progressing to step 2
+          autoSaveDraft();
           setTimeout(() => setCurrentStep(2), 500);
         }
       }
@@ -195,7 +248,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     });
     
     return () => subscription.unsubscribe();
-  }, [currentStep, form, companyMode, selectedCustomerId, isSubmitting]);
+  }, [currentStep, form, companyMode, selectedCustomerId, isSubmitting, user]);
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
