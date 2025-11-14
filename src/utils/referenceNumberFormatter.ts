@@ -40,6 +40,15 @@ export const formatApplicationReferenceAuto = (num: number, maxReference: number
 };
 
 /**
+ * Format application reference with APP-yyyy- prefix and auto-scaling: 1001 → "APP-2025-01001"
+ * Year is extracted from the application's created_at timestamp from database
+ */
+export const formatApplicationReferenceWithPrefix = (num: number, maxReference: number, createdAt: string): string => {
+  const year = new Date(createdAt).getFullYear();
+  return `APP-${year}-${formatApplicationReferenceAuto(num, maxReference)}`;
+};
+
+/**
  * Format application reference with leading zeros: 1001 → "1001"
  * @deprecated Use formatApplicationReferenceAuto for auto-scaling support
  */
@@ -78,6 +87,7 @@ export const formatCustomerReferenceWithHashAuto = (num: number, maxReference: n
 
 /**
  * Format application reference with hash prefix and auto-scaling: 1001 → "#01001"
+ * @deprecated Use formatApplicationReferenceWithPrefix for APP-yyyy- format
  */
 export const formatApplicationReferenceWithHashAuto = (num: number, maxReference: number): string => {
   return `#${formatApplicationReferenceAuto(num, maxReference)}`;

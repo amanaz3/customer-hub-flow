@@ -11,7 +11,7 @@ import { useToast } from '@/hooks/use-toast';
 import { ApplicationService } from '@/services/applicationService';
 import { supabase } from '@/integrations/supabase/client';
 import type { Application } from '@/types/application';
-import { formatApplicationReferenceWithHashAuto } from '@/utils/referenceNumberFormatter';
+import { formatApplicationReferenceWithPrefix } from '@/utils/referenceNumberFormatter';
 import { CompletionDateDialog } from '@/components/Customer/CompletionDateDialog';
 import { CompletionDateHistory } from '@/components/Customer/CompletionDateHistory';
 
@@ -306,7 +306,7 @@ const ApplicationDetail = () => {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold">
-                {formatApplicationReferenceWithHashAuto(application.reference_number, maxApplicationRef)}
+                {formatApplicationReferenceWithPrefix(application.reference_number, maxApplicationRef, application.created_at)}
               </h1>
               <Badge variant="outline" className="font-mono text-sm">
                 {application.application_type.replace('_', ' ').toUpperCase()}
