@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -154,6 +154,41 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       onProductChange?.(product.name);
     }
   };
+
+  // Auto-progress to next step when all required fields are filled
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      if (isSubmitting) return;
+      
+      // Step 1: Check basic info
+      if (currentStep === 1) {
+        const hasBasicInfo = value.name && value.mobile && value.country_of_residence;
+        const hasCompanyInfo = companyMode ? selectedCustomerId : true;
+        
+        if (hasBasicInfo && hasCompanyInfo) {
+          setTimeout(() => setCurrentStep(2), 500);
+        }
+      }
+      
+      // Step 2: Check service selection
+      if (currentStep === 2) {
+        const hasServiceInfo = value.product_id && value.amount && value.amount > 0 && 
+                               value.license_type && value.lead_source;
+        
+        if (hasServiceInfo) {
+          setTimeout(() => setCurrentStep(3), 500);
+        }
+      }
+      
+      // Step 3: Auto-progress to confirmation
+      // Product-specific fields are mostly optional, so we auto-progress after a short delay
+      if (currentStep === 3 && value.product_id) {
+        setTimeout(() => setCurrentStep(4), 800);
+      }
+    });
+    
+    return () => subscription.unsubscribe();
+  }, [currentStep, form, companyMode, selectedCustomerId, isSubmitting]);
 
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
