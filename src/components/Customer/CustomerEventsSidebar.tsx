@@ -111,7 +111,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({ cu
   if (customerLoading) {
     return (
       <div className={cn(
-        "fixed right-0 top-16 h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-[110]",
+        "fixed right-0 top-16 h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-[50]",
         isCollapsed ? "w-12" : "w-80"
       )}>
         <div className="space-y-4 p-4">
@@ -127,7 +127,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({ cu
 
   return (
     <div className={cn(
-      "fixed right-0 top-16 h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-[110] overflow-y-auto",
+      "fixed right-0 top-16 h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-[50] overflow-y-auto",
       isCollapsed ? "w-12" : "w-80"
     )}>
       {/* Toggle Button */}
