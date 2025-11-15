@@ -17,6 +17,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { CustomerTypeSelector } from './CustomerTypeSelector';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
 import { ProcessSummarySidebar } from './ProcessSummarySidebar';
+import { UnifiedProgressHeader } from './UnifiedProgressHeader';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -488,75 +489,24 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             onSubmit={form.handleSubmit(onSubmit)} 
             className="w-full"
           >
-            <Card 
-              className="border border-border bg-card shadow-md hover:shadow-lg transition-shadow duration-300"
-            >
-            <CardHeader className="border-b border-border pb-2 sm:pb-3 bg-gradient-to-r from-primary/5 via-primary/3 to-transparent px-4 sm:px-6 py-2 sm:py-3">
-              <div className="flex items-start justify-between gap-4">
-                <div className="flex-1">
-                  <CardTitle className="text-sm sm:text-base font-bold text-foreground tracking-tight">
-                    {currentStep === 1 && 'Customer Selection'}
-                    {currentStep === 2 && 'Service Selection'}
-                    {currentStep === 3 && 'Service Details'}
-                    {currentStep === 4 && 'Confirmation'}
-                  </CardTitle>
-                  <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 font-medium">
-                    {currentStep === 1 && 'Choose customer type and provide customer information'}
-                    {currentStep === 2 && 'Select the service and specify the application amount'}
-                    {currentStep === 3 && 'Provide additional details specific to the selected service'}
-                    {currentStep === 4 && 'Review all information before submitting'}
-                  </p>
-                </div>
+            {/* Unified Progress Header */}
+            <UnifiedProgressHeader
+              currentStep={currentStep}
+              totalSteps={4}
+              customerName={form.watch('name')}
+              customerEmail={form.watch('email')}
+              customerMobile={form.watch('mobile')}
+              customerWhatsapp={form.watch('whatsapp')}
+              customerCountry={form.watch('country_of_residence')}
+              selectedProduct={products?.find(p => p.id === form.watch('product_id'))?.name}
+            />
 
-                {/* Captured Info Summary - Collapsible after Step 1 */}
-                {currentStep > 1 && form.watch('name') && (
-                  <div className="flex-shrink-0">
-                    <Collapsible defaultOpen={false}>
-                      <CollapsibleTrigger className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] bg-muted/30 hover:bg-muted/50 border border-border rounded-md transition-colors group">
-                        <User className="h-3 w-3 text-primary" />
-                        <span className="font-semibold text-foreground">{form.watch('name')}</span>
-                        <ChevronDown className="h-3 w-3 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="absolute right-4 mt-1 px-3 py-2 text-[11px] bg-card border border-border rounded-md shadow-lg z-10 min-w-[250px]">
-                        <div className="space-y-1">
-                          {form.watch('email') && (
-                            <div className="flex items-center gap-1.5">
-                              <Mail className="h-3 w-3 text-primary" />
-                              <span className="text-muted-foreground font-medium w-16">Email:</span>
-                              <span className="text-foreground">{form.watch('email')}</span>
-                            </div>
-                          )}
-                          {form.watch('mobile') && (
-                            <div className="flex items-center gap-1.5">
-                              <Phone className="h-3 w-3 text-primary" />
-                              <span className="text-muted-foreground font-medium w-16">Mobile:</span>
-                              <span className="text-foreground">{form.watch('mobile')}</span>
-                            </div>
-                          )}
-                          {form.watch('whatsapp') && (
-                            <div className="flex items-center gap-1.5">
-                              <MessageSquare className="h-3 w-3 text-primary" />
-                              <span className="text-muted-foreground font-medium w-16">WhatsApp:</span>
-                              <span className="text-foreground">{form.watch('whatsapp')}</span>
-                            </div>
-                          )}
-                          {form.watch('country_of_residence') && (
-                            <div className="flex items-center gap-1.5">
-                              <Globe className="h-3 w-3 text-primary" />
-                              <span className="text-muted-foreground font-medium w-16">Country:</span>
-                              <span className="text-foreground">{form.watch('country_of_residence')}</span>
-                            </div>
-                          )}
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
-                  </div>
-                )}
-              </div>
-            </CardHeader>
+            <Card 
+              className="border-t-0 border border-border bg-card shadow-md hover:shadow-lg transition-shadow duration-300 rounded-t-none"
+            >
             <CardContent className="p-4 sm:p-6 space-y-5">
               {/* Customer Type Selector - Always Visible */}
-              <div className="transform transition-all duration-300 hover:scale-[1.01] -mt-2 pb-6 mb-4 relative">
+              <div className="transform transition-all duration-300 hover:scale-[1.01] pb-4 mb-4 border-b border-border">
                 <CustomerTypeSelector
                   value={companyMode ? 'existing' : 'new'}
                   onChange={(value) => {
@@ -575,87 +525,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     }
                   }}
                 />
-                
-                {/* Visual Connection Element */}
-                <div className="absolute bottom-2 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
-                <div className="absolute bottom-2 left-1/2 -translate-x-1/2 w-0.5 h-4 bg-gradient-to-b from-primary/40 to-transparent" />
               </div>
 
               {/* Step 1: Customer Selection */}
               {currentStep === 1 && (
                 <div key="step-1" className="animate-fade-in space-y-4">
-                  
-                  {/* Tab-Style Wizard - Positioned after customer selector */}
-                  <div className="w-full relative">
-                    {/* Top connection shadow */}
-                    <div className="absolute -top-5 left-0 right-0 h-8 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none rounded-t-lg" />
-                    <div className="flex items-center bg-card shadow-sm rounded-lg overflow-hidden">
-                      {stepLabels.map((label, index) => {
-                        const stepNumber = index + 1;
-                        const isActive = currentStep === stepNumber;
-                        const isCompleted = currentStep > stepNumber;
-                        const isLast = index === stepLabels.length - 1;
-                        
-                        return (
-                          <div
-                            key={stepNumber}
-                            className={`flex-1 relative transition-all duration-500 ${
-                              isActive 
-                                ? 'bg-primary text-primary-foreground shadow-lg scale-105 z-10' 
-                                : isCompleted 
-                                ? 'bg-primary/10 text-primary hover:bg-primary/20' 
-                                : 'bg-muted/30 text-muted-foreground'
-                            } ${!isLast ? 'mr-3' : ''}`}
-                            style={{
-                              clipPath: index === 0
-                                ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
-                                : !isLast 
-                                ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%)' 
-                                : 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)'
-                            }}
-                          >
-                            {/* Highlight pulse effect for active step */}
-                            {isActive && (
-                              <div className="absolute inset-0 animate-pulse bg-primary/20" 
-                                style={{
-                                  clipPath: index === 0
-                                    ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
-                                    : !isLast 
-                                    ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%)' 
-                                    : 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)'
-                                }}
-                              />
-                            )}
-                            
-                            <div className="flex items-center gap-2 px-3 py-2 relative z-10">
-                              <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full font-bold text-xs transition-all duration-500 ${
-                                isActive 
-                                  ? 'bg-primary-foreground text-primary shadow-md animate-scale-in' 
-                                  : isCompleted 
-                                  ? 'bg-primary text-primary-foreground' 
-                                  : 'bg-background text-muted-foreground'
-                              }`}>
-                                {isCompleted ? (
-                                  <Check className="w-4 h-4 stroke-[3] animate-fade-in" />
-                                ) : (
-                                  <span className={isActive ? 'animate-scale-in' : ''}>
-                                    {stepNumber}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className={`font-semibold text-xs truncate transition-all duration-500 ${
-                                  isActive ? 'scale-110 font-bold' : 'scale-100'
-                                }`}>
-                                  {label.title}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
                   
                   {companyMode && user && (
                     <div className={`transform transition-all duration-300 ${companyMode ? 'opacity-100 scale-100' : 'opacity-40 scale-95 pointer-events-none'}`}>
@@ -870,77 +744,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Step 2: Service Selection */}
               {currentStep === 2 && (
                 <div key="step-2" className="animate-fade-in space-y-4">
-                  {/* Tab-Style Wizard */}
-                  <div className="w-full relative">
-                    {/* Top connection shadow */}
-                    <div className="absolute -top-5 left-0 right-0 h-8 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none rounded-t-lg" />
-                    <div className="flex items-center bg-card shadow-sm rounded-lg overflow-hidden">
-                      {stepLabels.map((label, index) => {
-                        const stepNumber = index + 1;
-                        const isActive = currentStep === stepNumber;
-                        const isCompleted = currentStep > stepNumber;
-                        const isLast = index === stepLabels.length - 1;
-                        
-                        return (
-                          <div
-                            key={stepNumber}
-                            className={`flex-1 relative transition-all duration-500 ${
-                              isActive 
-                                ? 'bg-primary text-primary-foreground shadow-lg scale-105 z-10' 
-                                : isCompleted 
-                                ? 'bg-primary/10 text-primary hover:bg-primary/20' 
-                                : 'bg-muted/30 text-muted-foreground'
-                            } ${!isLast ? 'mr-3' : ''}`}
-                            style={{
-                              clipPath: !isLast 
-                                ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%)' 
-                                : index > 0 
-                                ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)'
-                                : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
-                            }}
-                          >
-                            {/* Highlight pulse effect for active step */}
-                            {isActive && (
-                              <div className="absolute inset-0 animate-pulse bg-primary/20" 
-                                style={{
-                                  clipPath: !isLast 
-                                    ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%)' 
-                                    : index > 0 
-                                    ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)'
-                                    : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
-                                }}
-                              />
-                            )}
-                            
-                            <div className="flex items-center gap-2 px-3 py-2 relative z-10">
-                              <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full font-bold text-xs transition-all duration-500 ${
-                                isActive 
-                                  ? 'bg-primary-foreground text-primary shadow-md animate-scale-in' 
-                                  : isCompleted 
-                                  ? 'bg-primary text-primary-foreground' 
-                                  : 'bg-background text-muted-foreground'
-                              }`}>
-                                {isCompleted ? (
-                                  <Check className="w-4 h-4 stroke-[3] animate-fade-in" />
-                                ) : (
-                                  <span className={isActive ? 'animate-scale-in' : ''}>
-                                    {stepNumber}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className={`font-semibold text-xs truncate transition-all duration-500 ${
-                                  isActive ? 'scale-110 font-bold' : 'scale-100'
-                                }`}>
-                                  {label.title}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 transform transition-all duration-300">
                   <FormField
@@ -1010,158 +813,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Step 3: Service Details */}
               {currentStep === 3 && (
                 <div key="step-3" className="animate-fade-in space-y-4">
-                  {/* Tab-Style Wizard */}
-                  <div className="w-full relative">
-                    {/* Top connection shadow */}
-                    <div className="absolute -top-5 left-0 right-0 h-8 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none rounded-t-lg" />
-                    <div className="flex items-center bg-card shadow-sm rounded-lg overflow-hidden">
-                      {stepLabels.map((label, index) => {
-                        const stepNumber = index + 1;
-                        const isActive = currentStep === stepNumber;
-                        const isCompleted = currentStep > stepNumber;
-                        const isLast = index === stepLabels.length - 1;
-                        
-                        return (
-                          <div
-                            key={stepNumber}
-                            className={`flex-1 relative transition-all duration-500 ${
-                              isActive 
-                                ? 'bg-primary text-primary-foreground shadow-lg scale-105 z-10' 
-                                : isCompleted 
-                                ? 'bg-primary/10 text-primary hover:bg-primary/20' 
-                                : 'bg-muted/30 text-muted-foreground'
-                            } ${!isLast ? 'mr-3' : ''}`}
-                            style={{
-                              clipPath: !isLast 
-                                ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%)' 
-                                : index > 0 
-                                ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)'
-                                : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
-                            }}
-                          >
-                            {/* Highlight pulse effect for active step */}
-                            {isActive && (
-                              <div className="absolute inset-0 animate-pulse bg-primary/20" 
-                                style={{
-                                  clipPath: !isLast 
-                                    ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%)' 
-                                    : index > 0 
-                                    ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)'
-                                    : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
-                                }}
-                              />
-                            )}
-                            
-                            <div className="flex items-center gap-2 px-3 py-2 relative z-10">
-                              <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full font-bold text-xs transition-all duration-500 ${
-                                isActive 
-                                  ? 'bg-primary-foreground text-primary shadow-md animate-scale-in' 
-                                  : isCompleted 
-                                  ? 'bg-primary text-primary-foreground' 
-                                  : 'bg-background text-muted-foreground'
-                              }`}>
-                                {isCompleted ? (
-                                  <Check className="w-4 h-4 stroke-[3] animate-fade-in" />
-                                ) : (
-                                  <span className={isActive ? 'animate-scale-in' : ''}>
-                                    {stepNumber}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className={`font-semibold text-xs truncate transition-all duration-500 ${
-                                  isActive ? 'scale-110 font-bold' : 'scale-100'
-                                }`}>
-                                  {label.title}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
-                  
-                  {/* Service Details Card */}
-                  <div className="space-y-3 pt-3">
-                    <div className="rounded-lg border-2 border-border bg-gradient-to-br from-purple-50/50 via-purple-50/30 to-transparent dark:from-purple-950/20 dark:via-purple-950/10 dark:to-transparent p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-[1.01]">
-                      <div className="flex items-center gap-2 mb-3 group">
-                        <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                          </svg>
-                        </div>
-                        <h3 className="text-sm font-bold text-foreground tracking-tight">Service Details</h3>
-                      </div>
-                      {renderProductFields()}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Step 4: Confirmation */}
-              {currentStep === 4 && (
-                <div key="step-4" className="animate-fade-in space-y-4">
-                  {/* Tab-Style Wizard */}
-                  <div className="w-full relative">
-                    {/* Top connection shadow */}
-                    <div className="absolute -top-5 left-0 right-0 h-8 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none rounded-t-lg" />
-                    <div className="flex items-center bg-card shadow-sm rounded-lg overflow-hidden">
-                      {stepLabels.map((label, index) => {
-                        const stepNumber = index + 1;
-                        const isActive = currentStep === stepNumber;
-                        const isCompleted = currentStep > stepNumber;
-                        const isLast = index === stepLabels.length - 1;
-                        
-                        return (
-                          <div
-                            key={stepNumber}
-                            className={`flex-1 relative transition-all duration-200 ${
-                              isActive 
-                                ? 'bg-primary text-primary-foreground shadow-md ring-2 ring-primary/20' 
-                                : isCompleted 
-                                ? 'bg-success text-success-foreground shadow-sm hover:shadow-md' 
-                                : 'bg-secondary text-secondary-foreground hover:bg-secondary/80'
-                            } ${!isLast ? 'mr-3' : ''}`}
-                            style={{
-                              clipPath: !isLast 
-                                ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%, 12px 50%)' 
-                                : index > 0 
-                                ? 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 12px 50%)'
-                                : 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
-                            }}
-                          >
-                            {/* Removed pulse effect for cleaner look */}
-                            
-                            <div className="flex items-center gap-2 px-3 py-2 relative z-10">
-                              <div className={`flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full font-bold text-xs transition-all duration-500 ${
-                                isActive 
-                                  ? 'bg-primary-foreground text-primary shadow-md animate-scale-in' 
-                                  : isCompleted 
-                                  ? 'bg-primary text-primary-foreground' 
-                                  : 'bg-background text-muted-foreground'
-                              }`}>
-                                {isCompleted ? (
-                                  <Check className="w-4 h-4 stroke-[3] animate-fade-in" />
-                                ) : (
-                                  <span className={isActive ? 'animate-scale-in' : ''}>
-                                    {stepNumber}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className={`font-semibold text-xs truncate transition-all duration-500 ${
-                                  isActive ? 'scale-110 font-bold' : 'scale-100'
-                                }`}>
-                                  {label.title}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
-                    </div>
-                  </div>
                   
                   <div className="space-y-4">
                     <div className="rounded-lg bg-muted/30 p-4">
