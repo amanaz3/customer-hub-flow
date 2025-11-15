@@ -71,6 +71,7 @@ export const UnifiedProgressHeader = ({
               { step: 2, label: 'Service' },
               { step: 3, label: 'Details' },
               { step: 4, label: 'Review' },
+              { step: 5, label: 'Confirm' },
             ].map(({ step, label }, index) => (
               <button
                 key={step}
