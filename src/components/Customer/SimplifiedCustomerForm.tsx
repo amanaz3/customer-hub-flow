@@ -42,7 +42,7 @@ const formSchema = z.object({
   company: z.string().optional(),
   amount: z.number().min(0.01, "Amount must be greater than 0"),
   license_type: z.enum(['Mainland', 'Freezone', 'Offshore']),
-  lead_source: z.enum(['Website', 'Referral', 'Social Media', 'Other']),
+  lead_source: z.enum(['Website', 'Referral', 'Social Media', 'Other']).optional(),
   product_id: z.string().min(1, "Please select a product/service"),
   
   // Optional fields
@@ -230,10 +230,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         const nameValid = value.name && value.name.length >= 2 && !errors.name;
         const mobileValid = value.mobile && value.mobile.length >= 10 && !errors.mobile;
         const countryValid = value.country_of_residence && !errors.country_of_residence;
-        const leadSourceValid = value.lead_source && !errors.lead_source;
         const companyValid = companyMode ? selectedCustomerId : true;
         
-        if (nameValid && mobileValid && countryValid && leadSourceValid && companyValid) {
+        if (nameValid && mobileValid && countryValid && companyValid) {
           // Auto-save before progressing to step 2
           autoSaveDraft();
           setTimeout(() => setCurrentStep(2), 500);
@@ -245,9 +244,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         const productValid = value.product_id && !errors.product_id;
         const amountValid = value.amount && value.amount > 0 && !errors.amount;
         const licenseValid = value.license_type && !errors.license_type;
-        const sourceValid = value.lead_source && !errors.lead_source;
         
-        if (productValid && amountValid && licenseValid && sourceValid) {
+        if (productValid && amountValid && licenseValid) {
           setTimeout(() => setCurrentStep(3), 500);
         }
       }
@@ -354,12 +352,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     const nameValid = values.name && values.name.length >= 2 && !errors.name;
     const mobileValid = values.mobile && values.mobile.length >= 10 && !errors.mobile;
     const countryValid = values.country_of_residence && !errors.country_of_residence;
-    const leadSourceValid = values.lead_source && !errors.lead_source;
     
-    if (!nameValid || !mobileValid || !countryValid || !leadSourceValid) {
+    if (!nameValid || !mobileValid || !countryValid) {
       toast({
         title: "Cannot Save Draft",
-        description: "Please complete all mandatory fields: Name, Mobile, Country of Residence, and Lead Source",
+        description: "Please complete all mandatory fields: Name, Mobile, and Country of Residence",
         variant: "destructive",
       });
       return;
@@ -431,19 +428,17 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       const nameValid = values.name && values.name.length >= 2 && !errors.name;
       const mobileValid = values.mobile && values.mobile.length >= 10 && !errors.mobile;
       const countryValid = values.country_of_residence && !errors.country_of_residence;
-      const leadSourceValid = values.lead_source && !errors.lead_source;
       const companyValid = companyMode ? selectedCustomerId : true;
       
-      return nameValid && mobileValid && countryValid && leadSourceValid && companyValid;
+      return nameValid && mobileValid && countryValid && companyValid;
     }
 
     if (currentStep === 2) {
       const productValid = values.product_id && !errors.product_id;
       const amountValid = values.amount && values.amount > 0 && !errors.amount;
       const licenseValid = values.license_type && !errors.license_type;
-      const sourceValid = values.lead_source && !errors.lead_source;
       
-      return productValid && amountValid && licenseValid && sourceValid;
+      return productValid && amountValid && licenseValid;
     }
 
     return true; // Steps 3 and 4 don't have mandatory fields
@@ -749,7 +744,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               name="customer_type"
                               render={({ field }) => (
                                 <FormItem className="relative">
-                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Customer Type *</FormLabel>
+                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Customer Type (Optional)</FormLabel>
                                   <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl>
                                       <SelectTrigger className="h-11 text-sm border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
@@ -809,7 +804,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                   const isError = hasValue && !!fieldState.error;
                                   
                                   return (
-                                    <FormItem className="md:col-span-2 relative animate-fade-in">
+                                    <FormItem className="relative">
                                       <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Company Name *</FormLabel>
                                       <FormControl>
                                         <div className="relative group">
@@ -838,45 +833,35 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 }}
                               />
                             )}
-                          </div>
-                        </div>
 
-                        {/* Channel Info Section */}
-                        <div className="rounded-lg border-2 border-border bg-gradient-to-br from-purple-50/50 via-purple-50/30 to-transparent dark:from-purple-950/20 dark:via-purple-950/10 dark:to-transparent p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-[1.01]">
-                          <div className="flex items-center gap-2 mb-3 group">
-                            <div className="w-8 h-8 rounded-lg bg-purple-100 dark:bg-purple-900/50 flex items-center justify-center shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:-rotate-3">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-purple-600 dark:text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-                              </svg>
-                            </div>
-                            <h3 className="text-sm font-bold text-foreground tracking-tight">Channel Info</h3>
+                            {/* Lead Source Field */}
+                            <FormField
+                              control={form.control}
+                              name="lead_source"
+                              render={({ field }) => (
+                                <FormItem className="relative">
+                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Lead Source (Optional)</FormLabel>
+                                  <Select onValueChange={field.onChange} value={field.value}>
+                                    <FormControl>
+                                      <SelectTrigger className="h-11 text-sm border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
+                                        focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background
+                                        hover:border-primary/50 hover:bg-background/80
+                                        transition-all duration-300">
+                                        <SelectValue placeholder="How did you find us?" />
+                                      </SelectTrigger>
+                                    </FormControl>
+                                    <SelectContent className="z-50 bg-background border-border shadow-lg">
+                                      <SelectItem value="Website">🌐 Website</SelectItem>
+                                      <SelectItem value="Referral">🤝 Referral</SelectItem>
+                                      <SelectItem value="Social Media">📱 Social Media</SelectItem>
+                                      <SelectItem value="Other">📋 Other</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
+                                </FormItem>
+                              )}
+                            />
                           </div>
-                          <FormField
-                            control={form.control}
-                            name="lead_source"
-                            render={({ field }) => (
-                              <FormItem className="relative">
-                                <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Lead Source *</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger className="h-11 text-sm border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
-                                      focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background
-                                      hover:border-primary/50 hover:bg-background/80
-                                      transition-all duration-300">
-                                      <SelectValue placeholder="How did you find us?" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent className="z-50 bg-background border-border shadow-lg">
-                                    <SelectItem value="Website">🌐 Website</SelectItem>
-                                    <SelectItem value="Referral">🤝 Referral</SelectItem>
-                                    <SelectItem value="Social Media">📱 Social Media</SelectItem>
-                                    <SelectItem value="Other">📋 Other</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
-                              </FormItem>
-                            )}
-                          />
                         </div>
                       </div>
                     </div>
