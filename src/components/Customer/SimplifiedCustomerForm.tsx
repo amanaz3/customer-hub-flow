@@ -597,7 +597,14 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
               {/* Step 1: Customer Selection */}
               {currentStep === 1 && (
-                <div key="step-1" className="animate-fade-in space-y-4">
+                <div key="step-1" className="animate-fade-in">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-xl">Customer Details</CardTitle>
+                    <CardDescription>
+                      {companyMode ? 'Select an existing customer or provide new customer information.' : 'Enter the customer\'s basic information to get started.'}
+                    </CardDescription>
+                  </CardHeader>
+                  <div className="space-y-4 px-6">
                   
                   {companyMode && user && (
                     <div className={`transform transition-all duration-300 ${companyMode ? 'opacity-100 scale-100' : 'opacity-40 scale-95 pointer-events-none'}`}>
@@ -806,12 +813,20 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       </div>
                     </div>
                   )}
+                  </div>
                 </div>
               )}
 
               {/* Step 2: Service Selection */}
               {currentStep === 2 && (
-                <div key="step-2" className="animate-fade-in space-y-4">
+                <div key="step-2" className="animate-fade-in">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-xl">Service Selection</CardTitle>
+                    <CardDescription>
+                      Choose the service you need and provide the required details.
+                    </CardDescription>
+                  </CardHeader>
+                  <div className="space-y-4 px-6">
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 transform transition-all duration-300">
                   <FormField
@@ -874,13 +889,21 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       </FormItem>
                     )}
                   />
+                   </div>
                   </div>
                 </div>
               )}
 
               {/* Step 3: Service Details */}
               {currentStep === 3 && (
-                <div key="step-3" className="animate-fade-in space-y-4">
+                <div key="step-3" className="animate-fade-in">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-xl">Additional Information</CardTitle>
+                    <CardDescription>
+                      Complete any additional details specific to your selected service.
+                    </CardDescription>
+                  </CardHeader>
+                  <div className="space-y-4 px-6">
                   {/* Service-specific fields based on selected product */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-border">
@@ -895,6 +918,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         <p className="text-xs mt-1">Click Next to proceed to confirmation.</p>
                       </div>
                     )}
+                   </div>
                   </div>
                 </div>
               )}
