@@ -114,6 +114,24 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
+
+  // Check if current step has any data filled
+  const isCurrentStepFilled = () => {
+    const values = form.getValues();
+    
+    if (currentStep === 1) {
+      return !!(values.name || values.email || values.mobile || values.company);
+    }
+    
+    if (currentStep === 2) {
+      return !!(values.product_id || values.amount || values.license_type);
+    }
+    
+    return false;
+  };
+
+  // Check if cancel button should be shown
+  const shouldShowCancelButton = currentStep > 1 || isCurrentStepFilled();
   const [selectedProductName, setSelectedProductName] = useState<string>('');
   const [showModeChangeWarning, setShowModeChangeWarning] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
@@ -1071,18 +1089,20 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       
       {/* Floating Action Buttons */}
       <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
-        {/* Cancel Button */}
-        <Button
-          type="button"
-          size="icon"
-          variant="outline"
-          onClick={() => setShowCancelDialog(true)}
-          disabled={isSubmitting}
-          className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 bg-background border-2 border-destructive hover:bg-destructive hover:text-destructive-foreground"
-          title="Cancel and return"
-        >
-          <X className="h-5 w-5" />
-        </Button>
+        {/* Cancel Button - Only show if form has data */}
+        {shouldShowCancelButton && (
+          <Button
+            type="button"
+            size="icon"
+            variant="outline"
+            onClick={() => setShowCancelDialog(true)}
+            disabled={isSubmitting}
+            className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 bg-background border-2 border-destructive hover:bg-destructive hover:text-destructive-foreground"
+            title="Cancel and return"
+          >
+            <X className="h-5 w-5" />
+          </Button>
+        )}
 
         {/* Previous Step Button */}
         {currentStep > 1 && (
