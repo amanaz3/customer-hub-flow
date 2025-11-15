@@ -3,7 +3,9 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, FileText, User, Building2, Clock } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Calendar, FileText, User, Building2, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 
 interface CustomerEventsSidebarProps {
@@ -11,6 +13,12 @@ interface CustomerEventsSidebarProps {
 }
 
 export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({ customerId }) => {
+  const [isCollapsed, setIsCollapsed] = React.useState(false);
+
+  const toggleCollapsed = () => {
+    setIsCollapsed(!isCollapsed);
+  };
+
   // Fetch customer details
   const { data: customer, isLoading: customerLoading } = useQuery({
     queryKey: ['customer', customerId],
@@ -102,8 +110,11 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({ cu
 
   if (customerLoading) {
     return (
-      <div className="fixed right-0 top-20 h-[calc(100vh-5rem)] w-80 bg-card border-l border-border p-4 overflow-y-auto shadow-lg animate-in slide-in-from-right">
-        <div className="space-y-4">
+      <div className={cn(
+        "fixed right-0 top-16 h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-40",
+        isCollapsed ? "w-12" : "w-80"
+      )}>
+        <div className="space-y-4 p-4">
           <div className="h-8 bg-muted animate-pulse rounded" />
           <div className="h-32 bg-muted animate-pulse rounded" />
           <div className="h-48 bg-muted animate-pulse rounded" />
@@ -115,7 +126,30 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({ cu
   if (!customer) return null;
 
   return (
-    <div className="fixed right-0 top-20 h-[calc(100vh-5rem)] w-80 bg-background border-l border-border overflow-y-auto shadow-lg animate-in slide-in-from-right">
+    <div className={cn(
+      "fixed right-0 top-16 h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-40 overflow-y-auto",
+      isCollapsed ? "w-12" : "w-80"
+    )}>
+      {/* Toggle Button */}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="absolute -left-8 top-4 h-16 w-8 rounded-r-none border-l-0 bg-card border shadow-md"
+        onClick={toggleCollapsed}
+      >
+        {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+      </Button>
+
+      {/* Collapsed State */}
+      {isCollapsed && (
+        <div className="flex flex-col items-center py-4 gap-4">
+          <User className="h-6 w-6 text-muted-foreground" />
+          <Badge className="writing-mode-vertical">Events</Badge>
+        </div>
+      )}
+
+      {/* Expanded State */}
+      {!isCollapsed && (
       <div className="p-4 space-y-4">
         {/* Customer Info Card */}
         <Card className="border-primary/20">
@@ -246,6 +280,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({ cu
           </CardContent>
         </Card>
       </div>
+      )}
     </div>
   );
 };
