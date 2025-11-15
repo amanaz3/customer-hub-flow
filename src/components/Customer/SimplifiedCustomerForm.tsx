@@ -522,7 +522,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             >
             <CardContent className="p-4 sm:p-6 space-y-5">
               {/* Customer Information Summary Accordion - Show after step 1 */}
-              {currentStep > 1 && form.watch('name') && (
+              {currentStep > 1 && form.watch('name') && (<>
                 <div className="sticky z-20 bg-card/95 backdrop-blur-sm -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 pb-4 mb-8 border-b border-border shadow-md" style={{ top: 'calc(var(--nav-h, 56px) + var(--unified-header-h, 160px))' }}>
                   <div className="flex justify-center">
                   <Accordion 
@@ -592,7 +592,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   </Accordion>
                   </div>
                 </div>
-              )}
+                <div className="h-6 sm:h-8" aria-hidden="true" />
+              </>)}
 
               {/* Step 1: Customer Selection */}
               {currentStep === 1 && (
