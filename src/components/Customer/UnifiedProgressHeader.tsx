@@ -52,11 +52,6 @@ export const UnifiedProgressHeader = ({
             />
           </div>
 
-          {/* Visual Separator */}
-          <div className="w-full max-w-2xl">
-            <div className="h-px bg-border"></div>
-          </div>
-
           {/* Progress Bar */}
           <div className="w-full max-w-2xl">
             <div className="h-1 bg-muted rounded-full overflow-hidden">
