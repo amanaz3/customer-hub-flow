@@ -608,6 +608,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   
                   {companyMode && user && (
                     <div className={`transform transition-all duration-300 ${companyMode ? 'opacity-100 scale-100' : 'opacity-40 scale-95 pointer-events-none'}`}>
+                      <div className="mb-4">
+                        <h3 className="text-sm font-semibold text-foreground">Select Existing Customer</h3>
+                        <p className="text-xs text-muted-foreground mt-1">Choose a customer from your existing records to create an application for them.</p>
+                      </div>
                       <ExistingCustomerSelector
                         userId={user.id}
                         value={selectedCustomerId || ''}
@@ -625,9 +629,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   {/* Show basic info fields for new customers only */}
                   {!companyMode && (
                     <div className={`transition-all duration-300 ${!companyMode ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
+                      <div className="mb-4">
+                        <h3 className="text-sm font-semibold text-foreground">New Customer Information</h3>
+                        <p className="text-xs text-muted-foreground mt-1">Enter the details for a new customer. Provide at least one contact method.</p>
+                      </div>
                       {/* Quick Lead Capture - Step 1 */}
                       <div className="space-y-3 pt-2">
-                        <p className="text-xs text-muted-foreground">Provide at least one contact method (Mobile or Email)</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                           {/* Name */}
                           <FormField
