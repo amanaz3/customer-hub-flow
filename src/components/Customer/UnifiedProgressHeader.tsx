@@ -62,55 +62,59 @@ export const UnifiedProgressHeader = ({
             </div>
           </div>
 
-          {/* Step Breadcrumbs */}
+          {/* Step Breadcrumbs - Arrow Style */}
           <div className="w-full max-w-2xl flex items-center justify-center">
-            <div className="flex items-center gap-2">
+            <div className="flex items-center -space-x-2">
             {[
               { step: 1, label: 'Customer' },
               { step: 2, label: 'Service' },
               { step: 3, label: 'Details' },
               { step: 4, label: 'Review' },
-            ].map(({ step, label }, index, array) => (
-              <React.Fragment key={step}>
-                <button
-                  onClick={() => onStepClick(step)}
-                  disabled={step > currentStep}
-                  className={cn(
-                    "group relative flex items-center gap-2 px-3 py-1.5 rounded-md transition-all duration-200",
-                    step === currentStep && "bg-primary/10 ring-1 ring-primary/20",
-                    step < currentStep && "hover:bg-muted/50 cursor-pointer",
-                    step > currentStep && "opacity-40 cursor-not-allowed"
-                  )}
-                >
-                  <div className={cn(
-                    "flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold transition-all duration-200",
-                    step === currentStep && "bg-primary text-primary-foreground shadow-sm",
-                    step < currentStep && "bg-primary/20 text-primary",
-                    step > currentStep && "bg-muted text-muted-foreground"
-                  )}>
-                    {step < currentStep ? (
-                      <Check className="h-3.5 w-3.5" />
-                    ) : (
-                      step
-                    )}
-                  </div>
-                  <span className={cn(
-                    "text-xs font-medium transition-colors duration-200",
-                    step === currentStep && "text-primary",
-                    step < currentStep && "text-foreground",
-                    step > currentStep && "text-muted-foreground"
-                  )}>
-                    {label}
-                  </span>
-                </button>
-
-                {index < array.length - 1 && (
-                  <ChevronRight className={cn(
-                    "h-4 w-4 transition-colors duration-200",
-                    step < currentStep ? "text-primary" : "text-muted-foreground/40"
-                  )} />
+            ].map(({ step, label }, index) => (
+              <button
+                key={step}
+                onClick={() => onStepClick(step)}
+                disabled={step > currentStep}
+                className={cn(
+                  "relative flex items-center gap-2 px-6 py-2.5 transition-all duration-200",
+                  "first:pl-4 last:pr-4",
+                  step === currentStep && "z-10",
+                  step > currentStep && "opacity-50 cursor-not-allowed"
                 )}
-              </React.Fragment>
+                style={{
+                  clipPath: index === 0 
+                    ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
+                    : index === 3
+                    ? 'polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 50%)'
+                    : 'polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%)',
+                  backgroundColor: step === currentStep 
+                    ? 'hsl(var(--primary))' 
+                    : step < currentStep 
+                    ? 'hsl(var(--primary) / 0.2)' 
+                    : 'hsl(var(--muted))'
+                }}
+              >
+                <div className={cn(
+                  "flex items-center justify-center w-5 h-5 rounded-full text-xs font-semibold",
+                  step === currentStep && "bg-primary-foreground text-primary",
+                  step < currentStep && "bg-primary text-primary-foreground",
+                  step > currentStep && "bg-background text-muted-foreground"
+                )}>
+                  {step < currentStep ? (
+                    <Check className="h-3 w-3" />
+                  ) : (
+                    step
+                  )}
+                </div>
+                <span className={cn(
+                  "text-xs font-medium whitespace-nowrap",
+                  step === currentStep && "text-primary-foreground",
+                  step < currentStep && "text-primary",
+                  step > currentStep && "text-muted-foreground"
+                )}>
+                  {label}
+                </span>
+              </button>
             ))}
             </div>
           </div>
