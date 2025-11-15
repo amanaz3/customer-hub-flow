@@ -238,6 +238,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     const subscription = form.watch((value) => {
       if (isSubmitting) return;
       
+      // Skip auto-progress for existing customer mode
+      if (companyMode && selectedCustomerId) {
+        return;
+      }
+
       const errors = form.formState.errors;
       
       // Step 1: Check basic info is VALID (not just filled)
@@ -470,6 +475,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
   // Validate if current step has all mandatory fields valid
   const canProgressToNextStep = () => {
+    // For existing customer mode, skip validation if customer is selected
+    if (companyMode && selectedCustomerId) {
+      return true;
+    }
+
     const values = form.getValues();
     const errors = form.formState.errors;
 
@@ -508,6 +518,94 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     };
 
     return categoryMap[productCategory] || null;
+  };
+
+  const renderCustomerAccordion = () => {
+    if (!selectedCustomerData || !companyMode) return null;
+
+    return (
+      <div className="mb-4">
+        <Accordion 
+          type="single" 
+          collapsible 
+          value={accordionOpen} 
+          onValueChange={setAccordionOpen}
+          className="border rounded-lg bg-muted/20"
+        >
+          <AccordionItem value="customer-details" className="border-none">
+            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+              <div className="flex items-center gap-3 text-left">
+                <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
+                  <Check className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <div className="font-semibold text-sm">Selected Customer</div>
+                  <div className="text-xs text-muted-foreground">{selectedCustomerData.name}</div>
+                </div>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
+                {selectedCustomerData.name && (
+                  <div className="flex items-start gap-2">
+                    <User className="h-4 w-4 text-primary mt-0.5" />
+                    <div>
+                      <span className="text-muted-foreground block text-xs">Name</span>
+                      <span className="font-medium">{selectedCustomerData.name}</span>
+                    </div>
+                  </div>
+                )}
+                {selectedCustomerData.email && (
+                  <div className="flex items-start gap-2">
+                    <Mail className="h-4 w-4 text-primary mt-0.5" />
+                    <div>
+                      <span className="text-muted-foreground block text-xs">Email</span>
+                      <span className="font-medium">{selectedCustomerData.email}</span>
+                    </div>
+                  </div>
+                )}
+                {selectedCustomerData.mobile && (
+                  <div className="flex items-start gap-2">
+                    <Phone className="h-4 w-4 text-primary mt-0.5" />
+                    <div>
+                      <span className="text-muted-foreground block text-xs">Phone</span>
+                      <span className="font-medium">{selectedCustomerData.mobile}</span>
+                    </div>
+                  </div>
+                )}
+                {selectedCustomerData.company && (
+                  <div className="flex items-start gap-2">
+                    <Building2 className="h-4 w-4 text-primary mt-0.5" />
+                    <div>
+                      <span className="text-muted-foreground block text-xs">Company</span>
+                      <span className="font-medium">{selectedCustomerData.company}</span>
+                    </div>
+                  </div>
+                )}
+                {selectedCustomerData.reference_number && (
+                  <div className="flex items-start gap-2">
+                    <FileText className="h-4 w-4 text-primary mt-0.5" />
+                    <div>
+                      <span className="text-muted-foreground block text-xs">Reference</span>
+                      <span className="font-medium">#{selectedCustomerData.reference_number}</span>
+                    </div>
+                  </div>
+                )}
+                {selectedCustomerData.license_type && (
+                  <div className="flex items-start gap-2">
+                    <Building2 className="h-4 w-4 text-primary mt-0.5" />
+                    <div>
+                      <span className="text-muted-foreground block text-xs">License Type</span>
+                      <Badge variant="secondary" className="mt-1">{selectedCustomerData.license_type}</Badge>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      </div>
+    );
   };
 
   const stepLabels = [
@@ -948,6 +1046,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   </CardHeader>
                   <div className="space-y-4 px-6">
                   
+                  {/* Show customer accordion for existing customer */}
+                  {renderCustomerAccordion()}
+
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 transform transition-all duration-300">
                   <FormField
                     control={form.control}
@@ -1024,6 +1125,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     </CardDescription>
                   </CardHeader>
                   <div className="space-y-4 px-6">
+                  
+                  {/* Show customer accordion for existing customer */}
+                  {renderCustomerAccordion()}
+
                   {/* Service-specific fields based on selected product */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-border">
