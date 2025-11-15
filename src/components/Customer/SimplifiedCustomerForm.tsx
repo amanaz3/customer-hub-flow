@@ -16,6 +16,7 @@ import { ChevronLeft, ChevronRight, Check, Save, ArrowLeft, ArrowRight, ChevronD
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { CustomerTypeSelector } from './CustomerTypeSelector';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
+import { ProcessSummarySidebar } from './ProcessSummarySidebar';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -481,15 +482,17 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   ];
 
   return (
-    <div className="w-full flex flex-col items-center">
-      <Form {...form}>
-        <form 
-          onSubmit={form.handleSubmit(onSubmit)} 
-          className="w-full"
-        >
-          <Card 
-            className="border border-border bg-card shadow-md hover:shadow-lg transition-shadow duration-300"
+    <div className="w-full flex gap-6">
+      {/* Main Form Content */}
+      <div className="flex-1">
+        <Form {...form}>
+          <form 
+            onSubmit={form.handleSubmit(onSubmit)} 
+            className="w-full"
           >
+            <Card 
+              className="border border-border bg-card shadow-md hover:shadow-lg transition-shadow duration-300"
+            >
             <CardHeader className="border-b border-border pb-2 sm:pb-3 bg-gradient-to-r from-primary/5 via-primary/3 to-transparent px-4 sm:px-6 py-2 sm:py-3">
               <CardTitle className="text-sm sm:text-base font-bold text-foreground tracking-tight">
                 {currentStep === 1 && 'Customer Selection'}
@@ -1236,7 +1239,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       </Form>
       
       {/* Floating Action Buttons */}
-      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
+      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50 lg:right-[22rem]">
         {/* Previous Step Button */}
         {currentStep > 1 && (
           <Button
@@ -1322,6 +1325,25 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      </div>
+
+      {/* Right Sidebar - Process Summary */}
+      <div className="hidden lg:block w-80 flex-shrink-0">
+        <div className="sticky top-6">
+          <ProcessSummarySidebar
+            currentStep={currentStep}
+            formData={{
+              name: form.watch('name'),
+              email: form.watch('email'),
+              mobile: form.watch('mobile'),
+              product_id: form.watch('product_id'),
+              amount: form.watch('amount'),
+              license_type: form.watch('license_type'),
+            }}
+            productName={selectedProductName}
+          />
+        </div>
+      </div>
     </div>
   );
 };
