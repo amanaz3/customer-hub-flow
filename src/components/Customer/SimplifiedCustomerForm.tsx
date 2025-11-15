@@ -279,6 +279,32 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     }
   }, [selectedCustomerId, companyMode, onModeChange]);
 
+  // Populate form with existing customer data when selected
+  useEffect(() => {
+    if (selectedCustomerData && companyMode) {
+      form.setValue('name', selectedCustomerData.name || '');
+      form.setValue('email', selectedCustomerData.email || '');
+      form.setValue('mobile', selectedCustomerData.mobile || '');
+      form.setValue('company', selectedCustomerData.company || '');
+      form.setValue('country_of_residence', selectedCustomerData.jurisdiction || '');
+      form.setValue('product_id', selectedCustomerData.product_id || '');
+      form.setValue('amount', selectedCustomerData.amount || 0);
+      form.setValue('license_type', selectedCustomerData.license_type || 'Mainland');
+      form.setValue('lead_source', selectedCustomerData.lead_source || undefined);
+      form.setValue('customer_type', selectedCustomerData.company ? 'company' : 'individual');
+      form.setValue('annual_turnover', selectedCustomerData.annual_turnover || undefined);
+      form.setValue('jurisdiction', selectedCustomerData.jurisdiction || '');
+      form.setValue('customer_notes', selectedCustomerData.customer_notes || '');
+      
+      // Update selected product name for the sidebar
+      const product = products?.find(p => p.id === selectedCustomerData.product_id);
+      if (product) {
+        setSelectedProductName(product.name);
+        onProductChange?.(product.name);
+      }
+    }
+  }, [selectedCustomerData, companyMode, form, products, onProductChange]);
+
   const onSubmit = async (data: FormData) => {
     setIsSubmitting(true);
     
