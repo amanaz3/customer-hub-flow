@@ -264,11 +264,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         }
       }
       
-      // Step 3: Auto-progress to confirmation after brief delay
-      // (Most fields here are optional)
-      if (currentStep === 3 && value.product_id) {
-        setTimeout(() => setCurrentStep(4), 1000);
-      }
+      // Step 3: Service details - optional fields, don't auto-progress
+      // User should click Next when ready to review
     });
     
     return () => subscription.unsubscribe();
@@ -813,75 +810,146 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Step 3: Service Details */}
               {currentStep === 3 && (
                 <div key="step-3" className="animate-fade-in space-y-4">
-                  
+                  {/* Service-specific fields based on selected product */}
                   <div className="space-y-4">
-                    <div className="rounded-lg bg-muted/30 p-4">
-                      <h4 className="font-semibold text-foreground mb-3">Customer Information</h4>
+                    <div className="flex items-center gap-2 pb-2 border-b border-border">
+                      <div className="w-1 h-6 bg-primary rounded-full" />
+                      <h3 className="text-sm font-bold text-foreground tracking-tight">Service-Specific Details</h3>
+                    </div>
+                    {renderProductFields()}
+                    
+                    {!renderProductFields() && (
+                      <div className="text-center py-8 text-muted-foreground">
+                        <p className="text-sm">No additional details required for this service.</p>
+                        <p className="text-xs mt-1">Click Next to proceed to confirmation.</p>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Step 4: Confirmation & Preview */}
+              {currentStep === 4 && (
+                <div key="step-4" className="animate-fade-in space-y-4">
+                  
+                  <div className="space-y-6">
+                    {/* Customer Information Preview */}
+                    <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
+                      <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+                        <div className="w-1 h-6 bg-primary rounded-full" />
+                        <h4 className="font-semibold text-foreground">Customer Information</h4>
+                      </div>
                       <dl className="space-y-2 text-sm">
-                        <div className="flex justify-between">
+                        <div className="flex justify-between py-1">
                           <dt className="text-muted-foreground">Name:</dt>
                           <dd className="font-medium text-foreground">{form.watch('name')}</dd>
                         </div>
-                        <div className="flex justify-between">
-                          <dt className="text-muted-foreground">Email:</dt>
-                          <dd className="font-medium text-foreground">{form.watch('email')}</dd>
-                        </div>
-                        <div className="flex justify-between">
-                          <dt className="text-muted-foreground">Mobile:</dt>
-                          <dd className="font-medium text-foreground">{form.watch('mobile')}</dd>
-                        </div>
-                        <div className="flex justify-between">
+                        {form.watch('email') && (
+                          <div className="flex justify-between py-1">
+                            <dt className="text-muted-foreground">Email:</dt>
+                            <dd className="font-medium text-foreground">{form.watch('email')}</dd>
+                          </div>
+                        )}
+                        {form.watch('mobile') && (
+                          <div className="flex justify-between py-1">
+                            <dt className="text-muted-foreground">Mobile:</dt>
+                            <dd className="font-medium text-foreground">{form.watch('mobile')}</dd>
+                          </div>
+                        )}
+                        {form.watch('whatsapp') && (
+                          <div className="flex justify-between py-1">
+                            <dt className="text-muted-foreground">WhatsApp:</dt>
+                            <dd className="font-medium text-foreground">{form.watch('whatsapp')}</dd>
+                          </div>
+                        )}
+                        <div className="flex justify-between py-1">
                           <dt className="text-muted-foreground">Customer Type:</dt>
                           <dd className="font-medium text-foreground capitalize">{form.watch('customer_type')}</dd>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between py-1">
                           <dt className="text-muted-foreground">Country of Residence:</dt>
                           <dd className="font-medium text-foreground">{form.watch('country_of_residence')}</dd>
                         </div>
                         {form.watch('customer_type') === 'company' && form.watch('company') && (
-                          <div className="flex justify-between">
+                          <div className="flex justify-between py-1">
                             <dt className="text-muted-foreground">Company:</dt>
                             <dd className="font-medium text-foreground">{form.watch('company')}</dd>
                           </div>
                         )}
-                        <div className="flex justify-between">
+                        <div className="flex justify-between py-1">
                           <dt className="text-muted-foreground">License Type:</dt>
                           <dd className="font-medium text-foreground">{form.watch('license_type')}</dd>
                         </div>
                       </dl>
                     </div>
 
-                    <div className="rounded-lg bg-muted/30 p-4">
-                      <h4 className="font-semibold text-foreground mb-3">Service Information</h4>
+                    {/* Service Information Preview */}
+                    <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
+                      <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+                        <div className="w-1 h-6 bg-primary rounded-full" />
+                        <h4 className="font-semibold text-foreground">Service Information</h4>
+                      </div>
                       <dl className="space-y-2 text-sm">
-                        <div className="flex justify-between">
+                        <div className="flex justify-between py-1">
                           <dt className="text-muted-foreground">Service:</dt>
                           <dd className="font-medium text-foreground">{selectedProductName}</dd>
                         </div>
-                        <div className="flex justify-between">
+                        <div className="flex justify-between py-1">
                           <dt className="text-muted-foreground">Amount:</dt>
-                          <dd className="font-medium text-foreground">AED {form.watch('amount')?.toLocaleString()}</dd>
+                          <dd className="font-medium text-foreground text-lg">AED {form.watch('amount')?.toLocaleString()}</dd>
                         </div>
+                        {form.watch('lead_source') && (
+                          <div className="flex justify-between py-1">
+                            <dt className="text-muted-foreground">Lead Source:</dt>
+                            <dd className="font-medium text-foreground">{form.watch('lead_source')}</dd>
+                          </div>
+                        )}
                       </dl>
                     </div>
 
+                    {/* Additional Notes */}
                     <FormField
                       control={form.control}
                       name="customer_notes"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Additional Notes (Optional)</FormLabel>
+                          <FormLabel className="text-sm font-semibold">Additional Notes (Optional)</FormLabel>
                           <FormControl>
                             <Textarea 
                               {...field}
                               rows={4}
-                              placeholder="Add any additional information or special requirements"
+                              placeholder="Add any additional information or special requirements..."
+                              className="resize-none"
                             />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
                       )}
                     />
+
+                    {/* Submit Button */}
+                    <div className="pt-4 border-t border-border">
+                      <Button
+                        type="submit"
+                        size="lg"
+                        disabled={isSubmitting}
+                        className="w-full h-12 text-base font-semibold"
+                      >
+                        {isSubmitting ? (
+                          <>
+                            <span className="animate-pulse">Submitting...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Check className="mr-2 h-5 w-5" />
+                            Submit Application
+                          </>
+                        )}
+                      </Button>
+                      <p className="text-xs text-muted-foreground text-center mt-2">
+                        By submitting, you confirm that all information provided is accurate.
+                      </p>
+                    </div>
                   </div>
                 </div>
               )}
