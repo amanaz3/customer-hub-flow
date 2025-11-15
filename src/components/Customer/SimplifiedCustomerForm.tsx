@@ -462,10 +462,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   };
 
   const stepLabels = [
-    { title: 'Customer Selection', desc: 'Choose customer type' },
-    { title: 'Service Selection', desc: 'Select service and amount' },
-    { title: 'Service Details', desc: 'Additional requirements' },
-    { title: 'Confirmation', desc: 'Review and submit' }
+    { title: 'Quick Info', desc: 'Basic details' },
+    { title: 'Service', desc: 'Select service' },
+    { title: 'Details', desc: 'Additional info' },
+    { title: 'Submit', desc: 'Review & send' }
   ];
 
   return (
@@ -608,260 +608,170 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   {/* Show basic info fields for new customers only */}
                   {!companyMode && (
                     <div className={`transition-all duration-300 ${!companyMode ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
-                      {/* Basic Info Section */}
-                      <div className="space-y-3 pt-3">
-                        <div className="rounded-lg border-2 border-border bg-gradient-to-br from-blue-50/50 via-blue-50/30 to-transparent dark:from-blue-950/20 dark:via-blue-950/10 dark:to-transparent p-4 shadow-sm transition-all duration-300 hover:shadow-md hover:scale-[1.01]">
-                          <div className="flex items-center gap-2 mb-3 group">
-                            <div className="w-8 h-8 rounded-lg bg-blue-100 dark:bg-blue-900/50 flex items-center justify-center shadow-sm transition-all duration-300 group-hover:scale-110 group-hover:rotate-3">
-                              <svg xmlns="http://www.w3.org/2000/svg" className="w-4 h-4 text-blue-600 dark:text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                              </svg>
-                            </div>
-                            <h3 className="text-sm font-bold text-foreground tracking-tight">Basic Info</h3>
-                          </div>
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                            <FormField
-                              control={form.control}
-                              name="name"
-                              render={({ field }) => {
-                                const fieldState = form.getFieldState('name');
-                                const hasValue = field.value && field.value.length > 0;
-                                const isValid = hasValue && !fieldState.error;
-                                const isError = hasValue && !!fieldState.error;
-                                
-                                return (
-                                  <FormItem className="relative">
-                                    <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Full Name *</FormLabel>
-                                    <FormControl>
-                                      <div className="relative group">
-                                        <Input 
-                                          {...field} 
-                                          onChange={(e) => {
-                                            field.onChange(e);
-                                            onNameChange?.(e.target.value);
-                                          }}
-                                          placeholder="John Doe"
-                                          className="h-11 text-sm pl-10 pr-11 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
-                                            focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01] 
-                                            hover:border-primary/50 hover:bg-background/80
-                                            transition-all duration-300 
-                                            placeholder:text-muted-foreground/50"
-                                        />
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                        </svg>
-                                        <ValidationIcon isValid={isValid} isError={isError} show={hasValue} />
-                                      </div>
-                                    </FormControl>
-                                    <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
-                                  </FormItem>
-                                );
-                              }}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name="mobile"
-                              render={({ field }) => {
-                                const fieldState = form.getFieldState('mobile');
-                                const hasValue = field.value && field.value.length > 0;
-                                const isValid = hasValue && !fieldState.error;
-                                const isError = hasValue && !!fieldState.error;
-                                
-                                return (
-                                  <FormItem className="relative">
-                                    <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Mobile Number /Whatsapp*</FormLabel>
-                                    <FormControl>
-                                      <div className="relative group">
-                                        <Input 
-                                          {...field} 
-                                          onChange={(e) => {
-                                            field.onChange(e);
-                                            onMobileChange?.(e.target.value);
-                                          }}
-                                          placeholder="+971 50 123 4567"
-                                          className="h-11 text-sm pl-10 pr-11 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
-                                            focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
-                                            hover:border-primary/50 hover:bg-background/80
-                                            transition-all duration-300
-                                            placeholder:text-muted-foreground/50"
-                                        />
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
-                                        </svg>
-                                        <ValidationIcon isValid={isValid} isError={isError} show={hasValue} />
-                                      </div>
-                                    </FormControl>
-                                    <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
-                                  </FormItem>
-                                );
-                              }}
-                            />
-
-                            <FormField
-                              control={form.control}
-                              name="email"
-                              render={({ field }) => {
-                                const fieldState = form.getFieldState('email');
-                                const hasValue = field.value && field.value.length > 0;
-                                const isValid = hasValue && !fieldState.error;
-                                const isError = hasValue && !!fieldState.error;
-                                
-                                return (
-                                  <FormItem className="relative">
-                                    <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Email Address (Optional)</FormLabel>
-                                    <FormControl>
-                                      <div className="relative group">
-                                        <Input 
-                                          type="email"
-                                          {...field} 
-                                          onChange={(e) => {
-                                            field.onChange(e);
-                                            onEmailChange?.(e.target.value);
-                                          }}
-                                          placeholder="john.doe@example.com"
-                                          className="h-11 text-sm pl-10 pr-11 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
-                                            focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
-                                            hover:border-primary/50 hover:bg-background/80
-                                            transition-all duration-300
-                                            placeholder:text-muted-foreground/50"
-                                        />
-                                        <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
-                                        </svg>
-                                        <ValidationIcon isValid={isValid} isError={isError} show={hasValue} />
-                                      </div>
-                                    </FormControl>
-                                    <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
-                                  </FormItem>
-                                );
-                              }}
-                            />
-
-                            {/* Customer Type Field */}
-                            <FormField
-                              control={form.control}
-                              name="customer_type"
-                              render={({ field }) => (
-                                <FormItem className="relative">
-                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Customer Type (Optional)</FormLabel>
-                                  <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl>
-                                      <SelectTrigger className="h-11 text-sm border-2 border-border/60 bg-background backdrop-blur-sm rounded-lg
-                                        focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background
-                                        hover:border-primary/50 hover:bg-background/80
-                                        transition-all duration-300">
-                                        <SelectValue placeholder="Select" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent className="z-[100] bg-background border-border shadow-lg">
-                                      <SelectItem value="individual">👤 Individual</SelectItem>
-                                      <SelectItem value="company">🏢 Company</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
-                                </FormItem>
-                              )}
-                            />
-
-                            {/* Country of Residence Field */}
-                            <FormField
-                              control={form.control}
-                              name="country_of_residence"
-                              render={({ field }) => (
-                                <FormItem className="relative">
-                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Country of Residence *</FormLabel>
-                                  <FormControl>
-                                    <div className="relative group">
-                                      <Input 
-                                        {...field}
-                                        placeholder="United Arab Emirates"
-                                        className="h-11 text-sm pl-10 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
-                                          focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
-                                          hover:border-primary/50 hover:bg-background/80
-                                          transition-all duration-300
-                                          placeholder:text-muted-foreground/50"
-                                      />
-                                      <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                                      </svg>
-                                    </div>
-                                  </FormControl>
-                                  <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
-                                </FormItem>
-                              )}
-                            />
-
-                            {/* Conditional Company Field - only show for company type */}
-                            {form.watch('customer_type') === 'company' && (
-                              <FormField
-                                control={form.control}
-                                name="company"
-                                render={({ field }) => {
-                                  const fieldState = form.getFieldState('company');
-                                  const hasValue = field.value && field.value.length > 0;
-                                  const isValid = hasValue && !fieldState.error;
-                                  const isError = hasValue && !!fieldState.error;
-                                  
-                                  return (
-                                    <FormItem className="relative">
-                                      <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Company Name *</FormLabel>
-                                      <FormControl>
-                                        <div className="relative group">
-                                          <Input 
-                                            {...field} 
-                                            onChange={(e) => {
-                                              field.onChange(e);
-                                              onCompanyChange?.(e.target.value);
-                                            }}
-                                            placeholder="ABC Trading LLC"
-                                            className="h-11 text-sm pl-10 pr-11 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
-                                              focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
-                                              hover:border-primary/50 hover:bg-background/80
-                                              transition-all duration-300
-                                              placeholder:text-muted-foreground/50"
-                                          />
-                                          <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
-                                          </svg>
-                                          <ValidationIcon isValid={isValid} isError={isError} show={hasValue} />
-                                        </div>
-                                      </FormControl>
-                                      <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
-                                    </FormItem>
-                                  );
-                                }}
-                              />
+                      {/* Quick Lead Capture - Step 1 */}
+                      <div className="space-y-4 pt-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                          {/* Name */}
+                          <FormField
+                            control={form.control}
+                            name="name"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs font-medium">Name *</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    onChange={(e) => {
+                                      field.onChange(e);
+                                      onNameChange?.(e.target.value);
+                                    }}
+                                    placeholder="John Doe"
+                                    className="h-10 text-sm"
+                                  />
+                                </FormControl>
+                                <FormMessage className="text-xs" />
+                              </FormItem>
                             )}
+                          />
 
-                            {/* Lead Source Field */}
+                          {/* Mobile */}
+                          <FormField
+                            control={form.control}
+                            name="mobile"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs font-medium">Mobile *</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    onChange={(e) => {
+                                      field.onChange(e);
+                                      onMobileChange?.(e.target.value);
+                                    }}
+                                    placeholder="+971 50 123 4567"
+                                    className="h-10 text-sm"
+                                  />
+                                </FormControl>
+                                <FormMessage className="text-xs" />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Country */}
+                          <FormField
+                            control={form.control}
+                            name="country_of_residence"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs font-medium">Country *</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field}
+                                    placeholder="UAE"
+                                    className="h-10 text-sm"
+                                  />
+                                </FormControl>
+                                <FormMessage className="text-xs" />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Email - Optional */}
+                          <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs font-medium text-muted-foreground">Email</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    onChange={(e) => {
+                                      field.onChange(e);
+                                      onEmailChange?.(e.target.value);
+                                    }}
+                                    placeholder="john@example.com"
+                                    type="email"
+                                    className="h-10 text-sm"
+                                  />
+                                </FormControl>
+                                <FormMessage className="text-xs" />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Lead Source - Optional */}
+                          <FormField
+                            control={form.control}
+                            name="lead_source"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs font-medium text-muted-foreground">Source</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger className="h-10 text-sm">
+                                      <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent className="z-[100] bg-background">
+                                    <SelectItem value="Website">Website</SelectItem>
+                                    <SelectItem value="Referral">Referral</SelectItem>
+                                    <SelectItem value="Social Media">Social Media</SelectItem>
+                                    <SelectItem value="Other">Other</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage className="text-xs" />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Customer Type - Optional */}
+                          <FormField
+                            control={form.control}
+                            name="customer_type"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs font-medium text-muted-foreground">Type</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger className="h-10 text-sm">
+                                      <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent className="z-[100] bg-background">
+                                    <SelectItem value="individual">Individual</SelectItem>
+                                    <SelectItem value="company">Company</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage className="text-xs" />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Company Name - Conditional */}
+                          {form.watch('customer_type') === 'company' && (
                             <FormField
                               control={form.control}
-                              name="lead_source"
+                              name="company"
                               render={({ field }) => (
-                                <FormItem className="relative">
-                                  <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Lead Source (Optional)</FormLabel>
-                                  <Select onValueChange={field.onChange} value={field.value}>
-                                    <FormControl>
-                                      <SelectTrigger className="h-11 text-sm border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
-                                        focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background
-                                        hover:border-primary/50 hover:bg-background/80
-                                        transition-all duration-300">
-                                        <SelectValue placeholder="How did you find us?" />
-                                      </SelectTrigger>
-                                    </FormControl>
-                                    <SelectContent className="z-50 bg-background border-border shadow-lg">
-                                      <SelectItem value="Website">🌐 Website</SelectItem>
-                                      <SelectItem value="Referral">🤝 Referral</SelectItem>
-                                      <SelectItem value="Social Media">📱 Social Media</SelectItem>
-                                      <SelectItem value="Other">📋 Other</SelectItem>
-                                    </SelectContent>
-                                  </Select>
-                                  <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
+                                <FormItem>
+                                  <FormLabel className="text-xs font-medium">Company *</FormLabel>
+                                  <FormControl>
+                                    <Input 
+                                      {...field} 
+                                      onChange={(e) => {
+                                        field.onChange(e);
+                                        onCompanyChange?.(e.target.value);
+                                      }}
+                                      placeholder="ABC Trading LLC"
+                                      className="h-10 text-sm"
+                                    />
+                                  </FormControl>
+                                  <FormMessage className="text-xs" />
                                 </FormItem>
                               )}
                             />
-                          </div>
+                          )}
                         </div>
                       </div>
                     </div>
