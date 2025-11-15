@@ -45,19 +45,23 @@ export const UnifiedProgressHeader = ({
         />
       </div>
 
-      <div className="px-4 sm:px-6 py-3">
-        {/* Horizontal Layout: Customer Type (Left) + Stepper (Right) */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          {/* Left Side: Customer Type Selector */}
-          <div className="flex-shrink-0 w-full sm:w-48">
+      <div className="px-4 sm:px-6 py-3 space-y-3">
+        {/* Customer Type Selector - Full width row */}
+        <div className="flex justify-center">
+          <div className="w-full max-w-sm">
             <CustomerTypeSelector
               value={customerType}
               onChange={onCustomerTypeChange}
             />
           </div>
+        </div>
 
-          {/* Right Side: Step Breadcrumbs */}
-          <div className="flex items-center gap-2 flex-1 justify-start sm:justify-end overflow-x-auto">
+        {/* Divider */}
+        <div className="border-t border-border/30"></div>
+
+        {/* Step Breadcrumbs - Full width row */}
+        <div className="flex items-center justify-center">
+          <div className="flex items-center gap-2 overflow-x-auto">
             {stepConfig.map((step, index) => {
               const stepNumber = index + 1;
               const isActive = currentStep === stepNumber;
@@ -107,8 +111,8 @@ export const UnifiedProgressHeader = ({
           </div>
         </div>
 
-        {/* Current Step Title & Description - Below main row */}
-        <div className="pt-3 mt-3 border-t border-border/50">
+        {/* Current Step Title & Description */}
+        <div className="text-center pt-2 border-t border-border/30">
           <h2 className="text-sm font-bold text-foreground leading-tight">
             {currentStep === 1 && 'Customer Selection'}
             {currentStep === 2 && 'Service Selection'}
