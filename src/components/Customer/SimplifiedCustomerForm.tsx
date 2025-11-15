@@ -601,7 +601,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   <CardHeader className="pb-4">
                     <CardTitle className="text-xl">Customer Details</CardTitle>
                     <CardDescription>
-                      {companyMode ? 'Select an existing customer or provide new customer information.' : 'Enter the customer\'s basic information to get started.'}
+                      {companyMode ? 'Select an existing customer or provide new customer information.' : "Enter the customer's basic information to get started. Provide at least one contact method."}
                     </CardDescription>
                   </CardHeader>
                   <div className="space-y-4 px-6">
