@@ -1,4 +1,5 @@
 import { Check } from 'lucide-react';
+import { CustomerTypeSelector } from './CustomerTypeSelector';
 
 interface UnifiedProgressHeaderProps {
   currentStep: number;
@@ -9,6 +10,8 @@ interface UnifiedProgressHeaderProps {
   customerWhatsapp?: string;
   customerCountry?: string;
   selectedProduct?: string;
+  customerType: 'new' | 'existing';
+  onCustomerTypeChange: (type: 'new' | 'existing') => void;
 }
 
 const stepConfig = [
@@ -27,6 +30,8 @@ export const UnifiedProgressHeader = ({
   customerWhatsapp,
   customerCountry,
   selectedProduct,
+  customerType,
+  onCustomerTypeChange
 }: UnifiedProgressHeaderProps) => {
   const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
 
@@ -41,6 +46,16 @@ export const UnifiedProgressHeader = ({
       </div>
 
       <div className="px-4 sm:px-6 py-3 space-y-3">
+        {/* Customer Type Selector */}
+        <div className="flex justify-center pb-2 border-b border-border/50">
+          <div className="w-full max-w-md">
+            <CustomerTypeSelector
+              value={customerType}
+              onChange={onCustomerTypeChange}
+            />
+          </div>
+        </div>
+
         {/* Step Breadcrumbs */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 flex-1">
