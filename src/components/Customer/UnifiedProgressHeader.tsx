@@ -41,14 +41,6 @@ export const UnifiedProgressHeader = ({
 
   return (
     <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
-      {/* Progress Bar */}
-      <div className="h-1 bg-muted">
-        <div 
-          className="h-full bg-primary transition-all duration-500 ease-out"
-          style={{ width: `${progressPercentage}%` }}
-        />
-      </div>
-
       <div className="px-4 sm:px-6 py-4">
         {/* Unified Container with consistent styling */}
         <div className="flex flex-col items-center gap-4">
@@ -65,6 +57,16 @@ export const UnifiedProgressHeader = ({
             <div className="flex-1 h-px bg-border"></div>
             <div className="text-xs text-muted-foreground font-medium">PROCESS STEPS</div>
             <div className="flex-1 h-px bg-border"></div>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="w-full max-w-2xl">
+            <div className="h-1 bg-muted rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-primary transition-all duration-500 ease-out"
+                style={{ width: `${progressPercentage}%` }}
+              />
+            </div>
           </div>
 
           {/* Step Breadcrumbs */}
