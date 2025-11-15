@@ -1,12 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCustomer } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
 import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
 import { RequiredDocumentsSidebar } from '@/components/Customer/RequiredDocumentsSidebar';
 import { CustomerEventsSidebar } from '@/components/Customer/CustomerEventsSidebar';
-import { Button } from '@/components/ui/button';
-import { ChevronRight, ChevronLeft } from 'lucide-react';
 
 const CustomerNew = () => {
   const { refreshData } = useCustomer();
@@ -19,18 +17,10 @@ const CustomerNew = () => {
   const [customerName, setCustomerName] = useState<string>('');
   const [customerMobile, setCustomerMobile] = useState<string>('');
   const [customerCompany, setCustomerCompany] = useState<string>('');
-  const [sidebarHidden, setSidebarHidden] = useState<boolean>(false);
   
   // Customer selection state
   const [companyMode, setCompanyMode] = useState<boolean>(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
-  
-  // Auto-show sidebar when customer is selected
-  useEffect(() => {
-    if (selectedCustomerId && companyMode) {
-      setSidebarHidden(false);
-    }
-  }, [selectedCustomerId, companyMode]);
 
   const handleSuccess = () => {
     refreshData();
@@ -88,33 +78,21 @@ const CustomerNew = () => {
         </div>
       </div>
       
-      {/* Sticky Sidebar - Hidden on mobile/tablet */}
-      {!sidebarHidden && (
-        <div className="hidden lg:block">
-          {companyMode && selectedCustomerId ? (
-            <CustomerEventsSidebar customerId={selectedCustomerId} />
-          ) : (
-            <RequiredDocumentsSidebar
-              productType={getProductType()}
-              customerEmail={customerEmail}
-              customerName={customerName}
-              customerMobile={customerMobile}
-              customerCompany={customerCompany}
-              onCollapsedChange={() => {}}
-            />
-          )}
-        </div>
-      )}
-      
-      {/* Sidebar Toggle Button */}
-      <Button
-        variant="outline"
-        size="icon"
-        className="hidden lg:flex fixed right-4 top-24 z-50 rounded-full shadow-lg hover:shadow-xl transition-all duration-300"
-        onClick={() => setSidebarHidden(!sidebarHidden)}
-      >
-        {sidebarHidden ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-      </Button>
+      {/* Sticky Sidebar - Hidden on mobile/tablet, each sidebar has its own toggle */}
+      <div className="hidden lg:block">
+        {companyMode && selectedCustomerId ? (
+          <CustomerEventsSidebar customerId={selectedCustomerId} />
+        ) : (
+          <RequiredDocumentsSidebar
+            productType={getProductType()}
+            customerEmail={customerEmail}
+            customerName={customerName}
+            customerMobile={customerMobile}
+            customerCompany={customerCompany}
+            onCollapsedChange={() => {}}
+          />
+        )}
+      </div>
 
         {/* Mobile Notice for Required Documents */}
         <div className="lg:hidden mt-8 bg-muted border border-border rounded-lg p-6 shadow-sm">
