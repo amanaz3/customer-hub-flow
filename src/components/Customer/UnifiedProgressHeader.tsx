@@ -45,20 +45,19 @@ export const UnifiedProgressHeader = ({
         />
       </div>
 
-      <div className="px-4 sm:px-6 py-3 space-y-3">
-        {/* Customer Type Selector */}
-        <div className="flex justify-center pb-2 border-b border-border/50">
-          <div className="w-full max-w-md">
+      <div className="px-4 sm:px-6 py-3">
+        {/* Horizontal Layout: Customer Type (Left) + Stepper (Right) */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+          {/* Left Side: Customer Type Selector */}
+          <div className="flex-shrink-0 w-full sm:w-48">
             <CustomerTypeSelector
               value={customerType}
               onChange={onCustomerTypeChange}
             />
           </div>
-        </div>
 
-        {/* Step Breadcrumbs */}
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2 flex-1">
+          {/* Right Side: Step Breadcrumbs */}
+          <div className="flex items-center gap-2 flex-1 justify-start sm:justify-end overflow-x-auto">
             {stepConfig.map((step, index) => {
               const stepNumber = index + 1;
               const isActive = currentStep === stepNumber;
@@ -66,29 +65,29 @@ export const UnifiedProgressHeader = ({
               const isLast = index === stepConfig.length - 1;
               
               return (
-                <div key={stepNumber} className="flex items-center">
+                <div key={stepNumber} className="flex items-center flex-shrink-0">
                   <div className={`flex items-center gap-2 transition-all duration-300 ${
-                    isActive ? 'scale-110' : ''
+                    isActive ? 'scale-105' : ''
                   }`}>
                     {/* Step Circle */}
-                    <div className={`flex items-center justify-center w-8 h-8 rounded-full font-bold text-xs transition-all duration-300 ${
+                    <div className={`flex items-center justify-center w-7 h-7 rounded-full font-bold text-xs transition-all duration-300 ${
                       isCompleted 
                         ? 'bg-primary text-primary-foreground' 
                         : isActive 
-                        ? 'bg-primary text-primary-foreground ring-4 ring-primary/20' 
+                        ? 'bg-primary text-primary-foreground ring-2 ring-primary/30' 
                         : 'bg-muted text-muted-foreground'
                     }`}>
                       {isCompleted ? <Check className="h-4 w-4" /> : stepNumber}
                     </div>
                     
-                    {/* Step Label - Hidden on mobile for non-active steps */}
-                    <div className={`${isActive ? 'block' : 'hidden sm:block'}`}>
-                      <div className={`text-xs font-semibold leading-none ${
+                    {/* Step Label - Show only for active step on mobile */}
+                    <div className={`${isActive ? 'block' : 'hidden lg:block'}`}>
+                      <div className={`text-xs font-semibold leading-none whitespace-nowrap ${
                         isActive || isCompleted ? 'text-foreground' : 'text-muted-foreground'
                       }`}>
                         {step.title}
                       </div>
-                      <div className={`text-[10px] leading-none mt-0.5 ${
+                      <div className={`text-[10px] leading-none mt-0.5 whitespace-nowrap ${
                         isActive || isCompleted ? 'text-muted-foreground' : 'text-muted-foreground/60'
                       }`}>
                         {step.desc}
@@ -98,7 +97,7 @@ export const UnifiedProgressHeader = ({
                   
                   {/* Connector Line */}
                   {!isLast && (
-                    <div className={`h-0.5 w-8 sm:w-12 mx-1 transition-all duration-300 ${
+                    <div className={`h-0.5 w-6 lg:w-8 mx-1 transition-all duration-300 ${
                       isCompleted ? 'bg-primary' : 'bg-muted'
                     }`} />
                   )}
@@ -108,19 +107,19 @@ export const UnifiedProgressHeader = ({
           </div>
         </div>
 
-        {/* Current Step Title & Description */}
-        <div>
-          <h2 className="text-sm sm:text-base font-bold text-foreground leading-tight">
+        {/* Current Step Title & Description - Below main row */}
+        <div className="pt-3 mt-3 border-t border-border/50">
+          <h2 className="text-sm font-bold text-foreground leading-tight">
             {currentStep === 1 && 'Customer Selection'}
             {currentStep === 2 && 'Service Selection'}
             {currentStep === 3 && 'Service Details'}
             {currentStep === 4 && 'Confirmation'}
           </h2>
-          <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5">
-            {currentStep === 1 && 'Choose customer type and provide customer information'}
-            {currentStep === 2 && 'Select the service and specify the application amount'}
-            {currentStep === 3 && 'Provide additional details specific to the selected service'}
-            {currentStep === 4 && 'Review all information before submitting'}
+          <p className="text-xs text-muted-foreground mt-0.5">
+            {currentStep === 1 && 'Choose between new or existing customer'}
+            {currentStep === 2 && 'Select the service or product type'}
+            {currentStep === 3 && 'Provide additional service information'}
+            {currentStep === 4 && 'Review all details before submitting'}
           </p>
         </div>
       </div>
