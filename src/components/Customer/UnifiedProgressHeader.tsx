@@ -108,7 +108,7 @@ export const UnifiedProgressHeader = ({
           </div>
 
           {/* Customer Type Selector */}
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-2xl">
             <CustomerTypeSelector
               value={customerType}
               onChange={onCustomerTypeChange}
