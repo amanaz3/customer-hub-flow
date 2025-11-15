@@ -22,14 +22,28 @@ interface ProcessSummarySidebarProps {
     license_type?: string;
   };
   productName?: string;
+  isCollapsed?: boolean;
+  onToggleCollapse?: (collapsed: boolean) => void;
 }
 
 export const ProcessSummarySidebar = ({
   currentStep,
   formData,
-  productName
+  productName,
+  isCollapsed: externalCollapsed,
+  onToggleCollapse
 }: ProcessSummarySidebarProps) => {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [internalCollapsed, setInternalCollapsed] = useState(false);
+  const isCollapsed = externalCollapsed ?? internalCollapsed;
+  
+  const handleToggle = () => {
+    const newState = !isCollapsed;
+    if (onToggleCollapse) {
+      onToggleCollapse(newState);
+    } else {
+      setInternalCollapsed(newState);
+    }
+  };
   const steps: ProcessStep[] = [
     {
       step: 1,
@@ -71,7 +85,7 @@ export const ProcessSummarySidebar = ({
       <Button
         size="icon"
         variant="secondary"
-        onClick={() => setIsCollapsed(!isCollapsed)}
+        onClick={handleToggle}
         className={`absolute top-4 h-10 w-10 rounded-full shadow-lg bg-secondary hover:bg-secondary/80 border-2 border-border hover:scale-110 transition-all z-50 ${
           isCollapsed ? '-left-12' : '-left-5'
         }`}
