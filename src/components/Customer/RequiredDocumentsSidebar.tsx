@@ -16,6 +16,7 @@ interface RequiredDocumentsSidebarProps {
   customerName?: string;
   customerMobile?: string;
   customerCompany?: string;
+  collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
 }
 
@@ -25,15 +26,20 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
   customerName,
   customerMobile,
   customerCompany,
+  collapsed,
   onCollapsedChange,
 }) => {
-  const [isCollapsed, setIsCollapsed] = React.useState(true);
+  const [internalCollapsed, setInternalCollapsed] = React.useState(true);
+  const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed;
   const { toast } = useToast();
 
   const toggleCollapsed = () => {
     const newValue = !isCollapsed;
-    setIsCollapsed(newValue);
-    onCollapsedChange?.(newValue);
+    if (collapsed !== undefined) {
+      onCollapsedChange?.(newValue);
+    } else {
+      setInternalCollapsed(newValue);
+    }
   };
 
   // Don't show sidebar if no product type
