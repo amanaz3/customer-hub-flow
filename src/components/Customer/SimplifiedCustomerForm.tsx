@@ -535,52 +535,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       </div>
                     </AccordionTrigger>
                     <AccordionContent className="px-4 pb-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                        {form.watch('name') && (
-                          <div className="flex items-start gap-2">
-                            <User className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
-                              <span className="text-muted-foreground block text-xs">Name</span>
-                              <span className="font-medium">{form.watch('name')}</span>
-                            </div>
-                          </div>
-                        )}
-                        {form.watch('email') && (
-                          <div className="flex items-start gap-2">
-                            <Mail className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
-                              <span className="text-muted-foreground block text-xs">Email</span>
-                              <span className="font-medium">{form.watch('email')}</span>
-                            </div>
-                          </div>
-                        )}
-                        {form.watch('mobile') && (
-                          <div className="flex items-start gap-2">
-                            <Phone className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
-                              <span className="text-muted-foreground block text-xs">Phone</span>
-                              <span className="font-medium">{form.watch('mobile')}</span>
-                            </div>
-                          </div>
-                        )}
-                        {form.watch('country_of_residence') && (
-                          <div className="flex items-start gap-2">
-                            <Globe className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
-                              <span className="text-muted-foreground block text-xs">Country</span>
-                              <span className="font-medium">{form.watch('country_of_residence')}</span>
-                            </div>
-                          </div>
-                        )}
-                        {form.watch('company') && (
-                          <div className="flex items-start gap-2">
-                            <Building2 className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
-                              <span className="text-muted-foreground block text-xs">Company</span>
-                              <span className="font-medium">{form.watch('company')}</span>
-                            </div>
-                          </div>
-                        )}
+                      <div className="flex items-center gap-2 text-sm">
+                        <User className="h-4 w-4 text-primary" />
+                        <span className="font-medium">{form.watch('name')}</span>
                       </div>
                     </AccordionContent>
                   </AccordionItem>
