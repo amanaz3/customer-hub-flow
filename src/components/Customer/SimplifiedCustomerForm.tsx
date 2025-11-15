@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, Check, Save, ArrowLeft, ArrowRight, ChevronDown } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Save, ArrowLeft, ArrowRight, ChevronDown, User, Mail, Phone, MessageSquare, Globe } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { CustomerTypeSelector } from './CustomerTypeSelector';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
@@ -529,53 +529,59 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
               {/* Captured Info Summary - Collapsible after Step 1 */}
               {currentStep > 1 && form.watch('name') && (
-                <Collapsible defaultOpen={false} className="-mt-2">
-                  <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-2 text-xs bg-muted/30 hover:bg-muted/50 border border-border rounded-lg transition-colors">
-                    <div className="flex items-center gap-2">
-                      <ChevronDown className="h-3 w-3 transition-transform data-[state=open]:rotate-180" />
-                      <span className="font-semibold text-foreground">{form.watch('name')}</span>
-                      <span className="text-muted-foreground text-[10px]">• Contact Info</span>
-                    </div>
-                    <span className="text-[10px] text-muted-foreground">Click to expand</span>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="px-3 py-2 text-xs bg-muted/20 border border-t-0 border-border rounded-b-lg">
-                    <div className="space-y-1.5">
-                      {form.watch('email') && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground font-medium w-16">Email:</span>
-                          <span className="text-foreground">{form.watch('email')}</span>
-                        </div>
-                      )}
-                      {form.watch('mobile') && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground font-medium w-16">Mobile:</span>
-                          <span className="text-foreground">{form.watch('mobile')}</span>
-                        </div>
-                      )}
-                      {form.watch('whatsapp') && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground font-medium w-16">WhatsApp:</span>
-                          <span className="text-foreground">{form.watch('whatsapp')}</span>
-                        </div>
-                      )}
-                      {form.watch('country_of_residence') && (
-                        <div className="flex items-center gap-2">
-                          <span className="text-muted-foreground font-medium w-16">Country:</span>
-                          <span className="text-foreground">{form.watch('country_of_residence')}</span>
-                        </div>
-                      )}
-                      <Button
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="h-6 px-2 text-[10px] mt-2"
-                        onClick={() => setCurrentStep(1)}
-                      >
-                        Edit Info
-                      </Button>
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
+                <div className="flex justify-center -mt-2">
+                  <Collapsible defaultOpen={false} className="w-3/4">
+                    <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-2.5 text-xs bg-muted/30 hover:bg-muted/50 border border-border rounded-lg transition-colors group">
+                      <div className="flex items-center gap-2.5">
+                        <User className="h-4 w-4 text-primary" />
+                        <span className="font-semibold text-foreground">{form.watch('name')}</span>
+                        <span className="text-muted-foreground text-[10px]">• Contact Info</span>
+                      </div>
+                      <ChevronDown className="h-3.5 w-3.5 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+                    </CollapsibleTrigger>
+                    <CollapsibleContent className="px-4 py-3 text-xs bg-muted/20 border border-t-0 border-border rounded-b-lg">
+                      <div className="space-y-2">
+                        {form.watch('email') && (
+                          <div className="flex items-center gap-2.5">
+                            <Mail className="h-3.5 w-3.5 text-primary" />
+                            <span className="text-muted-foreground font-medium w-20">Email:</span>
+                            <span className="text-foreground">{form.watch('email')}</span>
+                          </div>
+                        )}
+                        {form.watch('mobile') && (
+                          <div className="flex items-center gap-2.5">
+                            <Phone className="h-3.5 w-3.5 text-primary" />
+                            <span className="text-muted-foreground font-medium w-20">Mobile:</span>
+                            <span className="text-foreground">{form.watch('mobile')}</span>
+                          </div>
+                        )}
+                        {form.watch('whatsapp') && (
+                          <div className="flex items-center gap-2.5">
+                            <MessageSquare className="h-3.5 w-3.5 text-primary" />
+                            <span className="text-muted-foreground font-medium w-20">WhatsApp:</span>
+                            <span className="text-foreground">{form.watch('whatsapp')}</span>
+                          </div>
+                        )}
+                        {form.watch('country_of_residence') && (
+                          <div className="flex items-center gap-2.5">
+                            <Globe className="h-3.5 w-3.5 text-primary" />
+                            <span className="text-muted-foreground font-medium w-20">Country:</span>
+                            <span className="text-foreground">{form.watch('country_of_residence')}</span>
+                          </div>
+                        )}
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="h-7 px-3 text-[11px] mt-2"
+                          onClick={() => setCurrentStep(1)}
+                        >
+                          Edit Info
+                        </Button>
+                      </div>
+                    </CollapsibleContent>
+                  </Collapsible>
+                </div>
               )}
 
               {/* Step 1: Customer Selection */}
