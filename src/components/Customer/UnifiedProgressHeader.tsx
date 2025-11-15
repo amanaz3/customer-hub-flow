@@ -48,21 +48,6 @@ export const UnifiedProgressHeader = ({
       <div className="px-4 sm:px-6 py-4">
         {/* Unified Container with consistent styling */}
         <div className="flex flex-col items-center gap-4">
-          {/* Customer Type Selector */}
-          <div className="w-full max-w-md">
-            <CustomerTypeSelector
-              value={customerType}
-              onChange={onCustomerTypeChange}
-            />
-          </div>
-
-          {/* Visual Separator */}
-          <div className="w-full max-w-2xl flex items-center gap-3">
-            <div className="flex-1 h-px bg-border"></div>
-            <div className="text-xs text-muted-foreground font-medium">PROCESS STEPS</div>
-            <div className="flex-1 h-px bg-border"></div>
-          </div>
-
           {/* Step Breadcrumbs */}
           <div className="w-full max-w-2xl flex items-center justify-center">
             <div className="flex items-center gap-2">
@@ -113,6 +98,21 @@ export const UnifiedProgressHeader = ({
               );
             })}
             </div>
+          </div>
+
+          {/* Visual Separator */}
+          <div className="w-full max-w-2xl flex items-center gap-3">
+            <div className="flex-1 h-px bg-border"></div>
+            <div className="text-xs text-muted-foreground font-medium">CUSTOMER TYPE</div>
+            <div className="flex-1 h-px bg-border"></div>
+          </div>
+
+          {/* Customer Type Selector */}
+          <div className="w-full max-w-md">
+            <CustomerTypeSelector
+              value={customerType}
+              onChange={onCustomerTypeChange}
+            />
           </div>
         </div>
 
