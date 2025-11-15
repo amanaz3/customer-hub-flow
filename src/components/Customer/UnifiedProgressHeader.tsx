@@ -1,5 +1,7 @@
-import { Check } from 'lucide-react';
+import React from 'react';
+import { Check, ChevronRight } from 'lucide-react';
 import { CustomerTypeSelector } from './CustomerTypeSelector';
+import { cn } from '@/lib/utils';
 
 interface UnifiedProgressHeaderProps {
   currentStep: number;
@@ -12,6 +14,7 @@ interface UnifiedProgressHeaderProps {
   selectedProduct?: string;
   customerType: 'new' | 'existing';
   onCustomerTypeChange: (type: 'new' | 'existing') => void;
+  onStepClick?: (step: number) => void;
 }
 
 const stepConfig = [
@@ -31,7 +34,8 @@ export const UnifiedProgressHeader = ({
   customerCountry,
   selectedProduct,
   customerType,
-  onCustomerTypeChange
+  onCustomerTypeChange,
+  onStepClick = () => {} // Default no-op handler
 }: UnifiedProgressHeaderProps) => {
   const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
 
@@ -48,71 +52,72 @@ export const UnifiedProgressHeader = ({
       <div className="px-4 sm:px-6 py-4">
         {/* Unified Container with consistent styling */}
         <div className="flex flex-col items-center gap-4">
-          {/* Step Breadcrumbs */}
-          <div className="w-full max-w-2xl flex items-center justify-center">
-            <div className="flex items-center gap-2">
-            {stepConfig.map((step, index) => {
-              const stepNumber = index + 1;
-              const isActive = currentStep === stepNumber;
-              const isCompleted = currentStep > stepNumber;
-              const isLast = index === stepConfig.length - 1;
-              
-              return (
-                <div key={stepNumber} className="flex items-center flex-shrink-0">
-                  <div className={`flex items-center gap-2 transition-all duration-300 ${
-                    isActive ? 'scale-105' : ''
-                  }`}>
-                    {/* Step Circle */}
-                    <div className={`flex items-center justify-center w-7 h-7 rounded-full font-bold text-xs transition-all duration-300 ${
-                      isCompleted 
-                        ? 'bg-primary text-primary-foreground' 
-                        : isActive 
-                        ? 'bg-primary text-primary-foreground ring-2 ring-primary/30' 
-                        : 'bg-muted text-muted-foreground'
-                    }`}>
-                      {isCompleted ? <Check className="h-4 w-4" /> : stepNumber}
-                    </div>
-                    
-                    {/* Step Label - Show only for active step on mobile */}
-                    <div className={`${isActive ? 'block' : 'hidden lg:block'}`}>
-                      <div className={`text-xs font-semibold leading-none whitespace-nowrap ${
-                        isActive || isCompleted ? 'text-foreground' : 'text-muted-foreground'
-                      }`}>
-                        {step.title}
-                      </div>
-                      <div className={`text-[10px] leading-none mt-0.5 whitespace-nowrap ${
-                        isActive || isCompleted ? 'text-muted-foreground' : 'text-muted-foreground/60'
-                      }`}>
-                        {step.desc}
-                      </div>
-                    </div>
-                  </div>
-                  
-                  {/* Connector Line */}
-                  {!isLast && (
-                    <div className={`h-0.5 w-6 lg:w-8 mx-1 transition-all duration-300 ${
-                      isCompleted ? 'bg-primary' : 'bg-muted'
-                    }`} />
-                  )}
-                </div>
-              );
-            })}
-            </div>
-          </div>
-
-          {/* Visual Separator */}
-          <div className="w-full max-w-2xl flex items-center gap-3">
-            <div className="flex-1 h-px bg-border"></div>
-            <div className="text-xs text-muted-foreground font-medium">CUSTOMER TYPE</div>
-            <div className="flex-1 h-px bg-border"></div>
-          </div>
-
           {/* Customer Type Selector */}
           <div className="w-full max-w-2xl">
             <CustomerTypeSelector
               value={customerType}
               onChange={onCustomerTypeChange}
             />
+          </div>
+
+          {/* Visual Separator */}
+          <div className="w-full max-w-2xl flex items-center gap-3">
+            <div className="flex-1 h-px bg-border"></div>
+            <div className="text-xs text-muted-foreground font-medium">PROCESS STEPS</div>
+            <div className="flex-1 h-px bg-border"></div>
+          </div>
+
+          {/* Step Breadcrumbs */}
+          <div className="w-full max-w-2xl flex items-center justify-center">
+            <div className="flex items-center gap-2">
+            {[
+              { step: 1, label: 'Customer' },
+              { step: 2, label: 'Service' },
+              { step: 3, label: 'Details' },
+              { step: 4, label: 'Review' },
+            ].map(({ step, label }, index, array) => (
+              <React.Fragment key={step}>
+                <button
+                  onClick={() => onStepClick(step)}
+                  disabled={step > currentStep}
+                  className={cn(
+                    "group relative flex items-center gap-2 px-3 py-1.5 rounded-md transition-all duration-200",
+                    step === currentStep && "bg-primary/10 ring-1 ring-primary/20",
+                    step < currentStep && "hover:bg-muted/50 cursor-pointer",
+                    step > currentStep && "opacity-40 cursor-not-allowed"
+                  )}
+                >
+                  <div className={cn(
+                    "flex items-center justify-center w-6 h-6 rounded-full text-xs font-semibold transition-all duration-200",
+                    step === currentStep && "bg-primary text-primary-foreground shadow-sm",
+                    step < currentStep && "bg-primary/20 text-primary",
+                    step > currentStep && "bg-muted text-muted-foreground"
+                  )}>
+                    {step < currentStep ? (
+                      <Check className="h-3.5 w-3.5" />
+                    ) : (
+                      step
+                    )}
+                  </div>
+                  <span className={cn(
+                    "text-xs font-medium transition-colors duration-200",
+                    step === currentStep && "text-primary",
+                    step < currentStep && "text-foreground",
+                    step > currentStep && "text-muted-foreground"
+                  )}>
+                    {label}
+                  </span>
+                </button>
+
+                {index < array.length - 1 && (
+                  <ChevronRight className={cn(
+                    "h-4 w-4 transition-colors duration-200",
+                    step < currentStep ? "text-primary" : "text-muted-foreground/40"
+                  )} />
+                )}
+              </React.Fragment>
+            ))}
+            </div>
           </div>
         </div>
 
