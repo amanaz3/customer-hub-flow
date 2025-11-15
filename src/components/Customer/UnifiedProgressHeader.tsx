@@ -1,5 +1,4 @@
-import { Check, ChevronDown, User, Mail, Phone, MessageSquare, Globe } from 'lucide-react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Check } from 'lucide-react';
 
 interface UnifiedProgressHeaderProps {
   currentStep: number;
@@ -92,61 +91,6 @@ export const UnifiedProgressHeader = ({
               );
             })}
           </div>
-
-          {/* Customer Info Summary - Show after step 1 */}
-          {currentStep > 1 && customerName && (
-            <div className="flex-shrink-0 ml-4">
-              <Collapsible defaultOpen={false}>
-                <CollapsibleTrigger className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] bg-muted/30 hover:bg-muted/50 border border-border rounded-md transition-colors group">
-                  <User className="h-3 w-3 text-primary" />
-                  <span className="font-semibold text-foreground hidden sm:inline">{customerName}</span>
-                  <ChevronDown className="h-3 w-3 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="absolute right-4 mt-1 px-3 py-2 text-[11px] bg-card border border-border rounded-md shadow-lg z-10 min-w-[250px]">
-                  <div className="space-y-1">
-                    <div className="flex items-center gap-1.5 pb-1 border-b border-border">
-                      <User className="h-3 w-3 text-primary" />
-                      <span className="font-semibold text-foreground">{customerName}</span>
-                    </div>
-                    {customerEmail && (
-                      <div className="flex items-center gap-1.5">
-                        <Mail className="h-3 w-3 text-primary" />
-                        <span className="text-muted-foreground font-medium w-16">Email:</span>
-                        <span className="text-foreground">{customerEmail}</span>
-                      </div>
-                    )}
-                    {customerMobile && (
-                      <div className="flex items-center gap-1.5">
-                        <Phone className="h-3 w-3 text-primary" />
-                        <span className="text-muted-foreground font-medium w-16">Mobile:</span>
-                        <span className="text-foreground">{customerMobile}</span>
-                      </div>
-                    )}
-                    {customerWhatsapp && (
-                      <div className="flex items-center gap-1.5">
-                        <MessageSquare className="h-3 w-3 text-primary" />
-                        <span className="text-muted-foreground font-medium w-16">WhatsApp:</span>
-                        <span className="text-foreground">{customerWhatsapp}</span>
-                      </div>
-                    )}
-                    {customerCountry && (
-                      <div className="flex items-center gap-1.5">
-                        <Globe className="h-3 w-3 text-primary" />
-                        <span className="text-muted-foreground font-medium w-16">Country:</span>
-                        <span className="text-foreground">{customerCountry}</span>
-                      </div>
-                    )}
-                    {selectedProduct && (
-                      <div className="flex items-start gap-1.5 pt-1 border-t border-border">
-                        <span className="text-muted-foreground font-medium">Service:</span>
-                        <span className="text-foreground flex-1">{selectedProduct}</span>
-                      </div>
-                    )}
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-            </div>
-          )}
         </div>
 
         {/* Current Step Title & Description */}

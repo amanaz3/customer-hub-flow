@@ -12,8 +12,9 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, Check, Save, ArrowLeft, ArrowRight, ChevronDown, User, Mail, Phone, MessageSquare, Globe } from 'lucide-react';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { ChevronLeft, ChevronRight, Check, Save, ArrowLeft, ArrowRight, User, Mail, Phone, Globe, Building2 } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Badge } from '@/components/ui/badge';
 import { CustomerTypeSelector } from './CustomerTypeSelector';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
 import { ProcessSummarySidebar } from './ProcessSummarySidebar';
@@ -523,6 +524,72 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   }}
                 />
               </div>
+
+              {/* Customer Information Summary Accordion - Show after step 1 */}
+              {currentStep > 1 && form.watch('name') && (
+                <Accordion type="single" collapsible className="mb-6">
+                  <AccordionItem value="customer-info" className="border rounded-lg">
+                    <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium">Customer Information</span>
+                        <Badge variant="secondary" className="text-xs">
+                          {companyMode ? 'Existing Customer' : 'New Customer'}
+                        </Badge>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-4 pb-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                        {form.watch('name') && (
+                          <div className="flex items-start gap-2">
+                            <User className="h-4 w-4 text-primary mt-0.5" />
+                            <div>
+                              <span className="text-muted-foreground block text-xs">Name</span>
+                              <span className="font-medium">{form.watch('name')}</span>
+                            </div>
+                          </div>
+                        )}
+                        {form.watch('email') && (
+                          <div className="flex items-start gap-2">
+                            <Mail className="h-4 w-4 text-primary mt-0.5" />
+                            <div>
+                              <span className="text-muted-foreground block text-xs">Email</span>
+                              <span className="font-medium">{form.watch('email')}</span>
+                            </div>
+                          </div>
+                        )}
+                        {form.watch('mobile') && (
+                          <div className="flex items-start gap-2">
+                            <Phone className="h-4 w-4 text-primary mt-0.5" />
+                            <div>
+                              <span className="text-muted-foreground block text-xs">Phone</span>
+                              <span className="font-medium">{form.watch('mobile')}</span>
+                            </div>
+                          </div>
+                        )}
+                        {form.watch('country_of_residence') && (
+                          <div className="flex items-start gap-2">
+                            <Globe className="h-4 w-4 text-primary mt-0.5" />
+                            <div>
+                              <span className="text-muted-foreground block text-xs">Country</span>
+                              <span className="font-medium">{form.watch('country_of_residence')}</span>
+                            </div>
+                          </div>
+                        )}
+                        {form.watch('company') && (
+                          <div className="flex items-start gap-2">
+                            <Building2 className="h-4 w-4 text-primary mt-0.5" />
+                            <div>
+                              <span className="text-muted-foreground block text-xs">Company</span>
+                              <span className="font-medium">{form.watch('company')}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                </Accordion>
+              )}
 
               {/* Step 1: Customer Selection */}
               {currentStep === 1 && (
