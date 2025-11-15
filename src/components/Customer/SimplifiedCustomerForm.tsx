@@ -122,7 +122,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [selectedProductName, setSelectedProductName] = useState<string>('');
   const [showModeChangeWarning, setShowModeChangeWarning] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const { toast } = useToast();
   const { user } = useAuth();
 
