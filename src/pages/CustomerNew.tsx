@@ -73,7 +73,7 @@ const CustomerNew = () => {
         variant="outline"
         size="icon"
         onClick={() => navigate('/customers')}
-        className="fixed bottom-6 left-6 h-12 w-12 rounded-full shadow-lg z-50 hover:bg-destructive hover:text-destructive-foreground"
+        className="fixed bottom-24 right-6 h-12 w-12 rounded-full shadow-lg z-50 hover:bg-destructive hover:text-destructive-foreground hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 bg-background border-2 border-border"
         title="Cancel and return"
       >
         <X className="h-5 w-5" />
