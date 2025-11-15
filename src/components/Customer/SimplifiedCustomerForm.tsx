@@ -37,7 +37,7 @@ const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Enter a valid email address").optional().or(z.literal('')),
   mobile: z.string().min(10, "Enter a valid phone number"),
-  customer_type: z.enum(['individual', 'company']),
+  customer_type: z.enum(['individual', 'company']).optional(),
   country_of_residence: z.string().min(1, "Country of residence is required"),
   company: z.string().optional(),
   amount: z.number().min(0.01, "Amount must be greater than 0"),
@@ -117,12 +117,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       name: '',
       email: '',
       mobile: '',
-      customer_type: 'company',
+      customer_type: undefined,
       country_of_residence: '',
       company: '',
       amount: 0,
       license_type: 'Mainland',
-      lead_source: 'Website',
+      lead_source: undefined,
       product_id: '',
       no_of_shareholders: 1,
       annual_turnover: undefined,
@@ -747,14 +747,14 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                   <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Customer Type (Optional)</FormLabel>
                                   <Select onValueChange={field.onChange} value={field.value}>
                                     <FormControl>
-                                      <SelectTrigger className="h-11 text-sm border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
+                                      <SelectTrigger className="h-11 text-sm border-2 border-border/60 bg-background backdrop-blur-sm rounded-lg
                                         focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background
                                         hover:border-primary/50 hover:bg-background/80
                                         transition-all duration-300">
-                                        <SelectValue placeholder="Select customer type" />
+                                        <SelectValue placeholder="Select" />
                                       </SelectTrigger>
                                     </FormControl>
-                                    <SelectContent className="z-50 bg-background border-border shadow-lg">
+                                    <SelectContent className="z-[100] bg-background border-border shadow-lg">
                                       <SelectItem value="individual">👤 Individual</SelectItem>
                                       <SelectItem value="company">🏢 Company</SelectItem>
                                     </SelectContent>
