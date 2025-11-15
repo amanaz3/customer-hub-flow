@@ -64,28 +64,30 @@ export const ProcessSummarySidebar = ({
   return (
     <div 
       className={`fixed top-20 right-0 h-[calc(100vh-5rem)] transition-all duration-300 ease-in-out z-40 ${
-        isCollapsed ? 'w-12' : 'w-80'
+        isCollapsed ? 'w-0' : 'w-80'
       }`}
     >
-      {/* Toggle Button */}
+      {/* Toggle Button - Always Visible */}
       <Button
         size="icon"
-        variant="outline"
+        variant="secondary"
         onClick={() => setIsCollapsed(!isCollapsed)}
-        className="absolute -left-4 top-4 h-8 w-8 rounded-full shadow-lg bg-background border-2 border-border hover:scale-110 transition-transform z-50"
+        className={`absolute top-4 h-10 w-10 rounded-full shadow-lg bg-secondary hover:bg-secondary/80 border-2 border-border hover:scale-110 transition-all z-50 ${
+          isCollapsed ? '-left-12' : '-left-5'
+        }`}
+        title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? (
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-5 w-5" />
         ) : (
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-5 w-5" />
         )}
       </Button>
 
       {/* Sidebar Content */}
+      {!isCollapsed && (
       <div 
-        className={`h-full overflow-auto py-4 px-3 bg-background border-l border-border shadow-xl transition-all duration-300 ${
-          isCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'
-        }`}
+        className="h-full overflow-auto py-4 px-3 bg-background border-l border-border shadow-xl transition-all duration-300"
       >
         <Card className="border-border bg-card/50">
         <CardHeader className="pb-3">
@@ -234,6 +236,7 @@ export const ProcessSummarySidebar = ({
         </CardContent>
       </Card>
       </div>
+      )}
     </div>
   );
 };
