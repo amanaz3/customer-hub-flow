@@ -36,7 +36,8 @@ import { TaxFields } from './fields/TaxFields';
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Enter a valid email address").optional().or(z.literal('')),
-  mobile: z.string().min(10, "Enter a valid phone number"),
+  mobile: z.string().optional().or(z.literal('')),
+  whatsapp: z.string().optional().or(z.literal('')),
   customer_type: z.enum(['individual', 'company']).optional(),
   country_of_residence: z.string().min(1, "Country of residence is required"),
   company: z.string().optional(),
@@ -66,6 +67,15 @@ const formSchema = z.object({
   property_value: z.number().optional(),
   vat_registration_type: z.string().optional(),
   tax_year_period: z.string().optional(),
+}).refine((data) => {
+  // Require at least email OR mobile
+  if (!data.email && !data.mobile) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Please provide either email or mobile number",
+  path: ["mobile"],
 }).refine((data) => {
   if (data.customer_type === 'company' && !data.company) {
     return false;
@@ -117,6 +127,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       name: '',
       email: '',
       mobile: '',
+      whatsapp: '',
       customer_type: undefined,
       country_of_residence: '',
       company: '',
@@ -228,11 +239,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       // Step 1: Check basic info is VALID (not just filled)
       if (currentStep === 1) {
         const nameValid = value.name && value.name.length >= 2 && !errors.name;
-        const mobileValid = value.mobile && value.mobile.length >= 10 && !errors.mobile;
+        const hasContact = (value.email && !errors.email) || (value.mobile && !errors.mobile);
         const countryValid = value.country_of_residence && !errors.country_of_residence;
         const companyValid = companyMode ? selectedCustomerId : true;
         
-        if (nameValid && mobileValid && countryValid && companyValid) {
+        if (nameValid && hasContact && countryValid && companyValid) {
           // Auto-save before progressing to step 2
           autoSaveDraft();
           setTimeout(() => setCurrentStep(2), 500);
@@ -350,13 +361,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     const errors = form.formState.errors;
     
     const nameValid = values.name && values.name.length >= 2 && !errors.name;
-    const mobileValid = values.mobile && values.mobile.length >= 10 && !errors.mobile;
+    const hasContact = (values.email && !errors.email) || (values.mobile && !errors.mobile);
     const countryValid = values.country_of_residence && !errors.country_of_residence;
     
-    if (!nameValid || !mobileValid || !countryValid) {
+    if (!nameValid || !hasContact || !countryValid) {
       toast({
         title: "Cannot Save Draft",
-        description: "Please complete all mandatory fields: Name, Mobile, and Country of Residence",
+        description: "Please provide: Name, Country, and at least Email or Mobile",
         variant: "destructive",
       });
       return;
@@ -426,11 +437,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
     if (currentStep === 1) {
       const nameValid = values.name && values.name.length >= 2 && !errors.name;
-      const mobileValid = values.mobile && values.mobile.length >= 10 && !errors.mobile;
+      const hasContact = (values.email && !errors.email) || (values.mobile && !errors.mobile);
       const countryValid = values.country_of_residence && !errors.country_of_residence;
       const companyValid = companyMode ? selectedCustomerId : true;
       
-      return nameValid && mobileValid && countryValid && companyValid;
+      return nameValid && hasContact && countryValid && companyValid;
     }
 
     if (currentStep === 2) {
@@ -609,7 +620,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   {!companyMode && (
                     <div className={`transition-all duration-300 ${!companyMode ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
                       {/* Quick Lead Capture - Step 1 */}
-                      <div className="space-y-4 pt-2">
+                      <div className="space-y-3 pt-2">
+                        <p className="text-xs text-muted-foreground">Provide at least one contact method (Mobile or Email)</p>
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                           {/* Name */}
                           <FormField
@@ -640,7 +652,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             name="mobile"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-xs font-medium">Mobile *</FormLabel>
+                                <FormLabel className="text-xs font-medium text-muted-foreground">Mobile</FormLabel>
                                 <FormControl>
                                   <Input 
                                     {...field} 
@@ -648,6 +660,49 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                       field.onChange(e);
                                       onMobileChange?.(e.target.value);
                                     }}
+                                    placeholder="+971 50 123 4567"
+                                    className="h-10 text-sm"
+                                  />
+                                </FormControl>
+                                <FormMessage className="text-xs" />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* Email */}
+                          <FormField
+                            control={form.control}
+                            name="email"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs font-medium text-muted-foreground">Email</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field} 
+                                    onChange={(e) => {
+                                      field.onChange(e);
+                                      onEmailChange?.(e.target.value);
+                                    }}
+                                    placeholder="john@example.com"
+                                    type="email"
+                                    className="h-10 text-sm"
+                                  />
+                                </FormControl>
+                                <FormMessage className="text-xs" />
+                              </FormItem>
+                            )}
+                          />
+
+                          {/* WhatsApp */}
+                          <FormField
+                            control={form.control}
+                            name="whatsapp"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs font-medium text-muted-foreground">WhatsApp</FormLabel>
+                                <FormControl>
+                                  <Input 
+                                    {...field}
                                     placeholder="+971 50 123 4567"
                                     className="h-10 text-sm"
                                   />
@@ -668,30 +723,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                   <Input 
                                     {...field}
                                     placeholder="UAE"
-                                    className="h-10 text-sm"
-                                  />
-                                </FormControl>
-                                <FormMessage className="text-xs" />
-                              </FormItem>
-                            )}
-                          />
-
-                          {/* Email - Optional */}
-                          <FormField
-                            control={form.control}
-                            name="email"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs font-medium text-muted-foreground">Email</FormLabel>
-                                <FormControl>
-                                  <Input 
-                                    {...field} 
-                                    onChange={(e) => {
-                                      field.onChange(e);
-                                      onEmailChange?.(e.target.value);
-                                    }}
-                                    placeholder="john@example.com"
-                                    type="email"
                                     className="h-10 text-sm"
                                   />
                                 </FormControl>
