@@ -735,7 +735,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                       <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                   </FormControl>
-                                  <SelectContent position="popper" sideOffset={6} className="z-[115] bg-card border border-border shadow-xl">
+                                  <SelectContent position="popper" sideOffset={6} className="z-[200] bg-card border border-border shadow-xl pointer-events-auto">
                                     <SelectItem value="Website">Website</SelectItem>
                                     <SelectItem value="Referral">Referral</SelectItem>
                                     <SelectItem value="Social Media">Social Media</SelectItem>
@@ -760,7 +760,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                       <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                   </FormControl>
-                                  <SelectContent position="popper" sideOffset={6} className="z-[115] bg-card border border-border shadow-xl">
+                                  <SelectContent position="popper" sideOffset={6} className="z-[200] bg-card border border-border shadow-xl pointer-events-auto">
                                     <SelectItem value="individual">Individual</SelectItem>
                                     <SelectItem value="company">Company</SelectItem>
                                   </SelectContent>
@@ -824,7 +824,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               <SelectValue placeholder="🎯 Choose a service" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent position="popper" sideOffset={8} className="z-[115] bg-card border border-border shadow-xl rounded-md">
+                          <SelectContent position="popper" sideOffset={8} className="z-[200] bg-card border border-border shadow-xl rounded-md pointer-events-auto">
                             {products?.map((product: any) => (
                               <SelectItem key={product.id} value={product.id} className="py-3">
                                 {product.name}
