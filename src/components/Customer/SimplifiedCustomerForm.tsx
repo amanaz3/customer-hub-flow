@@ -556,7 +556,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             </CardHeader>
             <CardContent className="p-4 sm:p-6 space-y-5">
               {/* Customer Type Selector - Always Visible */}
-              <div className="transform transition-all duration-300 hover:scale-[1.01] -mt-2 border-b border-border">
+              <div className="transform transition-all duration-300 hover:scale-[1.01] -mt-2 pb-4 relative">
                 <CustomerTypeSelector
                   value={companyMode ? 'existing' : 'new'}
                   onChange={(value) => {
@@ -575,6 +575,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     }
                   }}
                 />
+                
+                {/* Visual Connection Element */}
+                <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent" />
+                <div className="absolute bottom-0 left-1/2 -translate-x-1/2 w-0.5 h-4 bg-gradient-to-b from-primary/40 to-transparent" />
               </div>
 
               {/* Step 1: Customer Selection */}
@@ -582,7 +586,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 <div key="step-1" className="animate-fade-in space-y-4">
                   
                   {/* Tab-Style Wizard - Positioned after customer selector */}
-                  <div className="w-full">
+                  <div className="w-full relative">
+                    {/* Top connection shadow */}
+                    <div className="absolute -top-3 left-0 right-0 h-6 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none rounded-t-lg" />
                     <div className="flex items-center bg-card shadow-sm rounded-lg overflow-hidden">
                       {stepLabels.map((label, index) => {
                         const stepNumber = index + 1;
@@ -865,7 +871,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {currentStep === 2 && (
                 <div key="step-2" className="animate-fade-in space-y-4">
                   {/* Tab-Style Wizard */}
-                  <div className="w-full">
+                  <div className="w-full relative">
+                    {/* Top connection shadow */}
+                    <div className="absolute -top-3 left-0 right-0 h-6 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none rounded-t-lg" />
                     <div className="flex items-center bg-card shadow-sm rounded-lg overflow-hidden">
                       {stepLabels.map((label, index) => {
                         const stepNumber = index + 1;
@@ -1003,7 +1011,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {currentStep === 3 && (
                 <div key="step-3" className="animate-fade-in space-y-4">
                   {/* Tab-Style Wizard */}
-                  <div className="w-full">
+                  <div className="w-full relative">
+                    {/* Top connection shadow */}
+                    <div className="absolute -top-3 left-0 right-0 h-6 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none rounded-t-lg" />
                     <div className="flex items-center bg-card shadow-sm rounded-lg overflow-hidden">
                       {stepLabels.map((label, index) => {
                         const stepNumber = index + 1;
@@ -1093,7 +1103,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {currentStep === 4 && (
                 <div key="step-4" className="animate-fade-in space-y-4">
                   {/* Tab-Style Wizard */}
-                  <div className="w-full">
+                  <div className="w-full relative">
+                    {/* Top connection shadow */}
+                    <div className="absolute -top-3 left-0 right-0 h-6 bg-gradient-to-b from-primary/5 to-transparent pointer-events-none rounded-t-lg" />
                     <div className="flex items-center bg-card shadow-sm rounded-lg overflow-hidden">
                       {stepLabels.map((label, index) => {
                         const stepNumber = index + 1;
