@@ -88,7 +88,9 @@ export const UnifiedProgressHeader = ({
                     : index === 3
                     ? 'polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 50%)'
                     : 'polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%)',
-                  backgroundColor: step === currentStep 
+                  backgroundColor: currentStep === 4 && step === 4
+                    ? 'hsl(142 76% 36%)' // green for review step
+                    : step === currentStep 
                     ? 'hsl(var(--primary))' 
                     : step < currentStep 
                     ? 'hsl(var(--primary) / 0.2)' 
@@ -97,7 +99,8 @@ export const UnifiedProgressHeader = ({
               >
                 <div className={cn(
                   "flex items-center justify-center w-5 h-5 rounded-full text-xs font-semibold",
-                  step === currentStep && "bg-primary-foreground text-primary",
+                  currentStep === 4 && step === 4 && "bg-white text-green-700",
+                  step === currentStep && currentStep !== 4 && "bg-primary-foreground text-primary",
                   step < currentStep && "bg-primary text-primary-foreground",
                   step > currentStep && "bg-background text-muted-foreground"
                 )}>
@@ -109,7 +112,8 @@ export const UnifiedProgressHeader = ({
                 </div>
                 <span className={cn(
                   "text-xs font-medium whitespace-nowrap",
-                  step === currentStep && "text-primary-foreground",
+                  currentStep === 4 && step === 4 && "text-white",
+                  step === currentStep && currentStep !== 4 && "text-primary-foreground",
                   step < currentStep && "text-primary",
                   step > currentStep && "text-muted-foreground"
                 )}>
