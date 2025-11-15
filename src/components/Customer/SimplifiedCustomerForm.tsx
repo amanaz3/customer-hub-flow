@@ -824,7 +824,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {currentStep === 2 && (
                 <div key="step-2" className="animate-fade-in">
                   <CardHeader className="pb-4">
-                    <CardTitle className="text-xl">Service Selection</CardTitle>
+                    <CardTitle className="text-xl"></CardTitle>
                     <CardDescription>
                       Choose the service you need and provide the required details.
                     </CardDescription>
