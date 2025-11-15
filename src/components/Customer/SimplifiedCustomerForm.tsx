@@ -482,10 +482,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   ];
 
   return (
-    <div className="w-full flex gap-6">
-      {/* Main Form Content */}
-      <div className="flex-1">
-        <Form {...form}>
+    <div className="w-full">
+      <Form {...form}>
           <form 
             onSubmit={form.handleSubmit(onSubmit)} 
             className="w-full"
@@ -1239,7 +1237,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       </Form>
       
       {/* Floating Action Buttons */}
-      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50 lg:right-[22rem]">
+      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-50">
         {/* Previous Step Button */}
         {currentStep > 1 && (
           <Button
@@ -1325,24 +1323,21 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-      </div>
 
-      {/* Right Sidebar - Process Summary */}
-      <div className="hidden lg:block w-80 flex-shrink-0">
-        <div className="sticky top-6">
-          <ProcessSummarySidebar
-            currentStep={currentStep}
-            formData={{
-              name: form.watch('name'),
-              email: form.watch('email'),
-              mobile: form.watch('mobile'),
-              product_id: form.watch('product_id'),
-              amount: form.watch('amount'),
-              license_type: form.watch('license_type'),
-            }}
-            productName={selectedProductName}
-          />
-        </div>
+      {/* Right Sidebar - Process Summary (Fixed Position) */}
+      <div className="hidden lg:block">
+        <ProcessSummarySidebar
+          currentStep={currentStep}
+          formData={{
+            name: form.watch('name'),
+            email: form.watch('email'),
+            mobile: form.watch('mobile'),
+            product_id: form.watch('product_id'),
+            amount: form.watch('amount'),
+            license_type: form.watch('license_type'),
+          }}
+          productName={selectedProductName}
+        />
       </div>
     </div>
   );
