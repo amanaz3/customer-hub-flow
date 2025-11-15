@@ -831,6 +831,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   </CardHeader>
                   <div className="space-y-4 px-6">
                   
+                  <div className="mb-4">
+                    <h3 className="text-sm font-semibold text-foreground">Service Selection</h3>
+                    <p className="text-xs text-muted-foreground mt-1">Choose the service you need and provide the required details.</p>
+                  </div>
+                  
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 transform transition-all duration-300">
                   <FormField
                     control={form.control}
