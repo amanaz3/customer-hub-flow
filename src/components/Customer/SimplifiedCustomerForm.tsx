@@ -530,7 +530,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Captured Info Summary - Collapsible after Step 1 */}
               {currentStep > 1 && form.watch('name') && (
                 <div className="flex justify-center -mt-2">
-                  <Collapsible defaultOpen={false} className="w-1/2">
+                  <Collapsible defaultOpen={false} className="w-1/4">
                     <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-1.5 text-[11px] bg-muted/30 hover:bg-muted/50 border border-border rounded-md transition-colors group">
                       <div className="flex items-center gap-1.5">
                         <User className="h-3 w-3 text-primary" />
