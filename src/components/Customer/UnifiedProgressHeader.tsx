@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useLayoutEffect, useRef } from 'react';
 import { Check, ChevronRight } from 'lucide-react';
 import { CustomerTypeSelector } from './CustomerTypeSelector';
 import { cn } from '@/lib/utils';
@@ -38,9 +38,19 @@ export const UnifiedProgressHeader = ({
   onStepClick = () => {} // Default no-op handler
 }: UnifiedProgressHeaderProps) => {
   const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
+  const containerRef = useRef<HTMLDivElement>(null);
+  useLayoutEffect(() => {
+    const update = () => {
+      const h = containerRef.current?.offsetHeight || 0;
+      document.documentElement.style.setProperty('--unified-header-h', `${h}px`);
+    };
+    update();
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, []);
 
   return (
-    <div className="sticky top-0 left-0 right-0 z-[100] bg-background">
+    <div ref={containerRef} className="sticky top-0 left-0 right-0 z-[120] bg-background">
       <div className="w-full max-w-2xl mx-auto">
         <div className="px-4 sm:px-6 py-4 bg-card border border-b-0 border-border rounded-t-lg shadow-sm">
         {/* Unified Container with consistent styling */}
