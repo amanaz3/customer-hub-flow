@@ -40,9 +40,9 @@ export const UnifiedProgressHeader = ({
   const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
 
   return (
-    <div className="sticky top-0 z-[120] bg-background shadow-md border-b border-border isolate relative" style={{ contain: 'paint', willChange: 'transform', transform: 'translateZ(0)' }}>
-      <div className="w-full max-w-2xl mx-auto bg-background">
-        <div className="px-4 sm:px-6 py-4 bg-card">\n        {/* Unified Container with consistent styling */}
+    <div className="sticky top-0 z-[100] bg-card shadow-lg border-b border-border">
+      <div className="w-full max-w-2xl mx-auto">
+        <div className="px-4 sm:px-6 py-4">
         {/* Unified Container with consistent styling */}
         <div className="flex flex-col items-center gap-4">
           {/* Customer Type Selector */}
