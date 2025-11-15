@@ -492,18 +492,67 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               className="border border-border bg-card shadow-md hover:shadow-lg transition-shadow duration-300"
             >
             <CardHeader className="border-b border-border pb-2 sm:pb-3 bg-gradient-to-r from-primary/5 via-primary/3 to-transparent px-4 sm:px-6 py-2 sm:py-3">
-              <CardTitle className="text-sm sm:text-base font-bold text-foreground tracking-tight">
-                {currentStep === 1 && 'Customer Selection'}
-                {currentStep === 2 && 'Service Selection'}
-                {currentStep === 3 && 'Service Details'}
-                {currentStep === 4 && 'Confirmation'}
-              </CardTitle>
-              <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 font-medium">
-                {currentStep === 1 && 'Choose customer type and provide customer information'}
-                {currentStep === 2 && 'Select the service and specify the application amount'}
-                {currentStep === 3 && 'Provide additional details specific to the selected service'}
-                {currentStep === 4 && 'Review all information before submitting'}
-              </p>
+              <div className="flex items-start justify-between gap-4">
+                <div className="flex-1">
+                  <CardTitle className="text-sm sm:text-base font-bold text-foreground tracking-tight">
+                    {currentStep === 1 && 'Customer Selection'}
+                    {currentStep === 2 && 'Service Selection'}
+                    {currentStep === 3 && 'Service Details'}
+                    {currentStep === 4 && 'Confirmation'}
+                  </CardTitle>
+                  <p className="text-[11px] sm:text-xs text-muted-foreground mt-0.5 font-medium">
+                    {currentStep === 1 && 'Choose customer type and provide customer information'}
+                    {currentStep === 2 && 'Select the service and specify the application amount'}
+                    {currentStep === 3 && 'Provide additional details specific to the selected service'}
+                    {currentStep === 4 && 'Review all information before submitting'}
+                  </p>
+                </div>
+
+                {/* Captured Info Summary - Collapsible after Step 1 */}
+                {currentStep > 1 && form.watch('name') && (
+                  <div className="flex-shrink-0">
+                    <Collapsible defaultOpen={false}>
+                      <CollapsibleTrigger className="flex items-center gap-1.5 px-3 py-1.5 text-[11px] bg-muted/30 hover:bg-muted/50 border border-border rounded-md transition-colors group">
+                        <User className="h-3 w-3 text-primary" />
+                        <span className="font-semibold text-foreground">{form.watch('name')}</span>
+                        <ChevronDown className="h-3 w-3 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="absolute right-4 mt-1 px-3 py-2 text-[11px] bg-card border border-border rounded-md shadow-lg z-10 min-w-[250px]">
+                        <div className="space-y-1">
+                          {form.watch('email') && (
+                            <div className="flex items-center gap-1.5">
+                              <Mail className="h-3 w-3 text-primary" />
+                              <span className="text-muted-foreground font-medium w-16">Email:</span>
+                              <span className="text-foreground">{form.watch('email')}</span>
+                            </div>
+                          )}
+                          {form.watch('mobile') && (
+                            <div className="flex items-center gap-1.5">
+                              <Phone className="h-3 w-3 text-primary" />
+                              <span className="text-muted-foreground font-medium w-16">Mobile:</span>
+                              <span className="text-foreground">{form.watch('mobile')}</span>
+                            </div>
+                          )}
+                          {form.watch('whatsapp') && (
+                            <div className="flex items-center gap-1.5">
+                              <MessageSquare className="h-3 w-3 text-primary" />
+                              <span className="text-muted-foreground font-medium w-16">WhatsApp:</span>
+                              <span className="text-foreground">{form.watch('whatsapp')}</span>
+                            </div>
+                          )}
+                          {form.watch('country_of_residence') && (
+                            <div className="flex items-center gap-1.5">
+                              <Globe className="h-3 w-3 text-primary" />
+                              <span className="text-muted-foreground font-medium w-16">Country:</span>
+                              <span className="text-foreground">{form.watch('country_of_residence')}</span>
+                            </div>
+                          )}
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
+                  </div>
+                )}
+              </div>
             </CardHeader>
             <CardContent className="p-4 sm:p-6 space-y-5">
               {/* Customer Type Selector - Always Visible */}
@@ -527,63 +576,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   }}
                 />
               </div>
-
-              {/* Captured Info Summary - Collapsible after Step 1 */}
-              {currentStep > 1 && form.watch('name') && (
-                <div className="flex justify-center -mt-2">
-                  <Collapsible defaultOpen={false} className="w-1/4">
-                    <CollapsibleTrigger className="flex items-center justify-between w-full px-3 py-1.5 text-[11px] bg-muted/30 hover:bg-muted/50 border border-border rounded-md transition-colors group">
-                      <div className="flex items-center gap-1.5">
-                        <User className="h-3 w-3 text-primary" />
-                        <span className="font-semibold text-foreground">{form.watch('name')}</span>
-                        <span className="text-muted-foreground text-[10px]">• Contact Info</span>
-                      </div>
-                      <ChevronDown className="h-3 w-3 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
-                    </CollapsibleTrigger>
-                    <CollapsibleContent className="px-3 py-2 text-[11px] bg-muted/20 border border-t-0 border-border rounded-b-md">
-                      <div className="space-y-1">
-                        {form.watch('email') && (
-                          <div className="flex items-center gap-1.5">
-                            <Mail className="h-3 w-3 text-primary" />
-                            <span className="text-muted-foreground font-medium w-16">Email:</span>
-                            <span className="text-foreground">{form.watch('email')}</span>
-                          </div>
-                        )}
-                        {form.watch('mobile') && (
-                          <div className="flex items-center gap-1.5">
-                            <Phone className="h-3 w-3 text-primary" />
-                            <span className="text-muted-foreground font-medium w-16">Mobile:</span>
-                            <span className="text-foreground">{form.watch('mobile')}</span>
-                          </div>
-                        )}
-                        {form.watch('whatsapp') && (
-                          <div className="flex items-center gap-1.5">
-                            <MessageSquare className="h-3 w-3 text-primary" />
-                            <span className="text-muted-foreground font-medium w-16">WhatsApp:</span>
-                            <span className="text-foreground">{form.watch('whatsapp')}</span>
-                          </div>
-                        )}
-                        {form.watch('country_of_residence') && (
-                          <div className="flex items-center gap-1.5">
-                            <Globe className="h-3 w-3 text-primary" />
-                            <span className="text-muted-foreground font-medium w-16">Country:</span>
-                            <span className="text-foreground">{form.watch('country_of_residence')}</span>
-                          </div>
-                        )}
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          className="h-7 px-3 text-[11px] mt-2"
-                          onClick={() => setCurrentStep(1)}
-                        >
-                          Edit Info
-                        </Button>
-                      </div>
-                    </CollapsibleContent>
-                  </Collapsible>
-                </div>
-              )}
 
               {/* Step 1: Customer Selection */}
               {currentStep === 1 && (
