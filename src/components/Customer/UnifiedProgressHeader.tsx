@@ -45,23 +45,27 @@ export const UnifiedProgressHeader = ({
         />
       </div>
 
-      <div className="px-4 sm:px-6 py-3 space-y-3">
-        {/* Customer Type Selector - Full width row */}
-        <div className="flex justify-center">
-          <div className="w-full max-w-sm">
+      <div className="px-4 sm:px-6 py-4">
+        {/* Unified Container with consistent styling */}
+        <div className="flex flex-col items-center gap-4">
+          {/* Customer Type Selector */}
+          <div className="w-full max-w-md">
             <CustomerTypeSelector
               value={customerType}
               onChange={onCustomerTypeChange}
             />
           </div>
-        </div>
 
-        {/* Divider */}
-        <div className="border-t border-border/30"></div>
+          {/* Visual Separator */}
+          <div className="w-full max-w-2xl flex items-center gap-3">
+            <div className="flex-1 h-px bg-border"></div>
+            <div className="text-xs text-muted-foreground font-medium">PROCESS STEPS</div>
+            <div className="flex-1 h-px bg-border"></div>
+          </div>
 
-        {/* Step Breadcrumbs - Full width row */}
-        <div className="flex items-center justify-center">
-          <div className="flex items-center gap-2 overflow-x-auto">
+          {/* Step Breadcrumbs */}
+          <div className="w-full max-w-2xl flex items-center justify-center">
+            <div className="flex items-center gap-2">
             {stepConfig.map((step, index) => {
               const stepNumber = index + 1;
               const isActive = currentStep === stepNumber;
@@ -108,11 +112,12 @@ export const UnifiedProgressHeader = ({
                 </div>
               );
             })}
+            </div>
           </div>
         </div>
 
-        {/* Current Step Title & Description */}
-        <div className="text-center pt-2 border-t border-border/30">
+        {/* Current Step Description */}
+        <div className="text-center pt-3 mt-3 border-t border-border/50">
           <h2 className="text-sm font-bold text-foreground leading-tight">
             {currentStep === 1 && 'Customer Selection'}
             {currentStep === 2 && 'Service Selection'}
