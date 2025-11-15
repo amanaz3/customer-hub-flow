@@ -498,34 +498,28 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               customerWhatsapp={form.watch('whatsapp')}
               customerCountry={form.watch('country_of_residence')}
               selectedProduct={products?.find(p => p.id === form.watch('product_id'))?.name}
+              customerType={companyMode ? 'existing' : 'new'}
+              onCustomerTypeChange={(value) => {
+                // Check if user is past step 1 and trying to switch customer type
+                if (currentStep > 1) {
+                  setPendingMode(value);
+                  setShowModeChangeWarning(true);
+                  return;
+                }
+                
+                // Proceed with change if on step 1
+                const newMode = value === 'existing';
+                onModeChange?.(newMode);
+                if (!newMode) {
+                  onCustomerSelect?.(null);
+                }
+              }}
             />
 
             <Card 
               className="border-t-0 border border-border bg-card shadow-md hover:shadow-lg transition-shadow duration-300 rounded-t-none"
             >
             <CardContent className="p-4 sm:p-6 space-y-5">
-              {/* Customer Type Selector - Always Visible */}
-              <div className="transform transition-all duration-300 hover:scale-[1.01] pb-4 mb-4 border-b border-border">
-                <CustomerTypeSelector
-                  value={companyMode ? 'existing' : 'new'}
-                  onChange={(value) => {
-                    // Check if user is past step 1 and trying to switch customer type
-                    if (currentStep > 1) {
-                      setPendingMode(value);
-                      setShowModeChangeWarning(true);
-                      return;
-                    }
-                    
-                    // Proceed with change if on step 1
-                    const newMode = value === 'existing';
-                    onModeChange?.(newMode);
-                    if (!newMode) {
-                      onCustomerSelect?.(null);
-                    }
-                  }}
-                />
-              </div>
-
               {/* Customer Information Summary Accordion - Show after step 1 */}
               {currentStep > 1 && form.watch('name') && (
                 <div className="flex justify-center mb-6">
