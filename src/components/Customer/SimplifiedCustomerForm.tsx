@@ -735,7 +735,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                       <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                   </FormControl>
-                                  <SelectContent className="z-[100] bg-background">
+                                  <SelectContent position="popper" sideOffset={6} className="z-[115] bg-card border border-border shadow-xl">
                                     <SelectItem value="Website">Website</SelectItem>
                                     <SelectItem value="Referral">Referral</SelectItem>
                                     <SelectItem value="Social Media">Social Media</SelectItem>
@@ -760,7 +760,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                       <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                   </FormControl>
-                                  <SelectContent className="z-[100] bg-background">
+                                  <SelectContent position="popper" sideOffset={6} className="z-[115] bg-card border border-border shadow-xl">
                                     <SelectItem value="individual">Individual</SelectItem>
                                     <SelectItem value="company">Company</SelectItem>
                                   </SelectContent>
@@ -824,7 +824,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               <SelectValue placeholder="🎯 Choose a service" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent className="z-50 bg-background border-border shadow-lg">
+                          <SelectContent position="popper" sideOffset={8} className="z-[115] bg-card border border-border shadow-xl rounded-md">
                             {products?.map((product: any) => (
                               <SelectItem key={product.id} value={product.id} className="py-3">
                                 {product.name}
