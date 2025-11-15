@@ -4,7 +4,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
@@ -901,8 +901,14 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
               {/* Step 4: Confirmation & Preview */}
               {currentStep === 4 && (
-                <div key="step-4" className="animate-fade-in pt-4">
-                  <ScrollArea className="h-[calc(100vh-280px)] pr-4">
+                <div key="step-4" className="animate-fade-in">
+                  <CardHeader className="pb-4">
+                    <CardTitle className="text-xl">Review & Submit</CardTitle>
+                    <CardDescription>
+                      Please review all the information below carefully before submitting your application.
+                    </CardDescription>
+                  </CardHeader>
+                  <ScrollArea className="h-[calc(100vh-340px)] px-6 pr-4">
                     <div className="space-y-6">
                     {/* Customer Information Preview */}
                     <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
