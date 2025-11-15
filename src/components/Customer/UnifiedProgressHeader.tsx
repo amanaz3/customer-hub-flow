@@ -86,7 +86,7 @@ export const UnifiedProgressHeader = ({
                 style={{
                   clipPath: index === 0 
                     ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
-                    : index === 3
+                    : index === 4
                     ? 'polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 50%)'
                     : 'polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%)',
                   backgroundColor: step === currentStep 
