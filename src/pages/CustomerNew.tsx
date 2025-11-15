@@ -5,8 +5,6 @@ import { useToast } from '@/hooks/use-toast';
 import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
 import { RequiredDocumentsSidebar } from '@/components/Customer/RequiredDocumentsSidebar';
 import { CustomerEventsSidebar } from '@/components/Customer/CustomerEventsSidebar';
-import { Button } from '@/components/ui/button';
-import { X } from 'lucide-react';
 
 const CustomerNew = () => {
   const { refreshData } = useCustomer();
@@ -67,18 +65,7 @@ const CustomerNew = () => {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 bg-background relative">
-      {/* Floating Cancel Button */}
-      <Button
-        variant="outline"
-        size="icon"
-        onClick={() => navigate('/customers')}
-        className="fixed bottom-24 right-6 h-12 w-12 rounded-full shadow-lg z-50 hover:bg-destructive hover:text-destructive-foreground hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 bg-background border-2 border-border"
-        title="Cancel and return"
-      >
-        <X className="h-5 w-5" />
-      </Button>
-
+    <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 bg-background">
       <div className={`w-full max-w-[95%] lg:max-w-[90%] xl:max-w-[85%] 2xl:max-w-[80%] px-4 sm:px-6 transition-all duration-300 ${!sidebarCollapsed ? 'lg:pr-[340px]' : 'lg:pr-[60px]'}`}>
         <div className="w-full flex justify-center">
           <div className="w-full max-w-4xl">
@@ -94,6 +81,7 @@ const CustomerNew = () => {
             selectedCustomerId={selectedCustomerId}
             onModeChange={handleModeChange}
             onCustomerSelect={setSelectedCustomerId}
+            onCancel={() => navigate('/customers')}
           />
         </div>
       </div>
