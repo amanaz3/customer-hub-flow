@@ -155,49 +155,68 @@ export const ProcessSummarySidebar = ({
           {/* Captured Information */}
           {currentStep > 1 && (
             <div className="pt-3 border-t border-border">
-              <h4 className="text-xs font-semibold mb-2">Captured Info</h4>
-              <div className="space-y-1.5">
-                {formData.name && (
-                  <div className="text-[11px]">
-                    <span className="text-muted-foreground">Name:</span>
-                    <span className="ml-1 font-medium text-foreground">{formData.name}</span>
-                  </div>
-                )}
-                {formData.email && (
-                  <div className="text-[11px]">
-                    <span className="text-muted-foreground">Email:</span>
-                    <span className="ml-1 font-medium text-foreground break-all">
-                      {formData.email}
-                    </span>
-                  </div>
-                )}
-                {formData.mobile && (
-                  <div className="text-[11px]">
-                    <span className="text-muted-foreground">Mobile:</span>
-                    <span className="ml-1 font-medium text-foreground">{formData.mobile}</span>
-                  </div>
-                )}
-                {currentStep > 2 && productName && (
-                  <div className="text-[11px] pt-1.5 border-t border-border/50 mt-1.5">
-                    <span className="text-muted-foreground">Service:</span>
-                    <span className="ml-1 font-medium text-foreground">{productName}</span>
-                  </div>
-                )}
-                {currentStep > 2 && formData.amount && (
-                  <div className="text-[11px]">
-                    <span className="text-muted-foreground">Amount:</span>
-                    <span className="ml-1 font-medium text-foreground">
-                      AED {formData.amount.toLocaleString()}
-                    </span>
-                  </div>
-                )}
-                {currentStep > 2 && formData.license_type && (
-                  <div className="text-[11px]">
-                    <span className="text-muted-foreground">License:</span>
-                    <span className="ml-1 font-medium text-foreground">{formData.license_type}</span>
-                  </div>
-                )}
+              <h4 className="text-xs font-semibold mb-3">Captured Info</h4>
+              
+              {/* Customer Information Section */}
+              <div className="mb-3">
+                <p className="text-[10px] font-semibold text-primary mb-1.5">Customer Information</p>
+                <div className="space-y-1.5 pl-2 border-l-2 border-primary/20">
+                  {formData.name && (
+                    <div className="text-[11px]">
+                      <span className="text-muted-foreground">Name:</span>
+                      <span className="ml-1 font-medium text-foreground">{formData.name}</span>
+                    </div>
+                  )}
+                  {formData.email && (
+                    <div className="text-[11px]">
+                      <span className="text-muted-foreground">Email:</span>
+                      <span className="ml-1 font-medium text-foreground break-all">
+                        {formData.email}
+                      </span>
+                    </div>
+                  )}
+                  {formData.mobile && (
+                    <div className="text-[11px]">
+                      <span className="text-muted-foreground">Mobile:</span>
+                      <span className="ml-1 font-medium text-foreground">{formData.mobile}</span>
+                    </div>
+                  )}
+                </div>
               </div>
+
+              {/* Service Section */}
+              {currentStep > 2 && productName && (
+                <div className="mb-3">
+                  <p className="text-[10px] font-semibold text-primary mb-1.5">Service</p>
+                  <div className="space-y-1.5 pl-2 border-l-2 border-primary/20">
+                    <div className="text-[11px]">
+                      <span className="text-muted-foreground">Product:</span>
+                      <span className="ml-1 font-medium text-foreground">{productName}</span>
+                    </div>
+                    {formData.amount && (
+                      <div className="text-[11px]">
+                        <span className="text-muted-foreground">Amount:</span>
+                        <span className="ml-1 font-medium text-foreground">
+                          AED {formData.amount.toLocaleString()}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Service Details Section */}
+              {currentStep > 2 && formData.license_type && (
+                <div className="mb-3">
+                  <p className="text-[10px] font-semibold text-primary mb-1.5">Service Details</p>
+                  <div className="space-y-1.5 pl-2 border-l-2 border-primary/20">
+                    <div className="text-[11px]">
+                      <span className="text-muted-foreground">License Type:</span>
+                      <span className="ml-1 font-medium text-foreground">{formData.license_type}</span>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           )}
 
