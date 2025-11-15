@@ -9,7 +9,7 @@ interface CustomerTypeSelectorProps {
 export const CustomerTypeSelector = ({ value, onChange }: CustomerTypeSelectorProps) => {
   return (
     <div className="space-y-1.5">
-      <Tabs value={value} onValueChange={onChange} className="w-full">
+      <Tabs value={value} onValueChange={onChange} className="w-full relative z-50">
         <TabsList className="grid w-full grid-cols-2 h-auto bg-gradient-to-br from-muted/40 via-muted/60 to-muted/40 backdrop-blur-sm border border-border/50 rounded-lg p-1 shadow-sm">
           {value === 'existing' ? (
             <>

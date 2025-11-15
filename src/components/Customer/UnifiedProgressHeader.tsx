@@ -40,7 +40,7 @@ export const UnifiedProgressHeader = ({
   const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
 
   return (
-    <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
+    <div className="sticky top-0 z-40 bg-background border-b border-border shadow-md">
       <div className="px-4 sm:px-6 py-4">
         {/* Unified Container with consistent styling */}
         <div className="flex flex-col items-center gap-4">
