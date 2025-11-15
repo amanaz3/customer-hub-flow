@@ -21,6 +21,13 @@ const CustomerNew = () => {
   // Customer selection state
   const [companyMode, setCompanyMode] = useState<boolean>(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(true);
+
+  // Collapse sidebar when switching between new/existing customer
+  const handleModeChange = (newMode: boolean) => {
+    setCompanyMode(newMode);
+    setSidebarCollapsed(true);
+  };
 
   const handleSuccess = () => {
     refreshData();
@@ -72,7 +79,7 @@ const CustomerNew = () => {
             onCompanyChange={setCustomerCompany}
             companyMode={companyMode}
             selectedCustomerId={selectedCustomerId}
-            onModeChange={setCompanyMode}
+            onModeChange={handleModeChange}
             onCustomerSelect={setSelectedCustomerId}
           />
         </div>
@@ -81,7 +88,11 @@ const CustomerNew = () => {
       {/* Sticky Sidebar - Hidden on mobile/tablet, each sidebar has its own toggle */}
       <div className="hidden lg:block">
         {companyMode && selectedCustomerId ? (
-          <CustomerEventsSidebar customerId={selectedCustomerId} />
+          <CustomerEventsSidebar 
+            customerId={selectedCustomerId} 
+            collapsed={sidebarCollapsed}
+            onCollapsedChange={setSidebarCollapsed}
+          />
         ) : (
           <RequiredDocumentsSidebar
             productType={getProductType()}
@@ -89,7 +100,8 @@ const CustomerNew = () => {
             customerName={customerName}
             customerMobile={customerMobile}
             customerCompany={customerCompany}
-            onCollapsedChange={() => {}}
+            collapsed={sidebarCollapsed}
+            onCollapsedChange={setSidebarCollapsed}
           />
         )}
       </div>

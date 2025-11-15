@@ -10,13 +10,25 @@ import { format } from 'date-fns';
 
 interface CustomerEventsSidebarProps {
   customerId: string;
+  collapsed?: boolean;
+  onCollapsedChange?: (collapsed: boolean) => void;
 }
 
-export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({ customerId }) => {
-  const [isCollapsed, setIsCollapsed] = React.useState(true);
+export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({ 
+  customerId,
+  collapsed,
+  onCollapsedChange 
+}) => {
+  const [internalCollapsed, setInternalCollapsed] = React.useState(true);
+  const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed;
 
   const toggleCollapsed = () => {
-    setIsCollapsed(!isCollapsed);
+    const newValue = !isCollapsed;
+    if (collapsed !== undefined) {
+      onCollapsedChange?.(newValue);
+    } else {
+      setInternalCollapsed(newValue);
+    }
   };
 
   // Fetch customer details
