@@ -13,7 +13,7 @@ interface CustomerEventsSidebarProps {
 }
 
 export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({ customerId }) => {
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [isCollapsed, setIsCollapsed] = React.useState(true);
 
   const toggleCollapsed = () => {
     setIsCollapsed(!isCollapsed);

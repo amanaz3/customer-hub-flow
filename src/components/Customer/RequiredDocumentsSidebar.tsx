@@ -27,7 +27,7 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
   customerCompany,
   onCollapsedChange,
 }) => {
-  const [isCollapsed, setIsCollapsed] = React.useState(false);
+  const [isCollapsed, setIsCollapsed] = React.useState(true);
   const { toast } = useToast();
 
   const toggleCollapsed = () => {
