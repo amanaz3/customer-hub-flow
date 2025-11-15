@@ -1123,9 +1123,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   </CardHeader>
                   <div className="space-y-4 px-6">
                   
-                  {/* Show customer accordion for existing customer */}
-                  {renderCustomerAccordion()}
-
                   {/* Service-specific fields based on selected product */}
                   <div className="space-y-4">
                     <div className="flex items-center gap-2 pb-2 border-b border-border">
