@@ -522,7 +522,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             <CardContent className="p-4 sm:p-6 space-y-5">
               {/* Customer Information Summary Accordion - Show after step 1 */}
               {currentStep > 1 && form.watch('name') && (
-                <div className="flex justify-center mb-6">
+                <div className="sticky top-[180px] z-[90] bg-card pb-4 -mx-4 sm:-mx-6 px-4 sm:px-6 mb-2">
+                  <div className="flex justify-center">
                   <Accordion type="single" collapsible className="w-7/12">
                     <AccordionItem value="customer-info" className="border rounded-lg">
                     <AccordionTrigger className="px-4 py-3 hover:no-underline">
@@ -581,7 +582,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       </div>
                     </AccordionContent>
                   </AccordionItem>
-                </Accordion>
+                  </Accordion>
+                  </div>
                 </div>
               )}
 
