@@ -524,7 +524,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {currentStep > 1 && form.watch('name') && (
                 <div className="sticky z-[100] bg-card -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 pb-4 mb-8 border-b border-border shadow-sm" style={{ top: 'var(--unified-header-h, 160px)' }}>
                   <div className="flex justify-center">
-                  <Accordion type="single" collapsible className="w-7/12 bg-card">
+                  <Accordion type="single" collapsible className="w-1/2 bg-card">
                     <AccordionItem value="customer-info" className="border rounded-lg">
                     <AccordionTrigger className="px-4 py-3 hover:no-underline">
                       <div className="flex items-center gap-2">
