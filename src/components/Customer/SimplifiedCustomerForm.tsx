@@ -526,6 +526,40 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 />
               </div>
 
+              {/* Captured Info Summary - Shows after Step 1 */}
+              {currentStep > 1 && form.watch('name') && (
+                <div className="flex items-center gap-2 text-xs bg-muted/50 border border-border rounded-lg px-3 py-2 -mt-2">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <span className="font-semibold text-foreground">{form.watch('name')}</span>
+                    <span className="text-muted-foreground">•</span>
+                    {form.watch('email') && (
+                      <span className="text-muted-foreground">{form.watch('email')}</span>
+                    )}
+                    {form.watch('mobile') && (
+                      <>
+                        {form.watch('email') && <span className="text-muted-foreground">|</span>}
+                        <span className="text-muted-foreground">{form.watch('mobile')}</span>
+                      </>
+                    )}
+                    {form.watch('whatsapp') && (
+                      <>
+                        <span className="text-muted-foreground">| WhatsApp:</span>
+                        <span className="text-muted-foreground">{form.watch('whatsapp')}</span>
+                      </>
+                    )}
+                  </div>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="ml-auto h-6 px-2 text-xs"
+                    onClick={() => setCurrentStep(1)}
+                  >
+                    Edit
+                  </Button>
+                </div>
+              )}
+
               {/* Step 1: Customer Selection */}
               {currentStep === 1 && (
                 <div key="step-1" className="animate-fade-in space-y-4">
