@@ -1,5 +1,7 @@
-import { Check, Circle } from 'lucide-react';
+import { useState } from 'react';
+import { Check, Circle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 
 interface ProcessStep {
   step: number;
@@ -27,6 +29,7 @@ export const ProcessSummarySidebar = ({
   formData,
   productName
 }: ProcessSummarySidebarProps) => {
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const steps: ProcessStep[] = [
     {
       step: 1,
@@ -59,8 +62,32 @@ export const ProcessSummarySidebar = ({
   ];
 
   return (
-    <div className="h-full overflow-auto py-4 px-3">
-      <Card className="border-border bg-card/50">
+    <div 
+      className={`fixed top-20 right-0 h-[calc(100vh-5rem)] transition-all duration-300 ease-in-out z-40 ${
+        isCollapsed ? 'w-12' : 'w-80'
+      }`}
+    >
+      {/* Toggle Button */}
+      <Button
+        size="icon"
+        variant="outline"
+        onClick={() => setIsCollapsed(!isCollapsed)}
+        className="absolute -left-4 top-4 h-8 w-8 rounded-full shadow-lg bg-background border-2 border-border hover:scale-110 transition-transform z-50"
+      >
+        {isCollapsed ? (
+          <ChevronLeft className="h-4 w-4" />
+        ) : (
+          <ChevronRight className="h-4 w-4" />
+        )}
+      </Button>
+
+      {/* Sidebar Content */}
+      <div 
+        className={`h-full overflow-auto py-4 px-3 bg-background border-l border-border shadow-xl transition-all duration-300 ${
+          isCollapsed ? 'opacity-0 pointer-events-none' : 'opacity-100'
+        }`}
+      >
+        <Card className="border-border bg-card/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold">Process Summary</CardTitle>
           <p className="text-xs text-muted-foreground mt-1">
@@ -187,6 +214,7 @@ export const ProcessSummarySidebar = ({
           </div>
         </CardContent>
       </Card>
+      </div>
     </div>
   );
 };
