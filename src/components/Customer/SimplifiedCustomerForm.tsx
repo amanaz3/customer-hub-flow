@@ -122,6 +122,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [selectedProductName, setSelectedProductName] = useState<string>('');
   const [showModeChangeWarning, setShowModeChangeWarning] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -1053,6 +1054,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             onClick={() => {
               if (canProgressToNextStep()) {
                 setCurrentStep(prev => Math.min(4, prev + 1));
+                setSidebarCollapsed(true);
               } else {
                 toast({
                   title: "Cannot Progress",
@@ -1129,6 +1131,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             license_type: form.watch('license_type'),
           }}
           productName={selectedProductName}
+          isCollapsed={sidebarCollapsed}
+          onToggleCollapse={setSidebarCollapsed}
         />
       </div>
     </div>
