@@ -1046,9 +1046,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   </CardHeader>
                   <div className="space-y-4 px-6">
                   
-                  {/* Show customer accordion for existing customer */}
-                  {renderCustomerAccordion()}
-
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-3 transform transition-all duration-300">
                   <FormField
                     control={form.control}
