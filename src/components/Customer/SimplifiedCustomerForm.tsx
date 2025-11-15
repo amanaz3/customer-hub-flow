@@ -481,7 +481,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   ];
 
   return (
-    <div className="w-full">
+    <div className="w-full flex justify-center">
+      <div className="w-full max-w-[75%]">
       <Form {...form}>
           <form 
             onSubmit={form.handleSubmit(onSubmit)} 
@@ -1128,6 +1129,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           }}
           productName={selectedProductName}
         />
+      </div>
       </div>
     </div>
   );
