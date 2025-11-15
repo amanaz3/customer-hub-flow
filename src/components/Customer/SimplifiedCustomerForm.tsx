@@ -613,10 +613,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   
                   {companyMode && user && (
                     <div className={`transform transition-all duration-300 ${companyMode ? 'opacity-100 scale-100' : 'opacity-40 scale-95 pointer-events-none'}`}>
-                      <div className="mb-4">
-                        <h3 className="text-sm font-semibold text-foreground">Select Existing Customer</h3>
-                        <p className="text-xs text-muted-foreground mt-1">Choose a customer from your existing records to create an application for them.</p>
-                      </div>
                       <ExistingCustomerSelector
                         userId={user.id}
                         value={selectedCustomerId || ''}
