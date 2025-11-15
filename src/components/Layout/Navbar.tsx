@@ -1,5 +1,5 @@
 
-import React, { useLayoutEffect, useRef } from 'react';
+import React from 'react';
 import { User } from 'lucide-react';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -20,17 +20,6 @@ import { ThemeToggle } from '@/components/ui/theme-toggle';
 const Navbar: React.FC = () => {
   const { user, signOut, isAdmin } = useAuth();
   const isMobile = useIsMobile();
-  const headerRef = useRef<HTMLElement | null>(null);
-
-  useLayoutEffect(() => {
-    const update = () => {
-      const h = headerRef.current?.offsetHeight || 56;
-      document.documentElement.style.setProperty('--nav-h', `${h}px`);
-    };
-    update();
-    window.addEventListener('resize', update);
-    return () => window.removeEventListener('resize', update);
-  }, []);
 
   const handleLogout = async () => {
     await signOut();
@@ -46,7 +35,7 @@ const Navbar: React.FC = () => {
   };
 
   return (
-    <header ref={headerRef} className={cn(
+    <header className={cn(
       "bg-card backdrop-blur-md border-b border-border transition-all duration-300",
       "sticky top-0 z-40 shadow-sm"
     )}>

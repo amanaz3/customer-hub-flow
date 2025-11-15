@@ -523,9 +523,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             <CardContent className="p-4 sm:p-6 space-y-5">
               {/* Customer Information Summary Accordion - Show after step 1 */}
               {currentStep > 1 && form.watch('name') && (
-                <div className="bg-card -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 pb-4 mb-8 border-b border-border">
+                <div className="sticky z-20 bg-card/95 backdrop-blur-sm -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 pb-4 mb-8 border-b border-border shadow-md" style={{ top: 'var(--unified-header-h, 160px)' }}>
                   <div className="flex justify-center">
-                  <Accordion
+                  <Accordion 
                     type="single" 
                     collapsible 
                     className={`bg-card transition-all duration-300 ${accordionOpen === 'customer-info' ? 'w-1/2' : 'w-1/4'}`}
