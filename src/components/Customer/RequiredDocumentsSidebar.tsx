@@ -320,9 +320,10 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
   return (
     <div 
       className={cn(
-        "fixed right-0 top-16 h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-[50]",
+        "fixed right-0 h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-[130]",
         isCollapsed ? "w-12" : "w-80"
       )}
+      style={{ top: 'var(--unified-header-h, 64px)' }}
     >
       {/* Toggle Button */}
       <Button
