@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/SecureAuthContext';
@@ -900,9 +901,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
               {/* Step 4: Confirmation & Preview */}
               {currentStep === 4 && (
-                <div key="step-4" className="animate-fade-in space-y-4 pt-4">
-                  
-                  <div className="space-y-6">
+                <div key="step-4" className="animate-fade-in pt-4">
+                  <ScrollArea className="h-[calc(100vh-280px)] pr-4">
+                    <div className="space-y-6">
                     {/* Customer Information Preview */}
                     <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
                       <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
@@ -1021,6 +1022,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       </p>
                     </div>
                   </div>
+                  </ScrollArea>
                 </div>
               )}
             </CardContent>
