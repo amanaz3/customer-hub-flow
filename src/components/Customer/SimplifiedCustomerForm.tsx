@@ -629,10 +629,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   {/* Show basic info fields for new customers only */}
                   {!companyMode && (
                     <div className={`transition-all duration-300 ${!companyMode ? 'opacity-100' : 'opacity-40 pointer-events-none'}`}>
-                      <div className="mb-4">
-                        <h3 className="text-sm font-semibold text-foreground">New Customer Information</h3>
-                        <p className="text-xs text-muted-foreground mt-1">Enter the details for a new customer. Provide at least one contact method.</p>
-                      </div>
                       {/* Quick Lead Capture - Step 1 */}
                       <div className="space-y-3 pt-2">
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
