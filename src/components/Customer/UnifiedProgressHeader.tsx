@@ -36,7 +36,7 @@ export const UnifiedProgressHeader = ({
   const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
 
   return (
-    <div className="sticky top-0 z-50 bg-background border-b border-border shadow-lg">
+    <div className="sticky top-0 z-30 bg-background/95 backdrop-blur-sm border-b border-border shadow-sm">
       {/* Progress Bar */}
       <div className="h-1 bg-muted">
         <div 
