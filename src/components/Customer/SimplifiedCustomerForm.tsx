@@ -16,20 +16,11 @@ import { useQuery } from '@tanstack/react-query';
 import { ChevronLeft, ChevronRight, Check, Save, ArrowLeft, ArrowRight, User, Mail, Phone, Globe, Building2, X } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { CustomerTypeSelector } from './CustomerTypeSelector';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
 import { ProcessSummarySidebar } from './ProcessSummarySidebar';
 import { UnifiedProgressHeader } from './UnifiedProgressHeader';
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { ValidationIcon } from './ValidationIcon';
 import { HomeFinanceFields } from './fields/HomeFinanceFields';
 import { BankAccountFields } from './fields/BankAccountFields';
@@ -122,6 +113,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [selectedProductName, setSelectedProductName] = useState<string>('');
   const [showModeChangeWarning, setShowModeChangeWarning] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
@@ -434,6 +426,17 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     } finally {
       setIsSubmitting(false);
     }
+  };
+
+  const handleSaveAndExit = async () => {
+    // Save as draft and exit
+    await saveDraft();
+    setShowCancelDialog(false);
+  };
+
+  const handleExitWithoutSaving = () => {
+    setShowCancelDialog(false);
+    onCancel?.();
   };
 
   // Validate if current step has all mandatory fields valid
@@ -1073,7 +1076,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           type="button"
           size="icon"
           variant="outline"
-          onClick={onCancel}
+          onClick={() => setShowCancelDialog(true)}
           disabled={isSubmitting}
           className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 bg-background border-2 border-destructive hover:bg-destructive hover:text-destructive-foreground"
           title="Cancel and return"
@@ -1163,6 +1166,30 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               setShowModeChangeWarning(false);
             }}>
               Continue
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Cancel Confirmation Dialog */}
+      <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Cancel Application?</AlertDialogTitle>
+            <AlertDialogDescription>
+              You have unsaved changes. Would you like to save your progress before leaving?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Continue Editing</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleExitWithoutSaving}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Exit Without Saving
+            </AlertDialogAction>
+            <AlertDialogAction onClick={handleSaveAndExit}>
+              Save & Exit
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
