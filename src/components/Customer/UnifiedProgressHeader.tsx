@@ -42,29 +42,30 @@ export const UnifiedProgressHeader = ({
   return (
     <div className="sticky top-0 z-40 bg-background border-b border-border shadow-md">
       <div className="px-4 sm:px-6 py-4">
-        {/* Unified Container with consistent styling */}
-        <div className="flex flex-col items-center gap-4">
-          {/* Customer Type Selector */}
-          <div className="w-full max-w-2xl">
-            <CustomerTypeSelector
-              value={customerType}
-              onChange={onCustomerTypeChange}
-            />
-          </div>
-
-          {/* Progress Bar */}
-          <div className="w-full max-w-2xl">
-            <div className="h-1 bg-muted rounded-full overflow-hidden">
-              <div 
-                className="h-full bg-primary transition-all duration-500 ease-out"
-                style={{ width: `${progressPercentage}%` }}
+        {/* Unified Container - Single Visual Block */}
+        <div className="w-full max-w-2xl mx-auto bg-card border border-border rounded-lg shadow-md p-4">
+          <div className="flex flex-col gap-3">
+            {/* Customer Type Selector */}
+            <div className="w-full">
+              <CustomerTypeSelector
+                value={customerType}
+                onChange={onCustomerTypeChange}
               />
             </div>
-          </div>
 
-          {/* Step Breadcrumbs - Arrow Style */}
-          <div className="w-full max-w-2xl flex items-center justify-center">
-            <div className="flex items-center -space-x-2">
+            {/* Progress Bar */}
+            <div className="w-full">
+              <div className="h-1 bg-muted rounded-full overflow-hidden">
+                <div 
+                  className="h-full bg-primary transition-all duration-500 ease-out"
+                  style={{ width: `${progressPercentage}%` }}
+                />
+              </div>
+            </div>
+
+            {/* Step Breadcrumbs - Arrow Style */}
+            <div className="w-full flex items-center justify-center">
+              <div className="flex items-center -space-x-2">
             {[
               { step: 1, label: 'Customer' },
               { step: 2, label: 'Service' },
@@ -119,6 +120,7 @@ export const UnifiedProgressHeader = ({
             </div>
           </div>
         </div>
+      </div>
 
         {/* Current Step Description */}
         <div className="text-center pt-3 mt-3 border-t border-border/50">
