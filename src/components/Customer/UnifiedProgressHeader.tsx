@@ -119,13 +119,11 @@ export const UnifiedProgressHeader = ({
         {/* Current Step Description */}
         <div className="text-center pt-3 mt-3 border-t border-border/50">
           <h2 className="text-sm font-bold text-foreground leading-tight">
-            {currentStep === 1 && 'Customer Selection'}
             {currentStep === 2 && 'Service Selection'}
             {currentStep === 3 && 'Service Details'}
             {currentStep === 4 && 'Confirmation'}
           </h2>
           <p className="text-xs text-muted-foreground mt-0.5">
-            {currentStep === 1 && 'Choose between new or existing customer'}
             {currentStep === 2 && 'Select the service or product type'}
             {currentStep === 3 && 'Provide additional service information'}
             {currentStep === 4 && 'Review all details before submitting'}
