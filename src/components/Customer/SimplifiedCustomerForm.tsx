@@ -123,6 +123,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [showModeChangeWarning, setShowModeChangeWarning] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [accordionOpen, setAccordionOpen] = useState<string | undefined>(undefined);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -524,7 +525,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {currentStep > 1 && form.watch('name') && (
                 <div className="sticky z-[100] bg-card -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 pb-4 mb-8 border-b border-border shadow-sm" style={{ top: 'var(--unified-header-h, 160px)' }}>
                   <div className="flex justify-center">
-                  <Accordion type="single" collapsible className="w-1/4 bg-card">
+                  <Accordion 
+                    type="single" 
+                    collapsible 
+                    className={`bg-card transition-all duration-300 ${accordionOpen === 'customer-info' ? 'w-1/2' : 'w-1/4'}`}
+                    value={accordionOpen}
+                    onValueChange={setAccordionOpen}
+                  >
                     <AccordionItem value="customer-info" className="border rounded-lg">
                     <AccordionTrigger className="px-4 py-3 hover:no-underline">
                       <div className="flex items-center gap-2">
