@@ -40,8 +40,9 @@ export const UnifiedProgressHeader = ({
   const progressPercentage = ((currentStep - 1) / (totalSteps - 1)) * 100;
 
   return (
-    <div className="sticky top-0 z-40 bg-background shadow-md">
-      <div className="px-4 sm:px-6 py-4 border-x border-t border-border rounded-t-lg bg-card max-w-2xl mx-auto">
+    <div className="sticky top-0 z-40 bg-background shadow-md overflow-hidden">
+      <div className="w-full max-w-2xl mx-auto">
+        <div className="px-4 sm:px-6 py-4 border-x border-t border-border rounded-t-lg bg-card">
         {/* Unified Container with consistent styling */}
         <div className="flex flex-col items-center gap-4">
           {/* Customer Type Selector */}
@@ -113,12 +114,13 @@ export const UnifiedProgressHeader = ({
                   step > currentStep && "text-muted-foreground"
                 )}>
                   {label}
-                </span>
-              </button>
-            ))}
-            </div>
-          </div>
-        </div>
+                 </span>
+               </button>
+             ))}
+             </div>
+           </div>
+         </div>
+       </div>
       </div>
     </div>
   );
