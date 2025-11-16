@@ -304,7 +304,7 @@ function App() {
                   <Route path="/service-form-configuration" element={
                     <ProtectedRoute requireAdmin>
                       <MainLayout>
-                        <PageErrorBoundary pageName="Service Form Configuration">
+                        <PageErrorBoundary pageName="Service Details Form Configuration">
                           <ServiceFormConfiguration />
                         </PageErrorBoundary>
                       </MainLayout>

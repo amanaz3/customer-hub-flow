@@ -1435,7 +1435,7 @@ const ServiceFormConfiguration = () => {
                 Back
               </Button>
               <div>
-                <h1 className="text-xl font-bold tracking-tight">Service Form Configuration</h1>
+                <h1 className="text-xl font-bold tracking-tight">Service Details Form Configuration</h1>
                 <p className="text-xs text-muted-foreground">
                   Configure forms, drag to reorder
                 </p>
