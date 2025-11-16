@@ -6,10 +6,13 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Plus, Trash2, GripVertical, Save } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Separator } from "@/components/ui/separator";
 import {
   DndContext,
   closestCenter,
@@ -301,6 +304,112 @@ const SortableSection = ({
   );
 };
 
+// Preview Component
+const FormPreview = ({ formConfig }: { formConfig: FormConfig }) => {
+  return (
+    <div className="space-y-6">
+      {formConfig.sections.length === 0 ? (
+        <div className="text-center py-12 text-muted-foreground">
+          <Eye className="h-12 w-12 mx-auto mb-4 opacity-50" />
+          <p>No sections configured yet. Add sections to see the preview.</p>
+        </div>
+      ) : (
+        formConfig.sections.map((section) => (
+          <div key={section.id} className="space-y-4">
+            <div className="flex items-center gap-2 pb-2 border-b border-border">
+              <div className="w-1 h-6 bg-primary rounded-full" />
+              <h3 className="text-sm font-bold text-foreground tracking-tight">
+                {section.sectionTitle}
+              </h3>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {section.fields.map((field) => (
+                <div
+                  key={field.id}
+                  className={
+                    field.fieldType === "textarea" ? "md:col-span-2" : ""
+                  }
+                >
+                  <Label>
+                    {field.label}
+                    {field.required && (
+                      <span className="text-destructive ml-1">*</span>
+                    )}
+                  </Label>
+                  
+                  {field.fieldType === "text" && (
+                    <Input placeholder={field.placeholder} disabled />
+                  )}
+                  
+                  {field.fieldType === "number" && (
+                    <Input type="number" placeholder={field.placeholder} disabled />
+                  )}
+                  
+                  {field.fieldType === "email" && (
+                    <Input type="email" placeholder={field.placeholder} disabled />
+                  )}
+                  
+                  {field.fieldType === "tel" && (
+                    <Input type="tel" placeholder={field.placeholder} disabled />
+                  )}
+                  
+                  {field.fieldType === "textarea" && (
+                    <Textarea placeholder={field.placeholder} disabled rows={3} />
+                  )}
+                  
+                  {field.fieldType === "select" && (
+                    <Select disabled>
+                      <SelectTrigger>
+                        <SelectValue placeholder={field.placeholder || "Select an option"} />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {field.options?.map((option, idx) => (
+                          <SelectItem key={idx} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  )}
+                  
+                  {field.fieldType === "date" && (
+                    <Input type="date" placeholder={field.placeholder} disabled />
+                  )}
+                  
+                  {field.fieldType === "checkbox" && (
+                    <div className="flex items-center gap-2 pt-2">
+                      <Checkbox disabled />
+                      <span className="text-sm">{field.placeholder || field.label}</span>
+                    </div>
+                  )}
+                  
+                  {field.fieldType === "radio" && (
+                    <RadioGroup disabled>
+                      {field.options?.map((option, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <RadioGroupItem value={option} id={`${field.id}-${idx}`} />
+                          <Label htmlFor={`${field.id}-${idx}`}>{option}</Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  )}
+                  
+                  {field.helperText && (
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {field.helperText}
+                    </p>
+                  )}
+                </div>
+              ))}
+            </div>
+          </div>
+        ))
+      )}
+    </div>
+  );
+};
+
 const ServiceFormConfiguration = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -309,6 +418,7 @@ const ServiceFormConfiguration = () => {
   const [formConfig, setFormConfig] = useState<FormConfig>({ sections: [] });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   // Field type options
   const fieldTypes = [
@@ -526,10 +636,29 @@ const ServiceFormConfiguration = () => {
             Configure dynamic forms for each service/product. Drag to reorder sections and fields.
           </p>
         </div>
-        <Button onClick={saveConfiguration} disabled={saving || !selectedProductId}>
-          <Save className="h-4 w-4 mr-2" />
-          {saving ? "Saving..." : "Save Configuration"}
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            onClick={() => setShowPreview(!showPreview)}
+            disabled={!selectedProductId}
+          >
+            {showPreview ? (
+              <>
+                <EyeOff className="h-4 w-4 mr-2" />
+                Hide Preview
+              </>
+            ) : (
+              <>
+                <Eye className="h-4 w-4 mr-2" />
+                Show Preview
+              </>
+            )}
+          </Button>
+          <Button onClick={saveConfiguration} disabled={saving || !selectedProductId}>
+            <Save className="h-4 w-4 mr-2" />
+            {saving ? "Saving..." : "Save Configuration"}
+          </Button>
+        </div>
       </div>
 
       <Card>
@@ -553,36 +682,54 @@ const ServiceFormConfiguration = () => {
       </Card>
 
       {selectedProductId && !loading && (
-        <div className="space-y-4">
-          <DndContext
-            sensors={sensors}
-            collisionDetection={closestCenter}
-            onDragEnd={handleSectionDragEnd}
-          >
-            <SortableContext
-              items={formConfig.sections.map((s) => s.id)}
-              strategy={verticalListSortingStrategy}
+        <div className={showPreview ? "grid grid-cols-2 gap-6" : "space-y-4"}>
+          <div className="space-y-4">
+            <DndContext
+              sensors={sensors}
+              collisionDetection={closestCenter}
+              onDragEnd={handleSectionDragEnd}
             >
-              {formConfig.sections.map((section, sectionIndex) => (
-                <SortableSection
-                  key={section.id}
-                  section={section}
-                  sectionIndex={sectionIndex}
-                  updateSection={updateSection}
-                  removeSection={removeSection}
-                  addField={addField}
-                  removeField={removeField}
-                  updateField={updateField}
-                  fieldTypes={fieldTypes}
-                />
-              ))}
-            </SortableContext>
-          </DndContext>
+              <SortableContext
+                items={formConfig.sections.map((s) => s.id)}
+                strategy={verticalListSortingStrategy}
+              >
+                {formConfig.sections.map((section, sectionIndex) => (
+                  <SortableSection
+                    key={section.id}
+                    section={section}
+                    sectionIndex={sectionIndex}
+                    updateSection={updateSection}
+                    removeSection={removeSection}
+                    addField={addField}
+                    removeField={removeField}
+                    updateField={updateField}
+                    fieldTypes={fieldTypes}
+                  />
+                ))}
+              </SortableContext>
+            </DndContext>
 
-          <Button onClick={addSection} variant="outline" className="w-full">
-            <Plus className="h-4 w-4 mr-2" />
-            Add Section
-          </Button>
+            <Button onClick={addSection} variant="outline" className="w-full">
+              <Plus className="h-4 w-4 mr-2" />
+              Add Section
+            </Button>
+          </div>
+
+          {showPreview && (
+            <div className="space-y-4 sticky top-6 h-fit">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Eye className="h-5 w-5" />
+                    Form Preview
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <FormPreview formConfig={formConfig} />
+                </CardContent>
+              </Card>
+            </div>
+          )}
         </div>
       )}
     </div>
