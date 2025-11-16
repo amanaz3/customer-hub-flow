@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff, Upload, Download, FileJson, AlertTriangle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
@@ -14,6 +14,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { validateFormConfigJSON, exportFormConfigToJSON, generateSampleFormConfig } from "@/utils/formConfigValidation";
 import {
   DndContext,
   closestCenter,
@@ -786,6 +788,9 @@ const ServiceFormConfiguration = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [activeTab, setActiveTab] = useState<"fields" | "documents">("fields");
   const [currentStage, setCurrentStage] = useState<string>("draft");
+  const [importErrors, setImportErrors] = useState<string[]>([]);
+  const [importWarnings, setImportWarnings] = useState<string[]>([]);
+  const [showImportDialog, setShowImportDialog] = useState(false);
 
   // Available stages
   const stages = ['draft', 'submitted', 'review', 'approval', 'completed'];
@@ -842,6 +847,10 @@ const ServiceFormConfiguration = () => {
 
   const fetchFormConfig = async () => {
     setLoading(true);
+    // Clear any previous import errors/warnings
+    setImportErrors([]);
+    setImportWarnings([]);
+    
     const { data, error } = await supabase
       .from("service_form_configurations")
       .select("form_config")
@@ -1129,6 +1138,99 @@ const ServiceFormConfiguration = () => {
     setSaving(false);
   };
 
+  // Handle JSON file import
+  const handleImportJSON = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const jsonData = JSON.parse(e.target?.result as string);
+        const validation = validateFormConfigJSON(jsonData);
+
+        setImportErrors(validation.errors);
+        setImportWarnings(validation.warnings);
+
+        if (validation.isValid && validation.data) {
+          setFormConfig(validation.data);
+          toast({
+            title: "Success",
+            description: "Configuration imported successfully" + (validation.warnings.length > 0 ? " (with warnings)" : ""),
+          });
+          setShowImportDialog(false);
+        } else {
+          toast({
+            title: "Validation Failed",
+            description: `Found ${validation.errors.length} error(s)`,
+            variant: "destructive",
+          });
+        }
+      } catch (error) {
+        setImportErrors([`Invalid JSON file: ${error instanceof Error ? error.message : 'Unknown error'}`]);
+        toast({
+          title: "Error",
+          description: "Failed to parse JSON file",
+          variant: "destructive",
+        });
+      }
+    };
+    reader.readAsText(file);
+    event.target.value = ''; // Reset input
+  };
+
+  // Export configuration as JSON
+  const handleExportJSON = () => {
+    if (!selectedProductId) {
+      toast({
+        title: "Error",
+        description: "Please select a product first",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const jsonString = exportFormConfigToJSON(formConfig);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    
+    const selectedProduct = products.find(p => p.id === selectedProductId);
+    const filename = `${selectedProduct?.name || 'service'}-config-${Date.now()}.json`;
+    link.download = filename;
+    
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Success",
+      description: "Configuration exported successfully",
+    });
+  };
+
+  // Download sample JSON template
+  const handleDownloadSample = () => {
+    const sampleConfig = generateSampleFormConfig();
+    const jsonString = exportFormConfigToJSON(sampleConfig);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = 'sample-form-config.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+
+    toast({
+      title: "Success",
+      description: "Sample template downloaded",
+    });
+  };
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center gap-4">
@@ -1151,6 +1253,39 @@ const ServiceFormConfiguration = () => {
           </p>
         </div>
         <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleDownloadSample}
+          >
+            <FileJson className="h-4 w-4 mr-2" />
+            Download Sample
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => document.getElementById('json-import')?.click()}
+            disabled={!selectedProductId}
+          >
+            <Upload className="h-4 w-4 mr-2" />
+            Import JSON
+          </Button>
+          <input
+            id="json-import"
+            type="file"
+            accept=".json"
+            className="hidden"
+            onChange={handleImportJSON}
+          />
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportJSON}
+            disabled={!selectedProductId}
+          >
+            <Download className="h-4 w-4 mr-2" />
+            Export JSON
+          </Button>
           <Button
             variant="outline"
             onClick={() => setShowPreview(!showPreview)}
@@ -1179,7 +1314,7 @@ const ServiceFormConfiguration = () => {
         <CardHeader>
           <CardTitle>Select Product/Service</CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent className="space-y-4">
           <Select value={selectedProductId} onValueChange={setSelectedProductId}>
             <SelectTrigger>
               <SelectValue placeholder="Select a product to configure" />
@@ -1192,6 +1327,36 @@ const ServiceFormConfiguration = () => {
               ))}
             </SelectContent>
           </Select>
+
+          {/* Validation Errors */}
+          {importErrors.length > 0 && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Import Validation Errors</AlertTitle>
+              <AlertDescription>
+                <ul className="list-disc list-inside space-y-1 mt-2">
+                  {importErrors.map((error, index) => (
+                    <li key={index} className="text-sm">{error}</li>
+                  ))}
+                </ul>
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Validation Warnings */}
+          {importWarnings.length > 0 && (
+            <Alert>
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Import Warnings</AlertTitle>
+              <AlertDescription>
+                <ul className="list-disc list-inside space-y-1 mt-2">
+                  {importWarnings.map((warning, index) => (
+                    <li key={index} className="text-sm text-muted-foreground">{warning}</li>
+                  ))}
+                </ul>
+              </AlertDescription>
+            </Alert>
+          )}
         </CardContent>
       </Card>
 
