@@ -13,6 +13,53 @@ import { Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
+// Normalize different config shapes into a single renderable structure
+function normalizeConfig(raw: any): FormConfig {
+  if (!raw) return { sections: [], documents: [] } as any;
+
+  // If already in expected shape
+  if (Array.isArray(raw.sections) && raw.sections.every((s: any) => Array.isArray(s.fields))) {
+    // Map fields if they use fieldType/id instead of type/name
+    const mappedSections = raw.sections.map((sec: any) => ({
+      title: sec.sectionTitle || sec.title || 'Section',
+      description: sec.description,
+      fields: (sec.fields || []).map((f: any) => ({
+        name: f.name || f.id || (f.label ? f.label.toLowerCase().replace(/\s+/g, '_') : 'field'),
+        label: f.label || f.name || f.id || 'Field',
+        type: f.type || f.fieldType || 'text',
+        required: Boolean(f.required),
+        placeholder: f.placeholder,
+        options: Array.isArray(f.options)
+          ? f.options.map((o: any) => typeof o === 'string' ? { value: o, label: o } : o)
+          : undefined,
+        requiredAtStages: f.requiredAtStages || f.requiredAtStage || [],
+        description: f.helperText || f.description,
+      }))
+    }));
+
+    // Documents could be either documents[] or requiredDocuments.categories[]
+    let documents: any[] | undefined = undefined;
+    if (Array.isArray(raw.documents)) {
+      documents = raw.documents;
+    } else if (raw.requiredDocuments?.categories) {
+      documents = raw.requiredDocuments.categories.map((cat: any) => ({
+        category: cat.name,
+        documents: (cat.documents || []).map((d: any) => ({
+          name: d.name,
+          required: Boolean(d.isMandatory),
+          requiredAtStages: d.requiredAtStages || [],
+        }))
+      }));
+    }
+
+    return { sections: mappedSections, documents } as FormConfig;
+  }
+
+  // Fallback empty
+  return { sections: [], documents: [] } as FormConfig;
+}
+
+
 interface FormField {
   name: string;
   label: string;
@@ -117,12 +164,13 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
         .from('service_form_configurations')
         .select('form_config')
         .eq('product_id', queryProductId)
-        .single();
+        .maybeSingle();
 
       if (error) throw error;
 
       if (data?.form_config) {
-        setFormConfig(data.form_config as unknown as FormConfig);
+        const normalized = normalizeConfig(data.form_config as unknown as any);
+        setFormConfig(normalized);
       } else {
         toast({
           title: "No Configuration",
