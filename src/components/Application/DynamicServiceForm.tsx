@@ -34,6 +34,9 @@ function normalizeConfig(raw: any): FormConfig {
           : undefined,
         requiredAtStages: f.requiredAtStages || f.requiredAtStage || [],
         description: f.helperText || f.description,
+        min: f.min !== undefined ? Number(f.min) : undefined,
+        max: f.max !== undefined ? Number(f.max) : undefined,
+        step: f.step !== undefined ? Number(f.step) : undefined,
       }))
     }));
 
@@ -69,6 +72,10 @@ interface FormField {
   options?: Array<{ value: string; label: string }>;
   requiredAtStages?: string[];
   description?: string;
+  // Number validation
+  min?: number;
+  max?: number;
+  step?: number;
 }
 
 interface FormSection {
@@ -246,13 +253,30 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
               id={fieldKey}
               type={field.type}
               placeholder={field.placeholder}
+              min={field.type === 'number' && field.min !== undefined ? field.min : undefined}
+              max={field.type === 'number' && field.max !== undefined ? field.max : undefined}
+              step={field.type === 'number' && field.step !== undefined ? field.step : undefined}
               {...register(fieldKey, { 
-                required: field.required,
-                onChange: (e) => handleChange(e.target.value)
+                required: field.required ? 'This field is required' : false,
+                onChange: (e) => handleChange(e.target.value),
+                ...(field.type === 'number' && field.min !== undefined ? {
+                  min: {
+                    value: field.min,
+                    message: `Value must be at least ${field.min}`
+                  }
+                } : {}),
+                ...(field.type === 'number' && field.max !== undefined ? {
+                  max: {
+                    value: field.max,
+                    message: `Value must be at most ${field.max}`
+                  }
+                } : {}),
               })}
             />
             {errors[fieldKey] && (
-              <p className="text-sm text-destructive">This field is required</p>
+              <p className="text-sm text-destructive">
+                {errors[fieldKey]?.message as string || 'This field is required'}
+              </p>
             )}
           </div>
         );
