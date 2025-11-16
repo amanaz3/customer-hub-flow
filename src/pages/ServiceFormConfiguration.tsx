@@ -13,6 +13,7 @@ import { Switch } from "@/components/ui/switch";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   DndContext,
   closestCenter,
@@ -47,8 +48,26 @@ interface FormSection {
   fields: FormField[];
 }
 
+interface DocumentItem {
+  id: string;
+  name: string;
+  description?: string;
+  isMandatory: boolean;
+  acceptedFileTypes: string[];
+}
+
+interface DocumentCategory {
+  id: string;
+  name: string;
+  description?: string;
+  documents: DocumentItem[];
+}
+
 interface FormConfig {
   sections: FormSection[];
+  requiredDocuments?: {
+    categories: DocumentCategory[];
+  };
 }
 
 interface Product {
@@ -56,6 +75,228 @@ interface Product {
   name: string;
   description: string | null;
 }
+
+// Sortable Document Component
+const SortableDocument = ({
+  document,
+  documentIndex,
+  categoryId,
+  removeDocument,
+  updateDocument,
+}: any) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: document.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="border rounded-lg p-4 space-y-3 bg-muted/30"
+    >
+      <div className="flex items-center gap-2">
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing"
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <span className="text-sm font-medium">Document {documentIndex + 1}</span>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => removeDocument(categoryId, document.id)}
+          className="ml-auto"
+        >
+          <Trash2 className="h-4 w-4 text-destructive" />
+        </Button>
+      </div>
+
+      <div className="space-y-3">
+        <div>
+          <Label>Document Name</Label>
+          <Input
+            value={document.name}
+            onChange={(e) =>
+              updateDocument(categoryId, document.id, { name: e.target.value })
+            }
+            placeholder="e.g., Passport"
+          />
+        </div>
+
+        <div>
+          <Label>Description (Optional)</Label>
+          <Textarea
+            value={document.description || ""}
+            onChange={(e) =>
+              updateDocument(categoryId, document.id, { description: e.target.value })
+            }
+            placeholder="Brief description of this document"
+            rows={2}
+          />
+        </div>
+
+        <div>
+          <Label>Accepted File Types (comma-separated)</Label>
+          <Input
+            value={document.acceptedFileTypes.join(", ")}
+            onChange={(e) =>
+              updateDocument(categoryId, document.id, {
+                acceptedFileTypes: e.target.value.split(",").map((t) => t.trim()),
+              })
+            }
+            placeholder="pdf, jpg, png"
+          />
+        </div>
+
+        <div className="flex items-center gap-2">
+          <Switch
+            checked={document.isMandatory}
+            onCheckedChange={(checked) =>
+              updateDocument(categoryId, document.id, { isMandatory: checked })
+            }
+          />
+          <Label>Mandatory Document</Label>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// Sortable Category Component
+const SortableCategory = ({
+  category,
+  categoryIndex,
+  removeCategory,
+  updateCategory,
+  addDocument,
+  removeDocument,
+  updateDocument,
+  handleDocumentDragEnd,
+}: any) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: category.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  return (
+    <Card ref={setNodeRef} style={style}>
+      <CardHeader>
+        <div className="flex items-center gap-2">
+          <div
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing"
+          >
+            <GripVertical className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <CardTitle className="text-base">
+            Category {categoryIndex + 1}
+          </CardTitle>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => removeCategory(category.id)}
+            className="ml-auto"
+          >
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div>
+          <Label>Category Name</Label>
+          <Input
+            value={category.name}
+            onChange={(e) =>
+              updateCategory(category.id, { name: e.target.value })
+            }
+            placeholder="e.g., Personal Documents"
+          />
+        </div>
+
+        <div>
+          <Label>Category Description (Optional)</Label>
+          <Textarea
+            value={category.description || ""}
+            onChange={(e) =>
+              updateCategory(category.id, { description: e.target.value })
+            }
+            placeholder="Brief description of this category"
+            rows={2}
+          />
+        </div>
+
+        <Separator />
+
+        <div className="space-y-3">
+          <Label className="text-sm font-semibold">Documents</Label>
+          
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={(e) => handleDocumentDragEnd(category.id, e)}
+          >
+            <SortableContext
+              items={category.documents.map((d: any) => d.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {category.documents.map((document: any, index: number) => (
+                <SortableDocument
+                  key={document.id}
+                  document={document}
+                  documentIndex={index}
+                  categoryId={category.id}
+                  removeDocument={removeDocument}
+                  updateDocument={updateDocument}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+        </div>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => addDocument(category.id)}
+          className="w-full"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Document
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
 
 // Sortable Field Component
 const SortableField = ({
@@ -307,14 +548,15 @@ const SortableSection = ({
 // Preview Component
 const FormPreview = ({ formConfig }: { formConfig: FormConfig }) => {
   return (
-    <div className="space-y-6">
-      {formConfig.sections.length === 0 ? (
+    <div className="space-y-8">
+      {formConfig.sections.length === 0 && (!formConfig.requiredDocuments || formConfig.requiredDocuments.categories.length === 0) ? (
         <div className="text-center py-12 text-muted-foreground">
           <Eye className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p>No sections configured yet. Add sections to see the preview.</p>
+          <p>No sections or documents configured yet.</p>
         </div>
       ) : (
-        formConfig.sections.map((section) => (
+        <>
+          {formConfig.sections.map((section) => (
           <div key={section.id} className="space-y-4">
             <div className="flex items-center gap-2 pb-2 border-b border-border">
               <div className="w-1 h-6 bg-primary rounded-full" />
@@ -404,7 +646,46 @@ const FormPreview = ({ formConfig }: { formConfig: FormConfig }) => {
               ))}
             </div>
           </div>
-        ))
+        ))}
+
+        {formConfig.requiredDocuments && formConfig.requiredDocuments.categories.length > 0 && (
+          <div className="space-y-4 pt-6 border-t border-border">
+            <h3 className="text-lg font-semibold">Required Documents</h3>
+            {formConfig.requiredDocuments.categories.map((category) => (
+              <div key={category.id} className="space-y-3">
+                <div className="flex items-center gap-2">
+                  <div className="w-1 h-5 bg-primary/70 rounded-full" />
+                  <h4 className="font-medium text-sm">{category.name}</h4>
+                </div>
+                {category.description && (
+                  <p className="text-xs text-muted-foreground pl-3">{category.description}</p>
+                )}
+                <div className="pl-3 space-y-2">
+                  {category.documents.map((doc) => (
+                    <div key={doc.id} className="flex items-start gap-2 p-3 border rounded-lg bg-muted/20">
+                      <Checkbox disabled className="mt-0.5" />
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">{doc.name}</span>
+                          {doc.isMandatory && (
+                            <span className="text-xs text-destructive">*Required</span>
+                          )}
+                        </div>
+                        {doc.description && (
+                          <p className="text-xs text-muted-foreground mt-1">{doc.description}</p>
+                        )}
+                        <p className="text-xs text-muted-foreground mt-1">
+                          Accepted: {doc.acceptedFileTypes.join(", ")}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+        </>
       )}
     </div>
   );
@@ -415,10 +696,14 @@ const ServiceFormConfiguration = () => {
   const { toast } = useToast();
   const [products, setProducts] = useState<Product[]>([]);
   const [selectedProductId, setSelectedProductId] = useState<string>("");
-  const [formConfig, setFormConfig] = useState<FormConfig>({ sections: [] });
+  const [formConfig, setFormConfig] = useState<FormConfig>({ 
+    sections: [],
+    requiredDocuments: { categories: [] }
+  });
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [activeTab, setActiveTab] = useState<"fields" | "documents">("fields");
 
   // Field type options
   const fieldTypes = [
@@ -485,9 +770,16 @@ const ServiceFormConfiguration = () => {
         variant: "destructive",
       });
     } else if (data && data.form_config) {
-      setFormConfig(data.form_config as unknown as FormConfig);
+      const config = data.form_config as any;
+      setFormConfig({
+        sections: config.sections || [],
+        requiredDocuments: config.requiredDocuments || { categories: [] }
+      });
     } else {
-      setFormConfig({ sections: [] });
+      setFormConfig({ 
+        sections: [],
+        requiredDocuments: { categories: [] }
+      });
     }
     setLoading(false);
   };
@@ -499,18 +791,21 @@ const ServiceFormConfiguration = () => {
       fields: [],
     };
     setFormConfig((prev) => ({
+      ...prev,
       sections: [...prev.sections, newSection],
     }));
   };
 
   const removeSection = (sectionId: string) => {
     setFormConfig((prev) => ({
+      ...prev,
       sections: prev.sections.filter((s) => s.id !== sectionId),
     }));
   };
 
   const updateSection = (sectionId: string, title: string, fields?: FormField[]) => {
     setFormConfig((prev) => ({
+      ...prev,
       sections: prev.sections.map((s) =>
         s.id === sectionId
           ? { ...s, sectionTitle: title, ...(fields && { fields }) }
@@ -576,9 +871,143 @@ const ServiceFormConfiguration = () => {
         const newIndex = prev.sections.findIndex((s) => s.id === over.id);
 
         return {
+          ...prev,
           sections: arrayMove(prev.sections, oldIndex, newIndex),
         };
       });
+    }
+  };
+
+  // Document Category Management
+  const addCategory = () => {
+    const newCategory: DocumentCategory = {
+      id: `category_${Date.now()}`,
+      name: "New Category",
+      description: "",
+      documents: [],
+    };
+    setFormConfig((prev) => ({
+      ...prev,
+      requiredDocuments: {
+        categories: [...(prev.requiredDocuments?.categories || []), newCategory],
+      },
+    }));
+  };
+
+  const removeCategory = (categoryId: string) => {
+    setFormConfig((prev) => ({
+      ...prev,
+      requiredDocuments: {
+        categories: prev.requiredDocuments?.categories.filter((c) => c.id !== categoryId) || [],
+      },
+    }));
+  };
+
+  const updateCategory = (categoryId: string, updates: Partial<DocumentCategory>) => {
+    setFormConfig((prev) => ({
+      ...prev,
+      requiredDocuments: {
+        categories: prev.requiredDocuments?.categories.map((c) =>
+          c.id === categoryId ? { ...c, ...updates } : c
+        ) || [],
+      },
+    }));
+  };
+
+  const addDocument = (categoryId: string) => {
+    const newDocument: DocumentItem = {
+      id: `doc_${Date.now()}`,
+      name: "New Document",
+      description: "",
+      isMandatory: true,
+      acceptedFileTypes: ["pdf", "jpg", "png"],
+    };
+    setFormConfig((prev) => ({
+      ...prev,
+      requiredDocuments: {
+        categories: prev.requiredDocuments?.categories.map((c) =>
+          c.id === categoryId
+            ? { ...c, documents: [...c.documents, newDocument] }
+            : c
+        ) || [],
+      },
+    }));
+  };
+
+  const removeDocument = (categoryId: string, documentId: string) => {
+    setFormConfig((prev) => ({
+      ...prev,
+      requiredDocuments: {
+        categories: prev.requiredDocuments?.categories.map((c) =>
+          c.id === categoryId
+            ? { ...c, documents: c.documents.filter((d) => d.id !== documentId) }
+            : c
+        ) || [],
+      },
+    }));
+  };
+
+  const updateDocument = (
+    categoryId: string,
+    documentId: string,
+    updates: Partial<DocumentItem>
+  ) => {
+    setFormConfig((prev) => ({
+      ...prev,
+      requiredDocuments: {
+        categories: prev.requiredDocuments?.categories.map((c) =>
+          c.id === categoryId
+            ? {
+                ...c,
+                documents: c.documents.map((d) =>
+                  d.id === documentId ? { ...d, ...updates } : d
+                ),
+              }
+            : c
+        ) || [],
+      },
+    }));
+  };
+
+  const handleCategoryDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setFormConfig((prev) => {
+        const categories = prev.requiredDocuments?.categories || [];
+        const oldIndex = categories.findIndex((c) => c.id === active.id);
+        const newIndex = categories.findIndex((c) => c.id === over.id);
+
+        return {
+          ...prev,
+          requiredDocuments: {
+            categories: arrayMove(categories, oldIndex, newIndex),
+          },
+        };
+      });
+    }
+  };
+
+  const handleDocumentDragEnd = (categoryId: string, event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setFormConfig((prev) => ({
+        ...prev,
+        requiredDocuments: {
+          categories: prev.requiredDocuments?.categories.map((c) => {
+            if (c.id === categoryId) {
+              const oldIndex = c.documents.findIndex((d) => d.id === active.id);
+              const newIndex = c.documents.findIndex((d) => d.id === over.id);
+              return {
+                ...c,
+                documents: arrayMove(c.documents, oldIndex, newIndex),
+              };
+            }
+            return c;
+          }) || [],
+        },
+      }));
     }
   };
 
@@ -682,55 +1111,118 @@ const ServiceFormConfiguration = () => {
       </Card>
 
       {selectedProductId && !loading && (
-        <div className={showPreview ? "grid grid-cols-2 gap-6" : "space-y-4"}>
-          <div className="space-y-4">
-            <DndContext
-              sensors={sensors}
-              collisionDetection={closestCenter}
-              onDragEnd={handleSectionDragEnd}
-            >
-              <SortableContext
-                items={formConfig.sections.map((s) => s.id)}
-                strategy={verticalListSortingStrategy}
-              >
-                {formConfig.sections.map((section, sectionIndex) => (
-                  <SortableSection
-                    key={section.id}
-                    section={section}
-                    sectionIndex={sectionIndex}
-                    updateSection={updateSection}
-                    removeSection={removeSection}
-                    addField={addField}
-                    removeField={removeField}
-                    updateField={updateField}
-                    fieldTypes={fieldTypes}
-                  />
-                ))}
-              </SortableContext>
-            </DndContext>
+        <>
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "fields" | "documents")}>
+            <TabsList className="grid w-full max-w-md grid-cols-2">
+              <TabsTrigger value="fields">Form Fields</TabsTrigger>
+              <TabsTrigger value="documents">Required Documents</TabsTrigger>
+            </TabsList>
 
-            <Button onClick={addSection} variant="outline" className="w-full">
-              <Plus className="h-4 w-4 mr-2" />
-              Add Section
-            </Button>
-          </div>
+            <TabsContent value="fields" className="mt-6">
+              <div className={showPreview ? "grid grid-cols-2 gap-6" : "space-y-4"}>
+                <div className="space-y-4">
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleSectionDragEnd}
+                  >
+                    <SortableContext
+                      items={formConfig.sections.map((s) => s.id)}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {formConfig.sections.map((section, sectionIndex) => (
+                        <SortableSection
+                          key={section.id}
+                          section={section}
+                          sectionIndex={sectionIndex}
+                          updateSection={updateSection}
+                          removeSection={removeSection}
+                          addField={addField}
+                          removeField={removeField}
+                          updateField={updateField}
+                          fieldTypes={fieldTypes}
+                        />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
 
-          {showPreview && (
-            <div className="space-y-4 sticky top-6 h-fit">
-              <Card>
-                <CardHeader>
-                  <CardTitle className="flex items-center gap-2">
-                    <Eye className="h-5 w-5" />
-                    Form Preview
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <FormPreview formConfig={formConfig} />
-                </CardContent>
-              </Card>
-            </div>
-          )}
-        </div>
+                  <Button onClick={addSection} variant="outline" className="w-full">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Section
+                  </Button>
+                </div>
+
+                {showPreview && (
+                  <div className="space-y-4 sticky top-6 h-fit">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Eye className="h-5 w-5" />
+                          Form Preview
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <FormPreview formConfig={formConfig} />
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="documents" className="mt-6">
+              <div className={showPreview ? "grid grid-cols-2 gap-6" : "space-y-4"}>
+                <div className="space-y-4">
+                  <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleCategoryDragEnd}
+                  >
+                    <SortableContext
+                      items={formConfig.requiredDocuments?.categories.map((c) => c.id) || []}
+                      strategy={verticalListSortingStrategy}
+                    >
+                      {formConfig.requiredDocuments?.categories.map((category, index) => (
+                        <SortableCategory
+                          key={category.id}
+                          category={category}
+                          categoryIndex={index}
+                          removeCategory={removeCategory}
+                          updateCategory={updateCategory}
+                          addDocument={addDocument}
+                          removeDocument={removeDocument}
+                          updateDocument={updateDocument}
+                          handleDocumentDragEnd={handleDocumentDragEnd}
+                        />
+                      ))}
+                    </SortableContext>
+                  </DndContext>
+
+                  <Button onClick={addCategory} variant="outline" className="w-full">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Document Category
+                  </Button>
+                </div>
+
+                {showPreview && (
+                  <div className="space-y-4 sticky top-6 h-fit">
+                    <Card>
+                      <CardHeader>
+                        <CardTitle className="flex items-center gap-2">
+                          <Eye className="h-5 w-5" />
+                          Preview
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <FormPreview formConfig={formConfig} />
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </>
       )}
     </div>
   );
