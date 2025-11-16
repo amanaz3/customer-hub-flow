@@ -1673,50 +1673,17 @@ const ServiceFormConfiguration = () => {
                     Add Section
                   </Button>
 
-                  {/* Configuration Actions */}
+                  {/* Version Notes */}
                   <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-                    <CardContent className="pt-6 space-y-4">
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium">Version Notes (Optional)</Label>
-                        <Textarea
-                          value={changeNotes}
-                          onChange={(e) => setChangeNotes(e.target.value)}
-                          placeholder="Describe what changed in this version..."
-                          rows={2}
-                          className="resize-none"
-                        />
-                      </div>
-                      
-                      <div className="flex items-center gap-3">
-                        <Button
-                          variant="outline"
-                          size="default"
-                          onClick={() => setShowPreview(!showPreview)}
-                          className="gap-2 flex-1"
-                        >
-                          {showPreview ? (
-                            <>
-                              <EyeOff className="h-4 w-4" />
-                              Hide Preview
-                            </>
-                          ) : (
-                            <>
-                              <Eye className="h-4 w-4" />
-                              Show Preview
-                            </>
-                          )}
-                        </Button>
-
-                        <Button
-                          size="default"
-                          onClick={saveConfiguration}
-                          disabled={saving}
-                          className="gap-2 flex-1"
-                        >
-                          <Save className="h-4 w-4" />
-                          {saving ? "Saving..." : "Save Configuration"}
-                        </Button>
-                      </div>
+                    <CardContent className="pt-6 space-y-3">
+                      <Label className="text-sm font-medium">Version Notes (Optional)</Label>
+                      <Textarea
+                        value={changeNotes}
+                        onChange={(e) => setChangeNotes(e.target.value)}
+                        placeholder="Describe what changed in this version..."
+                        rows={2}
+                        className="resize-none"
+                      />
                     </CardContent>
                   </Card>
                 </div>
@@ -1786,50 +1753,17 @@ const ServiceFormConfiguration = () => {
                     Add Document Category
                   </Button>
 
-                  {/* Configuration Actions */}
+                  {/* Version Notes */}
                   <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
-                    <CardContent className="pt-6 space-y-4">
-                      <div className="space-y-3">
-                        <Label className="text-sm font-medium">Version Notes (Optional)</Label>
-                        <Textarea
-                          value={changeNotes}
-                          onChange={(e) => setChangeNotes(e.target.value)}
-                          placeholder="Describe what changed in this version..."
-                          rows={2}
-                          className="resize-none"
-                        />
-                      </div>
-                      
-                      <div className="flex items-center gap-3">
-                        <Button
-                          variant="outline"
-                          size="default"
-                          onClick={() => setShowPreview(!showPreview)}
-                          className="gap-2 flex-1"
-                        >
-                          {showPreview ? (
-                            <>
-                              <EyeOff className="h-4 w-4" />
-                              Hide Preview
-                            </>
-                          ) : (
-                            <>
-                              <Eye className="h-4 w-4" />
-                              Show Preview
-                            </>
-                          )}
-                        </Button>
-
-                        <Button
-                          size="default"
-                          onClick={saveConfiguration}
-                          disabled={saving}
-                          className="gap-2 flex-1"
-                        >
-                          <Save className="h-4 w-4" />
-                          {saving ? "Saving..." : "Save Configuration"}
-                        </Button>
-                      </div>
+                    <CardContent className="pt-6 space-y-3">
+                      <Label className="text-sm font-medium">Version Notes (Optional)</Label>
+                      <Textarea
+                        value={changeNotes}
+                        onChange={(e) => setChangeNotes(e.target.value)}
+                        placeholder="Describe what changed in this version..."
+                        rows={2}
+                        className="resize-none"
+                      />
                     </CardContent>
                   </Card>
                 </div>
@@ -1868,6 +1802,7 @@ const ServiceFormConfiguration = () => {
           </Tabs>
         </>
       )}
+      </div>
       
       {/* Save as Template Dialog */}
       <Dialog open={showSaveTemplateDialog} onOpenChange={setShowSaveTemplateDialog}>
@@ -2069,31 +2004,36 @@ const ServiceFormConfiguration = () => {
         </DialogContent>
       </Dialog>
 
-        {/* Change Notes Input */}
-        {selectedProductId && (
-          <Card className="border-2 border-dashed">
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <FileJson className="h-4 w-4" />
-                Version Notes (Optional)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <Textarea
-                id="change-notes"
-                placeholder="Describe the changes you're making (e.g., 'Added email validation', 'Updated document requirements')..."
-                value={changeNotes}
-                onChange={(e) => setChangeNotes(e.target.value)}
-                rows={3}
-                className="resize-none"
-              />
-              <p className="text-xs text-muted-foreground mt-2">
-                These notes will be saved with the next version when you click "Save Configuration"
-              </p>
-            </CardContent>
-          </Card>
-        )}
-      </div>
+      {/* Floating Action Buttons */}
+      {selectedProductId && !loading && (
+        <div className="fixed bottom-8 right-8 flex flex-col gap-3 z-50">
+          {/* Preview Toggle FAB */}
+          <Button
+            size="lg"
+            variant={showPreview ? "default" : "outline"}
+            onClick={() => setShowPreview(!showPreview)}
+            className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 p-0"
+            title={showPreview ? "Hide Preview" : "Show Preview"}
+          >
+            {showPreview ? (
+              <EyeOff className="h-5 w-5" />
+            ) : (
+              <Eye className="h-5 w-5" />
+            )}
+          </Button>
+
+          {/* Save Configuration FAB */}
+          <Button
+            size="lg"
+            onClick={saveConfiguration}
+            disabled={saving}
+            className="h-16 w-16 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 bg-primary hover:bg-primary/90 p-0"
+            title="Save Configuration"
+          >
+            <Save className="h-6 w-6" />
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
