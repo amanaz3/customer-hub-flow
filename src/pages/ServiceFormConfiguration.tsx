@@ -1440,7 +1440,6 @@ const ServiceFormConfiguration = () => {
                   Configure forms, drag to reorder
                 </p>
               </div>
-              </div>
             </div>
 
             {/* Action Buttons - Compact */}
