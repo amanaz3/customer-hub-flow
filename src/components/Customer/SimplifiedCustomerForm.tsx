@@ -1102,8 +1102,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     </CardDescription>
                   </CardHeader>
                   <div className="relative px-6 overflow-hidden">
-                    <div className="max-h-[60vh] md:max-h-[65vh] overflow-y-auto overscroll-contain pr-3">
-                      <div className="space-y-4 pb-28">
+                    <div className="max-h-[calc(100vh-280px)] overflow-y-auto overscroll-contain pr-3">
+                      <div className="space-y-4 pb-6">
                     {form.watch('product_id') ? (
                       <DynamicServiceForm
                         productId={form.watch('product_id')}
@@ -1144,8 +1144,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     </CardDescription>
                   </CardHeader>
                   <div className="relative px-6 overflow-hidden">
-                    <div className="max-h-[60vh] md:max-h-[65vh] overflow-y-auto overscroll-contain pr-3">
-                      <div className="space-y-6 pb-28">
+                    <div className="max-h-[calc(100vh-280px)] overflow-y-auto overscroll-contain pr-3">
+                      <div className="space-y-6 pb-6">
                     {/* Customer Information Preview */}
                     <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
                       <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
