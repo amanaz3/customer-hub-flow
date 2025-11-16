@@ -663,10 +663,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             <Card 
               className="-mt-px border-t-0 border-x border-b border-border bg-card shadow-sm rounded-t-none rounded-b-lg max-w-2xl mx-auto overflow-hidden"
             >
-            <CardContent className="p-4 sm:p-6 space-y-5 max-h-[calc(100vh-120px)] overflow-hidden flex flex-col">
+            <CardContent className="p-4 sm:p-6 max-h-[calc(100vh-120px)] overflow-hidden flex flex-col">
               {/* Customer Information Summary Accordion - Show after step 1 */}
               {currentStep > 1 && form.watch('name') && (
-                <div className="sticky z-20 bg-card/95 backdrop-blur-sm -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 pb-4 mb-8 border-b border-border shadow-md" style={{ top: 'var(--unified-header-h, 160px)' }}>
+                <div className="sticky z-20 bg-card/95 backdrop-blur-sm -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 pb-4 mb-3 border-b border-border shadow-md" style={{ top: 'var(--unified-header-h, 160px)' }}>
                   <div className="flex justify-center">
                   <Accordion 
                     type="single" 
