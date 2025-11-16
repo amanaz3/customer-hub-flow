@@ -29,6 +29,7 @@ import { GoAMLFields } from './fields/GoAMLFields';
 import { BookkeepingFields } from './fields/BookkeepingFields';
 import { VATFields } from './fields/VATFields';
 import { TaxFields } from './fields/TaxFields';
+import DynamicServiceForm from '@/components/Application/DynamicServiceForm';
 
 const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
@@ -1091,28 +1092,32 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 </div>
               )}
 
-              {/* Step 3: Service Details */}
+              {/* Step 3: Service Details - Dynamic Form Configuration */}
               {currentStep === 3 && (
                 <div key="step-3" className="animate-fade-in">
                   <CardHeader className="pb-4">
-                    <CardTitle className="text-xl">Additional Information</CardTitle>
+                    <CardTitle className="text-xl">Service Details</CardTitle>
                     <CardDescription>
-                      Complete any additional details specific to your selected service.
+                      Complete the details specific to your selected service.
                     </CardDescription>
                   </CardHeader>
                   <div className="space-y-4 px-6">
-                  
-                  {/* Service-specific fields based on selected product */}
-                  <div className="space-y-4">
-                    {renderProductFields()}
-                    
-                    {!renderProductFields() && (
+                    {form.watch('product_id') ? (
+                      <DynamicServiceForm
+                        productId={form.watch('product_id')}
+                        showDocuments={false}
+                        showSubmitButton={false}
+                        showCancelButton={false}
+                        formData={form.getValues()}
+                        onFieldChange={(fieldKey, value) => {
+                          form.setValue(fieldKey as any, value);
+                        }}
+                      />
+                    ) : (
                       <div className="text-center py-8 text-muted-foreground">
-                        <p className="text-sm">No additional details required for this service.</p>
-                        <p className="text-xs mt-1">Click Next to proceed to confirmation.</p>
+                        <p className="text-sm">Please select a service in the previous step.</p>
                       </div>
                     )}
-                   </div>
                   </div>
                 </div>
               )}
