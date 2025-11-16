@@ -1531,87 +1531,87 @@ const ServiceFormConfiguration = () => {
 
       {/* Main Content */}
       <div className="container mx-auto p-4 space-y-4">
-      {!loading && (
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-base">Select Product / Service</CardTitle>
-          </CardHeader>
-          <CardContent className="pt-0 space-y-3">
-            <Select
-              value={selectedProductId}
-              onValueChange={setSelectedProductId}
-            >
-              <SelectTrigger className="h-9">
-                <SelectValue placeholder="Select a product to configure" />
-              </SelectTrigger>
-              <SelectContent>
-                {products.map((product) => (
-                  <SelectItem key={product.id} value={product.id}>
-                    {product.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            
-            {(importErrors.length > 0 || importWarnings.length > 0) && (
-              <div className="space-y-2">
-                {importErrors.length > 0 && (
-                  <Alert variant="destructive" className="py-2">
-                    <AlertTriangle className="h-3.5 w-3.5" />
-                    <AlertTitle className="text-sm">Errors</AlertTitle>
-                    <AlertDescription className="text-xs">
-                      {importErrors.map((e, i) => <div key={i}>{e}</div>)}
-                    </AlertDescription>
-                  </Alert>
-                )}
-                {importWarnings.length > 0 && (
-                  <Alert className="border-yellow-500/30 bg-yellow-500/5 py-2">
-                    <AlertTriangle className="h-3.5 w-3.5" />
-                    <AlertTitle className="text-sm">Warnings</AlertTitle>
-                    <AlertDescription className="text-xs">
-                      {importWarnings.map((w, i) => <div key={i}>{w}</div>)}
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </div>
-            )}
+        {!loading && (
+          <Card>
+            <CardHeader className="pb-3">
+              <CardTitle className="text-base">Select Product / Service</CardTitle>
+            </CardHeader>
+            <CardContent className="pt-0 space-y-3">
+              <Select
+                value={selectedProductId}
+                onValueChange={setSelectedProductId}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="Select a product to configure" />
+                </SelectTrigger>
+                <SelectContent>
+                  {products.map((product) => (
+                    <SelectItem key={product.id} value={product.id}>
+                      {product.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              
+              {(importErrors.length > 0 || importWarnings.length > 0) && (
+                <div className="space-y-2">
+                  {importErrors.length > 0 && (
+                    <Alert variant="destructive" className="py-2">
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                      <AlertTitle className="text-sm">Errors</AlertTitle>
+                      <AlertDescription className="text-xs">
+                        {importErrors.map((e, i) => <div key={i}>{e}</div>)}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                  {importWarnings.length > 0 && (
+                    <Alert className="border-yellow-500/30 bg-yellow-500/5 py-2">
+                      <AlertTriangle className="h-3.5 w-3.5" />
+                      <AlertTitle className="text-sm">Warnings</AlertTitle>
+                      <AlertDescription className="text-xs">
+                        {importWarnings.map((w, i) => <div key={i}>{w}</div>)}
+                      </AlertDescription>
+                    </Alert>
+                  )}
+                </div>
+              )}
 
-            {/* Version Info Display */}
-            {formConfig?.metadata && (
-              <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm font-medium flex items-center gap-2">
-                    <FileJson className="h-4 w-4 text-primary" />
-                    Configuration Version
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-2 text-sm">
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Version:</span>
-                    <span className="font-semibold text-primary">{formConfig.metadata.version}</span>
-                  </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-muted-foreground">Last Modified:</span>
-                    <span className="font-medium">{new Date(formConfig.metadata.lastModifiedAt).toLocaleString()}</span>
-                  </div>
-                  {formConfig.metadata.lastModifiedBy && (
+              {/* Version Info Display */}
+              {formConfig?.metadata && (
+                <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium flex items-center gap-2">
+                      <FileJson className="h-4 w-4 text-primary" />
+                      Configuration Version
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-2 text-sm">
                     <div className="flex justify-between items-center">
-                      <span className="text-muted-foreground">Modified By:</span>
-                      <span className="font-medium">{formConfig.metadata.lastModifiedBy}</span>
+                      <span className="text-muted-foreground">Version:</span>
+                      <span className="font-semibold text-primary">{formConfig.metadata.version}</span>
                     </div>
-                  )}
-                  {formConfig.metadata.versionNotes && (
-                    <div className="mt-3 pt-3 border-t border-primary/20">
-                      <span className="text-muted-foreground font-medium">Notes:</span>
-                      <p className="mt-1 text-xs bg-background/50 rounded p-2 border">{formConfig.metadata.versionNotes}</p>
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Last Modified:</span>
+                      <span className="font-medium">{new Date(formConfig.metadata.lastModifiedAt).toLocaleString()}</span>
                     </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-          </CardContent>
-        </Card>
-      )}
+                    {formConfig.metadata.lastModifiedBy && (
+                      <div className="flex justify-between items-center">
+                        <span className="text-muted-foreground">Modified By:</span>
+                        <span className="font-medium">{formConfig.metadata.lastModifiedBy}</span>
+                      </div>
+                    )}
+                    {formConfig.metadata.versionNotes && (
+                      <div className="mt-3 pt-3 border-t border-primary/20">
+                        <span className="text-muted-foreground font-medium">Notes:</span>
+                        <p className="mt-1 text-xs bg-background/50 rounded p-2 border">{formConfig.metadata.versionNotes}</p>
+                      </div>
+                    )}
+                  </CardContent>
+                </Card>
+              )}
+            </CardContent>
+          </Card>
+        )}
 
         {selectedProductId && (
           <>
@@ -2021,7 +2021,6 @@ const ServiceFormConfiguration = () => {
           </Button>
         </div>
       )}
-      </div>
     </div>
   );
 };
