@@ -117,7 +117,7 @@ const SortableDocument = ({
     <div
       ref={setNodeRef}
       style={style}
-      className="border rounded-lg p-4 space-y-3 bg-muted/30"
+      className="border rounded-md p-3 space-y-2 bg-muted/30"
     >
       <div className="flex items-center gap-2">
         <div
@@ -127,7 +127,7 @@ const SortableDocument = ({
         >
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </div>
-        <span className="text-sm font-medium">Document {documentIndex + 1}</span>
+        <span className="text-xs font-medium">Document {documentIndex + 1}</span>
         <Button
           variant="ghost"
           size="sm"
@@ -340,7 +340,7 @@ const SortableField = ({
     <div
       ref={setNodeRef}
       style={style}
-      className="border rounded-lg p-4 space-y-3 bg-muted/30"
+      className="border rounded-md p-3 space-y-2 bg-muted/30"
     >
       <div className="flex items-center gap-2">
         <div
@@ -350,7 +350,7 @@ const SortableField = ({
         >
           <GripVertical className="h-4 w-4 text-muted-foreground" />
         </div>
-        <span className="text-sm font-medium">Field {fieldIndex + 1}</span>
+        <span className="text-xs font-medium">Field {fieldIndex + 1}</span>
         <Button
           variant="ghost"
           size="sm"
@@ -361,9 +361,9 @@ const SortableField = ({
         </Button>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-2 gap-2">
         <div>
-          <Label>Field Type</Label>
+          <Label className="text-xs">Field Type</Label>
           <Select
             value={field.fieldType}
             onValueChange={(value) =>
@@ -384,7 +384,7 @@ const SortableField = ({
         </div>
 
         <div>
-          <Label>Field Label</Label>
+          <Label className="text-xs">Field Label</Label>
           <Input
             value={field.label}
             onChange={(e) =>
@@ -395,7 +395,7 @@ const SortableField = ({
         </div>
 
         <div>
-          <Label>Placeholder</Label>
+          <Label className="text-xs">Placeholder</Label>
           <Input
             value={field.placeholder || ""}
             onChange={(e) =>
@@ -407,21 +407,21 @@ const SortableField = ({
           />
         </div>
 
-        <div className="flex items-center gap-2 pt-6">
+        <div className="flex items-center gap-2 pt-4">
           <Switch
             checked={field.required}
             onCheckedChange={(checked) =>
               updateField(sectionId, field.id, { required: checked })
             }
           />
-          <Label>Required Field</Label>
+          <Label className="text-xs">Required Field</Label>
         </div>
       </div>
 
-      <div className="space-y-3 pt-2 border-t">
-        <Label className="text-sm font-semibold">Stage-Based Requirements</Label>
-        <div className="space-y-2">
-          <Label className="text-xs text-muted-foreground">Required at stages (select multiple):</Label>
+      <div className="space-y-2 pt-2 border-t">
+        <Label className="text-xs font-semibold">Stage-Based Requirements</Label>
+        <div className="space-y-1">
+          <Label className="text-xs text-muted-foreground">Required at stages:</Label>
           <div className="flex flex-wrap gap-2">
             {['draft', 'submitted', 'review', 'approval', 'completed'].map((stage) => (
               <div key={stage} className="flex items-center gap-2">
@@ -538,19 +538,19 @@ const SortableSection = ({
 
   return (
     <Card ref={setNodeRef} style={style} className="relative">
-      <CardHeader className="pb-4">
-        <div className="flex items-center gap-3">
+      <CardHeader className="pb-3">
+        <div className="flex items-center gap-2">
           <div
             {...attributes}
             {...listeners}
             className="cursor-grab active:cursor-grabbing"
           >
-            <GripVertical className="h-5 w-5 text-muted-foreground" />
+            <GripVertical className="h-4 w-4 text-muted-foreground" />
           </div>
           <Input
             value={section.sectionTitle}
             onChange={(e) => updateSection(section.id, e.target.value, section.fields)}
-            className="flex-1 font-semibold"
+            className="flex-1 font-semibold text-sm h-8"
             placeholder="Section Title"
           />
           <Button
@@ -562,7 +562,7 @@ const SortableSection = ({
           </Button>
         </div>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-3">
         <DndContext
           sensors={sensors}
           collisionDetection={closestCenter}
@@ -1419,31 +1419,31 @@ const ServiceFormConfiguration = () => {
     <div className="min-h-screen bg-background">
       {/* Header */}
       <div className="border-b bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
-        <div className="container mx-auto p-4">
-          <div className="flex items-center gap-4 mb-4">
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => navigate("/customer-services")}
-              className="gap-2"
-            >
-              <ArrowLeft className="h-4 w-4" />
-              Back
-            </Button>
+        <div className="container mx-auto px-4 py-3">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center gap-3">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => navigate("/customer-services")}
+                className="gap-2 h-8"
+              >
+                <ArrowLeft className="h-3.5 w-3.5" />
+                Back
+              </Button>
+              <div>
+                <h1 className="text-xl font-bold tracking-tight">Service Form Configuration</h1>
+                <p className="text-xs text-muted-foreground">
+                  Configure forms, drag to reorder
+                </p>
+              </div>
+            </div>
           </div>
 
-          <div className="space-y-4">
-            <div>
-              <h1 className="text-3xl font-bold tracking-tight">Service Form Configuration</h1>
-              <p className="text-muted-foreground mt-1">
-                Configure dynamic forms for each service/product. Drag to reorder sections and fields.
-              </p>
-            </div>
-
-            {/* Action Buttons - Organized by Category */}
-            <div className="flex flex-wrap gap-3 items-center">
+            {/* Action Buttons - Compact */}
+            <div className="flex flex-wrap gap-2 items-center text-xs">
               {/* Template Actions */}
-              <div className="flex gap-2 items-center">
+              <div className="flex gap-1.5 items-center">
                 <span className="text-xs text-muted-foreground font-medium">Templates:</span>
                 <Button
                   variant="outline"
@@ -1452,9 +1452,9 @@ const ServiceFormConfiguration = () => {
                     setShowLoadTemplateDialog(true);
                     fetchTemplates();
                   }}
-                  className="gap-2"
+                  className="gap-1.5 h-7 text-xs"
                 >
-                  <Upload className="h-4 w-4" />
+                  <Upload className="h-3 w-3" />
                   Load
                 </Button>
                 <Button
@@ -1462,17 +1462,17 @@ const ServiceFormConfiguration = () => {
                   size="sm"
                   onClick={() => setShowSaveTemplateDialog(true)}
                   disabled={!selectedProductId}
-                  className="gap-2"
+                  className="gap-1.5 h-7 text-xs"
                 >
-                  <Save className="h-4 w-4" />
+                  <Save className="h-3 w-3" />
                   Save as
                 </Button>
               </div>
 
-              <Separator orientation="vertical" className="h-6" />
+              <Separator orientation="vertical" className="h-5" />
 
               {/* Version Control */}
-              <div className="flex gap-2 items-center">
+              <div className="flex gap-1.5 items-center">
                 <span className="text-xs text-muted-foreground font-medium">Version:</span>
                 <Button
                   variant="outline"
@@ -1482,112 +1482,98 @@ const ServiceFormConfiguration = () => {
                     fetchVersionHistory();
                   }}
                   disabled={!selectedProductId}
-                  className="gap-2"
+                  className="gap-1.5 h-7 text-xs"
                 >
-                  <FileJson className="h-4 w-4" />
+                  <FileJson className="h-3 w-3" />
                   History
                 </Button>
               </div>
 
-              <Separator orientation="vertical" className="h-6" />
+              <Separator orientation="vertical" className="h-5" />
 
               {/* Import/Export */}
-              <div className="flex gap-2 items-center">
+              <div className="flex gap-1.5 items-center">
                 <span className="text-xs text-muted-foreground font-medium">JSON:</span>
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleDownloadSample}
-                  className="gap-2"
+                  className="gap-1.5 h-7 text-xs"
                 >
-                  <Download className="h-4 w-4" />
+                  <Download className="h-3 w-3" />
                   Sample
                 </Button>
                 <Button
                   variant="outline"
                   size="sm"
-                  onClick={() => document.getElementById('json-import')?.click()}
-                  className="gap-2"
+                  onClick={() => setShowImportDialog(true)}
+                  disabled={!selectedProductId}
+                  className="gap-1.5 h-7 text-xs"
                 >
-                  <Upload className="h-4 w-4" />
+                  <Upload className="h-3 w-3" />
                   Import
                 </Button>
-                <input
-                  id="json-import"
-                  type="file"
-                  accept=".json"
-                  className="hidden"
-                  onChange={handleImportJSON}
-                />
                 <Button
                   variant="outline"
                   size="sm"
                   onClick={handleExportJSON}
                   disabled={!selectedProductId}
-                  className="gap-2"
+                  className="gap-1.5 h-7 text-xs"
                 >
-                  <Download className="h-4 w-4" />
+                  <Download className="h-3 w-3" />
                   Export
                 </Button>
               </div>
-
             </div>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="container mx-auto p-6 space-y-6">
-        <Card className="border-2">
-          <CardHeader className="bg-muted/30">
-            <CardTitle className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
-                <FileJson className="h-4 w-4 text-primary" />
-              </div>
-              Select Product/Service
-            </CardTitle>
+      <div className="container mx-auto p-4 space-y-4">
+      {!loading && (
+        <Card>
+          <CardHeader className="pb-3">
+            <CardTitle className="text-base">Select Product / Service</CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 pt-6">
-            <Select value={selectedProductId} onValueChange={setSelectedProductId}>
-              <SelectTrigger className="h-11 bg-background">
-                <SelectValue placeholder="Choose a product to configure..." />
+          <CardContent className="pt-0 space-y-3">
+            <Select
+              value={selectedProductId}
+              onValueChange={setSelectedProductId}
+            >
+              <SelectTrigger className="h-9">
+                <SelectValue placeholder="Select a product to configure" />
               </SelectTrigger>
-              <SelectContent className="bg-popover z-50">
+              <SelectContent>
                 {products.map((product) => (
-                  <SelectItem key={product.id} value={product.id} className="cursor-pointer">
+                  <SelectItem key={product.id} value={product.id}>
                     {product.name}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
-
-            {/* Validation Messages */}
-            {importErrors.length > 0 && (
-              <Alert variant="destructive" className="border-2">
-                <AlertTriangle className="h-4 w-4" />
-                <AlertTitle className="font-semibold">Import Validation Errors</AlertTitle>
-                <AlertDescription>
-                  <ul className="list-disc list-inside space-y-1 mt-2">
-                    {importErrors.map((error, index) => (
-                      <li key={index} className="text-sm">{error}</li>
-                    ))}
-                  </ul>
-                </AlertDescription>
-              </Alert>
-            )}
-
-            {importWarnings.length > 0 && (
-              <Alert className="border-2 border-yellow-500/50 bg-yellow-50 dark:bg-yellow-950/20">
-                <AlertTriangle className="h-4 w-4 text-yellow-600" />
-                <AlertTitle className="font-semibold text-yellow-900 dark:text-yellow-300">Import Warnings</AlertTitle>
-                <AlertDescription>
-                  <ul className="list-disc list-inside space-y-1 mt-2">
-                    {importWarnings.map((warning, index) => (
-                      <li key={index} className="text-sm text-yellow-800 dark:text-yellow-200">{warning}</li>
-                    ))}
-                  </ul>
-                </AlertDescription>
-              </Alert>
+            
+            {(importErrors.length > 0 || importWarnings.length > 0) && (
+              <div className="space-y-2">
+                {importErrors.length > 0 && (
+                  <Alert variant="destructive" className="py-2">
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    <AlertTitle className="text-sm">Errors</AlertTitle>
+                    <AlertDescription className="text-xs">
+                      {importErrors.map((e, i) => <div key={i}>{e}</div>)}
+                    </AlertDescription>
+                  </Alert>
+                )}
+                {importWarnings.length > 0 && (
+                  <Alert className="border-yellow-500/30 bg-yellow-500/5 py-2">
+                    <AlertTriangle className="h-3.5 w-3.5" />
+                    <AlertTitle className="text-sm">Warnings</AlertTitle>
+                    <AlertDescription className="text-xs">
+                      {importWarnings.map((w, i) => <div key={i}>{w}</div>)}
+                    </AlertDescription>
+                  </Alert>
+                )}
+              </div>
             )}
 
             {/* Version Info Display */}
@@ -1625,8 +1611,9 @@ const ServiceFormConfiguration = () => {
             )}
           </CardContent>
         </Card>
+      )}
 
-        {selectedProductId && !loading && (
+        {selectedProductId && (
           <>
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "fields" | "documents")} className="space-y-6">
               <TabsList className="grid w-full max-w-md grid-cols-2 h-11">
@@ -2034,6 +2021,7 @@ const ServiceFormConfiguration = () => {
           </Button>
         </div>
       )}
+      </div>
     </div>
   );
 };
