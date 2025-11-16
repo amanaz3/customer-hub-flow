@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff, Upload, Download, FileJson, AlertTriangle, Code } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff, Upload, Download, FileJson, AlertTriangle, Code, Sparkles } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
@@ -803,6 +803,7 @@ const ServiceFormConfiguration = () => {
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
   const [showImportDialog, setShowImportDialog] = useState(false);
   const [showJsonEditor, setShowJsonEditor] = useState(false);
+  const [editMode, setEditMode] = useState<"visual" | "manual" | "ai" | null>(null);
   
   // Template management state
   const [showSaveTemplateDialog, setShowSaveTemplateDialog] = useState(false);
@@ -1439,8 +1440,8 @@ const ServiceFormConfiguration = () => {
                   Configure forms, drag to reorder
                 </p>
               </div>
+              </div>
             </div>
-          </div>
 
             {/* Action Buttons - Compact */}
             <div className="flex flex-wrap gap-2 items-center text-xs">
@@ -1539,6 +1540,7 @@ const ServiceFormConfiguration = () => {
             </div>
           </div>
         </div>
+      </div>
 
       {/* Main Content */}
       <div className="container mx-auto p-4 space-y-4">
@@ -1624,7 +1626,53 @@ const ServiceFormConfiguration = () => {
           </Card>
         )}
 
-        {selectedProductId && (
+        {selectedProductId && !editMode && (
+          <Card>
+            <CardHeader>
+              <CardTitle>Choose Editing Mode</CardTitle>
+              <p className="text-sm text-muted-foreground">Select how you want to configure this service</p>
+            </CardHeader>
+            <CardContent className="grid md:grid-cols-3 gap-4">
+              <Card className="cursor-pointer hover:border-primary transition-colors" onClick={() => setEditMode("visual")}>
+                <CardContent className="pt-6 text-center space-y-3">
+                  <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <GripVertical className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">Visual Editor</h3>
+                    <p className="text-xs text-muted-foreground">Drag-and-drop interface to build forms visually</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:border-primary transition-colors" onClick={() => setEditMode("manual")}>
+                <CardContent className="pt-6 text-center space-y-3">
+                  <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Code className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">Manual JSON Editor</h3>
+                    <p className="text-xs text-muted-foreground">Edit configuration directly as JSON code</p>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="cursor-pointer hover:border-primary transition-colors" onClick={() => setEditMode("ai")}>
+                <CardContent className="pt-6 text-center space-y-3">
+                  <div className="mx-auto w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center">
+                    <Sparkles className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="font-semibold mb-1">AI Assistant</h3>
+                    <p className="text-xs text-muted-foreground">Use natural language to modify configuration</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </CardContent>
+          </Card>
+        )}
+
+        {selectedProductId && editMode === "visual" && (
           <>
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "fields" | "documents")} className="space-y-6">
               <TabsList className="grid w-full max-w-md grid-cols-2 h-11">
@@ -1798,8 +1846,122 @@ const ServiceFormConfiguration = () => {
               </div>
             </TabsContent>
           </Tabs>
-        </>
-      )}
+          </>
+        )}
+
+        {selectedProductId && editMode === "manual" && (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <div>
+                <CardTitle>Manual JSON Editor</CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">Edit configuration directly as JSON</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => setEditMode(null)}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Mode Selection
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="flex-1 min-h-[600px]">
+                <Textarea
+                  value={JSON.stringify(formConfig, null, 2)}
+                  onChange={(e) => {
+                    try {
+                      const parsed = JSON.parse(e.target.value);
+                      setFormConfig(parsed);
+                    } catch (err) {
+                      // Invalid JSON, don't update
+                    }
+                  }}
+                  className="font-mono text-xs h-full resize-none"
+                  placeholder="Edit your JSON configuration here..."
+                />
+              </div>
+              
+              <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                <CardContent className="pt-4 space-y-3">
+                  <Label className="text-sm font-medium">Version Notes (Optional)</Label>
+                  <Textarea
+                    value={changeNotes}
+                    onChange={(e) => setChangeNotes(e.target.value)}
+                    placeholder="Describe what changed in this version..."
+                    rows={2}
+                    className="resize-none"
+                  />
+                </CardContent>
+              </Card>
+            </CardContent>
+          </Card>
+        )}
+
+        {selectedProductId && editMode === "ai" && (
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
+              <div>
+                <CardTitle className="flex items-center gap-2">
+                  <Sparkles className="h-5 w-5" />
+                  AI Configuration Assistant
+                </CardTitle>
+                <p className="text-sm text-muted-foreground mt-1">Use natural language to modify your configuration</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => setEditMode(null)}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Mode Selection
+              </Button>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  <div className="space-y-3">
+                    <Label htmlFor="ai-prompt">What would you like to change?</Label>
+                    <Textarea
+                      id="ai-prompt"
+                      placeholder="Examples:&#10;• Add an email field to the Personal Information section&#10;• Make all phone number fields optional&#10;• Add a new section called 'Emergency Contact'&#10;• Remove the nationality field"
+                      rows={6}
+                      className="resize-none"
+                    />
+                    <Button className="w-full" onClick={() => {
+                      const textarea = document.getElementById("ai-prompt") as HTMLTextAreaElement;
+                      if (textarea?.value) {
+                        setShowJsonEditor(true);
+                      }
+                    }}>
+                      <Sparkles className="h-4 w-4 mr-2" />
+                      Apply Changes with AI
+                    </Button>
+                  </div>
+
+                  <Alert>
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription className="text-xs">
+                      AI modifications may take a moment. Review changes carefully before saving.
+                    </AlertDescription>
+                  </Alert>
+
+                  <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                    <CardContent className="pt-4 space-y-3">
+                      <Label className="text-sm font-medium">Version Notes (Optional)</Label>
+                      <Textarea
+                        value={changeNotes}
+                        onChange={(e) => setChangeNotes(e.target.value)}
+                        placeholder="Describe what changed in this version..."
+                        rows={2}
+                        className="resize-none"
+                      />
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <div className="space-y-3">
+                  <Label>Current Configuration Preview</Label>
+                  <div className="border rounded-md p-4 bg-muted/30 h-[500px] overflow-auto">
+                    <pre className="text-xs font-mono">{JSON.stringify(formConfig, null, 2)}</pre>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
       </div>
       
       {/* Save as Template Dialog */}
