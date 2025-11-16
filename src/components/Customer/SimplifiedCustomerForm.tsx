@@ -1132,15 +1132,15 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
               {/* Step 4: Confirmation & Preview */}
               {currentStep === 4 && (
-                <div key="step-4" className="animate-fade-in">
-                  <CardHeader className="pb-4">
+                <div key="step-4" className="animate-fade-in flex flex-col h-full">
+                  <CardHeader className="pb-4 flex-shrink-0">
                     <CardTitle className="text-xl">Review & Submit</CardTitle>
                     <CardDescription>
                       Please review all the information below carefully before submitting your application.
                     </CardDescription>
                   </CardHeader>
-                  <ScrollArea className="h-[calc(100vh-340px)] px-6 pr-4">
-                    <div className="space-y-6">
+                  <div className="flex-1 overflow-y-auto px-6">
+                    <div className="space-y-6 pb-6">
                     {/* Customer Information Preview */}
                     <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
                       <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
@@ -1293,8 +1293,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         By submitting, you confirm that all information provided is accurate.
                       </p>
                     </div>
+                    </div>
                   </div>
-                  </ScrollArea>
                 </div>
               )}
             </CardContent>
