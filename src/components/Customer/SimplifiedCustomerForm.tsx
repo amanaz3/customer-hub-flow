@@ -270,9 +270,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         const nameValid = value.name && value.name.length >= 2 && !errors.name;
         const emailValid = value.email && !errors.email;
         const mobileValid = value.mobile && !errors.mobile;
-        const companyValid = companyMode ? selectedCustomerId : true;
+        const typeValid = value.customer_type && !errors.customer_type;
+        const sourceValid = value.lead_source && !errors.lead_source;
+        const companyValid = value.customer_type === 'company' ? (value.company && !errors.company) : true;
         
-        if (nameValid && emailValid && mobileValid && companyValid) {
+        if (nameValid && emailValid && mobileValid && typeValid && sourceValid && companyValid) {
           // Auto-save before progressing to step 2
           autoSaveDraft();
           setTimeout(() => setCurrentStep(2), 500);
@@ -410,16 +412,15 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
     // Check if step 1 mandatory fields are valid
     const values = form.getValues();
-    const errors = form.formState.errors;
     
-    const nameValid = values.name && values.name.length >= 2 && !errors.name;
-    const emailValid = values.email && !errors.email;
-    const mobileValid = values.mobile && !errors.mobile;
+    // Trigger validation first
+    const isValid = await form.trigger(['name', 'email', 'mobile', 'customer_type', 'lead_source', 'company']);
     
-    if (!nameValid || !emailValid || !mobileValid) {
+    if (!isValid) {
+      const errors = form.formState.errors;
       toast({
         title: "Cannot Save Draft",
-        description: "Please provide: Name, Email, and Mobile",
+        description: "Please ensure all mandatory fields are filled correctly: Name, Email, Mobile (UAE), Type, and Source",
         variant: "destructive",
       });
       return;
@@ -494,25 +495,42 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   };
 
   // Validate if current step has all mandatory fields valid
-  const canProgressToNextStep = () => {
+  const canProgressToNextStep = async () => {
     // For existing customer mode, skip validation if customer is selected
     if (companyMode && selectedCustomerId) {
       return true;
     }
 
     const values = form.getValues();
-    const errors = form.formState.errors;
 
     if (currentStep === 1) {
+      // Trigger validation for step 1 fields
+      const isValid = await form.trigger(['name', 'email', 'mobile', 'customer_type', 'lead_source', 'company']);
+      
+      if (!isValid) {
+        return false;
+      }
+      
+      const errors = form.formState.errors;
       const nameValid = values.name && values.name.length >= 2 && !errors.name;
       const emailValid = values.email && !errors.email;
       const mobileValid = values.mobile && !errors.mobile;
-      const companyValid = companyMode ? selectedCustomerId : true;
+      const typeValid = values.customer_type && !errors.customer_type;
+      const sourceValid = values.lead_source && !errors.lead_source;
+      const companyValid = values.customer_type === 'company' ? (values.company && !errors.company) : true;
       
-      return nameValid && emailValid && mobileValid && companyValid;
+      return nameValid && emailValid && mobileValid && typeValid && sourceValid && companyValid;
     }
 
     if (currentStep === 2) {
+      // Trigger validation for step 2 fields
+      const isValid = await form.trigger(['product_id', 'license_type']);
+      
+      if (!isValid) {
+        return false;
+      }
+      
+      const errors = form.formState.errors;
       const productValid = values.product_id && !errors.product_id;
       const licenseValid = values.license_type && !errors.license_type;
       
@@ -1304,14 +1322,15 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           <Button
             type="button"
             size="icon"
-            onClick={() => {
-              if (canProgressToNextStep()) {
+            onClick={async () => {
+              const canProgress = await canProgressToNextStep();
+              if (canProgress) {
                 setCurrentStep(prev => Math.min(4, prev + 1));
                 setSidebarCollapsed(true);
               } else {
                 toast({
                   title: "Cannot Progress",
-                  description: "Please complete all mandatory fields before proceeding",
+                  description: "Please complete all mandatory fields correctly before proceeding",
                   variant: "destructive",
                 });
               }
