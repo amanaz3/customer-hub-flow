@@ -32,12 +32,29 @@ Get a sample JSON template to understand the structure:
 ### Top Level
 ```json
 {
+  "metadata": {
+    "version": "1.0.0",
+    "createdAt": "2025-01-15T10:30:00Z",
+    "createdBy": "admin@company.com",
+    "lastModifiedAt": "2025-01-16T14:20:00Z",
+    "lastModifiedBy": "admin@company.com",
+    "versionNotes": "Initial configuration for onboarding"
+  },
   "sections": [...],
   "requiredDocuments": {
     "categories": [...]
   }
 }
 ```
+
+### Version Metadata
+All exported configurations include version tracking:
+- `version`: Version number (e.g., "1.0.0", "2.1.0")
+- `createdAt`: ISO timestamp when first created
+- `createdBy`: User who created the configuration
+- `lastModifiedAt`: ISO timestamp of last modification
+- `lastModifiedBy`: User who last modified it
+- `versionNotes`: Optional notes about this version
 
 ### Section Structure
 ```json

@@ -68,6 +68,14 @@ interface DocumentCategory {
 }
 
 interface FormConfig {
+  metadata?: {
+    version: string;
+    createdAt: string;
+    createdBy?: string;
+    lastModifiedAt: string;
+    lastModifiedBy?: string;
+    versionNotes?: string;
+  };
   sections: FormSection[];
   requiredDocuments?: {
     categories: DocumentCategory[];
@@ -1154,10 +1162,21 @@ const ServiceFormConfiguration = () => {
 
         if (validation.isValid && validation.data) {
           setFormConfig(validation.data);
-          toast({
-            title: "Success",
-            description: "Configuration imported successfully" + (validation.warnings.length > 0 ? " (with warnings)" : ""),
-          });
+          
+          // Show version info if available
+          if (jsonData.metadata) {
+            const meta = jsonData.metadata;
+            toast({
+              title: "Configuration Imported",
+              description: `Version ${meta.version} (Created: ${new Date(meta.createdAt).toLocaleDateString()})${validation.warnings.length > 0 ? ' with warnings' : ''}`,
+            });
+          } else {
+            toast({
+              title: "Success",
+              description: "Configuration imported successfully" + (validation.warnings.length > 0 ? " (with warnings)" : ""),
+            });
+          }
+          
           setShowImportDialog(false);
         } else {
           toast({
@@ -1180,7 +1199,7 @@ const ServiceFormConfiguration = () => {
   };
 
   // Export configuration as JSON
-  const handleExportJSON = () => {
+  const handleExportJSON = async () => {
     if (!selectedProductId) {
       toast({
         title: "Error",
@@ -1190,14 +1209,23 @@ const ServiceFormConfiguration = () => {
       return;
     }
 
-    const jsonString = exportFormConfigToJSON(formConfig);
-    const blob = new Blob([jsonString], { type: 'application/json' });
+    const selectedProduct = products.find(p => p.id === selectedProductId);
+    if (!selectedProduct) return;
+
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    const userName = user?.user_metadata?.name || user?.email || "Unknown";
+
+    const { filename, content } = exportFormConfigToJSON(
+      selectedProduct.name,
+      formConfig,
+      userName
+    );
+
+    const blob = new Blob([content], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    
-    const selectedProduct = products.find(p => p.id === selectedProductId);
-    const filename = `${selectedProduct?.name || 'service'}-config-${Date.now()}.json`;
     link.download = filename;
     
     document.body.appendChild(link);
@@ -1214,12 +1242,17 @@ const ServiceFormConfiguration = () => {
   // Download sample JSON template
   const handleDownloadSample = () => {
     const sampleConfig = generateSampleFormConfig();
-    const jsonString = exportFormConfigToJSON(sampleConfig);
-    const blob = new Blob([jsonString], { type: 'application/json' });
+    const { filename, content } = exportFormConfigToJSON(
+      "Sample Service",
+      sampleConfig,
+      "System"
+    );
+
+    const blob = new Blob([content], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = 'sample-form-config.json';
+    link.download = filename;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -1356,6 +1389,37 @@ const ServiceFormConfiguration = () => {
                 </ul>
               </AlertDescription>
             </Alert>
+          )}
+
+          {/* Version Info Display */}
+          {formConfig?.metadata && (
+            <Card className="bg-muted/30">
+              <CardHeader className="pb-3">
+                <CardTitle className="text-sm font-medium">Configuration Version</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-1 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Version:</span>
+                  <span className="font-medium">{formConfig.metadata.version}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Last Modified:</span>
+                  <span>{new Date(formConfig.metadata.lastModifiedAt).toLocaleString()}</span>
+                </div>
+                {formConfig.metadata.lastModifiedBy && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Modified By:</span>
+                    <span>{formConfig.metadata.lastModifiedBy}</span>
+                  </div>
+                )}
+                {formConfig.metadata.versionNotes && (
+                  <div className="mt-2 pt-2 border-t">
+                    <span className="text-muted-foreground">Notes:</span>
+                    <p className="mt-1 text-xs">{formConfig.metadata.versionNotes}</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
           )}
         </CardContent>
       </Card>
