@@ -1101,9 +1101,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       Complete the details specific to your selected service.
                     </CardDescription>
                   </CardHeader>
-                  <div className="relative px-6">
-                    <div className="max-h-[60vh] overflow-y-auto overscroll-contain pr-3">
-                      <div className="space-y-4 pb-28">
+                  <CardContent className="px-6 space-y-4">
                     {form.watch('product_id') ? (
                       <DynamicServiceForm
                         productId={form.watch('product_id')}
@@ -1128,9 +1126,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         </Button>
                       </div>
                     )}
-                      </div>
-                    </div>
-                  </div>
+                  </CardContent>
                 </div>
               )}
 
@@ -1143,9 +1139,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       Please review all the information below carefully before submitting your application.
                     </CardDescription>
                   </CardHeader>
-                  <div className="relative px-6">
-                    <div className="max-h-[60vh] overflow-y-auto overscroll-contain pr-3">
-                      <div className="space-y-6 pb-28">
+                  <CardContent className="px-6 space-y-6">
                     {/* Customer Information Preview */}
                     <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
                       <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
@@ -1298,9 +1292,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         By submitting, you confirm that all information provided is accurate.
                       </p>
                     </div>
-                    </div>
-                  </div>
-                </div>
+                  </CardContent>
                 </div>
               )}
             </CardContent>
