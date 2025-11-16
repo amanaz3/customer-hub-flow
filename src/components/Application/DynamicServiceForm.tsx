@@ -307,19 +307,31 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
+      <div className="flex items-center justify-center min-h-[200px]">
         <Loader2 className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
   }
 
-  if (!formConfig) {
+  if (!formConfig || !formConfig.sections || formConfig.sections.length === 0) {
     return (
       <Card>
         <CardContent className="py-10">
-          <p className="text-center text-muted-foreground">
-            No form configuration available for this product.
-          </p>
+          <div className="text-center space-y-3">
+            <p className="text-muted-foreground">
+              No form configuration available for this service.
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Please configure the form fields in Service Form Configuration first.
+            </p>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => window.open('/service-form-configuration', '_blank')}
+            >
+              Configure Form
+            </Button>
+          </div>
         </CardContent>
       </Card>
     );
@@ -387,7 +399,7 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
       </Card>
       )}
 
-      {!showSubmitButton && formConfig && (
+      {!showSubmitButton && formConfig && formConfig.sections.length > 0 && (
         <div className="space-y-8">
           {formConfig.sections.map((section, sectionIndex) => (
             <div key={sectionIndex} className="space-y-6">

@@ -1101,7 +1101,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       Complete the details specific to your selected service.
                     </CardDescription>
                   </CardHeader>
-                  <div className="space-y-4 px-6">
+                  <div className="space-y-4 px-6 pb-6">
                     {form.watch('product_id') ? (
                       <DynamicServiceForm
                         productId={form.watch('product_id')}
@@ -1116,6 +1116,14 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     ) : (
                       <div className="text-center py-8 text-muted-foreground">
                         <p className="text-sm">Please select a service in the previous step.</p>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => setCurrentStep(2)}
+                          className="mt-4"
+                        >
+                          Go to Step 2
+                        </Button>
                       </div>
                     )}
                   </div>
