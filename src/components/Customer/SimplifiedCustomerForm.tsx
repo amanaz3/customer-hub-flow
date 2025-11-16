@@ -35,6 +35,7 @@ const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Enter a valid email address").optional().or(z.literal('')),
   mobile: z.string().optional().or(z.literal('')),
+  customer_type: z.enum(['individual', 'company']).optional(),
   company: z.string().optional(),
   license_type: z.enum(['Mainland', 'Freezone', 'Offshore']),
   lead_source: z.enum(['Website', 'Referral', 'Social Media', 'Other']).optional(),
@@ -70,6 +71,14 @@ const formSchema = z.object({
 }, {
   message: "Please provide either email or mobile number",
   path: ["mobile"],
+}).refine((data) => {
+  if (data.customer_type === 'company' && !data.company) {
+    return false;
+  }
+  return true;
+}, {
+  message: "Company name is required when type is company",
+  path: ["company"],
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -121,6 +130,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       name: '',
       email: '',
       mobile: '',
+      customer_type: undefined,
       company: '',
       license_type: 'Mainland',
       lead_source: undefined,
@@ -288,6 +298,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       form.setValue('name', selectedCustomerData.name || '');
       form.setValue('email', selectedCustomerData.email || '');
       form.setValue('mobile', selectedCustomerData.mobile || '');
+      form.setValue('customer_type', selectedCustomerData.company ? 'company' : 'individual');
       form.setValue('company', selectedCustomerData.company || '');
       form.setValue('product_id', selectedCustomerData.product_id || '');
       form.setValue('license_type', selectedCustomerData.license_type || 'Mainland');
@@ -898,6 +909,29 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             )}
                           />
 
+                          {/* Customer Type - Optional */}
+                          <FormField
+                            control={form.control}
+                            name="customer_type"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs font-medium text-muted-foreground">Type</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger className="h-10 text-sm">
+                                      <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent position="popper" sideOffset={6} className="z-[200] bg-card border border-border shadow-xl pointer-events-auto">
+                                    <SelectItem value="individual">Individual</SelectItem>
+                                    <SelectItem value="company">Company</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage className="text-xs" />
+                              </FormItem>
+                            )}
+                          />
+
                           {/* Lead Source - Optional */}
                           <FormField
                             control={form.control}
@@ -923,8 +957,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             )}
                           />
 
-                          {/* Company Name - Optional */}
-                          {form.watch('company') !== undefined && (
+                          {/* Company Name - Conditional on customer_type */}
+                          {form.watch('customer_type') === 'company' && (
                             <FormField
                               control={form.control}
                               name="company"
@@ -1076,7 +1110,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             <dd className="font-medium text-foreground">{form.watch('mobile')}</dd>
                           </div>
                         )}
-                        {form.watch('company') && (
+                        <div className="flex justify-between py-1">
+                          <dt className="text-muted-foreground">Customer Type:</dt>
+                          <dd className="font-medium text-foreground capitalize">{form.watch('customer_type') || 'Individual'}</dd>
+                        </div>
+                        {form.watch('customer_type') === 'company' && form.watch('company') && (
                           <div className="flex justify-between py-1">
                             <dt className="text-muted-foreground">Company:</dt>
                             <dd className="font-medium text-foreground">{form.watch('company')}</dd>
