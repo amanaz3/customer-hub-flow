@@ -45,15 +45,15 @@ const formSchema = z.object({
   mobile: z.string()
     .trim()
     .min(1, "Mobile number is required")
-    .regex(/^(\+971|00971|0)?[0-9\s\-()]{8,14}$/, "Enter a valid UAE mobile number (e.g., +971 50 123 4567 or 0501234567)")
     .refine((val) => {
-      // Remove all non-digit characters for validation
-      const digits = val.replace(/\D/g, '');
-      // UAE numbers should have 9 digits after country code (971) or 10 digits if starting with 0
-      return (digits.length === 12 && digits.startsWith('971')) || 
-             (digits.length === 9 && !digits.startsWith('971')) ||
-             (digits.length === 10 && digits.startsWith('0'));
-    }, "UAE mobile number should be 9 digits (e.g., +971 50 123 4567)"),
+      // Remove all spaces, hyphens, and parentheses
+      const cleaned = val.replace(/[\s\-()]/g, '');
+      // Must start with +971 or 971 or 0, followed by 9 digits
+      return /^\+971[0-9]{9}$/.test(cleaned) || 
+             /^971[0-9]{9}$/.test(cleaned) || 
+             /^0[0-9]{9}$/.test(cleaned) ||
+             /^[0-9]{9}$/.test(cleaned);
+    }, "Enter a valid UAE mobile number (9 digits after +971)"),
   customer_type: z.enum(['individual', 'company']).default('individual'),
   company: z.string().optional(),
   license_type: z.enum(['Mainland', 'Freezone', 'Offshore']),
@@ -139,7 +139,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     defaultValues: {
       name: '',
       email: '',
-      mobile: '',
+      mobile: '+971 ',
       customer_type: 'individual',
       company: '',
       license_type: 'Mainland',
@@ -308,7 +308,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     if (selectedCustomerData && companyMode) {
       form.setValue('name', selectedCustomerData.name || '');
       form.setValue('email', selectedCustomerData.email || '');
-      form.setValue('mobile', selectedCustomerData.mobile || '');
+      // Ensure mobile starts with +971
+      const mobile = selectedCustomerData.mobile || '';
+      const formattedMobile = mobile.startsWith('+971') ? mobile : mobile ? `+971 ${mobile.replace(/^\+?971\s*/, '')}` : '+971 ';
+      form.setValue('mobile', formattedMobile);
       form.setValue('customer_type', selectedCustomerData.company ? 'company' : 'individual');
       form.setValue('company', selectedCustomerData.company || '');
       form.setValue('product_id', selectedCustomerData.product_id || '');
@@ -881,17 +884,30 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             name="mobile"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-xs font-medium">Mobile *</FormLabel>
+                                <FormLabel className="text-xs font-medium">Mobile (UAE) *</FormLabel>
                                 <FormControl>
-                                  <Input 
-                                    {...field} 
-                                    onChange={(e) => {
-                                      field.onChange(e);
-                                      onMobileChange?.(e.target.value);
-                                    }}
-                                    placeholder="+971 50 123 4567"
-                                    className="h-10 text-sm"
-                                  />
+                                  <div className="relative">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
+                                      +971
+                                    </span>
+                                    <Input 
+                                      {...field} 
+                                      onChange={(e) => {
+                                        let value = e.target.value;
+                                        // Remove any existing +971 prefix
+                                        value = value.replace(/^\+?971\s*/, '');
+                                        // Remove non-digit characters except spaces
+                                        value = value.replace(/[^\d\s]/g, '');
+                                        // Ensure it starts with +971
+                                        const formattedValue = '+971 ' + value.trim();
+                                        field.onChange(formattedValue);
+                                        onMobileChange?.(formattedValue);
+                                      }}
+                                      placeholder="50 123 4567"
+                                      className="h-10 text-sm pl-14"
+                                      maxLength={20}
+                                    />
+                                  </div>
                                 </FormControl>
                                 <FormMessage className="text-xs" />
                               </FormItem>
