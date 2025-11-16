@@ -1151,7 +1151,9 @@ const ServiceFormConfiguration = () => {
       .upsert({
         product_id: selectedProductId,
         form_config: formConfig as any,
-      } as any);
+      } as any, {
+        onConflict: 'product_id'
+      });
 
     if (error) {
       toast({
