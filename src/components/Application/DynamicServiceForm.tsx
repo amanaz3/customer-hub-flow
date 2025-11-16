@@ -101,6 +101,7 @@ interface DynamicServiceFormProps {
   showCancelButton?: boolean;
   formData?: any;
   onFieldChange?: (fieldKey: string, value: any) => void;
+  onFieldLabelsLoaded?: (labelMap: Record<string, string>) => void;
 }
 
 const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
@@ -112,7 +113,8 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
   showSubmitButton = true,
   showCancelButton = true,
   formData,
-  onFieldChange
+  onFieldChange,
+  onFieldLabelsLoaded
 }) => {
   const [formConfig, setFormConfig] = useState<FormConfig | null>(null);
   const [loading, setLoading] = useState(true);
@@ -171,6 +173,18 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
       if (data?.form_config) {
         const normalized = normalizeConfig(data.form_config as unknown as any);
         setFormConfig(normalized);
+        
+        // Build field label map and notify parent
+        if (onFieldLabelsLoaded) {
+          const labelMap: Record<string, string> = {};
+          normalized.sections.forEach((section, sectionIndex) => {
+            section.fields.forEach((field) => {
+              const fieldKey = `section_${sectionIndex}_${field.name}`;
+              labelMap[fieldKey] = field.label;
+            });
+          });
+          onFieldLabelsLoaded(labelMap);
+        }
       } else {
         toast({
           title: "No Configuration",

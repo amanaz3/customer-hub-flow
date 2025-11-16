@@ -122,6 +122,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [accordionOpen, setAccordionOpen] = useState<string | undefined>(undefined);
   const [selectedCustomerData, setSelectedCustomerData] = useState<any>(null);
   const [showCustomerSidebar, setShowCustomerSidebar] = useState(false);
+  const [fieldLabelMap, setFieldLabelMap] = useState<Record<string, string>>({});
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -1112,6 +1113,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         onFieldChange={(fieldKey, value) => {
                           form.setValue(fieldKey as any, value);
                         }}
+                        onFieldLabelsLoaded={(labelMap) => {
+                          setFieldLabelMap(labelMap);
+                        }}
                       />
                     ) : (
                       <div className="text-center py-8 text-muted-foreground">
@@ -1216,13 +1220,15 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       const serviceDetailsFields = Object.entries(allFormValues)
                         .filter(([key, value]) => key.startsWith('section_') && value)
                         .map(([key, value]) => {
-                          // Parse the key to get section and field info
-                          const parts = key.replace('section_', '').split('_');
-                          const sectionIndex = parts[0];
-                          const fieldName = parts.slice(1).join(' ');
+                          // Use stored label map if available, otherwise parse the key
+                          const label = fieldLabelMap[key] || (() => {
+                            const parts = key.replace('section_', '').split('_');
+                            const fieldName = parts.slice(1).join(' ');
+                            return fieldName.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                          })();
                           
                           return {
-                            label: fieldName.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+                            label,
                             value: typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value),
                             key
                           };
