@@ -84,7 +84,7 @@ const CustomerServicesManagement = () => {
                 <Settings2 className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <CardTitle>Service Form Configuration</CardTitle>
+                <CardTitle>Service Details Form Configuration</CardTitle>
                 <CardDescription>Configure dynamic forms for services</CardDescription>
               </div>
             </div>
