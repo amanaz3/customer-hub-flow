@@ -424,7 +424,7 @@ const SortableField = ({
         <div className="space-y-1">
           <Label className="text-xs text-muted-foreground">Required at stages:</Label>
           <div className="flex flex-wrap gap-2">
-            {['draft', 'submitted', 'review', 'approval', 'completed'].map((stage) => (
+            {['draft', 'submitted', 'returned', 'rejected', 'completed', 'paid'].map((stage) => (
               <div key={stage} className="flex items-center gap-2">
                 <Checkbox
                   id={`${field.id}-${stage}`}
