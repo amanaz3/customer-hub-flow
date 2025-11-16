@@ -1531,39 +1531,6 @@ const ServiceFormConfiguration = () => {
                 </Button>
               </div>
 
-              <Separator orientation="vertical" className="h-6" />
-
-              {/* Preview Toggle */}
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => setShowPreview(!showPreview)}
-                disabled={!selectedProductId}
-                className="gap-2"
-              >
-                {showPreview ? (
-                  <>
-                    <EyeOff className="h-4 w-4" />
-                    Hide Preview
-                  </>
-                ) : (
-                  <>
-                    <Eye className="h-4 w-4" />
-                    Show Preview
-                  </>
-                )}
-              </Button>
-
-              {/* Primary Action */}
-              <Button
-                size="sm"
-                onClick={saveConfiguration}
-                disabled={!selectedProductId || saving}
-                className="gap-2 ml-auto"
-              >
-                <Save className="h-4 w-4" />
-                {saving ? "Saving..." : "Save Configuration"}
-              </Button>
             </div>
           </div>
         </div>
@@ -1705,6 +1672,53 @@ const ServiceFormConfiguration = () => {
                     <Plus className="h-4 w-4 mr-2" />
                     Add Section
                   </Button>
+
+                  {/* Configuration Actions */}
+                  <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                    <CardContent className="pt-6 space-y-4">
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Version Notes (Optional)</Label>
+                        <Textarea
+                          value={changeNotes}
+                          onChange={(e) => setChangeNotes(e.target.value)}
+                          placeholder="Describe what changed in this version..."
+                          rows={2}
+                          className="resize-none"
+                        />
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <Button
+                          variant="outline"
+                          size="default"
+                          onClick={() => setShowPreview(!showPreview)}
+                          className="gap-2 flex-1"
+                        >
+                          {showPreview ? (
+                            <>
+                              <EyeOff className="h-4 w-4" />
+                              Hide Preview
+                            </>
+                          ) : (
+                            <>
+                              <Eye className="h-4 w-4" />
+                              Show Preview
+                            </>
+                          )}
+                        </Button>
+
+                        <Button
+                          size="default"
+                          onClick={saveConfiguration}
+                          disabled={saving}
+                          className="gap-2 flex-1"
+                        >
+                          <Save className="h-4 w-4" />
+                          {saving ? "Saving..." : "Save Configuration"}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
 
                 {showPreview && (
@@ -1771,6 +1785,53 @@ const ServiceFormConfiguration = () => {
                     <Plus className="h-4 w-4 mr-2" />
                     Add Document Category
                   </Button>
+
+                  {/* Configuration Actions */}
+                  <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                    <CardContent className="pt-6 space-y-4">
+                      <div className="space-y-3">
+                        <Label className="text-sm font-medium">Version Notes (Optional)</Label>
+                        <Textarea
+                          value={changeNotes}
+                          onChange={(e) => setChangeNotes(e.target.value)}
+                          placeholder="Describe what changed in this version..."
+                          rows={2}
+                          className="resize-none"
+                        />
+                      </div>
+                      
+                      <div className="flex items-center gap-3">
+                        <Button
+                          variant="outline"
+                          size="default"
+                          onClick={() => setShowPreview(!showPreview)}
+                          className="gap-2 flex-1"
+                        >
+                          {showPreview ? (
+                            <>
+                              <EyeOff className="h-4 w-4" />
+                              Hide Preview
+                            </>
+                          ) : (
+                            <>
+                              <Eye className="h-4 w-4" />
+                              Show Preview
+                            </>
+                          )}
+                        </Button>
+
+                        <Button
+                          size="default"
+                          onClick={saveConfiguration}
+                          disabled={saving}
+                          className="gap-2 flex-1"
+                        >
+                          <Save className="h-4 w-4" />
+                          {saving ? "Saving..." : "Save Configuration"}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
 
                 {showPreview && (
