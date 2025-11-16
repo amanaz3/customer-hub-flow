@@ -35,9 +35,6 @@ const formSchema = z.object({
   name: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Enter a valid email address").optional().or(z.literal('')),
   mobile: z.string().optional().or(z.literal('')),
-  whatsapp: z.string().optional().or(z.literal('')),
-  customer_type: z.enum(['individual', 'company']).optional(),
-  country_of_residence: z.string().min(1, "Country of residence is required"),
   company: z.string().optional(),
   license_type: z.enum(['Mainland', 'Freezone', 'Offshore']),
   lead_source: z.enum(['Website', 'Referral', 'Social Media', 'Other']).optional(),
@@ -73,14 +70,6 @@ const formSchema = z.object({
 }, {
   message: "Please provide either email or mobile number",
   path: ["mobile"],
-}).refine((data) => {
-  if (data.customer_type === 'company' && !data.company) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Company name is required for company type",
-  path: ["company"],
 });
 
 type FormData = z.infer<typeof formSchema>;
@@ -132,9 +121,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       name: '',
       email: '',
       mobile: '',
-      whatsapp: '',
-      customer_type: undefined,
-      country_of_residence: '',
       company: '',
       license_type: 'Mainland',
       lead_source: undefined,
@@ -263,10 +249,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       if (currentStep === 1) {
         const nameValid = value.name && value.name.length >= 2 && !errors.name;
         const hasContact = (value.email && !errors.email) || (value.mobile && !errors.mobile);
-        const countryValid = value.country_of_residence && !errors.country_of_residence;
         const companyValid = companyMode ? selectedCustomerId : true;
         
-        if (nameValid && hasContact && countryValid && companyValid) {
+        if (nameValid && hasContact && companyValid) {
           // Auto-save before progressing to step 2
           autoSaveDraft();
           setTimeout(() => setCurrentStep(2), 500);
@@ -304,11 +289,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       form.setValue('email', selectedCustomerData.email || '');
       form.setValue('mobile', selectedCustomerData.mobile || '');
       form.setValue('company', selectedCustomerData.company || '');
-      form.setValue('country_of_residence', selectedCustomerData.jurisdiction || '');
       form.setValue('product_id', selectedCustomerData.product_id || '');
       form.setValue('license_type', selectedCustomerData.license_type || 'Mainland');
       form.setValue('lead_source', selectedCustomerData.lead_source || undefined);
-      form.setValue('customer_type', selectedCustomerData.company ? 'company' : 'individual');
       form.setValue('annual_turnover', selectedCustomerData.annual_turnover || undefined);
       form.setValue('jurisdiction', selectedCustomerData.jurisdiction || '');
       form.setValue('customer_notes', selectedCustomerData.customer_notes || '');
@@ -406,12 +389,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     
     const nameValid = values.name && values.name.length >= 2 && !errors.name;
     const hasContact = (values.email && !errors.email) || (values.mobile && !errors.mobile);
-    const countryValid = values.country_of_residence && !errors.country_of_residence;
     
-    if (!nameValid || !hasContact || !countryValid) {
+    if (!nameValid || !hasContact) {
       toast({
         title: "Cannot Save Draft",
-        description: "Please provide: Name, Country, and at least Email or Mobile",
+        description: "Please provide: Name and at least Email or Mobile",
         variant: "destructive",
       });
       return;
@@ -498,10 +480,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     if (currentStep === 1) {
       const nameValid = values.name && values.name.length >= 2 && !errors.name;
       const hasContact = (values.email && !errors.email) || (values.mobile && !errors.mobile);
-      const countryValid = values.country_of_residence && !errors.country_of_residence;
       const companyValid = companyMode ? selectedCustomerId : true;
       
-      return nameValid && hasContact && countryValid && companyValid;
+      return nameValid && hasContact && companyValid;
     }
 
     if (currentStep === 2) {
@@ -640,8 +621,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               customerName={form.watch('name')}
               customerEmail={form.watch('email')}
               customerMobile={form.watch('mobile')}
-              customerWhatsapp={form.watch('whatsapp')}
-              customerCountry={form.watch('country_of_residence')}
               selectedProduct={products?.find(p => p.id === form.watch('product_id'))?.name}
               customerType={companyMode ? 'existing' : 'new'}
               onCustomerTypeChange={(value) => {
@@ -709,15 +688,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             <div>
                               <span className="text-muted-foreground block text-xs">Phone</span>
                               <span className="font-medium">{form.watch('mobile')}</span>
-                            </div>
-                          </div>
-                        )}
-                        {form.watch('country_of_residence') && (
-                          <div className="flex items-start gap-2">
-                            <Globe className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
-                              <span className="text-muted-foreground block text-xs">Country</span>
-                              <span className="font-medium">{form.watch('country_of_residence')}</span>
                             </div>
                           </div>
                         )}
@@ -928,44 +898,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             )}
                           />
 
-                          {/* WhatsApp */}
-                          <FormField
-                            control={form.control}
-                            name="whatsapp"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs font-medium text-muted-foreground">WhatsApp</FormLabel>
-                                <FormControl>
-                                  <Input 
-                                    {...field}
-                                    placeholder="+971 50 123 4567"
-                                    className="h-10 text-sm"
-                                  />
-                                </FormControl>
-                                <FormMessage className="text-xs" />
-                              </FormItem>
-                            )}
-                          />
-
-                          {/* Country */}
-                          <FormField
-                            control={form.control}
-                            name="country_of_residence"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs font-medium">Country *</FormLabel>
-                                <FormControl>
-                                  <Input 
-                                    {...field}
-                                    placeholder="UAE"
-                                    className="h-10 text-sm"
-                                  />
-                                </FormControl>
-                                <FormMessage className="text-xs" />
-                              </FormItem>
-                            )}
-                          />
-
                           {/* Lead Source - Optional */}
                           <FormField
                             control={form.control}
@@ -991,31 +923,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             )}
                           />
 
-                          {/* Customer Type - Optional */}
-                          <FormField
-                            control={form.control}
-                            name="customer_type"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs font-medium text-muted-foreground">Type</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger className="h-10 text-sm">
-                                      <SelectValue placeholder="Select" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent position="popper" sideOffset={6} className="z-[200] bg-card border border-border shadow-xl pointer-events-auto">
-                                    <SelectItem value="individual">Individual</SelectItem>
-                                    <SelectItem value="company">Company</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage className="text-xs" />
-                              </FormItem>
-                            )}
-                          />
-
-                          {/* Company Name - Conditional */}
-                          {form.watch('customer_type') === 'company' && (
+                          {/* Company Name - Optional */}
+                          {form.watch('company') !== undefined && (
                             <FormField
                               control={form.control}
                               name="company"
@@ -1167,21 +1076,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             <dd className="font-medium text-foreground">{form.watch('mobile')}</dd>
                           </div>
                         )}
-                        {form.watch('whatsapp') && (
-                          <div className="flex justify-between py-1">
-                            <dt className="text-muted-foreground">WhatsApp:</dt>
-                            <dd className="font-medium text-foreground">{form.watch('whatsapp')}</dd>
-                          </div>
-                        )}
-                        <div className="flex justify-between py-1">
-                          <dt className="text-muted-foreground">Customer Type:</dt>
-                          <dd className="font-medium text-foreground capitalize">{form.watch('customer_type')}</dd>
-                        </div>
-                        <div className="flex justify-between py-1">
-                          <dt className="text-muted-foreground">Country of Residence:</dt>
-                          <dd className="font-medium text-foreground">{form.watch('country_of_residence')}</dd>
-                        </div>
-                        {form.watch('customer_type') === 'company' && form.watch('company') && (
+                        {form.watch('company') && (
                           <div className="flex justify-between py-1">
                             <dt className="text-muted-foreground">Company:</dt>
                             <dd className="font-medium text-foreground">{form.watch('company')}</dd>
