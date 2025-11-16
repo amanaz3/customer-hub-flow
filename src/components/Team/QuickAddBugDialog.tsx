@@ -44,6 +44,7 @@ export const QuickAddBugDialog: React.FC<QuickAddBugDialogProps> = ({
   const [whatsappMessage, setWhatsappMessage] = useState('');
   const [assignedTo, setAssignedTo] = useState('');
   const [detectedPriority, setDetectedPriority] = useState<'low' | 'medium' | 'high' | 'critical'>('medium');
+  const [detectedType, setDetectedType] = useState<'bug' | 'feature' | 'enhancement' | 'task'>('task');
 
   useEffect(() => {
     if (open) {
@@ -51,13 +52,16 @@ export const QuickAddBugDialog: React.FC<QuickAddBugDialogProps> = ({
       setWhatsappMessage('');
       setAssignedTo('');
       setDetectedPriority('medium');
+      setDetectedType('task');
     }
   }, [open]);
 
   useEffect(() => {
-    // Auto-detect priority based on keywords
+    // Auto-detect priority and type based on keywords
     if (whatsappMessage) {
       const message = whatsappMessage.toLowerCase();
+      
+      // Detect priority
       if (message.includes('urgent') || message.includes('critical') || message.includes('asap') || message.includes('emergency')) {
         setDetectedPriority('critical');
       } else if (message.includes('important') || message.includes('high priority') || message.includes('bug')) {
@@ -66,6 +70,17 @@ export const QuickAddBugDialog: React.FC<QuickAddBugDialogProps> = ({
         setDetectedPriority('low');
       } else {
         setDetectedPriority('medium');
+      }
+      
+      // Detect type
+      if (message.includes('bug') || message.includes('error') || message.includes('broken') || message.includes('not working') || message.includes('crash')) {
+        setDetectedType('bug');
+      } else if (message.includes('feature') || message.includes('add') || message.includes('new') || message.includes('implement')) {
+        setDetectedType('feature');
+      } else if (message.includes('improve') || message.includes('enhance') || message.includes('better') || message.includes('update')) {
+        setDetectedType('enhancement');
+      } else {
+        setDetectedType('task');
       }
     }
   }, [whatsappMessage]);
@@ -98,6 +113,18 @@ export const QuickAddBugDialog: React.FC<QuickAddBugDialogProps> = ({
     return 'medium';
   };
 
+  const detectTypeFromText = (text: string): 'bug' | 'feature' | 'enhancement' | 'task' => {
+    const message = text.toLowerCase();
+    if (message.includes('bug') || message.includes('error') || message.includes('broken') || message.includes('not working') || message.includes('crash')) {
+      return 'bug';
+    } else if (message.includes('feature') || message.includes('add') || message.includes('new') || message.includes('implement')) {
+      return 'feature';
+    } else if (message.includes('improve') || message.includes('enhance') || message.includes('better') || message.includes('update')) {
+      return 'enhancement';
+    }
+    return 'task';
+  };
+
   const splitBugs = (text: string): string[] => {
     // Split by "---" separator or double line breaks
     const bugs = text
@@ -124,7 +151,7 @@ export const QuickAddBugDialog: React.FC<QuickAddBugDialogProps> = ({
         const tasksToInsert = bugs.map(bugText => ({
           title: extractTitleFromMessage(bugText),
           description: bugText,
-          type: 'bug' as const,
+          type: detectTypeFromText(bugText),
           priority: detectPriorityFromText(bugText),
           status: 'todo' as const,
           assigned_to: assignedTo || null,
@@ -148,7 +175,7 @@ export const QuickAddBugDialog: React.FC<QuickAddBugDialogProps> = ({
           .insert({
             title: extractTitleFromMessage(whatsappMessage),
             description: whatsappMessage,
-            type: 'bug',
+            type: detectedType,
             priority: detectedPriority,
             status: 'todo',
             assigned_to: assignedTo || null,
@@ -178,11 +205,11 @@ export const QuickAddBugDialog: React.FC<QuickAddBugDialogProps> = ({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Bug className="h-5 w-5 text-destructive" />
-            Quick Add Bug from WhatsApp
+            <Bug className="h-5 w-5 text-primary" />
+            Quick Add Task from WhatsApp
           </DialogTitle>
           <DialogDescription>
-            Paste bug reports from WhatsApp. Separate multiple bugs with blank lines or "---". Priority auto-detected per bug.
+            Paste tasks from WhatsApp. Separate multiple tasks with blank lines or "---". Type & priority auto-detected.
           </DialogDescription>
         </DialogHeader>
         
@@ -194,16 +221,17 @@ export const QuickAddBugDialog: React.FC<QuickAddBugDialogProps> = ({
             </Label>
             <Textarea
               id="message"
-              placeholder="Paste bug report(s) here...&#10;&#10;For multiple bugs, separate with:&#10;&#10;---&#10;&#10;or blank lines"
+              placeholder="Paste task(s) here...&#10;&#10;For multiple tasks, separate with:&#10;&#10;---&#10;&#10;or blank lines"
               value={whatsappMessage}
               onChange={(e) => setWhatsappMessage(e.target.value)}
               className="min-h-[200px] font-mono text-sm"
               required
             />
             {whatsappMessage && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <div className="flex flex-wrap items-center gap-2 text-sm text-muted-foreground">
                 <Sparkles className="h-4 w-4" />
-                <span>Auto-detected priority:</span>
+                <span>Auto-detected:</span>
+                <Badge variant="outline">{detectedType}</Badge>
                 <Badge 
                   variant={
                     detectedPriority === 'critical' ? 'destructive' :
@@ -217,19 +245,36 @@ export const QuickAddBugDialog: React.FC<QuickAddBugDialogProps> = ({
             )}
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="priority">Priority</Label>
-            <Select value={detectedPriority} onValueChange={(value: any) => setDetectedPriority(value)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="low">Low</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="high">High</SelectItem>
-                <SelectItem value="critical">Critical</SelectItem>
-              </SelectContent>
-            </Select>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="type">Type</Label>
+              <Select value={detectedType} onValueChange={(value: any) => setDetectedType(value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="bug">Bug</SelectItem>
+                  <SelectItem value="feature">Feature</SelectItem>
+                  <SelectItem value="enhancement">Enhancement</SelectItem>
+                  <SelectItem value="task">Task</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="priority">Priority</Label>
+              <Select value={detectedPriority} onValueChange={(value: any) => setDetectedPriority(value)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="critical">Critical</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           <div className="space-y-2">
@@ -258,7 +303,7 @@ export const QuickAddBugDialog: React.FC<QuickAddBugDialogProps> = ({
               Cancel
             </Button>
             <Button type="submit" disabled={loading || !whatsappMessage.trim()}>
-              {loading ? 'Creating...' : 'Create Bug Report'}
+              {loading ? 'Creating...' : 'Create Task(s)'}
             </Button>
           </div>
         </form>
