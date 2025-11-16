@@ -44,9 +44,16 @@ const formSchema = z.object({
     .max(255, "Email must be less than 255 characters"),
   mobile: z.string()
     .trim()
-    .min(8, "Mobile number must be at least 8 digits")
-    .max(15, "Mobile number must be less than 15 digits")
-    .regex(/^[\d\s\+\-()]+$/, "Mobile number can only contain digits, spaces, +, -, and ()"),
+    .min(1, "Mobile number is required")
+    .regex(/^(\+971|00971|0)?[0-9\s\-()]{8,14}$/, "Enter a valid UAE mobile number (e.g., +971 50 123 4567 or 0501234567)")
+    .refine((val) => {
+      // Remove all non-digit characters for validation
+      const digits = val.replace(/\D/g, '');
+      // UAE numbers should have 9 digits after country code (971) or 10 digits if starting with 0
+      return (digits.length === 12 && digits.startsWith('971')) || 
+             (digits.length === 9 && !digits.startsWith('971')) ||
+             (digits.length === 10 && digits.startsWith('0'));
+    }, "UAE mobile number should be 9 digits (e.g., +971 50 123 4567)"),
   customer_type: z.enum(['individual', 'company']).default('individual'),
   company: z.string().optional(),
   license_type: z.enum(['Mainland', 'Freezone', 'Offshore']),
