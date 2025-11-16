@@ -38,6 +38,8 @@ interface FormField {
   label: string;
   placeholder?: string;
   required: boolean;
+  requiredAtStage?: string[]; // Stages when this field is required: draft, submitted, review, approval, completed
+  conditionalGroup?: string; // Group ID for "at least one required" logic
   options?: string[];
   helperText?: string;
 }
@@ -404,6 +406,47 @@ const SortableField = ({
         </div>
       </div>
 
+      <div className="space-y-3 pt-2 border-t">
+        <Label className="text-sm font-semibold">Stage-Based Requirements</Label>
+        <div className="space-y-2">
+          <Label className="text-xs text-muted-foreground">Required at stages (select multiple):</Label>
+          <div className="flex flex-wrap gap-2">
+            {['draft', 'submitted', 'review', 'approval', 'completed'].map((stage) => (
+              <div key={stage} className="flex items-center gap-2">
+                <Checkbox
+                  id={`${field.id}-${stage}`}
+                  checked={field.requiredAtStage?.includes(stage) || false}
+                  onCheckedChange={(checked) => {
+                    const currentStages = field.requiredAtStage || [];
+                    const newStages = checked
+                      ? [...currentStages, stage]
+                      : currentStages.filter((s: string) => s !== stage);
+                    updateField(sectionId, field.id, { requiredAtStage: newStages });
+                  }}
+                />
+                <Label htmlFor={`${field.id}-${stage}`} className="text-xs capitalize cursor-pointer">
+                  {stage}
+                </Label>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <Label className="text-xs text-muted-foreground">Conditional Group (optional)</Label>
+          <Input
+            value={field.conditionalGroup || ""}
+            onChange={(e) =>
+              updateField(sectionId, field.id, {
+                conditionalGroup: e.target.value,
+              })
+            }
+            placeholder="e.g., contact-info (at least one field from this group required)"
+            className="text-xs"
+          />
+        </div>
+      </div>
+
       <div>
         <Label>Helper Text</Label>
         <Input
@@ -546,9 +589,39 @@ const SortableSection = ({
 };
 
 // Preview Component
-const FormPreview = ({ formConfig }: { formConfig: FormConfig }) => {
+const FormPreview = ({ formConfig, currentStage = 'draft' }: { formConfig: FormConfig; currentStage?: string }) => {
+  const getStageIndicator = (field: FormField) => {
+    const requiredAtStage = field.requiredAtStage || [];
+    const requiredNow = requiredAtStage.includes(currentStage);
+    const requiredLater = requiredAtStage.length > 0 && !requiredNow;
+    
+    if (requiredNow) {
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-destructive/10 text-destructive border border-destructive/20">
+          Required Now
+        </span>
+      );
+    } else if (requiredLater) {
+      const nextStage = requiredAtStage[0];
+      return (
+        <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-muted text-muted-foreground border border-border">
+          Required at: {nextStage}
+        </span>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="space-y-8">
+      <div className="flex items-center justify-between pb-2 border-b">
+        <h3 className="text-lg font-semibold">Form Preview</h3>
+        <div className="flex items-center gap-2">
+          <span className="text-xs text-muted-foreground">Stage:</span>
+          <span className="text-sm font-medium capitalize px-2 py-1 bg-primary/10 rounded-md">{currentStage}</span>
+        </div>
+      </div>
+      
       {formConfig.sections.length === 0 && (!formConfig.requiredDocuments || formConfig.requiredDocuments.categories.length === 0) ? (
         <div className="text-center py-12 text-muted-foreground">
           <Eye className="h-12 w-12 mx-auto mb-4 opacity-50" />
@@ -573,12 +646,20 @@ const FormPreview = ({ formConfig }: { formConfig: FormConfig }) => {
                     field.fieldType === "textarea" ? "md:col-span-2" : ""
                   }
                 >
-                  <Label>
-                    {field.label}
-                    {field.required && (
-                      <span className="text-destructive ml-1">*</span>
-                    )}
-                  </Label>
+                  <div className="flex items-center justify-between mb-1">
+                    <Label>
+                      {field.label}
+                      {field.required && (
+                        <span className="text-destructive ml-1">*</span>
+                      )}
+                      {field.conditionalGroup && (
+                        <span className="text-xs text-muted-foreground ml-2">
+                          (Group: {field.conditionalGroup})
+                        </span>
+                      )}
+                    </Label>
+                    {getStageIndicator(field)}
+                  </div>
                   
                   {field.fieldType === "text" && (
                     <Input placeholder={field.placeholder} disabled />
@@ -704,6 +785,10 @@ const ServiceFormConfiguration = () => {
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
   const [activeTab, setActiveTab] = useState<"fields" | "documents">("fields");
+  const [currentStage, setCurrentStage] = useState<string>("draft");
+
+  // Available stages
+  const stages = ['draft', 'submitted', 'review', 'approval', 'completed'];
 
   // Field type options
   const fieldTypes = [
@@ -1156,13 +1241,27 @@ const ServiceFormConfiguration = () => {
                   <div className="space-y-4 sticky top-6 h-fit">
                     <Card>
                       <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Eye className="h-5 w-5" />
-                          Form Preview
+                        <CardTitle className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Eye className="h-5 w-5" />
+                            Form Preview
+                          </div>
+                          <Select value={currentStage} onValueChange={setCurrentStage}>
+                            <SelectTrigger className="w-32 h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {stages.map((stage) => (
+                                <SelectItem key={stage} value={stage} className="capitalize text-xs">
+                                  {stage}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <FormPreview formConfig={formConfig} />
+                        <FormPreview formConfig={formConfig} currentStage={currentStage} />
                       </CardContent>
                     </Card>
                   </div>
@@ -1208,13 +1307,27 @@ const ServiceFormConfiguration = () => {
                   <div className="space-y-4 sticky top-6 h-fit">
                     <Card>
                       <CardHeader>
-                        <CardTitle className="flex items-center gap-2">
-                          <Eye className="h-5 w-5" />
-                          Preview
+                        <CardTitle className="flex items-center justify-between gap-2">
+                          <div className="flex items-center gap-2">
+                            <Eye className="h-5 w-5" />
+                            Preview
+                          </div>
+                          <Select value={currentStage} onValueChange={setCurrentStage}>
+                            <SelectTrigger className="w-32 h-8 text-xs">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {stages.map((stage) => (
+                                <SelectItem key={stage} value={stage} className="capitalize text-xs">
+                                  {stage}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </CardTitle>
                       </CardHeader>
                       <CardContent>
-                        <FormPreview formConfig={formConfig} />
+                        <FormPreview formConfig={formConfig} currentStage={currentStage} />
                       </CardContent>
                     </Card>
                   </div>
