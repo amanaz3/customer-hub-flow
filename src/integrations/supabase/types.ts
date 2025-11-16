@@ -1413,6 +1413,38 @@ export type Database = {
         }
         Relationships: []
       }
+      service_form_configurations: {
+        Row: {
+          created_at: string
+          form_config: Json
+          id: string
+          product_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          form_config?: Json
+          id?: string
+          product_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          form_config?: Json
+          id?: string
+          product_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_form_configurations_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: true
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_types: {
         Row: {
           arr_value: number
