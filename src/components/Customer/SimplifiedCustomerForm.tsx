@@ -1211,6 +1211,45 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       </dl>
                     </div>
 
+                    {/* Service Details Preview - From Step 3 Dynamic Form */}
+                    {(() => {
+                      const allFormValues = form.getValues();
+                      const serviceDetailsFields = Object.entries(allFormValues)
+                        .filter(([key, value]) => key.startsWith('section_') && value)
+                        .map(([key, value]) => {
+                          // Parse the key to get section and field info
+                          const parts = key.replace('section_', '').split('_');
+                          const sectionIndex = parts[0];
+                          const fieldName = parts.slice(1).join(' ');
+                          
+                          return {
+                            label: fieldName.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '),
+                            value: typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value),
+                            key
+                          };
+                        });
+
+                      if (serviceDetailsFields.length > 0) {
+                        return (
+                          <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
+                            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
+                              <div className="w-1 h-6 bg-primary rounded-full" />
+                              <h4 className="font-semibold text-foreground">Service Details</h4>
+                            </div>
+                            <dl className="space-y-2 text-sm">
+                              {serviceDetailsFields.map(({ label, value, key }) => (
+                                <div key={key} className="flex justify-between py-1 gap-4">
+                                  <dt className="text-muted-foreground">{label}:</dt>
+                                  <dd className="font-medium text-foreground text-right">{value}</dd>
+                                </div>
+                              ))}
+                            </dl>
+                          </div>
+                        );
+                      }
+                      return null;
+                    })()}
+
                     {/* Additional Notes */}
                     <FormField
                       control={form.control}
