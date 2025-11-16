@@ -5,6 +5,8 @@ import { useToast } from '@/hooks/use-toast';
 import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
 import { RequiredDocumentsSidebar } from '@/components/Customer/RequiredDocumentsSidebar';
 import { CustomerEventsSidebar } from '@/components/Customer/CustomerEventsSidebar';
+import DynamicServiceForm from '@/components/Application/DynamicServiceForm';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const CustomerNew = () => {
   const { refreshData } = useCustomer();
@@ -69,22 +71,45 @@ const CustomerNew = () => {
       <div className={`w-full max-w-[95%] lg:max-w-[90%] xl:max-w-[85%] 2xl:max-w-[80%] px-4 sm:px-6 transition-all duration-300 ${!sidebarCollapsed ? 'lg:pr-[340px]' : 'lg:pr-[60px]'}`}>
         <div className="w-full flex justify-center">
           <div className="w-full max-w-4xl">
-            {/* Simplified Form */}
-            <SimplifiedCustomerForm
-            onSuccess={handleSuccess}
-            onProductChange={setSelectedProduct}
-            onEmailChange={setCustomerEmail}
-            onNameChange={setCustomerName}
-            onMobileChange={setCustomerMobile}
-            onCompanyChange={setCustomerCompany}
-            companyMode={companyMode}
-            selectedCustomerId={selectedCustomerId}
-            onModeChange={handleModeChange}
-            onCustomerSelect={setSelectedCustomerId}
-            onCancel={() => navigate('/customers')}
-          />
+            <Tabs defaultValue="customer" className="w-full">
+              <TabsList className="grid w-full grid-cols-2 mb-6">
+                <TabsTrigger value="customer">Customer Form</TabsTrigger>
+                <TabsTrigger value="service">Service Form (Dynamic)</TabsTrigger>
+              </TabsList>
+              
+              <TabsContent value="customer">
+                {/* Simplified Form */}
+                <SimplifiedCustomerForm
+                  onSuccess={handleSuccess}
+                  onProductChange={setSelectedProduct}
+                  onEmailChange={setCustomerEmail}
+                  onNameChange={setCustomerName}
+                  onMobileChange={setCustomerMobile}
+                  onCompanyChange={setCustomerCompany}
+                  companyMode={companyMode}
+                  selectedCustomerId={selectedCustomerId}
+                  onModeChange={handleModeChange}
+                  onCustomerSelect={setSelectedCustomerId}
+                  onCancel={() => navigate('/customers')}
+                />
+              </TabsContent>
+              
+              <TabsContent value="service">
+                <DynamicServiceForm
+                  productName="Company Formation"
+                  onSubmit={(data) => {
+                    console.log('Service form submitted:', data);
+                    toast({
+                      title: "Success",
+                      description: "Application submitted successfully",
+                    });
+                  }}
+                  onCancel={() => navigate('/customers')}
+                />
+              </TabsContent>
+            </Tabs>
+          </div>
         </div>
-      </div>
       
       {/* Sticky Sidebar - Hidden on mobile/tablet, each sidebar has its own toggle */}
       <div className="hidden lg:block">
