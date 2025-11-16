@@ -34,7 +34,17 @@ const DocumentCategorySchema = z.object({
   documents: z.array(DocumentItemSchema),
 });
 
+const VersionMetadataSchema = z.object({
+  version: z.string().min(1, 'Version is required'),
+  createdAt: z.string(),
+  createdBy: z.string().optional(),
+  lastModifiedAt: z.string(),
+  lastModifiedBy: z.string().optional(),
+  versionNotes: z.string().optional()
+});
+
 const FormConfigSchema = z.object({
+  metadata: VersionMetadataSchema.optional(),
   sections: z.array(FormSectionSchema),
   requiredDocuments: z.object({
     categories: z.array(DocumentCategorySchema),
@@ -150,7 +160,16 @@ export const validateFormConfigJSON = (jsonData: any): ValidationResult => {
  * Generate a sample JSON configuration for export
  */
 export const generateSampleFormConfig = () => {
+  const now = new Date().toISOString();
   return {
+    metadata: {
+      version: "1.0.0",
+      createdAt: now,
+      createdBy: "System",
+      lastModifiedAt: now,
+      lastModifiedBy: "System",
+      versionNotes: "Initial version"
+    },
     sections: [
       {
         id: 'section-1',
@@ -215,8 +234,31 @@ export const generateSampleFormConfig = () => {
 };
 
 /**
- * Export configuration to JSON string
+ * Export configuration to JSON with version metadata
  */
-export const exportFormConfigToJSON = (config: any): string => {
-  return JSON.stringify(config, null, 2);
+export const exportFormConfigToJSON = (
+  serviceName: string,
+  formConfig: any,
+  userName?: string
+): { filename: string; content: string } => {
+  const now = new Date().toISOString();
+  const timestamp = now.replace(/[:.]/g, '-').slice(0, -5);
+  const filename = `${serviceName.toLowerCase().replace(/\s+/g, '-')}-config-${timestamp}.json`;
+  
+  // Add or update version metadata
+  const configWithMetadata = {
+    ...formConfig,
+    metadata: {
+      version: formConfig.metadata?.version || "1.0.0",
+      createdAt: formConfig.metadata?.createdAt || now,
+      createdBy: formConfig.metadata?.createdBy || userName || "Unknown",
+      lastModifiedAt: now,
+      lastModifiedBy: userName || "Unknown",
+      versionNotes: formConfig.metadata?.versionNotes || "Exported configuration"
+    }
+  };
+  
+  const content = JSON.stringify(configWithMetadata, null, 2);
+  
+  return { filename, content };
 };
