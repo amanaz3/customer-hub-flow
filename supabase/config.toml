@@ -77,3 +77,6 @@ verify_jwt = true
 
 [functions.test-notification]
 verify_jwt = true
+
+[functions.modify-json-config]
+verify_jwt = true

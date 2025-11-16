@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff, Upload, Download, FileJson, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff, Upload, Download, FileJson, AlertTriangle, Code } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
@@ -18,6 +18,7 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { validateFormConfigJSON, exportFormConfigToJSON, generateSampleFormConfig } from "@/utils/formConfigValidation";
+import { JsonEditorDialog } from "@/components/Configure/JsonEditorDialog";
 import {
   DndContext,
   closestCenter,
@@ -801,6 +802,7 @@ const ServiceFormConfiguration = () => {
   const [importErrors, setImportErrors] = useState<string[]>([]);
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const [showJsonEditor, setShowJsonEditor] = useState(false);
   
   // Template management state
   const [showSaveTemplateDialog, setShowSaveTemplateDialog] = useState(false);
@@ -1523,6 +1525,16 @@ const ServiceFormConfiguration = () => {
                   <Download className="h-3 w-3" />
                   Export
                 </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowJsonEditor(true)}
+                  disabled={!selectedProductId}
+                  className="gap-1.5 h-7 text-xs"
+                >
+                  <Code className="h-3 w-3" />
+                  Editor
+                </Button>
               </div>
             </div>
           </div>
@@ -2020,6 +2032,14 @@ const ServiceFormConfiguration = () => {
           </Button>
         </div>
       )}
+
+      {/* JSON Editor Dialog */}
+      <JsonEditorDialog
+        open={showJsonEditor}
+        onOpenChange={setShowJsonEditor}
+        currentConfig={formConfig}
+        onSave={(newConfig) => setFormConfig(newConfig)}
+      />
     </div>
   );
 };
