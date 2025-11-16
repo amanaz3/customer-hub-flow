@@ -86,6 +86,28 @@ export const QuickAddBugDialog: React.FC<QuickAddBugDialogProps> = ({
     return firstLine.length > 60 ? firstLine.substring(0, 60) + '...' : firstLine;
   };
 
+  const detectPriorityFromText = (text: string): 'low' | 'medium' | 'high' | 'critical' => {
+    const message = text.toLowerCase();
+    if (message.includes('urgent') || message.includes('critical') || message.includes('asap') || message.includes('emergency')) {
+      return 'critical';
+    } else if (message.includes('important') || message.includes('high priority') || message.includes('bug')) {
+      return 'high';
+    } else if (message.includes('minor') || message.includes('low priority')) {
+      return 'low';
+    }
+    return 'medium';
+  };
+
+  const splitBugs = (text: string): string[] => {
+    // Split by "---" separator or double line breaks
+    const bugs = text
+      .split(/---+|\n\s*\n\s*\n/)
+      .map(bug => bug.trim())
+      .filter(bug => bug.length > 0);
+    
+    return bugs.length > 0 ? bugs : [text];
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!user || !whatsappMessage.trim()) {
@@ -95,24 +117,50 @@ export const QuickAddBugDialog: React.FC<QuickAddBugDialogProps> = ({
 
     setLoading(true);
     try {
-      const title = extractTitleFromMessage(whatsappMessage);
+      const bugs = splitBugs(whatsappMessage);
       
-      const { error } = await supabase
-        .from('tasks')
-        .insert({
-          title: title,
-          description: whatsappMessage,
-          type: 'bug',
-          priority: detectedPriority,
-          status: 'todo',
+      if (bugs.length > 1) {
+        // Multiple bugs detected
+        const tasksToInsert = bugs.map(bugText => ({
+          title: extractTitleFromMessage(bugText),
+          description: bugText,
+          type: 'bug' as const,
+          priority: detectPriorityFromText(bugText),
+          status: 'todo' as const,
           assigned_to: assignedTo || null,
           created_by: user.id,
           category: 'whatsapp_report',
+        }));
+
+        const { error } = await supabase
+          .from('tasks')
+          .insert(tasksToInsert);
+
+        if (error) throw error;
+
+        toast.success(`${bugs.length} bugs reported successfully!`, {
+          description: `Created ${bugs.length} separate bug reports`,
         });
+      } else {
+        // Single bug
+        const { error } = await supabase
+          .from('tasks')
+          .insert({
+            title: extractTitleFromMessage(whatsappMessage),
+            description: whatsappMessage,
+            type: 'bug',
+            priority: detectedPriority,
+            status: 'todo',
+            assigned_to: assignedTo || null,
+            created_by: user.id,
+            category: 'whatsapp_report',
+          });
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast.success('Bug reported successfully!');
+        toast.success('Bug reported successfully!');
+      }
+
       onBugCreated();
       onOpenChange(false);
       setWhatsappMessage('');
@@ -134,7 +182,7 @@ export const QuickAddBugDialog: React.FC<QuickAddBugDialogProps> = ({
             Quick Add Bug from WhatsApp
           </DialogTitle>
           <DialogDescription>
-            Paste the bug report from WhatsApp group chat. Priority will be auto-detected.
+            Paste bug reports from WhatsApp. Separate multiple bugs with blank lines or "---". Priority auto-detected per bug.
           </DialogDescription>
         </DialogHeader>
         
@@ -146,7 +194,7 @@ export const QuickAddBugDialog: React.FC<QuickAddBugDialogProps> = ({
             </Label>
             <Textarea
               id="message"
-              placeholder="Paste the bug report from WhatsApp here..."
+              placeholder="Paste bug report(s) here...&#10;&#10;For multiple bugs, separate with:&#10;&#10;---&#10;&#10;or blank lines"
               value={whatsappMessage}
               onChange={(e) => setWhatsappMessage(e.target.value)}
               className="min-h-[200px] font-mono text-sm"
