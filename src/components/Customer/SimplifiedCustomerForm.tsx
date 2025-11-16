@@ -140,7 +140,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       name: '',
       email: '',
       mobile: '+971 ',
-      customer_type: 'individual',
+      customer_type: 'company',
       company: '',
       license_type: 'Mainland',
       lead_source: 'Referral',
