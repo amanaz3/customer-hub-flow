@@ -32,10 +32,20 @@ import { TaxFields } from './fields/TaxFields';
 import DynamicServiceForm from '@/components/Application/DynamicServiceForm';
 
 const formSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Enter a valid email address").optional().or(z.literal('')),
-  mobile: z.string().optional().or(z.literal('')),
-  customer_type: z.enum(['individual', 'company']).optional(),
+  name: z.string()
+    .min(2, "Name must be at least 2 characters")
+    .max(100, "Name must be less than 100 characters")
+    .regex(/^[a-zA-Z\s\-'.]+$/, "Name can only contain letters, spaces, hyphens, apostrophes, and periods"),
+  email: z.string()
+    .trim()
+    .email("Enter a valid email address")
+    .max(255, "Email must be less than 255 characters"),
+  mobile: z.string()
+    .trim()
+    .min(8, "Mobile number must be at least 8 digits")
+    .max(15, "Mobile number must be less than 15 digits")
+    .regex(/^[\d\s\+\-()]+$/, "Mobile number can only contain digits, spaces, +, -, and ()"),
+  customer_type: z.enum(['individual', 'company']).default('individual'),
   company: z.string().optional(),
   license_type: z.enum(['Mainland', 'Freezone', 'Offshore']),
   lead_source: z.enum(['Website', 'Referral', 'Social Media', 'Other']).optional(),
@@ -62,15 +72,6 @@ const formSchema = z.object({
   property_value: z.number().optional(),
   vat_registration_type: z.string().optional(),
   tax_year_period: z.string().optional(),
-}).refine((data) => {
-  // Require at least email OR mobile
-  if (!data.email && !data.mobile) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Please provide either email or mobile number",
-  path: ["mobile"],
 }).refine((data) => {
   if (data.customer_type === 'company' && !data.company) {
     return false;
@@ -130,7 +131,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       name: '',
       email: '',
       mobile: '',
-      customer_type: undefined,
+      customer_type: 'individual',
       company: '',
       license_type: 'Mainland',
       lead_source: undefined,
@@ -258,10 +259,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       // Step 1: Check basic info is VALID (not just filled)
       if (currentStep === 1) {
         const nameValid = value.name && value.name.length >= 2 && !errors.name;
-        const hasContact = (value.email && !errors.email) || (value.mobile && !errors.mobile);
+        const emailValid = value.email && !errors.email;
+        const mobileValid = value.mobile && !errors.mobile;
         const companyValid = companyMode ? selectedCustomerId : true;
         
-        if (nameValid && hasContact && companyValid) {
+        if (nameValid && emailValid && mobileValid && companyValid) {
           // Auto-save before progressing to step 2
           autoSaveDraft();
           setTimeout(() => setCurrentStep(2), 500);
@@ -399,12 +401,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     const errors = form.formState.errors;
     
     const nameValid = values.name && values.name.length >= 2 && !errors.name;
-    const hasContact = (values.email && !errors.email) || (values.mobile && !errors.mobile);
+    const emailValid = values.email && !errors.email;
+    const mobileValid = values.mobile && !errors.mobile;
     
-    if (!nameValid || !hasContact) {
+    if (!nameValid || !emailValid || !mobileValid) {
       toast({
         title: "Cannot Save Draft",
-        description: "Please provide: Name and at least Email or Mobile",
+        description: "Please provide: Name, Email, and Mobile",
         variant: "destructive",
       });
       return;
@@ -490,10 +493,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
     if (currentStep === 1) {
       const nameValid = values.name && values.name.length >= 2 && !errors.name;
-      const hasContact = (values.email && !errors.email) || (values.mobile && !errors.mobile);
+      const emailValid = values.email && !errors.email;
+      const mobileValid = values.mobile && !errors.mobile;
       const companyValid = companyMode ? selectedCustomerId : true;
       
-      return nameValid && hasContact && companyValid;
+      return nameValid && emailValid && mobileValid && companyValid;
     }
 
     if (currentStep === 2) {
@@ -868,7 +872,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             name="mobile"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-xs font-medium text-muted-foreground">Mobile</FormLabel>
+                                <FormLabel className="text-xs font-medium">Mobile *</FormLabel>
                                 <FormControl>
                                   <Input 
                                     {...field} 
@@ -891,7 +895,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             name="email"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-xs font-medium text-muted-foreground">Email</FormLabel>
+                                <FormLabel className="text-xs font-medium">Email *</FormLabel>
                                 <FormControl>
                                   <Input 
                                     {...field} 
@@ -909,13 +913,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             )}
                           />
 
-                          {/* Customer Type - Optional */}
+                          {/* Customer Type */}
                           <FormField
                             control={form.control}
                             name="customer_type"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-xs font-medium text-muted-foreground">Type</FormLabel>
+                                <FormLabel className="text-xs font-medium">Type *</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                   <FormControl>
                                     <SelectTrigger className="h-10 text-sm">
