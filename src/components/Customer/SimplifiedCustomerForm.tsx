@@ -932,31 +932,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             )}
                           />
 
-                          {/* Lead Source - Optional */}
-                          <FormField
-                            control={form.control}
-                            name="lead_source"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel className="text-xs font-medium text-muted-foreground">Source</FormLabel>
-                                <Select onValueChange={field.onChange} value={field.value}>
-                                  <FormControl>
-                                    <SelectTrigger className="h-10 text-sm">
-                                      <SelectValue placeholder="Select" />
-                                    </SelectTrigger>
-                                  </FormControl>
-                                  <SelectContent position="popper" sideOffset={6} className="z-[200] bg-card border border-border shadow-xl pointer-events-auto">
-                                    <SelectItem value="Website">Website</SelectItem>
-                                    <SelectItem value="Referral">Referral</SelectItem>
-                                    <SelectItem value="Social Media">Social Media</SelectItem>
-                                    <SelectItem value="Other">Other</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                                <FormMessage className="text-xs" />
-                              </FormItem>
-                            )}
-                          />
-
                           {/* Company Name - Conditional on customer_type */}
                           {form.watch('customer_type') === 'company' && (
                             <FormField
@@ -981,6 +956,31 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               )}
                             />
                           )}
+
+                          {/* Lead Source - Optional */}
+                          <FormField
+                            control={form.control}
+                            name="lead_source"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel className="text-xs font-medium text-muted-foreground">Source</FormLabel>
+                                <Select onValueChange={field.onChange} value={field.value}>
+                                  <FormControl>
+                                    <SelectTrigger className="h-10 text-sm">
+                                      <SelectValue placeholder="Select" />
+                                    </SelectTrigger>
+                                  </FormControl>
+                                  <SelectContent position="popper" sideOffset={6} className="z-[200] bg-card border border-border shadow-xl pointer-events-auto">
+                                    <SelectItem value="Website">Website</SelectItem>
+                                    <SelectItem value="Referral">Referral</SelectItem>
+                                    <SelectItem value="Social Media">Social Media</SelectItem>
+                                    <SelectItem value="Other">Other</SelectItem>
+                                  </SelectContent>
+                                </Select>
+                                <FormMessage className="text-xs" />
+                              </FormItem>
+                            )}
+                          />
                         </div>
                       </div>
                     </div>
