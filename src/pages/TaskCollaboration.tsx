@@ -1014,9 +1014,9 @@ const TaskCollaboration: React.FC = () => {
                     Track and manage team work
                   </CardDescription>
                 </div>
-            <Button onClick={() => setQuickAddBugOpen(true)} variant="destructive">
+            <Button onClick={() => setQuickAddBugOpen(true)} variant="default">
               <Plus className="h-4 w-4 mr-2" />
-              Quick Add Bug
+              Quick Add from WhatsApp
             </Button>
             <Button onClick={() => setCreateTaskOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
