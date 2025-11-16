@@ -43,6 +43,7 @@ import DevToolsMigration from '@/pages/DevToolsMigration';
 import TaskCollaboration from '@/pages/TaskCollaboration';
 import Configure from '@/pages/Configure';
 import CustomerServicesManagement from '@/pages/CustomerServicesManagement';
+import ServiceFormConfiguration from '@/pages/ServiceFormConfiguration';
 import Messages from '@/pages/Messages';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
@@ -295,6 +296,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Bundle Management">
                           <LazyBundleManagement />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/service-form-configuration" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Service Form Configuration">
+                          <ServiceFormConfiguration />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>

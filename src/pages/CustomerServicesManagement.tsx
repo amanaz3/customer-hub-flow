@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, FolderTree, ArrowLeft } from "lucide-react";
+import { Package, FolderTree, ArrowLeft, Settings2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const CustomerServicesManagement = () => {
@@ -70,6 +70,28 @@ const CustomerServicesManagement = () => {
           <CardContent>
             <p className="text-sm text-muted-foreground">
               Define and manage service category hierarchies and classifications.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/service-form-configuration')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Settings2 className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Service Form Configuration</CardTitle>
+                <CardDescription>Configure dynamic forms for services</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Set up custom form sections and fields for each service/product type.
             </p>
           </CardContent>
         </Card>
