@@ -1104,10 +1104,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   
                   {/* Service-specific fields based on selected product */}
                   <div className="space-y-4">
-                    <div className="flex items-center gap-2 pb-2 border-b border-border">
-                      <div className="w-1 h-6 bg-primary rounded-full" />
-                      <h3 className="text-sm font-bold text-foreground tracking-tight">Service-Specific Details</h3>
-                    </div>
                     {renderProductFields()}
                     
                     {!renderProductFields() && (
