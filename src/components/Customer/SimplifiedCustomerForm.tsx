@@ -909,14 +909,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                       +971
                                     </span>
                                     <Input 
-                                      {...field} 
+                                      value={field.value.replace(/^\+?971\s*/, '')}
                                       onChange={(e) => {
                                         let value = e.target.value;
-                                        // Remove any existing +971 prefix
-                                        value = value.replace(/^\+?971\s*/, '');
                                         // Remove non-digit characters except spaces
                                         value = value.replace(/[^\d\s]/g, '');
-                                        // Ensure it starts with +971
+                                        // Store with +971 prefix
                                         const formattedValue = '+971 ' + value.trim();
                                         field.onChange(formattedValue);
                                         onMobileChange?.(formattedValue);
