@@ -1673,6 +1673,16 @@ const ServiceFormConfiguration = () => {
 
         {selectedProductId && editMode === "visual" && (
           <>
+            <div className="flex justify-between items-center mb-4">
+              <div>
+                <h2 className="text-lg font-semibold">Visual Editor</h2>
+                <p className="text-sm text-muted-foreground">Drag and drop to configure your form</p>
+              </div>
+              <Button variant="outline" size="sm" onClick={() => setEditMode(null)}>
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Back to Mode Selection
+              </Button>
+            </div>
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "fields" | "documents")} className="space-y-6">
               <TabsList className="grid w-full max-w-md grid-cols-2 h-11">
                 <TabsTrigger value="fields" className="gap-2">
