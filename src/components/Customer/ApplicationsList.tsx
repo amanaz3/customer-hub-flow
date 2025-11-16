@@ -1,8 +1,10 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileText, Calendar, DollarSign, TrendingUp } from 'lucide-react';
+import { FileText, Calendar, DollarSign, TrendingUp, Zap } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { QuickAddApplicationDialog } from './QuickAddApplicationDialog';
 import {
   Table,
   TableBody,
@@ -29,6 +31,7 @@ const statusColors: Record<string, string> = {
 
 export const ApplicationsList = ({ applications, customerId }: ApplicationsListProps) => {
   const navigate = useNavigate();
+  const [quickAddOpen, setQuickAddOpen] = useState(false);
 
   const stats = {
     total: applications.length,
@@ -98,9 +101,15 @@ export const ApplicationsList = ({ applications, customerId }: ApplicationsListP
                 All applications for this customer
               </CardDescription>
             </div>
-            <Button onClick={() => navigate(`/customers/new?customer=${customerId}`)}>
-              New Application
-            </Button>
+            <div className="flex gap-2">
+              <Button variant="outline" size="sm" onClick={() => setQuickAddOpen(true)}>
+                <Zap className="h-4 w-4 mr-2" />
+                Quick Add
+              </Button>
+              <Button onClick={() => navigate(`/customers/new?customer=${customerId}`)}>
+                New Application
+              </Button>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -160,6 +169,12 @@ export const ApplicationsList = ({ applications, customerId }: ApplicationsListP
           )}
         </CardContent>
       </Card>
+
+      <QuickAddApplicationDialog
+        open={quickAddOpen}
+        onOpenChange={setQuickAddOpen}
+        customerId={customerId}
+      />
     </div>
   );
 };
