@@ -188,10 +188,9 @@ export const QuickAddBugDialog: React.FC<QuickAddBugDialogProps> = ({
             <Label htmlFor="assigned">Assign To (Optional)</Label>
             <Select value={assignedTo} onValueChange={setAssignedTo}>
               <SelectTrigger>
-                <SelectValue placeholder="Select team member..." />
+                <SelectValue placeholder="Unassigned - Select team member..." />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">Unassigned</SelectItem>
                 {teamMembers.map((member) => (
                   <SelectItem key={member.id} value={member.id}>
                     {member.name}
