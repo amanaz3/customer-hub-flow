@@ -1139,8 +1139,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       Please review all the information below carefully before submitting your application.
                     </CardDescription>
                   </CardHeader>
-                  <div className="max-h-[500px] overflow-y-auto px-6">
-                    <div className="space-y-6 pb-6">
+                  <div className="relative px-6">
+                    <div className="max-h-[60vh] overflow-y-auto overscroll-contain pr-3">
+                      <div className="space-y-6 pb-28">
                     {/* Customer Information Preview */}
                     <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
                       <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
@@ -1295,6 +1296,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     </div>
                     </div>
                   </div>
+                </div>
                 </div>
               )}
             </CardContent>
