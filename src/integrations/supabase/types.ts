@@ -850,6 +850,102 @@ export type Database = {
         }
         Relationships: []
       }
+      form_configuration_versions: {
+        Row: {
+          change_notes: string | null
+          changed_by: string | null
+          config_data: Json
+          created_at: string
+          id: string
+          product_id: string
+          version_number: number
+        }
+        Insert: {
+          change_notes?: string | null
+          changed_by?: string | null
+          config_data: Json
+          created_at?: string
+          id?: string
+          product_id: string
+          version_number: number
+        }
+        Update: {
+          change_notes?: string | null
+          changed_by?: string | null
+          config_data?: Json
+          created_at?: string
+          id?: string
+          product_id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_configuration_versions_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "form_configuration_versions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      form_templates: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          product_id: string | null
+          template_config: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          product_id?: string | null
+          template_config?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          product_id?: string | null
+          template_config?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "form_templates_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "form_templates_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       logs: {
         Row: {
           component: string | null
@@ -1887,6 +1983,10 @@ export type Database = {
       delete_product: { Args: { product_id: string }; Returns: undefined }
       generate_application_reference: { Args: never; Returns: number }
       generate_customer_reference: { Args: never; Returns: number }
+      get_next_version_number: {
+        Args: { p_product_id: string }
+        Returns: number
+      }
       get_or_create_arr_target: {
         Args: { p_month: number; p_user_id: string; p_year: number }
         Returns: string

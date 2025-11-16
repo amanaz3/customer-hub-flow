@@ -15,6 +15,8 @@ import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { validateFormConfigJSON, exportFormConfigToJSON, generateSampleFormConfig } from "@/utils/formConfigValidation";
 import {
   DndContext,
@@ -799,6 +801,16 @@ const ServiceFormConfiguration = () => {
   const [importErrors, setImportErrors] = useState<string[]>([]);
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
   const [showImportDialog, setShowImportDialog] = useState(false);
+  
+  // Template management state
+  const [showSaveTemplateDialog, setShowSaveTemplateDialog] = useState(false);
+  const [showLoadTemplateDialog, setShowLoadTemplateDialog] = useState(false);
+  const [showVersionHistoryDialog, setShowVersionHistoryDialog] = useState(false);
+  const [templateName, setTemplateName] = useState("");
+  const [templateDescription, setTemplateDescription] = useState("");
+  const [templates, setTemplates] = useState<any[]>([]);
+  const [versions, setVersions] = useState<any[]>([]);
+  const [changeNotes, setChangeNotes] = useState("");
 
   // Available stages
   const stages = ['draft', 'submitted', 'review', 'approval', 'completed'];
@@ -1124,6 +1136,10 @@ const ServiceFormConfiguration = () => {
     }
 
     setSaving(true);
+    
+    // Get current user
+    const { data: { user } } = await supabase.auth.getUser();
+    
     const { error } = await supabase
       .from("service_form_configurations")
       .upsert({
@@ -1142,8 +1158,44 @@ const ServiceFormConfiguration = () => {
         title: "Success",
         description: "Form configuration saved successfully",
       });
+      
+      // Create version history entry
+      if (user) {
+        await createVersionEntry(user.id);
+      }
     }
     setSaving(false);
+  };
+
+  // Create version history entry
+  const createVersionEntry = async (userId: string) => {
+    try {
+      // Get next version number
+      const { data: versionData, error: versionError } = await supabase
+        .rpc('get_next_version_number', { p_product_id: selectedProductId });
+
+      if (versionError) throw versionError;
+
+      const nextVersion = versionData || 1;
+
+      // Insert version entry
+      const { error: insertError } = await supabase
+        .from('form_configuration_versions')
+        .insert({
+          product_id: selectedProductId,
+          version_number: nextVersion,
+          config_data: formConfig as any,
+          changed_by: userId,
+          change_notes: changeNotes || 'Configuration updated'
+        } as any);
+
+      if (insertError) throw insertError;
+
+      // Reset change notes
+      setChangeNotes("");
+    } catch (error) {
+      console.error('Error creating version entry:', error);
+    }
   };
 
   // Handle JSON file import
@@ -1236,6 +1288,105 @@ const ServiceFormConfiguration = () => {
     toast({
       title: "Success",
       description: "Configuration exported successfully",
+    });
+  };
+
+  // Fetch templates
+  const fetchTemplates = async () => {
+    const { data, error } = await supabase
+      .from('form_templates')
+      .select('*, created_by:profiles(name)')
+      .eq('is_active', true)
+      .order('created_at', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching templates:', error);
+      return;
+    }
+
+    setTemplates(data || []);
+  };
+
+  // Fetch version history
+  const fetchVersionHistory = async () => {
+    if (!selectedProductId) return;
+
+    const { data, error } = await supabase
+      .from('form_configuration_versions')
+      .select('*, changed_by:profiles(name)')
+      .eq('product_id', selectedProductId)
+      .order('version_number', { ascending: false });
+
+    if (error) {
+      console.error('Error fetching versions:', error);
+      return;
+    }
+
+    setVersions(data || []);
+  };
+
+  // Save as template
+  const handleSaveAsTemplate = async () => {
+    if (!selectedProductId || !templateName.trim()) {
+      toast({
+        title: "Error",
+        description: "Please provide a template name",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('form_templates')
+      .insert({
+        name: templateName,
+        description: templateDescription,
+        product_id: selectedProductId,
+        template_config: formConfig as any,
+        created_by: user.id
+      } as any);
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    toast({
+      title: "Success",
+      description: "Template saved successfully",
+    });
+
+    setShowSaveTemplateDialog(false);
+    setTemplateName("");
+    setTemplateDescription("");
+    fetchTemplates();
+  };
+
+  // Load template
+  const handleLoadTemplate = (template: any) => {
+    setFormConfig(template.template_config);
+    setShowLoadTemplateDialog(false);
+    toast({
+      title: "Success",
+      description: `Template "${template.name}" loaded`,
+    });
+  };
+
+  // Restore version
+  const handleRestoreVersion = async (version: any) => {
+    setFormConfig(version.config_data);
+    setShowVersionHistoryDialog(false);
+    
+    toast({
+      title: "Version Restored",
+      description: `Restored to version ${version.version_number}. Click Save to apply.`,
     });
   };
 
@@ -1565,6 +1716,178 @@ const ServiceFormConfiguration = () => {
             </TabsContent>
           </Tabs>
         </>
+      )}
+      
+      {/* Save as Template Dialog */}
+      <Dialog open={showSaveTemplateDialog} onOpenChange={setShowSaveTemplateDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>Save as Template</DialogTitle>
+            <DialogDescription>
+              Save current configuration as a reusable template
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="template-name">Template Name</Label>
+              <Input
+                id="template-name"
+                placeholder="e.g., Basic Onboarding v1"
+                value={templateName}
+                onChange={(e) => setTemplateName(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label htmlFor="template-description">Description</Label>
+              <Textarea
+                id="template-description"
+                placeholder="Describe this template..."
+                value={templateDescription}
+                onChange={(e) => setTemplateDescription(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowSaveTemplateDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveAsTemplate}>Save Template</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Load Template Dialog */}
+      <Dialog open={showLoadTemplateDialog} onOpenChange={setShowLoadTemplateDialog}>
+        <DialogContent className="sm:max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Load Template</DialogTitle>
+            <DialogDescription>
+              Choose a template to load into the form configuration
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="max-h-[400px]">
+            <div className="space-y-2">
+              {templates.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  No templates available
+                </p>
+              ) : (
+                templates.map((template) => (
+                  <Card
+                    key={template.id}
+                    className="cursor-pointer hover:bg-accent transition-colors"
+                    onClick={() => handleLoadTemplate(template)}
+                  >
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <h4 className="font-semibold">{template.name}</h4>
+                          {template.description && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {template.description}
+                            </p>
+                          )}
+                          <p className="text-xs text-muted-foreground mt-2">
+                            Created {new Date(template.created_at).toLocaleDateString()} by{' '}
+                            {template.created_by?.name || 'Unknown'}
+                          </p>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowLoadTemplateDialog(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Version History Dialog */}
+      <Dialog open={showVersionHistoryDialog} onOpenChange={setShowVersionHistoryDialog}>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle>Version History</DialogTitle>
+            <DialogDescription>
+              View and restore previous versions of this configuration
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="max-h-[500px]">
+            <div className="space-y-2">
+              {versions.length === 0 ? (
+                <p className="text-sm text-muted-foreground text-center py-8">
+                  No version history available
+                </p>
+              ) : (
+                versions.map((version) => (
+                  <Card key={version.id}>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start">
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-semibold">Version {version.version_number}</span>
+                            {version.version_number === versions[0].version_number && (
+                              <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded">
+                                Current
+                              </span>
+                            )}
+                          </div>
+                          {version.change_notes && (
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {version.change_notes}
+                            </p>
+                          )}
+                          <p className="text-xs text-muted-foreground mt-2">
+                            {new Date(version.created_at).toLocaleString()} by{' '}
+                            {version.changed_by?.name || 'Unknown'}
+                          </p>
+                        </div>
+                        {version.version_number !== versions[0].version_number && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleRestoreVersion(version)}
+                          >
+                            Restore
+                          </Button>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </ScrollArea>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowVersionHistoryDialog(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Change Notes Input (above Save button) */}
+      {selectedProductId && (
+        <Card className="mt-4">
+          <CardContent className="pt-4">
+            <Label htmlFor="change-notes" className="text-sm">
+              Version Notes (optional)
+            </Label>
+            <Textarea
+              id="change-notes"
+              placeholder="Describe the changes you're making..."
+              value={changeNotes}
+              onChange={(e) => setChangeNotes(e.target.value)}
+              rows={2}
+              className="mt-2"
+            />
+          </CardContent>
+        </Card>
       )}
     </div>
   );
