@@ -48,7 +48,7 @@ const formSchema = z.object({
   customer_type: z.enum(['individual', 'company']).default('individual'),
   company: z.string().optional(),
   license_type: z.enum(['Mainland', 'Freezone', 'Offshore']),
-  lead_source: z.enum(['Website', 'Referral', 'Social Media', 'Other']).optional(),
+  lead_source: z.enum(['Website', 'Referral', 'Social Media', 'Other']).default('Referral'),
   product_id: z.string().min(1, "Please select a product/service"),
   
   // Optional fields
@@ -134,7 +134,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       customer_type: 'individual',
       company: '',
       license_type: 'Mainland',
-      lead_source: undefined,
+      lead_source: 'Referral',
       product_id: '',
       no_of_shareholders: 1,
       annual_turnover: undefined,
@@ -304,7 +304,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       form.setValue('company', selectedCustomerData.company || '');
       form.setValue('product_id', selectedCustomerData.product_id || '');
       form.setValue('license_type', selectedCustomerData.license_type || 'Mainland');
-      form.setValue('lead_source', selectedCustomerData.lead_source || undefined);
+      form.setValue('lead_source', selectedCustomerData.lead_source || 'Referral');
       form.setValue('annual_turnover', selectedCustomerData.annual_turnover || undefined);
       form.setValue('jurisdiction', selectedCustomerData.jurisdiction || '');
       form.setValue('customer_notes', selectedCustomerData.customer_notes || '');
@@ -961,13 +961,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             />
                           )}
 
-                          {/* Lead Source - Optional */}
+                          {/* Lead Source */}
                           <FormField
                             control={form.control}
                             name="lead_source"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-xs font-medium text-muted-foreground">Source</FormLabel>
+                                <FormLabel className="text-xs font-medium">Source *</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                   <FormControl>
                                     <SelectTrigger className="h-10 text-sm">
