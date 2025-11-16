@@ -9,8 +9,24 @@ import { Textarea } from "@/components/ui/textarea";
 import { ArrowLeft, Plus, Trash2, GripVertical, Save } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Switch } from "@/components/ui/switch";
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface FormField {
   id: string;
@@ -38,6 +54,253 @@ interface Product {
   description: string | null;
 }
 
+// Sortable Field Component
+const SortableField = ({
+  field,
+  fieldIndex,
+  sectionId,
+  removeField,
+  updateField,
+  fieldTypes,
+}: any) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: field.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      className="border rounded-lg p-4 space-y-3 bg-muted/30"
+    >
+      <div className="flex items-center gap-2">
+        <div
+          {...attributes}
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing"
+        >
+          <GripVertical className="h-4 w-4 text-muted-foreground" />
+        </div>
+        <span className="text-sm font-medium">Field {fieldIndex + 1}</span>
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={() => removeField(sectionId, field.id)}
+          className="ml-auto"
+        >
+          <Trash2 className="h-4 w-4 text-destructive" />
+        </Button>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <Label>Field Type</Label>
+          <Select
+            value={field.fieldType}
+            onValueChange={(value) =>
+              updateField(sectionId, field.id, { fieldType: value })
+            }
+          >
+            <SelectTrigger>
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {fieldTypes.map((type: any) => (
+                <SelectItem key={type.value} value={type.value}>
+                  {type.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div>
+          <Label>Field Label</Label>
+          <Input
+            value={field.label}
+            onChange={(e) =>
+              updateField(sectionId, field.id, { label: e.target.value })
+            }
+            placeholder="e.g., Business Name"
+          />
+        </div>
+
+        <div>
+          <Label>Placeholder</Label>
+          <Input
+            value={field.placeholder || ""}
+            onChange={(e) =>
+              updateField(sectionId, field.id, {
+                placeholder: e.target.value,
+              })
+            }
+            placeholder="e.g., Enter your business name"
+          />
+        </div>
+
+        <div className="flex items-center gap-2 pt-6">
+          <Switch
+            checked={field.required}
+            onCheckedChange={(checked) =>
+              updateField(sectionId, field.id, { required: checked })
+            }
+          />
+          <Label>Required Field</Label>
+        </div>
+      </div>
+
+      <div>
+        <Label>Helper Text</Label>
+        <Input
+          value={field.helperText || ""}
+          onChange={(e) =>
+            updateField(sectionId, field.id, {
+              helperText: e.target.value,
+            })
+          }
+          placeholder="Additional information for this field"
+        />
+      </div>
+
+      {(field.fieldType === "select" || field.fieldType === "radio") && (
+        <div>
+          <Label>Options (comma-separated)</Label>
+          <Textarea
+            value={field.options?.join(", ") || ""}
+            onChange={(e) =>
+              updateField(sectionId, field.id, {
+                options: e.target.value.split(",").map((s) => s.trim()),
+              })
+            }
+            placeholder="Option 1, Option 2, Option 3"
+            rows={2}
+          />
+        </div>
+      )}
+    </div>
+  );
+};
+
+// Sortable Section Component
+const SortableSection = ({
+  section,
+  sectionIndex,
+  updateSection,
+  removeSection,
+  addField,
+  removeField,
+  updateField,
+  fieldTypes,
+}: any) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging,
+  } = useSortable({ id: section.id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+
+  const handleFieldDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      const oldIndex = section.fields.findIndex((f: FormField) => f.id === active.id);
+      const newIndex = section.fields.findIndex((f: FormField) => f.id === over.id);
+      
+      const reorderedFields = arrayMove(section.fields, oldIndex, newIndex);
+      updateSection(section.id, section.sectionTitle, reorderedFields);
+    }
+  };
+
+  return (
+    <Card ref={setNodeRef} style={style} className="relative">
+      <CardHeader className="pb-4">
+        <div className="flex items-center gap-3">
+          <div
+            {...attributes}
+            {...listeners}
+            className="cursor-grab active:cursor-grabbing"
+          >
+            <GripVertical className="h-5 w-5 text-muted-foreground" />
+          </div>
+          <Input
+            value={section.sectionTitle}
+            onChange={(e) => updateSection(section.id, e.target.value, section.fields)}
+            className="flex-1 font-semibold"
+            placeholder="Section Title"
+          />
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => removeSection(section.id)}
+          >
+            <Trash2 className="h-4 w-4 text-destructive" />
+          </Button>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <DndContext
+          sensors={sensors}
+          collisionDetection={closestCenter}
+          onDragEnd={handleFieldDragEnd}
+        >
+          <SortableContext
+            items={section.fields.map((f: FormField) => f.id)}
+            strategy={verticalListSortingStrategy}
+          >
+            {section.fields.map((field: FormField, fieldIndex: number) => (
+              <SortableField
+                key={field.id}
+                field={field}
+                fieldIndex={fieldIndex}
+                sectionId={section.id}
+                removeField={removeField}
+                updateField={updateField}
+                fieldTypes={fieldTypes}
+              />
+            ))}
+          </SortableContext>
+        </DndContext>
+
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => addField(section.id)}
+          className="w-full"
+        >
+          <Plus className="h-4 w-4 mr-2" />
+          Add Field
+        </Button>
+      </CardContent>
+    </Card>
+  );
+};
+
 const ServiceFormConfiguration = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -59,6 +322,13 @@ const ServiceFormConfiguration = () => {
     { value: "checkbox", label: "Checkbox" },
     { value: "radio", label: "Radio Buttons" },
   ];
+
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   // Fetch products
   useEffect(() => {
@@ -129,10 +399,12 @@ const ServiceFormConfiguration = () => {
     }));
   };
 
-  const updateSection = (sectionId: string, title: string) => {
+  const updateSection = (sectionId: string, title: string, fields?: FormField[]) => {
     setFormConfig((prev) => ({
       sections: prev.sections.map((s) =>
-        s.id === sectionId ? { ...s, sectionTitle: title } : s
+        s.id === sectionId
+          ? { ...s, sectionTitle: title, ...(fields && { fields }) }
+          : s
       ),
     }));
   };
@@ -183,6 +455,21 @@ const ServiceFormConfiguration = () => {
           : s
       ),
     }));
+  };
+
+  const handleSectionDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setFormConfig((prev) => {
+        const oldIndex = prev.sections.findIndex((s) => s.id === active.id);
+        const newIndex = prev.sections.findIndex((s) => s.id === over.id);
+
+        return {
+          sections: arrayMove(prev.sections, oldIndex, newIndex),
+        };
+      });
+    }
   };
 
   const saveConfiguration = async () => {
@@ -236,7 +523,7 @@ const ServiceFormConfiguration = () => {
         <div>
           <h1 className="text-3xl font-bold">Service Form Configuration</h1>
           <p className="text-muted-foreground mt-1">
-            Configure dynamic forms for each service/product
+            Configure dynamic forms for each service/product. Drag to reorder sections and fields.
           </p>
         </div>
         <Button onClick={saveConfiguration} disabled={saving || !selectedProductId}>
@@ -267,142 +554,30 @@ const ServiceFormConfiguration = () => {
 
       {selectedProductId && !loading && (
         <div className="space-y-4">
-          {formConfig.sections.map((section, sectionIndex) => (
-            <Card key={section.id}>
-              <CardHeader className="pb-4">
-                <div className="flex items-center gap-3">
-                  <GripVertical className="h-5 w-5 text-muted-foreground" />
-                  <Input
-                    value={section.sectionTitle}
-                    onChange={(e) => updateSection(section.id, e.target.value)}
-                    className="flex-1 font-semibold"
-                    placeholder="Section Title"
-                  />
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => removeSection(section.id)}
-                  >
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
-                </div>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                {section.fields.map((field, fieldIndex) => (
-                  <div key={field.id} className="border rounded-lg p-4 space-y-3 bg-muted/30">
-                    <div className="flex items-center gap-2">
-                      <GripVertical className="h-4 w-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">Field {fieldIndex + 1}</span>
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => removeField(section.id, field.id)}
-                        className="ml-auto"
-                      >
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </div>
-
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label>Field Type</Label>
-                        <Select
-                          value={field.fieldType}
-                          onValueChange={(value) =>
-                            updateField(section.id, field.id, { fieldType: value })
-                          }
-                        >
-                          <SelectTrigger>
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {fieldTypes.map((type) => (
-                              <SelectItem key={type.value} value={type.value}>
-                                {type.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      <div>
-                        <Label>Field Label</Label>
-                        <Input
-                          value={field.label}
-                          onChange={(e) =>
-                            updateField(section.id, field.id, { label: e.target.value })
-                          }
-                          placeholder="e.g., Business Name"
-                        />
-                      </div>
-
-                      <div>
-                        <Label>Placeholder</Label>
-                        <Input
-                          value={field.placeholder || ""}
-                          onChange={(e) =>
-                            updateField(section.id, field.id, {
-                              placeholder: e.target.value,
-                            })
-                          }
-                          placeholder="e.g., Enter your business name"
-                        />
-                      </div>
-
-                      <div className="flex items-center gap-2 pt-6">
-                        <Switch
-                          checked={field.required}
-                          onCheckedChange={(checked) =>
-                            updateField(section.id, field.id, { required: checked })
-                          }
-                        />
-                        <Label>Required Field</Label>
-                      </div>
-                    </div>
-
-                    <div>
-                      <Label>Helper Text</Label>
-                      <Input
-                        value={field.helperText || ""}
-                        onChange={(e) =>
-                          updateField(section.id, field.id, {
-                            helperText: e.target.value,
-                          })
-                        }
-                        placeholder="Additional information for this field"
-                      />
-                    </div>
-
-                    {(field.fieldType === "select" || field.fieldType === "radio") && (
-                      <div>
-                        <Label>Options (comma-separated)</Label>
-                        <Textarea
-                          value={field.options?.join(", ") || ""}
-                          onChange={(e) =>
-                            updateField(section.id, field.id, {
-                              options: e.target.value.split(",").map((s) => s.trim()),
-                            })
-                          }
-                          placeholder="Option 1, Option 2, Option 3"
-                          rows={2}
-                        />
-                      </div>
-                    )}
-                  </div>
-                ))}
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => addField(section.id)}
-                  className="w-full"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Add Field
-                </Button>
-              </CardContent>
-            </Card>
-          ))}
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleSectionDragEnd}
+          >
+            <SortableContext
+              items={formConfig.sections.map((s) => s.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {formConfig.sections.map((section, sectionIndex) => (
+                <SortableSection
+                  key={section.id}
+                  section={section}
+                  sectionIndex={sectionIndex}
+                  updateSection={updateSection}
+                  removeSection={removeSection}
+                  addField={addField}
+                  removeField={removeField}
+                  updateField={updateField}
+                  fieldTypes={fieldTypes}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
 
           <Button onClick={addSection} variant="outline" className="w-full">
             <Plus className="h-4 w-4 mr-2" />
