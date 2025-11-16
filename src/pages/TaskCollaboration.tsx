@@ -24,6 +24,7 @@ import { CreateTaskDialog } from '@/components/Team/CreateTaskDialog';
 import { CreateProductDialog } from '@/components/Team/CreateProductDialog';
 import { TaskCard } from '@/components/Team/TaskCard';
 import { TaskDetailDialog } from '@/components/Team/TaskDetailDialog';
+import { QuickAddBugDialog } from '@/components/Team/QuickAddBugDialog';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 import { formatApplicationReferenceWithPrefix } from '@/utils/referenceNumberFormatter';
 
@@ -138,6 +139,7 @@ const TaskCollaboration: React.FC = () => {
   const [priorityFilter, setPriorityFilter] = useState<string>('medium-high');
   const [projectFilter, setProjectFilter] = useState<string>('all');
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
+  const [quickAddBugOpen, setQuickAddBugOpen] = useState(false);
   const [caseStatusFilter, setCaseStatusFilter] = useState<string>('active');
   const [caseSearchQuery, setCaseSearchQuery] = useState('');
   const [casePriorities, setCasePriorities] = useState<Record<string, string>>({});
@@ -1012,10 +1014,14 @@ const TaskCollaboration: React.FC = () => {
                     Track and manage team work
                   </CardDescription>
                 </div>
-                <Button onClick={() => setCreateTaskOpen(true)}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  New Task
-                </Button>
+            <Button onClick={() => setQuickAddBugOpen(true)} variant="destructive">
+              <Plus className="h-4 w-4 mr-2" />
+              Quick Add Bug
+            </Button>
+            <Button onClick={() => setCreateTaskOpen(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              New Task
+            </Button>
               </div>
             </CardHeader>
             <CardContent>
@@ -1663,6 +1669,12 @@ const TaskCollaboration: React.FC = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <QuickAddBugDialog
+        open={quickAddBugOpen}
+        onOpenChange={setQuickAddBugOpen}
+        onBugCreated={fetchTasks}
+      />
     </div>
   );
 };
