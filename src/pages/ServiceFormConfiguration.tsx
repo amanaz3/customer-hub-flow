@@ -18,7 +18,6 @@ import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { validateFormConfigJSON, exportFormConfigToJSON, generateSampleFormConfig } from "@/utils/formConfigValidation";
-import { JsonEditorDialog } from "@/components/Configure/JsonEditorDialog";
 import {
   DndContext,
   closestCenter,
@@ -856,7 +855,6 @@ const ServiceFormConfiguration = () => {
   const [importErrors, setImportErrors] = useState<string[]>([]);
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
   const [showImportDialog, setShowImportDialog] = useState(false);
-  const [showJsonEditor, setShowJsonEditor] = useState(false);
   const [editMode, setEditMode] = useState<"visual" | "manual" | null>(null);
   
   // Template management state
@@ -1581,16 +1579,6 @@ const ServiceFormConfiguration = () => {
                   <Download className="h-3 w-3" />
                   Export
                 </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowJsonEditor(true)}
-                  disabled={!selectedProductId}
-                  className="gap-1.5 h-7 text-xs"
-                >
-                  <Code className="h-3 w-3" />
-                  Editor
-                </Button>
               </div>
             </div>
           </div>
@@ -2181,13 +2169,6 @@ const ServiceFormConfiguration = () => {
         </div>
       )}
 
-      {/* JSON Editor Dialog */}
-      <JsonEditorDialog
-        open={showJsonEditor}
-        onOpenChange={setShowJsonEditor}
-        currentConfig={formConfig}
-        onSave={(newConfig) => setFormConfig(newConfig)}
-      />
     </div>
   );
 };
