@@ -1988,6 +1988,69 @@ const ServiceFormConfiguration = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Import JSON Dialog */}
+      <Dialog open={showImportDialog} onOpenChange={setShowImportDialog}>
+        <DialogContent className="sm:max-w-lg">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Upload className="h-4 w-4 text-primary" />
+              </div>
+              Import Configuration
+            </DialogTitle>
+            <DialogDescription>
+              Upload a JSON file to import form configuration
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="json-import" className="text-sm font-medium">Select JSON File</Label>
+              <Input
+                id="json-import"
+                type="file"
+                accept=".json,application/json"
+                onChange={handleImportJSON}
+                className="cursor-pointer"
+              />
+              <p className="text-xs text-muted-foreground">Upload a previously exported configuration file</p>
+            </div>
+
+            {importErrors.length > 0 && (
+              <Alert variant="destructive">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle>Validation Errors</AlertTitle>
+                <AlertDescription className="text-xs space-y-1">
+                  {importErrors.map((error, i) => (
+                    <div key={i}>• {error}</div>
+                  ))}
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {importWarnings.length > 0 && (
+              <Alert className="border-yellow-500/30 bg-yellow-500/5">
+                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                <AlertTitle>Warnings</AlertTitle>
+                <AlertDescription className="text-xs space-y-1">
+                  {importWarnings.map((warning, i) => (
+                    <div key={i}>• {warning}</div>
+                  ))}
+                </AlertDescription>
+              </Alert>
+            )}
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => {
+              setShowImportDialog(false);
+              setImportErrors([]);
+              setImportWarnings([]);
+            }}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Load Template Dialog */}
       <Dialog open={showLoadTemplateDialog} onOpenChange={setShowLoadTemplateDialog}>
         <DialogContent className="sm:max-w-3xl">
