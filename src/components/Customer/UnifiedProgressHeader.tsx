@@ -57,6 +57,10 @@ export const UnifiedProgressHeader = ({
         <div className="flex flex-col items-center gap-4">
           {/* Customer Type Selector */}
           <div className="w-full max-w-2xl">
+            <div className="text-center mb-3">
+              <h3 className="text-sm font-semibold text-foreground">Customer Selection</h3>
+              <p className="text-xs text-muted-foreground mt-1">Choose whether to create a new customer or select an existing one</p>
+            </div>
             <CustomerTypeSelector
               value={customerType}
               onChange={onCustomerTypeChange}

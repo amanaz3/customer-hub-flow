@@ -661,12 +661,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             />
 
             <Card 
-              className="-mt-px border-t-0 border-x border-b border-border bg-card shadow-sm rounded-t-none rounded-b-lg max-w-2xl mx-auto overflow-hidden"
+              className="-mt-px border-t-0 border-x border-b border-border bg-card shadow-sm rounded-t-none rounded-b-lg max-w-2xl mx-auto"
             >
-            <CardContent className="p-4 sm:p-6 max-h-[calc(100vh-120px)] overflow-hidden flex flex-col">
+            <CardContent className="p-4 sm:p-6 space-y-5">
               {/* Customer Information Summary Accordion - Show after step 1 */}
               {currentStep > 1 && form.watch('name') && (
-                <div className="sticky z-20 bg-card/95 backdrop-blur-sm -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 pb-4 mb-3 border-b border-border shadow-md" style={{ top: 'var(--unified-header-h, 160px)' }}>
+                <div className="sticky z-20 bg-card/95 backdrop-blur-sm -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 pb-4 mb-8 border-b border-border shadow-md" style={{ top: 'var(--unified-header-h, 160px)' }}>
                   <div className="flex justify-center">
                   <Accordion 
                     type="single" 
@@ -1094,15 +1094,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
               {/* Step 3: Service Details - Dynamic Form Configuration */}
               {currentStep === 3 && (
-                <div key="step-3" className="animate-fade-in flex flex-col flex-1 min-h-0">
-                  <CardHeader className="pb-4 flex-shrink-0">
+                <div key="step-3" className="animate-fade-in">
+                  <CardHeader className="pb-4">
                     <CardTitle className="text-xl">Service Details</CardTitle>
                     <CardDescription>
                       Complete the details specific to your selected service.
                     </CardDescription>
                   </CardHeader>
-                  <div className="flex-1 overflow-y-auto px-6 pb-6 min-h-0">
-                    <div className="space-y-4">
+                  <div className="relative px-6">
+                    <div className="max-h-[60vh] overflow-y-auto overscroll-contain pr-3">
+                      <div className="space-y-4 pb-28">
                     {form.watch('product_id') ? (
                       <DynamicServiceForm
                         productId={form.watch('product_id')}
@@ -1127,6 +1128,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         </Button>
                       </div>
                     )}
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -1134,15 +1136,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
               {/* Step 4: Confirmation & Preview */}
               {currentStep === 4 && (
-                <div key="step-4" className="animate-fade-in flex flex-col flex-1 min-h-0">
-                  <CardHeader className="pb-4 flex-shrink-0">
+                <div key="step-4" className="animate-fade-in">
+                  <CardHeader className="pb-4">
                     <CardTitle className="text-xl">Review & Submit</CardTitle>
                     <CardDescription>
                       Please review all the information below carefully before submitting your application.
                     </CardDescription>
                   </CardHeader>
-                  <div className="flex-1 overflow-y-auto px-6 pb-6 min-h-0">
-                    <div className="space-y-6">
+                  <div className="relative px-6">
+                    <div className="max-h-[60vh] overflow-y-auto overscroll-contain pr-3">
+                      <div className="space-y-6 pb-28">
                     {/* Customer Information Preview */}
                     <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
                       <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
@@ -1294,11 +1297,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       <p className="text-xs text-muted-foreground text-center mt-2">
                         By submitting, you confirm that all information provided is accurate.
                       </p>
-                     </div>
-                   </div>
-                 </div>
+                    </div>
+                    </div>
+                  </div>
                 </div>
-               )}
+                </div>
+              )}
             </CardContent>
           </Card>
 
