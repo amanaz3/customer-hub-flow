@@ -1527,7 +1527,6 @@ const ServiceFormConfiguration = () => {
             </div>
           </div>
         </div>
-      </div>
 
       {/* Main Content */}
       <div className="container mx-auto p-4 space-y-4">
