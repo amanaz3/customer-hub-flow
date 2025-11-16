@@ -64,41 +64,6 @@ export type Database = {
           },
         ]
       }
-      application_documents: {
-        Row: {
-          application_id: string | null
-          created_at: string
-          document_type: string
-          file_path: string | null
-          id: string
-          is_uploaded: boolean | null
-        }
-        Insert: {
-          application_id?: string | null
-          created_at?: string
-          document_type: string
-          file_path?: string | null
-          id?: string
-          is_uploaded?: boolean | null
-        }
-        Update: {
-          application_id?: string | null
-          created_at?: string
-          document_type?: string
-          file_path?: string | null
-          id?: string
-          is_uploaded?: boolean | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "application_documents_application_id_fkey"
-            columns: ["application_id"]
-            isOneToOne: false
-            referencedRelation: "account_applications"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
       application_messages: {
         Row: {
           application_id: string | null
@@ -130,44 +95,6 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "application_messages_application_id_fkey"
-            columns: ["application_id"]
-            isOneToOne: false
-            referencedRelation: "account_applications"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      application_owners: {
-        Row: {
-          application_id: string | null
-          created_at: string
-          id: string
-          name: string
-          nationality: string | null
-          ownership_percentage: number | null
-          passport_number: string | null
-        }
-        Insert: {
-          application_id?: string | null
-          created_at?: string
-          id?: string
-          name: string
-          nationality?: string | null
-          ownership_percentage?: number | null
-          passport_number?: string | null
-        }
-        Update: {
-          application_id?: string | null
-          created_at?: string
-          id?: string
-          name?: string
-          nationality?: string | null
-          ownership_percentage?: number | null
-          passport_number?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "application_owners_application_id_fkey"
             columns: ["application_id"]
             isOneToOne: false
             referencedRelation: "account_applications"
