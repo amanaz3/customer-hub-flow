@@ -72,9 +72,9 @@ Deno.serve(async (req) => {
 
     console.log('Previous status:', previousStatus, '-> New status:', newStatus);
 
-    // Update application status
+    // Update application status - normalize to lowercase for database enum
     const updateData: any = { 
-      status: newStatus,
+      status: newStatus.toLowerCase(),
       updated_at: new Date().toISOString() 
     };
 
