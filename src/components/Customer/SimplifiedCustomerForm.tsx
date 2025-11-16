@@ -38,7 +38,6 @@ const formSchema = z.object({
   customer_type: z.enum(['individual', 'company']).optional(),
   country_of_residence: z.string().min(1, "Country of residence is required"),
   company: z.string().optional(),
-  amount: z.number().min(0.01, "Amount must be greater than 0"),
   license_type: z.enum(['Mainland', 'Freezone', 'Offshore']),
   lead_source: z.enum(['Website', 'Referral', 'Social Media', 'Other']).optional(),
   product_id: z.string().min(1, "Please select a product/service"),
@@ -135,7 +134,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       customer_type: undefined,
       country_of_residence: '',
       company: '',
-      amount: 0,
       license_type: 'Mainland',
       lead_source: undefined,
       product_id: '',
@@ -204,7 +202,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         email: values.email || null,
         mobile: values.mobile,
         company: values.company || '',
-        amount: values.amount || 0,
+        amount: 0,
         license_type: values.license_type || 'Mainland',
         lead_source: values.lead_source,
         user_id: user.id,
@@ -262,10 +260,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       // Step 2: Check service selection is VALID
       if (currentStep === 2) {
         const productValid = value.product_id && !errors.product_id;
-        const amountValid = value.amount && value.amount > 0 && !errors.amount;
         const licenseValid = value.license_type && !errors.license_type;
         
-        if (productValid && amountValid && licenseValid) {
+        if (productValid && licenseValid) {
           setTimeout(() => setCurrentStep(3), 500);
         }
       }
@@ -293,7 +290,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       form.setValue('company', selectedCustomerData.company || '');
       form.setValue('country_of_residence', selectedCustomerData.jurisdiction || '');
       form.setValue('product_id', selectedCustomerData.product_id || '');
-      form.setValue('amount', selectedCustomerData.amount || 0);
       form.setValue('license_type', selectedCustomerData.license_type || 'Mainland');
       form.setValue('lead_source', selectedCustomerData.lead_source || undefined);
       form.setValue('customer_type', selectedCustomerData.company ? 'company' : 'individual');
@@ -338,7 +334,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         email: data.email,
         mobile: data.mobile,
         company: data.company || '',
-        amount: data.amount,
+        amount: 0,
         license_type: data.license_type,
         lead_source: data.lead_source,
         user_id: user.id,
@@ -423,7 +419,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         email: values.email || null,
         mobile: values.mobile,
         company: values.company || '',
-        amount: values.amount || 0,
+        amount: 0,
         license_type: values.license_type || 'Mainland',
         lead_source: values.lead_source,
         user_id: user.id,
@@ -494,10 +490,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
     if (currentStep === 2) {
       const productValid = values.product_id && !errors.product_id;
-      const amountValid = values.amount && values.amount > 0 && !errors.amount;
       const licenseValid = values.license_type && !errors.license_type;
       
-      return productValid && amountValid && licenseValid;
+      return productValid && licenseValid;
     }
 
     return true; // Steps 3 and 4 don't have mandatory fields
@@ -1077,36 +1072,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       </FormItem>
                     )}
                   />
-
-                  <FormField
-                    control={form.control}
-                    name="amount"
-                    render={({ field }) => (
-                      <FormItem className="relative">
-                        <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Amount (AED) *</FormLabel>
-                        <FormControl>
-                          <div className="relative group">
-                            <Input 
-                              type="number" 
-                              step="0.01"
-                              {...field} 
-                              onChange={(e) => field.onChange(parseFloat(e.target.value) || 0)}
-                              placeholder="0.00"
-                              className="h-11 text-sm pl-10 border-2 border-border/60 bg-background/50 backdrop-blur-sm rounded-lg
-                                focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-background focus:scale-[1.01]
-                                hover:border-primary/50 hover:bg-background/80
-                                transition-all duration-300
-                                placeholder:text-muted-foreground/50"
-                            />
-                            <svg xmlns="http://www.w3.org/2000/svg" className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground group-focus-within:text-primary transition-colors" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            </svg>
-                          </div>
-                        </FormControl>
-                        <FormMessage className="text-xs mt-1.5 ml-1 font-medium" />
-                      </FormItem>
-                    )}
-                  />
                    </div>
                   </div>
                 </div>
@@ -1213,10 +1178,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         <div className="flex justify-between py-1">
                           <dt className="text-muted-foreground">Service:</dt>
                           <dd className="font-medium text-foreground">{selectedProductName}</dd>
-                        </div>
-                        <div className="flex justify-between py-1">
-                          <dt className="text-muted-foreground">Amount:</dt>
-                          <dd className="font-medium text-foreground text-lg">AED {form.watch('amount')?.toLocaleString()}</dd>
                         </div>
                         {form.watch('lead_source') && (
                           <div className="flex justify-between py-1">
@@ -1415,7 +1376,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             email: form.watch('email'),
             mobile: form.watch('mobile'),
             product_id: form.watch('product_id'),
-            amount: form.watch('amount'),
             license_type: form.watch('license_type'),
           }}
           productName={selectedProductName}
