@@ -49,13 +49,23 @@ interface DynamicServiceFormProps {
   productName?: string;
   onSubmit?: (data: any) => void;
   onCancel?: () => void;
+  showDocuments?: boolean;
+  showSubmitButton?: boolean;
+  showCancelButton?: boolean;
+  formData?: any;
+  onFieldChange?: (fieldKey: string, value: any) => void;
 }
 
 const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
   productId,
   productName = 'Company Formation',
   onSubmit,
-  onCancel
+  onCancel,
+  showDocuments = true,
+  showSubmitButton = true,
+  showCancelButton = true,
+  formData,
+  onFieldChange
 }) => {
   const [formConfig, setFormConfig] = useState<FormConfig | null>(null);
   const [loading, setLoading] = useState(true);
@@ -65,6 +75,20 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
   useEffect(() => {
     fetchFormConfiguration();
   }, [productId, productName]);
+
+  // Sync form data from parent
+  useEffect(() => {
+    if (formData && formConfig) {
+      formConfig.sections.forEach((section, sectionIndex) => {
+        section.fields.forEach((field) => {
+          const fieldKey = `section_${sectionIndex}_${field.name}`;
+          if (formData[fieldKey] !== undefined) {
+            setValue(fieldKey, formData[fieldKey]);
+          }
+        });
+      });
+    }
+  }, [formData, formConfig, setValue]);
 
   const fetchFormConfiguration = async () => {
     try {
@@ -134,6 +158,14 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
   const renderField = (field: FormField, sectionIndex: number) => {
     const fieldKey = `section_${sectionIndex}_${field.name}`;
     
+    // Notify parent of changes if callback is provided
+    const handleChange = (value: any) => {
+      setValue(fieldKey, value);
+      if (onFieldChange) {
+        onFieldChange(fieldKey, value);
+      }
+    };
+    
     switch (field.type) {
       case 'text':
       case 'email':
@@ -152,7 +184,10 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
               id={fieldKey}
               type={field.type}
               placeholder={field.placeholder}
-              {...register(fieldKey, { required: field.required })}
+              {...register(fieldKey, { 
+                required: field.required,
+                onChange: (e) => handleChange(e.target.value)
+              })}
             />
             {errors[fieldKey] && (
               <p className="text-sm text-destructive">This field is required</p>
@@ -173,7 +208,10 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
             <Textarea
               id={fieldKey}
               placeholder={field.placeholder}
-              {...register(fieldKey, { required: field.required })}
+              {...register(fieldKey, { 
+                required: field.required,
+                onChange: (e) => handleChange(e.target.value)
+              })}
               rows={4}
             />
             {errors[fieldKey] && (
@@ -192,7 +230,13 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
             {field.description && (
               <p className="text-sm text-muted-foreground">{field.description}</p>
             )}
-            <Select onValueChange={(value) => setValue(fieldKey, value)}>
+            <Select 
+              onValueChange={(value) => {
+                setValue(fieldKey, value);
+                handleChange(value);
+              }}
+              defaultValue={formData?.[fieldKey]}
+            >
               <SelectTrigger>
                 <SelectValue placeholder={field.placeholder || `Select ${field.label}`} />
               </SelectTrigger>
@@ -282,15 +326,16 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
   }
 
   return (
-    <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>{productName} Application</CardTitle>
-          <CardDescription>
-            Please fill out all required fields to submit your application.
-          </CardDescription>
-        </CardHeader>
-        <CardContent className="space-y-8">
+    <div className="space-y-6">
+      {showSubmitButton && (
+        <Card>
+          <CardHeader>
+            <CardTitle>{productName} Application</CardTitle>
+            <CardDescription>
+              Please fill out all required fields to submit your application.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-8">
           {formConfig.sections.map((section, sectionIndex) => (
             <div key={sectionIndex} className="space-y-6">
               <div>
@@ -310,7 +355,7 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
             </div>
           ))}
 
-          {formConfig.documents && formConfig.documents.length > 0 && (
+          {showDocuments && formConfig.documents && formConfig.documents.length > 0 && (
             <div className="space-y-4 pt-6 border-t">
               <h3 className="text-lg font-semibold">Required Documents</h3>
               <div className="space-y-3">
@@ -340,25 +385,53 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
           )}
         </CardContent>
       </Card>
+      )}
 
-      <div className="flex justify-end gap-4">
-        {onCancel && (
-          <Button type="button" variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
-        )}
-        <Button type="submit" disabled={isSubmitting}>
-          {isSubmitting ? (
-            <>
-              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Submitting...
-            </>
-          ) : (
-            'Submit Application'
+      {!showSubmitButton && formConfig && (
+        <div className="space-y-8">
+          {formConfig.sections.map((section, sectionIndex) => (
+            <div key={sectionIndex} className="space-y-6">
+              <div>
+                <h3 className="text-lg font-semibold">{section.title}</h3>
+                {section.description && (
+                  <p className="text-sm text-muted-foreground mt-1">{section.description}</p>
+                )}
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {section.fields.map((field) => renderField(field, sectionIndex))}
+              </div>
+
+              {sectionIndex < formConfig.sections.length - 1 && (
+                <Separator className="my-6" />
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {(showSubmitButton || showCancelButton) && (
+        <div className="flex justify-end gap-4">
+          {showCancelButton && onCancel && (
+            <Button type="button" variant="outline" onClick={onCancel}>
+              Cancel
+            </Button>
           )}
-        </Button>
-      </div>
-    </form>
+          {showSubmitButton && (
+            <Button type="submit" disabled={isSubmitting} onClick={handleSubmit(handleFormSubmit)}>
+              {isSubmitting ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Submitting...
+                </>
+              ) : (
+                'Submit Application'
+              )}
+            </Button>
+          )}
+        </div>
+      )}
+    </div>
   );
 };
 
