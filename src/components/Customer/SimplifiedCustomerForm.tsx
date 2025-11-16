@@ -172,6 +172,20 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     },
   });
 
+  // Set default product to Business Bank Account
+  useEffect(() => {
+    if (products && !form.getValues('product_id')) {
+      const businessBankAccount = products.find(p => 
+        p.name.toLowerCase().includes('business bank account')
+      );
+      if (businessBankAccount) {
+        form.setValue('product_id', businessBankAccount.id);
+        setSelectedProductName(businessBankAccount.name);
+        onProductChange?.(businessBankAccount.name);
+      }
+    }
+  }, [products, form, onProductChange]);
+
   const handleProductChange = (productId: string) => {
     const product = products?.find(p => p.id === productId);
     if (product) {
