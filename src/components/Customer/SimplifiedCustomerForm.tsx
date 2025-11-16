@@ -38,7 +38,9 @@ const formSchema = z.object({
     .regex(/^[a-zA-Z\s\-'.]+$/, "Name can only contain letters, spaces, hyphens, apostrophes, and periods"),
   email: z.string()
     .trim()
+    .min(1, "Email is required")
     .email("Enter a valid email address")
+    .regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "Email must be in valid format (e.g., user@example.com)")
     .max(255, "Email must be less than 255 characters"),
   mobile: z.string()
     .trim()
