@@ -47,6 +47,10 @@ interface FormField {
   conditionalGroup?: string; // Group ID for "at least one required" logic
   options?: string[];
   helperText?: string;
+  // Number validation properties
+  min?: number;
+  max?: number;
+  step?: number;
 }
 
 interface FormSection {
@@ -486,6 +490,56 @@ const SortableField = ({
             placeholder="Option 1, Option 2, Option 3"
             rows={2}
           />
+        </div>
+      )}
+
+      {field.fieldType === "number" && (
+        <div className="space-y-2 border-t pt-2">
+          <Label className="text-xs font-semibold">Number Validation</Label>
+          <div className="grid grid-cols-3 gap-2">
+            <div>
+              <Label className="text-xs">Min Value</Label>
+              <Input
+                type="number"
+                value={field.min !== undefined ? field.min : ""}
+                onChange={(e) =>
+                  updateField(sectionId, field.id, {
+                    min: e.target.value ? Number(e.target.value) : undefined,
+                  })
+                }
+                placeholder="e.g., 0"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Max Value</Label>
+              <Input
+                type="number"
+                value={field.max !== undefined ? field.max : ""}
+                onChange={(e) =>
+                  updateField(sectionId, field.id, {
+                    max: e.target.value ? Number(e.target.value) : undefined,
+                  })
+                }
+                placeholder="e.g., 100"
+              />
+            </div>
+            <div>
+              <Label className="text-xs">Step</Label>
+              <Input
+                type="number"
+                value={field.step !== undefined ? field.step : ""}
+                onChange={(e) =>
+                  updateField(sectionId, field.id, {
+                    step: e.target.value ? Number(e.target.value) : undefined,
+                  })
+                }
+                placeholder="e.g., 1"
+              />
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Set min to 1 for positive numbers, 0 for non-negative numbers
+          </p>
         </div>
       )}
     </div>
