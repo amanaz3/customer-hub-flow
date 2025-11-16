@@ -1416,172 +1416,262 @@ const ServiceFormConfiguration = () => {
   };
 
   return (
-    <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center gap-4">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => navigate("/customer-services")}
-          className="gap-2"
-        >
-          <ArrowLeft className="h-4 w-4" />
-          Back
-        </Button>
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <div className="border-b bg-card/50 backdrop-blur supports-[backdrop-filter]:bg-card/50">
+        <div className="container mx-auto p-4">
+          <div className="flex items-center gap-4 mb-4">
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => navigate("/customer-services")}
+              className="gap-2"
+            >
+              <ArrowLeft className="h-4 w-4" />
+              Back
+            </Button>
+          </div>
+
+          <div className="space-y-4">
+            <div>
+              <h1 className="text-3xl font-bold tracking-tight">Service Form Configuration</h1>
+              <p className="text-muted-foreground mt-1">
+                Configure dynamic forms for each service/product. Drag to reorder sections and fields.
+              </p>
+            </div>
+
+            {/* Action Buttons - Organized by Category */}
+            <div className="flex flex-wrap gap-3 items-center">
+              {/* Template Actions */}
+              <div className="flex gap-2 items-center">
+                <span className="text-xs text-muted-foreground font-medium">Templates:</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowLoadTemplateDialog(true);
+                    fetchTemplates();
+                  }}
+                  className="gap-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  Load
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSaveTemplateDialog(true)}
+                  disabled={!selectedProductId}
+                  className="gap-2"
+                >
+                  <Save className="h-4 w-4" />
+                  Save as
+                </Button>
+              </div>
+
+              <Separator orientation="vertical" className="h-6" />
+
+              {/* Version Control */}
+              <div className="flex gap-2 items-center">
+                <span className="text-xs text-muted-foreground font-medium">Version:</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowVersionHistoryDialog(true);
+                    fetchVersionHistory();
+                  }}
+                  disabled={!selectedProductId}
+                  className="gap-2"
+                >
+                  <FileJson className="h-4 w-4" />
+                  History
+                </Button>
+              </div>
+
+              <Separator orientation="vertical" className="h-6" />
+
+              {/* Import/Export */}
+              <div className="flex gap-2 items-center">
+                <span className="text-xs text-muted-foreground font-medium">JSON:</span>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleDownloadSample}
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Sample
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => document.getElementById('json-import')?.click()}
+                  className="gap-2"
+                >
+                  <Upload className="h-4 w-4" />
+                  Import
+                </Button>
+                <input
+                  id="json-import"
+                  type="file"
+                  accept=".json"
+                  className="hidden"
+                  onChange={handleImportJSON}
+                />
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleExportJSON}
+                  disabled={!selectedProductId}
+                  className="gap-2"
+                >
+                  <Download className="h-4 w-4" />
+                  Export
+                </Button>
+              </div>
+
+              <Separator orientation="vertical" className="h-6" />
+
+              {/* Preview Toggle */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowPreview(!showPreview)}
+                disabled={!selectedProductId}
+                className="gap-2"
+              >
+                {showPreview ? (
+                  <>
+                    <EyeOff className="h-4 w-4" />
+                    Hide Preview
+                  </>
+                ) : (
+                  <>
+                    <Eye className="h-4 w-4" />
+                    Show Preview
+                  </>
+                )}
+              </Button>
+
+              {/* Primary Action */}
+              <Button
+                size="sm"
+                onClick={saveConfiguration}
+                disabled={!selectedProductId || saving}
+                className="gap-2 ml-auto"
+              >
+                <Save className="h-4 w-4" />
+                {saving ? "Saving..." : "Save Configuration"}
+              </Button>
+            </div>
+          </div>
+        </div>
       </div>
 
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">Service Form Configuration</h1>
-          <p className="text-muted-foreground mt-1">
-            Configure dynamic forms for each service/product. Drag to reorder sections and fields.
-          </p>
-        </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleDownloadSample}
-          >
-            <FileJson className="h-4 w-4 mr-2" />
-            Download Sample
-          </Button>
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => document.getElementById('json-import')?.click()}
-            disabled={!selectedProductId}
-          >
-            <Upload className="h-4 w-4 mr-2" />
-            Import JSON
-          </Button>
-          <input
-            id="json-import"
-            type="file"
-            accept=".json"
-            className="hidden"
-            onChange={handleImportJSON}
-          />
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleExportJSON}
-            disabled={!selectedProductId}
-          >
-            <Download className="h-4 w-4 mr-2" />
-            Export JSON
-          </Button>
-          <Button
-            variant="outline"
-            onClick={() => setShowPreview(!showPreview)}
-            disabled={!selectedProductId}
-          >
-            {showPreview ? (
-              <>
-                <EyeOff className="h-4 w-4 mr-2" />
-                Hide Preview
-              </>
-            ) : (
-              <>
-                <Eye className="h-4 w-4 mr-2" />
-                Show Preview
-              </>
+      {/* Main Content */}
+      <div className="container mx-auto p-6 space-y-6">
+        <Card className="border-2">
+          <CardHeader className="bg-muted/30">
+            <CardTitle className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <FileJson className="h-4 w-4 text-primary" />
+              </div>
+              Select Product/Service
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4 pt-6">
+            <Select value={selectedProductId} onValueChange={setSelectedProductId}>
+              <SelectTrigger className="h-11 bg-background">
+                <SelectValue placeholder="Choose a product to configure..." />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                {products.map((product) => (
+                  <SelectItem key={product.id} value={product.id} className="cursor-pointer">
+                    {product.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {/* Validation Messages */}
+            {importErrors.length > 0 && (
+              <Alert variant="destructive" className="border-2">
+                <AlertTriangle className="h-4 w-4" />
+                <AlertTitle className="font-semibold">Import Validation Errors</AlertTitle>
+                <AlertDescription>
+                  <ul className="list-disc list-inside space-y-1 mt-2">
+                    {importErrors.map((error, index) => (
+                      <li key={index} className="text-sm">{error}</li>
+                    ))}
+                  </ul>
+                </AlertDescription>
+              </Alert>
             )}
-          </Button>
-          <Button onClick={saveConfiguration} disabled={saving || !selectedProductId}>
-            <Save className="h-4 w-4 mr-2" />
-            {saving ? "Saving..." : "Save Configuration"}
-          </Button>
-        </div>
-      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Select Product/Service</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <Select value={selectedProductId} onValueChange={setSelectedProductId}>
-            <SelectTrigger>
-              <SelectValue placeholder="Select a product to configure" />
-            </SelectTrigger>
-            <SelectContent>
-              {products.map((product) => (
-                <SelectItem key={product.id} value={product.id}>
-                  {product.name}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+            {importWarnings.length > 0 && (
+              <Alert className="border-2 border-yellow-500/50 bg-yellow-50 dark:bg-yellow-950/20">
+                <AlertTriangle className="h-4 w-4 text-yellow-600" />
+                <AlertTitle className="font-semibold text-yellow-900 dark:text-yellow-300">Import Warnings</AlertTitle>
+                <AlertDescription>
+                  <ul className="list-disc list-inside space-y-1 mt-2">
+                    {importWarnings.map((warning, index) => (
+                      <li key={index} className="text-sm text-yellow-800 dark:text-yellow-200">{warning}</li>
+                    ))}
+                  </ul>
+                </AlertDescription>
+              </Alert>
+            )}
 
-          {/* Validation Errors */}
-          {importErrors.length > 0 && (
-            <Alert variant="destructive">
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Import Validation Errors</AlertTitle>
-              <AlertDescription>
-                <ul className="list-disc list-inside space-y-1 mt-2">
-                  {importErrors.map((error, index) => (
-                    <li key={index} className="text-sm">{error}</li>
-                  ))}
-                </ul>
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {/* Validation Warnings */}
-          {importWarnings.length > 0 && (
-            <Alert>
-              <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Import Warnings</AlertTitle>
-              <AlertDescription>
-                <ul className="list-disc list-inside space-y-1 mt-2">
-                  {importWarnings.map((warning, index) => (
-                    <li key={index} className="text-sm text-muted-foreground">{warning}</li>
-                  ))}
-                </ul>
-              </AlertDescription>
-            </Alert>
-          )}
-
-          {/* Version Info Display */}
-          {formConfig?.metadata && (
-            <Card className="bg-muted/30">
-              <CardHeader className="pb-3">
-                <CardTitle className="text-sm font-medium">Configuration Version</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-1 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Version:</span>
-                  <span className="font-medium">{formConfig.metadata.version}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Last Modified:</span>
-                  <span>{new Date(formConfig.metadata.lastModifiedAt).toLocaleString()}</span>
-                </div>
-                {formConfig.metadata.lastModifiedBy && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Modified By:</span>
-                    <span>{formConfig.metadata.lastModifiedBy}</span>
+            {/* Version Info Display */}
+            {formConfig?.metadata && (
+              <Card className="bg-gradient-to-br from-primary/5 to-primary/10 border-primary/20">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <FileJson className="h-4 w-4 text-primary" />
+                    Configuration Version
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-2 text-sm">
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Version:</span>
+                    <span className="font-semibold text-primary">{formConfig.metadata.version}</span>
                   </div>
-                )}
-                {formConfig.metadata.versionNotes && (
-                  <div className="mt-2 pt-2 border-t">
-                    <span className="text-muted-foreground">Notes:</span>
-                    <p className="mt-1 text-xs">{formConfig.metadata.versionNotes}</p>
+                  <div className="flex justify-between items-center">
+                    <span className="text-muted-foreground">Last Modified:</span>
+                    <span className="font-medium">{new Date(formConfig.metadata.lastModifiedAt).toLocaleString()}</span>
                   </div>
-                )}
-              </CardContent>
-            </Card>
-          )}
-        </CardContent>
-      </Card>
+                  {formConfig.metadata.lastModifiedBy && (
+                    <div className="flex justify-between items-center">
+                      <span className="text-muted-foreground">Modified By:</span>
+                      <span className="font-medium">{formConfig.metadata.lastModifiedBy}</span>
+                    </div>
+                  )}
+                  {formConfig.metadata.versionNotes && (
+                    <div className="mt-3 pt-3 border-t border-primary/20">
+                      <span className="text-muted-foreground font-medium">Notes:</span>
+                      <p className="mt-1 text-xs bg-background/50 rounded p-2 border">{formConfig.metadata.versionNotes}</p>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
+          </CardContent>
+        </Card>
 
-      {selectedProductId && !loading && (
-        <>
-          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "fields" | "documents")}>
-            <TabsList className="grid w-full max-w-md grid-cols-2">
-              <TabsTrigger value="fields">Form Fields</TabsTrigger>
-              <TabsTrigger value="documents">Required Documents</TabsTrigger>
-            </TabsList>
+        {selectedProductId && !loading && (
+          <>
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "fields" | "documents")} className="space-y-6">
+              <TabsList className="grid w-full max-w-md grid-cols-2 h-11">
+                <TabsTrigger value="fields" className="gap-2">
+                  <GripVertical className="h-4 w-4" />
+                  Form Fields
+                </TabsTrigger>
+                <TabsTrigger value="documents" className="gap-2">
+                  <FileJson className="h-4 w-4" />
+                  Required Documents
+                </TabsTrigger>
+              </TabsList>
 
             <TabsContent value="fields" className="mt-6">
               <div className={showPreview ? "grid grid-cols-2 gap-6" : "space-y-4"}>
@@ -1720,31 +1810,39 @@ const ServiceFormConfiguration = () => {
       
       {/* Save as Template Dialog */}
       <Dialog open={showSaveTemplateDialog} onOpenChange={setShowSaveTemplateDialog}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-lg">
           <DialogHeader>
-            <DialogTitle>Save as Template</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Save className="h-4 w-4 text-primary" />
+              </div>
+              Save as Template
+            </DialogTitle>
             <DialogDescription>
-              Save current configuration as a reusable template
+              Save this configuration as a reusable template for future use
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <Label htmlFor="template-name">Template Name</Label>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="template-name" className="text-sm font-medium">Template Name *</Label>
               <Input
                 id="template-name"
-                placeholder="e.g., Basic Onboarding v1"
+                placeholder="e.g., Company Formation - Basic v1.0"
                 value={templateName}
                 onChange={(e) => setTemplateName(e.target.value)}
+                className="h-11"
               />
+              <p className="text-xs text-muted-foreground">Use descriptive names with version numbers</p>
             </div>
-            <div>
-              <Label htmlFor="template-description">Description</Label>
+            <div className="space-y-2">
+              <Label htmlFor="template-description" className="text-sm font-medium">Description</Label>
               <Textarea
                 id="template-description"
-                placeholder="Describe this template..."
+                placeholder="Describe when to use this template..."
                 value={templateDescription}
                 onChange={(e) => setTemplateDescription(e.target.value)}
                 rows={3}
+                className="resize-none"
               />
             </div>
           </div>
@@ -1752,47 +1850,62 @@ const ServiceFormConfiguration = () => {
             <Button variant="outline" onClick={() => setShowSaveTemplateDialog(false)}>
               Cancel
             </Button>
-            <Button onClick={handleSaveAsTemplate}>Save Template</Button>
+            <Button onClick={handleSaveAsTemplate} className="gap-2">
+              <Save className="h-4 w-4" />
+              Save Template
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
 
       {/* Load Template Dialog */}
       <Dialog open={showLoadTemplateDialog} onOpenChange={setShowLoadTemplateDialog}>
-        <DialogContent className="sm:max-w-2xl">
+        <DialogContent className="sm:max-w-3xl">
           <DialogHeader>
-            <DialogTitle>Load Template</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Upload className="h-4 w-4 text-primary" />
+              </div>
+              Load Template
+            </DialogTitle>
             <DialogDescription>
-              Choose a template to load into the form configuration
+              Choose a saved template to load into your configuration
             </DialogDescription>
           </DialogHeader>
-          <ScrollArea className="max-h-[400px]">
-            <div className="space-y-2">
+          <ScrollArea className="max-h-[500px] pr-4">
+            <div className="space-y-3">
               {templates.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">
-                  No templates available
-                </p>
+                <div className="flex flex-col items-center justify-center py-12">
+                  <FileJson className="h-12 w-12 text-muted-foreground/50 mb-3" />
+                  <p className="text-sm text-muted-foreground">No templates available yet</p>
+                  <p className="text-xs text-muted-foreground mt-1">Save your first template to get started</p>
+                </div>
               ) : (
                 templates.map((template) => (
                   <Card
                     key={template.id}
-                    className="cursor-pointer hover:bg-accent transition-colors"
+                    className="cursor-pointer hover:border-primary hover:shadow-md transition-all duration-200"
                     onClick={() => handleLoadTemplate(template)}
                   >
                     <CardContent className="p-4">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <h4 className="font-semibold">{template.name}</h4>
+                      <div className="flex items-start gap-4">
+                        <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
+                          <FileJson className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <h4 className="font-semibold text-base mb-1">{template.name}</h4>
                           {template.description && (
-                            <p className="text-sm text-muted-foreground mt-1">
+                            <p className="text-sm text-muted-foreground mb-2 line-clamp-2">
                               {template.description}
                             </p>
                           )}
-                          <p className="text-xs text-muted-foreground mt-2">
-                            Created {new Date(template.created_at).toLocaleDateString()} by{' '}
-                            {template.created_by?.name || 'Unknown'}
-                          </p>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span>Created {new Date(template.created_at).toLocaleDateString()}</span>
+                            <span>•</span>
+                            <span>by {template.created_by?.name || 'Unknown'}</span>
+                          </div>
                         </div>
+                        <Upload className="h-5 w-5 text-muted-foreground shrink-0" />
                       </div>
                     </CardContent>
                   </Card>
@@ -1810,49 +1923,70 @@ const ServiceFormConfiguration = () => {
 
       {/* Version History Dialog */}
       <Dialog open={showVersionHistoryDialog} onOpenChange={setShowVersionHistoryDialog}>
-        <DialogContent className="sm:max-w-3xl">
+        <DialogContent className="sm:max-w-4xl">
           <DialogHeader>
-            <DialogTitle>Version History</DialogTitle>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <FileJson className="h-4 w-4 text-primary" />
+              </div>
+              Version History
+            </DialogTitle>
             <DialogDescription>
               View and restore previous versions of this configuration
             </DialogDescription>
           </DialogHeader>
-          <ScrollArea className="max-h-[500px]">
-            <div className="space-y-2">
+          <ScrollArea className="max-h-[600px] pr-4">
+            <div className="space-y-3">
               {versions.length === 0 ? (
-                <p className="text-sm text-muted-foreground text-center py-8">
-                  No version history available
-                </p>
+                <div className="flex flex-col items-center justify-center py-12">
+                  <FileJson className="h-12 w-12 text-muted-foreground/50 mb-3" />
+                  <p className="text-sm text-muted-foreground">No version history yet</p>
+                  <p className="text-xs text-muted-foreground mt-1">Versions are created automatically when you save</p>
+                </div>
               ) : (
-                versions.map((version) => (
-                  <Card key={version.id}>
+                versions.map((version, index) => (
+                  <Card key={version.id} className={version.version_number === versions[0].version_number ? "border-primary" : ""}>
                     <CardContent className="p-4">
-                      <div className="flex justify-between items-start">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
+                      <div className="flex items-start gap-4">
+                        <div className={`h-10 w-10 rounded-lg flex items-center justify-center shrink-0 font-bold text-sm ${
+                          version.version_number === versions[0].version_number 
+                            ? "bg-primary text-primary-foreground" 
+                            : "bg-muted text-muted-foreground"
+                        }`}>
+                          v{version.version_number}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-1">
                             <span className="font-semibold">Version {version.version_number}</span>
                             {version.version_number === versions[0].version_number && (
-                              <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded">
+                              <span className="text-xs bg-primary text-primary-foreground px-2 py-0.5 rounded-full">
                                 Current
                               </span>
                             )}
                           </div>
-                          {version.change_notes && (
-                            <p className="text-sm text-muted-foreground mt-1">
+                          {version.change_notes ? (
+                            <p className="text-sm mb-2 bg-muted/50 rounded p-2 border">
                               {version.change_notes}
                             </p>
+                          ) : (
+                            <p className="text-sm text-muted-foreground italic mb-2">
+                              No version notes provided
+                            </p>
                           )}
-                          <p className="text-xs text-muted-foreground mt-2">
-                            {new Date(version.created_at).toLocaleString()} by{' '}
-                            {version.changed_by?.name || 'Unknown'}
-                          </p>
+                          <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                            <span>{new Date(version.created_at).toLocaleString()}</span>
+                            <span>•</span>
+                            <span>by {version.changed_by?.name || 'Unknown'}</span>
+                          </div>
                         </div>
                         {version.version_number !== versions[0].version_number && (
                           <Button
                             size="sm"
                             variant="outline"
                             onClick={() => handleRestoreVersion(version)}
+                            className="gap-2 shrink-0"
                           >
+                            <Upload className="h-4 w-4" />
                             Restore
                           </Button>
                         )}
@@ -1863,7 +1997,10 @@ const ServiceFormConfiguration = () => {
               )}
             </div>
           </ScrollArea>
-          <DialogFooter>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <p className="text-xs text-muted-foreground flex-1">
+              {versions.length} version{versions.length !== 1 ? 's' : ''} total
+            </p>
             <Button variant="outline" onClick={() => setShowVersionHistoryDialog(false)}>
               Close
             </Button>
@@ -1871,24 +2008,31 @@ const ServiceFormConfiguration = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Change Notes Input (above Save button) */}
-      {selectedProductId && (
-        <Card className="mt-4">
-          <CardContent className="pt-4">
-            <Label htmlFor="change-notes" className="text-sm">
-              Version Notes (optional)
-            </Label>
-            <Textarea
-              id="change-notes"
-              placeholder="Describe the changes you're making..."
-              value={changeNotes}
-              onChange={(e) => setChangeNotes(e.target.value)}
-              rows={2}
-              className="mt-2"
-            />
-          </CardContent>
-        </Card>
-      )}
+        {/* Change Notes Input */}
+        {selectedProductId && (
+          <Card className="border-2 border-dashed">
+            <CardHeader className="pb-3">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <FileJson className="h-4 w-4" />
+                Version Notes (Optional)
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <Textarea
+                id="change-notes"
+                placeholder="Describe the changes you're making (e.g., 'Added email validation', 'Updated document requirements')..."
+                value={changeNotes}
+                onChange={(e) => setChangeNotes(e.target.value)}
+                rows={3}
+                className="resize-none"
+              />
+              <p className="text-xs text-muted-foreground mt-2">
+                These notes will be saved with the next version when you click "Save Configuration"
+              </p>
+            </CardContent>
+          </Card>
+        )}
+      </div>
     </div>
   );
 };
