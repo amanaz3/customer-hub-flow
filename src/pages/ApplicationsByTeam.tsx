@@ -16,7 +16,9 @@ import {
   Lightbulb,
   ArrowRight,
   BarChart3,
-  Calendar
+  Calendar,
+  Mail,
+  MessageSquare
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -110,7 +112,50 @@ const ApplicationsByTeam = () => {
   const [filterPeriod, setFilterPeriod] = useState<'last30days' | 'last60days' | 'last90days' | 'custom'>('last60days');
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all');
+  const [sendingEmail, setSendingEmail] = useState(false);
+  const [applicationComments, setApplicationComments] = useState<Record<string, Array<{
+    comment: string;
+    created_at: string;
+    previous_status: string;
+    new_status: string;
+  }>>>({});
   const navigate = useNavigate();
+
+  const fetchCommentsForApplications = async (applicationIds: string[]) => {
+    try {
+      const { data, error } = await supabase
+        .from('application_status_changes')
+        .select('application_id, comment, created_at, previous_status, new_status')
+        .in('application_id', applicationIds)
+        .not('comment', 'is', null)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      const commentsByApp: Record<string, Array<{
+        comment: string;
+        created_at: string;
+        previous_status: string;
+        new_status: string;
+      }>> = {};
+
+      data?.forEach(item => {
+        if (!commentsByApp[item.application_id]) {
+          commentsByApp[item.application_id] = [];
+        }
+        commentsByApp[item.application_id].push({
+          comment: item.comment!,
+          created_at: item.created_at,
+          previous_status: item.previous_status,
+          new_status: item.new_status,
+        });
+      });
+
+      setApplicationComments(commentsByApp);
+    } catch (error) {
+      console.error('Error fetching comments:', error);
+    }
+  };
 
   const fetchApplicationsByTeam = async () => {
     try {
@@ -255,6 +300,12 @@ const ApplicationsByTeam = () => {
       const statsArray = Object.values(grouped || {}).sort((a, b) => b.count - a.count);
       setTeamStats(statsArray);
 
+      // Fetch comments for all applications
+      const allAppIds = statsArray.flatMap(team => team.applications.map(app => app.id));
+      if (allAppIds.length > 0) {
+        await fetchCommentsForApplications(allAppIds);
+      }
+
       // Set first team member as selected
       if (statsArray.length > 0 && !selectedUserId) {
         setSelectedUserId(statsArray[0].user.id);
@@ -264,6 +315,58 @@ const ApplicationsByTeam = () => {
       toast.error('Failed to load applications');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const sendEmailReport = async (teamMember: TeamStats) => {
+    if (!aiInsights) {
+      toast.error('Please load AI insights first before sending report');
+      return;
+    }
+
+    setSendingEmail(true);
+    try {
+      const stuckApps = teamMember.applications.filter(app => {
+        const daysSinceUpdate = Math.floor(
+          (Date.now() - new Date(app.updated_at).getTime()) / (1000 * 60 * 60 * 24)
+        );
+        return daysSinceUpdate > 7 && !['completed', 'rejected', 'paid'].includes(app.status);
+      });
+
+      // Gather comments for this team member's applications
+      const comments = teamMember.applications
+        .filter(app => applicationComments[app.id] && applicationComments[app.id].length > 0)
+        .flatMap(app => 
+          applicationComments[app.id].slice(0, 2).map(comment => ({
+            applicationRef: app.reference_number,
+            comment: comment.comment,
+            date: comment.created_at,
+            status: `${comment.previous_status} → ${comment.new_status}`
+          }))
+        )
+        .slice(0, 10); // Limit to 10 most recent
+
+      const { data, error } = await supabase.functions.invoke('send-team-member-report', {
+        body: {
+          teamMemberName: teamMember.user.name,
+          teamMemberEmail: teamMember.user.email,
+          applications: teamMember.applications,
+          stuckApps,
+          aiSummary: aiInsights.summary,
+          blockers: aiInsights.blockers,
+          immediateActions: aiInsights.immediateActions,
+          comments
+        }
+      });
+
+      if (error) throw error;
+
+      toast.success(`Report sent successfully to ${teamMember.user.email}`);
+    } catch (error: any) {
+      console.error('Error sending email report:', error);
+      toast.error(`Failed to send report: ${error.message || 'Unknown error'}`);
+    } finally {
+      setSendingEmail(false);
     }
   };
 
@@ -569,11 +672,22 @@ const ApplicationsByTeam = () => {
                   </CardDescription>
                 </div>
               </div>
+              {selectedTeamData.user.id !== 'unassigned' && aiInsights && (
+                <Button
+                  onClick={() => sendEmailReport(selectedTeamData)}
+                  disabled={sendingEmail}
+                  variant="outline"
+                  size="sm"
+                >
+                  <Mail className="h-4 w-4 mr-2" />
+                  {sendingEmail ? 'Sending...' : 'Email Report'}
+                </Button>
+              )}
             </div>
           </CardHeader>
           <CardContent>
             <Tabs defaultValue="applications" className="w-full">
-              <TabsList className="grid w-full grid-cols-3">
+              <TabsList className="grid w-full grid-cols-4">
                 <TabsTrigger value="applications">
                   <FileText className="h-4 w-4 mr-2" />
                   Applications
@@ -581,6 +695,10 @@ const ApplicationsByTeam = () => {
                 <TabsTrigger value="insights">
                   <Lightbulb className="h-4 w-4 mr-2" />
                   AI Insights
+                </TabsTrigger>
+                <TabsTrigger value="comments">
+                  <MessageSquare className="h-4 w-4 mr-2" />
+                  Comments
                 </TabsTrigger>
                 <TabsTrigger value="metrics">
                   <BarChart3 className="h-4 w-4 mr-2" />
@@ -696,6 +814,88 @@ const ApplicationsByTeam = () => {
                     Select a team member to view AI insights
                   </div>
                 )}
+              </TabsContent>
+
+              <TabsContent value="comments" className="mt-4">
+                <ScrollArea className="h-[600px] pr-4">
+                  <div className="space-y-4">
+                    {selectedTeamData.applications
+                      .filter(app => applicationComments[app.id] && applicationComments[app.id].length > 0)
+                      .map(app => {
+                        const comments = applicationComments[app.id];
+                        const daysStuck = Math.floor(
+                          (Date.now() - new Date(app.updated_at).getTime()) / (1000 * 60 * 60 * 24)
+                        );
+                        const isStuck = daysStuck > 7 && !['completed', 'rejected', 'paid'].includes(app.status);
+
+                        return (
+                          <Card key={app.id} className={isStuck ? 'border-red-200 bg-red-50/50' : ''}>
+                            <CardHeader>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <CardTitle className="text-base">
+                                    Application #{app.reference_number}
+                                  </CardTitle>
+                                  {getStatusBadge(app.status)}
+                                  {isStuck && (
+                                    <Badge variant="destructive" className="gap-1">
+                                      <AlertTriangle className="h-3 w-3" />
+                                      Stuck {daysStuck}d
+                                    </Badge>
+                                  )}
+                                </div>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => navigate(`/application/${app.id}`)}
+                                >
+                                  View Details
+                                </Button>
+                              </div>
+                              <CardDescription>
+                                {app.customer?.name} - {app.customer?.company}
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-3">
+                                <p className="text-sm font-medium text-muted-foreground">Status Change History:</p>
+                                {comments.map((comment, idx) => (
+                                  <div
+                                    key={idx}
+                                    className="border-l-4 border-purple-500 pl-4 py-2 bg-purple-50/50 rounded-r"
+                                  >
+                                    <div className="flex items-center gap-2 mb-2">
+                                      <Badge variant="outline" className="font-mono text-xs">
+                                        {comment.previous_status} → {comment.new_status}
+                                      </Badge>
+                                      <span className="text-xs text-muted-foreground">
+                                        {new Date(comment.created_at).toLocaleDateString('en-US', {
+                                          month: 'short',
+                                          day: 'numeric',
+                                          year: 'numeric',
+                                          hour: '2-digit',
+                                          minute: '2-digit',
+                                        })}
+                                      </span>
+                                    </div>
+                                    <p className="text-sm">{comment.comment}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })}
+                    {selectedTeamData.applications.filter(
+                      app => applicationComments[app.id] && applicationComments[app.id].length > 0
+                    ).length === 0 && (
+                      <div className="text-center py-12 text-muted-foreground">
+                        <MessageSquare className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p>No status change comments found for this team member's applications.</p>
+                      </div>
+                    )}
+                  </div>
+                </ScrollArea>
               </TabsContent>
 
               <TabsContent value="metrics" className="mt-4">
