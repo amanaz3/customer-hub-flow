@@ -107,7 +107,7 @@ const ApplicationsByTeam = () => {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [aiInsights, setAiInsights] = useState<AIInsights | null>(null);
   const [loadingInsights, setLoadingInsights] = useState(false);
-  const [filterPeriod, setFilterPeriod] = useState<'last30days' | 'custom'>('last30days');
+  const [filterPeriod, setFilterPeriod] = useState<'last30days' | 'last60days' | 'last90days' | 'custom'>('last60days');
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all');
   const navigate = useNavigate();
@@ -145,6 +145,14 @@ const ApplicationsByTeam = () => {
         const thirtyDaysAgo = new Date();
         thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
         query = query.gte('created_at', thirtyDaysAgo.toISOString());
+      } else if (filterPeriod === 'last60days') {
+        const sixtyDaysAgo = new Date();
+        sixtyDaysAgo.setDate(sixtyDaysAgo.getDate() - 60);
+        query = query.gte('created_at', sixtyDaysAgo.toISOString());
+      } else if (filterPeriod === 'last90days') {
+        const ninetyDaysAgo = new Date();
+        ninetyDaysAgo.setDate(ninetyDaysAgo.getDate() - 90);
+        query = query.gte('created_at', ninetyDaysAgo.toISOString());
       } else {
         // Apply year filter
         const startOfYear = new Date(selectedYear, 0, 1).toISOString();
@@ -416,13 +424,15 @@ const ApplicationsByTeam = () => {
             </div>
             <Select
               value={filterPeriod}
-              onValueChange={(value: 'last30days' | 'custom') => setFilterPeriod(value)}
+              onValueChange={(value: 'last30days' | 'last60days' | 'last90days' | 'custom') => setFilterPeriod(value)}
             >
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="last30days">Last 30 Days</SelectItem>
+                <SelectItem value="last60days">Last 60 Days</SelectItem>
+                <SelectItem value="last90days">Last 90 Days</SelectItem>
                 <SelectItem value="custom">Custom Period</SelectItem>
               </SelectContent>
             </Select>
