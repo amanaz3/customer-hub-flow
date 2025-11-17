@@ -10,13 +10,27 @@ import {
   Clock, 
   User,
   RefreshCw,
-  Users
+  Users,
+  AlertTriangle,
+  TrendingUp,
+  Lightbulb,
+  ArrowRight,
+  BarChart3
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 type ApplicationStatus = 'draft' | 'submitted' | 'returned' | 'paid' | 'completed' | 'rejected' | 'under_review' | 'approved' | 'need more info';
+
+interface StatusChange {
+  previous_status: string;
+  new_status: string;
+  created_at: string;
+  changed_by_role: string;
+}
 
 interface Application {
   id: string;
@@ -30,6 +44,31 @@ interface Application {
     company: string;
     email: string;
   } | null;
+  statusChanges?: StatusChange[];
+}
+
+interface AIInsights {
+  summary: string;
+  performanceLevel: 'excellent' | 'good' | 'needs_improvement' | 'at_risk';
+  immediateActions: Array<{
+    action: string;
+    priority: 'high' | 'medium' | 'low';
+    reason: string;
+  }>;
+  blockers: Array<{
+    blocker: string;
+    affectedApps: number[];
+    recommendation: string;
+  }>;
+  collaborationOpportunities?: string[];
+  individualGuidance?: string;
+  metrics: {
+    totalApps: number;
+    recentApps: number;
+    stuckApps: number;
+    bouncingApps: number;
+    statusDistribution: Record<string, number>;
+  };
 }
 
 interface TeamMember {
@@ -61,6 +100,8 @@ const ApplicationsByTeam = () => {
   const [teamStats, setTeamStats] = useState<TeamStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
+  const [aiInsights, setAiInsights] = useState<AIInsights | null>(null);
+  const [loadingInsights, setLoadingInsights] = useState(false);
   const navigate = useNavigate();
 
   const fetchApplicationsByTeam = async () => {
@@ -94,8 +135,22 @@ const ApplicationsByTeam = () => {
 
       if (appsError) throw appsError;
 
+      // Fetch status changes for all applications
+      const appIds = applications?.map(app => app.id) || [];
+      const { data: statusChanges } = await supabase
+        .from('application_status_changes')
+        .select('application_id, previous_status, new_status, created_at, changed_by_role')
+        .in('application_id', appIds)
+        .order('created_at', { ascending: true });
+
+      // Map status changes to applications
+      const appsWithHistory = applications?.map(app => ({
+        ...app,
+        statusChanges: statusChanges?.filter(sc => sc.application_id === app.id) || []
+      }));
+
       // Group applications by user
-      const grouped = applications?.reduce((acc, app) => {
+      const grouped = appsWithHistory?.reduce((acc, app) => {
         const userId = app.customer?.user_id;
         const user = app.customer?.user;
         
@@ -125,7 +180,8 @@ const ApplicationsByTeam = () => {
               name: app.customer.name,
               company: app.customer.company,
               email: app.customer.email
-            } : null
+            } : null,
+            statusChanges: app.statusChanges
           });
         } else {
           if (!acc[userId]) {
@@ -152,7 +208,8 @@ const ApplicationsByTeam = () => {
               name: app.customer.name,
               company: app.customer.company,
               email: app.customer.email
-            } : null
+            } : null,
+            statusChanges: app.statusChanges
           });
         }
         return acc;
@@ -174,9 +231,47 @@ const ApplicationsByTeam = () => {
     }
   };
 
+  const fetchAIInsights = async (teamMember: TeamStats) => {
+    if (teamMember.user.id === 'unassigned') return;
+    
+    setLoadingInsights(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-team-performance', {
+        body: {
+          teamData: {
+            id: teamMember.user.id,
+            name: teamMember.user.name,
+            email: teamMember.user.email,
+            applicationCount: teamMember.count,
+            applications: teamMember.applications
+          },
+          period: 'current',
+          periodType: 'monthly'
+        }
+      });
+
+      if (error) throw error;
+      setAiInsights(data);
+    } catch (error: any) {
+      console.error('Error fetching AI insights:', error);
+      toast.error('Failed to load AI insights');
+    } finally {
+      setLoadingInsights(false);
+    }
+  };
+
   useEffect(() => {
     fetchApplicationsByTeam();
   }, []);
+
+  useEffect(() => {
+    if (selectedUserId) {
+      const teamMember = teamStats.find(t => t.user.id === selectedUserId);
+      if (teamMember) {
+        fetchAIInsights(teamMember);
+      }
+    }
+  }, [selectedUserId]);
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('en-US', {
@@ -222,6 +317,34 @@ const ApplicationsByTeam = () => {
   }
 
   const selectedTeamData = teamStats.find(t => t.user.id === selectedUserId);
+
+  const getPerformanceBadge = (level: string) => {
+    switch (level) {
+      case 'excellent':
+        return <Badge className="bg-green-500">Excellent</Badge>;
+      case 'good':
+        return <Badge className="bg-blue-500">Good</Badge>;
+      case 'needs_improvement':
+        return <Badge className="bg-yellow-500">Needs Improvement</Badge>;
+      case 'at_risk':
+        return <Badge className="bg-red-500">At Risk</Badge>;
+      default:
+        return null;
+    }
+  };
+
+  const getPriorityBadge = (priority: string) => {
+    switch (priority) {
+      case 'high':
+        return <Badge variant="destructive">High</Badge>;
+      case 'medium':
+        return <Badge className="bg-orange-500">Medium</Badge>;
+      case 'low':
+        return <Badge variant="secondary">Low</Badge>;
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -278,7 +401,7 @@ const ApplicationsByTeam = () => {
         })}
       </div>
 
-      {/* Selected Team Member's Applications */}
+      {/* Selected Team Member's Applications with AI Insights */}
       {selectedTeamData && (
         <Card>
           <CardHeader>
@@ -294,7 +417,10 @@ const ApplicationsByTeam = () => {
                   </AvatarFallback>
                 </Avatar>
                 <div>
-                  <CardTitle>{selectedTeamData.user.name}</CardTitle>
+                  <CardTitle className="flex items-center gap-2">
+                    {selectedTeamData.user.name}
+                    {aiInsights && getPerformanceBadge(aiInsights.performanceLevel)}
+                  </CardTitle>
                   <CardDescription>
                     {selectedTeamData.count} application{selectedTeamData.count !== 1 ? 's' : ''}
                     {selectedTeamData.user.email && ` • ${selectedTeamData.user.email}`}
@@ -304,55 +430,275 @@ const ApplicationsByTeam = () => {
             </div>
           </CardHeader>
           <CardContent>
-            <ScrollArea className="h-[600px] pr-4">
-              <div className="space-y-3">
-                {selectedTeamData.applications.length === 0 ? (
-                  <div className="text-center py-12 text-muted-foreground">
-                    No applications found
+            <Tabs defaultValue="applications" className="w-full">
+              <TabsList className="grid w-full grid-cols-3">
+                <TabsTrigger value="applications">
+                  <FileText className="h-4 w-4 mr-2" />
+                  Applications
+                </TabsTrigger>
+                <TabsTrigger value="insights">
+                  <Lightbulb className="h-4 w-4 mr-2" />
+                  AI Insights
+                </TabsTrigger>
+                <TabsTrigger value="metrics">
+                  <BarChart3 className="h-4 w-4 mr-2" />
+                  Metrics
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="applications" className="mt-4">
+                <ScrollArea className="h-[600px] pr-4">
+                  <div className="space-y-3">
+                    {selectedTeamData.applications.length === 0 ? (
+                      <div className="text-center py-12 text-muted-foreground">
+                        No applications found
+                      </div>
+                    ) : (
+                      selectedTeamData.applications.map((app) => {
+                        const daysSinceUpdate = Math.floor((Date.now() - new Date(app.updated_at).getTime()) / (1000 * 60 * 60 * 24));
+                        const isStuck = daysSinceUpdate > 7 && !['completed', 'rejected', 'paid'].includes(app.status);
+                        const hasBounced = app.statusChanges && app.statusChanges.length >= 3;
+
+                        return (
+                          <Card
+                            key={app.id}
+                            className="cursor-pointer hover:shadow-md transition-shadow"
+                            onClick={() => navigate(`/applications/${app.id}`)}
+                          >
+                            <CardContent className="pt-6">
+                              <div className="space-y-3">
+                                <div className="flex items-start justify-between">
+                                  <div className="space-y-2 flex-1">
+                                    <div className="flex items-center gap-2 flex-wrap">
+                                      <Badge variant="outline" className="font-mono">
+                                        #{app.reference_number}
+                                      </Badge>
+                                      {getStatusBadge(app.status)}
+                                      {isStuck && (
+                                        <Badge variant="destructive" className="gap-1">
+                                          <AlertTriangle className="h-3 w-3" />
+                                          Stuck ({daysSinceUpdate}d)
+                                        </Badge>
+                                      )}
+                                      {hasBounced && (
+                                        <Badge className="bg-orange-500 gap-1">
+                                          <RefreshCw className="h-3 w-3" />
+                                          Multiple Changes
+                                        </Badge>
+                                      )}
+                                    </div>
+                                    <div>
+                                      <p className="font-semibold">
+                                        {app.customer?.name || 'Unknown Customer'}
+                                      </p>
+                                      <p className="text-sm text-muted-foreground">
+                                        {app.customer?.company}
+                                      </p>
+                                    </div>
+                                    {app.application_type && (
+                                      <p className="text-sm text-muted-foreground">
+                                        Type: {app.application_type}
+                                      </p>
+                                    )}
+                                  </div>
+                                  <div className="text-right text-sm text-muted-foreground">
+                                    <div className="flex items-center gap-1">
+                                      <Clock className="h-3 w-3" />
+                                      {formatDate(app.created_at)}
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {app.statusChanges && app.statusChanges.length > 0 && (
+                                  <div className="border-t pt-3">
+                                    <p className="text-xs font-semibold mb-2">Recent Status Changes:</p>
+                                    <div className="space-y-1">
+                                      {app.statusChanges.slice(-3).map((change, idx) => (
+                                        <div key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
+                                          <ArrowRight className="h-3 w-3" />
+                                          <span className="capitalize">{change.previous_status}</span>
+                                          <span>→</span>
+                                          <span className="capitalize font-medium">{change.new_status}</span>
+                                          <span className="text-[10px]">
+                                            ({formatDate(change.created_at)})
+                                          </span>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        );
+                      })
+                    )}
                   </div>
+                </ScrollArea>
+              </TabsContent>
+
+              <TabsContent value="insights" className="mt-4">
+                {loadingInsights ? (
+                  <div className="space-y-4">
+                    <Skeleton className="h-20 w-full" />
+                    <Skeleton className="h-32 w-full" />
+                    <Skeleton className="h-32 w-full" />
+                  </div>
+                ) : aiInsights ? (
+                  <ScrollArea className="h-[600px] pr-4">
+                    <div className="space-y-6">
+                      {/* Summary */}
+                      <Alert>
+                        <TrendingUp className="h-4 w-4" />
+                        <AlertDescription>{aiInsights.summary}</AlertDescription>
+                      </Alert>
+
+                      {/* Immediate Actions */}
+                      {aiInsights.immediateActions.length > 0 && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="text-lg">Immediate Actions</CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-3">
+                            {aiInsights.immediateActions.map((action, idx) => (
+                              <div key={idx} className="border-l-4 border-primary pl-4 py-2">
+                                <div className="flex items-center justify-between mb-1">
+                                  <p className="font-semibold">{action.action}</p>
+                                  {getPriorityBadge(action.priority)}
+                                </div>
+                                <p className="text-sm text-muted-foreground">{action.reason}</p>
+                              </div>
+                            ))}
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {/* Blockers */}
+                      {aiInsights.blockers.length > 0 && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="text-lg flex items-center gap-2">
+                              <AlertTriangle className="h-5 w-5 text-red-500" />
+                              Identified Blockers
+                            </CardTitle>
+                          </CardHeader>
+                          <CardContent className="space-y-4">
+                            {aiInsights.blockers.map((blocker, idx) => (
+                              <div key={idx} className="space-y-2">
+                                <p className="font-semibold">{blocker.blocker}</p>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-sm text-muted-foreground">Affected:</span>
+                                  {blocker.affectedApps.map(appRef => (
+                                    <Badge key={appRef} variant="outline" className="font-mono">
+                                      #{appRef}
+                                    </Badge>
+                                  ))}
+                                </div>
+                                <Alert>
+                                  <Lightbulb className="h-4 w-4" />
+                                  <AlertDescription>{blocker.recommendation}</AlertDescription>
+                                </Alert>
+                              </div>
+                            ))}
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {/* Collaboration Opportunities */}
+                      {aiInsights.collaborationOpportunities && aiInsights.collaborationOpportunities.length > 0 && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="text-lg">Collaboration Opportunities</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <ul className="space-y-2">
+                              {aiInsights.collaborationOpportunities.map((opp, idx) => (
+                                <li key={idx} className="flex items-start gap-2">
+                                  <ArrowRight className="h-4 w-4 mt-0.5 text-primary flex-shrink-0" />
+                                  <span className="text-sm">{opp}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </CardContent>
+                        </Card>
+                      )}
+
+                      {/* Individual Guidance */}
+                      {aiInsights.individualGuidance && (
+                        <Card>
+                          <CardHeader>
+                            <CardTitle className="text-lg">Personalized Guidance</CardTitle>
+                          </CardHeader>
+                          <CardContent>
+                            <p className="text-sm">{aiInsights.individualGuidance}</p>
+                          </CardContent>
+                        </Card>
+                      )}
+                    </div>
+                  </ScrollArea>
                 ) : (
-                  selectedTeamData.applications.map((app) => (
-                    <Card
-                      key={app.id}
-                      className="cursor-pointer hover:shadow-md transition-shadow"
-                      onClick={() => navigate(`/applications/${app.id}`)}
-                    >
-                      <CardContent className="pt-6">
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-2 flex-1">
-                            <div className="flex items-center gap-3">
-                              <Badge variant="outline" className="font-mono">
-                                #{app.reference_number}
-                              </Badge>
-                              {getStatusBadge(app.status)}
+                  <div className="text-center py-12 text-muted-foreground">
+                    Select a team member to view AI insights
+                  </div>
+                )}
+              </TabsContent>
+
+              <TabsContent value="metrics" className="mt-4">
+                {aiInsights?.metrics ? (
+                  <div className="space-y-6">
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-2xl font-bold">{aiInsights.metrics.totalApps}</div>
+                          <p className="text-sm text-muted-foreground">Total Applications</p>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-2xl font-bold">{aiInsights.metrics.recentApps}</div>
+                          <p className="text-sm text-muted-foreground">Recent (30d)</p>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-2xl font-bold text-red-500">{aiInsights.metrics.stuckApps}</div>
+                          <p className="text-sm text-muted-foreground">Stuck Apps</p>
+                        </CardContent>
+                      </Card>
+                      <Card>
+                        <CardContent className="pt-6">
+                          <div className="text-2xl font-bold text-orange-500">{aiInsights.metrics.bouncingApps}</div>
+                          <p className="text-sm text-muted-foreground">Status Reversals</p>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Status Distribution</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="space-y-3">
+                          {Object.entries(aiInsights.metrics.statusDistribution).map(([status, count]) => (
+                            <div key={status} className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                {getStatusBadge(status as ApplicationStatus)}
+                                <span className="text-sm capitalize">{status}</span>
+                              </div>
+                              <span className="font-semibold">{count}</span>
                             </div>
-                            <div>
-                              <p className="font-semibold">
-                                {app.customer?.name || 'Unknown Customer'}
-                              </p>
-                              <p className="text-sm text-muted-foreground">
-                                {app.customer?.company}
-                              </p>
-                            </div>
-                            {app.application_type && (
-                              <p className="text-sm text-muted-foreground">
-                                Type: {app.application_type}
-                              </p>
-                            )}
-                          </div>
-                          <div className="text-right text-sm text-muted-foreground">
-                            <div className="flex items-center gap-1">
-                              <Clock className="h-3 w-3" />
-                              {formatDate(app.created_at)}
-                            </div>
-                          </div>
+                          ))}
                         </div>
                       </CardContent>
                     </Card>
-                  ))
+                  </div>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    Select a team member to view metrics
+                  </div>
                 )}
-              </div>
-            </ScrollArea>
+              </TabsContent>
+            </Tabs>
           </CardContent>
         </Card>
       )}
