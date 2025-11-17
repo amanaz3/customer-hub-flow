@@ -51,6 +51,7 @@ import Messages from '@/pages/Messages';
 import ApplicationsByStage from '@/pages/ApplicationsByStage';
 import ApplicationsByTeam from '@/pages/ApplicationsByTeam';
 import LegacyApplicationsView from '@/pages/LegacyApplicationsView';
+import Tracker from '@/pages/Tracker';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -280,6 +281,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Legacy Applications">
                           <LegacyApplicationsView />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/tracker" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Tracker">
+                          <Tracker />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>

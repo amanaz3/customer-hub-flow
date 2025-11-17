@@ -97,6 +97,12 @@ const Sidebar: React.FC = () => {
       roles: ['admin'],
     },
     {
+      name: 'Tracker',
+      path: '/tracker',
+      icon: <Activity className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
       name: 'New Application',
       path: '/applications/new',
       icon: <UserPlus className="h-5 w-5" />,
