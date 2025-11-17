@@ -49,6 +49,7 @@ import CustomerServicesManagement from '@/pages/CustomerServicesManagement';
 import ServiceFormConfiguration from '@/pages/ServiceFormConfiguration';
 import Messages from '@/pages/Messages';
 import ApplicationsByStage from '@/pages/ApplicationsByStage';
+import ApplicationsByTeam from '@/pages/ApplicationsByTeam';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -258,6 +259,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Applications by Stage">
                           <ApplicationsByStage />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/applications-by-team" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Applications by Team">
+                          <ApplicationsByTeam />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>

@@ -31,7 +31,8 @@ import {
   Wrench,
   Layout,
   ListChecks,
-  Layers
+  Layers,
+  UserCheck
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -82,6 +83,12 @@ const Sidebar: React.FC = () => {
       path: '/applications-by-stage',
       icon: <Layers className="h-5 w-5" />,
       roles: ['admin', 'user'],
+    },
+    {
+      name: 'By Team',
+      path: '/applications-by-team',
+      icon: <UserCheck className="h-5 w-5" />,
+      roles: ['admin'],
     },
     {
       name: 'New Application',
@@ -159,7 +166,7 @@ const Sidebar: React.FC = () => {
 
   const isActiveRoute = (path: string) => {
     // Exact match for most routes
-    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/dashboard' || path === '/analytics' || path === '/targets' || path === '/team' || path === '/manage' || path === '/applications-by-stage') {
+    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/dashboard' || path === '/analytics' || path === '/targets' || path === '/team' || path === '/manage' || path === '/applications-by-stage' || path === '/applications-by-team') {
       return location.pathname === path || location.pathname.startsWith(path + '/');
     }
     
