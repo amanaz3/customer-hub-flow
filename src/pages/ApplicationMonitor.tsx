@@ -9,6 +9,7 @@ import { AlertCircle, Clock, TrendingUp, Bell, Activity } from "lucide-react";
 import { format } from "date-fns";
 import { useRealtimeSubscription } from "@/hooks/useRealtimeSubscription";
 import { toast } from "sonner";
+import { MonitorAIInsights } from "@/components/Dashboard/MonitorAIInsights";
 
 interface ApplicationActivity {
   id: string;
@@ -215,6 +216,9 @@ export default function ApplicationMonitor() {
             </CardContent>
           </Card>
         </div>
+
+        {/* AI Insights */}
+        <MonitorAIInsights />
 
         <div className="grid gap-6 lg:grid-cols-2">
           {/* Live Activity Feed */}
