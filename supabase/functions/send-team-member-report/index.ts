@@ -209,6 +209,15 @@ const handler = async (req: Request): Promise<Response> => {
     });
 
     if (emailResponse.error) {
+      console.error('Resend API error:', emailResponse.error);
+      
+      // Check if it's a domain verification error
+      if (emailResponse.error.message && emailResponse.error.message.includes('verify a domain')) {
+        throw new Error(
+          'Email sending is limited to verified domains. Please verify your domain at resend.com/domains and update the "from" address in the edge function to use your verified domain.'
+        );
+      }
+      
       throw emailResponse.error;
     }
 
