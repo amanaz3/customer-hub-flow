@@ -86,3 +86,6 @@ verify_jwt = true
 
 [functions.analyze-team-performance]
 verify_jwt = true
+
+[functions.analyze-application-pipeline]
+verify_jwt = true

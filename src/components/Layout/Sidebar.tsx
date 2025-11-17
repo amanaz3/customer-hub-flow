@@ -130,6 +130,12 @@ const Sidebar: React.FC = () => {
       roles: ['admin'],
     },
     {
+      name: 'App Pipeline',
+      path: '/application-pipeline',
+      icon: <TrendingUp className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
       name: 'Track Tasks',
       path: '/team',
       icon: <ListChecks className="h-5 w-5" />,
