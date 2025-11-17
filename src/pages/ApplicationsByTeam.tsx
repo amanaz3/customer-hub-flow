@@ -232,7 +232,16 @@ const ApplicationsByTeam = () => {
   };
 
   const fetchAIInsights = async (teamMember: TeamStats) => {
-    if (teamMember.user.id === 'unassigned') return;
+    if (teamMember.user.id === 'unassigned') {
+      console.log('Skipping AI insights for unassigned');
+      return;
+    }
+    
+    console.log('Fetching AI insights for team member:', {
+      id: teamMember.user.id,
+      name: teamMember.user.name,
+      applicationCount: teamMember.count
+    });
     
     setLoadingInsights(true);
     try {
@@ -250,11 +259,18 @@ const ApplicationsByTeam = () => {
         }
       });
 
-      if (error) throw error;
+      console.log('AI insights response:', { data, error });
+
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+      
       setAiInsights(data);
+      console.log('AI insights set successfully');
     } catch (error: any) {
       console.error('Error fetching AI insights:', error);
-      toast.error('Failed to load AI insights');
+      toast.error(`Failed to load AI insights: ${error.message || 'Unknown error'}`);
     } finally {
       setLoadingInsights(false);
     }
@@ -265,13 +281,14 @@ const ApplicationsByTeam = () => {
   }, []);
 
   useEffect(() => {
-    if (selectedUserId) {
+    if (selectedUserId && teamStats.length > 0) {
       const teamMember = teamStats.find(t => t.user.id === selectedUserId);
       if (teamMember) {
+        console.log('Fetching AI insights for:', teamMember.user.name);
         fetchAIInsights(teamMember);
       }
     }
-  }, [selectedUserId]);
+  }, [selectedUserId, teamStats]);
 
   const formatDate = (date: string) => {
     return new Date(date).toLocaleDateString('en-US', {
