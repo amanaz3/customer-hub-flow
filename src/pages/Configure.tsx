@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Package, Shield } from "lucide-react";
+import { Users, MessageSquare, Package, Shield, Wrench, BookOpen } from "lucide-react";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -96,6 +96,50 @@ const Manage = () => {
           <CardContent>
             <p className="text-sm text-muted-foreground">
               Manage email and in-app notification settings for application status changes.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/dev-tools')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Wrench className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Admin Tools</CardTitle>
+                <CardDescription>Developer and admin testing tools</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Access notification testing, database viewer, and data migration tools.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/admin/help-editor')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <BookOpen className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Help Editor</CardTitle>
+                <CardDescription>Manage help content and documentation</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Create and edit help articles, FAQs, and user documentation.
             </p>
           </CardContent>
         </Card>
