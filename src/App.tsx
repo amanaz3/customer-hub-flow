@@ -50,6 +50,7 @@ import ServiceFormConfiguration from '@/pages/ServiceFormConfiguration';
 import Messages from '@/pages/Messages';
 import ApplicationsByStage from '@/pages/ApplicationsByStage';
 import ApplicationsByTeam from '@/pages/ApplicationsByTeam';
+import LegacyApplicationsView from '@/pages/LegacyApplicationsView';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -255,7 +256,7 @@ function App() {
                   } />
                   
                   <Route path="/applications-by-stage" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requireAdmin>
                       <MainLayout>
                         <PageErrorBoundary pageName="Applications by Stage">
                           <ApplicationsByStage />
@@ -265,10 +266,20 @@ function App() {
                   } />
                   
                   <Route path="/applications-by-team" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requireAdmin>
                       <MainLayout>
                         <PageErrorBoundary pageName="Applications by Team">
                           <ApplicationsByTeam />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/legacy-applications" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Legacy Applications">
+                          <LegacyApplicationsView />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
