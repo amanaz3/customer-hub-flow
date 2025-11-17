@@ -24,7 +24,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import ApplicationTimeline from "@/components/Application/ApplicationTimeline";
+import { ApplicationsGanttChart } from "@/components/Application/ApplicationsGanttChart";
 
 type ApplicationStatus = 'draft' | 'submitted' | 'returned' | 'paid' | 'completed' | 'rejected' | 'under_review' | 'approved' | 'need more info';
 
@@ -550,80 +550,7 @@ const ApplicationsByTeam = () => {
               </TabsList>
 
               <TabsContent value="applications" className="mt-4">
-                <ScrollArea className="h-[600px] pr-4">
-                  <div className="space-y-3">
-                    {selectedTeamData.applications.length === 0 ? (
-                      <div className="text-center py-12 text-muted-foreground">
-                        No applications found
-                      </div>
-                    ) : (
-                      selectedTeamData.applications.map((app) => {
-                        const daysSinceUpdate = Math.floor((Date.now() - new Date(app.updated_at).getTime()) / (1000 * 60 * 60 * 24));
-                        const isStuck = daysSinceUpdate > 7 && !['completed', 'rejected', 'paid'].includes(app.status);
-                        const hasBounced = app.statusChanges && app.statusChanges.length >= 3;
-
-                        return (
-                          <Card
-                            key={app.id}
-                            className="cursor-pointer hover:shadow-md transition-shadow"
-                            onClick={() => navigate(`/applications/${app.id}`)}
-                          >
-                            <CardContent className="pt-6">
-                              <div className="space-y-3">
-                                <div className="flex items-start justify-between">
-                                  <div className="space-y-2 flex-1">
-                                    <div className="flex items-center gap-2 flex-wrap">
-                                      <Badge variant="outline" className="font-mono">
-                                        #{app.reference_number}
-                                      </Badge>
-                                      {getStatusBadge(app.status)}
-                                      {isStuck && (
-                                        <Badge variant="destructive" className="gap-1">
-                                          <AlertTriangle className="h-3 w-3" />
-                                          Stuck ({daysSinceUpdate}d)
-                                        </Badge>
-                                      )}
-                                      {hasBounced && (
-                                        <Badge className="bg-orange-500 gap-1">
-                                          <RefreshCw className="h-3 w-3" />
-                                          Multiple Changes
-                                        </Badge>
-                                      )}
-                                    </div>
-                                    <div>
-                                      <p className="font-semibold">
-                                        {app.customer?.name || 'Unknown Customer'}
-                                      </p>
-                                      <p className="text-sm text-muted-foreground">
-                                        {app.customer?.company}
-                                      </p>
-                                    </div>
-                                    {app.application_type && (
-                                      <p className="text-sm text-muted-foreground">
-                                        Type: {app.application_type}
-                                      </p>
-                                    )}
-                                  </div>
-                                  <div className="text-right text-sm text-muted-foreground">
-                                    <div className="flex items-center gap-1">
-                                      <Clock className="h-3 w-3" />
-                                      {formatDate(app.created_at)}
-                                    </div>
-                                  </div>
-                                </div>
-
-                                {/* Visual Timeline */}
-                                <div className="border-t pt-3">
-                                  <ApplicationTimeline application={app} />
-                                </div>
-                              </div>
-                            </CardContent>
-                          </Card>
-                        );
-                      })
-                    )}
-                  </div>
-                </ScrollArea>
+                <ApplicationsGanttChart applications={selectedTeamData.applications} />
               </TabsContent>
 
               <TabsContent value="insights" className="mt-4">
