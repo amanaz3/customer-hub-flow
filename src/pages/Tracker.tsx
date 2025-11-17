@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { toast } from "sonner";
+import { 
+  Layers, 
+  UserCheck, 
+  Database, 
+  BarChart3, 
+  Activity, 
+  Target 
+} from "lucide-react";
 
 const Tracker = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -43,9 +52,86 @@ const Tracker = () => {
     return null;
   }
 
+  const trackerCards = [
+    {
+      title: "By Stage",
+      description: "View applications organized by their current stage",
+      icon: Layers,
+      path: "/applications-by-stage",
+      color: "text-blue-600"
+    },
+    {
+      title: "By Team",
+      description: "View applications organized by team members with funnel and heat map",
+      icon: UserCheck,
+      path: "/applications-by-team",
+      color: "text-green-600"
+    },
+    {
+      title: "By Legacy",
+      description: "View legacy applications with missing completion data",
+      icon: Database,
+      path: "/legacy-applications",
+      color: "text-orange-600"
+    },
+    {
+      title: "Application Pipeline",
+      description: "Visual pipeline with AI recommendations and performance analytics",
+      icon: BarChart3,
+      path: "/application-pipeline",
+      color: "text-purple-600"
+    },
+    {
+      title: "Application Monitor",
+      description: "Real-time monitoring of application status and alerts",
+      icon: Activity,
+      path: "/application-monitor",
+      color: "text-red-600"
+    },
+    {
+      title: "Team Targets",
+      description: "Track and manage team targets and goals",
+      icon: Target,
+      path: "/team-targets",
+      color: "text-teal-600"
+    }
+  ];
+
   return (
-    <div className="container mx-auto p-6">
-      {/* Content will be added here */}
+    <div className="container mx-auto p-6 space-y-6">
+      <div>
+        <h1 className="text-3xl font-bold">Tracker</h1>
+        <p className="text-muted-foreground">
+          Comprehensive application tracking and monitoring dashboard
+        </p>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {trackerCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <Card
+              key={card.path}
+              className="cursor-pointer hover:shadow-lg transition-all hover:border-primary/50"
+              onClick={() => navigate(card.path)}
+            >
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className={`p-3 rounded-lg bg-muted ${card.color}`}>
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <CardTitle className="text-xl">{card.title}</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-sm">
+                  {card.description}
+                </CardDescription>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
     </div>
   );
 };
