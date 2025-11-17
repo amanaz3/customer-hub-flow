@@ -15,13 +15,15 @@ import {
   TrendingUp,
   Lightbulb,
   ArrowRight,
-  BarChart3
+  BarChart3,
+  Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type ApplicationStatus = 'draft' | 'submitted' | 'returned' | 'paid' | 'completed' | 'rejected' | 'under_review' | 'approved' | 'need more info';
 
@@ -102,14 +104,16 @@ const ApplicationsByTeam = () => {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const [aiInsights, setAiInsights] = useState<AIInsights | null>(null);
   const [loadingInsights, setLoadingInsights] = useState(false);
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all');
   const navigate = useNavigate();
 
   const fetchApplicationsByTeam = async () => {
     try {
       setLoading(true);
       
-      // Fetch all applications with customer and user info
-      const { data: applications, error: appsError } = await supabase
+      // Build query with date filters
+      let query = supabase
         .from('account_applications')
         .select(`
           id,
@@ -130,8 +134,21 @@ const ApplicationsByTeam = () => {
               role
             )
           )
-        `)
-        .order('created_at', { ascending: false });
+        `);
+      
+      // Apply year filter
+      const startOfYear = new Date(selectedYear, 0, 1).toISOString();
+      const endOfYear = new Date(selectedYear, 11, 31, 23, 59, 59).toISOString();
+      query = query.gte('created_at', startOfYear).lte('created_at', endOfYear);
+      
+      // Apply month filter if not 'all'
+      if (selectedMonth !== 'all') {
+        const startOfMonth = new Date(selectedYear, selectedMonth, 1).toISOString();
+        const endOfMonth = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59).toISOString();
+        query = query.gte('created_at', startOfMonth).lte('created_at', endOfMonth);
+      }
+      
+      const { data: applications, error: appsError } = await query.order('created_at', { ascending: false });
 
       if (appsError) throw appsError;
 
@@ -278,7 +295,7 @@ const ApplicationsByTeam = () => {
 
   useEffect(() => {
     fetchApplicationsByTeam();
-  }, []);
+  }, [selectedYear, selectedMonth]);
 
   useEffect(() => {
     if (selectedUserId && teamStats.length > 0) {
@@ -377,6 +394,49 @@ const ApplicationsByTeam = () => {
           Refresh
         </Button>
       </div>
+
+      {/* Date Filters */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Filter by:</span>
+            </div>
+            <Select
+              value={selectedYear.toString()}
+              onValueChange={(value) => setSelectedYear(parseInt(value))}
+            >
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={selectedMonth.toString()}
+              onValueChange={(value) => setSelectedMonth(value === 'all' ? 'all' : parseInt(value))}
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Months</SelectItem>
+                {Array.from({ length: 12 }, (_, i) => i).map((month) => (
+                  <SelectItem key={month} value={month.toString()}>
+                    {new Date(2024, month).toLocaleString('en-US', { month: 'long' })}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Team Member Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">

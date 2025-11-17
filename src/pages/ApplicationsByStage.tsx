@@ -15,10 +15,12 @@ import {
   Send,
   DollarSign,
   Eye,
-  RefreshCw
+  RefreshCw,
+  Calendar
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 
 type ApplicationStatus = 'draft' | 'submitted' | 'returned' | 'paid' | 'completed' | 'rejected' | 'under_review' | 'approved' | 'need more info';
 
@@ -58,12 +60,15 @@ const ApplicationsByStage = () => {
   const [stageStats, setStageStats] = useState<StageStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStage, setSelectedStage] = useState<ApplicationStatus>('submitted');
+  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
+  const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all');
   const navigate = useNavigate();
 
   const fetchApplicationsByStage = async () => {
     try {
       setLoading(true);
-      const { data: applications, error } = await supabase
+      
+      let query = supabase
         .from('account_applications')
         .select(`
           id,
@@ -73,8 +78,21 @@ const ApplicationsByStage = () => {
           created_at,
           updated_at,
           customer:customers(name, company, email)
-        `)
-        .order('created_at', { ascending: false });
+        `);
+      
+      // Apply year filter
+      const startOfYear = new Date(selectedYear, 0, 1).toISOString();
+      const endOfYear = new Date(selectedYear, 11, 31, 23, 59, 59).toISOString();
+      query = query.gte('created_at', startOfYear).lte('created_at', endOfYear);
+      
+      // Apply month filter if not 'all'
+      if (selectedMonth !== 'all') {
+        const startOfMonth = new Date(selectedYear, selectedMonth, 1).toISOString();
+        const endOfMonth = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59).toISOString();
+        query = query.gte('created_at', startOfMonth).lte('created_at', endOfMonth);
+      }
+      
+      const { data: applications, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
 
@@ -111,7 +129,7 @@ const ApplicationsByStage = () => {
 
   useEffect(() => {
     fetchApplicationsByStage();
-  }, []);
+  }, [selectedYear, selectedMonth]);
 
   const getStageConfig = (status: ApplicationStatus) => {
     return statusConfig[status] || { label: status, icon: FileText, color: 'bg-gray-500' };
@@ -159,6 +177,49 @@ const ApplicationsByStage = () => {
           Refresh
         </Button>
       </div>
+
+      {/* Date Filters */}
+      <Card>
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <Calendar className="h-4 w-4 text-muted-foreground" />
+              <span className="text-sm font-medium">Filter by:</span>
+            </div>
+            <Select
+              value={selectedYear.toString()}
+              onValueChange={(value) => setSelectedYear(parseInt(value))}
+            >
+              <SelectTrigger className="w-32">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                  <SelectItem key={year} value={year.toString()}>
+                    {year}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Select
+              value={selectedMonth.toString()}
+              onValueChange={(value) => setSelectedMonth(value === 'all' ? 'all' : parseInt(value))}
+            >
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Months</SelectItem>
+                {Array.from({ length: 12 }, (_, i) => i).map((month) => (
+                  <SelectItem key={month} value={month.toString()}>
+                    {new Date(2024, month).toLocaleString('en-US', { month: 'long' })}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Stage Overview Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
