@@ -44,6 +44,10 @@ interface FormField {
   required: boolean;
   requiredAtStage?: string[]; // Stages when this field is required: draft, submitted, review, approval, completed
   conditionalGroup?: string; // Group ID for "at least one required" logic
+  conditionalDisplay?: {
+    dependsOn: string; // field ID to watch
+    showWhen: string[]; // value(s) that trigger display
+  };
   options?: string[];
   helperText?: string;
   // Number validation properties
@@ -492,6 +496,64 @@ const SortableField = ({
         </div>
       )}
 
+      {/* Conditional Display Configuration */}
+      <div className="space-y-2 border-t pt-3">
+        <Label className="text-xs font-semibold flex items-center gap-2">
+          <span>Conditional Display (optional)</span>
+        </Label>
+        <p className="text-xs text-muted-foreground mb-2">
+          Show this field only when another field has specific value(s)
+        </p>
+        
+        <div className="space-y-2">
+          <div>
+            <Label className="text-xs">Depends On Field ID</Label>
+            <Input
+              value={field.conditionalDisplay?.dependsOn || ""}
+              onChange={(e) => {
+                const dependsOn = e.target.value;
+                updateField(sectionId, field.id, {
+                  conditionalDisplay: dependsOn
+                    ? {
+                        dependsOn,
+                        showWhen: field.conditionalDisplay?.showWhen || [],
+                      }
+                    : undefined,
+                });
+              }}
+              placeholder="e.g., employment-type"
+              className="text-xs"
+            />
+          </div>
+          
+          {field.conditionalDisplay?.dependsOn && (
+            <div>
+              <Label className="text-xs">Show When (comma-separated values)</Label>
+              <Input
+                value={field.conditionalDisplay?.showWhen?.join(", ") || ""}
+                onChange={(e) => {
+                  const showWhen = e.target.value
+                    .split(",")
+                    .map((s) => s.trim())
+                    .filter((s) => s);
+                  updateField(sectionId, field.id, {
+                    conditionalDisplay: {
+                      dependsOn: field.conditionalDisplay!.dependsOn,
+                      showWhen,
+                    },
+                  });
+                }}
+                placeholder="e.g., Salaried, Self-Employed"
+                className="text-xs"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Field will be visible when parent field equals any of these values
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
       {field.fieldType === "number" && (
         <div className="space-y-2 border-t pt-2">
           <Label className="text-xs font-semibold">Number Validation</Label>
@@ -656,6 +718,17 @@ const SortableSection = ({
 
 // Preview Component
 const FormPreview = ({ formConfig, currentStage = 'draft' }: { formConfig: FormConfig; currentStage?: string }) => {
+  const [formValues, setFormValues] = useState<Record<string, string>>({});
+
+  const shouldShowField = (field: FormField): boolean => {
+    if (!field.conditionalDisplay) return true;
+    
+    const { dependsOn, showWhen } = field.conditionalDisplay;
+    const parentValue = formValues[dependsOn];
+    
+    return showWhen.includes(parentValue);
+  };
+
   const getStageIndicator = (field: FormField) => {
     const requiredAtStage = field.requiredAtStage || [];
     const requiredNow = requiredAtStage.includes(currentStage);
@@ -705,7 +778,7 @@ const FormPreview = ({ formConfig, currentStage = 'draft' }: { formConfig: FormC
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {section.fields.map((field) => (
+              {section.fields.filter(shouldShowField).map((field) => (
                 <div
                   key={field.id}
                   className={
@@ -721,6 +794,11 @@ const FormPreview = ({ formConfig, currentStage = 'draft' }: { formConfig: FormC
                       {field.conditionalGroup && (
                         <span className="text-xs text-muted-foreground ml-2">
                           (Group: {field.conditionalGroup})
+                        </span>
+                      )}
+                      {field.conditionalDisplay && (
+                        <span className="text-xs text-orange-500 ml-2">
+                          (Shows when: {field.conditionalDisplay.dependsOn} = {field.conditionalDisplay.showWhen.join(" or ")})
                         </span>
                       )}
                     </Label>
@@ -748,7 +826,12 @@ const FormPreview = ({ formConfig, currentStage = 'draft' }: { formConfig: FormC
                   )}
                   
                   {field.fieldType === "select" && (
-                    <Select disabled>
+                    <Select
+                      value={formValues[field.id] || ""}
+                      onValueChange={(value) =>
+                        setFormValues((prev) => ({ ...prev, [field.id]: value }))
+                      }
+                    >
                       <SelectTrigger>
                         <SelectValue placeholder={field.placeholder || "Select an option"} />
                       </SelectTrigger>
@@ -774,7 +857,12 @@ const FormPreview = ({ formConfig, currentStage = 'draft' }: { formConfig: FormC
                   )}
                   
                   {field.fieldType === "radio" && (
-                    <RadioGroup disabled>
+                    <RadioGroup
+                      value={formValues[field.id] || ""}
+                      onValueChange={(value) =>
+                        setFormValues((prev) => ({ ...prev, [field.id]: value }))
+                      }
+                    >
                       {field.options?.map((option, idx) => (
                         <div key={idx} className="flex items-center gap-2">
                           <RadioGroupItem value={option} id={`${field.id}-${idx}`} />
