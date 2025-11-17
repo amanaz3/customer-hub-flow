@@ -18,7 +18,9 @@ import {
   BarChart3,
   Calendar,
   Mail,
-  MessageSquare
+  MessageSquare,
+  Eye,
+  Send
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -118,6 +120,8 @@ const ApplicationsByTeam = () => {
   const [sendingEmail, setSendingEmail] = useState(false);
   const [customEmailDialogOpen, setCustomEmailDialogOpen] = useState(false);
   const [customEmail, setCustomEmail] = useState('');
+  const [reportPreviewOpen, setReportPreviewOpen] = useState(false);
+  const [selectedMemberForEmail, setSelectedMemberForEmail] = useState<TeamStats | null>(null);
   const [applicationComments, setApplicationComments] = useState<Record<string, Array<{
     comment: string;
     created_at: string;
@@ -380,7 +384,7 @@ const ApplicationsByTeam = () => {
   };
 
   const handleSendCustomEmail = () => {
-    if (!customEmail || !selectedTeamData) return;
+    if (!customEmail || !selectedMemberForEmail) return;
     
     // Basic email validation
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -389,7 +393,7 @@ const ApplicationsByTeam = () => {
       return;
     }
     
-    sendEmailReport(selectedTeamData, customEmail);
+    sendEmailReport(selectedMemberForEmail, customEmail);
   };
 
   const fetchAIInsights = async (teamMember: TeamStats) => {
@@ -735,6 +739,17 @@ const ApplicationsByTeam = () => {
               {selectedTeamData.user.id !== 'unassigned' && aiInsights && (
                 <div className="flex gap-2">
                   <Button
+                    onClick={() => {
+                      setSelectedMemberForEmail(selectedTeamData);
+                      setReportPreviewOpen(true);
+                    }}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <Eye className="h-4 w-4 mr-2" />
+                    View Report
+                  </Button>
+                  <Button
                     onClick={() => sendEmailReport(selectedTeamData)}
                     disabled={sendingEmail}
                     variant="outline"
@@ -744,12 +759,15 @@ const ApplicationsByTeam = () => {
                     {sendingEmail ? 'Sending...' : 'Email Report'}
                   </Button>
                   <Button
-                    onClick={() => setCustomEmailDialogOpen(true)}
+                    onClick={() => {
+                      setSelectedMemberForEmail(selectedTeamData);
+                      setCustomEmailDialogOpen(true);
+                    }}
                     disabled={sendingEmail}
                     variant="outline"
                     size="sm"
                   >
-                    <Mail className="h-4 w-4 mr-2" />
+                    <Send className="h-4 w-4 mr-2" />
                     Send to Custom Email
                   </Button>
                 </div>
@@ -1028,6 +1046,156 @@ const ApplicationsByTeam = () => {
           </CardContent>
         </Card>
       )}
+
+      {/* Report Preview Dialog */}
+      <Dialog open={reportPreviewOpen} onOpenChange={setReportPreviewOpen}>
+        <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Team Performance Report Preview</DialogTitle>
+          </DialogHeader>
+          {selectedMemberForEmail && aiInsights && (
+            <div className="space-y-6">
+              {/* Header */}
+              <div className="bg-gradient-to-r from-purple-600 to-violet-600 text-white p-6 rounded-lg">
+                <h2 className="text-2xl font-bold mb-2">Team Performance Report</h2>
+                <p className="text-lg opacity-90">{selectedMemberForEmail.user.name}</p>
+              </div>
+
+              {/* Overview */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold border-b pb-2">📊 Overview</h3>
+                <div className="bg-muted p-4 rounded-lg space-y-3">
+                  <p><strong>Total Applications:</strong> {selectedMemberForEmail.applications.length}</p>
+                  <div>
+                    <p className="font-semibold mb-2">Status Breakdown:</p>
+                    <ul className="list-disc list-inside space-y-1">
+                      {Object.entries(
+                        selectedMemberForEmail.applications.reduce((acc, app) => {
+                          acc[app.status] = (acc[app.status] || 0) + 1;
+                          return acc;
+                        }, {} as Record<string, number>)
+                      ).map(([status, count]) => (
+                        <li key={status}>
+                          <strong>{status.replace('_', ' ').toUpperCase()}</strong>: {count}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              {/* AI Summary */}
+              <div className="space-y-4">
+                <h3 className="text-xl font-semibold border-b pb-2">🤖 AI Performance Analysis</h3>
+                <div className="bg-blue-50 dark:bg-blue-950 border-l-4 border-blue-500 p-4 rounded">
+                  <p>{aiInsights.summary}</p>
+                </div>
+              </div>
+
+              {/* Stuck Applications */}
+              {aiInsights.metrics.stuckApps > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold border-b pb-2 text-destructive">
+                    ⚠️ Stuck/Delayed Applications ({aiInsights.metrics.stuckApps})
+                  </h3>
+                  <div className="space-y-2">
+                    {selectedMemberForEmail.applications
+                      .filter(app => {
+                        const daysSinceUpdate = Math.floor((Date.now() - new Date(app.updated_at).getTime()) / (1000 * 60 * 60 * 24));
+                        return daysSinceUpdate >= 7 && app.status !== 'completed' && app.status !== 'rejected';
+                      })
+                      .map((app) => {
+                        const daysStuck = Math.floor((Date.now() - new Date(app.updated_at).getTime()) / (1000 * 60 * 60 * 24));
+                        return (
+                          <div key={app.id} className="bg-red-50 dark:bg-red-950 border border-red-200 dark:border-red-800 p-3 rounded flex justify-between items-center">
+                            <div>
+                              <p className="font-bold">#{app.reference_number}</p>
+                              <p className="text-sm">{app.customer?.name || 'N/A'} - {app.customer?.company || 'N/A'}</p>
+                              <span className="text-xs bg-yellow-200 dark:bg-yellow-900 px-2 py-1 rounded">
+                                {app.status.replace('_', ' ').toUpperCase()}
+                              </span>
+                            </div>
+                            <div className="text-destructive font-bold flex items-center gap-2">
+                              <Clock className="h-4 w-4" />
+                              {daysStuck} days
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </div>
+              )}
+
+              {/* Blockers */}
+              {aiInsights.blockers && aiInsights.blockers.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold border-b pb-2 text-destructive">🚧 Identified Blockers</h3>
+                  <div className="space-y-3">
+                    {aiInsights.blockers.map((blocker, idx) => (
+                      <div key={idx} className="bg-red-50 dark:bg-red-950 border-l-4 border-red-500 p-4 rounded">
+                        <p className="font-bold mb-2">{blocker.blocker}</p>
+                        <p className="text-sm text-muted-foreground mb-2">
+                          <strong>Affected Applications:</strong> {blocker.affectedApps.map(ref => `#${ref}`).join(', ')}
+                        </p>
+                        <div className="bg-background p-2 rounded text-sm">
+                          <strong>💡 Recommendation:</strong> {blocker.recommendation}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Immediate Actions */}
+              {aiInsights.immediateActions && aiInsights.immediateActions.length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold border-b pb-2 text-blue-600 dark:text-blue-400">
+                    🎯 Immediate Actions Required
+                  </h3>
+                  <div className="space-y-3">
+                    {aiInsights.immediateActions.map((action, idx) => {
+                      const priorityColor = action.priority === 'high' ? 'border-red-500' : action.priority === 'medium' ? 'border-orange-500' : 'border-green-500';
+                      const bgColor = action.priority === 'high' ? 'bg-red-500' : action.priority === 'medium' ? 'bg-orange-500' : 'bg-green-500';
+                      return (
+                        <div key={idx} className={`border-l-4 ${priorityColor} p-4 rounded bg-muted`}>
+                          <div className="flex justify-between items-center mb-2">
+                            <p className="font-bold">{action.action}</p>
+                            <span className={`text-xs px-2 py-1 rounded uppercase font-semibold ${bgColor} text-white`}>
+                              {action.priority}
+                            </span>
+                          </div>
+                          <p className="text-sm text-muted-foreground">{action.reason}</p>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Recent Comments */}
+              {applicationComments && Object.keys(applicationComments).length > 0 && (
+                <div className="space-y-4">
+                  <h3 className="text-xl font-semibold border-b pb-2 text-purple-600 dark:text-purple-400">
+                    💬 Recent Status Comments
+                  </h3>
+                  <div className="space-y-3">
+                    {Object.entries(applicationComments).flatMap(([appId, comments]) => {
+                      const app = selectedMemberForEmail.applications.find(a => a.id === appId);
+                      return comments.slice(0, 3).map((comment, idx) => (
+                        <div key={`${appId}-${idx}`} className="bg-purple-50 dark:bg-purple-950 border-l-4 border-purple-500 p-4 rounded">
+                          <p className="font-bold mb-2">App #{app?.reference_number} - {comment.new_status}</p>
+                          <p className="text-sm mb-2">{comment.comment}</p>
+                          <p className="text-xs text-muted-foreground">{new Date(comment.created_at).toLocaleDateString()}</p>
+                        </div>
+                      ));
+                    })}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
