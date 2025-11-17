@@ -35,6 +35,7 @@ import Analytics from '@/pages/Analytics';
 import TargetManagement from '@/pages/TargetManagement';
 import TeamTargets from '@/pages/TeamTargets';
 import ApplicationPipeline from '@/pages/ApplicationPipeline';
+import ApplicationMonitor from '@/pages/ApplicationMonitor';
 import AgentHelpEditor from '@/pages/AgentHelpEditor';
 import NotificationManagement from '@/pages/NotificationManagement';
 import NotificationTesting from '@/pages/NotificationTesting';
@@ -146,6 +147,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Application Pipeline">
                           <ApplicationPipeline />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/application-monitor" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Application Monitor">
+                          <ApplicationMonitor />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
