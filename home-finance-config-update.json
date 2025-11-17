@@ -1,0 +1,58 @@
+{
+  "sections": [
+    {
+      "id": "section_1763351780363",
+      "sectionTitle": "ApplicantProfile",
+      "fields": [
+        {
+          "id": "field_1763351806928",
+          "fieldType": "select",
+          "label": "UAE Residency Status",
+          "placeholder": "",
+          "required": true,
+          "requiredAtStage": ["draft", "submitted", "returned", "rejected"],
+          "options": ["Resident", "Non-Resident"],
+          "helperText": ""
+        },
+        {
+          "id": "field_1763351921421",
+          "fieldType": "select",
+          "label": "Employment Type",
+          "placeholder": "",
+          "required": true,
+          "requiredAtStage": ["draft", "submitted", "returned", "rejected"],
+          "options": ["Salaried", "Self-Employed"],
+          "helperText": ""
+        },
+        {
+          "id": "field_salary_range",
+          "fieldType": "select",
+          "label": "Salary Range",
+          "placeholder": "Select salary range",
+          "required": true,
+          "requiredAtStage": ["submitted", "returned"],
+          "conditionalDisplay": {
+            "dependsOn": "field_1763351921421",
+            "showWhen": ["Salaried"]
+          },
+          "options": ["0-5000 AED", "5000-10000 AED", "10000-20000 AED", "20000+ AED"],
+          "helperText": "Select your monthly salary range"
+        },
+        {
+          "id": "field_business_turnover",
+          "fieldType": "number",
+          "label": "Annual Business Turnover (AED)",
+          "placeholder": "Enter annual turnover",
+          "required": true,
+          "requiredAtStage": ["submitted", "returned"],
+          "conditionalDisplay": {
+            "dependsOn": "field_1763351921421",
+            "showWhen": ["Self-Employed"]
+          },
+          "min": 0,
+          "helperText": "Enter your annual business turnover"
+        }
+      ]
+    }
+  ]
+}
