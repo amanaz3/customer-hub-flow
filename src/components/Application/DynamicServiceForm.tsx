@@ -37,6 +37,7 @@ function normalizeConfig(raw: any): FormConfig {
         min: f.min !== undefined ? Number(f.min) : undefined,
         max: f.max !== undefined ? Number(f.max) : undefined,
         step: f.step !== undefined ? Number(f.step) : undefined,
+        conditionalDisplay: f.conditionalDisplay,
       }))
     }));
 
@@ -76,6 +77,11 @@ interface FormField {
   min?: number;
   max?: number;
   step?: number;
+  // Conditional display
+  conditionalDisplay?: {
+    dependsOn: string;
+    showWhen: string[];
+  };
 }
 
 interface FormSection {
@@ -222,6 +228,29 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
         description: "Your application has been submitted successfully.",
       });
     }
+  };
+
+  // Check if a field should be shown based on conditional display rules
+  const shouldShowField = (field: FormField, sectionIndex: number): boolean => {
+    if (!field.conditionalDisplay) return true;
+
+    const { dependsOn, showWhen } = field.conditionalDisplay;
+    
+    // Find the dependent field across all sections
+    let dependentFieldValue: any = null;
+    formConfig?.sections.forEach((section, idx) => {
+      section.fields.forEach((f) => {
+        const fieldKey = `section_${idx}_${f.name}`;
+        // Match by field name, field ID, or label slug
+        const labelSlug = f.label.toLowerCase().replace(/\s+/g, '-');
+        if (f.name === dependsOn || fieldKey === dependsOn || labelSlug === dependsOn) {
+          dependentFieldValue = watch(fieldKey);
+        }
+      });
+    });
+
+    // Show field if dependent field's value is in showWhen array
+    return showWhen && showWhen.includes(dependentFieldValue);
   };
 
   const renderField = (field: FormField, sectionIndex: number) => {
@@ -444,7 +473,7 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {section.fields.map((field) => renderField(field, sectionIndex))}
+                {section.fields.filter((field) => shouldShowField(field, sectionIndex)).map((field) => renderField(field, sectionIndex))}
               </div>
 
               {sectionIndex < formConfig.sections.length - 1 && (
@@ -497,7 +526,7 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {section.fields.map((field) => renderField(field, sectionIndex))}
+                {section.fields.filter((field) => shouldShowField(field, sectionIndex)).map((field) => renderField(field, sectionIndex))}
               </div>
 
               {sectionIndex < formConfig.sections.length - 1 && (
