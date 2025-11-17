@@ -79,24 +79,6 @@ const Sidebar: React.FC = () => {
       roles: ['admin', 'user'],
     },
     {
-      name: 'By Stage',
-      path: '/applications-by-stage',
-      icon: <Layers className="h-5 w-5" />,
-      roles: ['admin'],
-    },
-    {
-      name: 'By Team',
-      path: '/applications-by-team',
-      icon: <UserCheck className="h-5 w-5" />,
-      roles: ['admin'],
-    },
-    {
-      name: 'By Legacy',
-      path: '/legacy-applications',
-      icon: <Database className="h-5 w-5" />,
-      roles: ['admin'],
-    },
-    {
       name: 'Tracker',
       path: '/tracker',
       icon: <Activity className="h-5 w-5" />,
@@ -136,24 +118,6 @@ const Sidebar: React.FC = () => {
       name: 'Target Management',
       path: '/targets',
       icon: <Target className="h-5 w-5" />,
-      roles: ['admin'],
-    },
-    {
-      name: 'Team Targets',
-      path: '/team-targets',
-      icon: <TrendingUp className="h-5 w-5" />,
-      roles: ['admin'],
-    },
-    {
-      name: 'App Pipeline',
-      path: '/application-pipeline',
-      icon: <TrendingUp className="h-5 w-5" />,
-      roles: ['admin'],
-    },
-    {
-      name: 'App Monitor',
-      path: '/application-monitor',
-      icon: <Activity className="h-5 w-5" />,
       roles: ['admin'],
     },
     {
