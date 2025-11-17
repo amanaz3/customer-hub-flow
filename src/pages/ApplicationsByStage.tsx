@@ -60,6 +60,7 @@ const ApplicationsByStage = () => {
   const [stageStats, setStageStats] = useState<StageStats[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedStage, setSelectedStage] = useState<ApplicationStatus>('submitted');
+  const [filterPeriod, setFilterPeriod] = useState<'last30days' | 'custom'>('last30days');
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all');
   const navigate = useNavigate();
@@ -80,16 +81,23 @@ const ApplicationsByStage = () => {
           customer:customers(name, company, email)
         `);
       
-      // Apply year filter
-      const startOfYear = new Date(selectedYear, 0, 1).toISOString();
-      const endOfYear = new Date(selectedYear, 11, 31, 23, 59, 59).toISOString();
-      query = query.gte('created_at', startOfYear).lte('created_at', endOfYear);
-      
-      // Apply month filter if not 'all'
-      if (selectedMonth !== 'all') {
-        const startOfMonth = new Date(selectedYear, selectedMonth, 1).toISOString();
-        const endOfMonth = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59).toISOString();
-        query = query.gte('created_at', startOfMonth).lte('created_at', endOfMonth);
+      // Apply date filter based on period
+      if (filterPeriod === 'last30days') {
+        const thirtyDaysAgo = new Date();
+        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+        query = query.gte('created_at', thirtyDaysAgo.toISOString());
+      } else {
+        // Apply year filter
+        const startOfYear = new Date(selectedYear, 0, 1).toISOString();
+        const endOfYear = new Date(selectedYear, 11, 31, 23, 59, 59).toISOString();
+        query = query.gte('created_at', startOfYear).lte('created_at', endOfYear);
+        
+        // Apply month filter if not 'all'
+        if (selectedMonth !== 'all') {
+          const startOfMonth = new Date(selectedYear, selectedMonth, 1).toISOString();
+          const endOfMonth = new Date(selectedYear, selectedMonth + 1, 0, 23, 59, 59).toISOString();
+          query = query.gte('created_at', startOfMonth).lte('created_at', endOfMonth);
+        }
       }
       
       const { data: applications, error } = await query.order('created_at', { ascending: false });
@@ -129,7 +137,7 @@ const ApplicationsByStage = () => {
 
   useEffect(() => {
     fetchApplicationsByStage();
-  }, [selectedYear, selectedMonth]);
+  }, [filterPeriod, selectedYear, selectedMonth]);
 
   const getStageConfig = (status: ApplicationStatus) => {
     return statusConfig[status] || { label: status, icon: FileText, color: 'bg-gray-500' };
@@ -181,42 +189,59 @@ const ApplicationsByStage = () => {
       {/* Date Filters */}
       <Card>
         <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
+          <div className="flex items-center gap-4 flex-wrap">
             <div className="flex items-center gap-2">
               <Calendar className="h-4 w-4 text-muted-foreground" />
               <span className="text-sm font-medium">Filter by:</span>
             </div>
             <Select
-              value={selectedYear.toString()}
-              onValueChange={(value) => setSelectedYear(parseInt(value))}
-            >
-              <SelectTrigger className="w-32">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => (
-                  <SelectItem key={year} value={year.toString()}>
-                    {year}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Select
-              value={selectedMonth.toString()}
-              onValueChange={(value) => setSelectedMonth(value === 'all' ? 'all' : parseInt(value))}
+              value={filterPeriod}
+              onValueChange={(value: 'last30days' | 'custom') => setFilterPeriod(value)}
             >
               <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Months</SelectItem>
-                {Array.from({ length: 12 }, (_, i) => i).map((month) => (
-                  <SelectItem key={month} value={month.toString()}>
-                    {new Date(2024, month).toLocaleString('en-US', { month: 'long' })}
-                  </SelectItem>
-                ))}
+                <SelectItem value="last30days">Last 30 Days</SelectItem>
+                <SelectItem value="custom">Custom Period</SelectItem>
               </SelectContent>
             </Select>
+            
+            {filterPeriod === 'custom' && (
+              <>
+                <Select
+                  value={selectedYear.toString()}
+                  onValueChange={(value) => setSelectedYear(parseInt(value))}
+                >
+                  <SelectTrigger className="w-32">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i).map((year) => (
+                      <SelectItem key={year} value={year.toString()}>
+                        {year}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Select
+                  value={selectedMonth.toString()}
+                  onValueChange={(value) => setSelectedMonth(value === 'all' ? 'all' : parseInt(value))}
+                >
+                  <SelectTrigger className="w-40">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Months</SelectItem>
+                    {Array.from({ length: 12 }, (_, i) => i).map((month) => (
+                      <SelectItem key={month} value={month.toString()}>
+                        {new Date(2024, month).toLocaleString('en-US', { month: 'long' })}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </>
+            )}
           </div>
         </CardContent>
       </Card>
