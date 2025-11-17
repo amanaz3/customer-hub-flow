@@ -82,12 +82,18 @@ const Sidebar: React.FC = () => {
       name: 'By Stage',
       path: '/applications-by-stage',
       icon: <Layers className="h-5 w-5" />,
-      roles: ['admin', 'user'],
+      roles: ['admin'],
     },
     {
       name: 'By Team',
       path: '/applications-by-team',
       icon: <UserCheck className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
+      name: 'Legacy Apps',
+      path: '/legacy-applications',
+      icon: <Database className="h-5 w-5" />,
       roles: ['admin'],
     },
     {
