@@ -13,6 +13,7 @@ import { useToast } from "@/hooks/use-toast";
 import { ApplicationPipelineChart } from "@/components/Dashboard/ApplicationPipelineChart";
 import { PipelineAIRecommendations } from "@/components/Dashboard/PipelineAIRecommendations";
 import { PipelineStageDetails } from "@/components/Dashboard/PipelineStageDetails";
+import { ApplicationPerformanceAnalytics } from "@/components/Dashboard/ApplicationPerformanceAnalytics";
 
 interface Application {
   id: string;
@@ -246,6 +247,7 @@ const ApplicationPipeline = () => {
         <TabsList>
           <TabsTrigger value="stages">Stage Details</TabsTrigger>
           <TabsTrigger value="conversion">Conversion Funnel</TabsTrigger>
+          <TabsTrigger value="analytics">Performance Analytics</TabsTrigger>
           <TabsTrigger value="applications">All Applications</TabsTrigger>
         </TabsList>
 
@@ -286,6 +288,11 @@ const ApplicationPipeline = () => {
               </div>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        {/* Performance Analytics */}
+        <TabsContent value="analytics">
+          <ApplicationPerformanceAnalytics />
         </TabsContent>
 
         {/* All Applications */}
