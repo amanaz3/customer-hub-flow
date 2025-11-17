@@ -45,6 +45,18 @@
 
     --radius: 0.5rem;
 
+    /* Chart colors for data visualizations */
+    --chart-1: 217 91% 60%;
+    --chart-1-foreground: 0 0% 100%;
+    --chart-2: 142 76% 36%;
+    --chart-2-foreground: 0 0% 100%;
+    --chart-3: 38 92% 50%;
+    --chart-3-foreground: 0 0% 100%;
+    --chart-4: 263 70% 50%;
+    --chart-4-foreground: 0 0% 100%;
+    --chart-5: 187 85% 43%;
+    --chart-5-foreground: 0 0% 100%;
+
     /* Modern sidebar with teal */
     --sidebar-background: 210 20% 99%;
     --sidebar-foreground: 215 28% 17%;

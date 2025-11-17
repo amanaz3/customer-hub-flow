@@ -24,6 +24,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import ApplicationTimeline from "@/components/Application/ApplicationTimeline";
 
 type ApplicationStatus = 'draft' | 'submitted' | 'returned' | 'paid' | 'completed' | 'rejected' | 'under_review' | 'approved' | 'need more info';
 
@@ -611,24 +612,10 @@ const ApplicationsByTeam = () => {
                                   </div>
                                 </div>
 
-                                {app.statusChanges && app.statusChanges.length > 0 && (
-                                  <div className="border-t pt-3">
-                                    <p className="text-xs font-semibold mb-2">Recent Status Changes:</p>
-                                    <div className="space-y-1">
-                                      {app.statusChanges.slice(-3).map((change, idx) => (
-                                        <div key={idx} className="flex items-center gap-2 text-xs text-muted-foreground">
-                                          <ArrowRight className="h-3 w-3" />
-                                          <span className="capitalize">{change.previous_status}</span>
-                                          <span>→</span>
-                                          <span className="capitalize font-medium">{change.new_status}</span>
-                                          <span className="text-[10px]">
-                                            ({formatDate(change.created_at)})
-                                          </span>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                )}
+                                {/* Visual Timeline */}
+                                <div className="border-t pt-3">
+                                  <ApplicationTimeline application={app} />
+                                </div>
                               </div>
                             </CardContent>
                           </Card>

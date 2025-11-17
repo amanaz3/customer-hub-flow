@@ -116,6 +116,18 @@ export default {
 					'error-foreground': 'hsl(var(--severity-error-foreground))',
 					success: 'hsl(var(--severity-success))',
 					'success-foreground': 'hsl(var(--severity-success-foreground))'
+				},
+				chart: {
+					'1': 'hsl(var(--chart-1))',
+					'1-foreground': 'hsl(var(--chart-1-foreground))',
+					'2': 'hsl(var(--chart-2))',
+					'2-foreground': 'hsl(var(--chart-2-foreground))',
+					'3': 'hsl(var(--chart-3))',
+					'3-foreground': 'hsl(var(--chart-3-foreground))',
+					'4': 'hsl(var(--chart-4))',
+					'4-foreground': 'hsl(var(--chart-4-foreground))',
+					'5': 'hsl(var(--chart-5))',
+					'5-foreground': 'hsl(var(--chart-5-foreground))'
 				}
 			},
 			borderRadius: {
