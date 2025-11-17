@@ -43,13 +43,19 @@ export function ApplicationPerformanceAnalytics() {
           id,
           status,
           created_at,
-          completed_at,
-          customers!inner(user_id)
+          completed_at
         `)
         .gte("created_at", sixMonthsAgo.toISOString())
         .order("created_at", { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching trends:", error);
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        return [];
+      }
 
       // Group by month
       const monthlyData: Record<string, { total: number; completed: number; totalDays: number }> = {};
@@ -93,7 +99,14 @@ export function ApplicationPerformanceAnalytics() {
         `)
         .order("created_at", { ascending: true });
 
-      if (error) throw error;
+      if (error) {
+        console.error("Error fetching stage performance:", error);
+        throw error;
+      }
+
+      if (!data || data.length === 0) {
+        return [];
+      }
 
       const stages = ["draft", "submitted", "under_review", "approved", "paid"];
       const stageStats: Record<string, { totalDays: number; count: number; completed: number }> = {};
@@ -149,20 +162,46 @@ export function ApplicationPerformanceAnalytics() {
   const { data: userPerformance, isLoading: userLoading } = useQuery({
     queryKey: ["user-performance"],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data: appsData, error: appsError } = await supabase
         .from("account_applications")
         .select(`
           id,
           status,
           created_at,
           completed_at,
-          customers!inner(
-            user_id,
-            profiles:user_id(name)
-          )
+          customer_id
         `);
 
-      if (error) throw error;
+      if (appsError) {
+        console.error("Error fetching applications:", appsError);
+        throw appsError;
+      }
+
+      if (!appsData || appsData.length === 0) {
+        return [];
+      }
+
+      const { data: customersData, error: customersError } = await supabase
+        .from("customers")
+        .select("id, user_id");
+
+      if (customersError) {
+        console.error("Error fetching customers:", customersError);
+        throw customersError;
+      }
+
+      const { data: profilesData, error: profilesError } = await supabase
+        .from("profiles")
+        .select("id, name");
+
+      if (profilesError) {
+        console.error("Error fetching profiles:", profilesError);
+        throw profilesError;
+      }
+
+      // Create lookup maps
+      const customerMap = new Map(customersData?.map(c => [c.id, c.user_id]) || []);
+      const profileMap = new Map(profilesData?.map(p => [p.id, p.name]) || []);
 
       const userStats: Record<string, {
         name: string;
@@ -171,13 +210,13 @@ export function ApplicationPerformanceAnalytics() {
         totalDays: number;
       }> = {};
 
-      data.forEach((app: any) => {
-        const userId = app.customers.user_id;
+      appsData.forEach((app: any) => {
+        const userId = customerMap.get(app.customer_id);
         if (!userId) return;
 
         if (!userStats[userId]) {
           userStats[userId] = {
-            name: app.customers.profiles?.name || "Unknown",
+            name: profileMap.get(userId) || "Unknown",
             total: 0,
             completed: 0,
             totalDays: 0,
@@ -290,6 +329,8 @@ export function ApplicationPerformanceAnalytics() {
             <CardContent>
               {trendsLoading ? (
                 <p className="text-center py-8 text-muted-foreground">Loading trends...</p>
+              ) : !trendsData || trendsData.length === 0 ? (
+                <p className="text-center py-8 text-muted-foreground">No application data available for the last 6 months</p>
               ) : (
                 <ResponsiveContainer width="100%" height={300}>
                   <LineChart data={trendsData}>
@@ -314,6 +355,8 @@ export function ApplicationPerformanceAnalytics() {
             <CardContent>
               {trendsLoading ? (
                 <p className="text-center py-8 text-muted-foreground">Loading trends...</p>
+              ) : !trendsData || trendsData.length === 0 ? (
+                <p className="text-center py-8 text-muted-foreground">No completed application data available</p>
               ) : (
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={trendsData}>
@@ -339,6 +382,8 @@ export function ApplicationPerformanceAnalytics() {
             <CardContent>
               {stageLoading ? (
                 <p className="text-center py-8 text-muted-foreground">Loading stage data...</p>
+              ) : !stagePerformance || stagePerformance.length === 0 ? (
+                <p className="text-center py-8 text-muted-foreground">No status change data available</p>
               ) : (
                 <ResponsiveContainer width="100%" height={300}>
                   <BarChart data={stagePerformance}>
@@ -362,9 +407,11 @@ export function ApplicationPerformanceAnalytics() {
             <CardContent>
               {stageLoading ? (
                 <p className="text-center py-8 text-muted-foreground">Loading...</p>
+              ) : !stagePerformance || stagePerformance.length === 0 ? (
+                <p className="text-center py-8 text-muted-foreground">No stage statistics available</p>
               ) : (
                 <div className="space-y-3">
-                  {stagePerformance?.map((stage) => (
+                  {stagePerformance.map((stage) => (
                     <div key={stage.stage} className="flex items-center justify-between p-3 border rounded-lg">
                       <div className="space-y-1">
                         <p className="font-medium capitalize">{stage.stage}</p>
@@ -394,10 +441,12 @@ export function ApplicationPerformanceAnalytics() {
             <CardContent>
               {userLoading ? (
                 <p className="text-center py-8 text-muted-foreground">Loading team data...</p>
+              ) : !userPerformance || userPerformance.length === 0 ? (
+                <p className="text-center py-8 text-muted-foreground">No team performance data available</p>
               ) : (
                 <div className="space-y-3">
                   {userPerformance
-                    ?.sort((a, b) => b.completionRate - a.completionRate)
+                    .sort((a, b) => b.completionRate - a.completionRate)
                     .map((user) => (
                       <div key={user.userId} className="flex items-center justify-between p-3 border rounded-lg">
                         <div className="space-y-1">
@@ -439,11 +488,13 @@ export function ApplicationPerformanceAnalytics() {
             <CardContent>
               {userLoading ? (
                 <p className="text-center py-8 text-muted-foreground">Loading...</p>
+              ) : !userPerformance || userPerformance.length === 0 ? (
+                <p className="text-center py-8 text-muted-foreground">No completion rate data available</p>
               ) : (
                 <ResponsiveContainer width="100%" height={300}>
                   <PieChart>
                     <Pie
-                      data={userPerformance?.map((u, i) => ({
+                      data={userPerformance.map((u, i) => ({
                         name: u.userName,
                         value: u.completionRate,
                       }))}
