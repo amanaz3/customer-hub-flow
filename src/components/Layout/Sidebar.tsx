@@ -14,6 +14,7 @@ import {
   FileText,
   ChevronLeft,
   ChevronRight,
+  TrendingUp,
   Menu,
   X,
   Package,
@@ -120,6 +121,12 @@ const Sidebar: React.FC = () => {
       name: 'Target Management',
       path: '/targets',
       icon: <Target className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
+      name: 'Team Targets',
+      path: '/team-targets',
+      icon: <TrendingUp className="h-5 w-5" />,
       roles: ['admin'],
     },
     {

@@ -33,6 +33,7 @@ import {
 
 import Analytics from '@/pages/Analytics';
 import TargetManagement from '@/pages/TargetManagement';
+import TeamTargets from '@/pages/TeamTargets';
 import AgentHelpEditor from '@/pages/AgentHelpEditor';
 import NotificationManagement from '@/pages/NotificationManagement';
 import NotificationTesting from '@/pages/NotificationTesting';
@@ -124,6 +125,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Target Management">
                           <TargetManagement />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/team-targets" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Team Targets">
+                          <TeamTargets />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
