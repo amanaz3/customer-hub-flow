@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare } from "lucide-react";
+import { Users, MessageSquare, Package } from "lucide-react";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -12,6 +12,28 @@ const Manage = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/products')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Package className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Product Management</CardTitle>
+                <CardDescription>Manage products and services</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Create and manage products, assign service categories, and configure service offerings.
+            </p>
+          </CardContent>
+        </Card>
+
         <Card 
           className="hover:shadow-lg transition-shadow cursor-pointer"
           onClick={() => navigate('/customer-services')}
