@@ -29,6 +29,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { ApplicationsGanttChart } from "@/components/Application/ApplicationsGanttChart";
 import { TeamApplicationsHeatMap } from "@/components/Application/TeamApplicationsHeatMap";
 import { ApplicationsFunnelChart } from "@/components/Application/ApplicationsFunnelChart";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
 type ApplicationStatus = 'draft' | 'submitted' | 'returned' | 'paid' | 'completed' | 'rejected' | 'under_review' | 'approved' | 'need more info';
 
@@ -113,6 +116,8 @@ const ApplicationsByTeam = () => {
   const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear());
   const [selectedMonth, setSelectedMonth] = useState<number | 'all'>('all');
   const [sendingEmail, setSendingEmail] = useState(false);
+  const [customEmailDialogOpen, setCustomEmailDialogOpen] = useState(false);
+  const [customEmail, setCustomEmail] = useState('');
   const [applicationComments, setApplicationComments] = useState<Record<string, Array<{
     comment: string;
     created_at: string;
@@ -318,11 +323,13 @@ const ApplicationsByTeam = () => {
     }
   };
 
-  const sendEmailReport = async (teamMember: TeamStats) => {
+  const sendEmailReport = async (teamMember: TeamStats, recipientEmail?: string) => {
     if (!aiInsights) {
       toast.error('Please load AI insights first before sending report');
       return;
     }
+
+    const targetEmail = recipientEmail || teamMember.user.email;
 
     setSendingEmail(true);
     try {
@@ -349,7 +356,7 @@ const ApplicationsByTeam = () => {
       const { data, error } = await supabase.functions.invoke('send-team-member-report', {
         body: {
           teamMemberName: teamMember.user.name,
-          teamMemberEmail: teamMember.user.email,
+          teamMemberEmail: targetEmail,
           applications: teamMember.applications,
           stuckApps,
           aiSummary: aiInsights.summary,
@@ -361,13 +368,28 @@ const ApplicationsByTeam = () => {
 
       if (error) throw error;
 
-      toast.success(`Report sent successfully to ${teamMember.user.email}`);
+      toast.success(`Report sent successfully to ${targetEmail}`);
+      setCustomEmailDialogOpen(false);
+      setCustomEmail('');
     } catch (error: any) {
       console.error('Error sending email report:', error);
       toast.error(`Failed to send report: ${error.message || 'Unknown error'}`);
     } finally {
       setSendingEmail(false);
     }
+  };
+
+  const handleSendCustomEmail = () => {
+    if (!customEmail || !selectedTeamData) return;
+    
+    // Basic email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(customEmail)) {
+      toast.error('Please enter a valid email address');
+      return;
+    }
+    
+    sendEmailReport(selectedTeamData, customEmail);
   };
 
   const fetchAIInsights = async (teamMember: TeamStats) => {
@@ -646,6 +668,44 @@ const ApplicationsByTeam = () => {
         })}
       </div>
 
+      {/* Custom Email Dialog */}
+      <Dialog open={customEmailDialogOpen} onOpenChange={setCustomEmailDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Send Report to Custom Email</DialogTitle>
+            <DialogDescription>
+              Enter the email address where you want to send the team member report
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid gap-2">
+              <Label htmlFor="custom-email">Email Address</Label>
+              <Input
+                id="custom-email"
+                type="email"
+                placeholder="example@company.com"
+                value={customEmail}
+                onChange={(e) => setCustomEmail(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter') {
+                    handleSendCustomEmail();
+                  }
+                }}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setCustomEmailDialogOpen(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSendCustomEmail} disabled={sendingEmail || !customEmail}>
+              <Mail className="h-4 w-4 mr-2" />
+              {sendingEmail ? 'Sending...' : 'Send Report'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Selected Team Member's Applications with AI Insights */}
       {selectedTeamData && (
         <Card>
@@ -673,15 +733,26 @@ const ApplicationsByTeam = () => {
                 </div>
               </div>
               {selectedTeamData.user.id !== 'unassigned' && aiInsights && (
-                <Button
-                  onClick={() => sendEmailReport(selectedTeamData)}
-                  disabled={sendingEmail}
-                  variant="outline"
-                  size="sm"
-                >
-                  <Mail className="h-4 w-4 mr-2" />
-                  {sendingEmail ? 'Sending...' : 'Email Report'}
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    onClick={() => sendEmailReport(selectedTeamData)}
+                    disabled={sendingEmail}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <Mail className="h-4 w-4 mr-2" />
+                    {sendingEmail ? 'Sending...' : 'Email Report'}
+                  </Button>
+                  <Button
+                    onClick={() => setCustomEmailDialogOpen(true)}
+                    disabled={sendingEmail}
+                    variant="outline"
+                    size="sm"
+                  >
+                    <Mail className="h-4 w-4 mr-2" />
+                    Send to Custom Email
+                  </Button>
+                </div>
               )}
             </div>
           </CardHeader>
