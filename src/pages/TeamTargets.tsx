@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Users, TrendingUp, Target, Award, DollarSign, FileText } from "lucide-react";
 import { PeriodSelector } from "@/components/Dashboard/PeriodSelector";
 import { useTargetManagement } from "@/hooks/useTargetManagement";
+import { AITeamRecommendations } from "@/components/Dashboard/AITeamRecommendations";
 import { cn } from "@/lib/utils";
 
 const TeamTargets = () => {
@@ -183,6 +184,13 @@ const TeamTargets = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* AI Recommendations */}
+      <AITeamRecommendations 
+        teamData={data} 
+        period={currentPeriod} 
+        periodType={periodType} 
+      />
 
       {/* Team Performance Tabs */}
       <Tabs defaultValue="overview" className="space-y-4">
