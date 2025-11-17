@@ -48,6 +48,7 @@ import Configure from '@/pages/Configure';
 import CustomerServicesManagement from '@/pages/CustomerServicesManagement';
 import ServiceFormConfiguration from '@/pages/ServiceFormConfiguration';
 import Messages from '@/pages/Messages';
+import ApplicationsByStage from '@/pages/ApplicationsByStage';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -247,6 +248,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Application Details">
                           <LazyApplicationDetail />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/applications-by-stage" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Applications by Stage">
+                          <ApplicationsByStage />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
