@@ -25,6 +25,8 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ApplicationsGanttChart } from "@/components/Application/ApplicationsGanttChart";
+import { TeamApplicationsHeatMap } from "@/components/Application/TeamApplicationsHeatMap";
+import { ApplicationsFunnelChart } from "@/components/Application/ApplicationsFunnelChart";
 
 type ApplicationStatus = 'draft' | 'submitted' | 'returned' | 'paid' | 'completed' | 'rejected' | 'under_review' | 'approved' | 'need more info';
 
@@ -463,6 +465,33 @@ const ApplicationsByTeam = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Overview Dashboard */}
+      {!loading && (
+        <div className="space-y-6">
+          <ApplicationsFunnelChart 
+            applications={teamStats.flatMap(team => 
+              team.applications.map(app => ({
+                id: app.id,
+                status: app.status,
+                updated_at: app.updated_at,
+              }))
+            )} 
+          />
+          <TeamApplicationsHeatMap 
+            applications={teamStats.flatMap(team => 
+              team.applications.map(app => ({
+                id: app.id,
+                status: app.status,
+                user_id: team.user.id,
+                created_at: app.created_at,
+                updated_at: app.updated_at,
+              }))
+            )} 
+            teamMembers={teamStats.map(team => team.user)}
+          />
+        </div>
+      )}
 
       {/* Team Member Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
