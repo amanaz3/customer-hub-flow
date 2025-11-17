@@ -91,7 +91,7 @@ const Sidebar: React.FC = () => {
       roles: ['admin'],
     },
     {
-      name: 'Legacy Apps',
+      name: 'By Legacy',
       path: '/legacy-applications',
       icon: <Database className="h-5 w-5" />,
       roles: ['admin'],
