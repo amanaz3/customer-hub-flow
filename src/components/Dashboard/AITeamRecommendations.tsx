@@ -69,7 +69,7 @@ export const AITeamRecommendations = ({ teamData, period, periodType }: AITeamRe
 
     setLoading(true);
     try {
-      const { data, error } = await supabase.functions.invoke('analyze-team-performance', {
+      const { data, error } = await supabase.functions.invoke('analyze-team-targets', {
         body: {
           teamData,
           period,
