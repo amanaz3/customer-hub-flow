@@ -92,3 +92,18 @@ verify_jwt = true
 
 [functions.analyze-monitor-insights]
 verify_jwt = true
+
+[functions.analyze-team-targets]
+verify_jwt = true
+
+[functions.send-team-member-report]
+verify_jwt = true
+
+[functions.update-application-status]
+verify_jwt = true
+
+[functions.bulk-update-application-status]
+verify_jwt = true
+
+[functions.update-product-category]
+verify_jwt = true
