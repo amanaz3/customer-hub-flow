@@ -140,6 +140,7 @@ const TaskCollaboration: React.FC = () => {
   const [projectFilter, setProjectFilter] = useState<string>('all');
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
   const [quickAddBugOpen, setQuickAddBugOpen] = useState(false);
+  const [parentTaskIdForNewTask, setParentTaskIdForNewTask] = useState<string | undefined>(undefined);
   const [caseStatusFilter, setCaseStatusFilter] = useState<string>('active');
   const [caseSearchQuery, setCaseSearchQuery] = useState('');
   const [casePriorities, setCasePriorities] = useState<Record<string, string>>({});
@@ -1112,6 +1113,10 @@ const TaskCollaboration: React.FC = () => {
                     }}
                     showActions
                     onDelete={deleteTask}
+                    onAddSubtask={(parentId) => {
+                      setParentTaskIdForNewTask(parentId);
+                      setCreateTaskOpen(true);
+                    }}
                   />
                 ))}
                 {filteredTasks.length === 0 && (
@@ -1614,10 +1619,17 @@ const TaskCollaboration: React.FC = () => {
         open={createTaskOpen}
         onOpenChange={(open) => {
           setCreateTaskOpen(open);
-          if (!open) setSelectedProductId(undefined);
+          if (!open) {
+            setSelectedProductId(undefined);
+            setParentTaskIdForNewTask(undefined);
+          }
         }}
-        onTaskCreated={fetchTasks}
+        onTaskCreated={() => {
+          fetchTasks();
+          setParentTaskIdForNewTask(undefined);
+        }}
         productId={selectedProductId}
+        parentTaskId={parentTaskIdForNewTask}
       />
       <TaskDetailDialog
         taskId={selectedTaskId}

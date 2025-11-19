@@ -20,6 +20,7 @@ import {
   FileText,
   CornerDownRight,
   ListTree,
+  Plus,
 } from 'lucide-react';
 
 interface TaskAttachment {
@@ -53,6 +54,7 @@ interface TaskCardProps {
   showActions?: boolean;
   subtasks?: TaskCardProps['task'][];
   subtaskAttachments?: Record<string, TaskAttachment[]>;
+  onAddSubtask?: (parentTaskId: string) => void;
 }
 
 export const TaskCard: React.FC<TaskCardProps> = ({ 
@@ -65,6 +67,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   showActions = false,
   subtasks = [],
   subtaskAttachments = {},
+  onAddSubtask,
 }) => {
   const imageAttachments = attachments.filter(
     (att) => att.attachment_type === 'file' && att.file_type?.startsWith('image/')
@@ -208,6 +211,14 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 </AvatarFallback>
               </Avatar>
             )}
+
+            {/* Subtask count indicator */}
+            {!task.parent_id && subtasks.length > 0 && (
+              <div className="flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary rounded-full">
+                <ListTree className="h-3 w-3" />
+                <span className="text-xs font-medium">{subtasks.length}</span>
+              </div>
+            )}
             
             {showActions && (
               <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
@@ -250,9 +261,11 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       </div>
 
       {/* Subtasks */}
-      {subtasks.length > 0 && (
-        <div className="mt-2 ml-3 pl-3 border-l-2 border-muted space-y-2 pb-2">
-          {subtasks.map((subtask) => (
+      {!task.parent_id && (
+        <div className="mt-2">
+          {subtasks.length > 0 && (
+            <div className="ml-3 pl-3 border-l-2 border-muted space-y-2 pb-2">
+              {subtasks.map((subtask) => (
             <div
               key={subtask.id}
               className="p-2 rounded-md bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"
@@ -287,6 +300,24 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               </div>
             </div>
           ))}
+        </div>
+          )}
+          
+          {/* Add Subtask Button */}
+          {onAddSubtask && !task.parent_id && (
+            <Button
+              variant="ghost"
+              size="sm"
+              className="w-full mt-2 h-7 text-xs text-muted-foreground hover:text-primary"
+              onClick={(e) => {
+                e.stopPropagation();
+                onAddSubtask(task.id);
+              }}
+            >
+              <Plus className="h-3 w-3 mr-1" />
+              Add Subtask
+            </Button>
+          )}
         </div>
       )}
 
