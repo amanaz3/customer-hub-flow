@@ -30,31 +30,64 @@ export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> =
   const [whatsappMessage, setWhatsappMessage] = useState('');
 
   const parseWhatsAppMessage = (message: string) => {
-    const lines = message.split('\n').filter(line => line.trim());
+    const lines = message.split('\n').filter(line => line.length > 0);
     
     if (lines.length === 0) {
-      return { parentTitle: '', subtasks: [] };
+      return [];
     }
 
-    // First line is the parent task title
-    const parentTitle = lines[0].trim();
-    
-    // Remaining lines are subtasks
-    // Look for common patterns: numbers (1., 2.), bullets (-, *, •), checkboxes ([ ], [x])
-    const subtasks = lines.slice(1)
-      .map(line => line.trim())
-      .filter(line => line.length > 0)
-      .map(line => {
-        // Remove common prefixes
-        return line
-          .replace(/^[\d]+[\.\)]\s*/, '') // Remove "1. " or "1) "
-          .replace(/^[-*•]\s*/, '')        // Remove "- " or "* " or "• "
-          .replace(/^\[\s*[x ]\s*\]\s*/i, '') // Remove "[ ] " or "[x] "
-          .trim();
-      })
-      .filter(line => line.length > 0);
+    interface ParsedTask {
+      title: string;
+      level: number;
+      children: ParsedTask[];
+    }
 
-    return { parentTitle, subtasks };
+    // Determine indentation level (spaces, tabs, or depth indicators)
+    const getIndentLevel = (line: string): number => {
+      const leadingSpaces = line.match(/^(\s*)/)?.[1].length || 0;
+      // Count tabs as 2 spaces
+      const tabs = (line.match(/^\t+/)?.[0].length || 0) * 2;
+      return Math.floor((leadingSpaces + tabs) / 2);
+    };
+
+    // Clean task title
+    const cleanTitle = (line: string): string => {
+      return line.trim()
+        .replace(/^[\d]+[\.\)]\s*/, '') // Remove "1. " or "1) "
+        .replace(/^[-*•]\s*/, '')        // Remove "- " or "* " or "• "
+        .replace(/^\[\s*[x ]\s*\]\s*/i, '') // Remove "[ ] " or "[x] "
+        .trim();
+    };
+
+    // Build hierarchical structure
+    const parsed: ParsedTask[] = [];
+    const stack: ParsedTask[] = [];
+
+    lines.forEach(line => {
+      const level = getIndentLevel(line);
+      const title = cleanTitle(line);
+      
+      if (!title) return;
+
+      const task: ParsedTask = { title, level, children: [] };
+
+      // Find parent based on level
+      while (stack.length > 0 && stack[stack.length - 1].level >= level) {
+        stack.pop();
+      }
+
+      if (stack.length === 0) {
+        // Root level task
+        parsed.push(task);
+      } else {
+        // Add as child to parent
+        stack[stack.length - 1].children.push(task);
+      }
+
+      stack.push(task);
+    });
+
+    return parsed;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -66,50 +99,52 @@ export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> =
 
     setLoading(true);
     try {
-      const { parentTitle, subtasks } = parseWhatsAppMessage(whatsappMessage);
+      const parsedTasks = parseWhatsAppMessage(whatsappMessage);
 
-      if (!parentTitle) {
-        toast.error('Could not extract task title from message');
+      if (parsedTasks.length === 0) {
+        toast.error('Could not extract tasks from message');
         setLoading(false);
         return;
       }
 
-      // Create parent task
-      const { data: parentTask, error: parentError } = await supabase
-        .from('tasks')
-        .insert({
-          title: parentTitle,
-          type: 'task' as const,
-          priority: 'medium' as const,
-          status: 'todo' as const,
-          created_by: user.id,
-          description: whatsappMessage, // Store original message as description
-        })
-        .select()
-        .single();
+      // Recursive function to create tasks and their children
+      const createTasksRecursively = async (
+        tasks: any[],
+        parentId: string | null = null
+      ): Promise<number> => {
+        let count = 0;
+        
+        for (const task of tasks) {
+          const { data: createdTask, error } = await supabase
+            .from('tasks')
+            .insert({
+              title: task.title,
+              type: 'task' as const,
+              priority: 'medium' as const,
+              status: 'todo' as const,
+              created_by: user.id,
+              parent_id: parentId,
+              description: parentId === null ? whatsappMessage : undefined,
+            })
+            .select()
+            .single();
 
-      if (parentError) throw parentError;
+          if (error) throw error;
+          count++;
 
-      // Create subtasks
-      if (subtasks.length > 0) {
-        const subtaskInserts = subtasks.map(subtaskTitle => ({
-          title: subtaskTitle,
-          type: 'task' as const,
-          priority: 'medium' as const,
-          status: 'todo' as const,
-          created_by: user.id,
-          parent_id: parentTask.id,
-        }));
+          // Create children recursively
+          if (task.children && task.children.length > 0) {
+            count += await createTasksRecursively(task.children, createdTask.id);
+          }
+        }
 
-        const { error: subtaskError } = await supabase
-          .from('tasks')
-          .insert(subtaskInserts);
+        return count;
+      };
 
-        if (subtaskError) throw subtaskError;
-      }
+      const totalCount = await createTasksRecursively(parsedTasks);
 
       toast.success(
-        `Created task "${parentTitle}" with ${subtasks.length} subtask${subtasks.length !== 1 ? 's' : ''}`
+        `Created ${totalCount} task${totalCount !== 1 ? 's' : ''} with nested hierarchy`
       );
       
       setWhatsappMessage('');
@@ -129,7 +164,7 @@ export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> =
         <DialogHeader>
           <DialogTitle>Add Task from WhatsApp</DialogTitle>
           <DialogDescription>
-            Paste a WhatsApp message. First line = main task, following lines = subtasks
+            Paste a WhatsApp message. Use indentation to create nested tasks (parent → child → grandchild).
           </DialogDescription>
         </DialogHeader>
 
@@ -141,14 +176,18 @@ export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> =
               onChange={(e) => setWhatsappMessage(e.target.value)}
               placeholder={`Example:
 Setup new feature
-- Create database schema
-- Build API endpoints
-- Design UI components
-- Write tests`}
+  Create database schema
+    Add tables
+    Add indexes
+  Build API endpoints
+    User endpoints
+    Auth endpoints
+  Design UI components
+  Write tests`}
               className="min-h-[200px] font-mono text-sm"
             />
             <p className="text-xs text-muted-foreground">
-              Supports: numbered lists (1. 2.), bullets (- * •), checkboxes ([ ] [x])
+              Supports numbered lists (1. 2.), bullets (- * •), checkboxes ([ ] [x]), and indentation for nesting
             </p>
           </div>
 

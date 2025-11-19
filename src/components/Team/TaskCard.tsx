@@ -57,7 +57,147 @@ interface TaskCardProps {
   onAddSubtask?: (parentTaskId: string) => void;
 }
 
-export const TaskCard: React.FC<TaskCardProps> = ({ 
+// Helper functions for status and priority icons/colors
+const getTypeIcon = (type: string) => {
+  switch (type) {
+    case 'bug': return <Bug className="h-4 w-4" />;
+    case 'feature': return <Lightbulb className="h-4 w-4" />;
+    case 'enhancement': return <Zap className="h-4 w-4" />;
+    default: return <Circle className="h-4 w-4" />;
+  }
+};
+
+const getStatusIcon = (status: string) => {
+  switch (status) {
+    case 'done': return <CheckCircle2 className="h-4 w-4" />;
+    case 'in_progress': return <Clock className="h-4 w-4" />;
+    case 'in_review': return <Eye className="h-4 w-4" />;
+    case 'blocked': return <Ban className="h-4 w-4" />;
+    default: return <Circle className="h-4 w-4" />;
+  }
+};
+
+const getPriorityColor = (priority: string) => {
+  switch (priority) {
+    case 'critical': return 'bg-red-500/20 text-red-600 border-red-500/30';
+    case 'high': return 'bg-orange-500/20 text-orange-600 border-orange-500/30';
+    case 'medium': return 'bg-yellow-500/20 text-yellow-600 border-yellow-500/30';
+    case 'low': return 'bg-gray-500/20 text-gray-600 border-gray-500/30';
+    default: return 'bg-gray-500/20 text-gray-600 border-gray-500/30';
+  }
+};
+
+const getPriorityIcon = (priority: string) => {
+  switch (priority) {
+    case 'critical': return <AlertCircle className="h-3 w-3" />;
+    case 'high': return <AlertCircle className="h-3 w-3" />;
+    case 'medium': return <Flag className="h-3 w-3" />;
+    case 'low': return <Flag className="h-3 w-3" />;
+    default: return <Flag className="h-3 w-3" />;
+  }
+};
+
+const getStatusColor = (status: string) => {
+  switch (status) {
+    case 'done': return 'bg-green-500/10 text-green-500 border-green-500/20';
+    case 'in_progress': return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
+    case 'in_review': return 'bg-purple-500/10 text-purple-500 border-purple-500/20';
+    case 'blocked': return 'bg-red-500/10 text-red-500 border-red-500/20';
+    default: return 'bg-muted text-muted-foreground border-border';
+  }
+};
+
+const getInitials = (name?: string) => {
+  if (!name) return '??';
+  return name
+    .split(' ')
+    .map(n => n[0])
+    .join('')
+    .toUpperCase()
+    .slice(0, 2);
+};
+
+// Recursive Subtask Component
+const SubtaskCard: React.FC<{
+  subtask: TaskCardProps['task'];
+  depth: number;
+  onClick: () => void;
+  subtaskAttachments: Record<string, TaskAttachment[]>;
+  allSubtasks: TaskCardProps['task'][];
+}> = ({
+  subtask,
+  depth,
+  onClick,
+  subtaskAttachments,
+  allSubtasks,
+}) => {
+  const childSubtasks = allSubtasks.filter(t => t.parent_id === subtask.id);
+  const marginLeft = depth * 16; // 16px per depth level
+
+  return (
+    <div
+      className="border-l-2 border-muted hover:border-primary/50 transition-colors"
+      style={{ marginLeft: `${marginLeft}px` }}
+    >
+      <div
+        onClick={(e) => {
+          e.stopPropagation();
+          onClick();
+        }}
+        className="flex items-start gap-2 p-2 rounded hover:bg-muted/50 cursor-pointer"
+      >
+        <CornerDownRight className="h-3 w-3 text-muted-foreground mt-0.5 flex-shrink-0" />
+        <div className="flex-1 min-w-0">
+          <div className="font-medium text-sm truncate">{subtask.title}</div>
+          <div className="flex items-center gap-2 mt-1 flex-wrap">
+            <Badge variant="outline" className={cn('text-xs', getStatusColor(subtask.status))}>
+              {getStatusIcon(subtask.status)}
+              <span className="ml-1">{subtask.status.replace('_', ' ')}</span>
+            </Badge>
+            <Badge variant="outline" className={cn('text-xs border', getPriorityColor(subtask.priority))}>
+              {getPriorityIcon(subtask.priority)}
+              <span className="ml-1 capitalize">{subtask.priority}</span>
+            </Badge>
+            {subtask.assignee_name && (
+              <span className="text-xs text-muted-foreground truncate">
+                → {subtask.assignee_name}
+              </span>
+            )}
+            {subtaskAttachments[subtask.id] && subtaskAttachments[subtask.id].length > 0 && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Paperclip className="h-3 w-3" />
+                {subtaskAttachments[subtask.id].length}
+              </div>
+            )}
+            {childSubtasks.length > 0 && (
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <ListTree className="h-3 w-3" />
+                {childSubtasks.length}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+      {/* Recursively render child subtasks */}
+      {childSubtasks.length > 0 && (
+        <div className="space-y-2 mt-2">
+          {childSubtasks.map((child) => (
+            <SubtaskCard
+              key={child.id}
+              subtask={child}
+              depth={depth + 1}
+              onClick={onClick}
+              subtaskAttachments={subtaskAttachments}
+              allSubtasks={allSubtasks}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const TaskCard: React.FC<TaskCardProps> = ({
   task,
   attachments = [],
   onClick, 
@@ -75,64 +215,6 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const otherAttachments = attachments.filter(
     (att) => att.attachment_type !== 'file' || !att.file_type?.startsWith('image/')
   );
-  
-  const getTypeIcon = () => {
-    switch (task.type) {
-      case 'bug': return <Bug className="h-4 w-4" />;
-      case 'feature': return <Lightbulb className="h-4 w-4" />;
-      case 'enhancement': return <Zap className="h-4 w-4" />;
-      default: return <Circle className="h-4 w-4" />;
-    }
-  };
-
-  const getStatusIcon = () => {
-    switch (task.status) {
-      case 'done': return <CheckCircle2 className="h-4 w-4" />;
-      case 'in_progress': return <Clock className="h-4 w-4" />;
-      case 'in_review': return <Eye className="h-4 w-4" />;
-      case 'blocked': return <Ban className="h-4 w-4" />;
-      default: return <Circle className="h-4 w-4" />;
-    }
-  };
-
-  const getPriorityColor = () => {
-    switch (task.priority) {
-      case 'critical': return 'bg-red-500/20 text-red-600 border-red-500/30';
-      case 'high': return 'bg-orange-500/20 text-orange-600 border-orange-500/30';
-      case 'medium': return 'bg-yellow-500/20 text-yellow-600 border-yellow-500/30';
-      case 'low': return 'bg-gray-500/20 text-gray-600 border-gray-500/30';
-      default: return 'bg-gray-500/20 text-gray-600 border-gray-500/30';
-    }
-  };
-
-  const getPriorityIcon = () => {
-    switch (task.priority) {
-      case 'critical': return <AlertCircle className="h-3 w-3" />;
-      case 'high': return <AlertCircle className="h-3 w-3" />;
-      case 'medium': return <Flag className="h-3 w-3" />;
-      case 'low': return <Flag className="h-3 w-3" />;
-      default: return <Flag className="h-3 w-3" />;
-    }
-  };
-
-  const getStatusColor = () => {
-    switch (task.status) {
-      case 'done': return 'bg-green-500/10 text-green-500 border-green-500/20';
-      case 'in_progress': return 'bg-blue-500/10 text-blue-500 border-blue-500/20';
-      case 'in_review': return 'bg-purple-500/10 text-purple-500 border-purple-500/20';
-      case 'blocked': return 'bg-red-500/10 text-red-500 border-red-500/20';
-      default: return 'bg-muted text-muted-foreground border-border';
-    }
-  };
-
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
-  };
 
   return (
     <div className="rounded-lg border bg-card transition-all hover:bg-accent/50">
@@ -140,8 +222,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
-              <span className={cn('flex-shrink-0', getPriorityColor())}>
-                {getTypeIcon()}
+              <span className={cn('flex-shrink-0', getPriorityColor(task.priority))}>
+                {getTypeIcon(task.type)}
               </span>
               <h4 className="text-sm font-medium text-foreground truncate">
                 {task.title}
@@ -155,23 +237,23 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             </div>
 
             <div className="flex items-center gap-2 flex-wrap">
-              <Badge variant="outline" className={cn('text-xs font-semibold', getPriorityColor())}>
+              <Badge variant="outline" className={cn('text-xs font-semibold', getPriorityColor(task.priority))}>
                 <span className="flex items-center gap-1">
-                  {getPriorityIcon()}
+                  {getPriorityIcon(task.priority)}
                   {task.priority}
                 </span>
               </Badge>
 
-              <Badge variant="outline" className={cn('text-xs', getStatusColor())}>
+              <Badge variant="outline" className={cn('text-xs', getStatusColor(task.status))}>
                 <span className="flex items-center gap-1">
-                  {getStatusIcon()}
+                  {getStatusIcon(task.status)}
                   {task.status.replace('_', ' ')}
                 </span>
               </Badge>
 
               <Badge variant="secondary" className="text-xs">
                 <span className="flex items-center gap-1">
-                  {getTypeIcon()}
+                  {getTypeIcon(task.type)}
                   {task.type.replace('_', ' ')}
                 </span>
               </Badge>
@@ -260,47 +342,22 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         </div>
       </div>
 
-      {/* Subtasks */}
+      {/* Subtasks - Recursive */}
       {!task.parent_id && (
         <div className="mt-2">
           {subtasks.length > 0 && (
             <div className="ml-3 pl-3 border-l-2 border-muted space-y-2 pb-2">
-              {subtasks.map((subtask) => (
-            <div
-              key={subtask.id}
-              className="p-2 rounded-md bg-muted/30 hover:bg-muted/50 cursor-pointer transition-colors"
-              onClick={(e) => {
-                e.stopPropagation();
-                onClick();
-              }}
-            >
-              <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2 flex-1 min-w-0">
-                  <CornerDownRight className="h-3 w-3 text-muted-foreground flex-shrink-0" />
-                  <span className="text-xs font-medium truncate">{subtask.title}</span>
-                  <Badge variant="outline" className={cn('text-[10px] px-1 py-0', getStatusColor())}>
-                    {subtask.status.replace('_', ' ')}
-                  </Badge>
-                </div>
-                
-                {subtaskAttachments[subtask.id]?.length > 0 && (
-                  <div className="flex items-center gap-1 text-muted-foreground">
-                    <Paperclip className="h-3 w-3" />
-                    <span className="text-xs">{subtaskAttachments[subtask.id].length}</span>
-                  </div>
-                )}
-                
-                {subtask.assigned_to && subtask.assignee_name && (
-                  <Avatar className="h-5 w-5">
-                    <AvatarFallback className="bg-primary text-primary-foreground text-[10px]">
-                      {getInitials(subtask.assignee_name)}
-                    </AvatarFallback>
-                  </Avatar>
-                )}
-              </div>
+              {subtasks.filter(st => st.parent_id === task.id).map((subtask) => (
+                <SubtaskCard
+                  key={subtask.id}
+                  subtask={subtask}
+                  depth={0}
+                  onClick={onClick}
+                  subtaskAttachments={subtaskAttachments}
+                  allSubtasks={subtasks}
+                />
+              ))}
             </div>
-          ))}
-        </div>
           )}
           
           {/* Add Subtask Button */}
