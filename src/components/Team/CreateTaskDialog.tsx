@@ -119,7 +119,6 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       const { data, error } = await supabase
         .from('tasks')
         .select('id, title')
-        .is('parent_id', null) // Only fetch top-level tasks as potential parents
         .order('title');
       
       if (data && !error) {
