@@ -47,6 +47,12 @@ interface ParentTask {
   title: string;
 }
 
+interface Cycle {
+  id: string;
+  name: string;
+  status: string;
+}
+
 export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   open,
   onOpenChange,
@@ -60,6 +66,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [parentTasks, setParentTasks] = useState<ParentTask[]>([]);
+  const [cycles, setCycles] = useState<Cycle[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [createdTaskId, setCreatedTaskId] = useState<string | null>(null);
   
@@ -72,6 +79,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     assigned_to: '',
     product_id: productId || projectId || '',
     parent_id: parentTaskId || '',
+    cycle_id: '',
     module: '',
     category: '',
     mission: '',
@@ -84,6 +92,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       fetchTeamMembers();
       fetchProducts();
       fetchParentTasks();
+      fetchCycles();
     }
   }, [open]);
 
@@ -126,6 +135,22 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       }
     } catch (err) {
       console.error('Error fetching parent tasks:', err);
+    }
+  };
+
+  const fetchCycles = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('cycles')
+        .select('id, name, status')
+        .in('status', ['planning', 'active'])
+        .order('start_date', { ascending: false });
+      
+      if (data && !error) {
+        setCycles(data as Cycle[]);
+      }
+    } catch (err) {
+      console.error('Error fetching cycles:', err);
     }
   };
 
@@ -199,6 +224,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         assigned_to: '',
         product_id: productId || projectId || '',
         parent_id: parentTaskId || '',
+        cycle_id: '',
         module: '',
         category: '',
         mission: '',
@@ -388,6 +414,24 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
               </Select>
             </div>
           )}
+
+          {/* Cycle Selection */}
+          <div className="space-y-1">
+            <Label className="text-sm">Cycle (Optional)</Label>
+            <Select value={formData.cycle_id || 'none'} onValueChange={(v) => setFormData({ ...formData, cycle_id: v === 'none' ? '' : v })}>
+              <SelectTrigger className="h-9">
+                <SelectValue placeholder="No cycle" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No cycle</SelectItem>
+                {cycles.map((cycle) => (
+                  <SelectItem key={cycle.id} value={cycle.id}>
+                    {cycle.name} {cycle.status === 'active' && '(Active)'}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-1">

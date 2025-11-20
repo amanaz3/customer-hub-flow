@@ -41,6 +41,8 @@ interface TaskCardProps {
     assigned_to: string | null;
     assignee_name?: string;
     product_name?: string;
+    cycle_id?: string | null;
+    cycle_name?: string | null;
     module?: string | null;
     category?: string | null;
     architectural_component?: string | null;
@@ -273,6 +275,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               {task.category && (
                 <Badge variant="outline" className="text-xs bg-accent/50">
                   {task.category.replace('_', ' ')}
+                </Badge>
+              )}
+
+              {task.cycle_name && (
+                <Badge variant="outline" className="text-xs bg-primary/10 border-primary/30">
+                  <Clock className="h-3 w-3 mr-1" />
+                  {task.cycle_name}
                 </Badge>
               )}
             </div>
