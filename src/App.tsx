@@ -53,6 +53,7 @@ import ApplicationsByTeam from '@/pages/ApplicationsByTeam';
 import LegacyApplicationsView from '@/pages/LegacyApplicationsView';
 import Tracker from '@/pages/Tracker';
 import AI360View from '@/pages/AI360View';
+import Cycles from '@/pages/Cycles';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -428,6 +429,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Track Tasks">
                           <TaskCollaboration />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/cycles" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Cycles">
+                          <Cycles />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
