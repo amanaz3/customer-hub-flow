@@ -695,6 +695,50 @@ export type Database = {
           },
         ]
       }
+      cycles: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          end_date: string
+          id: string
+          name: string
+          start_date: string
+          status: Database["public"]["Enums"]["cycle_status"]
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date: string
+          id?: string
+          name: string
+          start_date: string
+          status?: Database["public"]["Enums"]["cycle_status"]
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          end_date?: string
+          id?: string
+          name?: string
+          start_date?: string
+          status?: Database["public"]["Enums"]["cycle_status"]
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cycles_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       deals: {
         Row: {
           actual_close_date: string | null
@@ -1736,6 +1780,7 @@ export type Database = {
           category: string | null
           created_at: string
           created_by: string
+          cycle_id: string | null
           description: string | null
           id: string
           mission: string | null
@@ -1756,6 +1801,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           created_by: string
+          cycle_id?: string | null
           description?: string | null
           id?: string
           mission?: string | null
@@ -1776,6 +1822,7 @@ export type Database = {
           category?: string | null
           created_at?: string
           created_by?: string
+          cycle_id?: string | null
           description?: string | null
           id?: string
           mission?: string | null
@@ -1803,6 +1850,13 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "cycles"
             referencedColumns: ["id"]
           },
           {
@@ -2123,6 +2177,7 @@ export type Database = {
         | "need more info"
         | "under_review"
         | "approved"
+      cycle_status: "planning" | "active" | "completed"
       document_category:
         | "mandatory"
         | "freezone"
@@ -2314,6 +2369,7 @@ export const Constants = {
         "under_review",
         "approved",
       ],
+      cycle_status: ["planning", "active", "completed"],
       document_category: [
         "mandatory",
         "freezone",
