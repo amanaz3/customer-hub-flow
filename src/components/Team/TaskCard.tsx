@@ -209,7 +209,7 @@ const SubtaskCard: React.FC<{
       </div>
       {/* Recursively render child subtasks with Accordion */}
       {childSubtasks.length > 0 && (
-        <Accordion type="single" collapsible defaultValue="child-subtasks" className="mt-1">
+        <Accordion type="single" collapsible className="mt-1">
           <AccordionItem value="child-subtasks" className="border-none">
             <AccordionTrigger className="px-2 py-1 hover:no-underline hover:bg-muted/30 text-xs">
               <div className="flex items-center gap-1">
@@ -414,9 +414,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         </div>
       </div>
 
-      {/* Subtasks - Accordion (expanded by default) */}
+      {/* Subtasks - Accordion (collapsed by default) */}
       {!task.parent_id && totalSubtasksCount > 0 && (
-        <Accordion type="single" collapsible defaultValue="subtasks" className="border-t border-border/50">
+        <Accordion type="single" collapsible className="border-t border-border/50">
           <AccordionItem value="subtasks" className="border-none">
             <AccordionTrigger className="px-3 py-2 hover:no-underline hover:bg-muted/30">
               <div className="flex items-center gap-2 text-sm">
