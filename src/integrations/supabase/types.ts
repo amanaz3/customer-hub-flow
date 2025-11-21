@@ -1785,6 +1785,8 @@ export type Database = {
           created_by: string
           cycle_id: string | null
           description: string | null
+          github_branch: string | null
+          github_repo: string | null
           id: string
           mission: string | null
           module: string | null
@@ -1806,6 +1808,8 @@ export type Database = {
           created_by: string
           cycle_id?: string | null
           description?: string | null
+          github_branch?: string | null
+          github_repo?: string | null
           id?: string
           mission?: string | null
           module?: string | null
@@ -1827,6 +1831,8 @@ export type Database = {
           created_by?: string
           cycle_id?: string | null
           description?: string | null
+          github_branch?: string | null
+          github_repo?: string | null
           id?: string
           mission?: string | null
           module?: string | null
