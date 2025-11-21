@@ -45,6 +45,7 @@ export interface Application {
   updated_at: string;
   completed_at?: string;
   completed_actual?: string;
+  estimated_completion_time?: string;
   
   // Relations
   customer?: {
@@ -119,6 +120,7 @@ export interface CreateApplicationInput {
   submission_source?: SubmissionSource;
   status?: ApplicationStatus;
   application_data: ApplicationData;
+  estimated_completion_time?: string;
 }
 
 export interface UpdateApplicationInput {

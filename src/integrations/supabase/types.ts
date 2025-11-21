@@ -22,6 +22,7 @@ export type Database = {
           completed_at: string | null
           created_at: string
           customer_id: string | null
+          estimated_completion_time: string | null
           id: string
           reference_number: number
           status: Database["public"]["Enums"]["application_status"]
@@ -35,6 +36,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           customer_id?: string | null
+          estimated_completion_time?: string | null
           id?: string
           reference_number: number
           status?: Database["public"]["Enums"]["application_status"]
@@ -48,6 +50,7 @@ export type Database = {
           completed_at?: string | null
           created_at?: string
           customer_id?: string | null
+          estimated_completion_time?: string | null
           id?: string
           reference_number?: number
           status?: Database["public"]["Enums"]["application_status"]

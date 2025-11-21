@@ -68,7 +68,8 @@ export const validateApplicationStatusTransition = (
   isAdmin: boolean,
   isUserOwner: boolean,
   hasRequiredDocuments: boolean = false,
-  comment?: string
+  comment?: string,
+  estimatedCompletionTime?: string
 ): { isValid: boolean; error?: string } => {
   const transition = APPLICATION_STATUS_TRANSITIONS.find(t => t.from === from);
   
@@ -94,6 +95,11 @@ export const validateApplicationStatusTransition = (
   
   if (transition.requiresComment && (!comment || comment.trim().length === 0)) {
     return { isValid: false, error: 'Comment is required for this status change' };
+  }
+  
+  // Check for estimated completion time when transitioning from draft to submitted
+  if (from === 'draft' && to === 'submitted' && !estimatedCompletionTime) {
+    return { isValid: false, error: 'Estimated completion date is required before submitting' };
   }
   
   return { isValid: true };

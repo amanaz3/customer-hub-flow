@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Building2, Mail, Phone, FileText, MessageSquare, Users, RefreshCw, Calendar, Clock, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, Building2, Mail, Phone, FileText, MessageSquare, Users, RefreshCw, Calendar, Clock, AlertTriangle, Save } from 'lucide-react';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { useToast } from '@/hooks/use-toast';
 import { ApplicationService } from '@/services/applicationService';
 import { supabase } from '@/integrations/supabase/client';
+import { Input } from '@/components/ui/input';
 import type { Application } from '@/types/application';
 import { formatApplicationReferenceWithPrefix } from '@/utils/referenceNumberFormatter';
 import { CompletionDateDialog } from '@/components/Customer/CompletionDateDialog';
@@ -29,6 +30,7 @@ const ApplicationDetail = () => {
   const [isEditingCompletionDate, setIsEditingCompletionDate] = useState(false);
   const [systemCompletedTime, setSystemCompletedTime] = useState<string | null>(null);
   const [maxApplicationRef, setMaxApplicationRef] = useState<number>(0);
+  const [estimatedCompletionTime, setEstimatedCompletionTime] = useState<string>('');
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -39,6 +41,7 @@ const ApplicationDetail = () => {
         const data = await ApplicationService.fetchApplicationById(id);
         setApplication(data);
         setSelectedStatus(data?.status || '');
+        setEstimatedCompletionTime(data?.estimated_completion_time || '');
         
         // Fetch max reference number for auto-scaling formatter
         const { data: maxRefData } = await supabase
@@ -84,6 +87,18 @@ const ApplicationDetail = () => {
   const handleStatusUpdate = async () => {
     if (!id || !selectedStatus || !user) return;
 
+    // Validate estimated completion time for draft->submitted transition
+    if (application?.status.toLowerCase() === 'draft' && selectedStatus.toLowerCase() === 'submitted') {
+      if (!estimatedCompletionTime) {
+        toast({
+          title: 'Estimated Completion Date Required',
+          description: 'Please set an estimated completion date before submitting the application.',
+          variant: 'destructive',
+        });
+        return;
+      }
+    }
+
     // If changing to completed, show completion date dialog
     if (selectedStatus.toLowerCase() === 'completed') {
       setPendingStatusUpdate(selectedStatus);
@@ -100,6 +115,14 @@ const ApplicationDetail = () => {
 
     try {
       setUpdatingStatus(true);
+
+      // If transitioning from draft to submitted, save the estimated completion time
+      if (application?.status.toLowerCase() === 'draft' && status.toLowerCase() === 'submitted') {
+        await supabase
+          .from('account_applications')
+          .update({ estimated_completion_time: estimatedCompletionTime })
+          .eq('id', id);
+      }
 
       await ApplicationService.updateApplicationStatus(
         id,
@@ -368,6 +391,67 @@ const ApplicationDetail = () => {
                 Status will change from <strong>{application.status}</strong> to <strong>{selectedStatus}</strong>
               </p>
             )}
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Estimated Completion Date - Visible when in Draft Status */}
+      {application.status.toLowerCase() === 'draft' && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Calendar className="h-5 w-5" />
+              Estimated Completion Date
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
+              <div className="flex-1 w-full">
+                <label className="text-sm font-medium mb-2 block">
+                  Expected Date <span className="text-destructive">*</span>
+                </label>
+                <Input
+                  type="date"
+                  value={estimatedCompletionTime}
+                  onChange={(e) => setEstimatedCompletionTime(e.target.value)}
+                  className="w-full"
+                  min={new Date().toISOString().split('T')[0]}
+                />
+                <p className="text-sm text-muted-foreground mt-1">
+                  Required before submitting the application
+                </p>
+              </div>
+              <Button 
+                onClick={async () => {
+                  if (!id || !estimatedCompletionTime) return;
+                  try {
+                    const { error } = await supabase
+                      .from('account_applications')
+                      .update({ estimated_completion_time: estimatedCompletionTime })
+                      .eq('id', id);
+                    
+                    if (error) throw error;
+                    
+                    toast({
+                      title: 'Success',
+                      description: 'Estimated completion date saved',
+                    });
+                  } catch (error) {
+                    toast({
+                      title: 'Error',
+                      description: 'Failed to save estimated completion date',
+                      variant: 'destructive',
+                    });
+                  }
+                }}
+                disabled={!estimatedCompletionTime}
+                variant="outline"
+                className="whitespace-nowrap"
+              >
+                <Save className="h-4 w-4 mr-2" />
+                Save Date
+              </Button>
+            </div>
           </CardContent>
         </Card>
       )}

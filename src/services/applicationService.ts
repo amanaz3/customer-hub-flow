@@ -21,6 +21,7 @@ export class ApplicationService {
         submission_source: input.submission_source || 'web_form',
         status: input.status || 'draft',
         application_data: input.application_data as any,
+        estimated_completion_time: input.estimated_completion_time,
       }] as any)
       .select('*')
       .single();
