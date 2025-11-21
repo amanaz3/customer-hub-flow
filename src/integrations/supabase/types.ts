@@ -2177,7 +2177,14 @@ export type Database = {
         | "need more info"
         | "under_review"
         | "approved"
-      cycle_status: "planning" | "active" | "completed"
+      cycle_status:
+        | "planning"
+        | "active"
+        | "completed"
+        | "loveable-stage"
+        | "dev-stage"
+        | "qa-stage"
+        | "live-stage"
       document_category:
         | "mandatory"
         | "freezone"
@@ -2369,7 +2376,15 @@ export const Constants = {
         "under_review",
         "approved",
       ],
-      cycle_status: ["planning", "active", "completed"],
+      cycle_status: [
+        "planning",
+        "active",
+        "completed",
+        "loveable-stage",
+        "dev-stage",
+        "qa-stage",
+        "live-stage",
+      ],
       document_category: [
         "mandatory",
         "freezone",
