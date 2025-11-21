@@ -15,7 +15,7 @@ interface Cycle {
   description: string | null;
   start_date: string;
   end_date: string;
-  status: 'planning' | 'active' | 'completed';
+  status: 'planning' | 'active' | 'completed' | 'loveable-stage' | 'dev-stage' | 'qa-stage' | 'live-stage';
   created_at: string;
   task_count?: number;
   completed_tasks?: number;
@@ -78,6 +78,14 @@ const Cycles: React.FC = () => {
         return 'bg-secondary text-secondary-foreground';
       case 'active':
         return 'bg-primary text-primary-foreground';
+      case 'loveable-stage':
+        return 'bg-purple-500/10 text-purple-500';
+      case 'dev-stage':
+        return 'bg-cyan-500/10 text-cyan-500';
+      case 'qa-stage':
+        return 'bg-yellow-500/10 text-yellow-500';
+      case 'live-stage':
+        return 'bg-emerald-500/10 text-emerald-500';
       case 'completed':
         return 'bg-muted text-muted-foreground';
     }
@@ -88,6 +96,11 @@ const Cycles: React.FC = () => {
       case 'planning':
         return <Calendar className="h-3 w-3" />;
       case 'active':
+        return <Clock className="h-3 w-3" />;
+      case 'loveable-stage':
+      case 'dev-stage':
+      case 'qa-stage':
+      case 'live-stage':
         return <Clock className="h-3 w-3" />;
       case 'completed':
         return <CheckCircle2 className="h-3 w-3" />;
@@ -107,6 +120,10 @@ const Cycles: React.FC = () => {
   const groupedCycles = {
     active: cycles.filter((c) => c.status === 'active'),
     planning: cycles.filter((c) => c.status === 'planning'),
+    loveableStage: cycles.filter((c) => c.status === 'loveable-stage'),
+    devStage: cycles.filter((c) => c.status === 'dev-stage'),
+    qaStage: cycles.filter((c) => c.status === 'qa-stage'),
+    liveStage: cycles.filter((c) => c.status === 'live-stage'),
     completed: cycles.filter((c) => c.status === 'completed'),
   };
 
@@ -162,6 +179,86 @@ const Cycles: React.FC = () => {
           </h2>
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             {groupedCycles.planning.map((cycle) => (
+              <CycleCard
+                key={cycle.id}
+                cycle={cycle}
+                onEdit={handleEditCycle}
+                onRefresh={fetchCycles}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Loveable Stage Cycles */}
+      {groupedCycles.loveableStage.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <Clock className="h-5 w-5 text-purple-500" />
+            Loveable Stage
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {groupedCycles.loveableStage.map((cycle) => (
+              <CycleCard
+                key={cycle.id}
+                cycle={cycle}
+                onEdit={handleEditCycle}
+                onRefresh={fetchCycles}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Dev Stage Cycles */}
+      {groupedCycles.devStage.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <Clock className="h-5 w-5 text-cyan-500" />
+            Dev Stage
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {groupedCycles.devStage.map((cycle) => (
+              <CycleCard
+                key={cycle.id}
+                cycle={cycle}
+                onEdit={handleEditCycle}
+                onRefresh={fetchCycles}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* QA Stage Cycles */}
+      {groupedCycles.qaStage.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <Clock className="h-5 w-5 text-yellow-500" />
+            QA Stage
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {groupedCycles.qaStage.map((cycle) => (
+              <CycleCard
+                key={cycle.id}
+                cycle={cycle}
+                onEdit={handleEditCycle}
+                onRefresh={fetchCycles}
+              />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Live Stage Cycles */}
+      {groupedCycles.liveStage.length > 0 && (
+        <div className="space-y-4">
+          <h2 className="text-xl font-semibold flex items-center gap-2">
+            <Clock className="h-5 w-5 text-emerald-500" />
+            Live Stage
+          </h2>
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {groupedCycles.liveStage.map((cycle) => (
               <CycleCard
                 key={cycle.id}
                 cycle={cycle}
@@ -241,6 +338,14 @@ const CycleCard: React.FC<CycleCardProps> = ({ cycle, onEdit, onRefresh }) => {
         return 'bg-secondary text-secondary-foreground';
       case 'active':
         return 'bg-primary text-primary-foreground';
+      case 'loveable-stage':
+        return 'bg-purple-500/10 text-purple-500';
+      case 'dev-stage':
+        return 'bg-cyan-500/10 text-cyan-500';
+      case 'qa-stage':
+        return 'bg-yellow-500/10 text-yellow-500';
+      case 'live-stage':
+        return 'bg-emerald-500/10 text-emerald-500';
       case 'completed':
         return 'bg-muted text-muted-foreground';
     }
@@ -251,6 +356,11 @@ const CycleCard: React.FC<CycleCardProps> = ({ cycle, onEdit, onRefresh }) => {
       case 'planning':
         return <Calendar className="h-3 w-3" />;
       case 'active':
+        return <Clock className="h-3 w-3" />;
+      case 'loveable-stage':
+      case 'dev-stage':
+      case 'qa-stage':
+      case 'live-stage':
         return <Clock className="h-3 w-3" />;
       case 'completed':
         return <CheckCircle2 className="h-3 w-3" />;

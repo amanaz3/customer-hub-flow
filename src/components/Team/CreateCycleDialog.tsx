@@ -31,7 +31,7 @@ interface CreateCycleDialogProps {
     description: string | null;
     start_date: string;
     end_date: string;
-    status: 'planning' | 'active' | 'completed';
+    status: 'planning' | 'active' | 'completed' | 'loveable-stage' | 'dev-stage' | 'qa-stage' | 'live-stage';
   };
 }
 
@@ -49,7 +49,7 @@ export const CreateCycleDialog: React.FC<CreateCycleDialogProps> = ({
     description: string;
     start_date: string;
     end_date: string;
-    status: 'planning' | 'active' | 'completed';
+    status: 'planning' | 'active' | 'completed' | 'loveable-stage' | 'dev-stage' | 'qa-stage' | 'live-stage';
   }>({
     name: '',
     description: '',
@@ -215,7 +215,7 @@ export const CreateCycleDialog: React.FC<CreateCycleDialogProps> = ({
             <Label htmlFor="status">Status</Label>
             <Select
               value={formData.status}
-              onValueChange={(value: 'planning' | 'active' | 'completed') =>
+              onValueChange={(value: any) =>
                 setFormData({ ...formData, status: value })
               }
             >
@@ -225,12 +225,20 @@ export const CreateCycleDialog: React.FC<CreateCycleDialogProps> = ({
               <SelectContent>
                 <SelectItem value="planning">Planning</SelectItem>
                 <SelectItem value="active">Active</SelectItem>
+                <SelectItem value="loveable-stage">Loveable Stage</SelectItem>
+                <SelectItem value="dev-stage">Dev Stage</SelectItem>
+                <SelectItem value="qa-stage">QA Stage</SelectItem>
+                <SelectItem value="live-stage">Live Stage</SelectItem>
                 <SelectItem value="completed">Completed</SelectItem>
               </SelectContent>
             </Select>
             <p className="text-sm text-muted-foreground">
               {formData.status === 'planning' && 'Not started yet'}
               {formData.status === 'active' && 'Currently in progress'}
+              {formData.status === 'loveable-stage' && 'In Loveable stage'}
+              {formData.status === 'dev-stage' && 'In development stage'}
+              {formData.status === 'qa-stage' && 'In QA stage'}
+              {formData.status === 'live-stage' && 'Live/deployed'}
               {formData.status === 'completed' && 'Finished'}
             </p>
           </div>
