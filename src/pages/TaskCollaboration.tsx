@@ -661,11 +661,16 @@ const TaskCollaboration: React.FC = () => {
     return nextSteps[status] || 'Update case status';
   };
 
+  // Filter tasks by project before calculating stats
+  const projectFilteredTasks = projectFilter === 'all' 
+    ? tasks 
+    : tasks.filter((t) => t.project_id === projectFilter);
+
   const taskStats = {
-    total: tasks.length,
-    todo: tasks.filter((t) => t.status === 'todo').length,
-    in_progress: tasks.filter((t) => t.status === 'in_progress').length,
-    done: tasks.filter((t) => t.status === 'done').length,
+    total: projectFilteredTasks.length,
+    todo: projectFilteredTasks.filter((t) => t.status === 'todo').length,
+    in_progress: projectFilteredTasks.filter((t) => t.status === 'in_progress').length,
+    done: projectFilteredTasks.filter((t) => t.status === 'done').length,
   };
 
   if (loading) {
