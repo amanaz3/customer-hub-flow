@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { supabase } from '@/lib/supabase';
 import {
@@ -11,6 +11,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
 import { Loader2 } from 'lucide-react';
 
@@ -18,6 +19,11 @@ interface QuickAddTaskFromWhatsAppProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onTasksCreated: () => void;
+}
+
+interface Project {
+  id: string;
+  name: string;
 }
 
 export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> = ({
@@ -28,6 +34,32 @@ export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> =
   const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   const [whatsappMessage, setWhatsappMessage] = useState('');
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [selectedProjectId, setSelectedProjectId] = useState<string>('');
+
+  useEffect(() => {
+    if (open) {
+      fetchProjects();
+    }
+  }, [open]);
+
+  const fetchProjects = async () => {
+    const { data, error } = await supabase
+      .from('projects')
+      .select('id, name')
+      .order('name');
+
+    if (error) {
+      console.error('Error fetching projects:', error);
+      toast.error('Failed to load projects');
+      return;
+    }
+
+    setProjects(data || []);
+    if (data && data.length > 0) {
+      setSelectedProjectId(data[0].id);
+    }
+  };
 
   const parseWhatsAppMessage = (message: string) => {
     const lines = message.split('\n').filter(line => line.length > 0);
@@ -97,6 +129,11 @@ export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> =
       return;
     }
 
+    if (!selectedProjectId) {
+      toast.error('Please select a project');
+      return;
+    }
+
     setLoading(true);
     try {
       const parsedTasks = parseWhatsAppMessage(whatsappMessage);
@@ -124,6 +161,7 @@ export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> =
               status: 'todo' as const,
               created_by: user.id,
               parent_id: parentId,
+              project_id: selectedProjectId,
               description: parentId === null ? whatsappMessage : undefined,
             })
             .select()
@@ -169,6 +207,22 @@ export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> =
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="space-y-2">
+            <Label>Project</Label>
+            <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+              <SelectTrigger>
+                <SelectValue placeholder="Select a project" />
+              </SelectTrigger>
+              <SelectContent>
+                {projects.map((project) => (
+                  <SelectItem key={project.id} value={project.id}>
+                    {project.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
           <div className="space-y-2">
             <Label>WhatsApp Message</Label>
             <Textarea
