@@ -53,6 +53,41 @@ const Tracker = () => {
     return null;
   }
 
+  const [tasks, setTasks] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchTasks();
+  }, []);
+
+  const fetchTasks = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('tasks')
+        .select('github_repo, github_branch')
+        .not('github_repo', 'is', null)
+        .not('github_branch', 'is', null);
+
+      if (error) throw error;
+      setTasks(data || []);
+    } catch (error) {
+      console.error('Error fetching tasks:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Group branches by repo
+  const branchesByRepo: Record<string, Set<string>> = tasks.reduce((acc: Record<string, Set<string>>, task) => {
+    if (task.github_repo && task.github_branch) {
+      if (!acc[task.github_repo]) {
+        acc[task.github_repo] = new Set();
+      }
+      acc[task.github_repo].add(task.github_branch);
+    }
+    return acc;
+  }, {});
+
   const trackerCards = [
     {
       title: "360° AI View",
@@ -114,6 +149,59 @@ const Tracker = () => {
           Comprehensive application tracking and monitoring dashboard
         </p>
       </div>
+
+      {/* GitHub Branches Section */}
+      {Object.keys(branchesByRepo).length > 0 && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <svg className="h-5 w-5" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+              </svg>
+              GitHub Branches
+            </CardTitle>
+            <CardDescription>
+              Active branches across all projects
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {Object.entries(branchesByRepo).map(([repo, branches]) => (
+                <div key={repo} className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className="bg-blue-500/10 border-blue-500/30 text-blue-600">
+                      <svg className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="currentColor">
+                        <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+                      </svg>
+                      {repo}
+                    </Badge>
+                    <span className="text-sm text-muted-foreground">
+                      {branches.size} {branches.size === 1 ? 'branch' : 'branches'}
+                    </span>
+                  </div>
+                  <div className="flex flex-wrap gap-2 ml-4">
+                    {Array.from(branches).map((branch) => (
+                      <Badge 
+                        key={branch} 
+                        variant="outline" 
+                        className="bg-emerald-500/10 border-emerald-500/30 text-emerald-600"
+                      >
+                        <svg className="h-3 w-3 mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                          <path d="M6 3v12"></path>
+                          <circle cx="18" cy="6" r="3"></circle>
+                          <circle cx="6" cy="18" r="3"></circle>
+                          <path d="M18 9a9 9 0 01-9 9"></path>
+                        </svg>
+                        {branch}
+                      </Badge>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {trackerCards.map((card) => {
