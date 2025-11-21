@@ -26,7 +26,6 @@ import { TaskCard } from '@/components/Team/TaskCard';
 import { TaskDetailDialog } from '@/components/Team/TaskDetailDialog';
 import { QuickAddBugDialog } from '@/components/Team/QuickAddBugDialog';
 import { QuickAddTaskFromWhatsApp } from '@/components/Team/QuickAddTaskFromWhatsApp';
-import { GitHubBranchesViewer } from '@/components/Team/GitHubBranchesViewer';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 import { formatApplicationReferenceWithPrefix } from '@/utils/referenceNumberFormatter';
 
@@ -1101,13 +1100,6 @@ const TaskCollaboration: React.FC = () => {
                   <div className="text-2xl font-bold">{taskStats.total}</div>
                   <div className="text-xs text-muted-foreground">Total</div>
                 </div>
-              </div>
-
-              {/* GitHub Branches Viewer */}
-              <div className="mb-6">
-                <GitHubBranchesViewer 
-                  defaultRepo={tasks.find(t => t.github_repo)?.github_repo || undefined}
-                />
               </div>
 
               {/* Tasks List */}

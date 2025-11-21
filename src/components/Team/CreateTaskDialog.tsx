@@ -69,6 +69,8 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
   const [cycles, setCycles] = useState<Cycle[]>([]);
   const [uploadedFiles, setUploadedFiles] = useState<File[]>([]);
   const [createdTaskId, setCreatedTaskId] = useState<string | null>(null);
+  const [branches, setBranches] = useState<string[]>([]);
+  const [loadingBranches, setLoadingBranches] = useState(false);
   
   const [formData, setFormData] = useState({
     title: '',
@@ -97,6 +99,14 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       fetchCycles();
     }
   }, [open]);
+
+  useEffect(() => {
+    if (formData.product_id) {
+      fetchBranchesForProject(formData.product_id);
+    } else {
+      setBranches([]);
+    }
+  }, [formData.product_id]);
 
   const fetchTeamMembers = async () => {
     const { data } = await supabase
@@ -153,6 +163,59 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
       }
     } catch (err) {
       console.error('Error fetching cycles:', err);
+    }
+  };
+
+  const fetchBranchesForProject = async (projectId: string) => {
+    try {
+      setLoadingBranches(true);
+      
+      // Fetch project's github_repo
+      const { data: projectData, error: projectError } = await supabase
+        .from('projects')
+        .select('github_repo')
+        .eq('id', projectId)
+        .single();
+      
+      if (projectError || !projectData?.github_repo) {
+        setBranches([]);
+        return;
+      }
+      
+      // Parse GitHub URL
+      const repoUrl = projectData.github_repo;
+      const match = repoUrl.match(/(?:https?:\/\/github\.com\/)?([^\/]+)\/([^\/\s]+)/);
+      
+      if (!match) {
+        setBranches([]);
+        return;
+      }
+      
+      const owner = match[1];
+      const repo = match[2].replace('.git', '');
+      
+      // Fetch branches from GitHub API
+      const response = await fetch(
+        `https://api.github.com/repos/${owner}/${repo}/branches`,
+        {
+          headers: {
+            'Accept': 'application/vnd.github.v3+json',
+          },
+        }
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        const branchNames = data.map((branch: any) => branch.name);
+        setBranches(branchNames);
+      } else {
+        setBranches([]);
+      }
+    } catch (err) {
+      console.error('Error fetching branches:', err);
+      setBranches([]);
+    } finally {
+      setLoadingBranches(false);
     }
   };
 
@@ -531,29 +594,30 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           </div>
 
           {/* GitHub Information */}
-          <div className="grid grid-cols-2 gap-3">
+          {branches.length > 0 && (
             <div className="space-y-1">
-              <Label htmlFor="github_repo" className="text-sm">GitHub Project</Label>
-              <Input
-                id="github_repo"
-                value={formData.github_repo}
-                onChange={(e) => setFormData({ ...formData, github_repo: e.target.value })}
-                placeholder="e.g., lovable-crm"
-                className="h-9"
-              />
+              <Label htmlFor="github_branch" className="text-sm">
+                GitHub Branch {loadingBranches && '(Loading...)'}
+              </Label>
+              <Select 
+                value={formData.github_branch || 'none'} 
+                onValueChange={(v) => setFormData({ ...formData, github_branch: v === 'none' ? '' : v })}
+                disabled={loadingBranches}
+              >
+                <SelectTrigger className="h-9">
+                  <SelectValue placeholder="Select a branch..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No branch</SelectItem>
+                  {branches.map((branch) => (
+                    <SelectItem key={branch} value={branch}>
+                      {branch}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
-
-            <div className="space-y-1">
-              <Label htmlFor="github_branch" className="text-sm">GitHub Branch</Label>
-              <Input
-                id="github_branch"
-                value={formData.github_branch}
-                onChange={(e) => setFormData({ ...formData, github_branch: e.target.value })}
-                placeholder="e.g., main, feature/xyz"
-                className="h-9"
-              />
-            </div>
-          </div>
+          )}
 
           {/* Attachments */}
           <div className="space-y-2">
