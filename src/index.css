@@ -4,137 +4,140 @@
 
 @layer base {
   :root {
-    /* Sophisticated off-white with subtle warmth */
-    --background: 210 17% 98%;
-    --foreground: 215 25% 20%;
+    /* Pure, clean backgrounds - Apple white */
+    --background: 0 0% 100%;
+    --foreground: 0 0% 9%;
 
-    /* Clean white cards with subtle elevation */
+    /* Elevated cards with subtle depth */
     --card: 0 0% 100%;
-    --card-foreground: 215 25% 20%;
+    --card-foreground: 0 0% 9%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 215 25% 20%;
+    --popover-foreground: 0 0% 9%;
 
-    /* Professional blue-teal primary - trust & innovation */
-    --primary: 200 95% 45%;
+    /* Sophisticated blue - trust & innovation */
+    --primary: 213 94% 45%;
     --primary-foreground: 0 0% 100%;
 
-    /* Refined gray secondary */
-    --secondary: 210 14% 89%;
-    --secondary-foreground: 215 25% 30%;
+    /* Subtle gray for secondary elements */
+    --secondary: 0 0% 96%;
+    --secondary-foreground: 0 0% 20%;
 
-    /* Subtle muted backgrounds */
-    --muted: 210 17% 95%;
-    --muted-foreground: 215 20% 40%;
+    /* Whisper-light muted areas */
+    --muted: 0 0% 97%;
+    --muted-foreground: 0 0% 45%;
 
-    /* Deep purple accent for premium feel */
-    --accent: 260 60% 55%;
+    /* Refined purple accent */
+    --accent: 250 84% 54%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
-    /* Professional emerald for success & completion */
-    --success: 158 64% 42%;
+    /* Clean emerald success */
+    --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
 
-    /* Elegant borders with subtle depth */
-    --border: 210 14% 89%;
-    --input: 210 14% 89%;
-    --ring: 200 95% 45%;
+    /* Almost invisible borders */
+    --border: 0 0% 90%;
+    --input: 0 0% 90%;
+    --ring: 213 94% 45%;
 
-    --radius: 0.5rem;
+    --radius: 0.75rem;
 
-    /* Refined chart colors */
-    --chart-1: 200 95% 45%;
+    /* Refined chart palette */
+    --chart-1: 213 94% 45%;
     --chart-1-foreground: 0 0% 100%;
-    --chart-2: 158 64% 42%;
+    --chart-2: 142 71% 45%;
     --chart-2-foreground: 0 0% 100%;
-    --chart-3: 25 95% 53%;
+    --chart-3: 38 92% 50%;
     --chart-3-foreground: 0 0% 100%;
-    --chart-4: 260 60% 55%;
+    --chart-4: 250 84% 54%;
     --chart-4-foreground: 0 0% 100%;
-    --chart-5: 345 82% 50%;
+    --chart-5: 340 82% 52%;
     --chart-5-foreground: 0 0% 100%;
 
-    /* Professional sidebar */
-    --sidebar-background: 210 17% 98%;
-    --sidebar-foreground: 215 25% 20%;
-    --sidebar-primary: 200 95% 45%;
+    /* Clean sidebar with frosted effect */
+    --sidebar-background: 0 0% 99%;
+    --sidebar-foreground: 0 0% 9%;
+    --sidebar-primary: 213 94% 45%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 210 17% 95%;
-    --sidebar-accent-foreground: 215 25% 20%;
-    --sidebar-border: 210 14% 89%;
-    --sidebar-ring: 200 95% 45%;
+    --sidebar-accent: 0 0% 96%;
+    --sidebar-accent-foreground: 0 0% 9%;
+    --sidebar-border: 0 0% 92%;
+    --sidebar-ring: 213 94% 45%;
     
-    /* Elegant shadows with depth */
-    --shadow-sm: 0 1px 2px 0 hsl(215 25% 20% / 0.05);
-    --shadow-md: 0 4px 6px -1px hsl(215 25% 20% / 0.08), 0 2px 4px -1px hsl(215 25% 20% / 0.04);
-    --shadow-lg: 0 10px 15px -3px hsl(215 25% 20% / 0.1), 0 4px 6px -2px hsl(215 25% 20% / 0.05);
+    /* Soft, elegant shadows - Apple style */
+    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.03), 0 1px 3px 0 hsl(0 0% 0% / 0.02);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.05), 0 2px 4px -1px hsl(0 0% 0% / 0.03);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.06), 0 4px 6px -2px hsl(0 0% 0% / 0.03);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.08), 0 10px 10px -5px hsl(0 0% 0% / 0.02);
   }
 
   .dark {
-    /* Rich, warm dark backgrounds */
-    --background: 222 47% 11%;
-    --foreground: 210 40% 98%;
+    /* Rich, deep dark - not pure black */
+    --background: 0 0% 7%;
+    --foreground: 0 0% 98%;
 
-    --card: 222 47% 14%;
-    --card-foreground: 210 40% 98%;
+    /* Elevated dark cards */
+    --card: 0 0% 10%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 222 47% 14%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 0 0% 10%;
+    --popover-foreground: 0 0% 98%;
 
-    /* Vibrant blue-teal for dark mode */
-    --primary: 200 95% 50%;
+    /* Bright, vibrant blue for dark */
+    --primary: 213 94% 50%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 217 33% 18%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 0 0% 15%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 217 33% 18%;
-    --muted-foreground: 215 20% 70%;
+    --muted: 0 0% 15%;
+    --muted-foreground: 0 0% 65%;
 
-    /* Rich purple accent */
-    --accent: 260 60% 55%;
+    /* Vibrant purple */
+    --accent: 250 84% 60%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 51%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 0 0% 98%;
     
-    /* Bright emerald for dark mode success */
-    --success: 158 64% 45%;
+    /* Bright success green */
+    --success: 142 71% 48%;
     --success-foreground: 0 0% 100%;
 
-    --border: 217 33% 22%;
-    --input: 217 33% 22%;
-    --ring: 200 95% 50%;
+    --border: 0 0% 20%;
+    --input: 0 0% 20%;
+    --ring: 213 94% 50%;
     
-    /* Chart colors optimized for dark mode */
-    --chart-1: 200 95% 55%;
+    /* Chart colors for dark */
+    --chart-1: 213 94% 55%;
     --chart-1-foreground: 0 0% 100%;
-    --chart-2: 158 64% 48%;
+    --chart-2: 142 71% 50%;
     --chart-2-foreground: 0 0% 100%;
-    --chart-3: 25 95% 58%;
+    --chart-3: 38 92% 55%;
     --chart-3-foreground: 0 0% 100%;
-    --chart-4: 260 60% 60%;
+    --chart-4: 250 84% 65%;
     --chart-4-foreground: 0 0% 100%;
-    --chart-5: 345 82% 55%;
+    --chart-5: 340 82% 58%;
     --chart-5-foreground: 0 0% 100%;
     
-    /* Rich dark sidebar */
-    --sidebar-background: 220 47% 10%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 200 95% 50%;
+    /* Dark sidebar */
+    --sidebar-background: 0 0% 8%;
+    --sidebar-foreground: 0 0% 98%;
+    --sidebar-primary: 213 94% 50%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 217 33% 18%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 217 33% 22%;
-    --sidebar-ring: 200 95% 50%;
+    --sidebar-accent: 0 0% 15%;
+    --sidebar-accent-foreground: 0 0% 98%;
+    --sidebar-border: 0 0% 18%;
+    --sidebar-ring: 213 94% 50%;
     
-    /* Softer shadows for dark mode */
-    --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.3);
-    --shadow-md: 0 4px 12px -2px hsl(0 0% 0% / 0.4);
-    --shadow-lg: 0 8px 24px -4px hsl(0 0% 0% / 0.5);
+    /* Subtle dark shadows */
+    --shadow-sm: 0 1px 3px 0 hsl(0 0% 0% / 0.4);
+    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.5), 0 2px 4px -1px hsl(0 0% 0% / 0.3);
+    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.6), 0 4px 6px -2px hsl(0 0% 0% / 0.4);
+    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.7), 0 10px 10px -5px hsl(0 0% 0% / 0.5);
   }
 }
 
@@ -159,11 +162,12 @@
 
   body {
     @apply bg-background text-foreground overflow-hidden;
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', 'Roboto', sans-serif;
     font-weight: 400;
     letter-spacing: -0.011em;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
   }
 
   /* Responsive text scaling with better readability */
@@ -171,39 +175,41 @@
     font-size: 16px;
   }
 
-  /* Clean, professional headings with consistent hierarchy */
+  /* Clean, refined headings - Apple style */
   h1 { 
-    font-size: clamp(1.875rem, 4vw, 2.5rem);
-    font-weight: 600;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+  }
+  h2 { 
+    font-size: clamp(1.5rem, 4vw, 2.25rem);
+    font-weight: 700;
     letter-spacing: -0.025em;
     line-height: 1.2;
   }
-  h2 { 
-    font-size: clamp(1.5rem, 3.5vw, 2rem);
+  h3 { 
+    font-size: clamp(1.25rem, 3vw, 1.75rem);
     font-weight: 600;
     letter-spacing: -0.02em;
     line-height: 1.3;
   }
-  h3 { 
-    font-size: clamp(1.25rem, 3vw, 1.5rem);
+  h4 { 
+    font-size: clamp(1.125rem, 2.5vw, 1.5rem);
     font-weight: 600;
     letter-spacing: -0.015em;
     line-height: 1.4;
   }
-  h4 { 
-    font-size: clamp(1.125rem, 2.5vw, 1.25rem);
+  h5 { 
+    font-size: clamp(1rem, 2vw, 1.25rem);
     font-weight: 600;
     letter-spacing: -0.01em;
-    line-height: 1.4;
-  }
-  h5 { 
-    font-size: clamp(1rem, 2vw, 1.125rem);
-    font-weight: 600;
     line-height: 1.5;
   }
   h6 { 
-    font-size: clamp(0.875rem, 1.5vw, 1rem);
+    font-size: clamp(0.875rem, 1.5vw, 1.125rem);
     font-weight: 600;
+    letter-spacing: -0.01em;
     line-height: 1.5;
   }
 
