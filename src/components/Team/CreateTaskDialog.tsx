@@ -85,6 +85,8 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     mission: '',
     story: '',
     architectural_component: '',
+    github_repo: '',
+    github_branch: '',
   });
 
   useEffect(() => {
@@ -177,6 +179,8 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           mission: formData.mission || null,
           story: formData.story || null,
           architectural_component: formData.architectural_component || null,
+          github_repo: formData.github_repo || null,
+          github_branch: formData.github_branch || null,
           created_by: user.id,
         }])
         .select()
@@ -230,6 +234,8 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         mission: '',
         story: '',
         architectural_component: '',
+        github_repo: '',
+        github_branch: '',
       });
       setUploadedFiles([]);
     } catch (error) {
@@ -522,6 +528,31 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
               rows={2}
               className="text-sm"
             />
+          </div>
+
+          {/* GitHub Information */}
+          <div className="grid grid-cols-2 gap-3">
+            <div className="space-y-1">
+              <Label htmlFor="github_repo" className="text-sm">GitHub Project</Label>
+              <Input
+                id="github_repo"
+                value={formData.github_repo}
+                onChange={(e) => setFormData({ ...formData, github_repo: e.target.value })}
+                placeholder="e.g., lovable-crm"
+                className="h-9"
+              />
+            </div>
+
+            <div className="space-y-1">
+              <Label htmlFor="github_branch" className="text-sm">GitHub Branch</Label>
+              <Input
+                id="github_branch"
+                value={formData.github_branch}
+                onChange={(e) => setFormData({ ...formData, github_branch: e.target.value })}
+                placeholder="e.g., main, feature/xyz"
+                className="h-9"
+              />
+            </div>
           </div>
 
           {/* Attachments */}

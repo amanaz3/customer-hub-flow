@@ -64,6 +64,8 @@ interface Task {
   architectural_component?: string | null;
   mission?: string | null;
   story?: string | null;
+  github_repo?: string | null;
+  github_branch?: string | null;
 }
 
 interface TaskAttachment {
