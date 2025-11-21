@@ -1185,7 +1185,7 @@ const TaskCollaboration: React.FC = () => {
                     key={task.id}
                     task={task}
                     attachments={taskAttachments[task.id] || []}
-                    subtasks={subtasksByParent[task.id] || []}
+                    subtasks={tasks}
                     subtaskAttachments={taskAttachments}
                     onClick={() => {
                       setSelectedTaskId(task.id);
