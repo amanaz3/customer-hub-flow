@@ -320,6 +320,16 @@ const TaskCollaboration: React.FC = () => {
     }
   };
 
+  // Set default project filter to customer-hub-flow when products load
+  useEffect(() => {
+    if (products.length > 0 && projectFilter === 'all') {
+      const customerHubFlow = products.find(p => p.name.toLowerCase() === 'customer-hub-flow');
+      if (customerHubFlow) {
+        setProjectFilter(customerHubFlow.id);
+      }
+    }
+  }, [products]);
+
   // Helper to assign a task to a product
   const assignTaskToProduct = async (taskId: string, productId: string) => {
     try {
