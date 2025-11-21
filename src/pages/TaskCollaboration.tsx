@@ -666,13 +666,30 @@ const TaskCollaboration: React.FC = () => {
     ? tasks 
     : tasks.filter((t) => t.project_id === projectFilter);
 
-  // Separate parent tasks and all subtasks for stats
+  // Helper to recursively count all subtasks for a given task
+  const countAllSubtasksForTask = (taskId: string, allTasks: typeof tasks): number => {
+    const directChildren = allTasks.filter(t => t.parent_id === taskId);
+    let total = directChildren.length;
+    
+    directChildren.forEach(child => {
+      total += countAllSubtasksForTask(child.id, allTasks);
+    });
+    
+    return total;
+  };
+
+  // Separate parent tasks and calculate total subtasks recursively
   const statsParentTasks = projectFilteredTasks.filter((t) => !t.parent_id);
-  const statsSubtasks = projectFilteredTasks.filter((t) => t.parent_id);
+  
+  // Count all nested subtasks for all parent tasks
+  let totalSubtasksCount = 0;
+  statsParentTasks.forEach(parentTask => {
+    totalSubtasksCount += countAllSubtasksForTask(parentTask.id, projectFilteredTasks);
+  });
 
   const taskStats = {
     tasks: statsParentTasks.length,
-    subtasks: statsSubtasks.length,
+    subtasks: totalSubtasksCount,
     total: projectFilteredTasks.length,
     todo: projectFilteredTasks.filter((t) => t.status === 'todo').length,
     in_progress: projectFilteredTasks.filter((t) => t.status === 'in_progress').length,
