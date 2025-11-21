@@ -666,7 +666,13 @@ const TaskCollaboration: React.FC = () => {
     ? tasks 
     : tasks.filter((t) => t.project_id === projectFilter);
 
+  // Separate parent tasks and subtasks for stats
+  const statsParentTasks = projectFilteredTasks.filter((t) => !t.parent_id);
+  const statsSubtasks = projectFilteredTasks.filter((t) => t.parent_id);
+
   const taskStats = {
+    tasks: statsParentTasks.length,
+    subtasks: statsSubtasks.length,
     total: projectFilteredTasks.length,
     todo: projectFilteredTasks.filter((t) => t.status === 'todo').length,
     in_progress: projectFilteredTasks.filter((t) => t.status === 'in_progress').length,
@@ -1106,7 +1112,19 @@ const TaskCollaboration: React.FC = () => {
               </div>
 
               {/* Task Stats */}
-              <div className="grid grid-cols-4 gap-4 mb-6">
+              <div className="grid grid-cols-7 gap-4 mb-6">
+                <div className="p-3 rounded-lg border bg-card">
+                  <div className="text-2xl font-bold">{taskStats.tasks}</div>
+                  <div className="text-xs text-muted-foreground">Tasks</div>
+                </div>
+                <div className="p-3 rounded-lg border bg-card">
+                  <div className="text-2xl font-bold">{taskStats.subtasks}</div>
+                  <div className="text-xs text-muted-foreground">Subtasks</div>
+                </div>
+                <div className="p-3 rounded-lg border bg-card">
+                  <div className="text-2xl font-bold">{taskStats.total}</div>
+                  <div className="text-xs text-muted-foreground">Total</div>
+                </div>
                 <div className="p-3 rounded-lg border bg-card">
                   <div className="text-2xl font-bold">{taskStats.todo}</div>
                   <div className="text-xs text-muted-foreground">To Do</div>
@@ -1118,10 +1136,6 @@ const TaskCollaboration: React.FC = () => {
                 <div className="p-3 rounded-lg border bg-card">
                   <div className="text-2xl font-bold">{taskStats.done}</div>
                   <div className="text-xs text-muted-foreground">Done</div>
-                </div>
-                <div className="p-3 rounded-lg border bg-card">
-                  <div className="text-2xl font-bold">{taskStats.total}</div>
-                  <div className="text-xs text-muted-foreground">Total</div>
                 </div>
               </div>
 
