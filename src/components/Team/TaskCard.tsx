@@ -128,6 +128,18 @@ const getInitials = (name?: string) => {
     .slice(0, 2);
 };
 
+// Helper to recursively count all subtasks
+const countAllSubtasks = (taskId: string, allSubtasks: TaskCardProps['task'][]): number => {
+  const directChildren = allSubtasks.filter(t => t.parent_id === taskId);
+  let total = directChildren.length;
+  
+  directChildren.forEach(child => {
+    total += countAllSubtasks(child.id, allSubtasks);
+  });
+  
+  return total;
+};
+
 // Recursive Subtask Component
 const SubtaskCard: React.FC<{
   subtask: TaskCardProps['task'];
@@ -143,6 +155,7 @@ const SubtaskCard: React.FC<{
   allSubtasks,
 }) => {
   const childSubtasks = allSubtasks.filter(t => t.parent_id === subtask.id);
+  const totalNestedSubtasks = countAllSubtasks(subtask.id, allSubtasks);
   const marginLeft = depth * 16; // 16px per depth level
 
   return (
@@ -185,10 +198,10 @@ const SubtaskCard: React.FC<{
                 {subtaskAttachments[subtask.id].length}
               </div>
             )}
-            {childSubtasks.length > 0 && (
+            {totalNestedSubtasks > 0 && (
               <div className="flex items-center gap-1 text-xs text-muted-foreground">
                 <ListTree className="h-3 w-3" />
-                {childSubtasks.length}
+                {totalNestedSubtasks}
               </div>
             )}
           </div>
@@ -243,6 +256,9 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   const otherAttachments = attachments.filter(
     (att) => att.attachment_type !== 'file' || !att.file_type?.startsWith('image/')
   );
+  
+  // Calculate total nested subtasks count
+  const totalSubtasksCount = countAllSubtasks(task.id, subtasks);
 
   return (
     <div className="rounded-lg border bg-card transition-all hover:bg-accent/50">
@@ -256,10 +272,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               <h4 className="text-sm font-medium text-foreground truncate">
                 {task.title}
               </h4>
-              {subtasks.length > 0 && (
+              {totalSubtasksCount > 0 && (
                 <Badge variant="secondary" className="text-xs flex items-center gap-1">
                   <ListTree className="h-3 w-3" />
-                  {subtasks.length}
+                  {totalSubtasksCount}
                 </Badge>
               )}
             </div>
@@ -351,10 +367,10 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             )}
 
             {/* Subtask count indicator */}
-            {!task.parent_id && subtasks.length > 0 && (
+            {!task.parent_id && totalSubtasksCount > 0 && (
               <div className="flex items-center gap-1 px-2 py-0.5 bg-primary/10 text-primary rounded-full">
                 <ListTree className="h-3 w-3" />
-                <span className="text-xs font-medium">{subtasks.length}</span>
+                <span className="text-xs font-medium">{totalSubtasksCount}</span>
               </div>
             )}
             
@@ -399,13 +415,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       </div>
 
       {/* Subtasks - Accordion (collapsed by default) */}
-      {!task.parent_id && subtasks.length > 0 && (
+      {!task.parent_id && totalSubtasksCount > 0 && (
         <Accordion type="single" collapsible className="border-t border-border/50">
           <AccordionItem value="subtasks" className="border-none">
             <AccordionTrigger className="px-3 py-2 hover:no-underline hover:bg-muted/30">
               <div className="flex items-center gap-2 text-sm">
                 <ListTree className="h-4 w-4" />
-                <span className="font-medium">{subtasks.length} Subtask{subtasks.length !== 1 ? 's' : ''}</span>
+                <span className="font-medium">{totalSubtasksCount} Subtask{totalSubtasksCount !== 1 ? 's' : ''}</span>
               </div>
             </AccordionTrigger>
             <AccordionContent className="px-3 pb-2">
@@ -443,7 +459,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
       )}
 
       {/* Add Subtask Button for tasks without subtasks */}
-      {!task.parent_id && subtasks.length === 0 && onAddSubtask && (
+      {!task.parent_id && totalSubtasksCount === 0 && onAddSubtask && (
         <div className="border-t border-border/50 px-3 py-2">
           <Button
             variant="ghost"
