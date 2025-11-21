@@ -1439,6 +1439,7 @@ export type Database = {
           created_at: string
           description: string | null
           end_date: string | null
+          github_repo: string | null
           id: string
           name: string
           owner_id: string | null
@@ -1450,6 +1451,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_date?: string | null
+          github_repo?: string | null
           id?: string
           name: string
           owner_id?: string | null
@@ -1461,6 +1463,7 @@ export type Database = {
           created_at?: string
           description?: string | null
           end_date?: string | null
+          github_repo?: string | null
           id?: string
           name?: string
           owner_id?: string | null
