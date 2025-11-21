@@ -666,19 +666,13 @@ const TaskCollaboration: React.FC = () => {
     ? tasks 
     : tasks.filter((t) => t.project_id === projectFilter);
 
-  // Separate parent tasks and direct subtasks for stats
+  // Separate parent tasks and all subtasks for stats
   const statsParentTasks = projectFilteredTasks.filter((t) => !t.parent_id);
-  // Only count direct children of parent tasks, not nested subtasks
-  const directSubtasks = projectFilteredTasks.filter((t) => {
-    if (!t.parent_id) return false;
-    // Check if the parent has no parent (i.e., it's a top-level task)
-    const parent = projectFilteredTasks.find(p => p.id === t.parent_id);
-    return parent && !parent.parent_id;
-  });
+  const statsSubtasks = projectFilteredTasks.filter((t) => t.parent_id);
 
   const taskStats = {
     tasks: statsParentTasks.length,
-    subtasks: directSubtasks.length,
+    subtasks: statsSubtasks.length,
     total: projectFilteredTasks.length,
     todo: projectFilteredTasks.filter((t) => t.status === 'todo').length,
     in_progress: projectFilteredTasks.filter((t) => t.status === 'in_progress').length,
