@@ -594,30 +594,38 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           </div>
 
           {/* GitHub Information */}
-          {branches.length > 0 && (
-            <div className="space-y-1">
-              <Label htmlFor="github_branch" className="text-sm">
-                GitHub Branch {loadingBranches && '(Loading...)'}
-              </Label>
-              <Select 
-                value={formData.github_branch || 'none'} 
-                onValueChange={(v) => setFormData({ ...formData, github_branch: v === 'none' ? '' : v })}
-                disabled={loadingBranches}
-              >
-                <SelectTrigger className="h-9">
-                  <SelectValue placeholder="Select a branch..." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No branch</SelectItem>
-                  {branches.map((branch) => (
-                    <SelectItem key={branch} value={branch}>
-                      {branch}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
+          <div className="space-y-1">
+            <Label htmlFor="github_branch" className="text-sm">
+              GitHub Branch
+              {loadingBranches && ' (Loading...)'}
+              {!formData.product_id && ' (Select a product first)'}
+            </Label>
+            <Select 
+              value={formData.github_branch || 'none'} 
+              onValueChange={(v) => setFormData({ ...formData, github_branch: v === 'none' ? '' : v })}
+              disabled={!formData.product_id || loadingBranches || branches.length === 0}
+            >
+              <SelectTrigger className="h-9">
+                <SelectValue placeholder={
+                  !formData.product_id 
+                    ? "Select a product first..." 
+                    : loadingBranches 
+                    ? "Loading branches..." 
+                    : branches.length === 0 
+                    ? "No GitHub repo configured" 
+                    : "Select a branch..."
+                } />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">No branch</SelectItem>
+                {branches.map((branch) => (
+                  <SelectItem key={branch} value={branch}>
+                    {branch}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
           {/* Attachments */}
           <div className="space-y-2">
