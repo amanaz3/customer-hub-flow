@@ -2,6 +2,12 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 import {
   AlertCircle,
@@ -182,20 +188,32 @@ const SubtaskCard: React.FC<{
           </div>
         </div>
       </div>
-      {/* Recursively render child subtasks */}
+      {/* Recursively render child subtasks with Accordion */}
       {childSubtasks.length > 0 && (
-        <div className="space-y-2 mt-2">
-          {childSubtasks.map((child) => (
-            <SubtaskCard
-              key={child.id}
-              subtask={child}
-              depth={depth + 1}
-              onClick={onClick}
-              subtaskAttachments={subtaskAttachments}
-              allSubtasks={allSubtasks}
-            />
-          ))}
-        </div>
+        <Accordion type="single" collapsible className="mt-1">
+          <AccordionItem value="child-subtasks" className="border-none">
+            <AccordionTrigger className="px-2 py-1 hover:no-underline hover:bg-muted/30 text-xs">
+              <div className="flex items-center gap-1">
+                <ListTree className="h-3 w-3" />
+                <span>{childSubtasks.length} subtask{childSubtasks.length !== 1 ? 's' : ''}</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-0 pb-1">
+              <div className="space-y-2">
+                {childSubtasks.map((child) => (
+                  <SubtaskCard
+                    key={child.id}
+                    subtask={child}
+                    depth={depth + 1}
+                    onClick={onClick}
+                    subtaskAttachments={subtaskAttachments}
+                    allSubtasks={allSubtasks}
+                  />
+                ))}
+              </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       )}
     </div>
   );
@@ -374,39 +392,65 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         </div>
       </div>
 
-      {/* Subtasks - Recursive */}
-      {!task.parent_id && (
-        <div className="mt-2">
-          {subtasks.length > 0 && (
-            <div className="ml-3 pl-3 border-l-2 border-muted space-y-2 pb-2">
-              {subtasks.filter(st => st.parent_id === task.id).map((subtask) => (
-                <SubtaskCard
-                  key={subtask.id}
-                  subtask={subtask}
-                  depth={0}
-                  onClick={onClick}
-                  subtaskAttachments={subtaskAttachments}
-                  allSubtasks={subtasks}
-                />
-              ))}
-            </div>
-          )}
-          
-          {/* Add Subtask Button */}
-          {onAddSubtask && !task.parent_id && (
-            <Button
-              variant="ghost"
-              size="sm"
-              className="w-full mt-2 h-7 text-xs text-muted-foreground hover:text-primary"
-              onClick={(e) => {
-                e.stopPropagation();
-                onAddSubtask(task.id);
-              }}
-            >
-              <Plus className="h-3 w-3 mr-1" />
-              Add Subtask
-            </Button>
-          )}
+      {/* Subtasks - Accordion (collapsed by default) */}
+      {!task.parent_id && subtasks.length > 0 && (
+        <Accordion type="single" collapsible className="border-t border-border/50">
+          <AccordionItem value="subtasks" className="border-none">
+            <AccordionTrigger className="px-3 py-2 hover:no-underline hover:bg-muted/30">
+              <div className="flex items-center gap-2 text-sm">
+                <ListTree className="h-4 w-4" />
+                <span className="font-medium">{subtasks.length} Subtask{subtasks.length !== 1 ? 's' : ''}</span>
+              </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-3 pb-2">
+              <div className="ml-3 pl-3 border-l-2 border-muted space-y-2">
+                {subtasks.filter(st => st.parent_id === task.id).map((subtask) => (
+                  <SubtaskCard
+                    key={subtask.id}
+                    subtask={subtask}
+                    depth={0}
+                    onClick={onClick}
+                    subtaskAttachments={subtaskAttachments}
+                    allSubtasks={subtasks}
+                  />
+                ))}
+              </div>
+              
+              {/* Add Subtask Button */}
+              {onAddSubtask && (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="w-full mt-2 h-7 text-xs text-muted-foreground hover:text-primary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onAddSubtask(task.id);
+                  }}
+                >
+                  <Plus className="h-3 w-3 mr-1" />
+                  Add Subtask
+                </Button>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      )}
+
+      {/* Add Subtask Button for tasks without subtasks */}
+      {!task.parent_id && subtasks.length === 0 && onAddSubtask && (
+        <div className="border-t border-border/50 px-3 py-2">
+          <Button
+            variant="ghost"
+            size="sm"
+            className="w-full h-7 text-xs text-muted-foreground hover:text-primary"
+            onClick={(e) => {
+              e.stopPropagation();
+              onAddSubtask(task.id);
+            }}
+          >
+            <Plus className="h-3 w-3 mr-1" />
+            Add Subtask
+          </Button>
         </div>
       )}
 
