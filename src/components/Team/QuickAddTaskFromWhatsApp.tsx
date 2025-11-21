@@ -70,8 +70,8 @@ export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> =
 
     interface ParsedTask {
       title: string;
+      description?: string;
       level: number;
-      originalLine: string;
       children: ParsedTask[];
     }
 
@@ -83,13 +83,23 @@ export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> =
       return Math.floor((leadingSpaces + tabs) / 2);
     };
 
-    // Clean task title
-    const cleanTitle = (line: string): string => {
-      return line.trim()
+    // Clean task title and extract description if present
+    const cleanTitleAndExtractDescription = (line: string): { title: string; description?: string } => {
+      let cleaned = line.trim()
         .replace(/^[\d]+[\.\)]\s*/, '') // Remove "1. " or "1) "
         .replace(/^[-*•]\s*/, '')        // Remove "- " or "* " or "• "
         .replace(/^\[\s*[x ]\s*\]\s*/i, '') // Remove "[ ] " or "[x] "
         .trim();
+      
+      // Check if line contains ", Description: " pattern
+      const descriptionMatch = cleaned.match(/,\s*Description:\s*(.+)$/i);
+      if (descriptionMatch) {
+        const description = descriptionMatch[1].trim();
+        const title = cleaned.substring(0, descriptionMatch.index).trim();
+        return { title, description };
+      }
+      
+      return { title: cleaned };
     };
 
     // Build hierarchical structure
@@ -98,11 +108,11 @@ export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> =
 
     lines.forEach(line => {
       const level = getIndentLevel(line);
-      const title = cleanTitle(line);
+      const { title, description } = cleanTitleAndExtractDescription(line);
       
       if (!title) return;
 
-      const task: ParsedTask = { title, level, originalLine: line.trim(), children: [] };
+      const task: ParsedTask = { title, description, level, children: [] };
 
       // Find parent based on level
       while (stack.length > 0 && stack[stack.length - 1].level >= level) {
@@ -163,7 +173,7 @@ export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> =
               created_by: user.id,
               parent_id: parentId,
               project_id: selectedProjectId,
-              description: task.originalLine || task.title,
+              description: task.description || task.title,
             })
             .select()
             .single();
