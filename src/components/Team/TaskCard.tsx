@@ -157,16 +157,6 @@ const SubtaskCard: React.FC<{
   const childSubtasks = allSubtasks.filter(t => t.parent_id === subtask.id);
   const totalNestedSubtasks = countAllSubtasks(subtask.id, allSubtasks);
   const marginLeft = depth * 16; // 16px per depth level
-  
-  // Debug logging
-  console.log(`Rendering subtask:`, {
-    id: subtask.id,
-    title: subtask.title,
-    description: subtask.description,
-    parent_id: subtask.parent_id,
-    depth,
-    childrenCount: childSubtasks.length
-  });
 
   return (
     <div
