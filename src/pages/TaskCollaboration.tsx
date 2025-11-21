@@ -1053,15 +1053,6 @@ const TaskCollaboration: React.FC = () => {
             <CardContent>
               {/* Filters */}
               <div className="flex gap-3 mb-6">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search tasks..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="pl-9"
-                  />
-                </div>
                 <Select value={projectFilter} onValueChange={setProjectFilter}>
                   <SelectTrigger className="w-[200px]">
                     <div className="flex items-center gap-2">
@@ -1136,6 +1127,19 @@ const TaskCollaboration: React.FC = () => {
                 <div className="p-3 rounded-lg border bg-card">
                   <div className="text-2xl font-bold">{taskStats.done}</div>
                   <div className="text-xs text-muted-foreground">Done</div>
+                </div>
+              </div>
+
+              {/* Search Bar */}
+              <div className="mb-6">
+                <div className="relative">
+                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Search tasks..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="pl-9"
+                  />
                 </div>
               </div>
 
