@@ -88,7 +88,7 @@ function App() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+      <ThemeProvider attribute="class" defaultTheme="system" enableSystem storageKey="theme">
         <ErrorBoundary
           onError={(error, errorInfo) => {
             // Log application-level errors
