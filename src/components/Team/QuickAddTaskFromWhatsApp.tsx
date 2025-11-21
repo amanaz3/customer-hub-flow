@@ -173,7 +173,7 @@ export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> =
               created_by: user.id,
               parent_id: parentId,
               project_id: selectedProjectId,
-              description: task.description || task.title,
+              description: task.description || null,
             })
             .select()
             .single();
