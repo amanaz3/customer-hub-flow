@@ -41,6 +41,7 @@ interface TaskCardProps {
   task: {
     id: string;
     title: string;
+    description?: string | null;
     type: string;
     priority: string;
     status: string;
@@ -159,6 +160,11 @@ const SubtaskCard: React.FC<{
         <CornerDownRight className="h-3 w-3 text-muted-foreground mt-0.5 flex-shrink-0" />
         <div className="flex-1 min-w-0">
           <div className="font-medium text-sm truncate">{subtask.title}</div>
+          {subtask.description && (
+            <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
+              {subtask.description}
+            </p>
+          )}
           <div className="flex items-center gap-2 mt-1 flex-wrap">
             <Badge variant="outline" className={cn('text-xs', getStatusColor(subtask.status))}>
               {getStatusIcon(subtask.status)}
