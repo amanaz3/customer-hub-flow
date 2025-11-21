@@ -685,11 +685,21 @@ const TaskCollaboration: React.FC = () => {
   console.log('Parent tasks count:', statsParentTasks.length);
   console.log('All tasks with parent_id:', projectFilteredTasks.filter(t => t.parent_id).length);
   
+  // Debug: Show which tasks have parent_id set
+  const tasksWithParent = projectFilteredTasks.filter(t => t.parent_id);
+  console.log('Tasks with parent_id:', tasksWithParent.map(t => ({
+    title: t.title,
+    parent_id: t.parent_id,
+    id: t.id
+  })));
+  
   // Count all nested subtasks for all parent tasks
   let totalSubtasksCount = 0;
   statsParentTasks.forEach(parentTask => {
     const count = countAllSubtasksForTask(parentTask.id, projectFilteredTasks);
-    console.log(`Task "${parentTask.title}" has ${count} total subtasks`);
+    if (count > 0) {
+      console.log(`Task "${parentTask.title}" (id: ${parentTask.id}) has ${count} total subtasks`);
+    }
     totalSubtasksCount += count;
   });
   
