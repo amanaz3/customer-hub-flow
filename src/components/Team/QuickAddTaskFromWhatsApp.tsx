@@ -71,6 +71,7 @@ export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> =
     interface ParsedTask {
       title: string;
       level: number;
+      originalLine: string;
       children: ParsedTask[];
     }
 
@@ -101,7 +102,7 @@ export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> =
       
       if (!title) return;
 
-      const task: ParsedTask = { title, level, children: [] };
+      const task: ParsedTask = { title, level, originalLine: line.trim(), children: [] };
 
       // Find parent based on level
       while (stack.length > 0 && stack[stack.length - 1].level >= level) {
@@ -162,7 +163,7 @@ export const QuickAddTaskFromWhatsApp: React.FC<QuickAddTaskFromWhatsAppProps> =
               created_by: user.id,
               parent_id: parentId,
               project_id: selectedProjectId,
-              description: parentId === null ? whatsappMessage : undefined,
+              description: task.originalLine || task.title,
             })
             .select()
             .single();
