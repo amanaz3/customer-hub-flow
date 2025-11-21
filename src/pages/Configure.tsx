@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Package, Shield, Wrench, BookOpen } from "lucide-react";
+import { Users, MessageSquare, Package, Shield, Wrench, BookOpen, ListTodo } from "lucide-react";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -140,6 +140,28 @@ const Manage = () => {
           <CardContent>
             <p className="text-sm text-muted-foreground">
               Create and edit help articles, FAQs, and user documentation.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/task-settings')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <ListTodo className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Tasks</CardTitle>
+                <CardDescription>Manage task and project settings</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Configure GitHub repositories, manage projects, and task settings.
             </p>
           </CardContent>
         </Card>

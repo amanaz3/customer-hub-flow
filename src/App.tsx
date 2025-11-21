@@ -44,6 +44,7 @@ import DevToolsNotifications from '@/pages/DevToolsNotifications';
 import DevToolsDatabase from '@/pages/DevToolsDatabase';
 import DevToolsMigration from '@/pages/DevToolsMigration';
 import TaskCollaboration from '@/pages/TaskCollaboration';
+import TaskSettings from '@/pages/TaskSettings';
 import Configure from '@/pages/Configure';
 import CustomerServicesManagement from '@/pages/CustomerServicesManagement';
 import ServiceFormConfiguration from '@/pages/ServiceFormConfiguration';
@@ -454,6 +455,16 @@ function App() {
                     </ProtectedRoute>
                   } />
                   
+                  <Route path="/configure" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Configure">
+                          <Configure />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
                   <Route path="/customer-services" element={
                     <ProtectedRoute requireAdmin>
                       <MainLayout>
@@ -469,6 +480,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Messages">
                           <Messages />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/task-settings" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Task Settings">
+                          <TaskSettings />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
