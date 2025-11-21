@@ -1042,11 +1042,19 @@ const TaskCollaboration: React.FC = () => {
                   />
                 </div>
                 <Select value={projectFilter} onValueChange={setProjectFilter}>
-                  <SelectTrigger className="w-[180px]">
-                    <SelectValue placeholder="Project" />
+                  <SelectTrigger className="w-[200px]">
+                    <div className="flex items-center gap-2">
+                      <FolderKanban className="h-4 w-4" />
+                      <SelectValue placeholder="All Projects" />
+                    </div>
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">All Projects</SelectItem>
+                    <SelectItem value="all">
+                      <div className="flex items-center gap-2">
+                        <FolderKanban className="h-4 w-4" />
+                        <span>All Projects</span>
+                      </div>
+                    </SelectItem>
                     {products.map((product) => (
                       <SelectItem key={product.id} value={product.id}>
                         {product.name}
