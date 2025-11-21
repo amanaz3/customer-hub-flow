@@ -42,9 +42,9 @@ export const StickyFormNavigation = ({ sections, onSectionClick, sidebarCollapse
                 section.hasError
                   ? "bg-gradient-to-br from-destructive/15 to-destructive/10 text-destructive border border-destructive/40 animate-pulse"
                   : section.isActive 
-                  ? "bg-gradient-to-br from-primary to-primary/80 text-primary-foreground shadow-md shadow-primary/20" 
+                  ? "bg-gradient-to-br from-success to-success/80 text-success-foreground shadow-md shadow-success/20 border border-success/30" 
                   : section.isComplete
-                  ? "bg-gradient-to-br from-green-500/10 to-green-600/10 text-green-700 dark:text-green-400 border border-green-500/30"
+                  ? "bg-gradient-to-br from-success/15 to-success/10 text-success dark:text-success border border-success/20"
                   : "bg-muted/50 text-muted-foreground hover:bg-muted hover:text-foreground border border-transparent"
               )}
             >
@@ -52,8 +52,8 @@ export const StickyFormNavigation = ({ sections, onSectionClick, sidebarCollapse
               <div className={cn(
                 "flex items-center justify-center rounded-full transition-all duration-300",
                 section.hasError ? "bg-destructive text-white p-0.5" :
-                section.isComplete ? "bg-green-500 text-white p-0.5" : 
-                section.isActive ? "bg-primary-foreground/20 p-0.5" :
+                section.isComplete ? "bg-success/50 text-success-foreground p-0.5" : 
+                section.isActive ? "bg-success-foreground/20 p-0.5" :
                 "p-0"
               )}>
                 {section.hasError ? (
@@ -75,7 +75,7 @@ export const StickyFormNavigation = ({ sections, onSectionClick, sidebarCollapse
 
               {/* Active indicator glow */}
               {section.isActive && !section.hasError && (
-                <div className="absolute inset-0 rounded-lg bg-primary/5 blur-sm -z-10 animate-pulse" />
+                <div className="absolute inset-0 rounded-lg bg-success/5 blur-sm -z-10 animate-pulse" />
               )}
               
               {/* Error indicator glow */}
