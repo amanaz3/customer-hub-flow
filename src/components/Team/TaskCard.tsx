@@ -58,7 +58,7 @@ interface TaskCardProps {
     github_branch?: string | null;
   };
   attachments?: TaskAttachment[];
-  onClick: () => void;
+  onClick: (taskId: string) => void;
   onRemoveFromProject?: (taskId: string) => void;
   onRemoveFromProduct?: (taskId: string) => void;
   onDelete?: (taskId: string) => void;
@@ -144,7 +144,7 @@ const countAllSubtasks = (taskId: string, allSubtasks: TaskCardProps['task'][]):
 const SubtaskCard: React.FC<{
   subtask: TaskCardProps['task'];
   depth: number;
-  onClick: () => void;
+  onClick: (taskId: string) => void;
   subtaskAttachments: Record<string, TaskAttachment[]>;
   allSubtasks: TaskCardProps['task'][];
 }> = ({
@@ -166,7 +166,7 @@ const SubtaskCard: React.FC<{
       <div
         onClick={(e) => {
           e.stopPropagation();
-          onClick();
+          onClick(subtask.id);
         }}
         className="flex items-start gap-2 p-2 rounded hover:bg-muted/50 cursor-pointer"
       >
@@ -262,7 +262,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
 
   return (
     <div className="rounded-lg border bg-card transition-all hover:bg-accent/50">
-      <div className="group p-3 cursor-pointer" onClick={onClick}>
+      <div className="group p-3 cursor-pointer" onClick={() => onClick(task.id)}>
         <div className="flex items-start justify-between gap-3">
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-2">
@@ -489,7 +489,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                     className="w-10 h-10 rounded border bg-muted overflow-hidden flex-shrink-0"
                     onClick={(e) => {
                       e.stopPropagation();
-                      onClick();
+                      onClick(task.id);
                     }}
                   >
                     <img
