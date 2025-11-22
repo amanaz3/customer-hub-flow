@@ -2,6 +2,15 @@ import React from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 import {
   Accordion,
   AccordionContent,
@@ -56,6 +65,7 @@ interface TaskCardProps {
     parent_id?: string | null;
     github_repo?: string | null;
     github_branch?: string | null;
+    importance?: string | null;
   };
   attachments?: TaskAttachment[];
   onClick: (taskId: string) => void;
@@ -66,6 +76,7 @@ interface TaskCardProps {
   subtasks?: TaskCardProps['task'][];
   subtaskAttachments?: Record<string, TaskAttachment[]>;
   onAddSubtask?: (parentTaskId: string) => void;
+  onImportanceChange?: (taskId: string, importance: string | null) => void;
 }
 
 // Helper functions for status and priority icons/colors
@@ -115,6 +126,26 @@ const getStatusColor = (status: string) => {
     case 'in_review': return 'bg-purple-500/10 text-purple-500 border-purple-500/20';
     case 'blocked': return 'bg-red-500/10 text-red-500 border-red-500/20';
     default: return 'bg-muted text-muted-foreground border-border';
+  }
+};
+
+const getImportanceColor = (importance: string) => {
+  switch (importance) {
+    case 'must': return 'bg-red-100 text-red-800 border-red-200';
+    case 'should': return 'bg-orange-100 text-orange-800 border-orange-200';
+    case 'good-to-have': return 'bg-blue-100 text-blue-800 border-blue-200';
+    case 'nice-to-have': return 'bg-gray-100 text-gray-800 border-gray-200';
+    default: return 'bg-gray-100 text-gray-800 border-gray-200';
+  }
+};
+
+const getImportanceLabel = (importance: string) => {
+  switch (importance) {
+    case 'must': return 'Must';
+    case 'should': return 'Should';
+    case 'good-to-have': return 'Good-to-have';
+    case 'nice-to-have': return 'Nice-to-have';
+    default: return importance;
   }
 };
 
@@ -249,6 +280,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   subtasks = [],
   subtaskAttachments = {},
   onAddSubtask,
+  onImportanceChange,
 }) => {
   const imageAttachments = attachments.filter(
     (att) => att.attachment_type === 'file' && att.file_type?.startsWith('image/')
@@ -259,6 +291,31 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   
   // Calculate total nested subtasks count
   const totalSubtasksCount = countAllSubtasks(task.id, subtasks);
+  
+  // Count importance levels in subtasks
+  const importanceCounts = React.useMemo(() => {
+    const counts = { must: 0, should: 0, 'good-to-have': 0, 'nice-to-have': 0 };
+    const countImportance = (tasks: typeof subtasks) => {
+      tasks.forEach(subtask => {
+        if (subtask.importance) {
+          counts[subtask.importance as keyof typeof counts]++;
+        }
+        // Recursively count nested subtasks by finding their children
+        const children = tasks.filter(t => t.parent_id === subtask.id);
+        if (children.length > 0) {
+          countImportance(children);
+        }
+      });
+    };
+    countImportance(subtasks);
+    return counts;
+  }, [subtasks]);
+
+  const handleImportanceChange = async (value: string) => {
+    if (onImportanceChange) {
+      onImportanceChange(task.id, value === 'none' ? null : value);
+    }
+  };
 
   return (
     <div className="rounded-lg border bg-card transition-all hover:bg-accent/50">
@@ -346,6 +403,25 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                   </svg>
                   {task.github_branch}
                 </Badge>
+              )}
+              
+              {task.importance && (
+                <Badge className={cn('text-xs border', getImportanceColor(task.importance))}>
+                  {getImportanceLabel(task.importance)}
+                </Badge>
+              )}
+              
+              {/* Show importance counts for parent tasks with subtasks */}
+              {totalSubtasksCount > 0 && (
+                <div className="flex items-center gap-1">
+                  {Object.entries(importanceCounts).map(([importance, count]) => 
+                    count > 0 && (
+                      <Badge key={importance} className={cn('text-xs border', getImportanceColor(importance))}>
+                        {getImportanceLabel(importance)}: {count}
+                      </Badge>
+                    )
+                  )}
+                </div>
               )}
             </div>
           </div>
@@ -473,6 +549,28 @@ export const TaskCard: React.FC<TaskCardProps> = ({
             <Plus className="h-3 w-3 mr-1" />
             Add Subtask
           </Button>
+        </div>
+      )}
+
+      {/* Importance Selector */}
+      {onImportanceChange && (
+        <div className="border-t border-border/50 px-3 py-2" onClick={(e) => e.stopPropagation()}>
+          <Label className="text-xs text-muted-foreground mb-1.5 block">Classification</Label>
+          <Select 
+            value={task.importance || 'none'} 
+            onValueChange={handleImportanceChange}
+          >
+            <SelectTrigger className="h-8 text-xs">
+              <SelectValue placeholder="Select classification" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="none">None</SelectItem>
+              <SelectItem value="must">Must</SelectItem>
+              <SelectItem value="should">Should</SelectItem>
+              <SelectItem value="good-to-have">Good-to-have</SelectItem>
+              <SelectItem value="nice-to-have">Nice-to-have</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       )}
 
