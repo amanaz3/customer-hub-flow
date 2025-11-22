@@ -2091,7 +2091,7 @@ const ApplicationDetail = () => {
                     <SelectTrigger id="manual-risk-level" className="bg-background">
                       <SelectValue placeholder="Select risk level" />
                     </SelectTrigger>
-                    <SelectContent className="bg-background z-50">
+                    <SelectContent className="bg-background pointer-events-auto z-[100]">
                       <SelectItem value="low">🟢 Low Risk</SelectItem>
                       <SelectItem value="medium">🟡 Medium Risk</SelectItem>
                       <SelectItem value="high">🔴 High Risk</SelectItem>
