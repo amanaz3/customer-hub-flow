@@ -70,6 +70,50 @@ export type Database = {
           },
         ]
       }
+      application_assessment_history: {
+        Row: {
+          application_id: string
+          change_type: string
+          changed_by: string
+          changed_by_role: Database["public"]["Enums"]["app_role"]
+          comment: string | null
+          created_at: string
+          id: string
+          new_assessment: Json | null
+          previous_assessment: Json | null
+        }
+        Insert: {
+          application_id: string
+          change_type: string
+          changed_by: string
+          changed_by_role: Database["public"]["Enums"]["app_role"]
+          comment?: string | null
+          created_at?: string
+          id?: string
+          new_assessment?: Json | null
+          previous_assessment?: Json | null
+        }
+        Update: {
+          application_id?: string
+          change_type?: string
+          changed_by?: string
+          changed_by_role?: Database["public"]["Enums"]["app_role"]
+          comment?: string | null
+          created_at?: string
+          id?: string
+          new_assessment?: Json | null
+          previous_assessment?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_assessment_history_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "account_applications"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       application_documents: {
         Row: {
           application_id: string

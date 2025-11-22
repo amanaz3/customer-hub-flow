@@ -591,66 +591,119 @@ const ApplicationDetail = () => {
                       <AlertTriangle className="h-4 w-4" />
                       Risk Assessment
                     </h4>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        // Reset dialog state when opening
-                        setSelectedMethod(application.risk_calculation_type as any || '');
-                        setCalculatedRisk(null);
-                        setShowRiskDialog(true);
-                      }}
-                    >
-                      <Edit className="h-4 w-4 mr-1" />
-                      {application.risk_calculation_type ? 'Edit' : 'Add'} Risk Assessment
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          // Reset dialog state when opening
+                          setSelectedMethod(application.application_assessment?.riskAssessment?.method as any || '');
+                          setCalculatedRisk(null);
+                          setShowRiskDialog(true);
+                        }}
+                      >
+                        <Edit className="h-4 w-4 mr-1" />
+                        {application.application_assessment?.riskAssessment ? 'Edit' : 'Add'} Risk Assessment
+                      </Button>
+                      {isAdmin && application.application_assessment?.riskAssessment && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={async () => {
+                            if (!confirm('Are you sure you want to delete this risk assessment? This action will be logged.')) return;
+                            
+                            try {
+                              // Log the deletion to history
+                              await supabase.from('application_assessment_history').insert({
+                                application_id: application.id,
+                                previous_assessment: application.application_assessment,
+                                new_assessment: null,
+                                change_type: 'deleted',
+                                changed_by: user?.id,
+                                changed_by_role: 'admin',
+                                comment: 'Risk assessment deleted by admin'
+                              });
+
+                              // Delete assessment
+                              await supabase
+                                .from('account_applications')
+                                .update({
+                                  application_assessment: null,
+                                  application_data: {
+                                    ...application.application_data,
+                                    risk_level: null
+                                  }
+                                })
+                                .eq('id', application.id);
+
+                              toast({
+                                title: 'Assessment Deleted',
+                                description: 'Risk assessment has been removed',
+                              });
+
+                              const updatedApp = await ApplicationService.fetchApplicationById(application.id);
+                              setApplication(updatedApp);
+                            } catch (error) {
+                              console.error('Error deleting assessment:', error);
+                              toast({
+                                title: 'Error',
+                                description: 'Failed to delete assessment',
+                                variant: 'destructive',
+                              });
+                            }
+                          }}
+                        >
+                          Delete
+                        </Button>
+                      )}
+                    </div>
                   </div>
                   
-                  {!application.risk_calculation_type && !application.risk_score && !application.application_data.risk_level ? (
+                  {!application.application_assessment?.riskAssessment ? (
                     <div className="text-sm text-muted-foreground py-4 px-3 bg-muted/30 rounded-md">
                       No risk assessment data available. Click "Add Risk Assessment" to evaluate this application.
                     </div>
                   ) : (
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {application.application_data.risk_level && (
+                      {application.application_assessment?.riskAssessment?.level && (
                         <div>
                           <p className="text-sm text-muted-foreground">Risk Level</p>
                           <Badge 
                             variant={
-                              application.application_data.risk_level === 'high' ? 'destructive' : 
-                              application.application_data.risk_level === 'medium' ? 'default' : 
+                              application.application_assessment.riskAssessment.level === 'high' ? 'destructive' : 
+                              application.application_assessment.riskAssessment.level === 'medium' ? 'default' : 
                               'secondary'
                             }
                             className="font-semibold mt-1"
                           >
-                            {application.application_data.risk_level.toUpperCase()}
+                            {application.application_assessment.riskAssessment.level.toUpperCase()}
                           </Badge>
                         </div>
                       )}
-                      {application.risk_calculation_type && (
+                      {application.application_assessment?.riskAssessment?.method && (
                         <div>
                           <p className="text-sm text-muted-foreground">Calculation Method</p>
                           <Badge variant="outline" className="mt-1">
-                            {application.risk_calculation_type === 'manual' && '👤 Manual'}
-                            {application.risk_calculation_type === 'rule' && '📊 Rule-Based'}
-                            {application.risk_calculation_type === 'ai' && '🤖 AI-Powered'}
-                            {application.risk_calculation_type === 'hybrid' && '🔀 Hybrid (AI + Manual)'}
+                            {application.application_assessment.riskAssessment.method === 'manual' && '👤 Manual'}
+                            {application.application_assessment.riskAssessment.method === 'rule' && '📊 Rule-Based'}
+                            {application.application_assessment.riskAssessment.method === 'ai' && '🤖 AI-Powered'}
+                            {application.application_assessment.riskAssessment.method === 'hybrid' && '🔀 Hybrid (AI + Manual)'}
                           </Badge>
                         </div>
                       )}
-                      {application.risk_score !== undefined && application.risk_score !== null && (
+                      {application.application_assessment?.riskAssessment?.score !== undefined && application.application_assessment?.riskAssessment?.score !== null && (
                         <div>
                           <p className="text-sm text-muted-foreground">Risk Score</p>
                           <div className="flex items-center gap-2 mt-1">
-                            <span className="font-semibold">{application.risk_score}/100</span>
+                            <span className="font-semibold">{application.application_assessment.riskAssessment.score}/100</span>
                             <div className="h-2 flex-1 bg-muted rounded-full overflow-hidden max-w-[120px]">
                               <div 
                                 className={`h-full transition-all ${
-                                  application.risk_score >= 67 ? 'bg-destructive' :
-                                  application.risk_score >= 34 ? 'bg-yellow-500' :
+                                  application.application_assessment.riskAssessment.score >= 67 ? 'bg-destructive' :
+                                  application.application_assessment.riskAssessment.score >= 34 ? 'bg-yellow-500' :
                                   'bg-green-500'
                                 }`}
-                                style={{ width: `${application.risk_score}%` }}
+                                style={{ width: `${application.application_assessment.riskAssessment.score}%` }}
                               />
                             </div>
                           </div>
@@ -878,7 +931,7 @@ const ApplicationDetail = () => {
         <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
             <DialogTitle>
-              {application?.risk_calculation_type ? 'Edit' : 'Add'} Risk Assessment
+              {application?.application_assessment?.riskAssessment ? 'Edit' : 'Add'} Risk Assessment
             </DialogTitle>
           </DialogHeader>
           
@@ -1094,6 +1147,20 @@ const ApplicationDetail = () => {
                     }
                   };
 
+                  // Determine change type
+                  const changeType = application.application_assessment?.riskAssessment ? 'updated' : 'created';
+                  
+                  // Log to history
+                  await supabase.from('application_assessment_history').insert({
+                    application_id: application.id,
+                    previous_assessment: application.application_assessment || null,
+                    new_assessment: assessmentDetails,
+                    change_type: changeType,
+                    changed_by: user?.id,
+                    changed_by_role: isAdmin ? 'admin' : 'user',
+                    comment: `Risk assessment ${changeType} using ${selectedMethod} method`
+                  });
+
                   const { error } = await supabase
                     .from('account_applications')
                     .update({
@@ -1106,7 +1173,7 @@ const ApplicationDetail = () => {
 
                   toast({
                     title: 'Risk Assessment Saved',
-                    description: `${selectedMethod.charAt(0).toUpperCase() + selectedMethod.slice(1)} assessment completed successfully`,
+                    description: `${selectedMethod.charAt(0).toUpperCase() + selectedMethod.slice(1)} assessment ${changeType} successfully`,
                   });
 
                   const updatedApp = await ApplicationService.fetchApplicationById(application.id);
