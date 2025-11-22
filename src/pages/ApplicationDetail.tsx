@@ -1202,6 +1202,59 @@ const ApplicationDetail = () => {
                     )}
 
                     <Accordion type="multiple" className="mt-4">
+                      {/* Rule-Based Calculation Details Accordion */}
+                      {application.application_assessment?.riskAssessment?.method === 'rule' &&
+                       application.application_assessment?.riskAssessment?.calculationBreakdown && (
+                        <AccordionItem value="rule-calculation-details">
+                          <AccordionTrigger className="text-sm font-medium">Calculation Details</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-4">
+                              <div className="p-3 bg-muted/30 rounded-md">
+                                <div className="flex justify-between items-center mb-3">
+                                  <span className="text-sm font-medium">Total Risk Score</span>
+                                  <span className="text-lg font-bold">{application.application_assessment.riskAssessment.score}/100</span>
+                                </div>
+                                <div className="space-y-2 text-sm">
+                                  <p className="text-muted-foreground mb-3">
+                                    Risk score calculation based on the following factors:
+                                  </p>
+                                  {application.application_assessment.riskAssessment.calculationBreakdown.map((item, idx) => (
+                                    <div key={idx} className="flex justify-between items-center p-2 bg-background rounded border">
+                                      <span className="font-medium">{item.factor}</span>
+                                      <Badge variant="outline" className="font-semibold">+{item.points} points</Badge>
+                                    </div>
+                                  ))}
+                                  <div className="mt-4 pt-3 border-t">
+                                    <div className="flex justify-between items-center">
+                                      <span className="font-semibold">Risk Classification:</span>
+                                      <Badge
+                                        variant={
+                                          application.application_assessment.riskAssessment.level === 'high' ? 'destructive' :
+                                          application.application_assessment.riskAssessment.level === 'medium' ? 'default' :
+                                          'secondary'
+                                        }
+                                        className="font-semibold"
+                                      >
+                                        {application.application_assessment.riskAssessment.level.toUpperCase()}
+                                      </Badge>
+                                    </div>
+                                    <p className="text-xs text-muted-foreground mt-2">
+                                      {application.application_assessment.riskAssessment.score >= 67 && 
+                                        'High Risk (67-100 points): Requires enhanced due diligence and senior management approval'}
+                                      {application.application_assessment.riskAssessment.score >= 34 && 
+                                       application.application_assessment.riskAssessment.score < 67 && 
+                                        'Medium Risk (34-66 points): Standard due diligence with additional verification'}
+                                      {application.application_assessment.riskAssessment.score < 34 && 
+                                        'Low Risk (0-33 points): Standard due diligence procedures apply'}
+                                    </p>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
+
                       {/* AI Score Breakdown Accordion */}
                       {application.application_assessment?.riskAssessment?.method === 'ai' &&
                        application.application_assessment?.riskAssessment?.aiAnalysis?.scoreBreakdown && (
