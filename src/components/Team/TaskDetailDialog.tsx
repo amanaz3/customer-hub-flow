@@ -59,6 +59,7 @@ interface Task {
   mission: string | null;
   story: string | null;
   architectural_component: string | null;
+  importance?: string | null;
 }
 
 interface Comment {
@@ -127,7 +128,7 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
       .eq('id', taskId)
       .maybeSingle();
     
-    if (data) setTask(data);
+    if (data) setTask(data as Task);
   };
 
   const fetchComments = async () => {
@@ -487,6 +488,22 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
                   <SelectItem value="backend">Backend</SelectItem>
                   <SelectItem value="database">Database</SelectItem>
                   <SelectItem value="component_service">Component/Service</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Classification</Label>
+              <Select value={task.importance || 'none'} onValueChange={(v) => handleUpdate({ importance: v === 'none' ? null : v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="No classification" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="must">Must</SelectItem>
+                  <SelectItem value="should">Should</SelectItem>
+                  <SelectItem value="good-to-have">Good-to-have</SelectItem>
+                  <SelectItem value="nice-to-have">Nice-to-have</SelectItem>
                 </SelectContent>
               </Select>
             </div>

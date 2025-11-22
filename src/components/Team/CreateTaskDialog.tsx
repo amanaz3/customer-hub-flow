@@ -89,6 +89,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
     architectural_component: '',
     github_repo: '',
     github_branch: '',
+    importance: '',
   });
 
   useEffect(() => {
@@ -244,6 +245,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           architectural_component: formData.architectural_component || null,
           github_repo: formData.github_repo || null,
           github_branch: formData.github_branch || null,
+          importance: formData.importance || null,
           created_by: user.id,
         }])
         .select()
@@ -299,6 +301,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
         architectural_component: '',
         github_repo: '',
         github_branch: '',
+        importance: '',
       });
       setUploadedFiles([]);
     } catch (error) {
@@ -408,6 +411,22 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-1">
+            <Label className="text-sm">Classification</Label>
+            <Select value={formData.importance || 'none'} onValueChange={(v) => setFormData({ ...formData, importance: v === 'none' ? '' : v })}>
+              <SelectTrigger className="h-9">
+                <SelectValue placeholder="Select classification" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="none">None</SelectItem>
+                <SelectItem value="must">Must</SelectItem>
+                <SelectItem value="should">Should</SelectItem>
+                <SelectItem value="good-to-have">Good-to-have</SelectItem>
+                <SelectItem value="nice-to-have">Nice-to-have</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-3">

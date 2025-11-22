@@ -66,6 +66,7 @@ interface Task {
   story?: string | null;
   github_repo?: string | null;
   github_branch?: string | null;
+  importance?: string | null;
 }
 
 interface TaskAttachment {
@@ -379,6 +380,23 @@ const TaskCollaboration: React.FC = () => {
     } catch (e) {
       console.error('Error deleting task:', e);
       toast.error('Failed to delete task');
+    }
+  };
+
+  // Helper to update task importance
+  const handleImportanceChange = async (taskId: string, importance: string | null) => {
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ importance } as any)
+        .eq('id', taskId);
+      
+      if (error) throw error;
+      toast.success('Classification updated');
+      await fetchTasks();
+    } catch (e) {
+      console.error('Error updating importance:', e);
+      toast.error('Failed to update classification');
     }
   };
 
@@ -1034,6 +1052,7 @@ const TaskCollaboration: React.FC = () => {
                             showActions
                             onRemoveFromProduct={removeTaskFromProduct}
                             onDelete={deleteTask}
+                            onImportanceChange={handleImportanceChange}
                           />
                         ))}
                       {tasks
@@ -1197,6 +1216,7 @@ const TaskCollaboration: React.FC = () => {
                       setParentTaskIdForNewTask(parentId);
                       setCreateTaskOpen(true);
                     }}
+                    onImportanceChange={handleImportanceChange}
                   />
                 ))}
                 {filteredTasks.length === 0 && (
