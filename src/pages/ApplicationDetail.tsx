@@ -1256,48 +1256,6 @@ const ApplicationDetail = () => {
                     {/* Rule-Based Score Breakdown - Removed duplicate since calculation is shown above */}
 
                     <Accordion type="multiple" className="mt-4">
-                      {/* Rule-Based Score Breakdown Accordion */}
-                      {application.application_assessment?.riskAssessment?.method === 'rule' &&
-                       application.application_assessment?.riskAssessment?.calculationBreakdown && (
-                        <AccordionItem value="rule-score-breakdown">
-                          <AccordionTrigger className="text-sm font-medium">Score Breakdown</AccordionTrigger>
-                          <AccordionContent>
-                            <div className="p-3 bg-muted/30 rounded-md text-sm space-y-3">
-                              {application.application_assessment.riskAssessment.calculationBreakdown.map((item, idx) => (
-                                <div key={idx} className="space-y-1">
-                                  <div className="flex justify-between items-center">
-                                    <span className="font-medium">{item.factor}</span>
-                                    <Badge variant="outline">+{item.points} pts</Badge>
-                                  </div>
-                                </div>
-                              ))}
-                              
-                              <div className="mt-4 pt-3 border-t-2 border-primary/20">
-                                <div className="flex justify-between items-center">
-                                  <span className="font-semibold">Total Risk Score:</span>
-                                  <span className="text-2xl font-bold">
-                                    {application.application_assessment.riskAssessment.score}/100
-                                  </span>
-                                </div>
-                                <div className="mt-2 flex justify-between items-center">
-                                  <span className="text-xs text-muted-foreground">Classification:</span>
-                                  <Badge
-                                    variant={
-                                      application.application_assessment.riskAssessment.level === 'high' ? 'destructive' :
-                                      application.application_assessment.riskAssessment.level === 'medium' ? 'default' :
-                                      'secondary'
-                                    }
-                                    className="font-semibold"
-                                  >
-                                    {application.application_assessment.riskAssessment.level.toUpperCase()} RISK
-                                  </Badge>
-                                </div>
-                              </div>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      )}
-
                       {/* AI Score Breakdown Accordion */}
                       {application.application_assessment?.riskAssessment?.method === 'ai' &&
                        application.application_assessment?.riskAssessment?.aiAnalysis?.scoreBreakdown && (
@@ -1384,52 +1342,6 @@ const ApplicationDetail = () => {
                         </div>
                       </div>
                     )}
-
-                      {/* Rule-Based Calculation Details Accordion */}
-                      {application.application_assessment?.riskAssessment?.method === 'rule' && 
-                       application.application_assessment?.riskAssessment?.calculationBreakdown && (
-                        <AccordionItem value="rule-calculation-details">
-                          <AccordionTrigger className="text-sm font-medium">Calculation Details</AccordionTrigger>
-                          <AccordionContent>
-                            <div className="p-3 bg-muted/30 rounded-md text-sm space-y-2">
-                          <p className="text-xs text-muted-foreground mb-3">
-                            Risk score is calculated by evaluating multiple risk factors, each contributing points to the total score. The system uses a rule-based approach where:
-                          </p>
-                          
-                          <ul className="space-y-1 text-xs text-muted-foreground mb-3">
-                            <li>• Jurisdiction type affects base risk (+0-20 points)</li>
-                            <li>• Number of shareholders impacts complexity (+0-15 points)</li>
-                            <li>• Signatory structure determines control risk (+0-15 points)</li>
-                            <li>• Annual turnover indicates business scale (+0-15 points)</li>
-                            <li>• Minimum balance requirements show financial commitment (+0-20 points)</li>
-                          </ul>
-                          
-                          {application.application_assessment.riskAssessment.calculationBreakdown.map((item, idx) => (
-                            <div key={idx} className="flex justify-between items-center py-1 border-b border-border/30 last:border-0">
-                              <span className="font-medium">{item.factor}</span>
-                              <span className="font-mono font-semibold">+{item.points} pts</span>
-                            </div>
-                          ))}
-                          
-                          <div className="mt-3 pt-3 border-t-2 border-primary/20 flex justify-between items-center font-semibold">
-                            <span>Total Risk Score</span>
-                            <span className="font-mono text-lg">{application.application_assessment.riskAssessment.score}/100</span>
-                          </div>
-                          
-                          <div className="mt-2 flex justify-between items-center text-xs">
-                            <span>Risk Classification</span>
-                            <Badge variant={
-                              application.application_assessment.riskAssessment.level === 'high' ? 'destructive' :
-                              application.application_assessment.riskAssessment.level === 'medium' ? 'default' :
-                              'secondary'
-                            }>
-                              {application.application_assessment.riskAssessment.level.toUpperCase()}
-                            </Badge>
-                              </div>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      )}
 
                       {/* Rule-Based Reasoning Summary Accordion */}
                       {application.application_assessment?.riskAssessment?.method === 'rule' && (
