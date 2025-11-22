@@ -1002,21 +1002,12 @@ const TaskCollaboration: React.FC = () => {
                     <h3 className="text-lg font-semibold mb-4">Product Tasks</h3>
                     
                     {/* Task Filters */}
-                    <div className="flex gap-2 mb-4">
-                      <div className="relative flex-1">
-                        <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                        <Input
-                          placeholder="Search tasks..."
-                          value={productTaskSearch}
-                          onChange={(e) => setProductTaskSearch(e.target.value)}
-                          className="pl-9"
-                        />
-                      </div>
+                    <div className="flex gap-3 mb-6">
                       <Select value={productTaskStatusFilter} onValueChange={setProductTaskStatusFilter}>
-                        <SelectTrigger className="w-[150px] bg-background">
+                        <SelectTrigger className="w-40">
                           <SelectValue placeholder="Status" />
                         </SelectTrigger>
-                        <SelectContent className="bg-background z-50">
+                        <SelectContent>
                           <SelectItem value="all">All Status</SelectItem>
                           <SelectItem value="todo">To Do</SelectItem>
                           <SelectItem value="in_progress">In Progress</SelectItem>
@@ -1026,17 +1017,192 @@ const TaskCollaboration: React.FC = () => {
                         </SelectContent>
                       </Select>
                       <Select value={productTaskPriorityFilter} onValueChange={setProductTaskPriorityFilter}>
-                        <SelectTrigger className="w-[150px] bg-background">
+                        <SelectTrigger className="w-40">
                           <SelectValue placeholder="Priority" />
                         </SelectTrigger>
-                        <SelectContent className="bg-background z-50">
+                        <SelectContent>
                           <SelectItem value="all">All Priority</SelectItem>
-                          <SelectItem value="low">Low</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="medium-high">Medium & High</SelectItem>
                           <SelectItem value="critical">Critical</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="low">Low</SelectItem>
                         </SelectContent>
                       </Select>
+                      <Select value={importanceFilter} onValueChange={setImportanceFilter}>
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Value" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Values</SelectItem>
+                          <SelectItem value="none">None</SelectItem>
+                          <SelectItem value="must">Must</SelectItem>
+                          <SelectItem value="should">Should</SelectItem>
+                          <SelectItem value="good-to-have">Good</SelectItem>
+                          <SelectItem value="nice-to-have">Nice</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {/* Task Stats Toggle */}
+                    <div className="mb-4 flex items-center gap-2">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => setShowTaskStats(!showTaskStats)}
+                        className="h-8 w-8 p-0"
+                      >
+                        <ChevronRight className={`h-4 w-4 transition-transform ${showTaskStats ? 'rotate-90' : ''}`} />
+                      </Button>
+                      <span className="text-sm text-muted-foreground">
+                        {showTaskStats ? 'Hide' : 'Show'} Statistics
+                      </span>
+                    </div>
+
+                    {/* Task Stats */}
+                    {showTaskStats && (() => {
+                      const productFilteredTasks = tasks.filter(t => t.project_id === selectedProduct.id);
+                      const productParentTasks = productFilteredTasks.filter(t => !t.parent_id);
+                      
+                      const countAllSubtasksForProductTask = (taskId: string, allTasks: Task[]): number => {
+                        const directChildren = allTasks.filter(t => t.parent_id === taskId);
+                        let total = directChildren.length;
+                        directChildren.forEach(child => {
+                          total += countAllSubtasksForProductTask(child.id, allTasks);
+                        });
+                        return total;
+                      };
+                      
+                      let totalProductSubtasks = 0;
+                      productParentTasks.forEach(parentTask => {
+                        totalProductSubtasks += countAllSubtasksForProductTask(parentTask.id, productFilteredTasks);
+                      });
+                      
+                      const productTaskStats = {
+                        tasks: productParentTasks.length,
+                        subtasks: totalProductSubtasks,
+                        total: productFilteredTasks.length,
+                        todo: productFilteredTasks.filter((t) => t.status === 'todo').length,
+                        in_progress: productFilteredTasks.filter((t) => t.status === 'in_progress').length,
+                        done: productFilteredTasks.filter((t) => t.status === 'done').length,
+                        importance_none: productFilteredTasks.filter((t) => !t.importance).length,
+                        importance_must: productFilteredTasks.filter((t) => t.importance === 'must').length,
+                        importance_should: productFilteredTasks.filter((t) => t.importance === 'should').length,
+                        importance_good_to_have: productFilteredTasks.filter((t) => t.importance === 'good-to-have').length,
+                        importance_nice_to_have: productFilteredTasks.filter((t) => t.importance === 'nice-to-have').length,
+                      };
+                      
+                      return (
+                        <>
+                          <div className="grid grid-cols-7 gap-4 mb-4">
+                            <div className="p-3 rounded-lg border bg-card">
+                              <div className="text-2xl font-bold">{productTaskStats.tasks}</div>
+                              <div className="text-xs text-muted-foreground">Tasks</div>
+                            </div>
+                            <div className="p-3 rounded-lg border bg-card">
+                              <div className="text-2xl font-bold">{productTaskStats.subtasks}</div>
+                              <div className="text-xs text-muted-foreground">Subtasks</div>
+                            </div>
+                            <div className="p-3 rounded-lg border bg-card">
+                              <div className="text-2xl font-bold">{productTaskStats.total}</div>
+                              <div className="text-xs text-muted-foreground">Total</div>
+                            </div>
+                            <div className="p-3 rounded-lg border bg-card">
+                              <div className="text-2xl font-bold">{productTaskStats.todo}</div>
+                              <div className="text-xs text-muted-foreground">To Do</div>
+                            </div>
+                            <div className="p-3 rounded-lg border bg-card">
+                              <div className="text-2xl font-bold">{productTaskStats.in_progress}</div>
+                              <div className="text-xs text-muted-foreground">In Progress</div>
+                            </div>
+                            <div className="p-3 rounded-lg border bg-card">
+                              <div className="text-2xl font-bold">{productTaskStats.done}</div>
+                              <div className="text-xs text-muted-foreground">Done</div>
+                            </div>
+                          </div>
+
+                          {/* Importance Classification Stats */}
+                          <div className="grid grid-cols-5 gap-4 mb-6">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="p-3 rounded-lg border bg-card cursor-help">
+                                  <div className="text-2xl font-bold">{productTaskStats.importance_none}</div>
+                                  <div className="text-xs text-muted-foreground">None</div>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="font-medium">No Classification</p>
+                                <p className="text-xs text-muted-foreground">Tasks with no importance classification set</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="p-3 rounded-lg border bg-red-50 border-red-200 cursor-help">
+                                  <div className="text-2xl font-bold text-red-800">{productTaskStats.importance_must}</div>
+                                  <div className="text-xs text-red-600">Must</div>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="font-medium">Must Have</p>
+                                <p className="text-xs text-muted-foreground">Critical tasks that are required for project success</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="p-3 rounded-lg border bg-orange-50 border-orange-200 cursor-help">
+                                  <div className="text-2xl font-bold text-orange-800">{productTaskStats.importance_should}</div>
+                                  <div className="text-xs text-orange-600">Should</div>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="font-medium">Should Have</p>
+                                <p className="text-xs text-muted-foreground">Important tasks that add significant value</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="p-3 rounded-lg border bg-blue-50 border-blue-200 cursor-help">
+                                  <div className="text-2xl font-bold text-blue-800">{productTaskStats.importance_good_to_have}</div>
+                                  <div className="text-xs text-blue-600">Good-to-have</div>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="font-medium">Good to Have</p>
+                                <p className="text-xs text-muted-foreground">Nice improvements that enhance the project</p>
+                              </TooltipContent>
+                            </Tooltip>
+
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <div className="p-3 rounded-lg border bg-gray-50 border-gray-200 cursor-help">
+                                  <div className="text-2xl font-bold text-gray-800">{productTaskStats.importance_nice_to_have}</div>
+                                  <div className="text-xs text-gray-600">Nice-to-have</div>
+                                </div>
+                              </TooltipTrigger>
+                              <TooltipContent>
+                                <p className="font-medium">Nice to Have</p>
+                                <p className="text-xs text-muted-foreground">Optional enhancements with low priority</p>
+                              </TooltipContent>
+                            </Tooltip>
+                          </div>
+                        </>
+                      );
+                    })()}
+
+                    {/* Search Bar */}
+                    <div className="mb-6">
+                      <div className="relative">
+                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                        <Input
+                          placeholder="Search tasks..."
+                          value={productTaskSearch}
+                          onChange={(e) => setProductTaskSearch(e.target.value)}
+                          className="pl-9"
+                        />
+                      </div>
                     </div>
 
                     <div className="space-y-2">
@@ -1052,8 +1218,20 @@ const TaskCollaboration: React.FC = () => {
                             return false;
                           }
                           // Priority filter
-                          if (productTaskPriorityFilter !== 'all' && t.priority !== productTaskPriorityFilter) {
-                            return false;
+                          if (productTaskPriorityFilter !== 'all') {
+                            if (productTaskPriorityFilter === 'medium-high') {
+                              if (t.priority !== 'medium' && t.priority !== 'high') return false;
+                            } else if (t.priority !== productTaskPriorityFilter) {
+                              return false;
+                            }
+                          }
+                          // Importance filter
+                          if (importanceFilter !== 'all') {
+                            if (importanceFilter === 'none') {
+                              if (t.importance) return false;
+                            } else if (t.importance !== importanceFilter) {
+                              return false;
+                            }
                           }
                           return true;
                         })
@@ -1098,13 +1276,27 @@ const TaskCollaboration: React.FC = () => {
                             return false;
                           }
                           // Priority filter
-                          if (productTaskPriorityFilter !== 'all' && t.priority !== productTaskPriorityFilter) {
-                            return false;
+                          if (productTaskPriorityFilter !== 'all') {
+                            if (productTaskPriorityFilter === 'medium-high') {
+                              if (t.priority !== 'medium' && t.priority !== 'high') return false;
+                            } else if (t.priority !== productTaskPriorityFilter) {
+                              return false;
+                            }
+                          }
+                          // Importance filter
+                          if (importanceFilter !== 'all') {
+                            if (importanceFilter === 'none') {
+                              if (t.importance) return false;
+                            } else if (t.importance !== importanceFilter) {
+                              return false;
+                            }
                           }
                           return true;
                         }).length === 0 && (
                         <div className="text-center py-12 text-muted-foreground">
-                          No tasks yet. Create your first task for this product!
+                          {productTaskSearch || productTaskStatusFilter !== 'all' || productTaskPriorityFilter !== 'all' || importanceFilter !== 'all'
+                            ? 'No tasks match your filters'
+                            : 'No tasks yet. Create your first task for this product!'}
                         </div>
                       )}
                     </div>
