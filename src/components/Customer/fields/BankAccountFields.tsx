@@ -4,8 +4,11 @@ import { FormField, FormItem, FormLabel, FormControl, FormMessage } from '@/comp
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Info, Calculator } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Info, Calculator, Sparkles, Loader2 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface BankAccountFieldsProps {
   form: UseFormReturn<any>;
@@ -15,6 +18,19 @@ interface RiskCalculation {
   level: 'low' | 'medium' | 'high';
   factors: string[];
   formula: string;
+}
+
+interface AIRiskAssessment {
+  risk_level: 'low' | 'medium' | 'high';
+  risk_score: number;
+  key_risk_factors: Array<{
+    factor: string;
+    impact: 'low' | 'medium' | 'high';
+    explanation: string;
+  }>;
+  mitigating_factors?: string[];
+  recommendations?: string[];
+  reasoning: string;
 }
 
 const calculateRiskLevel = (
@@ -74,10 +90,15 @@ const calculateRiskLevel = (
 
 export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) => {
   const [riskCalculation, setRiskCalculation] = useState<RiskCalculation | null>(null);
+  const [aiAssessment, setAiAssessment] = useState<AIRiskAssessment | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const { toast } = useToast();
 
   const businessType = form.watch('mainland_or_freezone');
   const signatoryType = form.watch('signatory_type');
   const natureOfBusiness = form.watch('nature_of_business');
+  const annualTurnover = form.watch('annual_turnover');
+  const numberOfShareholders = form.watch('no_of_shareholders');
 
   useEffect(() => {
     // Auto-calculate risk when fields change
@@ -93,6 +114,42 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
     }
   }, [businessType, signatoryType, natureOfBusiness, form]);
 
+  const analyzeWithAI = async () => {
+    setIsAnalyzing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-bank-account-risk', {
+        body: {
+          businessType,
+          signatoryType,
+          natureOfBusiness,
+          annualTurnover,
+          numberOfShareholders
+        }
+      });
+
+      if (error) throw error;
+
+      setAiAssessment(data);
+      
+      // Auto-apply AI recommendation
+      form.setValue('risk_level', data.risk_level);
+      
+      toast({
+        title: "AI Risk Assessment Complete",
+        description: `Risk Level: ${data.risk_level.toUpperCase()} (Score: ${data.risk_score}/100)`,
+      });
+    } catch (error: any) {
+      console.error('Error analyzing risk:', error);
+      toast({
+        title: "Analysis Failed",
+        description: error.message || "Failed to analyze risk with AI",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
   return (
     <div className="space-y-4">
       <FormField
@@ -100,7 +157,7 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
         name="risk_level"
         render={({ field }) => (
           <FormItem>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-2 flex-wrap">
               <FormLabel className="text-destructive">Risk Level *</FormLabel>
               {riskCalculation && (
                 <>
@@ -109,48 +166,138 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
                     className="gap-1 text-xs"
                   >
                     <Calculator className="h-3 w-3" />
-                    Auto-calculated
+                    Rule-based
                   </Badge>
                   <TooltipProvider>
                     <Tooltip>
                       <TooltipTrigger asChild>
                         <Info className="h-4 w-4 text-muted-foreground cursor-help" />
                       </TooltipTrigger>
-                      <TooltipContent side="right" className="max-w-sm p-4">
-                        <div className="space-y-3">
-                          <div>
-                            <p className="font-semibold mb-1">Risk Calculation Formula:</p>
-                            <pre className="text-xs whitespace-pre-wrap bg-muted p-2 rounded">
-                              {riskCalculation.formula}
-                            </pre>
+                      <TooltipContent side="right" className="max-w-md p-4 max-h-96 overflow-y-auto">
+                        <div className="space-y-4">
+                          {/* Rule-based Assessment */}
+                          <div className="pb-3 border-b">
+                            <div className="flex items-center gap-2 mb-2">
+                              <Calculator className="h-4 w-4 text-primary" />
+                              <p className="font-semibold">Rule-Based Assessment</p>
+                            </div>
+                            <div className="space-y-2">
+                              <div>
+                                <p className="text-xs font-medium mb-1">Formula:</p>
+                                <pre className="text-xs whitespace-pre-wrap bg-muted p-2 rounded">
+                                  {riskCalculation.formula}
+                                </pre>
+                              </div>
+                              <div>
+                                <p className="text-xs font-medium mb-1">Applied to This Application:</p>
+                                <ul className="text-xs space-y-1">
+                                  {riskCalculation.factors.map((factor, idx) => (
+                                    <li key={idx} className="flex items-start gap-1">
+                                      <span className="text-primary">•</span>
+                                      <span>{factor}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                              <div className="pt-2">
+                                <p className="text-xs font-semibold">
+                                  Result: 
+                                  <Badge 
+                                    variant={
+                                      riskCalculation.level === 'high' ? 'destructive' : 
+                                      riskCalculation.level === 'medium' ? 'default' : 
+                                      'secondary'
+                                    }
+                                    className="ml-2"
+                                  >
+                                    {riskCalculation.level.toUpperCase()}
+                                  </Badge>
+                                </p>
+                              </div>
+                            </div>
                           </div>
-                          <div>
-                            <p className="font-semibold mb-1">Applied to This Application:</p>
-                            <ul className="text-xs space-y-1">
-                              {riskCalculation.factors.map((factor, idx) => (
-                                <li key={idx} className="flex items-start gap-1">
-                                  <span className="text-primary">•</span>
-                                  <span>{factor}</span>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
+
+                          {/* AI Assessment */}
+                          {aiAssessment && (
+                            <div>
+                              <div className="flex items-center gap-2 mb-2">
+                                <Sparkles className="h-4 w-4 text-primary" />
+                                <p className="font-semibold">AI Risk Assessment</p>
+                              </div>
+                              <div className="space-y-2">
+                                <div>
+                                  <p className="text-xs font-semibold">
+                                    Risk Score: {aiAssessment.risk_score}/100
+                                    <Badge 
+                                      variant={
+                                        aiAssessment.risk_level === 'high' ? 'destructive' : 
+                                        aiAssessment.risk_level === 'medium' ? 'default' : 
+                                        'secondary'
+                                      }
+                                      className="ml-2"
+                                    >
+                                      {aiAssessment.risk_level.toUpperCase()}
+                                    </Badge>
+                                  </p>
+                                </div>
+                                <div>
+                                  <p className="text-xs font-medium mb-1">Key Risk Factors:</p>
+                                  <ul className="text-xs space-y-1">
+                                    {aiAssessment.key_risk_factors.map((factor, idx) => (
+                                      <li key={idx} className="bg-muted p-2 rounded">
+                                        <div className="font-medium">{factor.factor}</div>
+                                        <div className="text-muted-foreground">{factor.explanation}</div>
+                                        <Badge 
+                                          variant={
+                                            factor.impact === 'high' ? 'destructive' : 
+                                            factor.impact === 'medium' ? 'default' : 
+                                            'secondary'
+                                          }
+                                          className="mt-1 text-xs"
+                                        >
+                                          {factor.impact} impact
+                                        </Badge>
+                                      </li>
+                                    ))}
+                                  </ul>
+                                </div>
+                                {aiAssessment.mitigating_factors && aiAssessment.mitigating_factors.length > 0 && (
+                                  <div>
+                                    <p className="text-xs font-medium mb-1">Mitigating Factors:</p>
+                                    <ul className="text-xs space-y-1">
+                                      {aiAssessment.mitigating_factors.map((factor, idx) => (
+                                        <li key={idx} className="flex items-start gap-1">
+                                          <span className="text-green-600">✓</span>
+                                          <span>{factor}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                                {aiAssessment.recommendations && aiAssessment.recommendations.length > 0 && (
+                                  <div>
+                                    <p className="text-xs font-medium mb-1">Recommendations:</p>
+                                    <ul className="text-xs space-y-1">
+                                      {aiAssessment.recommendations.map((rec, idx) => (
+                                        <li key={idx} className="flex items-start gap-1">
+                                          <span className="text-primary">→</span>
+                                          <span>{rec}</span>
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  </div>
+                                )}
+                                <div className="bg-muted p-2 rounded">
+                                  <p className="text-xs font-medium mb-1">AI Reasoning:</p>
+                                  <p className="text-xs text-muted-foreground">{aiAssessment.reasoning}</p>
+                                </div>
+                              </div>
+                            </div>
+                          )}
+
                           <div className="pt-2 border-t">
-                            <p className="text-xs font-semibold">
-                              Calculated Risk: 
-                              <Badge 
-                                variant={
-                                  riskCalculation.level === 'high' ? 'destructive' : 
-                                  riskCalculation.level === 'medium' ? 'default' : 
-                                  'secondary'
-                                }
-                                className="ml-2"
-                              >
-                                {riskCalculation.level.toUpperCase()}
-                              </Badge>
-                            </p>
-                            <p className="text-xs text-muted-foreground mt-1">
-                              You can override this by selecting a different risk level.
+                            <p className="text-xs text-muted-foreground">
+                              You can override the assessment by manually selecting a different risk level.
                             </p>
                           </div>
                         </div>
@@ -159,6 +306,32 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
                   </TooltipProvider>
                 </>
               )}
+              {aiAssessment && (
+                <Badge variant="outline" className="gap-1 text-xs">
+                  <Sparkles className="h-3 w-3" />
+                  AI Assessed
+                </Badge>
+              )}
+              <Button
+                type="button"
+                size="sm"
+                variant="outline"
+                onClick={analyzeWithAI}
+                disabled={isAnalyzing || !businessType || !signatoryType}
+                className="ml-auto h-7 text-xs gap-1"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 className="h-3 w-3 animate-spin" />
+                    Analyzing...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-3 w-3" />
+                    AI Risk Analysis
+                  </>
+                )}
+              </Button>
             </div>
             <Select onValueChange={field.onChange} value={field.value}>
               <FormControl>
