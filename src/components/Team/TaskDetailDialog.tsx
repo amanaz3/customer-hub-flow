@@ -353,106 +353,102 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
             )}
           </div>
 
-          {/* Collapsed Task Details */}
+          {/* Main Properties - Always Visible */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Status</Label>
+              <Select value={task.status} onValueChange={(v) => handleUpdate({ status: v as 'todo' | 'in_progress' | 'in_review' | 'done' | 'blocked' })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="todo">To Do</SelectItem>
+                  <SelectItem value="in_progress">In Progress</SelectItem>
+                  <SelectItem value="in_review">In Review</SelectItem>
+                  <SelectItem value="done">Done</SelectItem>
+                  <SelectItem value="blocked">Blocked</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Priority</Label>
+              <Select value={task.priority} onValueChange={(v) => handleUpdate({ priority: v as 'low' | 'medium' | 'high' | 'critical' })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                  <SelectItem value="critical">Critical</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Type</Label>
+              <Select value={task.type} onValueChange={(v) => handleUpdate({ type: v as any })}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="task">Task</SelectItem>
+                  <SelectItem value="bug">Bug</SelectItem>
+                  <SelectItem value="feature">Feature</SelectItem>
+                  <SelectItem value="enhancement">Enhancement</SelectItem>
+                  <SelectItem value="system_issue">System Issue</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Assignee</Label>
+              <Select
+                value={task.assigned_to || 'unassigned'}
+                onValueChange={(v) => handleUpdate({ assigned_to: v === 'unassigned' ? null : v })}
+              >
+                <SelectTrigger>
+                  <SelectValue placeholder="Unassigned" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="unassigned">Unassigned</SelectItem>
+                  {teamMembers.map((member) => (
+                    <SelectItem key={member.id} value={member.id}>
+                      {member.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          {/* Description */}
+          <div className="space-y-2">
+            <Label>Description</Label>
+            <Textarea
+              value={task.description || ''}
+              onChange={(e) => {
+                const newValue = e.target.value;
+                setTask({ ...task, description: newValue });
+                debouncedSave({ description: newValue });
+              }}
+              placeholder="Add a description..."
+              rows={4}
+            />
+          </div>
+
+          {/* Additional Fields - Collapsed Accordion */}
           <Accordion type="single" collapsible className="w-full">
-            <AccordionItem value="task-details">
+            <AccordionItem value="additional-fields">
               <AccordionTrigger className="text-sm font-medium">
-                Task Details
+                Additional Details
               </AccordionTrigger>
               <AccordionContent>
                 <div className="space-y-4 pt-2">
-                  {/* Properties */}
+                  {/* Properties Grid */}
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
-                      <Label>Status</Label>
-                      <Select value={task.status} onValueChange={(v) => handleUpdate({ status: v as 'todo' | 'in_progress' | 'in_review' | 'done' | 'blocked' })}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="todo">To Do</SelectItem>
-                          <SelectItem value="in_progress">In Progress</SelectItem>
-                          <SelectItem value="in_review">In Review</SelectItem>
-                          <SelectItem value="done">Done</SelectItem>
-                          <SelectItem value="blocked">Blocked</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Priority</Label>
-                      <Select value={task.priority} onValueChange={(v) => handleUpdate({ priority: v as 'low' | 'medium' | 'high' | 'critical' })}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="low">Low</SelectItem>
-                          <SelectItem value="medium">Medium</SelectItem>
-                          <SelectItem value="high">High</SelectItem>
-                          <SelectItem value="critical">Critical</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Type</Label>
-                      <Select value={task.type} onValueChange={(v) => handleUpdate({ type: v as any })}>
-                        <SelectTrigger>
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="task">Task</SelectItem>
-                          <SelectItem value="bug">Bug</SelectItem>
-                          <SelectItem value="feature">Feature</SelectItem>
-                          <SelectItem value="enhancement">Enhancement</SelectItem>
-                          <SelectItem value="system_issue">System Issue</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label>Assignee</Label>
-                      <Select
-                        value={task.assigned_to || 'unassigned'}
-                        onValueChange={(v) => handleUpdate({ assigned_to: v === 'unassigned' ? null : v })}
-                      >
-                        <SelectTrigger>
-                          <SelectValue placeholder="Unassigned" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="unassigned">Unassigned</SelectItem>
-                          {teamMembers.map((member) => (
-                            <SelectItem key={member.id} value={member.id}>
-                              {member.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </div>
-
-                  {/* Description */}
-                  <div className="space-y-2">
-                    <Label>Description</Label>
-                    <Textarea
-                      value={task.description || ''}
-                      onChange={(e) => {
-                        const newValue = e.target.value;
-                        setTask({ ...task, description: newValue });
-                        debouncedSave({ description: newValue });
-                      }}
-                      placeholder="Add a description..."
-                      rows={4}
-                    />
-                  </div>
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          </Accordion>
-
-          {/* Properties - Remaining Fields */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
               <Label>Project</Label>
               <Select
                 value={task.project_id || 'none'}
@@ -545,70 +541,59 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label>Category</Label>
-              <Select value={task.category || 'none'} onValueChange={(v) => handleUpdate({ category: v === 'none' ? null : v })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="No category" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No category</SelectItem>
-                  <SelectItem value="development">Development</SelectItem>
-                  <SelectItem value="usability_testing">Usability Testing</SelectItem>
-                  <SelectItem value="code_review">Code Review</SelectItem>
-                  <SelectItem value="design">Design</SelectItem>
-                  <SelectItem value="testing">Testing</SelectItem>
-                  <SelectItem value="documentation">Documentation</SelectItem>
-                  <SelectItem value="bug_fix">Bug Fix</SelectItem>
-                  <SelectItem value="performance">Performance</SelectItem>
-                  <SelectItem value="security">Security</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
+                      <Label>Category</Label>
+                      <Select value={task.category || 'none'} onValueChange={(v) => handleUpdate({ category: v === 'none' ? null : v })}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="No category" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="none">No category</SelectItem>
+                          <SelectItem value="development">Development</SelectItem>
+                          <SelectItem value="usability_testing">Usability Testing</SelectItem>
+                          <SelectItem value="code_review">Code Review</SelectItem>
+                          <SelectItem value="design">Design</SelectItem>
+                          <SelectItem value="testing">Testing</SelectItem>
+                          <SelectItem value="documentation">Documentation</SelectItem>
+                          <SelectItem value="bug_fix">Bug Fix</SelectItem>
+                          <SelectItem value="performance">Performance</SelectItem>
+                          <SelectItem value="security">Security</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
 
-          {/* Mission */}
-          <div className="space-y-2">
-            <Label>Mission</Label>
-            <Input
-              value={task.mission || ''}
-              onChange={(e) => {
-                const newValue = e.target.value;
-                setTask({ ...task, mission: newValue });
-                debouncedSave({ mission: newValue });
-              }}
-              placeholder="High-level goal or objective..."
-            />
-          </div>
+                  {/* Mission */}
+                  <div className="space-y-2">
+                    <Label>Mission</Label>
+                    <Input
+                      value={task.mission || ''}
+                      onChange={(e) => {
+                        const newValue = e.target.value;
+                        setTask({ ...task, mission: newValue });
+                        debouncedSave({ mission: newValue });
+                      }}
+                      placeholder="High-level goal or objective..."
+                    />
+                  </div>
 
-          {/* Story */}
-          <div className="space-y-2">
-            <Label>Story</Label>
-            <Textarea
-              value={task.story || ''}
-              onChange={(e) => {
-                const newValue = e.target.value;
-                setTask({ ...task, story: newValue });
-                debouncedSave({ story: newValue });
-              }}
-              placeholder="As a [user type], I want to [action] so that [benefit]..."
-              rows={3}
-            />
-          </div>
-
-          {/* Description */}
-          <div className="space-y-2">
-            <Label>Description</Label>
-            <Textarea
-              value={task.description || ''}
-              onChange={(e) => {
-                const newValue = e.target.value;
-                setTask({ ...task, description: newValue });
-                debouncedSave({ description: newValue });
-              }}
-              placeholder="Add a description..."
-              rows={4}
-            />
-          </div>
+                  {/* Story */}
+                  <div className="space-y-2">
+                    <Label>Story</Label>
+                    <Textarea
+                      value={task.story || ''}
+                      onChange={(e) => {
+                        const newValue = e.target.value;
+                        setTask({ ...task, story: newValue });
+                        debouncedSave({ story: newValue });
+                      }}
+                      placeholder="As a [user type], I want to [action] so that [benefit]..."
+                      rows={3}
+                    />
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
 
           <Separator />
 
