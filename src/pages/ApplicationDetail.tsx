@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Building2, Mail, Phone, FileText, MessageSquare, Users, RefreshCw, Calendar, Clock, AlertTriangle, Save, Edit } from 'lucide-react';
+import { ArrowLeft, Building2, Mail, Phone, FileText, MessageSquare, Users, RefreshCw, Calendar, Clock, AlertTriangle, Save, Edit, Download } from 'lucide-react';
+import jsPDF from 'jspdf';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -45,6 +46,190 @@ const ApplicationDetail = () => {
     aiData?: {reasoning: string; factors: Array<{factor: string; impact: string; description: string}>};
   } | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
+
+  const generateAssessmentPDF = async () => {
+    if (!application || !application.application_assessment?.riskAssessment) return;
+
+    const assessment = application.application_assessment as any;
+    const doc = new jsPDF();
+    const pageWidth = doc.internal.pageSize.getWidth();
+    let yPos = 20;
+
+    // Title
+    doc.setFontSize(18);
+    doc.setFont('helvetica', 'bold');
+    doc.text('Risk Assessment Report', pageWidth / 2, yPos, { align: 'center' });
+    yPos += 15;
+
+    // Application details
+    doc.setFontSize(12);
+    doc.setFont('helvetica', 'normal');
+    doc.text(`Application: ${formatApplicationReferenceWithPrefix(application.reference_number, maxApplicationRef, application.created_at)}`, 20, yPos);
+    yPos += 7;
+    doc.text(`Customer: ${application.customer?.name || 'N/A'}`, 20, yPos);
+    yPos += 7;
+    doc.text(`Product: ${productName || 'N/A'}`, 20, yPos);
+    yPos += 15;
+
+    // Last Assessment Summary
+    if (assessment.lastAssessment) {
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Current Assessment', 20, yPos);
+      yPos += 10;
+      
+      doc.setFontSize(11);
+      doc.setFont('helvetica', 'normal');
+      const lastAssess = assessment.lastAssessment;
+      doc.text(`Method: ${lastAssess.method.toUpperCase()}`, 20, yPos);
+      yPos += 7;
+      doc.text(`Risk Level: ${lastAssess.level.toUpperCase()}`, 20, yPos);
+      yPos += 7;
+      doc.text(`Risk Score: ${lastAssess.score}/100`, 20, yPos);
+      yPos += 7;
+      doc.text(`Date: ${new Date(lastAssess.timestamp).toLocaleString()}`, 20, yPos);
+      yPos += 12;
+    }
+
+    // Calculation breakdown
+    if (assessment.riskAssessment.calculationBreakdown) {
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Calculation Breakdown', 20, yPos);
+      yPos += 10;
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      assessment.riskAssessment.calculationBreakdown.forEach((item: any) => {
+        if (yPos > 270) {
+          doc.addPage();
+          yPos = 20;
+        }
+        doc.text(`${item.factor}: +${item.points} pts`, 25, yPos);
+        yPos += 6;
+      });
+      yPos += 8;
+    }
+
+    // AI Analysis
+    if (assessment.riskAssessment.aiAnalysis) {
+      if (yPos > 240) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('AI Analysis', 20, yPos);
+      yPos += 10;
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      const reasoning = assessment.riskAssessment.aiAnalysis.reasoning;
+      const splitReasoning = doc.splitTextToSize(reasoning, pageWidth - 40);
+      splitReasoning.forEach((line: string) => {
+        if (yPos > 280) {
+          doc.addPage();
+          yPos = 20;
+        }
+        doc.text(line, 20, yPos);
+        yPos += 5;
+      });
+      yPos += 8;
+
+      if (assessment.riskAssessment.aiAnalysis.factors?.length > 0) {
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Risk Factors:', 20, yPos);
+        yPos += 8;
+
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'normal');
+        assessment.riskAssessment.aiAnalysis.factors.forEach((factor: any) => {
+          if (yPos > 270) {
+            doc.addPage();
+            yPos = 20;
+          }
+          doc.text(`${factor.impact.toUpperCase()}: ${factor.factor}`, 25, yPos);
+          yPos += 5;
+          const splitDesc = doc.splitTextToSize(factor.description, pageWidth - 50);
+          splitDesc.forEach((line: string) => {
+            if (yPos > 280) {
+              doc.addPage();
+              yPos = 20;
+            }
+            doc.text(line, 30, yPos);
+            yPos += 5;
+          });
+          yPos += 3;
+        });
+      }
+    }
+
+    // Fetch assessment history
+    try {
+      const { data: historyData } = await supabase
+        .from('application_assessment_history')
+        .select(`
+          *,
+          changed_by_profile:profiles!application_assessment_history_changed_by_fkey(name, email)
+        `)
+        .eq('application_id', application.id)
+        .order('created_at', { ascending: false });
+
+      if (historyData && historyData.length > 0) {
+        if (yPos > 240) {
+          doc.addPage();
+          yPos = 20;
+        }
+
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Assessment History', 20, yPos);
+        yPos += 10;
+
+        doc.setFontSize(9);
+        historyData.forEach((entry: any) => {
+          if (yPos > 270) {
+            doc.addPage();
+            yPos = 20;
+          }
+
+          doc.setFont('helvetica', 'bold');
+          doc.text(`${entry.change_type.toUpperCase()} - ${new Date(entry.created_at).toLocaleDateString()}`, 25, yPos);
+          yPos += 5;
+          
+          doc.setFont('helvetica', 'normal');
+          doc.text(`By: ${entry.changed_by_profile?.name || 'Unknown'} (${entry.changed_by_role})`, 25, yPos);
+          yPos += 5;
+
+          if (entry.new_assessment?.riskAssessment) {
+            doc.text(`Method: ${entry.new_assessment.riskAssessment.method} | Level: ${entry.new_assessment.riskAssessment.level} | Score: ${entry.new_assessment.riskAssessment.score}`, 25, yPos);
+            yPos += 5;
+          }
+
+          if (entry.comment) {
+            const splitComment = doc.splitTextToSize(entry.comment, pageWidth - 50);
+            splitComment.forEach((line: string) => {
+              doc.text(line, 25, yPos);
+              yPos += 4;
+            });
+          }
+          yPos += 6;
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching history for PDF:', error);
+    }
+
+    // Save PDF
+    doc.save(`risk-assessment-${formatApplicationReferenceWithPrefix(application.reference_number, maxApplicationRef, application.created_at)}.pdf`);
+    
+    toast({
+      title: 'PDF Generated',
+      description: 'Risk assessment report has been downloaded',
+    });
+  };
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -593,6 +778,16 @@ const ApplicationDetail = () => {
                       Risk Assessment
                     </h4>
                     <div className="flex gap-2">
+                      {application.application_assessment?.riskAssessment && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={generateAssessmentPDF}
+                        >
+                          <Download className="h-4 w-4 mr-1" />
+                          PDF Report
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         size="sm"
