@@ -248,8 +248,8 @@ Provide a detailed risk assessment with specific point allocations for each fact
       riskScore = result.total_score;
       riskLevel = result.classification;
       
-      // Format the detailed AI analysis
-      calculationDetails = JSON.stringify({
+      // Format the detailed AI analysis with scoreBreakdown for calculation details
+      const aiAnalysis = {
         reasoning: result.reasoning,
         scoreBreakdown: result.score_breakdown || [],
         keyConcerns: result.key_concerns || [],
@@ -260,7 +260,9 @@ Provide a detailed risk assessment with specific point allocations for each fact
           impact: item.impact_level,
           description: `${item.points_contribution} points - ${item.justification}`
         }))
-      });
+      };
+      
+      calculationDetails = JSON.stringify(aiAnalysis);
 
     } else if (method === 'manual' || method === 'hybrid') {
       // For manual and hybrid, return placeholder - will be handled by frontend
