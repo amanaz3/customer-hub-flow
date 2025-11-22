@@ -112,6 +112,13 @@ export type Database = {
             referencedRelation: "account_applications"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "application_assessment_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
         ]
       }
       application_documents: {
