@@ -16,6 +16,7 @@ export type Database = {
     Tables: {
       account_applications: {
         Row: {
+          application_assessment: Json | null
           application_data: Json | null
           application_type: string | null
           completed_actual: string | null
@@ -32,6 +33,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          application_assessment?: Json | null
           application_data?: Json | null
           application_type?: string | null
           completed_actual?: string | null
@@ -48,6 +50,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          application_assessment?: Json | null
           application_data?: Json | null
           application_type?: string | null
           completed_actual?: string | null

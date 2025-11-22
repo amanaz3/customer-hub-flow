@@ -40,6 +40,8 @@ const ApplicationDetail = () => {
     score: number;
     level: 'low' | 'medium' | 'high';
     details: string;
+    calculationBreakdown?: Array<{factor: string; points: number}>;
+    aiData?: {reasoning: string; factors: Array<{factor: string; impact: string; description: string}>};
   } | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
 
@@ -906,10 +908,20 @@ const ApplicationDetail = () => {
                           description: data.message,
                         });
                       } else {
+                        // Parse calculation details from JSON string
+                        let parsedDetails;
+                        try {
+                          parsedDetails = JSON.parse(data.calculationDetails);
+                        } catch {
+                          parsedDetails = null;
+                        }
+
                         setCalculatedRisk({
                           score: data.riskScore,
                           level: data.riskLevel,
-                          details: data.calculationDetails
+                          details: data.calculationDetails,
+                          calculationBreakdown: value === 'rule' && Array.isArray(parsedDetails) ? parsedDetails : undefined,
+                          aiData: value === 'ai' && parsedDetails?.reasoning ? parsedDetails : undefined
                         });
                       }
                     } catch (error) {
@@ -966,12 +978,54 @@ const ApplicationDetail = () => {
                     {calculatedRisk.level.toUpperCase()}
                   </Badge>
                 </div>
-                {calculatedRisk.details && (
+                
+                {/* Rule-based calculation breakdown */}
+                {calculatedRisk.calculationBreakdown && calculatedRisk.calculationBreakdown.length > 0 && (
                   <div className="pt-2 border-t">
-                    <p className="text-xs font-medium mb-1">Calculation Details:</p>
-                    <p className="text-xs text-muted-foreground whitespace-pre-wrap">
-                      {calculatedRisk.details}
-                    </p>
+                    <p className="text-xs font-medium mb-2">Calculation Details:</p>
+                    <div className="space-y-1">
+                      {calculatedRisk.calculationBreakdown.map((item, idx) => (
+                        <div key={idx} className="flex justify-between text-xs">
+                          <span className="text-muted-foreground">{item.factor}:</span>
+                          <span className="font-medium">+{item.points}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* AI analysis details */}
+                {calculatedRisk.aiData && (
+                  <div className="pt-2 border-t space-y-2">
+                    <div>
+                      <p className="text-xs font-medium mb-1">AI Reasoning:</p>
+                      <p className="text-xs text-muted-foreground">{calculatedRisk.aiData.reasoning}</p>
+                    </div>
+                    {calculatedRisk.aiData.factors && calculatedRisk.aiData.factors.length > 0 && (
+                      <div>
+                        <p className="text-xs font-medium mb-1">Factors Analyzed:</p>
+                        <div className="space-y-1">
+                          {calculatedRisk.aiData.factors.map((factor, idx) => (
+                            <div key={idx} className="text-xs flex items-start gap-2">
+                              <Badge 
+                                variant="outline" 
+                                className={`text-[10px] px-1 py-0 ${
+                                  factor.impact === 'negative' ? 'border-destructive text-destructive' :
+                                  factor.impact === 'positive' ? 'border-green-500 text-green-600' :
+                                  'border-muted-foreground/50 text-muted-foreground'
+                                }`}
+                              >
+                                {factor.impact}
+                              </Badge>
+                              <div className="flex-1">
+                                <p className="font-medium">{factor.factor}</p>
+                                <p className="text-muted-foreground">{factor.description}</p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -1027,12 +1081,24 @@ const ApplicationDetail = () => {
                     risk_level: calculatedRisk?.level || 'medium',
                   };
 
+                  // Prepare assessment details for application_assessment column
+                  const assessmentDetails = {
+                    method: selectedMethod,
+                    score: calculatedRisk?.score || null,
+                    level: calculatedRisk?.level || 'medium',
+                    timestamp: new Date().toISOString(),
+                    calculationBreakdown: calculatedRisk?.calculationBreakdown || null,
+                    aiAnalysis: calculatedRisk?.aiData || null,
+                    rawDetails: calculatedRisk?.details || null
+                  };
+
                   const { error } = await supabase
                     .from('account_applications')
                     .update({
                       application_data: updatedApplicationData,
                       risk_calculation_type: selectedMethod,
                       risk_score: calculatedRisk?.score || null,
+                      application_assessment: assessmentDetails,
                     })
                     .eq('id', application.id);
 
