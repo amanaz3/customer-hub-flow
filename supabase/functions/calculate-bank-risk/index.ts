@@ -125,18 +125,32 @@ serve(async (req) => {
       const appData = application.application_data;
       const customer = application.customer;
 
-      const prompt = `Analyze this bank account application and provide a risk score from 0-100 and classification (low/medium/high).
+      const systemPrompt = `You are a banking compliance risk analyst specializing in UAE bank account opening.
+
+Analyze the application and provide:
+1. A risk score (0-100) where:
+   - 0-33 = Low Risk
+   - 34-66 = Medium Risk  
+   - 67-100 = High Risk
+
+2. For each risk factor you identify, calculate specific point contributions that sum to your total score.
+
+3. Explain how each factor contributes points to the final score with clear justification.
+
+Be specific about point allocation - the factors must add up to your total score.`;
+
+      const prompt = `Analyze this bank account application for risk assessment:
 
 Application Details:
-- Type: ${appData.mainland_or_freezone || 'N/A'}
-- Shareholders: ${appData.number_of_shareholders || 1}
-- Signatory: ${appData.signatory_type || 'N/A'}
+- Jurisdiction: ${appData.mainland_or_freezone || 'N/A'}
+- Number of Shareholders: ${appData.number_of_shareholders || 1}
+- Signatory Type: ${appData.signatory_type || 'N/A'}
 - Annual Turnover: ${customer?.annual_turnover || 0} AED
-- Minimum Balance: ${appData.minimum_balance_range || 'N/A'}
+- Minimum Balance Range: ${appData.minimum_balance_range || 'N/A'}
 - Business Activity: ${appData.business_activity_details || 'N/A'}
-- Company: ${customer?.company || 'N/A'}
+- Company Name: ${customer?.company || 'N/A'}
 
-Consider compliance complexity, documentation requirements, and approval difficulty. Provide specific factors analyzed.`;
+Provide a detailed risk assessment with specific point allocations for each factor.`;
 
       const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
@@ -147,33 +161,71 @@ Consider compliance complexity, documentation requirements, and approval difficu
         body: JSON.stringify({
           model: 'google/gemini-2.5-flash',
           messages: [
-            { role: 'system', content: 'You are a banking compliance risk analyst. Analyze applications and return risk scores with detailed reasoning including specific factors.' },
+            { role: 'system', content: systemPrompt },
             { role: 'user', content: prompt }
           ],
           tools: [{
             type: 'function',
             function: {
               name: 'assess_risk',
-              description: 'Return risk assessment for bank account application',
+              description: 'Return detailed risk assessment with point breakdown',
               parameters: {
                 type: 'object',
                 properties: {
-                  score: { type: 'number', minimum: 0, maximum: 100 },
-                  classification: { type: 'string', enum: ['low', 'medium', 'high'] },
-                  reasoning: { type: 'string' },
-                  factors: {
+                  total_score: { 
+                    type: 'number', 
+                    minimum: 0, 
+                    maximum: 100,
+                    description: 'Total risk score from 0-100'
+                  },
+                  classification: { 
+                    type: 'string', 
+                    enum: ['low', 'medium', 'high'],
+                    description: 'Risk level classification'
+                  },
+                  reasoning: { 
+                    type: 'string',
+                    description: 'Overall reasoning for the risk assessment'
+                  },
+                  score_breakdown: {
                     type: 'array',
+                    description: 'Detailed breakdown of how points were calculated for each factor',
                     items: {
                       type: 'object',
                       properties: {
-                        factor: { type: 'string' },
-                        impact: { type: 'string', enum: ['positive', 'negative', 'neutral'] },
-                        description: { type: 'string' }
-                      }
+                        factor: { 
+                          type: 'string',
+                          description: 'The risk factor being evaluated (e.g., "Jurisdiction Type", "Shareholder Complexity")'
+                        },
+                        points_contribution: { 
+                          type: 'number',
+                          description: 'How many points this factor contributes to total score'
+                        },
+                        justification: { 
+                          type: 'string',
+                          description: 'Detailed explanation of why this factor contributes these points'
+                        },
+                        impact_level: { 
+                          type: 'string', 
+                          enum: ['low', 'medium', 'high'],
+                          description: 'The impact level of this factor on overall risk'
+                        }
+                      },
+                      required: ['factor', 'points_contribution', 'justification', 'impact_level']
                     }
+                  },
+                  key_concerns: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    description: 'List of key concerns or red flags identified'
+                  },
+                  mitigating_factors: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    description: 'Positive factors that reduce risk'
                   }
                 },
-                required: ['score', 'classification', 'reasoning', 'factors'],
+                required: ['total_score', 'classification', 'reasoning', 'score_breakdown'],
                 additionalProperties: false
               }
             }
@@ -193,11 +245,21 @@ Consider compliance complexity, documentation requirements, and approval difficu
       if (!toolCall) throw new Error('No tool call in AI response');
 
       const result = JSON.parse(toolCall.function.arguments);
-      riskScore = result.score;
+      riskScore = result.total_score;
       riskLevel = result.classification;
+      
+      // Format the detailed AI analysis
       calculationDetails = JSON.stringify({
         reasoning: result.reasoning,
-        factors: result.factors || []
+        scoreBreakdown: result.score_breakdown || [],
+        keyConcerns: result.key_concerns || [],
+        mitigatingFactors: result.mitigating_factors || [],
+        // Keep legacy factors format for compatibility
+        factors: (result.score_breakdown || []).map((item: any) => ({
+          factor: item.factor,
+          impact: item.impact_level,
+          description: `${item.points_contribution} points - ${item.justification}`
+        }))
       });
 
     } else if (method === 'manual' || method === 'hybrid') {
