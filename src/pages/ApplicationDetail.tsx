@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Building2, Mail, Phone, FileText, MessageSquare, Users, RefreshCw, Calendar, Clock, AlertTriangle, Save, Edit, Download, Lightbulb, Calculator } from 'lucide-react';
+import { ArrowLeft, Building2, Mail, Phone, FileText, MessageSquare, Users, RefreshCw, Calendar, Clock, AlertTriangle, Save, Edit, Download, Lightbulb, Calculator, TrendingUp } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -1937,55 +1937,11 @@ const ApplicationDetail = () => {
               <Label htmlFor="method">Select Assessment Method *</Label>
               <Select
                 value={selectedMethod}
-                onValueChange={async (value) => {
+                onValueChange={(value) => {
                   setSelectedMethod(value as any);
                   setCalculatedRisk(null);
                   setManualRiskLevel('');
                   setManualReason('');
-                  
-                  if ((value === 'rule' || value === 'ai' || value === 'hybrid') && application) {
-                    // Auto-calculate for rule, AI, and hybrid methods
-                    setIsCalculating(true);
-                    try {
-                      const { data, error } = await supabase.functions.invoke('calculate-bank-risk', {
-                        body: { applicationId: application.id, method: value === 'hybrid' ? 'ai' : value }
-                      });
-
-                      if (error) throw error;
-
-                      if (data.requiresManualInput) {
-                        toast({
-                          title: 'Manual Input Required',
-                          description: data.message,
-                        });
-                      } else {
-                        // Parse calculation details from JSON string
-                        let parsedDetails;
-                        try {
-                          parsedDetails = JSON.parse(data.calculationDetails);
-                        } catch {
-                          parsedDetails = null;
-                        }
-
-                        setCalculatedRisk({
-                          score: data.riskScore,
-                          level: data.riskLevel,
-                          details: data.calculationDetails,
-                          calculationBreakdown: value === 'rule' && Array.isArray(parsedDetails) ? parsedDetails : undefined,
-                          aiData: (value === 'ai' || value === 'hybrid') && parsedDetails?.reasoning ? parsedDetails : undefined
-                        });
-                      }
-                    } catch (error) {
-                      console.error('Error calculating risk:', error);
-                      toast({
-                        title: 'Calculation Error',
-                        description: 'Failed to calculate risk score',
-                        variant: 'destructive',
-                      });
-                    } finally {
-                      setIsCalculating(false);
-                    }
-                  }
                 }}
                 disabled={isCalculating}
               >
@@ -2000,6 +1956,126 @@ const ApplicationDetail = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Run Assessment Button */}
+            {selectedMethod && selectedMethod !== 'manual' && !calculatedRisk && !isCalculating && (
+              <Button
+                onClick={async () => {
+                  if (!application) return;
+                  
+                  setIsCalculating(true);
+                  try {
+                    const { data, error } = await supabase.functions.invoke('calculate-bank-risk', {
+                      body: { applicationId: application.id, method: selectedMethod === 'hybrid' ? 'ai' : selectedMethod }
+                    });
+
+                    if (error) throw error;
+
+                    if (data.requiresManualInput) {
+                      toast({
+                        title: 'Manual Input Required',
+                        description: data.message,
+                      });
+                      setIsCalculating(false);
+                      return;
+                    }
+
+                    // Parse calculation details
+                    let parsedDetails;
+                    try {
+                      parsedDetails = JSON.parse(data.calculationDetails);
+                    } catch {
+                      parsedDetails = null;
+                    }
+
+                    const riskData = {
+                      score: data.riskScore,
+                      level: data.riskLevel,
+                      details: data.calculationDetails,
+                      calculationBreakdown: selectedMethod === 'rule' && Array.isArray(parsedDetails) ? parsedDetails : undefined,
+                      aiData: (selectedMethod === 'ai' || selectedMethod === 'hybrid') && parsedDetails?.reasoning ? parsedDetails : undefined
+                    };
+
+                    setCalculatedRisk(riskData);
+
+                    // Auto-save after calculation
+                    const newAssessment = {
+                      method: selectedMethod,
+                      score: data.riskScore,
+                      level: data.riskLevel,
+                      timestamp: new Date().toISOString(),
+                      calculationBreakdown: riskData.calculationBreakdown || null,
+                      aiAnalysis: riskData.aiData || null,
+                      rawDetails: data.calculationDetails || null,
+                      manualDetails: null
+                    };
+
+                    const existingHistory = application.application_assessment?.assessmentHistory || [];
+                    const updatedHistory = existingHistory.filter((h: any) => h.method !== selectedMethod);
+                    
+                    const assessmentDetails = {
+                      riskAssessment: newAssessment,
+                      lastAssessment: {
+                        method: selectedMethod,
+                        score: data.riskScore,
+                        level: data.riskLevel,
+                        timestamp: new Date().toISOString()
+                      },
+                      assessmentHistory: [...updatedHistory, newAssessment]
+                    };
+
+                    const changeType = application.application_assessment?.riskAssessment ? 'updated' : 'created';
+                    
+                    await supabase.from('application_assessment_history').insert({
+                      application_id: application.id,
+                      previous_assessment: application.application_assessment || null,
+                      new_assessment: assessmentDetails,
+                      change_type: changeType,
+                      changed_by: user?.id,
+                      changed_by_role: isAdmin ? 'admin' : 'user',
+                      comment: `Risk assessment ${changeType} using ${selectedMethod} method`
+                    });
+
+                    const updatedApplicationData = {
+                      ...application.application_data,
+                      risk_level: data.riskLevel,
+                    };
+
+                    await supabase
+                      .from('account_applications')
+                      .update({
+                        application_data: updatedApplicationData,
+                        application_assessment: assessmentDetails,
+                      })
+                      .eq('id', application.id);
+
+                    toast({
+                      title: 'Assessment Complete',
+                      description: `${selectedMethod.charAt(0).toUpperCase() + selectedMethod.slice(1)} assessment calculated and saved`,
+                    });
+
+                    const updatedApp = await ApplicationService.fetchApplicationById(application.id);
+                    setApplication(updatedApp);
+                    setShowRiskDialog(false);
+                    setSelectedMethod('');
+                    setCalculatedRisk(null);
+                  } catch (error) {
+                    console.error('Error running assessment:', error);
+                    toast({
+                      title: 'Error',
+                      description: 'Failed to run risk assessment',
+                      variant: 'destructive',
+                    });
+                  } finally {
+                    setIsCalculating(false);
+                  }
+                }}
+                className="w-full"
+              >
+                <TrendingUp className="mr-2 h-4 w-4" />
+                Run {selectedMethod.charAt(0).toUpperCase() + selectedMethod.slice(1)} Assessment
+              </Button>
+            )}
 
             {/* Show calculation in progress */}
             {isCalculating && (
@@ -2082,6 +2158,126 @@ const ApplicationDetail = () => {
               </div>
             )}
 
+            {/* Run Assessment Button */}
+            {selectedMethod && selectedMethod !== 'manual' && !calculatedRisk && !isCalculating && (
+              <Button
+                onClick={async () => {
+                  if (!application) return;
+                  
+                  setIsCalculating(true);
+                  try {
+                    const { data, error } = await supabase.functions.invoke('calculate-bank-risk', {
+                      body: { applicationId: application.id, method: selectedMethod === 'hybrid' ? 'ai' : selectedMethod }
+                    });
+
+                    if (error) throw error;
+
+                    if (data.requiresManualInput) {
+                      toast({
+                        title: 'Manual Input Required',
+                        description: data.message,
+                      });
+                      setIsCalculating(false);
+                      return;
+                    }
+
+                    // Parse calculation details
+                    let parsedDetails;
+                    try {
+                      parsedDetails = JSON.parse(data.calculationDetails);
+                    } catch {
+                      parsedDetails = null;
+                    }
+
+                    const riskData = {
+                      score: data.riskScore,
+                      level: data.riskLevel,
+                      details: data.calculationDetails,
+                      calculationBreakdown: selectedMethod === 'rule' && Array.isArray(parsedDetails) ? parsedDetails : undefined,
+                      aiData: (selectedMethod === 'ai' || selectedMethod === 'hybrid') && parsedDetails?.reasoning ? parsedDetails : undefined
+                    };
+
+                    setCalculatedRisk(riskData);
+
+                    // Auto-save after calculation
+                    const newAssessment = {
+                      method: selectedMethod,
+                      score: data.riskScore,
+                      level: data.riskLevel,
+                      timestamp: new Date().toISOString(),
+                      calculationBreakdown: riskData.calculationBreakdown || null,
+                      aiAnalysis: riskData.aiData || null,
+                      rawDetails: data.calculationDetails || null,
+                      manualDetails: null
+                    };
+
+                    const existingHistory = application.application_assessment?.assessmentHistory || [];
+                    const updatedHistory = existingHistory.filter((h: any) => h.method !== selectedMethod);
+                    
+                    const assessmentDetails = {
+                      riskAssessment: newAssessment,
+                      lastAssessment: {
+                        method: selectedMethod,
+                        score: data.riskScore,
+                        level: data.riskLevel,
+                        timestamp: new Date().toISOString()
+                      },
+                      assessmentHistory: [...updatedHistory, newAssessment]
+                    };
+
+                    const changeType = application.application_assessment?.riskAssessment ? 'updated' : 'created';
+                    
+                    await supabase.from('application_assessment_history').insert({
+                      application_id: application.id,
+                      previous_assessment: application.application_assessment || null,
+                      new_assessment: assessmentDetails,
+                      change_type: changeType,
+                      changed_by: user?.id,
+                      changed_by_role: isAdmin ? 'admin' : 'user',
+                      comment: `Risk assessment ${changeType} using ${selectedMethod} method`
+                    });
+
+                    const updatedApplicationData = {
+                      ...application.application_data,
+                      risk_level: data.riskLevel,
+                    };
+
+                    await supabase
+                      .from('account_applications')
+                      .update({
+                        application_data: updatedApplicationData,
+                        application_assessment: assessmentDetails,
+                      })
+                      .eq('id', application.id);
+
+                    toast({
+                      title: 'Assessment Complete',
+                      description: `${selectedMethod.charAt(0).toUpperCase() + selectedMethod.slice(1)} assessment calculated and saved`,
+                    });
+
+                    const updatedApp = await ApplicationService.fetchApplicationById(application.id);
+                    setApplication(updatedApp);
+                    setShowRiskDialog(false);
+                    setSelectedMethod('');
+                    setCalculatedRisk(null);
+                  } catch (error) {
+                    console.error('Error running assessment:', error);
+                    toast({
+                      title: 'Error',
+                      description: 'Failed to run risk assessment',
+                      variant: 'destructive',
+                    });
+                  } finally {
+                    setIsCalculating(false);
+                  }
+                }}
+                className="w-full"
+              >
+                <TrendingUp className="mr-2 h-4 w-4" />
+                Run {selectedMethod.charAt(0).toUpperCase() + selectedMethod.slice(1)} Assessment
+              </Button>
+            )}
+
             {/* Manual Assessment Inputs */}
             {selectedMethod === 'manual' && !isCalculating && (
               <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
@@ -2120,7 +2316,7 @@ const ApplicationDetail = () => {
             )}
           </div>
 
-          <DialogFooter>
+          <DialogFooter className="gap-2">
             <Button
               variant="outline"
               onClick={() => {
@@ -2131,9 +2327,10 @@ const ApplicationDetail = () => {
                 setManualReason('');
               }}
             >
-              Cancel
+              Close
             </Button>
-            <Button
+            {selectedMethod === 'manual' && (
+              <Button
               onClick={async () => {
                 if (!selectedMethod || !application) {
                   toast({
@@ -2164,10 +2361,10 @@ const ApplicationDetail = () => {
                   }
                 }
 
-                if (!calculatedRisk && (selectedMethod === 'rule' || selectedMethod === 'ai' || selectedMethod === 'hybrid')) {
+                if (!calculatedRisk) {
                   toast({
                     title: 'Calculation Required',
-                    description: 'Please calculate risk assessment first',
+                    description: 'Risk calculation required for manual assessment',
                     variant: 'destructive',
                   });
                   return;
@@ -2266,10 +2463,11 @@ const ApplicationDetail = () => {
                   });
                 }
               }}
-              disabled={isCalculating}
+              disabled={!manualRiskLevel || !manualReason || isCalculating}
             >
-              Save Assessment
+              {isCalculating ? 'Saving...' : 'Save Manual Assessment'}
             </Button>
+            )}
           </DialogFooter>
         </DialogContent>
       </Dialog>
