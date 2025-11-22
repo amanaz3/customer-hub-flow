@@ -34,6 +34,12 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 
 interface TaskDetailDialogProps {
   taskId: string | null;
@@ -347,75 +353,105 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
             )}
           </div>
 
-          {/* Properties */}
+          {/* Collapsed Task Details */}
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="task-details">
+              <AccordionTrigger className="text-sm font-medium">
+                Task Details
+              </AccordionTrigger>
+              <AccordionContent>
+                <div className="space-y-4 pt-2">
+                  {/* Properties */}
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Status</Label>
+                      <Select value={task.status} onValueChange={(v) => handleUpdate({ status: v as 'todo' | 'in_progress' | 'in_review' | 'done' | 'blocked' })}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="todo">To Do</SelectItem>
+                          <SelectItem value="in_progress">In Progress</SelectItem>
+                          <SelectItem value="in_review">In Review</SelectItem>
+                          <SelectItem value="done">Done</SelectItem>
+                          <SelectItem value="blocked">Blocked</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Priority</Label>
+                      <Select value={task.priority} onValueChange={(v) => handleUpdate({ priority: v as 'low' | 'medium' | 'high' | 'critical' })}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High</SelectItem>
+                          <SelectItem value="critical">Critical</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Type</Label>
+                      <Select value={task.type} onValueChange={(v) => handleUpdate({ type: v as any })}>
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="task">Task</SelectItem>
+                          <SelectItem value="bug">Bug</SelectItem>
+                          <SelectItem value="feature">Feature</SelectItem>
+                          <SelectItem value="enhancement">Enhancement</SelectItem>
+                          <SelectItem value="system_issue">System Issue</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label>Assignee</Label>
+                      <Select
+                        value={task.assigned_to || 'unassigned'}
+                        onValueChange={(v) => handleUpdate({ assigned_to: v === 'unassigned' ? null : v })}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Unassigned" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="unassigned">Unassigned</SelectItem>
+                          {teamMembers.map((member) => (
+                            <SelectItem key={member.id} value={member.id}>
+                              {member.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <div className="space-y-2">
+                    <Label>Description</Label>
+                    <Textarea
+                      value={task.description || ''}
+                      onChange={(e) => {
+                        const newValue = e.target.value;
+                        setTask({ ...task, description: newValue });
+                        debouncedSave({ description: newValue });
+                      }}
+                      placeholder="Add a description..."
+                      rows={4}
+                    />
+                  </div>
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+
+          {/* Properties - Remaining Fields */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Status</Label>
-              <Select value={task.status} onValueChange={(v) => handleUpdate({ status: v as 'todo' | 'in_progress' | 'in_review' | 'done' | 'blocked' })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="todo">To Do</SelectItem>
-                  <SelectItem value="in_progress">In Progress</SelectItem>
-                  <SelectItem value="in_review">In Review</SelectItem>
-                  <SelectItem value="done">Done</SelectItem>
-                  <SelectItem value="blocked">Blocked</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Priority</Label>
-              <Select value={task.priority} onValueChange={(v) => handleUpdate({ priority: v as 'low' | 'medium' | 'high' | 'critical' })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                  <SelectItem value="critical">Critical</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Type</Label>
-              <Select value={task.type} onValueChange={(v) => handleUpdate({ type: v as any })}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="task">Task</SelectItem>
-                  <SelectItem value="bug">Bug</SelectItem>
-                  <SelectItem value="feature">Feature</SelectItem>
-                  <SelectItem value="enhancement">Enhancement</SelectItem>
-                  <SelectItem value="system_issue">System Issue</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Assignee</Label>
-              <Select
-                value={task.assigned_to || 'unassigned'}
-                onValueChange={(v) => handleUpdate({ assigned_to: v === 'unassigned' ? null : v })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Unassigned" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="unassigned">Unassigned</SelectItem>
-                  {teamMembers.map((member) => (
-                    <SelectItem key={member.id} value={member.id}>
-                      {member.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="space-y-2">
               <Label>Project</Label>
               <Select
