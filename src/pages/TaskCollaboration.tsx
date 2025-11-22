@@ -17,6 +17,7 @@ import {
 import {
   Tooltip,
   TooltipContent,
+  TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -768,6 +769,7 @@ const TaskCollaboration: React.FC = () => {
   }
 
   return (
+    <TooltipProvider>
     <div className="container mx-auto py-6 space-y-6">
       <div className="flex items-center justify-between">
         <div>
@@ -1872,6 +1874,7 @@ const TaskCollaboration: React.FC = () => {
         onTasksCreated={fetchTasks}
       />
     </div>
+    </TooltipProvider>
   );
 };
 
