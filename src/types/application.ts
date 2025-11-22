@@ -42,6 +42,12 @@ export interface Application {
   status: ApplicationStatus;
   application_data: ApplicationData;
   application_assessment?: {
+    lastAssessment?: {
+      method: 'manual' | 'rule' | 'ai' | 'hybrid';
+      score: number;
+      level: 'low' | 'medium' | 'high';
+      timestamp: string;
+    };
     riskAssessment?: {
       method: 'manual' | 'rule' | 'ai' | 'hybrid';
       score: number | null;
@@ -51,6 +57,15 @@ export interface Application {
       aiAnalysis?: {reasoning: string; factors: Array<{factor: string; impact: string; description: string}>} | null;
       rawDetails?: string | null;
     };
+    assessmentHistory?: Array<{
+      method: 'manual' | 'rule' | 'ai' | 'hybrid';
+      score: number;
+      level: 'low' | 'medium' | 'high';
+      timestamp: string;
+      calculationBreakdown?: Array<{factor: string; points: number}> | null;
+      aiAnalysis?: {reasoning: string; factors: Array<{factor: string; impact: string; description: string}>} | null;
+      rawDetails?: string | null;
+    }>;
   };
   created_at: string;
   updated_at: string;

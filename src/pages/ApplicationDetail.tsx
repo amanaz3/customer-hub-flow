@@ -665,6 +665,43 @@ const ApplicationDetail = () => {
                     </div>
                   ) : (
                     <>
+                    {/* Last Assessment Summary */}
+                    {application.application_assessment?.lastAssessment && (
+                      <div className="mb-4 p-3 bg-primary/5 border-l-4 border-primary rounded">
+                        <p className="text-xs font-medium text-muted-foreground mb-2">LAST ASSESSMENT USED</p>
+                        <div className="flex items-center gap-4 flex-wrap">
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground">Method:</span>
+                            <Badge variant="outline">
+                              {application.application_assessment.lastAssessment.method === 'manual' && '👤 Manual'}
+                              {application.application_assessment.lastAssessment.method === 'rule' && '📊 Rule-Based'}
+                              {application.application_assessment.lastAssessment.method === 'ai' && '🤖 AI-Powered'}
+                              {application.application_assessment.lastAssessment.method === 'hybrid' && '🔀 Hybrid'}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground">Level:</span>
+                            <Badge
+                              variant={
+                                application.application_assessment.lastAssessment.level === 'high' ? 'destructive' : 
+                                application.application_assessment.lastAssessment.level === 'medium' ? 'default' : 
+                                'secondary'
+                              }
+                            >
+                              {application.application_assessment.lastAssessment.level.toUpperCase()}
+                            </Badge>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground">Score:</span>
+                            <span className="font-semibold">{application.application_assessment.lastAssessment.score}/100</span>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-muted-foreground">Date:</span>
+                            <span className="text-xs">{new Date(application.application_assessment.lastAssessment.timestamp).toLocaleDateString()}</span>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {application.application_assessment?.riskAssessment?.level && (
                         <div>
@@ -1199,16 +1236,28 @@ const ApplicationDetail = () => {
                   };
 
                   // Prepare assessment details for application_assessment column
+                  const newAssessment = {
+                    method: selectedMethod,
+                    score: calculatedRisk?.score || null,
+                    level: calculatedRisk?.level || 'medium',
+                    timestamp: new Date().toISOString(),
+                    calculationBreakdown: calculatedRisk?.calculationBreakdown || null,
+                    aiAnalysis: calculatedRisk?.aiData || null,
+                    rawDetails: calculatedRisk?.details || null
+                  };
+
+                  // Get existing history
+                  const existingHistory = application.application_assessment?.assessmentHistory || [];
+                  
                   const assessmentDetails = {
-                    riskAssessment: {
+                    riskAssessment: newAssessment,
+                    lastAssessment: {
                       method: selectedMethod,
-                      score: calculatedRisk?.score || null,
+                      score: calculatedRisk?.score || 0,
                       level: calculatedRisk?.level || 'medium',
-                      timestamp: new Date().toISOString(),
-                      calculationBreakdown: calculatedRisk?.calculationBreakdown || null,
-                      aiAnalysis: calculatedRisk?.aiData || null,
-                      rawDetails: calculatedRisk?.details || null
-                    }
+                      timestamp: new Date().toISOString()
+                    },
+                    assessmentHistory: [...existingHistory, newAssessment]
                   };
 
                   // Determine change type
