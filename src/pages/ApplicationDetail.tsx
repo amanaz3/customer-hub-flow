@@ -1396,16 +1396,9 @@ const ApplicationDetail = () => {
                               </p>
 
                               {(() => {
-                                // Calculate rule-based score
-                                const ruleBasedScore = application.application_assessment.riskAssessment.calculationBreakdown?.reduce(
-                                  (sum, item) => sum + (item.points || 0), 0
-                                ) || 0;
-                                
-                                // Calculate AI score
-                                const aiScore = application.application_assessment.riskAssessment.aiAnalysis?.scoreBreakdown?.reduce(
-                                  (sum, item) => sum + (item.points_contribution || 0), 0
-                                ) || 0;
-
+                                // Get hybrid scores from the stored data
+                                const ruleBasedScore = (application.application_assessment.riskAssessment as any).hybridDetails?.ruleBasedScore || 0;
+                                const aiScore = (application.application_assessment.riskAssessment as any).hybridDetails?.aiScore || 0;
                                 const finalScore = application.application_assessment.riskAssessment.score;
 
                                 return (
@@ -2145,7 +2138,7 @@ const ApplicationDetail = () => {
                   setIsCalculating(true);
                   try {
                     const { data, error } = await supabase.functions.invoke('calculate-bank-risk', {
-                      body: { applicationId: application.id, method: selectedMethod === 'hybrid' ? 'ai' : selectedMethod }
+                      body: { applicationId: application.id, method: selectedMethod }
                     });
 
                     if (error) throw error;
@@ -2167,27 +2160,49 @@ const ApplicationDetail = () => {
                       parsedDetails = null;
                     }
 
-                    const riskData = {
+                    // Build risk data based on method
+                    let riskData: any = {
                       score: data.riskScore,
                       level: data.riskLevel,
-                      details: data.calculationDetails,
-                      calculationBreakdown: selectedMethod === 'rule' && parsedDetails?.breakdown && Array.isArray(parsedDetails.breakdown) ? parsedDetails.breakdown : undefined,
-                      aiData: (selectedMethod === 'ai' || selectedMethod === 'hybrid') && parsedDetails?.reasoning ? parsedDetails : undefined
+                      details: data.calculationDetails
                     };
+
+                    if (selectedMethod === 'rule') {
+                      riskData.calculationBreakdown = parsedDetails?.breakdown && Array.isArray(parsedDetails.breakdown) ? parsedDetails.breakdown : undefined;
+                    } else if (selectedMethod === 'ai') {
+                      riskData.aiData = parsedDetails?.reasoning ? parsedDetails : undefined;
+                    } else if (selectedMethod === 'hybrid') {
+                      // Hybrid has both rule-based and AI data
+                      riskData.calculationBreakdown = parsedDetails?.calculationBreakdown && Array.isArray(parsedDetails.calculationBreakdown) ? parsedDetails.calculationBreakdown : undefined;
+                      riskData.aiData = parsedDetails?.aiAnalysis || undefined;
+                      riskData.ruleBasedScore = parsedDetails?.ruleBasedScore || 0;
+                      riskData.aiScore = parsedDetails?.aiScore || 0;
+                    }
 
                     setCalculatedRisk(riskData);
 
                     // Auto-save after calculation
-                    const newAssessment = {
+                    const newAssessment: any = {
                       method: selectedMethod,
                       score: data.riskScore,
                       level: data.riskLevel,
                       timestamp: new Date().toISOString(),
-                      calculationBreakdown: riskData.calculationBreakdown || null,
-                      aiAnalysis: riskData.aiData || null,
-                      rawDetails: data.calculationDetails || null,
                       manualDetails: null
                     };
+
+                    // Add method-specific data
+                    if (selectedMethod === 'rule') {
+                      newAssessment.calculationBreakdown = riskData.calculationBreakdown || null;
+                    } else if (selectedMethod === 'ai') {
+                      newAssessment.aiAnalysis = riskData.aiData || null;
+                    } else if (selectedMethod === 'hybrid') {
+                      newAssessment.calculationBreakdown = riskData.calculationBreakdown || null;
+                      newAssessment.aiAnalysis = riskData.aiData || null;
+                      newAssessment.hybridDetails = {
+                        ruleBasedScore: riskData.ruleBasedScore,
+                        aiScore: riskData.aiScore
+                      };
+                    }
 
                     const existingHistory = application.application_assessment?.assessmentHistory || [];
                     const updatedHistory = existingHistory.filter((h: any) => h.method !== selectedMethod);
