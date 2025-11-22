@@ -2008,7 +2008,7 @@ const ApplicationDetail = () => {
                       score: data.riskScore,
                       level: data.riskLevel,
                       details: data.calculationDetails,
-                      calculationBreakdown: selectedMethod === 'rule' && Array.isArray(parsedDetails) ? parsedDetails : undefined,
+                      calculationBreakdown: selectedMethod === 'rule' && parsedDetails?.breakdown && Array.isArray(parsedDetails.breakdown) ? parsedDetails.breakdown : undefined,
                       aiData: (selectedMethod === 'ai' || selectedMethod === 'hybrid') && parsedDetails?.reasoning ? parsedDetails : undefined
                     };
 
