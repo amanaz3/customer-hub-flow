@@ -35,7 +35,14 @@ Analyze the provided bank account application details and assess the risk level 
 - Financial profile and transaction patterns
 - Corporate complexity and ownership structure
 
-Provide a comprehensive risk assessment with clear reasoning.`;
+Provide a comprehensive risk assessment with clear reasoning.
+
+IMPORTANT: Score Classification Rules:
+- Low Risk: 0-33 points (minimal compliance concerns, standard business activities)
+- Medium Risk: 34-66 points (moderate concerns, requires standard enhanced due diligence)
+- High Risk: 67-100 points (significant concerns, requires enhanced due diligence and senior approval)
+
+Ensure the risk_level matches the risk_score range.`;
 
     const userPrompt = `Assess the risk level for this UAE bank account opening application:
 
@@ -162,6 +169,22 @@ Provide a detailed risk assessment.`;
     }
 
     const riskAssessment = JSON.parse(toolCall.function.arguments);
+    
+    // Validate and ensure risk_level matches risk_score
+    let validatedRiskLevel: 'low' | 'medium' | 'high';
+    if (riskAssessment.risk_score <= 33) {
+      validatedRiskLevel = 'low';
+    } else if (riskAssessment.risk_score <= 66) {
+      validatedRiskLevel = 'medium';
+    } else {
+      validatedRiskLevel = 'high';
+    }
+    
+    // Override if AI classification doesn't match score
+    if (riskAssessment.risk_level !== validatedRiskLevel) {
+      console.log(`AI risk_level (${riskAssessment.risk_level}) doesn't match score (${riskAssessment.risk_score}), correcting to ${validatedRiskLevel}`);
+      riskAssessment.risk_level = validatedRiskLevel;
+    }
     
     console.log('Risk assessment completed:', riskAssessment);
 
