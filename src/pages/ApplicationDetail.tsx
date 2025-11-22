@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useToast } from '@/hooks/use-toast';
 import { ApplicationService } from '@/services/applicationService';
@@ -1196,12 +1197,14 @@ const ApplicationDetail = () => {
                       </div>
                     )}
 
-                    {/* AI Score Breakdown */}
-                    {application.application_assessment?.riskAssessment?.method === 'ai' && 
-                     application.application_assessment?.riskAssessment?.aiAnalysis?.scoreBreakdown && (
-                      <div className="mt-4 pt-4 border-t">
-                        <p className="text-sm font-medium mb-2">AI Score Breakdown</p>
-                        <div className="p-3 bg-muted/30 rounded-md text-sm space-y-3">
+                    <Accordion type="multiple" className="mt-4">
+                      {/* AI Score Breakdown Accordion */}
+                      {application.application_assessment?.riskAssessment?.method === 'ai' &&
+                       application.application_assessment?.riskAssessment?.aiAnalysis?.scoreBreakdown && (
+                        <AccordionItem value="score-breakdown">
+                          <AccordionTrigger className="text-sm font-medium">AI Score Breakdown</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="p-3 bg-muted/30 rounded-md text-sm space-y-3">
                           {application.application_assessment.riskAssessment.aiAnalysis.scoreBreakdown.map((item, idx) => (
                             <div key={idx} className="space-y-1">
                               <div className="flex justify-between items-center">
@@ -1246,10 +1249,11 @@ const ApplicationDetail = () => {
                                 <li key={idx} className="text-xs text-muted-foreground">• {factor}</li>
                               ))}
                             </ul>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                              </div>
+                            )}
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
 
                     {/* Manual/Hybrid Assessment Summary */}
                     {(application.application_assessment?.riskAssessment?.method === 'manual' || 
@@ -1281,12 +1285,13 @@ const ApplicationDetail = () => {
                       </div>
                     )}
 
-                    {/* Calculation Details for Rule-Based Method */}
-                    {application.application_assessment?.riskAssessment?.method === 'rule' && 
-                     application.application_assessment?.riskAssessment?.calculationBreakdown && (
-                      <div className="mt-4 pt-4 border-t">
-                        <p className="text-sm font-medium mb-2">Calculation Details</p>
-                        <div className="p-3 bg-muted/30 rounded-md text-sm space-y-2">
+                      {/* Calculation Details Accordion - Rule-Based */}
+                      {application.application_assessment?.riskAssessment?.method === 'rule' && 
+                       application.application_assessment?.riskAssessment?.calculationBreakdown && (
+                        <AccordionItem value="calculation-details">
+                          <AccordionTrigger className="text-sm font-medium">Calculation Details</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="p-3 bg-muted/30 rounded-md text-sm space-y-2">
                           <p className="text-xs text-muted-foreground mb-3">
                             Risk Score Calculation (Total: {application.application_assessment.riskAssessment.score}/100)
                           </p>
@@ -1312,10 +1317,11 @@ const ApplicationDetail = () => {
                             }>
                               {application.application_assessment.riskAssessment.level.toUpperCase()}
                             </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
 
                     {/* Assessment Details for Manual and Hybrid Methods */}
                     {(application.application_assessment?.riskAssessment?.method === 'manual' || 
@@ -1351,12 +1357,13 @@ const ApplicationDetail = () => {
                       </div>
                     )}
 
-                    {/* AI Method Calculation Details - Show score breakdown */}
-                    {application.application_assessment?.riskAssessment?.method === 'ai' && 
-                     application.application_assessment?.riskAssessment?.aiAnalysis?.scoreBreakdown && (
-                      <div className="mt-4 pt-4 border-t">
-                        <p className="text-sm font-medium mb-2">Calculation Details</p>
-                        <div className="p-3 bg-muted/30 rounded-md text-sm space-y-2">
+                      {/* Calculation Details Accordion - AI Method */}
+                      {application.application_assessment?.riskAssessment?.method === 'ai' && 
+                       application.application_assessment?.riskAssessment?.aiAnalysis?.scoreBreakdown && (
+                        <AccordionItem value="calculation-details-ai">
+                          <AccordionTrigger className="text-sm font-medium">Calculation Details</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="p-3 bg-muted/30 rounded-md text-sm space-y-2">
                           <p className="text-xs text-muted-foreground mb-3">
                             Risk Score Calculation (Total: {application.application_assessment.riskAssessment.score}/100)
                           </p>
@@ -1394,16 +1401,18 @@ const ApplicationDetail = () => {
                             }>
                               {application.application_assessment.riskAssessment.level.toUpperCase()}
                             </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
 
-                    {/* Display AI reasoning summary with factors */}
-                    {application.application_assessment?.riskAssessment?.aiAnalysis && (
-                      <div className="mt-4 pt-4 border-t">
-                        <p className="text-sm font-medium mb-2">AI Reasoning Summary</p>
-                        <div className="p-3 bg-primary/5 rounded-md text-sm space-y-3">
+                      {/* AI Reasoning Summary Accordion */}
+                      {application.application_assessment?.riskAssessment?.aiAnalysis && (
+                        <AccordionItem value="ai-reasoning">
+                          <AccordionTrigger className="text-sm font-medium">AI Reasoning Summary</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="p-3 bg-primary/5 rounded-md text-sm space-y-3">
                           <p className="whitespace-pre-line">{application.application_assessment.riskAssessment.aiAnalysis.reasoning}</p>
                           {application.application_assessment.riskAssessment.aiAnalysis.factors?.length > 0 && (
                             <div className="space-y-2 mt-3 pt-3 border-t border-primary/10">
@@ -1424,27 +1433,30 @@ const ApplicationDetail = () => {
                                 </div>
                               ))}
                             </div>
-                          )}
-                        </div>
-                      </div>
-                    )}
+                              )}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
 
-                    {/* Risk Reduction Recommendations - Display for all methods */}
-                    {application.application_assessment?.riskAssessment && (
-                      <>
-                        {/* Rule-Based Recommendations */}
-                        {application.application_assessment.riskAssessment.method === 'rule' && 
-                         application.application_assessment.riskAssessment.rawDetails && 
-                         (() => {
-                           try {
-                             const parsedDetails = JSON.parse(application.application_assessment.riskAssessment.rawDetails);
-                             return parsedDetails.recommendations && parsedDetails.recommendations.length > 0 ? (
-                               <div className="mt-4 pt-4 border-t">
-                                 <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                                   <Lightbulb className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                                   Risk Reduction Recommendations
-                                 </p>
-                                 <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 rounded-md">
+                      {/* Risk Reduction Recommendations Accordion */}
+                      {application.application_assessment?.riskAssessment && (
+                        <AccordionItem value="recommendations">
+                          <AccordionTrigger className="text-sm font-medium">
+                            <span className="flex items-center gap-2">
+                              <Lightbulb className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                              Risk Reduction Recommendations
+                            </span>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            {/* Rule-Based Recommendations */}
+                            {application.application_assessment.riskAssessment.method === 'rule' && 
+                             application.application_assessment.riskAssessment.rawDetails && 
+                             (() => {
+                               try {
+                                 const parsedDetails = JSON.parse(application.application_assessment.riskAssessment.rawDetails);
+                                 return parsedDetails.recommendations && parsedDetails.recommendations.length > 0 ? (
+                                   <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 rounded-md">
                                    <ul className="space-y-2">
                                      {parsedDetails.recommendations.map((rec: string, idx: number) => (
                                        <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
@@ -1452,27 +1464,21 @@ const ApplicationDetail = () => {
                                          <span>{rec}</span>
                                        </li>
                                      ))}
-                                   </ul>
-                                 </div>
-                               </div>
-                             ) : null;
-                           } catch {
-                             return null;
-                           }
-                         })()}
+                                     </ul>
+                                   </div>
+                                 ) : null;
+                               } catch {
+                                 return null;
+                               }
+                             })()}
 
-                        {/* AI Recommendations */}
-                        {application.application_assessment.riskAssessment.method === 'ai' && 
-                         application.application_assessment.riskAssessment.aiAnalysis &&
-                         (application.application_assessment.riskAssessment.aiAnalysis as any).recommendations &&
-                         Array.isArray((application.application_assessment.riskAssessment.aiAnalysis as any).recommendations) &&
-                         (application.application_assessment.riskAssessment.aiAnalysis as any).recommendations.length > 0 && (
-                          <div className="mt-4 pt-4 border-t">
-                            <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                              <Lightbulb className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                              AI-Generated Risk Reduction Recommendations
-                            </p>
-                            <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 rounded-md">
+                            {/* AI Recommendations */}
+                            {application.application_assessment.riskAssessment.method === 'ai' && 
+                             application.application_assessment.riskAssessment.aiAnalysis &&
+                             (application.application_assessment.riskAssessment.aiAnalysis as any).recommendations &&
+                             Array.isArray((application.application_assessment.riskAssessment.aiAnalysis as any).recommendations) &&
+                             (application.application_assessment.riskAssessment.aiAnalysis as any).recommendations.length > 0 && (
+                              <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 rounded-md">
                               <ul className="space-y-2">
                                 {((application.application_assessment.riskAssessment.aiAnalysis as any).recommendations as string[]).map((rec: string, idx: number) => (
                                   <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
@@ -1480,20 +1486,14 @@ const ApplicationDetail = () => {
                                     <span>{rec}</span>
                                   </li>
                                 ))}
-                              </ul>
-                            </div>
-                          </div>
-                        )}
+                                </ul>
+                              </div>
+                            )}
 
-                        {/* Manual/Hybrid - Generic Recommendations */}
-                        {(application.application_assessment.riskAssessment.method === 'manual' || 
-                          application.application_assessment.riskAssessment.method === 'hybrid') && (
-                          <div className="mt-4 pt-4 border-t">
-                            <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                              <Lightbulb className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
-                              General Risk Management Recommendations
-                            </p>
-                            <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 rounded-md">
+                            {/* Manual/Hybrid - Generic Recommendations */}
+                            {(application.application_assessment.riskAssessment.method === 'manual' || 
+                              application.application_assessment.riskAssessment.method === 'hybrid') && (
+                              <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 rounded-md">
                               <ul className="space-y-2">
                                 {application.application_assessment.riskAssessment.level === 'high' && (
                                   <>
@@ -1543,21 +1543,24 @@ const ApplicationDetail = () => {
                                     </li>
                                   </>
                                 )}
-                              </ul>
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    )}
+                                </ul>
+                              </div>
+                            )}
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
 
-                    {/* Action Plan for Agent */}
-                    {application.application_assessment?.riskAssessment && (
-                      <div className="mt-4 pt-4 border-t">
-                        <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                          <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
-                          Action Plan for Agent
-                        </p>
-                        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 rounded-md">
+                      {/* Action Plan for Agent Accordion */}
+                      {application.application_assessment?.riskAssessment && (
+                        <AccordionItem value="action-plan">
+                          <AccordionTrigger className="text-sm font-medium">
+                            <span className="flex items-center gap-2">
+                              <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                              Action Plan for Agent
+                            </span>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 rounded-md">
                           <ol className="space-y-3">
                             {getActionPlan(application.application_assessment.riskAssessment).map((action: string, idx: number) => (
                               <li key={idx} className="text-sm text-muted-foreground flex items-start gap-3">
@@ -1567,10 +1570,12 @@ const ApplicationDetail = () => {
                                 <span className="flex-1 pt-0.5">{action}</span>
                               </li>
                             ))}
-                          </ol>
-                        </div>
-                      </div>
-                    )}
+                              </ol>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
+                    </Accordion>
 
                     {/* Display assessment timestamp */}
                     {application.application_assessment?.riskAssessment?.timestamp && (
