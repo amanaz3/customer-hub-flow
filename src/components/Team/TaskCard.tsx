@@ -572,28 +572,6 @@ export const TaskCard: React.FC<TaskCardProps> = ({
         </div>
       )}
 
-      {/* Importance Selector */}
-      {onImportanceChange && (
-        <div className="border-t border-border/50 px-3 py-2" onClick={(e) => e.stopPropagation()}>
-          <Label className="text-xs text-muted-foreground mb-1.5 block">Classification</Label>
-          <Select 
-            value={task.importance || 'none'} 
-            onValueChange={handleImportanceChange}
-          >
-            <SelectTrigger className="h-8 text-xs">
-              <SelectValue placeholder="Select classification" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="none">None</SelectItem>
-              <SelectItem value="must">Must</SelectItem>
-              <SelectItem value="should">Should</SelectItem>
-              <SelectItem value="good-to-have">Good-to-have</SelectItem>
-              <SelectItem value="nice-to-have">Nice-to-have</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-
       {/* Attachments Preview */}
       {attachments.length > 0 && (
         <div className="mt-3 pt-3 border-t border-border/50 px-3 pb-3">
