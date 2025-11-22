@@ -36,77 +36,77 @@ serve(async (req) => {
     if (method === 'rule') {
       // Rule-based calculation
       const appData = application.application_data;
-      const factors: string[] = [];
+      const calculationBreakdown: Array<{factor: string, points: number}> = [];
       let score = 0;
 
       // Mainland/Freezone (0-20 points)
       if (appData.mainland_or_freezone === 'freezone') {
         score += 5;
-        factors.push('Freezone: +5');
+        calculationBreakdown.push({factor: 'Freezone jurisdiction', points: 5});
       } else {
         score += 15;
-        factors.push('Mainland: +15');
+        calculationBreakdown.push({factor: 'Mainland jurisdiction', points: 15});
       }
 
       // Number of shareholders (0-25 points)
       const shareholders = appData.number_of_shareholders || 1;
       if (shareholders === 1) {
         score += 5;
-        factors.push('1 Shareholder: +5');
+        calculationBreakdown.push({factor: '1 Shareholder', points: 5});
       } else if (shareholders === 2) {
         score += 10;
-        factors.push('2 Shareholders: +10');
+        calculationBreakdown.push({factor: '2 Shareholders', points: 10});
       } else if (shareholders <= 5) {
         score += 15;
-        factors.push('3-5 Shareholders: +15');
+        calculationBreakdown.push({factor: `${shareholders} Shareholders`, points: 15});
       } else {
         score += 25;
-        factors.push('6+ Shareholders: +25');
+        calculationBreakdown.push({factor: `${shareholders} Shareholders (high complexity)`, points: 25});
       }
 
       // Signatory type (0-15 points)
       if (appData.signatory_type === 'single') {
         score += 5;
-        factors.push('Single Signatory: +5');
+        calculationBreakdown.push({factor: 'Single Signatory', points: 5});
       } else {
         score += 15;
-        factors.push('Joint Signatory: +15');
+        calculationBreakdown.push({factor: 'Joint Signatory', points: 15});
       }
 
       // Annual turnover (0-20 points)
       const turnover = application.customer?.annual_turnover || 0;
       if (turnover < 500000) {
         score += 5;
-        factors.push('Turnover <500K: +5');
+        calculationBreakdown.push({factor: 'Turnover <500K', points: 5});
       } else if (turnover < 2000000) {
         score += 10;
-        factors.push('Turnover 500K-2M: +10');
+        calculationBreakdown.push({factor: 'Turnover 500K-2M', points: 10});
       } else if (turnover < 5000000) {
         score += 15;
-        factors.push('Turnover 2M-5M: +15');
+        calculationBreakdown.push({factor: 'Turnover 2M-5M', points: 15});
       } else {
         score += 20;
-        factors.push('Turnover >5M: +20');
+        calculationBreakdown.push({factor: 'Turnover >5M', points: 20});
       }
 
       // Minimum balance (0-20 points)
       const balanceRange = appData.minimum_balance_range;
       if (balanceRange === '0-10k') {
         score += 5;
-        factors.push('Min Balance 0-10K: +5');
+        calculationBreakdown.push({factor: 'Min Balance 0-10K', points: 5});
       } else if (balanceRange === '10k-100k') {
         score += 10;
-        factors.push('Min Balance 10K-100K: +10');
+        calculationBreakdown.push({factor: 'Min Balance 10K-100K', points: 10});
       } else if (balanceRange === '100k-150k') {
         score += 15;
-        factors.push('Min Balance 100K-150K: +15');
+        calculationBreakdown.push({factor: 'Min Balance 100K-150K', points: 15});
       } else {
         score += 20;
-        factors.push('Min Balance >150K: +20');
+        calculationBreakdown.push({factor: 'Min Balance >150K', points: 20});
       }
 
       riskScore = score;
-      calculationDetails = factors.join('\n');
+      calculationDetails = JSON.stringify(calculationBreakdown);
 
       // Classify
       if (score < 34) {
@@ -136,7 +136,7 @@ Application Details:
 - Business Activity: ${appData.business_activity_details || 'N/A'}
 - Company: ${customer?.company || 'N/A'}
 
-Consider compliance complexity, documentation requirements, and approval difficulty.`;
+Consider compliance complexity, documentation requirements, and approval difficulty. Provide specific factors analyzed.`;
 
       const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
         method: 'POST',
@@ -147,7 +147,7 @@ Consider compliance complexity, documentation requirements, and approval difficu
         body: JSON.stringify({
           model: 'google/gemini-2.5-flash',
           messages: [
-            { role: 'system', content: 'You are a banking compliance risk analyst. Analyze applications and return risk scores with reasoning.' },
+            { role: 'system', content: 'You are a banking compliance risk analyst. Analyze applications and return risk scores with detailed reasoning including specific factors.' },
             { role: 'user', content: prompt }
           ],
           tools: [{
@@ -160,9 +160,20 @@ Consider compliance complexity, documentation requirements, and approval difficu
                 properties: {
                   score: { type: 'number', minimum: 0, maximum: 100 },
                   classification: { type: 'string', enum: ['low', 'medium', 'high'] },
-                  reasoning: { type: 'string' }
+                  reasoning: { type: 'string' },
+                  factors: {
+                    type: 'array',
+                    items: {
+                      type: 'object',
+                      properties: {
+                        factor: { type: 'string' },
+                        impact: { type: 'string', enum: ['positive', 'negative', 'neutral'] },
+                        description: { type: 'string' }
+                      }
+                    }
+                  }
                 },
-                required: ['score', 'classification', 'reasoning'],
+                required: ['score', 'classification', 'reasoning', 'factors'],
                 additionalProperties: false
               }
             }
@@ -184,7 +195,10 @@ Consider compliance complexity, documentation requirements, and approval difficu
       const result = JSON.parse(toolCall.function.arguments);
       riskScore = result.score;
       riskLevel = result.classification;
-      calculationDetails = result.reasoning;
+      calculationDetails = JSON.stringify({
+        reasoning: result.reasoning,
+        factors: result.factors || []
+      });
 
     } else if (method === 'manual' || method === 'hybrid') {
       // For manual and hybrid, return placeholder - will be handled by frontend
