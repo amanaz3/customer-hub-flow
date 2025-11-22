@@ -94,6 +94,7 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isManuallyOverridden, setIsManuallyOverridden] = useState(false);
   const [originalAiRecommendation, setOriginalAiRecommendation] = useState<'low' | 'medium' | 'high' | null>(null);
+  const [riskCalculationType, setRiskCalculationType] = useState<'manual' | 'rule' | 'ai' | 'hybrid'>('manual');
   const { toast } = useToast();
 
   const businessType = form.watch('mainland_or_freezone');
@@ -113,6 +114,10 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
       const currentRisk = form.getValues('risk_level');
       if (!currentRisk && !aiAssessment) {
         form.setValue('risk_level', calculation.level);
+        // Set as rule-based calculation
+        setRiskCalculationType('rule');
+        form.setValue('risk_calculation_type', 'rule');
+        form.setValue('risk_score', null);
       }
     }
   }, [businessType, signatoryType, natureOfBusiness, form, aiAssessment]);
@@ -121,10 +126,20 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
   useEffect(() => {
     if (originalAiRecommendation && currentRiskLevel && currentRiskLevel !== originalAiRecommendation) {
       setIsManuallyOverridden(true);
+      // Change to hybrid mode when manually overriding AI
+      setRiskCalculationType('hybrid');
+      form.setValue('risk_calculation_type', 'hybrid');
+      // Keep the AI score for reference even in hybrid mode
+      if (aiAssessment) {
+        form.setValue('risk_score', aiAssessment.risk_score);
+      }
     } else if (originalAiRecommendation && currentRiskLevel === originalAiRecommendation) {
       setIsManuallyOverridden(false);
+      // Back to AI mode when matching AI recommendation
+      setRiskCalculationType('ai');
+      form.setValue('risk_calculation_type', 'ai');
     }
-  }, [currentRiskLevel, originalAiRecommendation]);
+  }, [currentRiskLevel, originalAiRecommendation, aiAssessment, form]);
 
   const analyzeWithAI = async () => {
     setIsAnalyzing(true);
@@ -148,6 +163,11 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
       form.setValue('risk_level', data.risk_level);
       setIsManuallyOverridden(false);
       
+      // Set as AI calculation
+      setRiskCalculationType('ai');
+      form.setValue('risk_calculation_type', 'ai');
+      form.setValue('risk_score', data.risk_score);
+      
       toast({
         title: "AI Risk Assessment Complete",
         description: `Recommended Risk Level: ${data.risk_level.toUpperCase()} (Score: ${data.risk_score}/100)`,
@@ -165,9 +185,13 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
   };
 
   const resetToAiRecommendation = () => {
-    if (originalAiRecommendation) {
+    if (originalAiRecommendation && aiAssessment) {
       form.setValue('risk_level', originalAiRecommendation);
       setIsManuallyOverridden(false);
+      // Reset to AI calculation type
+      setRiskCalculationType('ai');
+      form.setValue('risk_calculation_type', 'ai');
+      form.setValue('risk_score', aiAssessment.risk_score);
       toast({
         title: "Reset to AI Recommendation",
         description: `Risk level reset to ${originalAiRecommendation.toUpperCase()}`,
@@ -441,7 +465,18 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
                 )}
               </Button>
             </div>
-            <Select onValueChange={field.onChange} value={field.value}>
+            <Select 
+              onValueChange={(value) => {
+                field.onChange(value);
+                // If user manually selects without AI/rule-based assessment
+                if (!aiAssessment && !riskCalculation) {
+                  setRiskCalculationType('manual');
+                  form.setValue('risk_calculation_type', 'manual');
+                  form.setValue('risk_score', null);
+                }
+              }} 
+              value={field.value}
+            >
               <FormControl>
                 <SelectTrigger className={isManuallyOverridden ? "border-destructive" : ""}>
                   <SelectValue placeholder="Select risk level" />

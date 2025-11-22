@@ -41,6 +41,8 @@ export interface Application {
   submission_source: SubmissionSource;
   status: ApplicationStatus;
   application_data: ApplicationData;
+  risk_calculation_type?: 'manual' | 'rule' | 'ai' | 'hybrid';
+  risk_score?: number;
   created_at: string;
   updated_at: string;
   completed_at?: string;
@@ -120,6 +122,8 @@ export interface CreateApplicationInput {
   submission_source?: SubmissionSource;
   status?: ApplicationStatus;
   application_data: ApplicationData;
+  risk_calculation_type?: 'manual' | 'rule' | 'ai' | 'hybrid';
+  risk_score?: number;
   estimated_completion_time?: string;
 }
 
@@ -127,4 +131,6 @@ export interface UpdateApplicationInput {
   application_type?: ApplicationType;
   status?: ApplicationStatus;
   application_data?: Partial<ApplicationData>;
+  risk_calculation_type?: 'manual' | 'rule' | 'ai' | 'hybrid';
+  risk_score?: number;
 }

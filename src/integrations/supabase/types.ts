@@ -25,6 +25,8 @@ export type Database = {
           estimated_completion_time: string | null
           id: string
           reference_number: number
+          risk_calculation_type: string | null
+          risk_score: number | null
           status: Database["public"]["Enums"]["application_status"]
           submission_source: string | null
           updated_at: string
@@ -39,6 +41,8 @@ export type Database = {
           estimated_completion_time?: string | null
           id?: string
           reference_number: number
+          risk_calculation_type?: string | null
+          risk_score?: number | null
           status?: Database["public"]["Enums"]["application_status"]
           submission_source?: string | null
           updated_at?: string
@@ -53,6 +57,8 @@ export type Database = {
           estimated_completion_time?: string | null
           id?: string
           reference_number?: number
+          risk_calculation_type?: string | null
+          risk_score?: number | null
           status?: Database["public"]["Enums"]["application_status"]
           submission_source?: string | null
           updated_at?: string

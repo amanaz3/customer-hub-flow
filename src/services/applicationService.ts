@@ -21,6 +21,8 @@ export class ApplicationService {
         submission_source: input.submission_source || 'web_form',
         status: input.status || 'draft',
         application_data: input.application_data as any,
+        risk_calculation_type: input.risk_calculation_type,
+        risk_score: input.risk_score,
         estimated_completion_time: input.estimated_completion_time,
       }] as any)
       .select('*')
