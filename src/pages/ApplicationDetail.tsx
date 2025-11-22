@@ -1828,12 +1828,12 @@ const ApplicationDetail = () => {
                   setSelectedMethod(value as any);
                   setCalculatedRisk(null);
                   
-                  if ((value === 'rule' || value === 'ai') && application) {
-                    // Auto-calculate for rule and AI methods
+                  if ((value === 'rule' || value === 'ai' || value === 'hybrid') && application) {
+                    // Auto-calculate for rule, AI, and hybrid methods
                     setIsCalculating(true);
                     try {
                       const { data, error } = await supabase.functions.invoke('calculate-bank-risk', {
-                        body: { applicationId: application.id, method: value }
+                        body: { applicationId: application.id, method: value === 'hybrid' ? 'ai' : value }
                       });
 
                       if (error) throw error;
@@ -1857,7 +1857,7 @@ const ApplicationDetail = () => {
                           level: data.riskLevel,
                           details: data.calculationDetails,
                           calculationBreakdown: value === 'rule' && Array.isArray(parsedDetails) ? parsedDetails : undefined,
-                          aiData: value === 'ai' && parsedDetails?.reasoning ? parsedDetails : undefined
+                          aiData: (value === 'ai' || value === 'hybrid') && parsedDetails?.reasoning ? parsedDetails : undefined
                         });
                       }
                     } catch (error) {
@@ -2002,10 +2002,10 @@ const ApplicationDetail = () => {
                   return;
                 }
 
-                if (!calculatedRisk && (selectedMethod === 'rule' || selectedMethod === 'ai')) {
+                if (!calculatedRisk && (selectedMethod === 'rule' || selectedMethod === 'ai' || selectedMethod === 'hybrid')) {
                   toast({
                     title: 'Calculation Required',
-                    description: 'Please wait for risk calculation to complete',
+                    description: 'Please calculate risk assessment first',
                     variant: 'destructive',
                   });
                   return;
