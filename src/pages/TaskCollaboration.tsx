@@ -14,6 +14,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
@@ -1191,26 +1196,70 @@ const TaskCollaboration: React.FC = () => {
 
               {/* Importance Classification Stats */}
               <div className="grid grid-cols-5 gap-4 mb-6">
-                <div className="p-3 rounded-lg border bg-card">
-                  <div className="text-2xl font-bold">{taskStats.importance_none}</div>
-                  <div className="text-xs text-muted-foreground">None</div>
-                </div>
-                <div className="p-3 rounded-lg border bg-red-50 border-red-200">
-                  <div className="text-2xl font-bold text-red-800">{taskStats.importance_must}</div>
-                  <div className="text-xs text-red-600">Must</div>
-                </div>
-                <div className="p-3 rounded-lg border bg-orange-50 border-orange-200">
-                  <div className="text-2xl font-bold text-orange-800">{taskStats.importance_should}</div>
-                  <div className="text-xs text-orange-600">Should</div>
-                </div>
-                <div className="p-3 rounded-lg border bg-blue-50 border-blue-200">
-                  <div className="text-2xl font-bold text-blue-800">{taskStats.importance_good_to_have}</div>
-                  <div className="text-xs text-blue-600">Good-to-have</div>
-                </div>
-                <div className="p-3 rounded-lg border bg-gray-50 border-gray-200">
-                  <div className="text-2xl font-bold text-gray-800">{taskStats.importance_nice_to_have}</div>
-                  <div className="text-xs text-gray-600">Nice-to-have</div>
-                </div>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="p-3 rounded-lg border bg-card cursor-help">
+                      <div className="text-2xl font-bold">{taskStats.importance_none}</div>
+                      <div className="text-xs text-muted-foreground">None</div>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="font-medium">No Classification</p>
+                    <p className="text-xs text-muted-foreground">Tasks with no importance classification set</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="p-3 rounded-lg border bg-red-50 border-red-200 cursor-help">
+                      <div className="text-2xl font-bold text-red-800">{taskStats.importance_must}</div>
+                      <div className="text-xs text-red-600">Must</div>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="font-medium">Must Have</p>
+                    <p className="text-xs text-muted-foreground">Critical tasks that are required for project success</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="p-3 rounded-lg border bg-orange-50 border-orange-200 cursor-help">
+                      <div className="text-2xl font-bold text-orange-800">{taskStats.importance_should}</div>
+                      <div className="text-xs text-orange-600">Should</div>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="font-medium">Should Have</p>
+                    <p className="text-xs text-muted-foreground">Important tasks that add significant value</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="p-3 rounded-lg border bg-blue-50 border-blue-200 cursor-help">
+                      <div className="text-2xl font-bold text-blue-800">{taskStats.importance_good_to_have}</div>
+                      <div className="text-xs text-blue-600">Good-to-have</div>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="font-medium">Good to Have</p>
+                    <p className="text-xs text-muted-foreground">Nice improvements that enhance the project</p>
+                  </TooltipContent>
+                </Tooltip>
+
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <div className="p-3 rounded-lg border bg-gray-50 border-gray-200 cursor-help">
+                      <div className="text-2xl font-bold text-gray-800">{taskStats.importance_nice_to_have}</div>
+                      <div className="text-xs text-gray-600">Nice-to-have</div>
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="font-medium">Nice to Have</p>
+                    <p className="text-xs text-muted-foreground">Optional enhancements with low priority</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
 
               {/* Search Bar */}
