@@ -1031,6 +1031,54 @@ const ApplicationDetail = () => {
                       </div>
                     )}
 
+                    {/* AI Method Calculation Details - Show score breakdown */}
+                    {application.application_assessment?.riskAssessment?.method === 'ai' && 
+                     application.application_assessment?.riskAssessment?.aiAnalysis?.scoreBreakdown && (
+                      <div className="mt-4 pt-4 border-t">
+                        <p className="text-sm font-medium mb-2">Calculation Details</p>
+                        <div className="p-3 bg-muted/30 rounded-md text-sm space-y-2">
+                          <p className="text-xs text-muted-foreground mb-3">
+                            Risk Score Calculation (Total: {application.application_assessment.riskAssessment.score}/100)
+                          </p>
+                          
+                          {application.application_assessment.riskAssessment.aiAnalysis.scoreBreakdown.map((item, idx) => (
+                            <div key={idx} className="flex justify-between items-center py-1 border-b border-border/30 last:border-0">
+                              <div className="flex-1">
+                                <span className="font-medium">{item.factor}</span>
+                                <Badge 
+                                  variant={
+                                    item.impact_level === 'high' ? 'destructive' :
+                                    item.impact_level === 'medium' ? 'default' :
+                                    'secondary'
+                                  } 
+                                  className="ml-2 text-xs"
+                                >
+                                  {item.impact_level}
+                                </Badge>
+                              </div>
+                              <span className="font-mono font-semibold">+{item.points_contribution} pts</span>
+                            </div>
+                          ))}
+                          
+                          <div className="mt-3 pt-3 border-t-2 border-primary/20 flex justify-between items-center font-semibold">
+                            <span>Total Risk Score</span>
+                            <span className="font-mono text-lg">{application.application_assessment.riskAssessment.score}/100</span>
+                          </div>
+                          
+                          <div className="mt-2 flex justify-between items-center text-xs">
+                            <span>Risk Classification</span>
+                            <Badge variant={
+                              application.application_assessment.riskAssessment.level === 'high' ? 'destructive' :
+                              application.application_assessment.riskAssessment.level === 'medium' ? 'default' :
+                              'secondary'
+                            }>
+                              {application.application_assessment.riskAssessment.level.toUpperCase()}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
                     {/* Display AI reasoning summary with factors */}
                     {application.application_assessment?.riskAssessment?.aiAnalysis && (
                       <div className="mt-4 pt-4 border-t">
