@@ -106,7 +106,34 @@ serve(async (req) => {
       }
 
       riskScore = score;
-      calculationDetails = JSON.stringify(calculationBreakdown);
+      
+      // Generate rule-based recommendations
+      const recommendations: string[] = [];
+      if (score >= 67) {
+        recommendations.push('Consider simplifying the shareholder structure if possible');
+        recommendations.push('Review and potentially adjust signatory requirements');
+        recommendations.push('Ensure all compliance documentation is comprehensive and up-to-date');
+        if (turnover >= 5000000) {
+          recommendations.push('Implement enhanced due diligence procedures for high-turnover accounts');
+        }
+        if (balanceRange === '>150k') {
+          recommendations.push('Ensure adequate financial controls are in place for high-balance requirements');
+        }
+      } else if (score >= 34) {
+        recommendations.push('Maintain detailed records of all business activities');
+        recommendations.push('Ensure shareholder documentation is complete and verified');
+        if (appData.signatory_type === 'joint') {
+          recommendations.push('Document clear authorization protocols for joint signatories');
+        }
+      } else {
+        recommendations.push('Continue maintaining good compliance practices');
+        recommendations.push('Keep business documentation updated regularly');
+      }
+      
+      calculationDetails = JSON.stringify({
+        breakdown: calculationBreakdown,
+        recommendations: recommendations
+      });
 
       // Classify
       if (score < 34) {
@@ -136,6 +163,8 @@ Analyze the application and provide:
 2. For each risk factor you identify, calculate specific point contributions that sum to your total score.
 
 3. Explain how each factor contributes points to the final score with clear justification.
+
+4. Provide actionable recommendations to reduce the identified risks.
 
 Be specific about point allocation - the factors must add up to your total score.`;
 
@@ -223,9 +252,14 @@ Provide a detailed risk assessment with specific point allocations for each fact
                     type: 'array',
                     items: { type: 'string' },
                     description: 'Positive factors that reduce risk'
+                  },
+                  recommendations: {
+                    type: 'array',
+                    items: { type: 'string' },
+                    description: 'Actionable recommendations to reduce the identified risks'
                   }
                 },
-                required: ['total_score', 'classification', 'reasoning', 'score_breakdown'],
+                required: ['total_score', 'classification', 'reasoning', 'score_breakdown', 'recommendations'],
                 additionalProperties: false
               }
             }
@@ -254,6 +288,7 @@ Provide a detailed risk assessment with specific point allocations for each fact
         scoreBreakdown: result.score_breakdown || [],
         keyConcerns: result.key_concerns || [],
         mitigatingFactors: result.mitigating_factors || [],
+        recommendations: result.recommendations || [],
         // Keep legacy factors format for compatibility
         factors: (result.score_breakdown || []).map((item: any) => ({
           factor: item.factor,

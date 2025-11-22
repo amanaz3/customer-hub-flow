@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Building2, Mail, Phone, FileText, MessageSquare, Users, RefreshCw, Calendar, Clock, AlertTriangle, Save, Edit, Download } from 'lucide-react';
+import { ArrowLeft, Building2, Mail, Phone, FileText, MessageSquare, Users, RefreshCw, Calendar, Clock, AlertTriangle, Save, Edit, Download, Lightbulb, Calculator } from 'lucide-react';
 import jsPDF from 'jspdf';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -1217,6 +1217,127 @@ const ApplicationDetail = () => {
                           )}
                         </div>
                       </div>
+                    )}
+
+                    {/* Risk Reduction Recommendations - Display for all methods */}
+                    {application.application_assessment?.riskAssessment && (
+                      <>
+                        {/* Rule-Based Recommendations */}
+                        {application.application_assessment.riskAssessment.method === 'rule' && 
+                         application.application_assessment.riskAssessment.rawDetails && 
+                         (() => {
+                           try {
+                             const parsedDetails = JSON.parse(application.application_assessment.riskAssessment.rawDetails);
+                             return parsedDetails.recommendations && parsedDetails.recommendations.length > 0 ? (
+                               <div className="mt-4 pt-4 border-t">
+                                 <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                                   <Lightbulb className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                                   Risk Reduction Recommendations
+                                 </p>
+                                 <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 rounded-md">
+                                   <ul className="space-y-2">
+                                     {parsedDetails.recommendations.map((rec: string, idx: number) => (
+                                       <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                                         <span className="text-yellow-600 dark:text-yellow-400 mt-0.5">•</span>
+                                         <span>{rec}</span>
+                                       </li>
+                                     ))}
+                                   </ul>
+                                 </div>
+                               </div>
+                             ) : null;
+                           } catch {
+                             return null;
+                           }
+                         })()}
+
+                        {/* AI Recommendations */}
+                        {application.application_assessment.riskAssessment.method === 'ai' && 
+                         application.application_assessment.riskAssessment.aiAnalysis &&
+                         (application.application_assessment.riskAssessment.aiAnalysis as any).recommendations &&
+                         Array.isArray((application.application_assessment.riskAssessment.aiAnalysis as any).recommendations) &&
+                         (application.application_assessment.riskAssessment.aiAnalysis as any).recommendations.length > 0 && (
+                          <div className="mt-4 pt-4 border-t">
+                            <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                              <Lightbulb className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                              AI-Generated Risk Reduction Recommendations
+                            </p>
+                            <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 rounded-md">
+                              <ul className="space-y-2">
+                                {((application.application_assessment.riskAssessment.aiAnalysis as any).recommendations as string[]).map((rec: string, idx: number) => (
+                                  <li key={idx} className="text-sm text-muted-foreground flex items-start gap-2">
+                                    <span className="text-yellow-600 dark:text-yellow-400 mt-0.5">•</span>
+                                    <span>{rec}</span>
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Manual/Hybrid - Generic Recommendations */}
+                        {(application.application_assessment.riskAssessment.method === 'manual' || 
+                          application.application_assessment.riskAssessment.method === 'hybrid') && (
+                          <div className="mt-4 pt-4 border-t">
+                            <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                              <Lightbulb className="h-4 w-4 text-yellow-600 dark:text-yellow-400" />
+                              General Risk Management Recommendations
+                            </p>
+                            <div className="p-3 bg-yellow-50 dark:bg-yellow-950/20 border border-yellow-200 dark:border-yellow-900 rounded-md">
+                              <ul className="space-y-2">
+                                {application.application_assessment.riskAssessment.level === 'high' && (
+                                  <>
+                                    <li className="text-sm text-muted-foreground flex items-start gap-2">
+                                      <span className="text-yellow-600 dark:text-yellow-400 mt-0.5">•</span>
+                                      <span>Implement enhanced due diligence procedures</span>
+                                    </li>
+                                    <li className="text-sm text-muted-foreground flex items-start gap-2">
+                                      <span className="text-yellow-600 dark:text-yellow-400 mt-0.5">•</span>
+                                      <span>Conduct thorough background checks on all stakeholders</span>
+                                    </li>
+                                    <li className="text-sm text-muted-foreground flex items-start gap-2">
+                                      <span className="text-yellow-600 dark:text-yellow-400 mt-0.5">•</span>
+                                      <span>Ensure comprehensive compliance documentation is maintained</span>
+                                    </li>
+                                  </>
+                                )}
+                                {application.application_assessment.riskAssessment.level === 'medium' && (
+                                  <>
+                                    <li className="text-sm text-muted-foreground flex items-start gap-2">
+                                      <span className="text-yellow-600 dark:text-yellow-400 mt-0.5">•</span>
+                                      <span>Maintain detailed records of all business activities and transactions</span>
+                                    </li>
+                                    <li className="text-sm text-muted-foreground flex items-start gap-2">
+                                      <span className="text-yellow-600 dark:text-yellow-400 mt-0.5">•</span>
+                                      <span>Ensure all shareholder and signatory documentation is complete</span>
+                                    </li>
+                                    <li className="text-sm text-muted-foreground flex items-start gap-2">
+                                      <span className="text-yellow-600 dark:text-yellow-400 mt-0.5">•</span>
+                                      <span>Implement regular compliance review procedures</span>
+                                    </li>
+                                  </>
+                                )}
+                                {application.application_assessment.riskAssessment.level === 'low' && (
+                                  <>
+                                    <li className="text-sm text-muted-foreground flex items-start gap-2">
+                                      <span className="text-yellow-600 dark:text-yellow-400 mt-0.5">•</span>
+                                      <span>Continue maintaining good compliance practices</span>
+                                    </li>
+                                    <li className="text-sm text-muted-foreground flex items-start gap-2">
+                                      <span className="text-yellow-600 dark:text-yellow-400 mt-0.5">•</span>
+                                      <span>Keep all business documentation updated regularly</span>
+                                    </li>
+                                    <li className="text-sm text-muted-foreground flex items-start gap-2">
+                                      <span className="text-yellow-600 dark:text-yellow-400 mt-0.5">•</span>
+                                      <span>Monitor for any changes in risk profile</span>
+                                    </li>
+                                  </>
+                                )}
+                              </ul>
+                            </div>
+                          </div>
+                        )}
+                      </>
                     )}
 
                     {/* Display assessment timestamp */}
