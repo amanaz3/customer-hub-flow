@@ -110,3 +110,6 @@ verify_jwt = true
 
 [functions.analyze-bank-account-risk]
 verify_jwt = true
+
+[functions.calculate-bank-risk]
+verify_jwt = true
