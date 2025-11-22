@@ -194,8 +194,9 @@ const ApplicationDetail = () => {
       yPos += 12;
     }
 
-    // Rule-Based Calculation Breakdown
-    if (assessment.riskAssessment.method === 'rule' && assessment.riskAssessment.calculationBreakdown) {
+    // Rule-Based Calculation Breakdown (for rule and hybrid methods)
+    if ((assessment.riskAssessment.method === 'rule' || assessment.riskAssessment.method === 'hybrid') && 
+        assessment.riskAssessment.calculationBreakdown) {
       if (yPos > 220) {
         doc.addPage();
         yPos = 20;
@@ -203,13 +204,20 @@ const ApplicationDetail = () => {
       
       doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
-      doc.text('Calculation Details', 20, yPos);
+      doc.text(assessment.riskAssessment.method === 'hybrid' ? 'Rule-Based Analysis' : 'Calculation Details', 20, yPos);
       yPos += 10;
 
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Total Risk Score: ${assessment.riskAssessment.score}/100`, 20, yPos);
-      yPos += 8;
+      
+      // For hybrid, show the rule-based score component
+      if (assessment.riskAssessment.method === 'hybrid' && (assessment.riskAssessment as any).hybridDetails) {
+        doc.text(`Rule-Based Score: ${(assessment.riskAssessment as any).hybridDetails.ruleBasedScore}/100`, 20, yPos);
+        yPos += 8;
+      } else {
+        doc.text(`Total Risk Score: ${assessment.riskAssessment.score}/100`, 20, yPos);
+        yPos += 8;
+      }
 
       assessment.riskAssessment.calculationBreakdown.forEach((item: any) => {
         if (yPos > 270) {
@@ -222,8 +230,9 @@ const ApplicationDetail = () => {
       yPos += 8;
     }
 
-    // AI Score Breakdown with detailed factors
-    if (assessment.riskAssessment.method === 'ai' && assessment.riskAssessment.aiAnalysis?.scoreBreakdown) {
+    // AI Score Breakdown with detailed factors (for ai and hybrid methods)
+    if ((assessment.riskAssessment.method === 'ai' || assessment.riskAssessment.method === 'hybrid') && 
+        assessment.riskAssessment.aiAnalysis?.scoreBreakdown) {
       if (yPos > 200) {
         doc.addPage();
         yPos = 20;
@@ -236,8 +245,15 @@ const ApplicationDetail = () => {
 
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
-      doc.text(`Total Risk Score: ${assessment.riskAssessment.score}/100`, 20, yPos);
-      yPos += 8;
+      
+      // For hybrid, show the AI score component
+      if (assessment.riskAssessment.method === 'hybrid' && (assessment.riskAssessment as any).hybridDetails) {
+        doc.text(`AI Score: ${(assessment.riskAssessment as any).hybridDetails.aiScore}/100`, 20, yPos);
+        yPos += 8;
+      } else {
+        doc.text(`Total Risk Score: ${assessment.riskAssessment.score}/100`, 20, yPos);
+        yPos += 8;
+      }
 
       assessment.riskAssessment.aiAnalysis.scoreBreakdown.forEach((item: any) => {
         if (yPos > 260) {
@@ -455,6 +471,36 @@ const ApplicationDetail = () => {
           yPos += 5;
         });
         yPos += 2;
+      });
+      yPos += 8;
+    }
+
+    // Hybrid Assessment Conclusion
+    if (assessment.riskAssessment.method === 'hybrid' && (assessment.riskAssessment as any).hybridDetails) {
+      if (yPos > 200) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Hybrid Assessment Conclusion', 20, yPos);
+      yPos += 10;
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      
+      const hybridDetails = (assessment.riskAssessment as any).hybridDetails;
+      const conclusion = `This hybrid assessment combines rule-based systematic analysis with AI-powered risk evaluation to provide a comprehensive risk assessment. The rule-based approach yielded a score of ${hybridDetails.ruleBasedScore}/100 based on objective criteria, while the AI analysis produced a score of ${hybridDetails.aiScore}/100 considering contextual factors and patterns. The final hybrid score of ${assessment.riskAssessment.score}/100 represents a balanced synthesis of both methodologies, providing both the transparency of rule-based scoring and the nuanced insights of AI analysis.`;
+      
+      const splitConclusion = doc.splitTextToSize(conclusion, pageWidth - 40);
+      splitConclusion.forEach((line: string) => {
+        if (yPos > 280) {
+          doc.addPage();
+          yPos = 20;
+        }
+        doc.text(line, 20, yPos);
+        yPos += 5;
       });
       yPos += 8;
     }
