@@ -23,7 +23,7 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, FolderKanban, Flag, Clock, ArrowRight } from 'lucide-react';
+import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, FolderKanban, Flag, Clock, ArrowRight, ChevronRight } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CreateTaskDialog } from '@/components/Team/CreateTaskDialog';
@@ -1187,15 +1187,18 @@ const TaskCollaboration: React.FC = () => {
               </div>
 
               {/* Task Stats Toggle */}
-              <div className="mb-4">
+              <div className="mb-4 flex items-center gap-2">
                 <Button 
-                  variant="outline" 
+                  variant="ghost" 
                   size="sm"
                   onClick={() => setShowTaskStats(!showTaskStats)}
-                  className="w-full"
+                  className="h-8 w-8 p-0"
                 >
-                  {showTaskStats ? 'Hide' : 'Show'} Statistics
+                  <ChevronRight className={`h-4 w-4 transition-transform ${showTaskStats ? 'rotate-90' : ''}`} />
                 </Button>
+                <span className="text-sm text-muted-foreground">
+                  {showTaskStats ? 'Hide' : 'Show'} Statistics
+                </span>
               </div>
 
               {/* Task Stats */}
