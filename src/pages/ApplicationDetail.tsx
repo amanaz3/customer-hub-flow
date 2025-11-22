@@ -1096,8 +1096,6 @@ const ApplicationDetail = () => {
                     .from('account_applications')
                     .update({
                       application_data: updatedApplicationData,
-                      risk_calculation_type: selectedMethod,
-                      risk_score: calculatedRisk?.score || null,
                       application_assessment: assessmentDetails,
                     })
                     .eq('id', application.id);
