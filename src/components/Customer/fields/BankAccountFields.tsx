@@ -13,6 +13,29 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
     <div className="space-y-4">
       <FormField
         control={form.control}
+        name="risk_level"
+        render={({ field }) => (
+          <FormItem>
+            <FormLabel className="text-destructive">Risk Level *</FormLabel>
+            <Select onValueChange={field.onChange} value={field.value}>
+              <FormControl>
+                <SelectTrigger>
+                  <SelectValue placeholder="Select risk level" />
+                </SelectTrigger>
+              </FormControl>
+              <SelectContent>
+                <SelectItem value="low">Low</SelectItem>
+                <SelectItem value="medium">Medium</SelectItem>
+                <SelectItem value="high">High</SelectItem>
+              </SelectContent>
+            </Select>
+            <FormMessage />
+          </FormItem>
+        )}
+      />
+
+      <FormField
+        control={form.control}
         name="mainland_or_freezone"
         render={({ field }) => (
           <FormItem>
