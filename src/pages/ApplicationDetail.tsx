@@ -53,6 +53,99 @@ const ApplicationDetail = () => {
   } | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
 
+  // Helper function to extract recommendations from assessment
+  const getRecommendations = (assessment: any): string[] => {
+    if (!assessment) return [];
+    
+    // AI method - get from aiAnalysis.recommendations
+    if (assessment.method === 'ai' && assessment.aiAnalysis?.recommendations) {
+      return assessment.aiAnalysis.recommendations;
+    }
+    
+    // Rule-based method - parse from rawDetails
+    if (assessment.method === 'rule' && assessment.rawDetails) {
+      try {
+        const parsed = JSON.parse(assessment.rawDetails);
+        if (parsed.recommendations) return parsed.recommendations;
+      } catch (e) {
+        // Ignore parse errors
+      }
+    }
+    
+    // Manual/Hybrid - return generic recommendations based on risk level
+    const level = assessment.level;
+    if (level === 'high') {
+      return [
+        'Implement enhanced due diligence procedures',
+        'Conduct thorough background checks on all stakeholders',
+        'Ensure comprehensive compliance documentation is maintained',
+        'Consider additional verification steps before approval'
+      ];
+    } else if (level === 'medium') {
+      return [
+        'Maintain detailed records of all business activities and transactions',
+        'Ensure all shareholder and signatory documentation is complete',
+        'Implement regular compliance review procedures',
+        'Monitor for any changes in risk profile'
+      ];
+    } else {
+      return [
+        'Continue maintaining good compliance practices',
+        'Keep all business documentation updated regularly',
+        'Monitor for any changes in risk profile',
+        'Conduct periodic reviews as per standard procedures'
+      ];
+    }
+  };
+
+  // Helper function to generate action plan for agents
+  const getActionPlan = (assessment: any): string[] => {
+    if (!assessment) return [];
+    
+    const level = assessment.level;
+    const method = assessment.method;
+    
+    let actionPlan: string[] = [];
+    
+    if (level === 'high') {
+      actionPlan = [
+        'Schedule an immediate compliance review meeting with the customer',
+        'Request additional documentation: beneficial ownership structure, source of funds verification, and detailed business plan',
+        'Conduct enhanced background checks on all directors, shareholders, and beneficial owners',
+        'Verify all business licenses, permits, and regulatory approvals',
+        'Escalate to senior management for approval decision',
+        'Document all findings and maintain comprehensive audit trail',
+        'Set up ongoing monitoring protocols if approved'
+      ];
+    } else if (level === 'medium') {
+      actionPlan = [
+        'Review all submitted documentation for completeness and accuracy',
+        'Verify shareholder and signatory information against official records',
+        'Conduct standard background checks on key individuals',
+        'Request any missing or incomplete documentation',
+        'Schedule a follow-up call with the customer to clarify any ambiguities',
+        'Document the review process and findings',
+        'Proceed with approval process once all requirements are met'
+      ];
+    } else {
+      actionPlan = [
+        'Perform standard document verification and completeness check',
+        'Verify customer identity and business registration details',
+        'Ensure all required forms are properly completed and signed',
+        'Process the application through standard approval workflow',
+        'Document the assessment and file accordingly',
+        'Notify the customer of the approval timeline'
+      ];
+    }
+    
+    // Add method-specific actions
+    if (method === 'ai') {
+      actionPlan.push('Review AI-generated risk factors and ensure all identified concerns are addressed');
+    }
+    
+    return actionPlan;
+  };
+
   const generateAssessmentPDF = async () => {
     if (!application || !application.application_assessment?.riskAssessment) return;
 
@@ -170,6 +263,123 @@ const ApplicationDetail = () => {
           yPos += 3;
         });
       }
+    }
+
+    // Fetch assessment history
+    try {
+      const { data: historyData } = await supabase
+        .from('application_assessment_history')
+        .select(`
+          *,
+          changed_by_profile:profiles!application_assessment_history_changed_by_fkey(name, email)
+        `)
+        .eq('application_id', application.id)
+        .order('created_at', { ascending: false });
+
+      if (historyData && historyData.length > 0) {
+        if (yPos > 240) {
+          doc.addPage();
+          yPos = 20;
+        }
+
+        doc.setFontSize(14);
+        doc.setFont('helvetica', 'bold');
+        doc.text('Assessment History', 20, yPos);
+        yPos += 10;
+
+        doc.setFontSize(9);
+        historyData.forEach((entry: any) => {
+          if (yPos > 270) {
+            doc.addPage();
+            yPos = 20;
+          }
+
+          doc.setFont('helvetica', 'bold');
+          doc.text(`${entry.change_type.toUpperCase()} - ${new Date(entry.created_at).toLocaleDateString()}`, 25, yPos);
+          yPos += 5;
+          
+          doc.setFont('helvetica', 'normal');
+          doc.text(`By: ${entry.changed_by_profile?.name || 'Unknown'} (${entry.changed_by_role})`, 25, yPos);
+          yPos += 5;
+
+          if (entry.new_assessment?.riskAssessment) {
+            doc.text(`Method: ${entry.new_assessment.riskAssessment.method} | Level: ${entry.new_assessment.riskAssessment.level} | Score: ${entry.new_assessment.riskAssessment.score}`, 25, yPos);
+            yPos += 5;
+          }
+
+          if (entry.comment) {
+            const splitComment = doc.splitTextToSize(entry.comment, pageWidth - 50);
+            splitComment.forEach((line: string) => {
+              doc.text(line, 25, yPos);
+              yPos += 4;
+            });
+          }
+          yPos += 6;
+        });
+      }
+    } catch (error) {
+      console.error('Error fetching history for PDF:', error);
+    }
+
+    // Recommendations Section
+    const recommendations = getRecommendations(assessment.riskAssessment);
+    if (recommendations && recommendations.length > 0) {
+      if (yPos > 220) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Risk Reduction Recommendations', 20, yPos);
+      yPos += 10;
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      recommendations.forEach((rec: string, idx: number) => {
+        if (yPos > 275) {
+          doc.addPage();
+          yPos = 20;
+        }
+        const recText = `${idx + 1}. ${rec}`;
+        const splitRec = doc.splitTextToSize(recText, pageWidth - 45);
+        splitRec.forEach((line: string) => {
+          doc.text(line, 25, yPos);
+          yPos += 5;
+        });
+        yPos += 2;
+      });
+      yPos += 8;
+    }
+
+    // Action Plan for Agent
+    const actionPlan = getActionPlan(assessment.riskAssessment);
+    if (actionPlan && actionPlan.length > 0) {
+      if (yPos > 220) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Action Plan for Agent', 20, yPos);
+      yPos += 10;
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      actionPlan.forEach((action: string, idx: number) => {
+        if (yPos > 275) {
+          doc.addPage();
+          yPos = 20;
+        }
+        const actionText = `Step ${idx + 1}: ${action}`;
+        const splitAction = doc.splitTextToSize(actionText, pageWidth - 45);
+        splitAction.forEach((line: string) => {
+          doc.text(line, 25, yPos);
+          yPos += 5;
+        });
+        yPos += 2;
+      });
     }
 
     // Fetch assessment history
@@ -1338,6 +1548,28 @@ const ApplicationDetail = () => {
                           </div>
                         )}
                       </>
+                    )}
+
+                    {/* Action Plan for Agent */}
+                    {application.application_assessment?.riskAssessment && (
+                      <div className="mt-4 pt-4 border-t">
+                        <p className="text-sm font-medium mb-2 flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-blue-600 dark:text-blue-400" />
+                          Action Plan for Agent
+                        </p>
+                        <div className="p-3 bg-blue-50 dark:bg-blue-950/20 border border-blue-200 dark:border-blue-900 rounded-md">
+                          <ol className="space-y-3">
+                            {getActionPlan(application.application_assessment.riskAssessment).map((action: string, idx: number) => (
+                              <li key={idx} className="text-sm text-muted-foreground flex items-start gap-3">
+                                <span className="flex-shrink-0 flex items-center justify-center w-6 h-6 rounded-full bg-blue-600 dark:bg-blue-400 text-white dark:text-blue-950 text-xs font-semibold">
+                                  {idx + 1}
+                                </span>
+                                <span className="flex-1 pt-0.5">{action}</span>
+                              </li>
+                            ))}
+                          </ol>
+                        </div>
+                      </div>
                     )}
 
                     {/* Display assessment timestamp */}
