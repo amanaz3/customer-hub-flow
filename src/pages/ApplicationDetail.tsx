@@ -1253,9 +1253,65 @@ const ApplicationDetail = () => {
                       </div>
                     )}
 
-                    {/* Rule-Based Score Breakdown - Removed duplicate since calculation is shown above */}
-
                     <Accordion type="multiple" className="mt-4">
+                      {/* Rule-Based Score Breakdown Accordion */}
+                      {application.application_assessment?.riskAssessment?.method === 'rule' &&
+                       application.application_assessment?.riskAssessment?.calculationBreakdown && (
+                        <AccordionItem value="rule-score-breakdown">
+                          <AccordionTrigger className="text-sm font-medium">Score Breakdown</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="p-3 bg-muted/30 rounded-md text-sm space-y-2">
+                              {application.application_assessment.riskAssessment.calculationBreakdown.map((item, idx) => (
+                                <div key={idx} className="flex justify-between items-center py-1 border-b border-border/30 last:border-0">
+                                  <span className="font-medium">{item.factor}</span>
+                                  <Badge variant="outline">+{item.points} pts</Badge>
+                                </div>
+                              ))}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
+
+                      {/* Rule-Based Calculation Details Accordion */}
+                      {application.application_assessment?.riskAssessment?.method === 'rule' &&
+                       application.application_assessment?.riskAssessment?.calculationBreakdown && (
+                        <AccordionItem value="rule-calculation-details">
+                          <AccordionTrigger className="text-sm font-medium">Calculation Details</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="p-3 bg-muted/30 rounded-md text-sm space-y-2">
+                              <p className="text-xs text-muted-foreground mb-3">
+                                Risk Score Calculation (Total: {application.application_assessment.riskAssessment.score}/100)
+                              </p>
+                              
+                              {application.application_assessment.riskAssessment.calculationBreakdown.map((item, idx) => (
+                                <div key={idx} className="flex justify-between items-center py-1 border-b border-border/30 last:border-0">
+                                  <div className="flex-1">
+                                    <span className="font-medium">{item.factor}</span>
+                                  </div>
+                                  <span className="font-mono font-semibold">+{item.points} pts</span>
+                                </div>
+                              ))}
+                              
+                              <div className="mt-3 pt-3 border-t-2 border-primary/20 flex justify-between items-center font-semibold">
+                                <span>Total Risk Score</span>
+                                <span className="font-mono text-lg">{application.application_assessment.riskAssessment.score}/100</span>
+                              </div>
+                              
+                              <div className="mt-2 flex justify-between items-center text-xs">
+                                <span>Risk Classification</span>
+                                <Badge variant={
+                                  application.application_assessment.riskAssessment.level === 'high' ? 'destructive' :
+                                  application.application_assessment.riskAssessment.level === 'medium' ? 'default' :
+                                  'secondary'
+                                }>
+                                  {application.application_assessment.riskAssessment.level.toUpperCase()}
+                                </Badge>
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
+
                       {/* AI Score Breakdown Accordion */}
                       {application.application_assessment?.riskAssessment?.method === 'ai' &&
                        application.application_assessment?.riskAssessment?.aiAnalysis?.scoreBreakdown && (
