@@ -1020,13 +1020,72 @@ const ApplicationDetail = () => {
                       </div>
                     )}
 
-                    {/* Display raw details if available - Only for non-AI methods */}
-                    {application.application_assessment?.riskAssessment?.rawDetails && 
-                     application.application_assessment?.riskAssessment?.method !== 'ai' && (
+                    {/* Calculation Details for Rule-Based Method */}
+                    {application.application_assessment?.riskAssessment?.method === 'rule' && 
+                     application.application_assessment?.riskAssessment?.calculationBreakdown && (
                       <div className="mt-4 pt-4 border-t">
                         <p className="text-sm font-medium mb-2">Calculation Details</p>
-                        <div className="p-3 bg-muted/30 rounded-md text-sm">
-                          <p className="whitespace-pre-line">{application.application_assessment.riskAssessment.rawDetails}</p>
+                        <div className="p-3 bg-muted/30 rounded-md text-sm space-y-2">
+                          <p className="text-xs text-muted-foreground mb-3">
+                            Risk Score Calculation (Total: {application.application_assessment.riskAssessment.score}/100)
+                          </p>
+                          
+                          {application.application_assessment.riskAssessment.calculationBreakdown.map((item, idx) => (
+                            <div key={idx} className="flex justify-between items-center py-1 border-b border-border/30 last:border-0">
+                              <span className="font-medium">{item.factor}</span>
+                              <span className="font-mono font-semibold">+{item.points} pts</span>
+                            </div>
+                          ))}
+                          
+                          <div className="mt-3 pt-3 border-t-2 border-primary/20 flex justify-between items-center font-semibold">
+                            <span>Total Risk Score</span>
+                            <span className="font-mono text-lg">{application.application_assessment.riskAssessment.score}/100</span>
+                          </div>
+                          
+                          <div className="mt-2 flex justify-between items-center text-xs">
+                            <span>Risk Classification</span>
+                            <Badge variant={
+                              application.application_assessment.riskAssessment.level === 'high' ? 'destructive' :
+                              application.application_assessment.riskAssessment.level === 'medium' ? 'default' :
+                              'secondary'
+                            }>
+                              {application.application_assessment.riskAssessment.level.toUpperCase()}
+                            </Badge>
+                          </div>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Assessment Details for Manual and Hybrid Methods */}
+                    {(application.application_assessment?.riskAssessment?.method === 'manual' || 
+                      application.application_assessment?.riskAssessment?.method === 'hybrid') && (
+                      <div className="mt-4 pt-4 border-t">
+                        <p className="text-sm font-medium mb-2">Assessment Details</p>
+                        <div className="p-3 bg-muted/30 rounded-md text-sm space-y-2">
+                          <div className="flex justify-between items-center py-1">
+                            <span className="font-medium">Assessment Method</span>
+                            <span className="font-semibold">
+                              {application.application_assessment.riskAssessment.method === 'manual' ? '👤 Manual' : '🔀 Hybrid'}
+                            </span>
+                          </div>
+                          
+                          <div className="mt-3 pt-3 border-t-2 border-primary/20 flex justify-between items-center font-semibold">
+                            <span>Risk Score</span>
+                            <span className="font-mono text-lg">
+                              {application.application_assessment.riskAssessment.score || 'N/A'}/100
+                            </span>
+                          </div>
+                          
+                          <div className="mt-2 flex justify-between items-center text-xs">
+                            <span>Risk Classification</span>
+                            <Badge variant={
+                              application.application_assessment.riskAssessment.level === 'high' ? 'destructive' :
+                              application.application_assessment.riskAssessment.level === 'medium' ? 'default' :
+                              'secondary'
+                            }>
+                              {application.application_assessment.riskAssessment.level.toUpperCase()}
+                            </Badge>
+                          </div>
                         </div>
                       </div>
                     )}
