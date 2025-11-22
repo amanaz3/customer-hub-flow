@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { History, AlertTriangle } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
@@ -66,81 +67,86 @@ export const AssessmentHistory = ({ applicationId }: AssessmentHistoryProps) => 
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <History className="h-5 w-5" />
-          Assessment Change History
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {history.map((entry) => (
-            <div key={entry.id} className="border-l-2 border-muted pl-4 pb-4">
-              <div className="flex items-start justify-between mb-2">
-                <div className="flex items-center gap-2">
-                  <Badge
-                    variant={
-                      entry.change_type === 'created' ? 'default' :
-                      entry.change_type === 'updated' ? 'secondary' :
-                      'destructive'
-                    }
-                  >
-                    {entry.change_type.toUpperCase()}
-                  </Badge>
-                  <span className="text-sm text-muted-foreground">
-                    by {entry.changed_by_profile?.name || 'Unknown'} ({entry.changed_by_role})
+    <Accordion type="single" collapsible className="w-full">
+      <AccordionItem value="assessment-history" className="border rounded-lg">
+        <AccordionTrigger className="px-4 hover:no-underline">
+          <div className="flex items-center gap-2">
+            <History className="h-5 w-5" />
+            <span className="font-semibold">Assessment Change History</span>
+            <Badge variant="secondary" className="ml-2">
+              {history.length}
+            </Badge>
+          </div>
+        </AccordionTrigger>
+        <AccordionContent className="px-4 pb-4">
+          <div className="space-y-4 pt-2">
+            {history.map((entry) => (
+              <div key={entry.id} className="border-l-2 border-muted pl-4 pb-4">
+                <div className="flex items-start justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <Badge
+                      variant={
+                        entry.change_type === 'created' ? 'default' :
+                        entry.change_type === 'updated' ? 'secondary' :
+                        'destructive'
+                      }
+                    >
+                      {entry.change_type.toUpperCase()}
+                    </Badge>
+                    <span className="text-sm text-muted-foreground">
+                      by {entry.changed_by_profile?.name || 'Unknown'} ({entry.changed_by_role})
+                    </span>
+                  </div>
+                  <span className="text-xs text-muted-foreground">
+                    {formatDistanceToNow(new Date(entry.created_at), { addSuffix: true })}
                   </span>
                 </div>
-                <span className="text-xs text-muted-foreground">
-                  {formatDistanceToNow(new Date(entry.created_at), { addSuffix: true })}
-                </span>
-              </div>
 
-              {entry.comment && (
-                <p className="text-sm text-muted-foreground mb-2">{entry.comment}</p>
-              )}
+                {entry.comment && (
+                  <p className="text-sm text-muted-foreground mb-2">{entry.comment}</p>
+                )}
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                {entry.previous_assessment && (
-                  <div>
-                    <p className="font-semibold mb-1">Previous Assessment:</p>
-                    <div className="bg-muted/30 rounded-md p-2 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-3 w-3" />
-                        <span>Level: {entry.previous_assessment?.riskAssessment?.level || 'N/A'}</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                  {entry.previous_assessment && (
+                    <div>
+                      <p className="font-semibold mb-1">Previous Assessment:</p>
+                      <div className="bg-muted/30 rounded-md p-2 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-3 w-3" />
+                          <span>Level: {entry.previous_assessment?.riskAssessment?.level || 'N/A'}</span>
+                        </div>
+                        <div>Score: {entry.previous_assessment?.riskAssessment?.score || 'N/A'}</div>
+                        <div>Method: {entry.previous_assessment?.riskAssessment?.method || 'N/A'}</div>
                       </div>
-                      <div>Score: {entry.previous_assessment?.riskAssessment?.score || 'N/A'}</div>
-                      <div>Method: {entry.previous_assessment?.riskAssessment?.method || 'N/A'}</div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {entry.new_assessment && (
-                  <div>
-                    <p className="font-semibold mb-1">New Assessment:</p>
-                    <div className="bg-primary/10 rounded-md p-2 space-y-1">
-                      <div className="flex items-center gap-2">
-                        <AlertTriangle className="h-3 w-3" />
-                        <span>Level: {entry.new_assessment?.riskAssessment?.level || 'N/A'}</span>
+                  {entry.new_assessment && (
+                    <div>
+                      <p className="font-semibold mb-1">New Assessment:</p>
+                      <div className="bg-primary/10 rounded-md p-2 space-y-1">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-3 w-3" />
+                          <span>Level: {entry.new_assessment?.riskAssessment?.level || 'N/A'}</span>
+                        </div>
+                        <div>Score: {entry.new_assessment?.riskAssessment?.score || 'N/A'}</div>
+                        <div>Method: {entry.new_assessment?.riskAssessment?.method || 'N/A'}</div>
                       </div>
-                      <div>Score: {entry.new_assessment?.riskAssessment?.score || 'N/A'}</div>
-                      <div>Method: {entry.new_assessment?.riskAssessment?.method || 'N/A'}</div>
                     </div>
-                  </div>
-                )}
+                  )}
 
-                {entry.change_type === 'deleted' && !entry.new_assessment && (
-                  <div>
-                    <p className="font-semibold mb-1 text-destructive">Assessment Deleted</p>
-                    <p className="text-xs text-muted-foreground">The risk assessment was removed from the application</p>
-                  </div>
-                )}
+                  {entry.change_type === 'deleted' && !entry.new_assessment && (
+                    <div>
+                      <p className="font-semibold mb-1 text-destructive">Assessment Deleted</p>
+                      <p className="text-xs text-muted-foreground">The risk assessment was removed from the application</p>
+                    </div>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
-        </div>
-      </CardContent>
-    </Card>
+            ))}
+          </div>
+        </AccordionContent>
+      </AccordionItem>
+    </Accordion>
   );
 };
