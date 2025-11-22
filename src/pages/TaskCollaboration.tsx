@@ -730,6 +730,11 @@ const TaskCollaboration: React.FC = () => {
     todo: projectFilteredTasks.filter((t) => t.status === 'todo').length,
     in_progress: projectFilteredTasks.filter((t) => t.status === 'in_progress').length,
     done: projectFilteredTasks.filter((t) => t.status === 'done').length,
+    importance_none: projectFilteredTasks.filter((t) => !t.importance).length,
+    importance_must: projectFilteredTasks.filter((t) => t.importance === 'must').length,
+    importance_should: projectFilteredTasks.filter((t) => t.importance === 'should').length,
+    importance_good_to_have: projectFilteredTasks.filter((t) => t.importance === 'good-to-have').length,
+    importance_nice_to_have: projectFilteredTasks.filter((t) => t.importance === 'nice-to-have').length,
   };
 
   if (loading) {
@@ -1157,7 +1162,7 @@ const TaskCollaboration: React.FC = () => {
               </div>
 
               {/* Task Stats */}
-              <div className="grid grid-cols-7 gap-4 mb-6">
+              <div className="grid grid-cols-7 gap-4 mb-4">
                 <div className="p-3 rounded-lg border bg-card">
                   <div className="text-2xl font-bold">{taskStats.tasks}</div>
                   <div className="text-xs text-muted-foreground">Tasks</div>
@@ -1181,6 +1186,30 @@ const TaskCollaboration: React.FC = () => {
                 <div className="p-3 rounded-lg border bg-card">
                   <div className="text-2xl font-bold">{taskStats.done}</div>
                   <div className="text-xs text-muted-foreground">Done</div>
+                </div>
+              </div>
+
+              {/* Importance Classification Stats */}
+              <div className="grid grid-cols-5 gap-4 mb-6">
+                <div className="p-3 rounded-lg border bg-card">
+                  <div className="text-2xl font-bold">{taskStats.importance_none}</div>
+                  <div className="text-xs text-muted-foreground">None</div>
+                </div>
+                <div className="p-3 rounded-lg border bg-red-50 border-red-200">
+                  <div className="text-2xl font-bold text-red-800">{taskStats.importance_must}</div>
+                  <div className="text-xs text-red-600">Must</div>
+                </div>
+                <div className="p-3 rounded-lg border bg-orange-50 border-orange-200">
+                  <div className="text-2xl font-bold text-orange-800">{taskStats.importance_should}</div>
+                  <div className="text-xs text-orange-600">Should</div>
+                </div>
+                <div className="p-3 rounded-lg border bg-blue-50 border-blue-200">
+                  <div className="text-2xl font-bold text-blue-800">{taskStats.importance_good_to_have}</div>
+                  <div className="text-xs text-blue-600">Good-to-have</div>
+                </div>
+                <div className="p-3 rounded-lg border bg-gray-50 border-gray-200">
+                  <div className="text-2xl font-bold text-gray-800">{taskStats.importance_nice_to_have}</div>
+                  <div className="text-xs text-gray-600">Nice-to-have</div>
                 </div>
               </div>
 
