@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
-import { ArrowLeft, Building2, Mail, Phone, FileText, MessageSquare, Users, RefreshCw, Calendar, Clock, AlertTriangle, Save } from 'lucide-react';
+import { ArrowLeft, Building2, Mail, Phone, FileText, MessageSquare, Users, RefreshCw, Calendar, Clock, AlertTriangle, Save, Edit } from 'lucide-react';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,6 +11,8 @@ import { useToast } from '@/hooks/use-toast';
 import { ApplicationService } from '@/services/applicationService';
 import { supabase } from '@/integrations/supabase/client';
 import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
 import type { Application } from '@/types/application';
 import { formatApplicationReferenceWithPrefix } from '@/utils/referenceNumberFormatter';
 import { CompletionDateDialog } from '@/components/Customer/CompletionDateDialog';
@@ -31,6 +33,11 @@ const ApplicationDetail = () => {
   const [systemCompletedTime, setSystemCompletedTime] = useState<string | null>(null);
   const [maxApplicationRef, setMaxApplicationRef] = useState<number>(0);
   const [estimatedCompletionTime, setEstimatedCompletionTime] = useState<string>('');
+  const [showRiskDialog, setShowRiskDialog] = useState(false);
+  const [productName, setProductName] = useState<string | null>(null);
+  const [riskLevel, setRiskLevel] = useState<'low' | 'medium' | 'high' | ''>('');
+  const [riskScore, setRiskScore] = useState<number | ''>('');
+  const [riskCalculationType, setRiskCalculationType] = useState<'manual' | 'rule' | 'ai' | 'hybrid' | ''>('');
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -42,6 +49,16 @@ const ApplicationDetail = () => {
         setApplication(data);
         setSelectedStatus(data?.status || '');
         setEstimatedCompletionTime(data?.estimated_completion_time || '');
+        
+        // Fetch product name if product_id exists
+        if (data?.application_data?.product_id) {
+          const { data: productData } = await supabase
+            .from('products')
+            .select('name')
+            .eq('id', data.application_data.product_id)
+            .single();
+          setProductName(productData?.name || null);
+        }
         
         // Fetch max reference number for auto-scaling formatter
         const { data: maxRefData } = await supabase
@@ -560,59 +577,82 @@ const ApplicationDetail = () => {
                 </div>
               </div>
               
-              {/* Bank Account Risk Assessment - Only show for bank account applications */}
-              {application.application_type === 'bank_account' && (application.risk_calculation_type || application.risk_score !== undefined || application.application_data.risk_level) && (
+              {/* Bank Account Risk Assessment - Show for all Business Bank Account applications */}
+              {productName === 'Business Bank Account' && (
                 <div className="pt-4 border-t">
-                  <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                    <AlertTriangle className="h-4 w-4" />
-                    Risk Assessment
-                  </h4>
-                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                    {application.application_data.risk_level && (
-                      <div>
-                        <p className="text-sm text-muted-foreground">Risk Level</p>
-                        <Badge 
-                          variant={
-                            application.application_data.risk_level === 'high' ? 'destructive' : 
-                            application.application_data.risk_level === 'medium' ? 'default' : 
-                            'secondary'
-                          }
-                          className="font-semibold mt-1"
-                        >
-                          {application.application_data.risk_level.toUpperCase()}
-                        </Badge>
-                      </div>
-                    )}
-                    {application.risk_calculation_type && (
-                      <div>
-                        <p className="text-sm text-muted-foreground">Calculation Method</p>
-                        <Badge variant="outline" className="mt-1">
-                          {application.risk_calculation_type === 'manual' && '👤 Manual'}
-                          {application.risk_calculation_type === 'rule' && '📊 Rule-Based'}
-                          {application.risk_calculation_type === 'ai' && '🤖 AI-Powered'}
-                          {application.risk_calculation_type === 'hybrid' && '🔀 Hybrid (AI + Manual)'}
-                        </Badge>
-                      </div>
-                    )}
-                    {application.risk_score !== undefined && application.risk_score !== null && (
-                      <div>
-                        <p className="text-sm text-muted-foreground">Risk Score</p>
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="font-semibold">{application.risk_score}/100</span>
-                          <div className="h-2 flex-1 bg-muted rounded-full overflow-hidden max-w-[120px]">
-                            <div 
-                              className={`h-full transition-all ${
-                                application.risk_score >= 67 ? 'bg-destructive' :
-                                application.risk_score >= 34 ? 'bg-yellow-500' :
-                                'bg-green-500'
-                              }`}
-                              style={{ width: `${application.risk_score}%` }}
-                            />
+                  <div className="flex items-center justify-between mb-3">
+                    <h4 className="text-sm font-semibold flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4" />
+                      Risk Assessment
+                    </h4>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        // Pre-fill existing risk data when opening dialog
+                        setRiskLevel((application.application_data.risk_level as 'low' | 'medium' | 'high') || '');
+                        setRiskScore(application.risk_score || '');
+                        setRiskCalculationType((application.risk_calculation_type as 'manual' | 'rule' | 'ai' | 'hybrid') || '');
+                        setShowRiskDialog(true);
+                      }}
+                    >
+                      <Edit className="h-4 w-4 mr-1" />
+                      {application.risk_calculation_type ? 'Edit' : 'Add'} Risk Assessment
+                    </Button>
+                  </div>
+                  
+                  {!application.risk_calculation_type && !application.risk_score && !application.application_data.risk_level ? (
+                    <div className="text-sm text-muted-foreground py-4 px-3 bg-muted/30 rounded-md">
+                      No risk assessment data available. Click "Add Risk Assessment" to evaluate this application.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                      {application.application_data.risk_level && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Risk Level</p>
+                          <Badge 
+                            variant={
+                              application.application_data.risk_level === 'high' ? 'destructive' : 
+                              application.application_data.risk_level === 'medium' ? 'default' : 
+                              'secondary'
+                            }
+                            className="font-semibold mt-1"
+                          >
+                            {application.application_data.risk_level.toUpperCase()}
+                          </Badge>
+                        </div>
+                      )}
+                      {application.risk_calculation_type && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Calculation Method</p>
+                          <Badge variant="outline" className="mt-1">
+                            {application.risk_calculation_type === 'manual' && '👤 Manual'}
+                            {application.risk_calculation_type === 'rule' && '📊 Rule-Based'}
+                            {application.risk_calculation_type === 'ai' && '🤖 AI-Powered'}
+                            {application.risk_calculation_type === 'hybrid' && '🔀 Hybrid (AI + Manual)'}
+                          </Badge>
+                        </div>
+                      )}
+                      {application.risk_score !== undefined && application.risk_score !== null && (
+                        <div>
+                          <p className="text-sm text-muted-foreground">Risk Score</p>
+                          <div className="flex items-center gap-2 mt-1">
+                            <span className="font-semibold">{application.risk_score}/100</span>
+                            <div className="h-2 flex-1 bg-muted rounded-full overflow-hidden max-w-[120px]">
+                              <div 
+                                className={`h-full transition-all ${
+                                  application.risk_score >= 67 ? 'bg-destructive' :
+                                  application.risk_score >= 34 ? 'bg-yellow-500' :
+                                  'bg-green-500'
+                                }`}
+                                style={{ width: `${application.risk_score}%` }}
+                              />
+                            </div>
                           </div>
                         </div>
-                      </div>
-                    )}
-                  </div>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
               
@@ -827,6 +867,134 @@ const ApplicationDetail = () => {
           </TabsContent>
         )}
       </Tabs>
+
+      {/* Risk Assessment Dialog */}
+      <Dialog open={showRiskDialog} onOpenChange={setShowRiskDialog}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle>
+              {application?.risk_calculation_type ? 'Edit' : 'Add'} Risk Assessment
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="risk-level">Risk Level *</Label>
+              <Select
+                value={riskLevel}
+                onValueChange={(value) => setRiskLevel(value as 'low' | 'medium' | 'high')}
+              >
+                <SelectTrigger id="risk-level">
+                  <SelectValue placeholder="Select risk level" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="low">Low</SelectItem>
+                  <SelectItem value="medium">Medium</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="risk-score">Risk Score (0-100)</Label>
+              <Input
+                id="risk-score"
+                type="number"
+                min="0"
+                max="100"
+                value={riskScore}
+                onChange={(e) => setRiskScore(e.target.value ? Number(e.target.value) : '')}
+                placeholder="Enter risk score"
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="calc-type">Calculation Method</Label>
+              <Select
+                value={riskCalculationType}
+                onValueChange={(value) => setRiskCalculationType(value as 'manual' | 'rule' | 'ai' | 'hybrid')}
+              >
+                <SelectTrigger id="calc-type">
+                  <SelectValue placeholder="Select calculation method" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="manual">👤 Manual</SelectItem>
+                  <SelectItem value="rule">📊 Rule-Based</SelectItem>
+                  <SelectItem value="ai">🤖 AI-Powered</SelectItem>
+                  <SelectItem value="hybrid">🔀 Hybrid (AI + Manual)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setShowRiskDialog(false);
+                setRiskLevel('');
+                setRiskScore('');
+                setRiskCalculationType('');
+              }}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={async () => {
+                if (!riskLevel || !application) {
+                  toast({
+                    title: 'Risk Level Required',
+                    description: 'Please select a risk level',
+                    variant: 'destructive',
+                  });
+                  return;
+                }
+
+                try {
+                  // Update application_data with risk_level
+                  const updatedApplicationData = {
+                    ...application.application_data,
+                    risk_level: riskLevel,
+                  };
+
+                  const { error } = await supabase
+                    .from('account_applications')
+                    .update({
+                      application_data: updatedApplicationData,
+                      risk_calculation_type: riskCalculationType || null,
+                      risk_score: riskScore || null,
+                    })
+                    .eq('id', application.id);
+
+                  if (error) throw error;
+
+                  toast({
+                    title: 'Risk Assessment Updated',
+                    description: 'Risk assessment has been saved successfully',
+                  });
+
+                  // Refresh the application data
+                  const updatedApp = await ApplicationService.fetchApplicationById(application.id);
+                  setApplication(updatedApp);
+                  setShowRiskDialog(false);
+                  setRiskLevel('');
+                  setRiskScore('');
+                  setRiskCalculationType('');
+                } catch (error) {
+                  console.error('Error updating risk assessment:', error);
+                  toast({
+                    title: 'Error',
+                    description: 'Failed to update risk assessment',
+                    variant: 'destructive',
+                  });
+                }
+              }}
+            >
+              Save Risk Assessment
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
