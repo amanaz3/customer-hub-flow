@@ -1612,34 +1612,106 @@ const ApplicationDetail = () => {
                         </AccordionItem>
                       )}
 
-                      {/* Hybrid - AI Reasoning Summary Accordion (if aiAnalysis present) */}
-                      {application.application_assessment?.riskAssessment?.method === 'hybrid' &&
-                       application.application_assessment?.riskAssessment?.aiAnalysis && (
-                        <AccordionItem value="hybrid-ai-reasoning">
-                          <AccordionTrigger className="text-sm font-medium">AI Reasoning Summary</AccordionTrigger>
+                      {/* Hybrid - Combined Reasoning Summary Accordion */}
+                      {application.application_assessment?.riskAssessment?.method === 'hybrid' && (
+                        <AccordionItem value="hybrid-reasoning">
+                          <AccordionTrigger className="text-sm font-medium">Reasoning Summary</AccordionTrigger>
                           <AccordionContent>
-                            <div className="p-3 bg-primary/5 rounded-md text-sm space-y-3">
-                          <p className="whitespace-pre-line">{application.application_assessment.riskAssessment.aiAnalysis.reasoning}</p>
-                          {application.application_assessment.riskAssessment.aiAnalysis.factors?.length > 0 && (
-                            <div className="space-y-2 mt-3 pt-3 border-t border-primary/10">
-                              <p className="font-medium text-xs uppercase text-muted-foreground">Risk Factors</p>
-                              {application.application_assessment.riskAssessment.aiAnalysis.factors.map((factor, idx) => (
-                                <div key={idx} className="space-y-1">
-                                  <div className="flex items-center gap-2">
-                                    <Badge variant={
-                                      factor.impact === 'high' ? 'destructive' :
-                                      factor.impact === 'medium' ? 'default' :
-                                      'secondary'
-                                    } className="text-xs">
-                                      {factor.impact}
-                                    </Badge>
-                                    <span className="font-medium">{factor.factor}</span>
-                                  </div>
-                                  <p className="text-xs text-muted-foreground pl-2">{factor.description}</p>
+                            <div className="p-3 bg-primary/5 rounded-md text-sm space-y-4">
+                              
+                              {/* Rule-Based Reasoning Section */}
+                              <div className="space-y-2">
+                                <div className="flex items-center gap-2 mb-2">
+                                  <Badge variant="outline" className="text-xs">Rule-Based Analysis</Badge>
                                 </div>
-                              ))}
-                            </div>
+                                <p className="text-sm text-muted-foreground">
+                                  The systematic rule-based assessment evaluated this application using predefined risk indicators across jurisdiction type, shareholder structure, signatory requirements, business turnover, and minimum balance expectations. This methodology ensures consistent, objective scoring based on established business rules and regulatory compliance standards.
+                                </p>
+                                {application.application_assessment.riskAssessment.calculationBreakdown && (
+                                  <div className="mt-2 p-2 bg-muted/30 rounded text-xs">
+                                    <span className="font-semibold">Rule-Based Score: </span>
+                                    <span className="font-mono">{(application.application_assessment.riskAssessment as any).hybridDetails?.ruleBasedScore || 0}/100</span>
+                                  </div>
+                                )}
+                              </div>
+
+                              <div className="border-t border-border/50"></div>
+
+                              {/* AI-Based Reasoning Section */}
+                              {application.application_assessment.riskAssessment.aiAnalysis && (
+                                <div className="space-y-2">
+                                  <div className="flex items-center gap-2 mb-2">
+                                    <Badge variant="outline" className="text-xs">AI-Powered Analysis</Badge>
+                                  </div>
+                                  <p className="whitespace-pre-line text-sm text-muted-foreground">
+                                    {application.application_assessment.riskAssessment.aiAnalysis.reasoning}
+                                  </p>
+                                  {application.application_assessment.riskAssessment.aiAnalysis.factors?.length > 0 && (
+                                    <div className="space-y-2 mt-3 pt-2 border-t border-primary/10">
+                                      <p className="font-medium text-xs uppercase text-muted-foreground">AI-Identified Risk Factors</p>
+                                      {application.application_assessment.riskAssessment.aiAnalysis.factors.map((factor, idx) => (
+                                        <div key={idx} className="space-y-1">
+                                          <div className="flex items-center gap-2">
+                                            <Badge variant={
+                                              factor.impact === 'high' ? 'destructive' :
+                                              factor.impact === 'medium' ? 'default' :
+                                              'secondary'
+                                            } className="text-xs">
+                                              {factor.impact}
+                                            </Badge>
+                                            <span className="font-medium text-xs">{factor.factor}</span>
+                                          </div>
+                                          <p className="text-xs text-muted-foreground pl-2">{factor.description}</p>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  )}
+                                  <div className="mt-2 p-2 bg-muted/30 rounded text-xs">
+                                    <span className="font-semibold">AI Score: </span>
+                                    <span className="font-mono">{(application.application_assessment.riskAssessment as any).hybridDetails?.aiScore || 0}/100</span>
+                                  </div>
+                                </div>
                               )}
+
+                              <div className="border-t border-border/50"></div>
+
+                              {/* Combined Assessment Conclusion */}
+                              <div className="space-y-2 p-3 bg-gradient-to-br from-primary/10 to-primary/5 rounded-md">
+                                <p className="font-semibold text-xs uppercase text-primary">Hybrid Assessment Conclusion</p>
+                                <p className="text-sm">
+                                  By combining systematic rule-based scoring with contextual AI analysis, this hybrid assessment achieves a balanced evaluation. The final risk score of{' '}
+                                  <span className="font-mono font-semibold">{application.application_assessment.riskAssessment.score}/100</span> represents equal weighting (50% each) of both methodologies, placing this application in the{' '}
+                                  <Badge
+                                    variant={
+                                      application.application_assessment.riskAssessment.level === 'high' ? 'destructive' :
+                                      application.application_assessment.riskAssessment.level === 'medium' ? 'default' :
+                                      'secondary'
+                                    }
+                                    className="inline-flex"
+                                  >
+                                    {application.application_assessment.riskAssessment.level.toUpperCase()} RISK
+                                  </Badge>{' '}
+                                  category. This dual-methodology approach provides comprehensive risk assessment by leveraging both structured business rules and intelligent contextual analysis.
+                                </p>
+                              </div>
+
+                              <div className="pt-3 border-t border-primary/10">
+                                <p className="font-medium text-xs uppercase text-muted-foreground mb-2">Risk Level Guidelines</p>
+                                <div className="space-y-2 text-xs text-muted-foreground">
+                                  <div className="flex items-start gap-2">
+                                    <Badge variant="secondary" className="mt-0.5">LOW</Badge>
+                                    <span>0-33 points: Standard due diligence procedures apply</span>
+                                  </div>
+                                  <div className="flex items-start gap-2">
+                                    <Badge variant="default" className="mt-0.5">MEDIUM</Badge>
+                                    <span>34-66 points: Standard due diligence with additional verification</span>
+                                  </div>
+                                  <div className="flex items-start gap-2">
+                                    <Badge variant="destructive" className="mt-0.5">HIGH</Badge>
+                                    <span>67-100 points: Enhanced due diligence and senior management approval required</span>
+                                  </div>
+                                </div>
+                              </div>
                             </div>
                           </AccordionContent>
                         </AccordionItem>
