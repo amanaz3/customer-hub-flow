@@ -148,6 +148,7 @@ const TaskCollaboration: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('todo');
   const [priorityFilter, setPriorityFilter] = useState<string>('medium-high');
   const [projectFilter, setProjectFilter] = useState<string>('all');
+  const [importanceFilter, setImportanceFilter] = useState<string>('all');
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
   const [quickAddBugOpen, setQuickAddBugOpen] = useState(false);
   const [quickAddWhatsAppOpen, setQuickAddWhatsAppOpen] = useState(false);
@@ -618,7 +619,10 @@ const TaskCollaboration: React.FC = () => {
                             task.priority === priorityFilter ||
                             (priorityFilter === 'medium-high' && (task.priority === 'medium' || task.priority === 'high'));
     const matchesProject = projectFilter === 'all' || task.project_id === projectFilter;
-    return matchesSearch && matchesStatus && matchesPriority && matchesProject;
+    const matchesImportance = importanceFilter === 'all' || 
+                              (importanceFilter === 'none' && !task.importance) ||
+                              task.importance === importanceFilter;
+    return matchesSearch && matchesStatus && matchesPriority && matchesProject && matchesImportance;
   });
 
   const filteredApplications = applications.filter((app) => {
@@ -1166,6 +1170,19 @@ const TaskCollaboration: React.FC = () => {
                     <SelectItem value="low">Low</SelectItem>
                   </SelectContent>
                 </Select>
+                <Select value={importanceFilter} onValueChange={setImportanceFilter}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Value" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Values</SelectItem>
+                    <SelectItem value="none">None</SelectItem>
+                    <SelectItem value="must">Must</SelectItem>
+                    <SelectItem value="should">Should</SelectItem>
+                    <SelectItem value="good-to-have">Good</SelectItem>
+                    <SelectItem value="nice-to-have">Nice</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Task Stats */}
@@ -1301,7 +1318,7 @@ const TaskCollaboration: React.FC = () => {
                 ))}
                 {filteredTasks.length === 0 && (
                   <div className="text-center py-12 text-muted-foreground">
-                    {searchQuery || statusFilter !== 'all' || priorityFilter !== 'all' || projectFilter !== 'all'
+                    {searchQuery || statusFilter !== 'all' || priorityFilter !== 'all' || projectFilter !== 'all' || importanceFilter !== 'all'
                       ? 'No tasks match your filters'
                       : 'No tasks yet. Create your first task!'}
                   </div>
