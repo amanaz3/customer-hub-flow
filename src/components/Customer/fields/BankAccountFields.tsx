@@ -224,22 +224,48 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
                                 <Sparkles className="h-4 w-4 text-primary" />
                                 <p className="font-semibold">AI Risk Assessment</p>
                               </div>
-                              <div className="space-y-2">
-                                <div>
-                                  <p className="text-xs font-semibold">
-                                    Risk Score: {aiAssessment.risk_score}/100
+                              <div className="space-y-3">
+                                {/* Score Classification */}
+                                <div className="bg-muted p-3 rounded-lg">
+                                  <div className="flex items-center justify-between mb-2">
+                                    <span className="text-xs font-medium">Risk Score</span>
                                     <Badge 
                                       variant={
                                         aiAssessment.risk_level === 'high' ? 'destructive' : 
                                         aiAssessment.risk_level === 'medium' ? 'default' : 
                                         'secondary'
                                       }
-                                      className="ml-2"
+                                      className="font-semibold"
                                     >
                                       {aiAssessment.risk_level.toUpperCase()}
                                     </Badge>
-                                  </p>
+                                  </div>
+                                  
+                                  {/* Score Bar */}
+                                  <div className="relative h-8 bg-background rounded overflow-hidden border">
+                                    <div 
+                                      className={`absolute left-0 top-0 h-full transition-all ${
+                                        aiAssessment.risk_level === 'high' ? 'bg-destructive' :
+                                        aiAssessment.risk_level === 'medium' ? 'bg-yellow-500' :
+                                        'bg-green-500'
+                                      }`}
+                                      style={{ width: `${aiAssessment.risk_score}%` }}
+                                    />
+                                    <div className="absolute inset-0 flex items-center justify-center">
+                                      <span className="text-sm font-bold mix-blend-difference text-white">
+                                        {aiAssessment.risk_score}/100
+                                      </span>
+                                    </div>
+                                  </div>
+                                  
+                                  {/* Classification Ranges */}
+                                  <div className="flex justify-between mt-2 text-xs text-muted-foreground">
+                                    <span>Low (0-33)</span>
+                                    <span>Medium (34-66)</span>
+                                    <span>High (67-100)</span>
+                                  </div>
                                 </div>
+
                                 <div>
                                   <p className="text-xs font-medium mb-1">Key Risk Factors:</p>
                                   <ul className="text-xs space-y-1">
