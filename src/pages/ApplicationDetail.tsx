@@ -35,9 +35,13 @@ const ApplicationDetail = () => {
   const [estimatedCompletionTime, setEstimatedCompletionTime] = useState<string>('');
   const [showRiskDialog, setShowRiskDialog] = useState(false);
   const [productName, setProductName] = useState<string | null>(null);
-  const [riskLevel, setRiskLevel] = useState<'low' | 'medium' | 'high' | ''>('');
-  const [riskScore, setRiskScore] = useState<number | ''>('');
-  const [riskCalculationType, setRiskCalculationType] = useState<'manual' | 'rule' | 'ai' | 'hybrid' | ''>('');
+  const [selectedMethod, setSelectedMethod] = useState<'manual' | 'rule' | 'ai' | 'hybrid' | ''>('');
+  const [calculatedRisk, setCalculatedRisk] = useState<{
+    score: number;
+    level: 'low' | 'medium' | 'high';
+    details: string;
+  } | null>(null);
+  const [isCalculating, setIsCalculating] = useState(false);
 
   useEffect(() => {
     const fetchApplication = async () => {
@@ -589,10 +593,9 @@ const ApplicationDetail = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => {
-                        // Pre-fill existing risk data when opening dialog
-                        setRiskLevel((application.application_data.risk_level as 'low' | 'medium' | 'high') || '');
-                        setRiskScore(application.risk_score || '');
-                        setRiskCalculationType((application.risk_calculation_type as 'manual' | 'rule' | 'ai' | 'hybrid') || '');
+                        // Reset dialog state when opening
+                        setSelectedMethod(application.risk_calculation_type as any || '');
+                        setCalculatedRisk(null);
                         setShowRiskDialog(true);
                       }}
                     >
@@ -870,7 +873,7 @@ const ApplicationDetail = () => {
 
       {/* Risk Assessment Dialog */}
       <Dialog open={showRiskDialog} onOpenChange={setShowRiskDialog}>
-        <DialogContent className="sm:max-w-[500px]">
+        <DialogContent className="sm:max-w-[550px]">
           <DialogHeader>
             <DialogTitle>
               {application?.risk_calculation_type ? 'Edit' : 'Add'} Risk Assessment
@@ -878,53 +881,113 @@ const ApplicationDetail = () => {
           </DialogHeader>
           
           <div className="space-y-4 py-4">
+            {/* Step 1: Method Selection */}
             <div className="space-y-2">
-              <Label htmlFor="risk-level">Risk Level *</Label>
+              <Label htmlFor="method">Select Assessment Method *</Label>
               <Select
-                value={riskLevel}
-                onValueChange={(value) => setRiskLevel(value as 'low' | 'medium' | 'high')}
+                value={selectedMethod}
+                onValueChange={async (value) => {
+                  setSelectedMethod(value as any);
+                  setCalculatedRisk(null);
+                  
+                  if ((value === 'rule' || value === 'ai') && application) {
+                    // Auto-calculate for rule and AI methods
+                    setIsCalculating(true);
+                    try {
+                      const { data, error } = await supabase.functions.invoke('calculate-bank-risk', {
+                        body: { applicationId: application.id, method: value }
+                      });
+
+                      if (error) throw error;
+
+                      if (data.requiresManualInput) {
+                        toast({
+                          title: 'Manual Input Required',
+                          description: data.message,
+                        });
+                      } else {
+                        setCalculatedRisk({
+                          score: data.riskScore,
+                          level: data.riskLevel,
+                          details: data.calculationDetails
+                        });
+                      }
+                    } catch (error) {
+                      console.error('Error calculating risk:', error);
+                      toast({
+                        title: 'Calculation Error',
+                        description: 'Failed to calculate risk score',
+                        variant: 'destructive',
+                      });
+                    } finally {
+                      setIsCalculating(false);
+                    }
+                  }
+                }}
+                disabled={isCalculating}
               >
-                <SelectTrigger id="risk-level">
-                  <SelectValue placeholder="Select risk level" />
+                <SelectTrigger id="method">
+                  <SelectValue placeholder="Select method" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="low">Low</SelectItem>
-                  <SelectItem value="medium">Medium</SelectItem>
-                  <SelectItem value="high">High</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="risk-score">Risk Score (0-100)</Label>
-              <Input
-                id="risk-score"
-                type="number"
-                min="0"
-                max="100"
-                value={riskScore}
-                onChange={(e) => setRiskScore(e.target.value ? Number(e.target.value) : '')}
-                placeholder="Enter risk score"
-              />
-            </div>
-
-            <div className="space-y-2">
-              <Label htmlFor="calc-type">Calculation Method</Label>
-              <Select
-                value={riskCalculationType}
-                onValueChange={(value) => setRiskCalculationType(value as 'manual' | 'rule' | 'ai' | 'hybrid')}
-              >
-                <SelectTrigger id="calc-type">
-                  <SelectValue placeholder="Select calculation method" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="manual">👤 Manual</SelectItem>
-                  <SelectItem value="rule">📊 Rule-Based</SelectItem>
-                  <SelectItem value="ai">🤖 AI-Powered</SelectItem>
+                  <SelectItem value="manual">👤 Manual Assessment</SelectItem>
+                  <SelectItem value="rule">📊 Rule-Based Calculation</SelectItem>
+                  <SelectItem value="ai">🤖 AI-Powered Analysis</SelectItem>
                   <SelectItem value="hybrid">🔀 Hybrid (AI + Manual)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Show calculation in progress */}
+            {isCalculating && (
+              <div className="flex items-center gap-2 text-sm text-muted-foreground py-4">
+                <RefreshCw className="h-4 w-4 animate-spin" />
+                Calculating risk assessment...
+              </div>
+            )}
+
+            {/* Step 2: Show Calculated Results */}
+            {calculatedRisk && !isCalculating && (
+              <div className="space-y-3 p-4 border rounded-lg bg-muted/30">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Risk Score:</span>
+                  <span className="text-lg font-bold">{calculatedRisk.score}/100</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium">Risk Level:</span>
+                  <Badge
+                    variant={
+                      calculatedRisk.level === 'high' ? 'destructive' :
+                      calculatedRisk.level === 'medium' ? 'default' :
+                      'secondary'
+                    }
+                    className="font-semibold"
+                  >
+                    {calculatedRisk.level.toUpperCase()}
+                  </Badge>
+                </div>
+                {calculatedRisk.details && (
+                  <div className="pt-2 border-t">
+                    <p className="text-xs font-medium mb-1">Calculation Details:</p>
+                    <p className="text-xs text-muted-foreground whitespace-pre-wrap">
+                      {calculatedRisk.details}
+                    </p>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Manual/Hybrid methods info */}
+            {selectedMethod === 'manual' && !isCalculating && (
+              <div className="text-sm text-muted-foreground p-3 bg-muted/30 rounded-md">
+                Manual assessment requires you to evaluate risk factors and assign a classification based on your expertise.
+              </div>
+            )}
+            {selectedMethod === 'hybrid' && !isCalculating && (
+              <div className="text-sm text-muted-foreground p-3 bg-muted/30 rounded-md">
+                Hybrid combines AI analysis with manual override. Calculate with AI first, then adjust if needed.
+              </div>
+            )}
           </div>
 
           <DialogFooter>
@@ -932,65 +995,71 @@ const ApplicationDetail = () => {
               variant="outline"
               onClick={() => {
                 setShowRiskDialog(false);
-                setRiskLevel('');
-                setRiskScore('');
-                setRiskCalculationType('');
+                setSelectedMethod('');
+                setCalculatedRisk(null);
               }}
             >
               Cancel
             </Button>
             <Button
               onClick={async () => {
-                if (!riskLevel || !application) {
+                if (!selectedMethod || !application) {
                   toast({
-                    title: 'Risk Level Required',
-                    description: 'Please select a risk level',
+                    title: 'Method Required',
+                    description: 'Please select an assessment method',
+                    variant: 'destructive',
+                  });
+                  return;
+                }
+
+                if (!calculatedRisk && (selectedMethod === 'rule' || selectedMethod === 'ai')) {
+                  toast({
+                    title: 'Calculation Required',
+                    description: 'Please wait for risk calculation to complete',
                     variant: 'destructive',
                   });
                   return;
                 }
 
                 try {
-                  // Update application_data with risk_level
                   const updatedApplicationData = {
                     ...application.application_data,
-                    risk_level: riskLevel,
+                    risk_level: calculatedRisk?.level || 'medium',
                   };
 
                   const { error } = await supabase
                     .from('account_applications')
                     .update({
                       application_data: updatedApplicationData,
-                      risk_calculation_type: riskCalculationType || null,
-                      risk_score: riskScore || null,
+                      risk_calculation_type: selectedMethod,
+                      risk_score: calculatedRisk?.score || null,
                     })
                     .eq('id', application.id);
 
                   if (error) throw error;
 
                   toast({
-                    title: 'Risk Assessment Updated',
-                    description: 'Risk assessment has been saved successfully',
+                    title: 'Risk Assessment Saved',
+                    description: `${selectedMethod.charAt(0).toUpperCase() + selectedMethod.slice(1)} assessment completed successfully`,
                   });
 
-                  // Refresh the application data
                   const updatedApp = await ApplicationService.fetchApplicationById(application.id);
                   setApplication(updatedApp);
                   setShowRiskDialog(false);
-                  setRiskLevel('');
-                  setRiskScore('');
-                  setRiskCalculationType('');
+                  setSelectedMethod('');
+                  setCalculatedRisk(null);
                 } catch (error) {
-                  console.error('Error updating risk assessment:', error);
+                  console.error('Error saving risk assessment:', error);
                   toast({
                     title: 'Error',
-                    description: 'Failed to update risk assessment',
+                    description: 'Failed to save risk assessment',
                     variant: 'destructive',
                   });
                 }
               }}
+              disabled={isCalculating || (!calculatedRisk && (selectedMethod === 'rule' || selectedMethod === 'ai'))}
             >
-              Save Risk Assessment
+              Save Assessment
             </Button>
           </DialogFooter>
         </DialogContent>
