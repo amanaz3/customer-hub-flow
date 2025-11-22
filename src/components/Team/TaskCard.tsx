@@ -294,11 +294,13 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   
   // Count importance levels in subtasks
   const importanceCounts = React.useMemo(() => {
-    const counts = { must: 0, should: 0, 'good-to-have': 0, 'nice-to-have': 0 };
+    const counts = { must: 0, should: 0, 'good-to-have': 0, 'nice-to-have': 0, none: 0 };
     const countImportance = (tasks: typeof subtasks) => {
       tasks.forEach(subtask => {
         if (subtask.importance) {
           counts[subtask.importance as keyof typeof counts]++;
+        } else {
+          counts.none++;
         }
         // Recursively count nested subtasks by finding their children
         const children = tasks.filter(t => t.parent_id === subtask.id);
@@ -412,16 +414,34 @@ export const TaskCard: React.FC<TaskCardProps> = ({
               )}
               
               {/* Show importance counts for parent tasks with subtasks */}
-              {totalSubtasksCount > 0 && (
-                <div className="flex items-center gap-1">
-                  {Object.entries(importanceCounts).map(([importance, count]) => 
-                    count > 0 && (
-                      <Badge key={importance} className={cn('text-xs border', getImportanceColor(importance))}>
-                        {getImportanceLabel(importance)}: {count}
-                      </Badge>
-                    )
+              {!task.parent_id && totalSubtasksCount > 0 && (
+                <>
+                  {importanceCounts.none > 0 && (
+                    <Badge variant="outline" className="text-xs bg-gray-50 border-gray-200">
+                      None: {importanceCounts.none}
+                    </Badge>
                   )}
-                </div>
+                  {importanceCounts.must > 0 && (
+                    <Badge className="text-xs border bg-red-100 text-red-800 border-red-200">
+                      Must: {importanceCounts.must}
+                    </Badge>
+                  )}
+                  {importanceCounts.should > 0 && (
+                    <Badge className="text-xs border bg-orange-100 text-orange-800 border-orange-200">
+                      Should: {importanceCounts.should}
+                    </Badge>
+                  )}
+                  {importanceCounts['good-to-have'] > 0 && (
+                    <Badge className="text-xs border bg-blue-100 text-blue-800 border-blue-200">
+                      Good: {importanceCounts['good-to-have']}
+                    </Badge>
+                  )}
+                  {importanceCounts['nice-to-have'] > 0 && (
+                    <Badge className="text-xs border bg-gray-100 text-gray-800 border-gray-200">
+                      Nice: {importanceCounts['nice-to-have']}
+                    </Badge>
+                  )}
+                </>
               )}
             </div>
           </div>
