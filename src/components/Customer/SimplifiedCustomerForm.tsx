@@ -70,6 +70,8 @@ const formSchema = z.object({
   
   // Product-specific fields (all optional)
   risk_level: z.enum(['low', 'medium', 'high']).optional(),
+  risk_calculation_type: z.enum(['manual', 'rule', 'ai', 'hybrid']).optional(),
+  risk_score: z.number().min(0).max(100).optional(),
   mainland_or_freezone: z.enum(['mainland', 'freezone']).optional(),
   signatory_type: z.enum(['single', 'joint']).optional(),
   uae_residency_status: z.enum(['Resident', 'Non-Resident']).optional(),
