@@ -560,6 +560,62 @@ const ApplicationDetail = () => {
                 </div>
               </div>
               
+              {/* Bank Account Risk Assessment - Only show for bank account applications */}
+              {application.application_type === 'bank_account' && (application.risk_calculation_type || application.risk_score !== undefined || application.application_data.risk_level) && (
+                <div className="pt-4 border-t">
+                  <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
+                    <AlertTriangle className="h-4 w-4" />
+                    Risk Assessment
+                  </h4>
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                    {application.application_data.risk_level && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Risk Level</p>
+                        <Badge 
+                          variant={
+                            application.application_data.risk_level === 'high' ? 'destructive' : 
+                            application.application_data.risk_level === 'medium' ? 'default' : 
+                            'secondary'
+                          }
+                          className="font-semibold mt-1"
+                        >
+                          {application.application_data.risk_level.toUpperCase()}
+                        </Badge>
+                      </div>
+                    )}
+                    {application.risk_calculation_type && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Calculation Method</p>
+                        <Badge variant="outline" className="mt-1">
+                          {application.risk_calculation_type === 'manual' && '👤 Manual'}
+                          {application.risk_calculation_type === 'rule' && '📊 Rule-Based'}
+                          {application.risk_calculation_type === 'ai' && '🤖 AI-Powered'}
+                          {application.risk_calculation_type === 'hybrid' && '🔀 Hybrid (AI + Manual)'}
+                        </Badge>
+                      </div>
+                    )}
+                    {application.risk_score !== undefined && application.risk_score !== null && (
+                      <div>
+                        <p className="text-sm text-muted-foreground">Risk Score</p>
+                        <div className="flex items-center gap-2 mt-1">
+                          <span className="font-semibold">{application.risk_score}/100</span>
+                          <div className="h-2 flex-1 bg-muted rounded-full overflow-hidden max-w-[120px]">
+                            <div 
+                              className={`h-full transition-all ${
+                                application.risk_score >= 67 ? 'bg-destructive' :
+                                application.risk_score >= 34 ? 'bg-yellow-500' :
+                                'bg-green-500'
+                              }`}
+                              style={{ width: `${application.risk_score}%` }}
+                            />
+                          </div>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+              
               {application.application_data.customer_notes && (
                 <div>
                   <p className="text-sm text-muted-foreground mb-2">Notes</p>
