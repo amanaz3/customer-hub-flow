@@ -191,15 +191,23 @@ const ApplicationDetail = () => {
       yPos += 12;
     }
 
-    // Calculation breakdown
-    if (assessment.riskAssessment.calculationBreakdown) {
+    // Rule-Based Calculation Breakdown
+    if (assessment.riskAssessment.method === 'rule' && assessment.riskAssessment.calculationBreakdown) {
+      if (yPos > 220) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
       doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
-      doc.text('Calculation Breakdown', 20, yPos);
+      doc.text('Calculation Details', 20, yPos);
       yPos += 10;
 
       doc.setFontSize(10);
       doc.setFont('helvetica', 'normal');
+      doc.text(`Total Risk Score: ${assessment.riskAssessment.score}/100`, 20, yPos);
+      yPos += 8;
+
       assessment.riskAssessment.calculationBreakdown.forEach((item: any) => {
         if (yPos > 270) {
           doc.addPage();
@@ -211,16 +219,115 @@ const ApplicationDetail = () => {
       yPos += 8;
     }
 
-    // AI Analysis
-    if (assessment.riskAssessment.aiAnalysis) {
-      if (yPos > 240) {
+    // AI Score Breakdown with detailed factors
+    if (assessment.riskAssessment.method === 'ai' && assessment.riskAssessment.aiAnalysis?.scoreBreakdown) {
+      if (yPos > 200) {
         doc.addPage();
         yPos = 20;
       }
       
       doc.setFontSize(14);
       doc.setFont('helvetica', 'bold');
-      doc.text('AI Analysis', 20, yPos);
+      doc.text('AI Score Breakdown', 20, yPos);
+      yPos += 10;
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Total Risk Score: ${assessment.riskAssessment.score}/100`, 20, yPos);
+      yPos += 8;
+
+      assessment.riskAssessment.aiAnalysis.scoreBreakdown.forEach((item: any) => {
+        if (yPos > 260) {
+          doc.addPage();
+          yPos = 20;
+        }
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${item.factor} [${item.impact_level.toUpperCase()}]: +${item.points_contribution} pts`, 25, yPos);
+        yPos += 5;
+        
+        doc.setFont('helvetica', 'normal');
+        const splitJustification = doc.splitTextToSize(item.justification, pageWidth - 50);
+        splitJustification.forEach((line: string) => {
+          if (yPos > 280) {
+            doc.addPage();
+            yPos = 20;
+          }
+          doc.text(line, 30, yPos);
+          yPos += 5;
+        });
+        yPos += 4;
+      });
+      yPos += 8;
+    }
+
+    // Key Concerns (AI only)
+    if (assessment.riskAssessment.aiAnalysis?.keyConcerns?.length > 0) {
+      if (yPos > 240) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Key Concerns', 20, yPos);
+      yPos += 8;
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      assessment.riskAssessment.aiAnalysis.keyConcerns.forEach((concern: string) => {
+        if (yPos > 275) {
+          doc.addPage();
+          yPos = 20;
+        }
+        const splitConcern = doc.splitTextToSize(`• ${concern}`, pageWidth - 50);
+        splitConcern.forEach((line: string) => {
+          doc.text(line, 25, yPos);
+          yPos += 5;
+        });
+        yPos += 2;
+      });
+      yPos += 8;
+    }
+
+    // Mitigating Factors (AI only)
+    if (assessment.riskAssessment.aiAnalysis?.mitigatingFactors?.length > 0) {
+      if (yPos > 240) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Mitigating Factors', 20, yPos);
+      yPos += 8;
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      assessment.riskAssessment.aiAnalysis.mitigatingFactors.forEach((factor: string) => {
+        if (yPos > 275) {
+          doc.addPage();
+          yPos = 20;
+        }
+        const splitFactor = doc.splitTextToSize(`• ${factor}`, pageWidth - 50);
+        splitFactor.forEach((line: string) => {
+          doc.text(line, 25, yPos);
+          yPos += 5;
+        });
+        yPos += 2;
+      });
+      yPos += 8;
+    }
+
+    // AI Reasoning Summary
+    if (assessment.riskAssessment.aiAnalysis?.reasoning) {
+      if (yPos > 220) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('AI Reasoning Summary', 20, yPos);
       yPos += 10;
 
       doc.setFontSize(10);
@@ -236,90 +343,43 @@ const ApplicationDetail = () => {
         yPos += 5;
       });
       yPos += 8;
-
-      if (assessment.riskAssessment.aiAnalysis.factors?.length > 0) {
-        doc.setFontSize(12);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Risk Factors:', 20, yPos);
-        yPos += 8;
-
-        doc.setFontSize(10);
-        doc.setFont('helvetica', 'normal');
-        assessment.riskAssessment.aiAnalysis.factors.forEach((factor: any) => {
-          if (yPos > 270) {
-            doc.addPage();
-            yPos = 20;
-          }
-          doc.text(`${factor.impact.toUpperCase()}: ${factor.factor}`, 25, yPos);
-          yPos += 5;
-          const splitDesc = doc.splitTextToSize(factor.description, pageWidth - 50);
-          splitDesc.forEach((line: string) => {
-            if (yPos > 280) {
-              doc.addPage();
-              yPos = 20;
-            }
-            doc.text(line, 30, yPos);
-            yPos += 5;
-          });
-          yPos += 3;
-        });
-      }
     }
 
-    // Fetch assessment history
-    try {
-      const { data: historyData } = await supabase
-        .from('application_assessment_history')
-        .select(`
-          *,
-          changed_by_profile:profiles!application_assessment_history_changed_by_fkey(name, email)
-        `)
-        .eq('application_id', application.id)
-        .order('created_at', { ascending: false });
+    // AI Risk Factors
+    if (assessment.riskAssessment.aiAnalysis?.factors?.length > 0) {
+      if (yPos > 220) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Risk Factors', 20, yPos);
+      yPos += 8;
 
-      if (historyData && historyData.length > 0) {
-        if (yPos > 240) {
+      doc.setFontSize(10);
+      assessment.riskAssessment.aiAnalysis.factors.forEach((factor: any) => {
+        if (yPos > 260) {
           doc.addPage();
           yPos = 20;
         }
-
-        doc.setFontSize(14);
         doc.setFont('helvetica', 'bold');
-        doc.text('Assessment History', 20, yPos);
-        yPos += 10;
-
-        doc.setFontSize(9);
-        historyData.forEach((entry: any) => {
-          if (yPos > 270) {
+        doc.text(`${factor.impact.toUpperCase()}: ${factor.factor}`, 25, yPos);
+        yPos += 5;
+        
+        doc.setFont('helvetica', 'normal');
+        const splitDesc = doc.splitTextToSize(factor.description, pageWidth - 50);
+        splitDesc.forEach((line: string) => {
+          if (yPos > 280) {
             doc.addPage();
             yPos = 20;
           }
-
-          doc.setFont('helvetica', 'bold');
-          doc.text(`${entry.change_type.toUpperCase()} - ${new Date(entry.created_at).toLocaleDateString()}`, 25, yPos);
+          doc.text(line, 30, yPos);
           yPos += 5;
-          
-          doc.setFont('helvetica', 'normal');
-          doc.text(`By: ${entry.changed_by_profile?.name || 'Unknown'} (${entry.changed_by_role})`, 25, yPos);
-          yPos += 5;
-
-          if (entry.new_assessment?.riskAssessment) {
-            doc.text(`Method: ${entry.new_assessment.riskAssessment.method} | Level: ${entry.new_assessment.riskAssessment.level} | Score: ${entry.new_assessment.riskAssessment.score}`, 25, yPos);
-            yPos += 5;
-          }
-
-          if (entry.comment) {
-            const splitComment = doc.splitTextToSize(entry.comment, pageWidth - 50);
-            splitComment.forEach((line: string) => {
-              doc.text(line, 25, yPos);
-              yPos += 4;
-            });
-          }
-          yPos += 6;
         });
-      }
-    } catch (error) {
-      console.error('Error fetching history for PDF:', error);
+        yPos += 4;
+      });
+      yPos += 8;
     }
 
     // Recommendations Section
@@ -381,62 +441,6 @@ const ApplicationDetail = () => {
         });
         yPos += 2;
       });
-    }
-
-    // Fetch assessment history
-    try {
-      const { data: historyData } = await supabase
-        .from('application_assessment_history')
-        .select(`
-          *,
-          changed_by_profile:profiles!application_assessment_history_changed_by_fkey(name, email)
-        `)
-        .eq('application_id', application.id)
-        .order('created_at', { ascending: false });
-
-      if (historyData && historyData.length > 0) {
-        if (yPos > 240) {
-          doc.addPage();
-          yPos = 20;
-        }
-
-        doc.setFontSize(14);
-        doc.setFont('helvetica', 'bold');
-        doc.text('Assessment History', 20, yPos);
-        yPos += 10;
-
-        doc.setFontSize(9);
-        historyData.forEach((entry: any) => {
-          if (yPos > 270) {
-            doc.addPage();
-            yPos = 20;
-          }
-
-          doc.setFont('helvetica', 'bold');
-          doc.text(`${entry.change_type.toUpperCase()} - ${new Date(entry.created_at).toLocaleDateString()}`, 25, yPos);
-          yPos += 5;
-          
-          doc.setFont('helvetica', 'normal');
-          doc.text(`By: ${entry.changed_by_profile?.name || 'Unknown'} (${entry.changed_by_role})`, 25, yPos);
-          yPos += 5;
-
-          if (entry.new_assessment?.riskAssessment) {
-            doc.text(`Method: ${entry.new_assessment.riskAssessment.method} | Level: ${entry.new_assessment.riskAssessment.level} | Score: ${entry.new_assessment.riskAssessment.score}`, 25, yPos);
-            yPos += 5;
-          }
-
-          if (entry.comment) {
-            const splitComment = doc.splitTextToSize(entry.comment, pageWidth - 50);
-            splitComment.forEach((line: string) => {
-              doc.text(line, 25, yPos);
-              yPos += 4;
-            });
-          }
-          yPos += 6;
-        });
-      }
-    } catch (error) {
-      console.error('Error fetching history for PDF:', error);
     }
 
     // Save PDF
