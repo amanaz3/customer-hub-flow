@@ -149,6 +149,7 @@ const TaskCollaboration: React.FC = () => {
   const [priorityFilter, setPriorityFilter] = useState<string>('medium-high');
   const [projectFilter, setProjectFilter] = useState<string>('all');
   const [importanceFilter, setImportanceFilter] = useState<string>('all');
+  const [showTaskStats, setShowTaskStats] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
   const [quickAddBugOpen, setQuickAddBugOpen] = useState(false);
   const [quickAddWhatsAppOpen, setQuickAddWhatsAppOpen] = useState(false);
@@ -1185,7 +1186,21 @@ const TaskCollaboration: React.FC = () => {
                 </Select>
               </div>
 
+              {/* Task Stats Toggle */}
+              <div className="mb-4">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowTaskStats(!showTaskStats)}
+                  className="w-full"
+                >
+                  {showTaskStats ? 'Hide' : 'Show'} Statistics
+                </Button>
+              </div>
+
               {/* Task Stats */}
+              {showTaskStats && (
+                <>
               <div className="grid grid-cols-7 gap-4 mb-4">
                 <div className="p-3 rounded-lg border bg-card">
                   <div className="text-2xl font-bold">{taskStats.tasks}</div>
@@ -1280,6 +1295,8 @@ const TaskCollaboration: React.FC = () => {
                   </TooltipContent>
                 </Tooltip>
               </div>
+              </>
+              )}
 
               {/* Search Bar */}
               <div className="mb-6">
