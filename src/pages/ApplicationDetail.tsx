@@ -43,7 +43,13 @@ const ApplicationDetail = () => {
     level: 'low' | 'medium' | 'high';
     details: string;
     calculationBreakdown?: Array<{factor: string; points: number}>;
-    aiData?: {reasoning: string; factors: Array<{factor: string; impact: string; description: string}>};
+    aiData?: {
+      reasoning: string; 
+      factors: Array<{factor: string; impact: string; description: string}>;
+      scoreBreakdown?: Array<{factor: string; points_contribution: number; justification: string; impact_level: string}>;
+      keyConcerns?: string[];
+      mitigatingFactors?: string[];
+    };
   } | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
 
@@ -957,6 +963,60 @@ const ApplicationDetail = () => {
                             </div>
                           ))}
                         </div>
+                      </div>
+                    )}
+
+                    {/* AI Score Breakdown - Show detailed point contributions */}
+                    {application.application_assessment?.riskAssessment?.aiAnalysis?.scoreBreakdown && (
+                      <div className="mt-4 pt-4 border-t">
+                        <p className="text-sm font-medium mb-2">AI Score Breakdown</p>
+                        <div className="p-3 bg-muted/30 rounded-md text-sm space-y-3">
+                          {application.application_assessment.riskAssessment.aiAnalysis.scoreBreakdown.map((item, idx) => (
+                            <div key={idx} className="space-y-1">
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium">{item.factor}</span>
+                                <div className="flex items-center gap-2">
+                                  <Badge variant={
+                                    item.impact_level === 'high' ? 'destructive' :
+                                    item.impact_level === 'medium' ? 'default' :
+                                    'secondary'
+                                  } className="text-xs">
+                                    {item.impact_level}
+                                  </Badge>
+                                  <Badge variant="outline">+{item.points_contribution} pts</Badge>
+                                </div>
+                              </div>
+                              <p className="text-xs text-muted-foreground pl-2">{item.justification}</p>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Key Concerns */}
+                        {application.application_assessment.riskAssessment.aiAnalysis.keyConcerns && application.application_assessment.riskAssessment.aiAnalysis.keyConcerns.length > 0 && (
+                          <div className="mt-3 p-3 bg-destructive/5 border border-destructive/20 rounded-md">
+                            <p className="text-xs font-semibold text-destructive mb-2">Key Concerns:</p>
+                            <ul className="space-y-1">
+                              {application.application_assessment.riskAssessment.aiAnalysis.keyConcerns.map((concern, idx) => (
+                                <li key={idx} className="text-xs text-muted-foreground flex items-start gap-2">
+                                  <AlertTriangle className="h-3 w-3 text-destructive mt-0.5 flex-shrink-0" />
+                                  <span>{concern}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
+
+                        {/* Mitigating Factors */}
+                        {application.application_assessment.riskAssessment.aiAnalysis.mitigatingFactors && application.application_assessment.riskAssessment.aiAnalysis.mitigatingFactors.length > 0 && (
+                          <div className="mt-3 p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-md">
+                            <p className="text-xs font-semibold text-green-700 dark:text-green-400 mb-2">Mitigating Factors:</p>
+                            <ul className="space-y-1">
+                              {application.application_assessment.riskAssessment.aiAnalysis.mitigatingFactors.map((factor, idx) => (
+                                <li key={idx} className="text-xs text-muted-foreground">• {factor}</li>
+                              ))}
+                            </ul>
+                          </div>
+                        )}
                       </div>
                     )}
 

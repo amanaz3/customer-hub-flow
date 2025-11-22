@@ -54,7 +54,13 @@ export interface Application {
       level: 'low' | 'medium' | 'high';
       timestamp: string;
       calculationBreakdown?: Array<{factor: string; points: number}> | null;
-      aiAnalysis?: {reasoning: string; factors: Array<{factor: string; impact: string; description: string}>} | null;
+      aiAnalysis?: {
+        reasoning: string; 
+        factors: Array<{factor: string; impact: string; description: string}>;
+        scoreBreakdown?: Array<{factor: string; points_contribution: number; justification: string; impact_level: string}>;
+        keyConcerns?: string[];
+        mitigatingFactors?: string[];
+      } | null;
       rawDetails?: string | null;
     };
     assessmentHistory?: Array<{
@@ -63,7 +69,13 @@ export interface Application {
       level: 'low' | 'medium' | 'high';
       timestamp: string;
       calculationBreakdown?: Array<{factor: string; points: number}> | null;
-      aiAnalysis?: {reasoning: string; factors: Array<{factor: string; impact: string; description: string}>} | null;
+      aiAnalysis?: {
+        reasoning: string; 
+        factors: Array<{factor: string; impact: string; description: string}>;
+        scoreBreakdown?: Array<{factor: string; points_contribution: number; justification: string; impact_level: string}>;
+        keyConcerns?: string[];
+        mitigatingFactors?: string[];
+      } | null;
       rawDetails?: string | null;
     }>;
   };
