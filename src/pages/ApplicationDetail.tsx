@@ -17,6 +17,7 @@ import type { Application } from '@/types/application';
 import { formatApplicationReferenceWithPrefix } from '@/utils/referenceNumberFormatter';
 import { CompletionDateDialog } from '@/components/Customer/CompletionDateDialog';
 import { CompletionDateHistory } from '@/components/Customer/CompletionDateHistory';
+import { AssessmentHistory } from '@/components/Customer/AssessmentHistory';
 
 const ApplicationDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -810,6 +811,11 @@ const ApplicationDetail = () => {
                         Assessed on {new Date(application.application_assessment.riskAssessment.timestamp).toLocaleString()}
                       </div>
                     )}
+
+                    {/* Assessment History */}
+                    <div className="mt-6 pt-6 border-t">
+                      <AssessmentHistory applicationId={application.id} />
+                    </div>
                     </>
                   )}
                 </div>
