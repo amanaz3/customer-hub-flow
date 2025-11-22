@@ -1328,24 +1328,100 @@ const ApplicationDetail = () => {
                         </AccordionItem>
                       )}
 
-                    {/* Manual/Hybrid Assessment Summary */}
-                    {(application.application_assessment?.riskAssessment?.method === 'manual' || 
-                      application.application_assessment?.riskAssessment?.method === 'hybrid') && (
-                      <div className="mt-4 pt-4 border-t">
-                        <p className="text-sm font-medium mb-2">Assessment Summary</p>
-                        <div className="p-3 bg-muted/30 rounded-md text-sm space-y-2">
-                          <div className="flex justify-between items-center">
-                            <span className="font-medium">Method</span>
-                            <span className="font-semibold">
-                              {application.application_assessment.riskAssessment.method === 'manual' ? '👤 Manual' : '🔀 Hybrid'}
-                            </span>
+                      {/* Hybrid Method - Score Breakdown Accordion */}
+                      {application.application_assessment?.riskAssessment?.method === 'hybrid' &&
+                       application.application_assessment?.riskAssessment?.aiAnalysis?.scoreBreakdown && (
+                        <AccordionItem value="hybrid-score-breakdown">
+                          <AccordionTrigger className="text-sm font-medium">Score Breakdown</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="p-3 bg-muted/30 rounded-md text-sm space-y-3">
+                          {application.application_assessment.riskAssessment.aiAnalysis.scoreBreakdown.map((item, idx) => (
+                            <div key={idx} className="space-y-1">
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium">{item.factor}</span>
+                                <div className="flex items-center gap-2">
+                                  <Badge variant={
+                                    item.impact_level === 'high' ? 'destructive' :
+                                    item.impact_level === 'medium' ? 'default' :
+                                    'secondary'
+                                  } className="text-xs">
+                                    {item.impact_level}
+                                  </Badge>
+                                  <Badge variant="outline">+{item.points_contribution} pts</Badge>
+                                </div>
+                              </div>
+                              <p className="text-xs text-muted-foreground pl-2">{item.justification}</p>
+                            </div>
+                          ))}
+                        </div>
+
+                        {/* Key Concerns */}
+                        {application.application_assessment.riskAssessment.aiAnalysis.keyConcerns && application.application_assessment.riskAssessment.aiAnalysis.keyConcerns.length > 0 && (
+                          <div className="mt-3 p-3 bg-destructive/5 border border-destructive/20 rounded-md">
+                            <p className="text-xs font-semibold text-destructive mb-2">Key Concerns:</p>
+                            <ul className="space-y-1">
+                              {application.application_assessment.riskAssessment.aiAnalysis.keyConcerns.map((concern, idx) => (
+                                <li key={idx} className="text-xs text-muted-foreground flex items-start gap-2">
+                                  <AlertTriangle className="h-3 w-3 text-destructive mt-0.5 flex-shrink-0" />
+                                  <span>{concern}</span>
+                                </li>
+                              ))}
+                            </ul>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="font-medium">Risk Score</span>
-                            <Badge variant="outline">{application.application_assessment.riskAssessment.score || 'N/A'}/100</Badge>
+                        )}
+
+                        {/* Mitigating Factors */}
+                        {application.application_assessment.riskAssessment.aiAnalysis.mitigatingFactors && application.application_assessment.riskAssessment.aiAnalysis.mitigatingFactors.length > 0 && (
+                          <div className="mt-3 p-3 bg-green-50 dark:bg-green-950/20 border border-green-200 dark:border-green-900 rounded-md">
+                            <p className="text-xs font-semibold text-green-700 dark:text-green-400 mb-2">Mitigating Factors:</p>
+                            <ul className="space-y-1">
+                              {application.application_assessment.riskAssessment.aiAnalysis.mitigatingFactors.map((factor, idx) => (
+                                <li key={idx} className="text-xs text-muted-foreground">• {factor}</li>
+                              ))}
+                            </ul>
+                              </div>
+                            )}
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
+
+                      {/* Hybrid Method - Calculation Details Accordion */}
+                      {application.application_assessment?.riskAssessment?.method === 'hybrid' && 
+                       application.application_assessment?.riskAssessment?.aiAnalysis?.scoreBreakdown && (
+                        <AccordionItem value="hybrid-calculation-details">
+                          <AccordionTrigger className="text-sm font-medium">Calculation Details</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="p-3 bg-muted/30 rounded-md text-sm space-y-2">
+                          <p className="text-xs text-muted-foreground mb-3">
+                            Risk Score Calculation (Total: {application.application_assessment.riskAssessment.score}/100)
+                          </p>
+                          
+                          {application.application_assessment.riskAssessment.aiAnalysis.scoreBreakdown.map((item, idx) => (
+                            <div key={idx} className="flex justify-between items-center py-1 border-b border-border/30 last:border-0">
+                              <div className="flex-1">
+                                <span className="font-medium">{item.factor}</span>
+                                <Badge 
+                                  variant={
+                                    item.impact_level === 'high' ? 'destructive' :
+                                    item.impact_level === 'medium' ? 'default' :
+                                    'secondary'
+                                  } 
+                                  className="ml-2 text-xs"
+                                >
+                                  {item.impact_level}
+                                </Badge>
+                              </div>
+                              <span className="font-mono font-semibold">+{item.points_contribution} pts</span>
+                            </div>
+                          ))}
+                          
+                          <div className="mt-3 pt-3 border-t-2 border-primary/20 flex justify-between items-center font-semibold">
+                            <span>Total Risk Score</span>
+                            <span className="font-mono text-lg">{application.application_assessment.riskAssessment.score}/100</span>
                           </div>
-                          <div className="flex justify-between items-center">
-                            <span className="font-medium">Classification</span>
+                          
+                          <div className="mt-2 flex justify-between items-center text-xs">
+                            <span>Risk Classification</span>
                             <Badge variant={
                               application.application_assessment.riskAssessment.level === 'high' ? 'destructive' :
                               application.application_assessment.riskAssessment.level === 'medium' ? 'default' :
@@ -1353,10 +1429,68 @@ const ApplicationDetail = () => {
                             }>
                               {application.application_assessment.riskAssessment.level.toUpperCase()}
                             </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
+
+                      {/* Manual/Hybrid Reasoning Summary Accordion */}
+                      {(application.application_assessment?.riskAssessment?.method === 'manual' || 
+                        application.application_assessment?.riskAssessment?.method === 'hybrid') && (
+                        <AccordionItem value="manual-hybrid-reasoning">
+                          <AccordionTrigger className="text-sm font-medium">Reasoning Summary</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="p-3 bg-primary/5 rounded-md text-sm space-y-3">
+                              {(application.application_assessment.riskAssessment as any).manualDetails?.reason ? (
+                                <>
+                                  <p className="whitespace-pre-wrap text-muted-foreground">
+                                    {(application.application_assessment.riskAssessment as any).manualDetails.reason}
+                                  </p>
+                                  {(application.application_assessment.riskAssessment as any).manualDetails?.assessedBy && (
+                                    <p className="text-xs text-muted-foreground italic pt-2 border-t border-primary/10">
+                                      — Assessed by {(application.application_assessment.riskAssessment as any).manualDetails.assessedBy}
+                                    </p>
+                                  )}
+                                </>
+                              ) : (
+                                <p className="whitespace-pre-line">
+                                  This risk assessment was conducted using a {application.application_assessment.riskAssessment.method} approach. The final risk score of {application.application_assessment.riskAssessment.score}/100 places this application in the{' '}
+                                  <Badge
+                                    variant={
+                                      application.application_assessment.riskAssessment.level === 'high' ? 'destructive' :
+                                      application.application_assessment.riskAssessment.level === 'medium' ? 'default' :
+                                      'secondary'
+                                    }
+                                    className="inline-flex"
+                                  >
+                                    {application.application_assessment.riskAssessment.level.toUpperCase()} RISK
+                                  </Badge>{' '}
+                                  category.
+                                </p>
+                              )}
+                              
+                              <div className="pt-3 border-t border-primary/10">
+                                <p className="font-medium text-xs uppercase text-muted-foreground mb-2">Risk Level Guidelines</p>
+                                <div className="space-y-2 text-xs text-muted-foreground">
+                                  <div className="flex items-start gap-2">
+                                    <Badge variant="secondary" className="mt-0.5">LOW</Badge>
+                                    <span>0-33 points: Standard due diligence procedures apply</span>
+                                  </div>
+                                  <div className="flex items-start gap-2">
+                                    <Badge variant="default" className="mt-0.5">MEDIUM</Badge>
+                                    <span>34-66 points: Standard due diligence with additional verification</span>
+                                  </div>
+                                  <div className="flex items-start gap-2">
+                                    <Badge variant="destructive" className="mt-0.5">HIGH</Badge>
+                                    <span>67-100 points: Enhanced due diligence and senior management approval required</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
 
                       {/* Rule-Based Reasoning Summary Accordion */}
                       {application.application_assessment?.riskAssessment?.method === 'rule' && (
@@ -1401,53 +1535,39 @@ const ApplicationDetail = () => {
                         </AccordionItem>
                       )}
 
-                    {/* Assessment Details for Manual and Hybrid Methods */}
-                    {(application.application_assessment?.riskAssessment?.method === 'manual' || 
-                      application.application_assessment?.riskAssessment?.method === 'hybrid') && (
-                      <div className="mt-4 pt-4 border-t">
-                        <p className="text-sm font-medium mb-2">Assessment Details</p>
-                        <div className="p-3 bg-muted/30 rounded-md text-sm space-y-2">
-                          <div className="flex justify-between items-center py-1">
-                            <span className="font-medium">Assessment Method</span>
-                            <span className="font-semibold">
-                              {application.application_assessment.riskAssessment.method === 'manual' ? '👤 Manual' : '🔀 Hybrid'}
-                            </span>
-                          </div>
-                          
-                          {(application.application_assessment.riskAssessment as any).manualDetails?.reason && (
-                            <div className="mt-3 pt-3 border-t">
-                              <p className="font-medium mb-2">Reason / Justification</p>
-                              <p className="text-muted-foreground text-xs whitespace-pre-wrap">
-                                {(application.application_assessment.riskAssessment as any).manualDetails.reason}
-                              </p>
-                              {(application.application_assessment.riskAssessment as any).manualDetails?.assessedBy && (
-                                <p className="text-xs text-muted-foreground mt-2 italic">
-                                  — Assessed by {(application.application_assessment.riskAssessment as any).manualDetails.assessedBy}
-                                </p>
+                      {/* Hybrid - AI Reasoning Summary Accordion (if aiAnalysis present) */}
+                      {application.application_assessment?.riskAssessment?.method === 'hybrid' &&
+                       application.application_assessment?.riskAssessment?.aiAnalysis && (
+                        <AccordionItem value="hybrid-ai-reasoning">
+                          <AccordionTrigger className="text-sm font-medium">AI Reasoning Summary</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="p-3 bg-primary/5 rounded-md text-sm space-y-3">
+                          <p className="whitespace-pre-line">{application.application_assessment.riskAssessment.aiAnalysis.reasoning}</p>
+                          {application.application_assessment.riskAssessment.aiAnalysis.factors?.length > 0 && (
+                            <div className="space-y-2 mt-3 pt-3 border-t border-primary/10">
+                              <p className="font-medium text-xs uppercase text-muted-foreground">Risk Factors</p>
+                              {application.application_assessment.riskAssessment.aiAnalysis.factors.map((factor, idx) => (
+                                <div key={idx} className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant={
+                                      factor.impact === 'high' ? 'destructive' :
+                                      factor.impact === 'medium' ? 'default' :
+                                      'secondary'
+                                    } className="text-xs">
+                                      {factor.impact}
+                                    </Badge>
+                                    <span className="font-medium">{factor.factor}</span>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground pl-2">{factor.description}</p>
+                                </div>
+                              ))}
+                            </div>
                               )}
                             </div>
-                          )}
-                          
-                          <div className="mt-3 pt-3 border-t-2 border-primary/20 flex justify-between items-center font-semibold">
-                            <span>Risk Score</span>
-                            <span className="font-mono text-lg">
-                              {application.application_assessment.riskAssessment.score || 'N/A'}/100
-                            </span>
-                          </div>
-                          
-                          <div className="mt-2 flex justify-between items-center text-xs">
-                            <span>Risk Classification</span>
-                            <Badge variant={
-                              application.application_assessment.riskAssessment.level === 'high' ? 'destructive' :
-                              application.application_assessment.riskAssessment.level === 'medium' ? 'default' :
-                              'secondary'
-                            }>
-                              {application.application_assessment.riskAssessment.level.toUpperCase()}
-                            </Badge>
-                          </div>
-                        </div>
-                      </div>
-                    )}
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
+
 
                       {/* Calculation Details Accordion - AI Method */}
                       {application.application_assessment?.riskAssessment?.method === 'ai' && 
