@@ -664,6 +664,7 @@ const ApplicationDetail = () => {
                       No risk assessment data available. Click "Add Risk Assessment" to evaluate this application.
                     </div>
                   ) : (
+                    <>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
                       {application.application_assessment?.riskAssessment?.level && (
                         <div>
@@ -710,6 +711,69 @@ const ApplicationDetail = () => {
                         </div>
                       )}
                     </div>
+
+                    {/* Display calculation breakdown if available */}
+                    {application.application_assessment?.riskAssessment?.calculationBreakdown && (
+                      <div className="mt-4 pt-4 border-t">
+                        <p className="text-sm font-medium mb-2">Calculation Breakdown</p>
+                        <div className="p-3 bg-muted/30 rounded-md text-sm space-y-2">
+                          {application.application_assessment.riskAssessment.calculationBreakdown.map((item, idx) => (
+                            <div key={idx} className="flex justify-between items-center">
+                              <span>{item.factor}</span>
+                              <Badge variant="outline">+{item.points} pts</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Display raw details if available */}
+                    {application.application_assessment?.riskAssessment?.rawDetails && (
+                      <div className="mt-4 pt-4 border-t">
+                        <p className="text-sm font-medium mb-2">Calculation Details</p>
+                        <div className="p-3 bg-muted/30 rounded-md text-sm">
+                          <p className="whitespace-pre-line">{application.application_assessment.riskAssessment.rawDetails}</p>
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Display AI analysis if available */}
+                    {application.application_assessment?.riskAssessment?.aiAnalysis && (
+                      <div className="mt-4 pt-4 border-t">
+                        <p className="text-sm font-medium mb-2">AI Analysis</p>
+                        <div className="p-3 bg-primary/5 rounded-md text-sm space-y-3">
+                          <p className="whitespace-pre-line">{application.application_assessment.riskAssessment.aiAnalysis.reasoning}</p>
+                          {application.application_assessment.riskAssessment.aiAnalysis.factors?.length > 0 && (
+                            <div className="space-y-2 mt-3 pt-3 border-t border-primary/10">
+                              <p className="font-medium text-xs uppercase text-muted-foreground">Risk Factors</p>
+                              {application.application_assessment.riskAssessment.aiAnalysis.factors.map((factor, idx) => (
+                                <div key={idx} className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant={
+                                      factor.impact === 'high' ? 'destructive' :
+                                      factor.impact === 'medium' ? 'default' :
+                                      'secondary'
+                                    } className="text-xs">
+                                      {factor.impact}
+                                    </Badge>
+                                    <span className="font-medium">{factor.factor}</span>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground pl-2">{factor.description}</p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* Display assessment timestamp */}
+                    {application.application_assessment?.riskAssessment?.timestamp && (
+                      <div className="mt-4 text-xs text-muted-foreground">
+                        Assessed on {new Date(application.application_assessment.riskAssessment.timestamp).toLocaleString()}
+                      </div>
+                    )}
+                    </>
                   )}
                 </div>
               )}
