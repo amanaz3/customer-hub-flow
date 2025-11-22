@@ -41,8 +41,17 @@ export interface Application {
   submission_source: SubmissionSource;
   status: ApplicationStatus;
   application_data: ApplicationData;
-  risk_calculation_type?: 'manual' | 'rule' | 'ai' | 'hybrid';
-  risk_score?: number;
+  application_assessment?: {
+    riskAssessment?: {
+      method: 'manual' | 'rule' | 'ai' | 'hybrid';
+      score: number | null;
+      level: 'low' | 'medium' | 'high';
+      timestamp: string;
+      calculationBreakdown?: Array<{factor: string; points: number}> | null;
+      aiAnalysis?: {reasoning: string; factors: Array<{factor: string; impact: string; description: string}>} | null;
+      rawDetails?: string | null;
+    };
+  };
   created_at: string;
   updated_at: string;
   completed_at?: string;
