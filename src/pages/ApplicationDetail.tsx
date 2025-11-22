@@ -1385,6 +1385,91 @@ const ApplicationDetail = () => {
                         </AccordionItem>
                       )}
 
+                      {/* Hybrid Method - Score Combination Accordion */}
+                      {application.application_assessment?.riskAssessment?.method === 'hybrid' && (
+                        <AccordionItem value="hybrid-score-combination">
+                          <AccordionTrigger className="text-sm font-medium">Hybrid Score Combination</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="p-3 bg-gradient-to-br from-primary/5 to-primary/10 rounded-md text-sm space-y-4">
+                              <p className="text-xs text-muted-foreground font-medium mb-3">
+                                The hybrid assessment combines both Rule-Based and AI-Powered approaches to produce a comprehensive risk score:
+                              </p>
+
+                              {(() => {
+                                // Calculate rule-based score
+                                const ruleBasedScore = application.application_assessment.riskAssessment.calculationBreakdown?.reduce(
+                                  (sum, item) => sum + (item.points || 0), 0
+                                ) || 0;
+                                
+                                // Calculate AI score
+                                const aiScore = application.application_assessment.riskAssessment.aiAnalysis?.scoreBreakdown?.reduce(
+                                  (sum, item) => sum + (item.points_contribution || 0), 0
+                                ) || 0;
+
+                                const finalScore = application.application_assessment.riskAssessment.score;
+
+                                return (
+                                  <>
+                                    {/* Rule-Based Component */}
+                                    <div className="space-y-2 p-3 bg-background/50 rounded-md border border-border/50">
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                          <Badge variant="outline" className="text-xs">Rule-Based</Badge>
+                                          <span className="text-xs text-muted-foreground">Weight: 50%</span>
+                                        </div>
+                                        <span className="font-mono font-semibold">{ruleBasedScore} pts</span>
+                                      </div>
+                                      <p className="text-xs text-muted-foreground">
+                                        Systematic scoring based on predefined business rules and risk indicators
+                                      </p>
+                                    </div>
+
+                                    {/* AI-Based Component */}
+                                    <div className="space-y-2 p-3 bg-background/50 rounded-md border border-border/50">
+                                      <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                          <Badge variant="outline" className="text-xs">AI-Powered</Badge>
+                                          <span className="text-xs text-muted-foreground">Weight: 50%</span>
+                                        </div>
+                                        <span className="font-mono font-semibold">{aiScore} pts</span>
+                                      </div>
+                                      <p className="text-xs text-muted-foreground">
+                                        Intelligent analysis considering context, patterns, and nuanced risk factors
+                                      </p>
+                                    </div>
+
+                                    {/* Calculation Formula */}
+                                    <div className="p-3 bg-primary/10 rounded-md border border-primary/20">
+                                      <p className="text-xs font-semibold text-primary mb-2">Hybrid Calculation:</p>
+                                      <div className="space-y-1 text-xs font-mono">
+                                        <div className="flex justify-between items-center">
+                                          <span>Rule-Based (50%)</span>
+                                          <span>= {(ruleBasedScore * 0.5).toFixed(1)} pts</span>
+                                        </div>
+                                        <div className="flex justify-between items-center">
+                                          <span>AI-Powered (50%)</span>
+                                          <span>= {(aiScore * 0.5).toFixed(1)} pts</span>
+                                        </div>
+                                        <div className="pt-2 mt-2 border-t-2 border-primary/30 flex justify-between items-center font-bold">
+                                          <span>Final Hybrid Score</span>
+                                          <span className="text-base">= {finalScore} pts</span>
+                                        </div>
+                                      </div>
+                                    </div>
+
+                                    <div className="pt-2 border-t border-border/30">
+                                      <p className="text-xs text-muted-foreground italic">
+                                        This weighted average approach balances systematic rule-based scoring with contextual AI analysis for a comprehensive risk evaluation.
+                                      </p>
+                                    </div>
+                                  </>
+                                );
+                              })()}
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
+
                       {/* Hybrid Method - Calculation Details Accordion */}
                       {application.application_assessment?.riskAssessment?.method === 'hybrid' && 
                        application.application_assessment?.riskAssessment?.aiAnalysis?.scoreBreakdown && (
