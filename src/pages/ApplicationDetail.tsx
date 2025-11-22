@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { useToast } from '@/hooks/use-toast';
 import { ApplicationService } from '@/services/applicationService';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,6 +40,8 @@ const ApplicationDetail = () => {
   const [showRiskDialog, setShowRiskDialog] = useState(false);
   const [productName, setProductName] = useState<string | null>(null);
   const [selectedMethod, setSelectedMethod] = useState<'manual' | 'rule' | 'ai' | 'hybrid' | ''>('');
+  const [manualRiskLevel, setManualRiskLevel] = useState<'low' | 'medium' | 'high' | ''>('');
+  const [manualReason, setManualReason] = useState('');
   const [calculatedRisk, setCalculatedRisk] = useState<{
     score: number;
     level: 'low' | 'medium' | 'high';
@@ -315,6 +318,49 @@ const ApplicationDetail = () => {
         });
         yPos += 2;
       });
+      yPos += 8;
+    }
+
+    // Manual Assessment Details
+    if (assessment.riskAssessment.method === 'manual' && (assessment.riskAssessment as any).manualDetails) {
+      if (yPos > 220) {
+        doc.addPage();
+        yPos = 20;
+      }
+      
+      doc.setFontSize(14);
+      doc.setFont('helvetica', 'bold');
+      doc.text('Manual Assessment Details', 20, yPos);
+      yPos += 10;
+
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Total Risk Score: ${assessment.riskAssessment.score}/100`, 20, yPos);
+      yPos += 6;
+      doc.text(`Risk Level: ${assessment.riskAssessment.level.toUpperCase()}`, 20, yPos);
+      yPos += 6;
+      
+      if ((assessment.riskAssessment as any).manualDetails.assessedBy) {
+        doc.text(`Assessed By: ${(assessment.riskAssessment as any).manualDetails.assessedBy}`, 20, yPos);
+        yPos += 8;
+      }
+
+      if ((assessment.riskAssessment as any).manualDetails.reason) {
+        doc.setFont('helvetica', 'bold');
+        doc.text('Reason / Justification:', 20, yPos);
+        yPos += 6;
+        doc.setFont('helvetica', 'normal');
+        const reason = (assessment.riskAssessment as any).manualDetails.reason;
+        const splitReason = doc.splitTextToSize(reason, pageWidth - 40);
+        splitReason.forEach((line: string) => {
+          if (yPos > 280) {
+            doc.addPage();
+            yPos = 20;
+          }
+          doc.text(line, 20, yPos);
+          yPos += 5;
+        });
+      }
       yPos += 8;
     }
 
@@ -1393,6 +1439,20 @@ const ApplicationDetail = () => {
                             </span>
                           </div>
                           
+                          {(application.application_assessment.riskAssessment as any).manualDetails?.reason && (
+                            <div className="mt-3 pt-3 border-t">
+                              <p className="font-medium mb-2">Reason / Justification</p>
+                              <p className="text-muted-foreground text-xs whitespace-pre-wrap">
+                                {(application.application_assessment.riskAssessment as any).manualDetails.reason}
+                              </p>
+                              {(application.application_assessment.riskAssessment as any).manualDetails?.assessedBy && (
+                                <p className="text-xs text-muted-foreground mt-2 italic">
+                                  — Assessed by {(application.application_assessment.riskAssessment as any).manualDetails.assessedBy}
+                                </p>
+                              )}
+                            </div>
+                          )}
+                          
                           <div className="mt-3 pt-3 border-t-2 border-primary/20 flex justify-between items-center font-semibold">
                             <span>Risk Score</span>
                             <span className="font-mono text-lg">
@@ -1880,6 +1940,8 @@ const ApplicationDetail = () => {
                 onValueChange={async (value) => {
                   setSelectedMethod(value as any);
                   setCalculatedRisk(null);
+                  setManualRiskLevel('');
+                  setManualReason('');
                   
                   if ((value === 'rule' || value === 'ai' || value === 'hybrid') && application) {
                     // Auto-calculate for rule, AI, and hybrid methods
@@ -2020,10 +2082,35 @@ const ApplicationDetail = () => {
               </div>
             )}
 
-            {/* Manual/Hybrid methods info */}
+            {/* Manual Assessment Inputs */}
             {selectedMethod === 'manual' && !isCalculating && (
-              <div className="text-sm text-muted-foreground p-3 bg-muted/30 rounded-md">
-                Manual assessment requires you to evaluate risk factors and assign a classification based on your expertise.
+              <div className="space-y-4 p-4 border rounded-lg bg-muted/30">
+                <div className="space-y-2">
+                  <Label htmlFor="manual-risk-level">Risk Level *</Label>
+                  <Select value={manualRiskLevel} onValueChange={(value) => setManualRiskLevel(value as 'low' | 'medium' | 'high')}>
+                    <SelectTrigger id="manual-risk-level" className="bg-background">
+                      <SelectValue placeholder="Select risk level" />
+                    </SelectTrigger>
+                    <SelectContent className="bg-background z-50">
+                      <SelectItem value="low">🟢 Low Risk</SelectItem>
+                      <SelectItem value="medium">🟡 Medium Risk</SelectItem>
+                      <SelectItem value="high">🔴 High Risk</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="manual-reason">Reason / Justification *</Label>
+                  <Textarea
+                    id="manual-reason"
+                    placeholder="Explain the reasoning behind this risk assessment..."
+                    value={manualReason}
+                    onChange={(e) => setManualReason(e.target.value)}
+                    className="min-h-[100px] bg-background"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Provide detailed justification for the risk classification based on your expertise and analysis.
+                  </p>
+                </div>
               </div>
             )}
             {selectedMethod === 'hybrid' && !isCalculating && (
@@ -2040,6 +2127,8 @@ const ApplicationDetail = () => {
                 setShowRiskDialog(false);
                 setSelectedMethod('');
                 setCalculatedRisk(null);
+                setManualRiskLevel('');
+                setManualReason('');
               }}
             >
               Cancel
@@ -2055,6 +2144,26 @@ const ApplicationDetail = () => {
                   return;
                 }
 
+                // Validate manual assessment inputs
+                if (selectedMethod === 'manual') {
+                  if (!manualRiskLevel) {
+                    toast({
+                      title: 'Risk Level Required',
+                      description: 'Please select a risk level',
+                      variant: 'destructive',
+                    });
+                    return;
+                  }
+                  if (!manualReason.trim()) {
+                    toast({
+                      title: 'Reason Required',
+                      description: 'Please provide a reason for the risk assessment',
+                      variant: 'destructive',
+                    });
+                    return;
+                  }
+                }
+
                 if (!calculatedRisk && (selectedMethod === 'rule' || selectedMethod === 'ai' || selectedMethod === 'hybrid')) {
                   toast({
                     title: 'Calculation Required',
@@ -2065,20 +2174,36 @@ const ApplicationDetail = () => {
                 }
 
                 try {
+                  // For manual assessment, derive score from selected level
+                  let finalScore = calculatedRisk?.score;
+                  let finalLevel = calculatedRisk?.level;
+                  let manualDetails = null;
+
+                  if (selectedMethod === 'manual') {
+                    finalLevel = manualRiskLevel as 'low' | 'medium' | 'high';
+                    // Calculate score based on level: low (16), medium (50), high (83)
+                    finalScore = manualRiskLevel === 'low' ? 16 : manualRiskLevel === 'medium' ? 50 : 83;
+                    manualDetails = {
+                      reason: manualReason,
+                      assessedBy: user?.profile?.name || 'Admin'
+                    };
+                  }
+
                   const updatedApplicationData = {
                     ...application.application_data,
-                    risk_level: calculatedRisk?.level || 'medium',
+                    risk_level: finalLevel || 'medium',
                   };
 
                   // Prepare assessment details for application_assessment column
                   const newAssessment = {
                     method: selectedMethod,
-                    score: calculatedRisk?.score || null,
-                    level: calculatedRisk?.level || 'medium',
+                    score: finalScore || null,
+                    level: finalLevel || 'medium',
                     timestamp: new Date().toISOString(),
                     calculationBreakdown: calculatedRisk?.calculationBreakdown || null,
                     aiAnalysis: calculatedRisk?.aiData || null,
-                    rawDetails: calculatedRisk?.details || null
+                    rawDetails: calculatedRisk?.details || null,
+                    manualDetails: manualDetails
                   };
 
                   // Get existing history and update/replace if same method used
@@ -2130,6 +2255,8 @@ const ApplicationDetail = () => {
                   setShowRiskDialog(false);
                   setSelectedMethod('');
                   setCalculatedRisk(null);
+                  setManualRiskLevel('');
+                  setManualReason('');
                 } catch (error) {
                   console.error('Error saving risk assessment:', error);
                   toast({
@@ -2139,7 +2266,7 @@ const ApplicationDetail = () => {
                   });
                 }
               }}
-              disabled={isCalculating || (!calculatedRisk && (selectedMethod === 'rule' || selectedMethod === 'ai'))}
+              disabled={isCalculating}
             >
               Save Assessment
             </Button>
