@@ -1212,47 +1212,6 @@ const ApplicationDetail = () => {
                       )}
                     </div>
 
-                    {/* Display calculation breakdown if available */}
-                    {application.application_assessment?.riskAssessment?.calculationBreakdown && (
-                      <div className="mt-4 pt-4 border-t">
-                        <p className="text-sm font-medium mb-3 flex items-center gap-2">
-                          <Calculator className="h-4 w-4" />
-                          Score Calculation Formula
-                        </p>
-                        <div className="p-4 bg-muted/30 rounded-md border-2 border-primary/20">
-                          <div className="space-y-2 text-sm">
-                            {application.application_assessment.riskAssessment.calculationBreakdown.map((item, idx) => (
-                              <div key={idx} className="flex justify-between items-center py-1.5">
-                                <span className="text-muted-foreground">{item.factor}</span>
-                                <span className="font-mono font-semibold text-primary">+{item.points}</span>
-                              </div>
-                            ))}
-                            <div className="border-t-2 border-primary/30 pt-2 mt-2">
-                              <div className="flex justify-between items-center">
-                                <span className="font-semibold">Total Risk Score:</span>
-                                <span className="text-2xl font-bold text-primary">
-                                  {application.application_assessment.riskAssessment.score}/100
-                                </span>
-                              </div>
-                              <div className="mt-2 flex items-center gap-2">
-                                <span className="text-xs text-muted-foreground">Classification:</span>
-                                <Badge
-                                  variant={
-                                    application.application_assessment.riskAssessment.level === 'high' ? 'destructive' :
-                                    application.application_assessment.riskAssessment.level === 'medium' ? 'default' :
-                                    'secondary'
-                                  }
-                                  className="font-semibold"
-                                >
-                                  {application.application_assessment.riskAssessment.level.toUpperCase()} RISK
-                                </Badge>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
                     <Accordion type="multiple" className="mt-4">
                       {/* Rule-Based Score Breakdown Accordion */}
                       {application.application_assessment?.riskAssessment?.method === 'rule' &&
