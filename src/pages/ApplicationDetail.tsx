@@ -1031,12 +1031,32 @@ const ApplicationDetail = () => {
                       </div>
                     )}
 
-                    {/* Display AI reasoning summary - Only reasoning text, not factors (already shown in breakdown above) */}
-                    {application.application_assessment?.riskAssessment?.aiAnalysis?.reasoning && (
+                    {/* Display AI reasoning summary with factors */}
+                    {application.application_assessment?.riskAssessment?.aiAnalysis && (
                       <div className="mt-4 pt-4 border-t">
                         <p className="text-sm font-medium mb-2">AI Reasoning Summary</p>
-                        <div className="p-3 bg-primary/5 rounded-md text-sm">
+                        <div className="p-3 bg-primary/5 rounded-md text-sm space-y-3">
                           <p className="whitespace-pre-line">{application.application_assessment.riskAssessment.aiAnalysis.reasoning}</p>
+                          {application.application_assessment.riskAssessment.aiAnalysis.factors?.length > 0 && (
+                            <div className="space-y-2 mt-3 pt-3 border-t border-primary/10">
+                              <p className="font-medium text-xs uppercase text-muted-foreground">Risk Factors</p>
+                              {application.application_assessment.riskAssessment.aiAnalysis.factors.map((factor, idx) => (
+                                <div key={idx} className="space-y-1">
+                                  <div className="flex items-center gap-2">
+                                    <Badge variant={
+                                      factor.impact === 'high' ? 'destructive' :
+                                      factor.impact === 'medium' ? 'default' :
+                                      'secondary'
+                                    } className="text-xs">
+                                      {factor.impact}
+                                    </Badge>
+                                    <span className="font-medium">{factor.factor}</span>
+                                  </div>
+                                  <p className="text-xs text-muted-foreground pl-2">{factor.description}</p>
+                                </div>
+                              ))}
+                            </div>
+                          )}
                         </div>
                       </div>
                     )}
