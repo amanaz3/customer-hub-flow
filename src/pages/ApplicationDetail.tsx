@@ -967,7 +967,28 @@ const ApplicationDetail = () => {
                     )}
 
                     {/* AI Score Breakdown - Show detailed point contributions */}
-                    {application.application_assessment?.riskAssessment?.aiAnalysis?.scoreBreakdown && (
+                    {/* Score Breakdown - Show for all methods */}
+                    {/* Rule-Based Score Breakdown */}
+                    {application.application_assessment?.riskAssessment?.method === 'rule' && 
+                     application.application_assessment?.riskAssessment?.calculationBreakdown && (
+                      <div className="mt-4 pt-4 border-t">
+                        <p className="text-sm font-medium mb-2">Score Breakdown</p>
+                        <div className="p-3 bg-muted/30 rounded-md text-sm space-y-3">
+                          {application.application_assessment.riskAssessment.calculationBreakdown.map((item, idx) => (
+                            <div key={idx} className="space-y-1">
+                              <div className="flex justify-between items-center">
+                                <span className="font-medium">{item.factor}</span>
+                                <Badge variant="outline">+{item.points} pts</Badge>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* AI Score Breakdown */}
+                    {application.application_assessment?.riskAssessment?.method === 'ai' && 
+                     application.application_assessment?.riskAssessment?.aiAnalysis?.scoreBreakdown && (
                       <div className="mt-4 pt-4 border-t">
                         <p className="text-sm font-medium mb-2">AI Score Breakdown</p>
                         <div className="p-3 bg-muted/30 rounded-md text-sm space-y-3">
@@ -1017,6 +1038,36 @@ const ApplicationDetail = () => {
                             </ul>
                           </div>
                         )}
+                      </div>
+                    )}
+
+                    {/* Manual/Hybrid Assessment Summary */}
+                    {(application.application_assessment?.riskAssessment?.method === 'manual' || 
+                      application.application_assessment?.riskAssessment?.method === 'hybrid') && (
+                      <div className="mt-4 pt-4 border-t">
+                        <p className="text-sm font-medium mb-2">Assessment Summary</p>
+                        <div className="p-3 bg-muted/30 rounded-md text-sm space-y-2">
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium">Method</span>
+                            <span className="font-semibold">
+                              {application.application_assessment.riskAssessment.method === 'manual' ? '👤 Manual' : '🔀 Hybrid'}
+                            </span>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium">Risk Score</span>
+                            <Badge variant="outline">{application.application_assessment.riskAssessment.score || 'N/A'}/100</Badge>
+                          </div>
+                          <div className="flex justify-between items-center">
+                            <span className="font-medium">Classification</span>
+                            <Badge variant={
+                              application.application_assessment.riskAssessment.level === 'high' ? 'destructive' :
+                              application.application_assessment.riskAssessment.level === 'medium' ? 'default' :
+                              'secondary'
+                            }>
+                              {application.application_assessment.riskAssessment.level.toUpperCase()}
+                            </Badge>
+                          </div>
+                        </div>
                       </div>
                     )}
 
