@@ -92,6 +92,8 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
   const [riskCalculation, setRiskCalculation] = useState<RiskCalculation | null>(null);
   const [aiAssessment, setAiAssessment] = useState<AIRiskAssessment | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isManuallyOverridden, setIsManuallyOverridden] = useState(false);
+  const [originalAiRecommendation, setOriginalAiRecommendation] = useState<'low' | 'medium' | 'high' | null>(null);
   const { toast } = useToast();
 
   const businessType = form.watch('mainland_or_freezone');
@@ -99,6 +101,7 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
   const natureOfBusiness = form.watch('nature_of_business');
   const annualTurnover = form.watch('annual_turnover');
   const numberOfShareholders = form.watch('no_of_shareholders');
+  const currentRiskLevel = form.watch('risk_level');
 
   useEffect(() => {
     // Auto-calculate risk when fields change
@@ -106,13 +109,22 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
       const calculation = calculateRiskLevel(businessType, signatoryType, natureOfBusiness);
       setRiskCalculation(calculation);
       
-      // Auto-fill risk level if not manually set
+      // Auto-fill risk level if not manually set and no AI assessment
       const currentRisk = form.getValues('risk_level');
-      if (!currentRisk) {
+      if (!currentRisk && !aiAssessment) {
         form.setValue('risk_level', calculation.level);
       }
     }
-  }, [businessType, signatoryType, natureOfBusiness, form]);
+  }, [businessType, signatoryType, natureOfBusiness, form, aiAssessment]);
+
+  // Track manual overrides
+  useEffect(() => {
+    if (originalAiRecommendation && currentRiskLevel && currentRiskLevel !== originalAiRecommendation) {
+      setIsManuallyOverridden(true);
+    } else if (originalAiRecommendation && currentRiskLevel === originalAiRecommendation) {
+      setIsManuallyOverridden(false);
+    }
+  }, [currentRiskLevel, originalAiRecommendation]);
 
   const analyzeWithAI = async () => {
     setIsAnalyzing(true);
@@ -130,13 +142,15 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
       if (error) throw error;
 
       setAiAssessment(data);
+      setOriginalAiRecommendation(data.risk_level);
       
-      // Auto-apply AI recommendation
+      // Auto-apply AI recommendation (can be overridden)
       form.setValue('risk_level', data.risk_level);
+      setIsManuallyOverridden(false);
       
       toast({
         title: "AI Risk Assessment Complete",
-        description: `Risk Level: ${data.risk_level.toUpperCase()} (Score: ${data.risk_score}/100)`,
+        description: `Recommended Risk Level: ${data.risk_level.toUpperCase()} (Score: ${data.risk_score}/100)`,
       });
     } catch (error: any) {
       console.error('Error analyzing risk:', error);
@@ -147,6 +161,17 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
       });
     } finally {
       setIsAnalyzing(false);
+    }
+  };
+
+  const resetToAiRecommendation = () => {
+    if (originalAiRecommendation) {
+      form.setValue('risk_level', originalAiRecommendation);
+      setIsManuallyOverridden(false);
+      toast({
+        title: "Reset to AI Recommendation",
+        description: `Risk level reset to ${originalAiRecommendation.toUpperCase()}`,
+      });
     }
   };
 
@@ -321,9 +346,50 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
                             </div>
                           )}
 
+                          {/* Hybrid Override Notice */}
+                          {isManuallyOverridden && originalAiRecommendation && (
+                            <div className="border-t pt-3">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Badge variant="destructive" className="text-xs">
+                                  Manual Override
+                                </Badge>
+                              </div>
+                              <div className="bg-destructive/10 border border-destructive/20 p-3 rounded space-y-2">
+                                <div className="flex justify-between items-center text-xs">
+                                  <span className="text-muted-foreground">AI Recommended:</span>
+                                  <Badge variant="outline" className="font-semibold">
+                                    {originalAiRecommendation.toUpperCase()}
+                                  </Badge>
+                                </div>
+                                <div className="flex justify-between items-center text-xs">
+                                  <span className="text-muted-foreground">Current Selection:</span>
+                                  <Badge 
+                                    variant={
+                                      currentRiskLevel === 'high' ? 'destructive' : 
+                                      currentRiskLevel === 'medium' ? 'default' : 
+                                      'secondary'
+                                    }
+                                    className="font-semibold"
+                                  >
+                                    {currentRiskLevel?.toUpperCase()}
+                                  </Badge>
+                                </div>
+                                <p className="text-xs text-muted-foreground mt-2">
+                                  Admin has manually overridden AI recommendation. This decision will be logged for audit purposes.
+                                </p>
+                              </div>
+                            </div>
+                          )}
+
                           <div className="pt-2 border-t">
                             <p className="text-xs text-muted-foreground">
-                              You can override the assessment by manually selecting a different risk level.
+                              {isManuallyOverridden ? (
+                                <span className="text-destructive font-medium">
+                                  ⚠️ Manual Override Active - Current selection ({currentRiskLevel?.toUpperCase()}) differs from AI recommendation ({originalAiRecommendation?.toUpperCase()})
+                                </span>
+                              ) : (
+                                "You can override the assessment by manually selecting a different risk level."
+                              )}
                             </p>
                           </div>
                         </div>
@@ -337,6 +403,22 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
                   <Sparkles className="h-3 w-3" />
                   AI Assessed
                 </Badge>
+              )}
+              {isManuallyOverridden && originalAiRecommendation && (
+                <>
+                  <Badge variant="destructive" className="gap-1 text-xs">
+                    ⚠️ Manually Overridden
+                  </Badge>
+                  <Button
+                    type="button"
+                    size="sm"
+                    variant="ghost"
+                    onClick={resetToAiRecommendation}
+                    className="h-7 text-xs gap-1 text-primary hover:text-primary"
+                  >
+                    ↺ Reset to AI ({originalAiRecommendation.toUpperCase()})
+                  </Button>
+                </>
               )}
               <Button
                 type="button"
@@ -361,16 +443,42 @@ export const BankAccountFields: React.FC<BankAccountFieldsProps> = ({ form }) =>
             </div>
             <Select onValueChange={field.onChange} value={field.value}>
               <FormControl>
-                <SelectTrigger>
+                <SelectTrigger className={isManuallyOverridden ? "border-destructive" : ""}>
                   <SelectValue placeholder="Select risk level" />
                 </SelectTrigger>
               </FormControl>
               <SelectContent>
-                <SelectItem value="low">Low</SelectItem>
-                <SelectItem value="medium">Medium</SelectItem>
-                <SelectItem value="high">High</SelectItem>
+                <SelectItem value="low">
+                  <div className="flex items-center gap-2">
+                    <span>Low</span>
+                    {originalAiRecommendation === 'low' && (
+                      <Badge variant="secondary" className="text-xs">AI Recommended</Badge>
+                    )}
+                  </div>
+                </SelectItem>
+                <SelectItem value="medium">
+                  <div className="flex items-center gap-2">
+                    <span>Medium</span>
+                    {originalAiRecommendation === 'medium' && (
+                      <Badge variant="secondary" className="text-xs">AI Recommended</Badge>
+                    )}
+                  </div>
+                </SelectItem>
+                <SelectItem value="high">
+                  <div className="flex items-center gap-2">
+                    <span>High</span>
+                    {originalAiRecommendation === 'high' && (
+                      <Badge variant="secondary" className="text-xs">AI Recommended</Badge>
+                    )}
+                  </div>
+                </SelectItem>
               </SelectContent>
             </Select>
+            {isManuallyOverridden && (
+              <p className="text-xs text-destructive font-medium mt-1">
+                ⚠️ You have overridden the AI recommendation ({originalAiRecommendation?.toUpperCase()})
+              </p>
+            )}
             <FormMessage />
           </FormItem>
         )}
