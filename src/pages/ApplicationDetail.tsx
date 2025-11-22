@@ -1083,13 +1083,15 @@ const ApplicationDetail = () => {
 
                   // Prepare assessment details for application_assessment column
                   const assessmentDetails = {
-                    method: selectedMethod,
-                    score: calculatedRisk?.score || null,
-                    level: calculatedRisk?.level || 'medium',
-                    timestamp: new Date().toISOString(),
-                    calculationBreakdown: calculatedRisk?.calculationBreakdown || null,
-                    aiAnalysis: calculatedRisk?.aiData || null,
-                    rawDetails: calculatedRisk?.details || null
+                    riskAssessment: {
+                      method: selectedMethod,
+                      score: calculatedRisk?.score || null,
+                      level: calculatedRisk?.level || 'medium',
+                      timestamp: new Date().toISOString(),
+                      calculationBreakdown: calculatedRisk?.calculationBreakdown || null,
+                      aiAnalysis: calculatedRisk?.aiData || null,
+                      rawDetails: calculatedRisk?.details || null
+                    }
                   };
 
                   const { error } = await supabase
