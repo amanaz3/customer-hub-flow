@@ -1163,26 +1163,6 @@ const ApplicationDetail = () => {
                             <span className="text-xs">{new Date(application.application_assessment.lastAssessment.timestamp).toLocaleDateString()}</span>
                           </div>
                         </div>
-                        
-                        {/* Calculation Breakdown in Last Assessment */}
-                        {(application.application_assessment.lastAssessment as any)?.calculationBreakdown && 
-                         Array.isArray((application.application_assessment.lastAssessment as any).calculationBreakdown) &&
-                         (application.application_assessment.lastAssessment as any).calculationBreakdown.length > 0 && (
-                          <div className="mt-3 pt-3 border-t">
-                            <div className="space-y-1.5">
-                              {(application.application_assessment.lastAssessment as any).calculationBreakdown.map((item: any, idx: number) => (
-                                <div key={idx} className="flex justify-between items-center text-xs">
-                                  <span className="text-muted-foreground">{item.factor}</span>
-                                  <span className="font-mono font-semibold">+{item.points}</span>
-                                </div>
-                              ))}
-                              <div className="pt-1.5 mt-1.5 border-t flex justify-between items-center">
-                                <span className="text-xs font-semibold">Total Risk Score:</span>
-                                <span className="text-sm font-bold">{application.application_assessment.lastAssessment.score}/100</span>
-                              </div>
-                            </div>
-                          </div>
-                        )}
                       </div>
                     )}
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
