@@ -1041,7 +1041,7 @@ const TaskCollaboration: React.FC = () => {
 
                     <div className="space-y-2">
                       {tasks
-                        .filter((t) => t.project_id === selectedProduct.id) // Still using 'project_id'
+                        .filter((t) => t.project_id === selectedProduct.id && !t.parent_id) // Only top-level tasks
                         .filter((t) => {
                           // Search filter
                           if (productTaskSearch && !t.title.toLowerCase().includes(productTaskSearch.toLowerCase())) {
@@ -1057,23 +1057,37 @@ const TaskCollaboration: React.FC = () => {
                           }
                           return true;
                         })
-                        .map((task) => (
-                          <TaskCard
-                            key={task.id}
-                            task={task}
-                            attachments={taskAttachments[task.id] || []}
-                            onClick={() => {
-                              setSelectedTaskId(task.id);
-                              setTaskDetailOpen(true);
-                            }}
-                            showActions
-                            onRemoveFromProduct={removeTaskFromProduct}
-                            onDelete={deleteTask}
-                            onImportanceChange={handleImportanceChange}
-                          />
-                        ))}
+                        .map((task) => {
+                          // Find all subtasks recursively for this task
+                          const getSubtasksRecursive = (parentId: string): Task[] => {
+                            return tasks.filter(t => t.parent_id === parentId);
+                          };
+                          
+                          return (
+                            <TaskCard
+                              key={task.id}
+                              task={task}
+                              attachments={taskAttachments[task.id] || []}
+                              subtasks={getSubtasksRecursive(task.id)}
+                              subtaskAttachments={taskAttachments}
+                              onClick={() => {
+                                setSelectedTaskId(task.id);
+                                setTaskDetailOpen(true);
+                              }}
+                              showActions
+                              onRemoveFromProduct={removeTaskFromProduct}
+                              onDelete={deleteTask}
+                              onImportanceChange={handleImportanceChange}
+                              onAddSubtask={(parentId) => {
+                                setParentTaskIdForNewTask(parentId);
+                                setSelectedProductId(selectedProduct.id);
+                                setCreateTaskOpen(true);
+                              }}
+                            />
+                          );
+                        })}
                       {tasks
-                        .filter((t) => t.project_id === selectedProduct.id) // Still using 'project_id'
+                        .filter((t) => t.project_id === selectedProduct.id && !t.parent_id) // Only top-level tasks
                         .filter((t) => {
                           // Search filter
                           if (productTaskSearch && !t.title.toLowerCase().includes(productTaskSearch.toLowerCase())) {
