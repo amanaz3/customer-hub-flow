@@ -1246,8 +1246,9 @@ const ApplicationDetail = () => {
                     rawDetails: calculatedRisk?.details || null
                   };
 
-                  // Get existing history
+                  // Get existing history and update/replace if same method used
                   const existingHistory = application.application_assessment?.assessmentHistory || [];
+                  const updatedHistory = existingHistory.filter(h => h.method !== selectedMethod);
                   
                   const assessmentDetails = {
                     riskAssessment: newAssessment,
@@ -1257,7 +1258,7 @@ const ApplicationDetail = () => {
                       level: calculatedRisk?.level || 'medium',
                       timestamp: new Date().toISOString()
                     },
-                    assessmentHistory: [...existingHistory, newAssessment]
+                    assessmentHistory: [...updatedHistory, newAssessment]
                   };
 
                   // Determine change type
