@@ -1435,10 +1435,9 @@ const ApplicationDetail = () => {
                         </AccordionItem>
                       )}
 
-                      {/* Manual/Hybrid Reasoning Summary Accordion */}
-                      {(application.application_assessment?.riskAssessment?.method === 'manual' || 
-                        application.application_assessment?.riskAssessment?.method === 'hybrid') && (
-                        <AccordionItem value="manual-hybrid-reasoning">
+                      {/* Manual Reasoning Summary Accordion */}
+                      {application.application_assessment?.riskAssessment?.method === 'manual' && (
+                        <AccordionItem value="manual-reasoning">
                           <AccordionTrigger className="text-sm font-medium">Reasoning Summary</AccordionTrigger>
                           <AccordionContent>
                             <div className="p-3 bg-primary/5 rounded-md text-sm space-y-3">
