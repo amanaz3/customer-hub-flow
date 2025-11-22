@@ -1256,52 +1256,41 @@ const ApplicationDetail = () => {
                     {/* Rule-Based Score Breakdown - Removed duplicate since calculation is shown above */}
 
                     <Accordion type="multiple" className="mt-4">
-                      {/* Rule-Based Calculation Details Accordion */}
+                      {/* Rule-Based Score Breakdown Accordion */}
                       {application.application_assessment?.riskAssessment?.method === 'rule' &&
                        application.application_assessment?.riskAssessment?.calculationBreakdown && (
-                        <AccordionItem value="rule-calculation-details">
-                          <AccordionTrigger className="text-sm font-medium">Calculation Details</AccordionTrigger>
+                        <AccordionItem value="rule-score-breakdown">
+                          <AccordionTrigger className="text-sm font-medium">Score Breakdown</AccordionTrigger>
                           <AccordionContent>
-                            <div className="space-y-4">
-                              <div className="p-3 bg-muted/30 rounded-md">
-                                <div className="flex justify-between items-center mb-3">
-                                  <span className="text-sm font-medium">Total Risk Score</span>
-                                  <span className="text-lg font-bold">{application.application_assessment.riskAssessment.score}/100</span>
-                                </div>
-                                <div className="space-y-2 text-sm">
-                                  <p className="text-muted-foreground mb-3">
-                                    Risk score calculation based on the following factors:
-                                  </p>
-                                  {application.application_assessment.riskAssessment.calculationBreakdown.map((item, idx) => (
-                                    <div key={idx} className="flex justify-between items-center p-2 bg-background rounded border">
-                                      <span className="font-medium">{item.factor}</span>
-                                      <Badge variant="outline" className="font-semibold">+{item.points} points</Badge>
-                                    </div>
-                                  ))}
-                                  <div className="mt-4 pt-3 border-t">
-                                    <div className="flex justify-between items-center">
-                                      <span className="font-semibold">Risk Classification:</span>
-                                      <Badge
-                                        variant={
-                                          application.application_assessment.riskAssessment.level === 'high' ? 'destructive' :
-                                          application.application_assessment.riskAssessment.level === 'medium' ? 'default' :
-                                          'secondary'
-                                        }
-                                        className="font-semibold"
-                                      >
-                                        {application.application_assessment.riskAssessment.level.toUpperCase()}
-                                      </Badge>
-                                    </div>
-                                    <p className="text-xs text-muted-foreground mt-2">
-                                      {application.application_assessment.riskAssessment.score >= 67 && 
-                                        'High Risk (67-100 points): Requires enhanced due diligence and senior management approval'}
-                                      {application.application_assessment.riskAssessment.score >= 34 && 
-                                       application.application_assessment.riskAssessment.score < 67 && 
-                                        'Medium Risk (34-66 points): Standard due diligence with additional verification'}
-                                      {application.application_assessment.riskAssessment.score < 34 && 
-                                        'Low Risk (0-33 points): Standard due diligence procedures apply'}
-                                    </p>
+                            <div className="p-3 bg-muted/30 rounded-md text-sm space-y-3">
+                              {application.application_assessment.riskAssessment.calculationBreakdown.map((item, idx) => (
+                                <div key={idx} className="space-y-1">
+                                  <div className="flex justify-between items-center">
+                                    <span className="font-medium">{item.factor}</span>
+                                    <Badge variant="outline">+{item.points} pts</Badge>
                                   </div>
+                                </div>
+                              ))}
+                              
+                              <div className="mt-4 pt-3 border-t-2 border-primary/20">
+                                <div className="flex justify-between items-center">
+                                  <span className="font-semibold">Total Risk Score:</span>
+                                  <span className="text-2xl font-bold">
+                                    {application.application_assessment.riskAssessment.score}/100
+                                  </span>
+                                </div>
+                                <div className="mt-2 flex justify-between items-center">
+                                  <span className="text-xs text-muted-foreground">Classification:</span>
+                                  <Badge
+                                    variant={
+                                      application.application_assessment.riskAssessment.level === 'high' ? 'destructive' :
+                                      application.application_assessment.riskAssessment.level === 'medium' ? 'default' :
+                                      'secondary'
+                                    }
+                                    className="font-semibold"
+                                  >
+                                    {application.application_assessment.riskAssessment.level.toUpperCase()} RISK
+                                  </Badge>
                                 </div>
                               </div>
                             </div>
@@ -1396,16 +1385,24 @@ const ApplicationDetail = () => {
                       </div>
                     )}
 
-                      {/* Calculation Details Accordion - Rule-Based */}
+                      {/* Rule-Based Calculation Details Accordion */}
                       {application.application_assessment?.riskAssessment?.method === 'rule' && 
                        application.application_assessment?.riskAssessment?.calculationBreakdown && (
-                        <AccordionItem value="calculation-details">
+                        <AccordionItem value="rule-calculation-details">
                           <AccordionTrigger className="text-sm font-medium">Calculation Details</AccordionTrigger>
                           <AccordionContent>
                             <div className="p-3 bg-muted/30 rounded-md text-sm space-y-2">
                           <p className="text-xs text-muted-foreground mb-3">
-                            Risk Score Calculation (Total: {application.application_assessment.riskAssessment.score}/100)
+                            Risk score is calculated by evaluating multiple risk factors, each contributing points to the total score. The system uses a rule-based approach where:
                           </p>
+                          
+                          <ul className="space-y-1 text-xs text-muted-foreground mb-3">
+                            <li>• Jurisdiction type affects base risk (+0-20 points)</li>
+                            <li>• Number of shareholders impacts complexity (+0-15 points)</li>
+                            <li>• Signatory structure determines control risk (+0-15 points)</li>
+                            <li>• Annual turnover indicates business scale (+0-15 points)</li>
+                            <li>• Minimum balance requirements show financial commitment (+0-20 points)</li>
+                          </ul>
                           
                           {application.application_assessment.riskAssessment.calculationBreakdown.map((item, idx) => (
                             <div key={idx} className="flex justify-between items-center py-1 border-b border-border/30 last:border-0">
@@ -1428,6 +1425,49 @@ const ApplicationDetail = () => {
                             }>
                               {application.application_assessment.riskAssessment.level.toUpperCase()}
                             </Badge>
+                              </div>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
+
+                      {/* Rule-Based Reasoning Summary Accordion */}
+                      {application.application_assessment?.riskAssessment?.method === 'rule' && (
+                        <AccordionItem value="rule-reasoning">
+                          <AccordionTrigger className="text-sm font-medium">Reasoning Summary</AccordionTrigger>
+                          <AccordionContent>
+                            <div className="p-3 bg-primary/5 rounded-md text-sm space-y-3">
+                              <p className="whitespace-pre-line">
+                                This risk assessment was calculated using a rule-based scoring system that evaluates key risk indicators systematically. The final risk score of {application.application_assessment.riskAssessment.score}/100 places this application in the{' '}
+                                <Badge
+                                  variant={
+                                    application.application_assessment.riskAssessment.level === 'high' ? 'destructive' :
+                                    application.application_assessment.riskAssessment.level === 'medium' ? 'default' :
+                                    'secondary'
+                                  }
+                                  className="inline-flex"
+                                >
+                                  {application.application_assessment.riskAssessment.level.toUpperCase()} RISK
+                                </Badge>{' '}
+                                category.
+                              </p>
+                              
+                              <div className="pt-3 border-t border-primary/10">
+                                <p className="font-medium text-xs uppercase text-muted-foreground mb-2">Risk Level Guidelines</p>
+                                <div className="space-y-2 text-xs text-muted-foreground">
+                                  <div className="flex items-start gap-2">
+                                    <Badge variant="secondary" className="mt-0.5">LOW</Badge>
+                                    <span>0-33 points: Standard due diligence procedures apply</span>
+                                  </div>
+                                  <div className="flex items-start gap-2">
+                                    <Badge variant="default" className="mt-0.5">MEDIUM</Badge>
+                                    <span>34-66 points: Standard due diligence with additional verification</span>
+                                  </div>
+                                  <div className="flex items-start gap-2">
+                                    <Badge variant="destructive" className="mt-0.5">HIGH</Badge>
+                                    <span>67-100 points: Enhanced due diligence and senior management approval required</span>
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </AccordionContent>
