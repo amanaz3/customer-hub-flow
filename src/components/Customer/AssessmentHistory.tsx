@@ -11,9 +11,10 @@ interface AssessmentHistoryProps {
 
 interface HistoryEntry {
   id: string;
+  application_id: string;
   previous_assessment: any;
   new_assessment: any;
-  change_type: 'created' | 'updated' | 'deleted';
+  change_type: string;
   changed_by: string;
   changed_by_role: string;
   comment: string | null;
@@ -21,7 +22,7 @@ interface HistoryEntry {
   changed_by_profile?: {
     name: string;
     email: string;
-  };
+  } | null;
 }
 
 export const AssessmentHistory = ({ applicationId }: AssessmentHistoryProps) => {
@@ -44,7 +45,7 @@ export const AssessmentHistory = ({ applicationId }: AssessmentHistoryProps) => 
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setHistory((data || []) as HistoryEntry[]);
+      setHistory(data || []);
     } catch (error) {
       console.error('Error fetching assessment history:', error);
     } finally {
