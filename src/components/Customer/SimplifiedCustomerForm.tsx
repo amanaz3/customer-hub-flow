@@ -1783,190 +1783,110 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           </SheetHeader>
           
           {selectedCustomerData && (
-            <div className="mt-6 space-y-4">
-              {/* Basic Information Accordion */}
-              <Accordion type="single" collapsible defaultValue="basic-info" className="border rounded-lg bg-muted/20">
-                <AccordionItem value="basic-info" className="border-none">
-                  <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                    <div className="flex items-center gap-3 text-left">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <User className="h-4 w-4 text-primary" />
-                      </div>
-                      <div>
-                        <div className="font-semibold text-sm">Basic Information</div>
-                        <div className="text-xs text-muted-foreground">{selectedCustomerData.name}</div>
-                      </div>
+            <div className="mt-6 space-y-6">
+              {/* Basic Information */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Basic Information
+                </h3>
+                <div className="space-y-3 pl-6">
+                  <div>
+                    <p className="text-xs text-muted-foreground">Name</p>
+                    <p className="text-sm font-medium">{selectedCustomerData.name}</p>
+                  </div>
+                  {selectedCustomerData.company && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Company</p>
+                      <p className="text-sm font-medium flex items-center gap-2">
+                        <Building2 className="h-3 w-3" />
+                        {selectedCustomerData.company}
+                      </p>
                     </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4">
-                    <div className="grid grid-cols-1 gap-3 pt-2">
-                      <div className="flex items-start gap-2">
-                        <User className="h-4 w-4 text-primary mt-0.5" />
-                        <div>
-                          <span className="text-muted-foreground block text-xs">Name</span>
-                          <span className="font-medium text-sm">{selectedCustomerData.name}</span>
-                        </div>
-                      </div>
-                      {selectedCustomerData.company && (
-                        <div className="flex items-start gap-2">
-                          <Building2 className="h-4 w-4 text-primary mt-0.5" />
-                          <div>
-                            <span className="text-muted-foreground block text-xs">Company</span>
-                            <span className="font-medium text-sm">{selectedCustomerData.company}</span>
-                          </div>
-                        </div>
-                      )}
-                      {selectedCustomerData.reference_number && (
-                        <div className="flex items-start gap-2">
-                          <FileText className="h-4 w-4 text-primary mt-0.5" />
-                          <div>
-                            <span className="text-muted-foreground block text-xs">Reference Number</span>
-                            <span className="font-medium text-sm">#{selectedCustomerData.reference_number}</span>
-                          </div>
-                        </div>
-                      )}
+                  )}
+                  {selectedCustomerData.reference_number && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Reference Number</p>
+                      <p className="text-sm font-medium">#{selectedCustomerData.reference_number}</p>
                     </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
+                  )}
+                </div>
+              </div>
 
-              {/* Contact Information Accordion */}
-              <Accordion type="single" collapsible className="border rounded-lg bg-muted/20">
-                <AccordionItem value="contact-info" className="border-none">
-                  <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                    <div className="flex items-center gap-3 text-left">
-                      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                        <Mail className="h-4 w-4 text-primary" />
-                      </div>
-                      <div>
-                        <div className="font-semibold text-sm">Contact Information</div>
-                        <div className="text-xs text-muted-foreground">{selectedCustomerData.email}</div>
-                      </div>
+              {/* Contact Information */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <Mail className="h-4 w-4" />
+                  Contact Information
+                </h3>
+                <div className="space-y-3 pl-6">
+                  {selectedCustomerData.email && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Email</p>
+                      <p className="text-sm font-medium">{selectedCustomerData.email}</p>
                     </div>
-                  </AccordionTrigger>
-                  <AccordionContent className="px-4 pb-4">
-                    <div className="grid grid-cols-1 gap-3 pt-2">
-                      {selectedCustomerData.email && (
-                        <div className="flex items-start gap-2">
-                          <Mail className="h-4 w-4 text-primary mt-0.5" />
-                          <div>
-                            <span className="text-muted-foreground block text-xs">Email</span>
-                            <span className="font-medium text-sm">{selectedCustomerData.email}</span>
-                          </div>
-                        </div>
-                      )}
-                      {selectedCustomerData.mobile && (
-                        <div className="flex items-start gap-2">
-                          <Phone className="h-4 w-4 text-primary mt-0.5" />
-                          <div>
-                            <span className="text-muted-foreground block text-xs">Mobile</span>
-                            <span className="font-medium text-sm">{selectedCustomerData.mobile}</span>
-                          </div>
-                        </div>
-                      )}
+                  )}
+                  {selectedCustomerData.mobile && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Mobile</p>
+                      <p className="text-sm font-medium flex items-center gap-2">
+                        <Phone className="h-3 w-3" />
+                        {selectedCustomerData.mobile}
+                      </p>
                     </div>
-                  </AccordionContent>
-                </AccordionItem>
-              </Accordion>
+                  )}
+                </div>
+              </div>
 
-              {/* Business Details Accordion */}
-              {(selectedCustomerData.license_type || selectedCustomerData.jurisdiction || selectedCustomerData.amount) && (
-                <Accordion type="single" collapsible className="border rounded-lg bg-muted/20">
-                  <AccordionItem value="business-details" className="border-none">
-                    <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                      <div className="flex items-center gap-3 text-left">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                          <FileText className="h-4 w-4 text-primary" />
-                        </div>
-                        <div>
-                          <div className="font-semibold text-sm">Business Details</div>
-                          <div className="text-xs text-muted-foreground">
-                            {selectedCustomerData.license_type || 'View details'}
-                          </div>
-                        </div>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="px-4 pb-4">
-                      <div className="grid grid-cols-1 gap-3 pt-2">
-                        {selectedCustomerData.license_type && (
-                          <div className="flex items-start gap-2">
-                            <Building2 className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
-                              <span className="text-muted-foreground block text-xs">License Type</span>
-                              <Badge variant="secondary" className="mt-1">{selectedCustomerData.license_type}</Badge>
-                            </div>
-                          </div>
-                        )}
-                        {selectedCustomerData.jurisdiction && (
-                          <div className="flex items-start gap-2">
-                            <Globe className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
-                              <span className="text-muted-foreground block text-xs">Jurisdiction</span>
-                              <span className="font-medium text-sm">{selectedCustomerData.jurisdiction}</span>
-                            </div>
-                          </div>
-                        )}
-                        {selectedCustomerData.amount && (
-                          <div className="flex items-start gap-2">
-                            <FileText className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
-                              <span className="text-muted-foreground block text-xs">Amount</span>
-                              <span className="font-medium text-sm">AED {selectedCustomerData.amount.toLocaleString()}</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
-              )}
+              {/* Business Details */}
+              <div className="space-y-4">
+                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                  <FileText className="h-4 w-4" />
+                  Business Details
+                </h3>
+                <div className="space-y-3 pl-6">
+                  {selectedCustomerData.license_type && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">License Type</p>
+                      <Badge variant="secondary">{selectedCustomerData.license_type}</Badge>
+                    </div>
+                  )}
+                  {selectedCustomerData.jurisdiction && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Jurisdiction</p>
+                      <p className="text-sm font-medium">{selectedCustomerData.jurisdiction}</p>
+                    </div>
+                  )}
+                  {selectedCustomerData.amount && (
+                    <div>
+                      <p className="text-xs text-muted-foreground">Amount</p>
+                      <p className="text-sm font-medium">AED {selectedCustomerData.amount.toLocaleString()}</p>
+                    </div>
+                  )}
+                </div>
+              </div>
 
-              {/* Status Accordion */}
+              {/* Status */}
               {selectedCustomerData.status && (
-                <Accordion type="single" collapsible className="border rounded-lg bg-muted/20">
-                  <AccordionItem value="status" className="border-none">
-                    <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                      <div className="flex items-center gap-3 text-left">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                          <Calendar className="h-4 w-4 text-primary" />
-                        </div>
-                        <div>
-                          <div className="font-semibold text-sm">Status</div>
-                          <div className="text-xs text-muted-foreground">{selectedCustomerData.status}</div>
-                        </div>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="px-4 pb-4">
-                      <div className="pt-2">
-                        <Badge variant="outline">{selectedCustomerData.status}</Badge>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+                    <Calendar className="h-4 w-4" />
+                    Status
+                  </h3>
+                  <div className="pl-6">
+                    <Badge variant="outline">{selectedCustomerData.status}</Badge>
+                  </div>
+                </div>
               )}
 
-              {/* Customer Notes Accordion */}
+              {/* Customer Notes */}
               {selectedCustomerData.customer_notes && (
-                <Accordion type="single" collapsible className="border rounded-lg bg-muted/20">
-                  <AccordionItem value="notes" className="border-none">
-                    <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                      <div className="flex items-center gap-3 text-left">
-                        <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-                          <FileText className="h-4 w-4 text-primary" />
-                        </div>
-                        <div>
-                          <div className="font-semibold text-sm">Notes</div>
-                          <div className="text-xs text-muted-foreground line-clamp-1">{selectedCustomerData.customer_notes}</div>
-                        </div>
-                      </div>
-                    </AccordionTrigger>
-                    <AccordionContent className="px-4 pb-4">
-                      <div className="pt-2">
-                        <p className="text-sm text-muted-foreground">{selectedCustomerData.customer_notes}</p>
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                </Accordion>
+                <div className="space-y-4">
+                  <h3 className="text-sm font-semibold text-foreground">Notes</h3>
+                  <div className="pl-6">
+                    <p className="text-sm text-muted-foreground">{selectedCustomerData.customer_notes}</p>
+                  </div>
+                </div>
               )}
             </div>
           )}
