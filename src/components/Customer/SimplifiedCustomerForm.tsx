@@ -784,15 +784,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               </AccordionTrigger>
                               <AccordionContent className="px-4 pb-4">
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2">
-                                  {selectedCustomerData.name && (
-                                    <div className="flex items-start gap-2">
-                                      <User className="h-4 w-4 text-primary mt-0.5" />
-                                      <div>
-                                        <span className="text-muted-foreground block text-xs">Name</span>
-                                        <span className="font-medium">{selectedCustomerData.name}</span>
-                                      </div>
-                                    </div>
-                                  )}
                                   {selectedCustomerData.email && (
                                     <div className="flex items-start gap-2">
                                       <Mail className="h-4 w-4 text-primary mt-0.5" />
