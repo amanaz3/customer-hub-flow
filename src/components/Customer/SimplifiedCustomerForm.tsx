@@ -256,50 +256,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     }
   };
 
-  // Auto-progress to next step when all required fields are VALID
-  useEffect(() => {
-    const subscription = form.watch((value) => {
-      if (isSubmitting) return;
-      
-      // Skip auto-progress for existing customer mode
-      if (companyMode && selectedCustomerId) {
-        return;
-      }
-
-      const errors = form.formState.errors;
-      
-      // Step 1: Check basic info is VALID (not just filled)
-      if (currentStep === 1) {
-        const nameValid = value.name && value.name.length >= 2 && !errors.name;
-        const emailValid = value.email && !errors.email;
-        const mobileValid = value.mobile && !errors.mobile;
-        const typeValid = value.customer_type && !errors.customer_type;
-        const sourceValid = value.lead_source && !errors.lead_source;
-        const companyValid = value.customer_type === 'company' ? (value.company && !errors.company) : true;
-        
-        if (nameValid && emailValid && mobileValid && typeValid && sourceValid && companyValid) {
-          // Auto-save before progressing to step 2
-          autoSaveDraft();
-          setTimeout(() => setCurrentStep(2), 500);
-        }
-      }
-      
-      // Step 2: Check service selection is VALID
-      if (currentStep === 2) {
-        const productValid = value.product_id && !errors.product_id;
-        const licenseValid = value.license_type && !errors.license_type;
-        
-        if (productValid && licenseValid) {
-          setTimeout(() => setCurrentStep(3), 500);
-        }
-      }
-      
-      // Step 3: Service details - optional fields, don't auto-progress
-      // User should click Next when ready to review
-    });
-    
-    return () => subscription.unsubscribe();
-  }, [currentStep, form, companyMode, selectedCustomerId, isSubmitting, user]);
+  // Auto-progress removed - users must manually click Next to progress through steps
   
   // Auto-switch to existing customer tab when a customer is selected
   useEffect(() => {
