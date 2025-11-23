@@ -13,11 +13,12 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useQuery } from '@tanstack/react-query';
-import { ChevronLeft, ChevronRight, Check, Save, ArrowLeft, ArrowRight, User, Mail, Phone, Globe, Building2, X, FileText, Calendar, ChevronUp } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Check, Save, ArrowLeft, ArrowRight, User, Mail, Phone, Globe, Building2, X, FileText, Calendar, ChevronUp, PanelRightClose, PanelRightOpen } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
+import { cn } from '@/lib/utils';
 import { CustomerTypeSelector } from './CustomerTypeSelector';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
 import { ProcessSummarySidebar } from './ProcessSummarySidebar';
@@ -190,6 +191,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       setCustomerEventsSidebarCollapsed(false);
     }
   }, [companyMode, selectedCustomerId]);
+
+  // Function to dock/collapse all right sidebars
+  const handleDockAllSidebars = () => {
+    const allCollapsed = processSidebarCollapsed && customerEventsSidebarCollapsed;
+    setProcessSidebarCollapsed(!allCollapsed);
+    setCustomerEventsSidebarCollapsed(!allCollapsed);
+  };
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -1695,6 +1703,24 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           onCollapsedChange={setCustomerEventsSidebarCollapsed}
         />
       )}
+
+      {/* Floating Dock All Sidebars Button */}
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={handleDockAllSidebars}
+        className={cn(
+          "fixed top-20 bg-card border-2 border-primary/20 shadow-lg hover:shadow-xl hover:border-primary/40 transition-all duration-300 z-[9999]",
+          processSidebarCollapsed && customerEventsSidebarCollapsed ? "right-4" : "right-4"
+        )}
+        title={processSidebarCollapsed && customerEventsSidebarCollapsed ? "Expand all sidebars" : "Collapse all sidebars"}
+      >
+        {processSidebarCollapsed && customerEventsSidebarCollapsed ? (
+          <PanelRightOpen className="h-4 w-4" />
+        ) : (
+          <PanelRightClose className="h-4 w-4" />
+        )}
+      </Button>
 
       {/* Customer Details Sidebar */}
       <Sheet open={showCustomerSidebar} onOpenChange={setShowCustomerSidebar}>
