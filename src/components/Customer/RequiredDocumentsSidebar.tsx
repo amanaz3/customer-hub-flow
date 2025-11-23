@@ -326,7 +326,7 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
   return (
     <div 
       className={cn(
-        "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[400]",
+        "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[700]",
         isCollapsed ? "w-12" : "w-80"
       )}
     >
