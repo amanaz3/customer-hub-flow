@@ -175,6 +175,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [selectedCustomerData, setSelectedCustomerData] = useState<any>(null);
   const [showCustomerSidebar, setShowCustomerSidebar] = useState(false);
   const [fieldLabelMap, setFieldLabelMap] = useState<Record<string, string>>({});
+  const [applicationId, setApplicationId] = useState<string | null>(null);
+  const [customerId, setCustomerId] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -297,6 +299,232 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     }
   };
 
+  // Save application data at each step to database
+  const saveApplicationAtStep = async (stepNumber: number) => {
+    if (!user?.id) {
+      console.log('No user ID, skipping save');
+      return;
+    }
+
+    const values = form.getValues();
+    
+    try {
+      // Step 1: Create/update customer and application
+      if (stepNumber === 1) {
+        let currentCustomerId = customerId;
+        
+        // If using existing customer, use selected customer ID
+        if (companyMode && selectedCustomerId) {
+          currentCustomerId = selectedCustomerId;
+          setCustomerId(selectedCustomerId);
+        } else {
+          // Create or update customer
+          if (!currentCustomerId) {
+            // Get next reference number
+            const { data: refData } = await supabase
+              .from('customers')
+              .select('reference_number')
+              .order('reference_number', { ascending: false })
+              .limit(1)
+              .maybeSingle();
+            
+            const nextRefNumber = (refData?.reference_number || 0) + 1;
+
+            const customerData = {
+              name: values.name,
+              email: values.email || null,
+              mobile: values.mobile,
+              company: values.company || '',
+              amount: 0,
+              license_type: values.license_type || 'Mainland',
+              lead_source: values.lead_source,
+              user_id: user.id,
+              reference_number: nextRefNumber,
+              status: 'Draft' as const,
+            };
+
+            const { data: customer, error: customerError } = await supabase
+              .from('customers')
+              .insert([customerData])
+              .select()
+              .single();
+
+            if (customerError) throw customerError;
+            
+            currentCustomerId = customer.id;
+            setCustomerId(customer.id);
+          } else {
+            // Update existing customer
+            const { error: updateError } = await supabase
+              .from('customers')
+              .update({
+                name: values.name,
+                email: values.email || null,
+                mobile: values.mobile,
+                company: values.company || '',
+                license_type: values.license_type || 'Mainland',
+                lead_source: values.lead_source,
+                updated_at: new Date().toISOString(),
+              })
+              .eq('id', currentCustomerId);
+
+            if (updateError) throw updateError;
+          }
+        }
+
+        // Merge application data
+        const applicationData = {
+          step1: {
+            name: values.name,
+            email: values.email,
+            mobile: values.mobile,
+            customer_type: values.customer_type,
+            company: values.company,
+            lead_source: values.lead_source,
+            completed: true,
+            completed_at: new Date().toISOString(),
+          }
+        };
+
+        // Create or update application
+        if (!applicationId) {
+          // Get next application reference number
+          const { data: appRefData } = await supabase
+            .from('account_applications')
+            .select('reference_number')
+            .order('reference_number', { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          
+          const nextAppRefNumber = (appRefData?.reference_number || 0) + 1;
+
+          const { data: application, error: appError } = await supabase
+            .from('account_applications')
+            .insert([{
+              customer_id: currentCustomerId,
+              application_data: applicationData,
+              status: 'draft',
+              reference_number: nextAppRefNumber,
+            }])
+            .select()
+            .single();
+
+          if (appError) throw appError;
+          
+          setApplicationId(application.id);
+          
+          toast({
+            title: "Step 1 Saved",
+            description: `Application #${nextAppRefNumber} created`,
+          });
+        } else {
+          // Update existing application
+          const { error: updateError } = await supabase
+            .from('account_applications')
+            .update({
+              application_data: applicationData,
+              updated_at: new Date().toISOString(),
+            })
+            .eq('id', applicationId);
+
+          if (updateError) throw updateError;
+          
+          toast({
+            title: "Step 1 Saved",
+            description: "Customer details saved",
+          });
+        }
+      }
+
+      // Step 2: Update application with service selection
+      if (stepNumber === 2 && applicationId) {
+        // Get existing application data
+        const { data: existingApp } = await supabase
+          .from('account_applications')
+          .select('application_data')
+          .eq('id', applicationId)
+          .single();
+
+        const existingData = (existingApp?.application_data as Record<string, any>) || {};
+        const mergedData = {
+          ...existingData,
+          step2: {
+            product_id: values.product_id,
+            license_type: values.license_type,
+            completed: true,
+            completed_at: new Date().toISOString(),
+          }
+        };
+
+        const { error: updateError } = await supabase
+          .from('account_applications')
+          .update({
+            application_data: mergedData,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', applicationId);
+
+        if (updateError) throw updateError;
+
+        toast({
+          title: "Step 2 Saved",
+          description: "Service selection saved",
+        });
+      }
+
+      // Step 3: Update application with service details
+      if (stepNumber === 3 && applicationId) {
+        // Get existing application data
+        const { data: existingApp } = await supabase
+          .from('account_applications')
+          .select('application_data')
+          .eq('id', applicationId)
+          .single();
+
+        // Collect all service detail fields
+        const serviceDetails: Record<string, any> = {};
+        Object.entries(values).forEach(([key, value]) => {
+          if (key.startsWith('section_')) {
+            serviceDetails[key] = value;
+          }
+        });
+
+        const existingData = (existingApp?.application_data as Record<string, any>) || {};
+        const mergedData = {
+          ...existingData,
+          step3: {
+            ...serviceDetails,
+            completed: true,
+            completed_at: new Date().toISOString(),
+          }
+        };
+
+        const { error: updateError } = await supabase
+          .from('account_applications')
+          .update({
+            application_data: mergedData,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', applicationId);
+
+        if (updateError) throw updateError;
+
+        toast({
+          title: "Step 3 Saved",
+          description: "Service details saved",
+        });
+      }
+
+    } catch (error: any) {
+      console.error('Error saving application at step:', error);
+      toast({
+        title: "Save Error",
+        description: error.message || "Failed to save application data",
+        variant: "destructive",
+      });
+    }
+  };
+
   // Auto-progress removed - users must manually click Next to progress through steps
   
   // Scroll to top when step changes
@@ -371,53 +599,107 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         return;
       }
 
-      // Get next reference number
-      const { data: refData } = await supabase
-        .from('customers')
-        .select('reference_number')
-        .order('reference_number', { ascending: false })
-        .limit(1)
-        .single();
+      // Use existing customer ID or create new customer
+      let finalCustomerId = customerId;
       
-      const nextRefNumber = (refData?.reference_number || 0) + 1;
+      if (!finalCustomerId) {
+        // Get next reference number
+        const { data: refData } = await supabase
+          .from('customers')
+          .select('reference_number')
+          .order('reference_number', { ascending: false })
+          .limit(1)
+          .single();
+        
+        const nextRefNumber = (refData?.reference_number || 0) + 1;
 
-      const customerData = {
-        name: data.name,
-        email: data.email,
-        mobile: data.mobile,
-        company: data.company || '',
-        amount: 0,
-        license_type: data.license_type,
-        lead_source: data.lead_source,
-        user_id: user.id,
-        product_id: data.product_id,
-        annual_turnover: data.annual_turnover,
-        jurisdiction: data.jurisdiction,
-        customer_notes: data.customer_notes,
-        reference_number: nextRefNumber,
-        status: 'Submitted' as const,
-      };
+        const customerData = {
+          name: data.name,
+          email: data.email,
+          mobile: data.mobile,
+          company: data.company || '',
+          amount: 0,
+          license_type: data.license_type,
+          lead_source: data.lead_source,
+          user_id: user.id,
+          product_id: data.product_id,
+          annual_turnover: data.annual_turnover,
+          jurisdiction: data.jurisdiction,
+          customer_notes: data.customer_notes,
+          reference_number: nextRefNumber,
+          status: 'Submitted' as const,
+        };
 
-      const { data: customer, error } = await supabase
-        .from('customers')
-        .insert([customerData])
-        .select()
-        .single();
+        const { data: customer, error } = await supabase
+          .from('customers')
+          .insert([customerData])
+          .select()
+          .single();
 
-      if (error) throw error;
+        if (error) throw error;
+        
+        finalCustomerId = customer.id;
+      } else {
+        // Update existing customer to Submitted status
+        const { error: updateError } = await supabase
+          .from('customers')
+          .update({
+            status: 'Submitted' as const,
+            product_id: data.product_id,
+            customer_notes: data.customer_notes,
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', finalCustomerId);
+
+        if (updateError) throw updateError;
+      }
+
+      // Merge step 4 data into application
+      if (applicationId) {
+        // Get existing application data
+        const { data: existingApp } = await supabase
+          .from('account_applications')
+          .select('application_data')
+          .eq('id', applicationId)
+          .single();
+
+        const existingData = (existingApp?.application_data as Record<string, any>) || {};
+        const mergedData = {
+          ...existingData,
+          step4: {
+            customer_notes: data.customer_notes,
+            submitted: true,
+            submitted_at: new Date().toISOString(),
+          }
+        };
+
+        // Update application with merged data and submitted status
+        const { error: updateError } = await supabase
+          .from('account_applications')
+          .update({
+            application_data: mergedData,
+            status: 'submitted',
+            updated_at: new Date().toISOString(),
+          })
+          .eq('id', applicationId);
+
+        if (updateError) throw updateError;
+      }
 
       toast({
         title: "Success",
-        description: "Customer created successfully",
+        description: "Application submitted successfully",
       });
 
       form.reset();
+      setApplicationId(null);
+      setCustomerId(null);
       onSuccess?.();
     } catch (error: any) {
-      console.error('Error creating customer:', error);
+      console.error('Error submitting application:', error);
       toast({
         title: "Error",
-        description: error.message || "Failed to create customer",
+        description: error.message || "Failed to submit application",
         variant: "destructive",
       });
     } finally {
@@ -1404,6 +1686,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             onClick={async () => {
               const canProgress = await canProgressToNextStep();
               if (canProgress) {
+                // Save application data at current step before progressing
+                await saveApplicationAtStep(currentStep);
                 setCurrentStep(prev => Math.min(4, prev + 1));
                 setSidebarCollapsed(true);
               } else {
