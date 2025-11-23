@@ -201,6 +201,7 @@ const ApplicationsList = () => {
   }, [rejectedApplications, searchTerm]);
 
   const statusColors: Record<string, string> = {
+    predraft: 'bg-gray-500',
     draft: 'bg-yellow-400',
     submitted: 'bg-blue-500',
     'under review': 'bg-orange-500',
@@ -221,6 +222,7 @@ const ApplicationsList = () => {
 
   const getStatusLabel = (status: string): string => {
     const statusLabels: Record<string, string> = {
+      predraft: 'Pre-draft',
       draft: 'Draft',
       submitted: 'Submitted',
       returned: 'Returned',

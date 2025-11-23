@@ -35,7 +35,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-type ApplicationStatus = 'draft' | 'submitted' | 'returned' | 'paid' | 'completed' | 'rejected' | 'under_review' | 'approved' | 'need more info';
+type ApplicationStatus = 'predraft' | 'draft' | 'submitted' | 'returned' | 'paid' | 'completed' | 'rejected' | 'under_review' | 'approved' | 'need more info';
 
 interface StatusChange {
   previous_status: string;
@@ -474,9 +474,22 @@ const ApplicationsByTeam = () => {
   };
 
   const getStatusBadge = (status: ApplicationStatus) => {
+    const statusLabels: Record<ApplicationStatus, string> = {
+      'predraft': 'Pre-draft',
+      'draft': 'Draft',
+      'submitted': 'Submitted',
+      'returned': 'Returned',
+      'need more info': 'Need More Info',
+      'paid': 'Paid',
+      'completed': 'Completed',
+      'rejected': 'Rejected',
+      'under_review': 'Under Review',
+      'approved': 'Approved',
+    };
+    
     return (
       <Badge className={statusColors[status]}>
-        {status.charAt(0).toUpperCase() + status.slice(1)}
+        {statusLabels[status] || status.charAt(0).toUpperCase() + status.slice(1)}
       </Badge>
     );
   };
