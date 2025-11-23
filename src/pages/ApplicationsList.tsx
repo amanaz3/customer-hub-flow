@@ -111,7 +111,8 @@ const ApplicationsList = () => {
         const productIds = data
           .map(app => {
             const appData = app.application_data as any;
-            return appData?.product_id;
+            // Check both root level and step2 for product_id
+            return appData?.product_id || appData?.step2?.product_id;
           })
           .filter((id): id is string => !!id);
 
@@ -124,7 +125,8 @@ const ApplicationsList = () => {
           // Map products to applications
           const applicationsWithProducts = data.map(app => {
             const appData = app.application_data as any;
-            const productId = appData?.product_id;
+            // Check both root level and step2 for product_id
+            const productId = appData?.product_id || appData?.step2?.product_id;
             const product = products?.find(p => p.id === productId);
             return {
               ...app,
