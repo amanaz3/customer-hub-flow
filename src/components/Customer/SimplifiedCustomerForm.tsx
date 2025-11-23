@@ -939,53 +939,51 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
     return (
       <div className="mb-3">
-        <div className="border border-border rounded-lg p-4 bg-card relative">
-          <button
-            type="button"
-            className="absolute top-3 right-3 text-muted-foreground hover:text-foreground transition-colors"
-          >
-            <ChevronUp className="h-4 w-4" />
-          </button>
-          
-          <div className="flex items-center gap-2 mb-3 pr-8">
-            <User className="h-4 w-4 text-primary" />
-            <span className="font-medium text-sm">{selectedCustomerData.name}</span>
-          </div>
-
-          <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-            <div className="flex items-start gap-2">
-              <User className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-              <div className="min-w-0">
-                <div className="text-xs text-muted-foreground">Name</div>
-                <div className="font-medium truncate">{selectedCustomerData.name}</div>
+        <Accordion type="single" collapsible defaultValue="customer-info">
+          <AccordionItem value="customer-info" className="border border-border rounded-lg bg-card">
+            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-primary" />
+                <span className="font-medium text-sm">{selectedCustomerData.name}</span>
               </div>
-            </div>
+            </AccordionTrigger>
+            <AccordionContent className="px-4 pb-4">
+              <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
+                <div className="flex items-start gap-2">
+                  <User className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <div className="text-xs text-muted-foreground">Name</div>
+                    <div className="font-medium truncate">{selectedCustomerData.name}</div>
+                  </div>
+                </div>
 
-            <div className="flex items-start gap-2">
-              <Mail className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-              <div className="min-w-0">
-                <div className="text-xs text-muted-foreground">Email</div>
-                <div className="font-medium truncate">{selectedCustomerData.email}</div>
-              </div>
-            </div>
+                <div className="flex items-start gap-2">
+                  <Mail className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <div className="text-xs text-muted-foreground">Email</div>
+                    <div className="font-medium truncate">{selectedCustomerData.email}</div>
+                  </div>
+                </div>
 
-            <div className="flex items-start gap-2">
-              <Phone className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-              <div className="min-w-0">
-                <div className="text-xs text-muted-foreground">Phone</div>
-                <div className="font-medium">{selectedCustomerData.mobile}</div>
-              </div>
-            </div>
+                <div className="flex items-start gap-2">
+                  <Phone className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <div className="text-xs text-muted-foreground">Phone</div>
+                    <div className="font-medium">{selectedCustomerData.mobile}</div>
+                  </div>
+                </div>
 
-            <div className="flex items-start gap-2">
-              <Building2 className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-              <div className="min-w-0">
-                <div className="text-xs text-muted-foreground">Company</div>
-                <div className="font-medium truncate">{selectedCustomerData.company || 'N/A'}</div>
+                <div className="flex items-start gap-2">
+                  <Building2 className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
+                  <div className="min-w-0">
+                    <div className="text-xs text-muted-foreground">Company</div>
+                    <div className="font-medium truncate">{selectedCustomerData.company || 'N/A'}</div>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div>
-        </div>
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
       </div>
     );
   };
