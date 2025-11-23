@@ -1614,7 +1614,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       </Form>
       
       {/* Floating Action Buttons */}
-      <div className="fixed bottom-6 right-6 flex flex-col gap-3 z-[9999]">
+      <div className={`fixed bottom-6 flex flex-col gap-3 z-[9999] transition-all duration-300 ${
+        sidebarCollapsed ? 'right-[72px]' : 'right-[344px]'
+      }`}>
         {/* Cancel Button */}
         <Button
           type="button"
