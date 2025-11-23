@@ -109,7 +109,7 @@ export const ProcessSummarySidebar = ({
         size="icon"
         variant="secondary"
         onClick={handleToggle}
-        className={`absolute top-4 h-10 w-10 rounded-full shadow-lg bg-secondary hover:bg-secondary/80 border-2 border-border hover:scale-110 transition-all z-[9999] ${
+        className={`absolute top-1 h-10 w-10 rounded-full shadow-lg bg-secondary hover:bg-secondary/80 border-2 border-border hover:scale-110 transition-all z-[9999] ${
           isCollapsed ? 'right-[-16px]' : 'right-[-20px]'
         }`}
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
