@@ -939,72 +939,37 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
     return (
       <div className="mb-3">
-        <Accordion 
-          type="single" 
-          collapsible 
-          className="transition-all duration-300"
-          value={accordionOpen}
-          onValueChange={setAccordionOpen}
-        >
-          <AccordionItem value="customer-accordion" className="border-2 border-cyan-500/30 rounded-xl bg-slate-950/95 backdrop-blur">
-            <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-slate-900/50 rounded-xl transition-colors [&[data-state=open]]:rounded-b-none">
-              <div className="flex items-center gap-2.5 w-full">
-                <div className="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center shrink-0">
-                  <Check className="h-3.5 w-3.5 text-cyan-400" />
-                </div>
-                <div className="flex-1 min-w-0 text-left">
-                  <div className="font-semibold text-sm text-slate-100 truncate">{selectedCustomerData.name}</div>
-                  <div className="text-xs text-cyan-400/70 truncate">
-                    {selectedCustomerData.company && `${selectedCustomerData.company} • `}
-                    {selectedCustomerData.reference_number && `#${selectedCustomerData.reference_number}`}
-                  </div>
-                </div>
+        <div className="border-2 border-primary/20 bg-primary/5 rounded-lg p-3">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+              <Check className="h-3.5 w-3.5 text-primary" />
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="font-semibold text-sm truncate">{selectedCustomerData.name}</div>
+              <div className="text-xs text-muted-foreground truncate">
+                {selectedCustomerData.company && `${selectedCustomerData.company} • `}
+                {selectedCustomerData.reference_number && `#${selectedCustomerData.reference_number}`}
               </div>
-            </AccordionTrigger>
-            <AccordionContent className="px-4 pb-4 pt-3">
-              <div className="grid grid-cols-2 gap-4">
-                {selectedCustomerData.email && (
-                  <div className="flex items-start gap-2">
-                    <Mail className="h-4 w-4 text-cyan-400 mt-0.5 shrink-0" />
-                    <div className="min-w-0">
-                      <span className="text-cyan-400/70 block text-xs font-medium mb-0.5">Email</span>
-                      <span className="font-medium text-slate-100 text-sm truncate block">{selectedCustomerData.email}</span>
-                    </div>
-                  </div>
-                )}
-                {selectedCustomerData.mobile && (
-                  <div className="flex items-start gap-2">
-                    <Phone className="h-4 w-4 text-cyan-400 mt-0.5 shrink-0" />
-                    <div className="min-w-0">
-                      <span className="text-cyan-400/70 block text-xs font-medium mb-0.5">Phone</span>
-                      <span className="font-medium text-slate-100 text-sm truncate block">{selectedCustomerData.mobile}</span>
-                    </div>
-                  </div>
-                )}
-                {selectedCustomerData.company && (
-                  <div className="flex items-start gap-2">
-                    <Building2 className="h-4 w-4 text-cyan-400 mt-0.5 shrink-0" />
-                    <div className="min-w-0">
-                      <span className="text-cyan-400/70 block text-xs font-medium mb-0.5">Company</span>
-                      <span className="font-medium text-slate-100 text-sm truncate block">{selectedCustomerData.company}</span>
-                    </div>
-                  </div>
-                )}
-                {selectedCustomerData.license_type && (
-                  <div className="flex items-start gap-2">
-                    <Building2 className="h-4 w-4 text-cyan-400 mt-0.5 shrink-0" />
-                    <div className="min-w-0">
-                      <span className="text-cyan-400/70 block text-xs font-medium mb-0.5">License</span>
-                      <Badge variant="outline" className="border-cyan-500/30 text-cyan-400 bg-cyan-500/10 text-xs px-2 py-0.5">
-                        {selectedCustomerData.license_type}
-                      </Badge>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
+            </div>
+          </div>
+          <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+            {selectedCustomerData.email && (
+              <span className="flex items-center gap-1">
+                <Mail className="h-3 w-3" />
+                {selectedCustomerData.email}
+              </span>
+            )}
+            {selectedCustomerData.mobile && (
+              <span className="flex items-center gap-1">
+                <Phone className="h-3 w-3" />
+                {selectedCustomerData.mobile}
+              </span>
+            )}
+            {selectedCustomerData.license_type && (
+              <Badge variant="secondary" className="h-5 text-xs px-2">{selectedCustomerData.license_type}</Badge>
+            )}
+          </div>
+        </div>
       </div>
     );
   };
@@ -1057,69 +1022,62 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {currentStep > 1 && form.watch('name') && (
                 <div className="sticky z-20 bg-card/95 backdrop-blur-sm -mx-3 sm:-mx-4 px-3 sm:px-4 pt-2 pb-3 mb-3 border-b border-border shadow-md" style={{ top: 'var(--unified-header-h, 160px)' }}>
                   <div className="flex justify-center">
-                    <div className="w-full max-w-md">
-                      <Accordion 
-                        type="single" 
-                        collapsible 
-                        className="transition-all duration-300"
-                        value={accordionOpen}
-                        onValueChange={setAccordionOpen}
-                      >
-                        <AccordionItem value="customer-info" className="border-2 border-cyan-500/30 rounded-xl bg-slate-950/95 backdrop-blur">
-                          <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-slate-900/50 rounded-xl transition-colors [&[data-state=open]]:rounded-b-none">
-                            <div className="flex items-center gap-2.5 w-full">
-                              <User className="h-4 w-4 text-cyan-400 shrink-0" />
-                              <span className="text-sm font-semibold text-slate-100 truncate flex-1 text-left">{form.watch('name')}</span>
-                              {form.watch('company') && (
-                                <span className="text-xs text-cyan-400/70 truncate hidden sm:block">
-                                  {form.watch('company')}
-                                </span>
-                              )}
+                  <Accordion 
+                    type="single" 
+                    collapsible 
+                    className={`bg-card transition-all duration-300 ${accordionOpen === 'customer-info' ? 'w-1/2' : 'w-1/4'}`}
+                    value={accordionOpen}
+                    onValueChange={setAccordionOpen}
+                  >
+                    <AccordionItem value="customer-info" className="border rounded-lg">
+                    <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                      <div className="flex items-center gap-2">
+                        <User className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium">{form.watch('name')}</span>
+                      </div>
+                    </AccordionTrigger>
+                    <AccordionContent className="px-4 pb-4">
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                        {form.watch('name') && (
+                          <div className="flex items-start gap-2">
+                            <User className="h-4 w-4 text-primary mt-0.5" />
+                            <div>
+                              <span className="text-muted-foreground block text-xs">Name</span>
+                              <span className="font-medium">{form.watch('name')}</span>
                             </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="px-4 pb-4 pt-3">
-                            <div className="grid grid-cols-2 gap-4">
-                              {form.watch('name') && (
-                                <div className="flex items-start gap-2.5">
-                                  <User className="h-4 w-4 text-cyan-400 mt-0.5 shrink-0" />
-                                  <div className="min-w-0">
-                                    <span className="text-cyan-400/70 block text-xs font-medium mb-0.5">Name</span>
-                                    <span className="font-medium text-slate-100 text-sm truncate block">{form.watch('name')}</span>
-                                  </div>
-                                </div>
-                              )}
-                              {form.watch('email') && (
-                                <div className="flex items-start gap-2.5">
-                                  <Mail className="h-4 w-4 text-cyan-400 mt-0.5 shrink-0" />
-                                  <div className="min-w-0">
-                                    <span className="text-cyan-400/70 block text-xs font-medium mb-0.5">Email</span>
-                                    <span className="font-medium text-slate-100 text-sm truncate block">{form.watch('email')}</span>
-                                  </div>
-                                </div>
-                              )}
-                              {form.watch('mobile') && (
-                                <div className="flex items-start gap-2.5">
-                                  <Phone className="h-4 w-4 text-cyan-400 mt-0.5 shrink-0" />
-                                  <div className="min-w-0">
-                                    <span className="text-cyan-400/70 block text-xs font-medium mb-0.5">Phone</span>
-                                    <span className="font-medium text-slate-100 text-sm truncate block">{form.watch('mobile')}</span>
-                                  </div>
-                                </div>
-                              )}
-                              {form.watch('company') && (
-                                <div className="flex items-start gap-2.5">
-                                  <Building2 className="h-4 w-4 text-cyan-400 mt-0.5 shrink-0" />
-                                  <div className="min-w-0">
-                                    <span className="text-cyan-400/70 block text-xs font-medium mb-0.5">Company</span>
-                                    <span className="font-medium text-slate-100 text-sm truncate block">{form.watch('company')}</span>
-                                  </div>
-                                </div>
-                              )}
+                          </div>
+                        )}
+                        {form.watch('email') && (
+                          <div className="flex items-start gap-2">
+                            <Mail className="h-4 w-4 text-primary mt-0.5" />
+                            <div>
+                              <span className="text-muted-foreground block text-xs">Email</span>
+                              <span className="font-medium">{form.watch('email')}</span>
                             </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
-                    </div>
+                          </div>
+                        )}
+                        {form.watch('mobile') && (
+                          <div className="flex items-start gap-2">
+                            <Phone className="h-4 w-4 text-primary mt-0.5" />
+                            <div>
+                              <span className="text-muted-foreground block text-xs">Phone</span>
+                              <span className="font-medium">{form.watch('mobile')}</span>
+                            </div>
+                          </div>
+                        )}
+                        {form.watch('company') && (
+                          <div className="flex items-start gap-2">
+                            <Building2 className="h-4 w-4 text-primary mt-0.5" />
+                            <div>
+                              <span className="text-muted-foreground block text-xs">Company</span>
+                              <span className="font-medium">{form.watch('company')}</span>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </AccordionContent>
+                  </AccordionItem>
+                  </Accordion>
                   </div>
                 </div>
               )}
@@ -1127,75 +1085,40 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Step 1: Customer Selection */}
               {currentStep === 1 && (
                 <div key="step-1" className="animate-fade-in">
-                  {/* Show selected customer - Accordion Style */}
+                  {/* Show selected customer - Compact Style */}
                   {companyMode && selectedCustomerData && (
-                    <div className="px-3 sm:px-4 pb-3">
-                      <Accordion 
-                        type="single" 
-                        collapsible 
-                        className="transition-all duration-300"
-                        value={accordionOpen}
-                        onValueChange={setAccordionOpen}
-                      >
-                        <AccordionItem value="selected-customer" className="border-2 border-cyan-500/30 rounded-xl bg-slate-950/95 backdrop-blur">
-                          <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-slate-900/50 rounded-xl transition-colors [&[data-state=open]]:rounded-b-none">
-                            <div className="flex items-center gap-2.5 w-full">
-                              <div className="w-6 h-6 rounded-full bg-cyan-500/20 flex items-center justify-center shrink-0">
-                                <Check className="h-3.5 w-3.5 text-cyan-400" />
-                              </div>
-                              <div className="flex-1 min-w-0 text-left">
-                                <div className="font-semibold text-sm text-slate-100 truncate">{selectedCustomerData.name}</div>
-                                <div className="text-xs text-cyan-400/70 truncate">
-                                  {selectedCustomerData.company && `${selectedCustomerData.company} • `}
-                                  {selectedCustomerData.reference_number && `#${selectedCustomerData.reference_number}`}
-                                </div>
-                              </div>
+                    <div className="px-3 sm:px-4 pb-2">
+                      <div className="border-2 border-primary/20 bg-primary/5 rounded-lg p-3">
+                        <div className="flex items-center gap-2 mb-2">
+                          <div className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                            <Check className="h-3.5 w-3.5 text-primary" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-semibold text-sm truncate">{selectedCustomerData.name}</div>
+                            <div className="text-xs text-muted-foreground truncate">
+                              {selectedCustomerData.company && `${selectedCustomerData.company} • `}
+                              {selectedCustomerData.reference_number && `#${selectedCustomerData.reference_number}`}
                             </div>
-                          </AccordionTrigger>
-                          <AccordionContent className="px-4 pb-4 pt-3">
-                            <div className="grid grid-cols-2 gap-4">
-                              {selectedCustomerData.email && (
-                                <div className="flex items-start gap-2">
-                                  <Mail className="h-4 w-4 text-cyan-400 mt-0.5 shrink-0" />
-                                  <div className="min-w-0">
-                                    <span className="text-cyan-400/70 block text-xs font-medium mb-0.5">Email</span>
-                                    <span className="font-medium text-slate-100 text-sm truncate block">{selectedCustomerData.email}</span>
-                                  </div>
-                                </div>
-                              )}
-                              {selectedCustomerData.mobile && (
-                                <div className="flex items-start gap-2">
-                                  <Phone className="h-4 w-4 text-cyan-400 mt-0.5 shrink-0" />
-                                  <div className="min-w-0">
-                                    <span className="text-cyan-400/70 block text-xs font-medium mb-0.5">Phone</span>
-                                    <span className="font-medium text-slate-100 text-sm truncate block">{selectedCustomerData.mobile}</span>
-                                  </div>
-                                </div>
-                              )}
-                              {selectedCustomerData.company && (
-                                <div className="flex items-start gap-2">
-                                  <Building2 className="h-4 w-4 text-cyan-400 mt-0.5 shrink-0" />
-                                  <div className="min-w-0">
-                                    <span className="text-cyan-400/70 block text-xs font-medium mb-0.5">Company</span>
-                                    <span className="font-medium text-slate-100 text-sm truncate block">{selectedCustomerData.company}</span>
-                                  </div>
-                                </div>
-                              )}
-                              {selectedCustomerData.license_type && (
-                                <div className="flex items-start gap-2">
-                                  <Building2 className="h-4 w-4 text-cyan-400 mt-0.5 shrink-0" />
-                                  <div className="min-w-0">
-                                    <span className="text-cyan-400/70 block text-xs font-medium mb-0.5">License</span>
-                                    <Badge variant="outline" className="border-cyan-500/30 text-cyan-400 bg-cyan-500/10 text-xs px-2 py-0.5">
-                                      {selectedCustomerData.license_type}
-                                    </Badge>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      </Accordion>
+                          </div>
+                        </div>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
+                          {selectedCustomerData.email && (
+                            <span className="flex items-center gap-1">
+                              <Mail className="h-3 w-3" />
+                              {selectedCustomerData.email}
+                            </span>
+                          )}
+                          {selectedCustomerData.mobile && (
+                            <span className="flex items-center gap-1">
+                              <Phone className="h-3 w-3" />
+                              {selectedCustomerData.mobile}
+                            </span>
+                          )}
+                          {selectedCustomerData.license_type && (
+                            <Badge variant="secondary" className="h-5 text-xs px-2">{selectedCustomerData.license_type}</Badge>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   )}
 
