@@ -90,7 +90,7 @@ export const ExistingCustomerSelector = ({
             value={searchTerm}
             onChange={handleInputChange}
             className="pl-12 h-14 text-base font-medium"
-            disabled={loading}
+            autoFocus
           />
         </div>
 
