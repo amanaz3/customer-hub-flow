@@ -23,6 +23,7 @@ import { ExistingCustomerSelector } from './ExistingCustomerSelector';
 import { ProcessSummarySidebar } from './ProcessSummarySidebar';
 import { UnifiedProgressHeader } from './UnifiedProgressHeader';
 import { ValidationIcon } from './ValidationIcon';
+import { CustomerEventsSidebar } from './CustomerEventsSidebar';
 import { HomeFinanceFields } from './fields/HomeFinanceFields';
 import { BankAccountFields } from './fields/BankAccountFields';
 import { GoAMLFields } from './fields/GoAMLFields';
@@ -176,11 +177,19 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [accordionOpen, setAccordionOpen] = useState<string | undefined>(undefined);
   const [selectedCustomerData, setSelectedCustomerData] = useState<any>(null);
   const [showCustomerSidebar, setShowCustomerSidebar] = useState(false);
+  const [customerEventsSidebarCollapsed, setCustomerEventsSidebarCollapsed] = useState(true);
   const [fieldLabelMap, setFieldLabelMap] = useState<Record<string, string>>({});
   const [applicationId, setApplicationId] = useState<string | null>(null);
   const [customerId, setCustomerId] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
+
+  // Auto-expand customer events sidebar when customer is selected
+  useEffect(() => {
+    if (companyMode && selectedCustomerId) {
+      setCustomerEventsSidebarCollapsed(false);
+    }
+  }, [companyMode, selectedCustomerId]);
 
   const form = useForm<FormData>({
     resolver: zodResolver(formSchema),
@@ -1677,6 +1686,15 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           companyMode={companyMode}
         />
       </div>
+
+      {/* Customer Events Sidebar - Auto-expands when customer selected */}
+      {companyMode && selectedCustomerId && (
+        <CustomerEventsSidebar
+          customerId={selectedCustomerId}
+          collapsed={customerEventsSidebarCollapsed}
+          onCollapsedChange={setCustomerEventsSidebarCollapsed}
+        />
+      )}
 
       {/* Customer Details Sidebar */}
       <Sheet open={showCustomerSidebar} onOpenChange={setShowCustomerSidebar}>
