@@ -258,6 +258,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
   // Auto-progress removed - users must manually click Next to progress through steps
   
+  // Scroll to top when step changes
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [currentStep]);
+  
   // Auto-switch to existing customer tab when a customer is selected
   useEffect(() => {
     if (selectedCustomerId && !companyMode) {
