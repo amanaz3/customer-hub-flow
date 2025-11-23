@@ -165,6 +165,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   onCancel,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showCancelDialog, setShowCancelDialog] = useState(false);
   const [selectedProductName, setSelectedProductName] = useState<string>('');
@@ -702,6 +703,17 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       toast({
         title: "Error",
         description: "You must be logged in to save a draft",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    // Validate current step before saving
+    const canProgress = await canProgressToNextStep();
+    if (!canProgress) {
+      toast({
+        title: "Cannot Save Draft",
+        description: "Please complete all mandatory fields in the current step correctly before saving",
         variant: "destructive",
       });
       return;
@@ -1656,6 +1668,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 // Save application data at current step before progressing
                 await saveApplicationAtStep(currentStep);
                 setCurrentStep(prev => Math.min(4, prev + 1));
+                // Mark current step as completed
+                setCompletedSteps(prev => new Set(prev).add(currentStep));
                 setSidebarCollapsed(true);
               } else {
                 toast({
@@ -1673,8 +1687,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           </Button>
         )}
         
-        {/* Save Draft Button - Only in Step 4 */}
-        {currentStep === 4 && (
+        {/* Save Draft Button - Show when all 3 steps completed */}
+        {completedSteps.has(1) && completedSteps.has(2) && completedSteps.has(3) && (
           <Button
             type="button"
             size="icon"
