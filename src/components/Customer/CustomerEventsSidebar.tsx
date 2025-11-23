@@ -139,7 +139,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 
   return (
     <div className={cn(
-      "fixed right-0 top-16 h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-[100000] overflow-y-auto",
+      "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[100000] overflow-y-auto",
       isCollapsed ? "w-12" : "w-80"
     )}>
       {/* Toggle Button - Rounded Arrow */}
@@ -147,7 +147,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
         size="icon"
         variant="secondary"
         onClick={toggleCollapsed}
-        className={`absolute top-4 h-10 w-10 rounded-full shadow-lg bg-secondary hover:bg-secondary/80 border-2 border-border hover:scale-110 transition-all z-[100002] ${
+        className={`absolute top-20 h-10 w-10 rounded-full shadow-lg bg-secondary hover:bg-secondary/80 border-2 border-border hover:scale-110 transition-all z-[100002] ${
           isCollapsed ? 'left-[-8px]' : 'left-[-8px]'
         }`}
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
