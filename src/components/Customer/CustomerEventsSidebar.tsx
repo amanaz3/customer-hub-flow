@@ -123,7 +123,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   if (customerLoading) {
     return (
       <div className={cn(
-        "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[99999]",
+        "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[100000]",
         isCollapsed ? "w-12" : "w-80"
       )}>
         <div className="space-y-4 p-4">
@@ -139,14 +139,14 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 
   return (
     <div className={cn(
-      "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[99999] overflow-y-auto",
+      "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[100000] overflow-y-auto",
       isCollapsed ? "w-12" : "w-80"
     )}>
       {/* Toggle Button */}
       <Button
         variant="ghost"
         size="sm"
-        className="absolute -left-8 top-4 h-16 w-8 rounded-r-none border-l-0 bg-card border shadow-md z-[99998]"
+        className="absolute -left-8 top-4 h-16 w-8 rounded-r-none border-l-0 bg-card border shadow-md z-[99999]"
         onClick={toggleCollapsed}
       >
         {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
