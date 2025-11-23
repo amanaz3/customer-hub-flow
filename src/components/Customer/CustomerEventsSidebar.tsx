@@ -142,23 +142,20 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
       "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[100000] overflow-y-auto",
       isCollapsed ? "w-12" : "w-80"
     )}>
-      {/* Toggle Button - More Visible */}
+      {/* Toggle Button - Rounded Arrow */}
       <Button
-        variant="default"
-        size="sm"
-        className="absolute -left-10 top-20 h-20 w-10 rounded-l-lg rounded-r-none bg-primary text-primary-foreground hover:bg-primary/90 border-2 border-primary shadow-xl z-[99999] flex flex-col items-center justify-center gap-1"
+        size="icon"
+        variant="secondary"
         onClick={toggleCollapsed}
+        className={`absolute top-4 h-10 w-10 rounded-full shadow-lg bg-secondary hover:bg-secondary/80 border-2 border-border hover:scale-110 transition-all z-[9999] ${
+          isCollapsed ? 'left-[-16px]' : 'left-[-20px]'
+        }`}
+        title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? (
-          <>
-            <ChevronLeft className="h-5 w-5" />
-            <span className="text-[10px] font-medium writing-mode-vertical transform -rotate-180">Show</span>
-          </>
+          <ChevronLeft className="h-5 w-5" />
         ) : (
-          <>
-            <ChevronRight className="h-5 w-5" />
-            <span className="text-[10px] font-medium writing-mode-vertical transform -rotate-180">Hide</span>
-          </>
+          <ChevronRight className="h-5 w-5" />
         )}
       </Button>
 
