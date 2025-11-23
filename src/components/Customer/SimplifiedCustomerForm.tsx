@@ -38,10 +38,37 @@ const formSchema = z.object({
     .regex(/^[a-zA-Z\s\-'.]+$/, "Name can only contain letters, spaces, hyphens, apostrophes, and periods"),
   email: z.string()
     .trim()
+    .toLowerCase()
     .min(1, "Email is required")
-    .email("Enter a valid email address")
-    .regex(/^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, "Email must be in valid format (e.g., user@example.com)")
-    .max(255, "Email must be less than 255 characters"),
+    .max(255, "Email must be less than 255 characters")
+    .refine((val) => {
+      // Strict email validation pattern
+      const emailRegex = /^[a-zA-Z0-9][a-zA-Z0-9._%+-]*@[a-zA-Z0-9][a-zA-Z0-9.-]*\.[a-zA-Z]{2,}$/;
+      
+      // Must match pattern
+      if (!emailRegex.test(val)) {
+        return false;
+      }
+      
+      // Cannot have consecutive dots
+      if (val.includes('..')) {
+        return false;
+      }
+      
+      // Cannot start or end with dot before @
+      const localPart = val.split('@')[0];
+      if (localPart.startsWith('.') || localPart.endsWith('.')) {
+        return false;
+      }
+      
+      // Domain part validation
+      const domainPart = val.split('@')[1];
+      if (!domainPart || domainPart.startsWith('.') || domainPart.endsWith('.') || domainPart.startsWith('-') || domainPart.endsWith('-')) {
+        return false;
+      }
+      
+      return true;
+    }, "Enter a valid email address (e.g., user@example.com)"),
   mobile: z.string()
     .trim()
     .min(1, "Mobile number is required")
