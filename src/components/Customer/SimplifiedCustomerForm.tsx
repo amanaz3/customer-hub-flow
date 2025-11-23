@@ -1044,10 +1044,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             <Card 
               className="-mt-px border-t-0 border-x border-b border-border bg-card shadow-sm rounded-t-none rounded-b-lg max-w-2xl mx-auto overflow-visible"
             >
-            <CardContent className="p-4 sm:p-6 space-y-5 overflow-visible">
+            <CardContent className="p-4 sm:p-6 space-y-3 overflow-visible">
               {/* Customer Information Summary Accordion - Show after step 1 */}
               {currentStep > 1 && form.watch('name') && (
-                <div className="sticky z-20 bg-card/95 backdrop-blur-sm -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 pb-4 mb-8 border-b border-border shadow-md" style={{ top: 'var(--unified-header-h, 160px)' }}>
+                <div className="sticky z-20 bg-card/95 backdrop-blur-sm -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 pb-4 mb-4 border-b border-border shadow-md" style={{ top: 'var(--unified-header-h, 160px)' }}>
                   <div className="flex justify-center">
                   <Accordion 
                     type="single" 
@@ -1112,7 +1112,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Step 1: Customer Selection */}
               {currentStep === 1 && (
                 <div key="step-1" className="animate-fade-in">
-                  <CardHeader className="pb-4">
+                  <CardHeader className="pb-3">
                     <CardTitle className="text-xl">Customer Details</CardTitle>
                     <CardDescription>
                       {companyMode ? 'Select an existing customer or provide new customer information.' : "Enter the customer's basic information to get started."}
@@ -1389,7 +1389,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Step 2: Service Selection */}
               {currentStep === 2 && (
                 <div key="step-2" className="animate-fade-in">
-                  <CardHeader className="pb-4">
+                  <CardHeader className="pb-3">
                     <CardTitle className="text-xl">Service Selection</CardTitle>
                     <CardDescription>
                       Choose the service you need and provide the required details.
@@ -1436,7 +1436,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Step 3: Service Details - Dynamic Form Configuration */}
               {currentStep === 3 && (
                 <div key="step-3" className="animate-fade-in">
-                  <CardHeader className="pb-4">
+                  <CardHeader className="pb-3">
                     <CardTitle className="text-xl">Service Details</CardTitle>
                     <CardDescription>
                       Complete the details specific to your selected service.
@@ -1477,7 +1477,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Step 4: Confirmation & Preview */}
               {currentStep === 4 && (
                 <div key="step-4" className="animate-fade-in">
-                  <CardHeader className="pb-4">
+                  <CardHeader className="pb-3">
                     <CardTitle className="text-xl">Review & Submit</CardTitle>
                     <CardDescription>
                       Please review all the information below carefully before submitting your application.
