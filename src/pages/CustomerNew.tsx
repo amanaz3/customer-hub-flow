@@ -23,6 +23,13 @@ const CustomerNew = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(true);
 
+  // Expand sidebar when product is selected
+  React.useEffect(() => {
+    if (selectedProduct) {
+      setSidebarCollapsed(false);
+    }
+  }, [selectedProduct]);
+
   // Collapse sidebar when switching between new/existing customer
   const handleModeChange = (newMode: boolean) => {
     setCompanyMode(newMode);
