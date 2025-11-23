@@ -123,9 +123,9 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   if (customerLoading) {
     return (
       <div className={cn(
-        "fixed right-0 h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-[500]",
+        "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[500]",
         isCollapsed ? "w-12" : "w-80"
-      )} style={{ top: 'var(--unified-header-h, 64px)' }}>
+      )}>
         <div className="space-y-4 p-4">
           <div className="h-8 bg-muted animate-pulse rounded" />
           <div className="h-32 bg-muted animate-pulse rounded" />
@@ -139,9 +139,9 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 
   return (
     <div className={cn(
-      "fixed right-0 h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-[500] overflow-y-auto",
+      "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[500] overflow-y-auto",
       isCollapsed ? "w-12" : "w-80"
-    )} style={{ top: 'var(--unified-header-h, 64px)' }}>
+    )}>
       {/* Toggle Button */}
       <Button
         variant="ghost"
