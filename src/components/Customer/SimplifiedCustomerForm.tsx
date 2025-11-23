@@ -1673,6 +1673,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           productName={selectedProductName}
           isCollapsed={processSidebarCollapsed}
           onToggleCollapse={setProcessSidebarCollapsed}
+          selectedCustomerData={selectedCustomerData}
+          companyMode={companyMode}
         />
       </div>
 

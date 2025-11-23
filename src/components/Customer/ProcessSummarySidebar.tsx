@@ -21,12 +21,22 @@ interface ProcessSummarySidebarProps {
     product_id?: string;
     amount?: number;
     license_type?: string;
+    company?: string;
     [key: string]: any; // Allow dynamic fields
   };
   productName?: string;
   fieldLabelMap?: Record<string, string>;
   isCollapsed?: boolean;
   onToggleCollapse?: (collapsed: boolean) => void;
+  selectedCustomerData?: {
+    name: string;
+    email: string;
+    mobile: string;
+    company?: string;
+    reference_number?: number;
+    [key: string]: any;
+  } | null;
+  companyMode?: boolean;
 }
 
 export const ProcessSummarySidebar = ({
@@ -35,7 +45,9 @@ export const ProcessSummarySidebar = ({
   productName,
   fieldLabelMap = {},
   isCollapsed: externalCollapsed,
-  onToggleCollapse
+  onToggleCollapse,
+  selectedCustomerData,
+  companyMode
 }: ProcessSummarySidebarProps) => {
   const [internalCollapsed, setInternalCollapsed] = useState(false);
   const isCollapsed = externalCollapsed ?? internalCollapsed;
@@ -48,6 +60,13 @@ export const ProcessSummarySidebar = ({
       setInternalCollapsed(newState);
     }
   };
+
+  // Use selected customer data if in company mode, otherwise use form data
+  const customerName = companyMode && selectedCustomerData ? selectedCustomerData.name : formData.name;
+  const customerEmail = companyMode && selectedCustomerData ? selectedCustomerData.email : formData.email;
+  const customerMobile = companyMode && selectedCustomerData ? selectedCustomerData.mobile : formData.mobile;
+  const customerCompany = companyMode && selectedCustomerData ? selectedCustomerData.company : formData.company;
+  const customerReference = companyMode && selectedCustomerData?.reference_number ? selectedCustomerData.reference_number : null;
   const steps: ProcessStep[] = [
     {
       step: 1,
@@ -189,24 +208,36 @@ export const ProcessSummarySidebar = ({
               <div className="mb-3">
                 <p className="text-[10px] font-semibold text-primary mb-1.5">Customer Information</p>
                 <div className="space-y-1.5 pl-2 border-l-2 border-primary/20">
-                  {formData.name && (
+                  {customerReference && (
                     <div className="text-[11px]">
-                      <span className="text-muted-foreground">Name:</span>
-                      <span className="ml-1 font-medium text-foreground">{formData.name}</span>
+                      <span className="text-muted-foreground">Ref #:</span>
+                      <span className="ml-1 font-medium text-foreground">{customerReference}</span>
                     </div>
                   )}
-                  {formData.email && (
+                  {customerName && (
+                    <div className="text-[11px]">
+                      <span className="text-muted-foreground">Name:</span>
+                      <span className="ml-1 font-medium text-foreground">{customerName}</span>
+                    </div>
+                  )}
+                  {customerEmail && (
                     <div className="text-[11px]">
                       <span className="text-muted-foreground">Email:</span>
                       <span className="ml-1 font-medium text-foreground break-all">
-                        {formData.email}
+                        {customerEmail}
                       </span>
                     </div>
                   )}
-                  {formData.mobile && (
+                  {customerMobile && (
                     <div className="text-[11px]">
                       <span className="text-muted-foreground">Mobile:</span>
-                      <span className="ml-1 font-medium text-foreground">{formData.mobile}</span>
+                      <span className="ml-1 font-medium text-foreground">{customerMobile}</span>
+                    </div>
+                  )}
+                  {customerCompany && (
+                    <div className="text-[11px]">
+                      <span className="text-muted-foreground">Company:</span>
+                      <span className="ml-1 font-medium text-foreground">{customerCompany}</span>
                     </div>
                   )}
                 </div>
