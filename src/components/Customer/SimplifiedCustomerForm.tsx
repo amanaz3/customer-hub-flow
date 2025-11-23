@@ -1614,7 +1614,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       </Form>
       
       {/* Floating Action Buttons */}
-      <div className={`fixed bottom-6 flex flex-col gap-3 z-[9999] transition-all duration-300 ${
+      <div className={`fixed bottom-4 flex flex-col gap-2 z-[9999] transition-all duration-300 ${
         sidebarCollapsed ? 'right-[72px]' : 'right-[344px]'
       }`}>
         {/* Cancel Button */}
@@ -1624,10 +1624,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           variant="outline"
           onClick={() => setShowCancelDialog(true)}
           disabled={isSubmitting}
-          className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 bg-background border-2 border-destructive hover:bg-destructive hover:text-destructive-foreground"
+          className="h-10 w-10 rounded-full shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 bg-background border-2 border-destructive hover:bg-destructive hover:text-destructive-foreground"
           title="Cancel and return"
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4" />
         </Button>
 
         {/* Previous Step Button */}
@@ -1638,10 +1638,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             variant="outline"
             onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
             disabled={isSubmitting}
-            className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 bg-background border-2 border-border"
+            className="h-10 w-10 rounded-full shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 bg-background border-2 border-border"
             title="Previous Step"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4" />
           </Button>
         )}
         
@@ -1666,10 +1666,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               }
             }}
             disabled={isSubmitting}
-            className="h-12 w-12 rounded-full shadow-md hover:shadow-lg transition-all duration-200 hover:scale-110 active:scale-95 bg-primary text-primary-foreground"
+            className="h-10 w-10 rounded-full shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 bg-primary text-primary-foreground"
             title="Next Step"
           >
-            <ArrowRight className="h-5 w-5" />
+            <ArrowRight className="h-4 w-4" />
           </Button>
         )}
         
@@ -1680,10 +1680,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             size="icon"
             onClick={saveDraft}
             disabled={isSubmitting}
-            className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 bg-success hover:bg-success/90 text-success-foreground"
+            className="h-11 w-11 rounded-full shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 bg-success hover:bg-success/90 text-success-foreground"
             title="Save Draft"
           >
-            <Save className="h-6 w-6" />
+            <Save className="h-5 w-5" />
           </Button>
         )}
       </div>
