@@ -177,7 +177,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [processSidebarCollapsed, setProcessSidebarCollapsed] = useState(false);
   const [accordionOpen, setAccordionOpen] = useState<string | undefined>(undefined);
   const [selectedCustomerData, setSelectedCustomerData] = useState<any>(null);
-  const [showCustomerSidebar, setShowCustomerSidebar] = useState(false);
   const [customerEventsSidebarCollapsed, setCustomerEventsSidebarCollapsed] = useState(true);
   const [fieldLabelMap, setFieldLabelMap] = useState<Record<string, string>>({});
   const [applicationId, setApplicationId] = useState<string | null>(null);
@@ -1137,7 +1136,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         onChange={(customerId, customer) => {
                           onCustomerSelect?.(customerId);
                           setSelectedCustomerData(customer);
-                          setShowCustomerSidebar(!!customerId);
                           // Ensure mode is set to existing when customer is selected
                           if (customerId && !companyMode) {
                             onModeChange?.(true);
@@ -1727,126 +1725,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         )}
       </Button>
 
-      {/* Customer Details Sidebar */}
-      <Sheet open={showCustomerSidebar} onOpenChange={setShowCustomerSidebar}>
-        <SheetContent side="right" className="w-[400px] sm:w-[540px] overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle>Customer Details</SheetTitle>
-            <SheetDescription>
-              View selected customer information
-            </SheetDescription>
-          </SheetHeader>
-          
-          {selectedCustomerData && (
-            <div className="mt-6 space-y-6">
-              {/* Basic Information */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Basic Information
-                </h3>
-                <div className="space-y-3 pl-6">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Name</p>
-                    <p className="text-sm font-medium">{selectedCustomerData.name}</p>
-                  </div>
-                  {selectedCustomerData.company && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Company</p>
-                      <p className="text-sm font-medium flex items-center gap-2">
-                        <Building2 className="h-3 w-3" />
-                        {selectedCustomerData.company}
-                      </p>
-                    </div>
-                  )}
-                  {selectedCustomerData.reference_number && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Reference Number</p>
-                      <p className="text-sm font-medium">#{selectedCustomerData.reference_number}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Contact Information */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  Contact Information
-                </h3>
-                <div className="space-y-3 pl-6">
-                  {selectedCustomerData.email && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Email</p>
-                      <p className="text-sm font-medium">{selectedCustomerData.email}</p>
-                    </div>
-                  )}
-                  {selectedCustomerData.mobile && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Mobile</p>
-                      <p className="text-sm font-medium flex items-center gap-2">
-                        <Phone className="h-3 w-3" />
-                        {selectedCustomerData.mobile}
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Business Details */}
-              <div className="space-y-4">
-                <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                  <FileText className="h-4 w-4" />
-                  Business Details
-                </h3>
-                <div className="space-y-3 pl-6">
-                  {selectedCustomerData.license_type && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">License Type</p>
-                      <Badge variant="secondary">{selectedCustomerData.license_type}</Badge>
-                    </div>
-                  )}
-                  {selectedCustomerData.jurisdiction && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Jurisdiction</p>
-                      <p className="text-sm font-medium">{selectedCustomerData.jurisdiction}</p>
-                    </div>
-                  )}
-                  {selectedCustomerData.amount && (
-                    <div>
-                      <p className="text-xs text-muted-foreground">Amount</p>
-                      <p className="text-sm font-medium">AED {selectedCustomerData.amount.toLocaleString()}</p>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Status */}
-              {selectedCustomerData.status && (
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    Status
-                  </h3>
-                  <div className="pl-6">
-                    <Badge variant="outline">{selectedCustomerData.status}</Badge>
-                  </div>
-                </div>
-              )}
-
-              {/* Customer Notes */}
-              {selectedCustomerData.customer_notes && (
-                <div className="space-y-4">
-                  <h3 className="text-sm font-semibold text-foreground">Notes</h3>
-                  <div className="pl-6">
-                    <p className="text-sm text-muted-foreground">{selectedCustomerData.customer_notes}</p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-        </SheetContent>
-      </Sheet>
     </div>
   );
 };
