@@ -1706,17 +1706,19 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           </Button>
         )}
         
-        {/* Save Draft Button */}
-        <Button
-          type="button"
-          size="icon"
-          onClick={saveDraft}
-          disabled={isSubmitting}
-          className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 bg-success hover:bg-success/90 text-success-foreground"
-          title="Save Draft"
-        >
-          <Save className="h-6 w-6" />
-        </Button>
+        {/* Save Draft Button - Only in Step 4 */}
+        {currentStep === 4 && (
+          <Button
+            type="button"
+            size="icon"
+            onClick={saveDraft}
+            disabled={isSubmitting}
+            className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all duration-200 hover:scale-110 active:scale-95 bg-success hover:bg-success/90 text-success-foreground"
+            title="Save Draft"
+          >
+            <Save className="h-6 w-6" />
+          </Button>
+        )}
       </div>
 
       {/* Mode Change Warning Dialog */}
