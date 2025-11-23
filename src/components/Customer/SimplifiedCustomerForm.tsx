@@ -938,53 +938,51 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     if (!selectedCustomerData || !companyMode) return null;
 
     return (
-      <div className="mb-3">
-        <Accordion type="single" collapsible defaultValue="customer-info">
-          <AccordionItem value="customer-info" className="border border-border rounded-lg bg-card">
-            <AccordionTrigger className="px-4 py-3 hover:no-underline">
-              <div className="flex items-center gap-2">
-                <User className="h-4 w-4 text-primary" />
-                <span className="font-medium text-sm">{selectedCustomerData.name}</span>
-              </div>
-            </AccordionTrigger>
-            <AccordionContent className="px-4 pb-4">
-              <div className="grid grid-cols-2 gap-x-6 gap-y-3 text-sm">
-                <div className="flex items-start gap-2">
-                  <User className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-                  <div className="min-w-0">
-                    <div className="text-xs text-muted-foreground">Name</div>
-                    <div className="font-medium truncate">{selectedCustomerData.name}</div>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2">
-                  <Mail className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-                  <div className="min-w-0">
-                    <div className="text-xs text-muted-foreground">Email</div>
-                    <div className="font-medium truncate">{selectedCustomerData.email}</div>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2">
-                  <Phone className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-                  <div className="min-w-0">
-                    <div className="text-xs text-muted-foreground">Phone</div>
-                    <div className="font-medium">{selectedCustomerData.mobile}</div>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2">
-                  <Building2 className="h-4 w-4 text-muted-foreground shrink-0 mt-0.5" />
-                  <div className="min-w-0">
-                    <div className="text-xs text-muted-foreground">Company</div>
-                    <div className="font-medium truncate">{selectedCustomerData.company || 'N/A'}</div>
-                  </div>
+      <Accordion type="single" collapsible defaultValue="customer-info">
+        <AccordionItem value="customer-info" className="border rounded-lg bg-card">
+          <AccordionTrigger className="px-4 py-3 hover:no-underline">
+            <div className="flex items-center gap-2">
+              <User className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium">{selectedCustomerData.name}</span>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="px-4 pb-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+              <div className="flex items-start gap-2">
+                <User className="h-4 w-4 text-primary mt-0.5" />
+                <div>
+                  <span className="text-muted-foreground block text-xs">Name</span>
+                  <span className="font-medium">{selectedCustomerData.name}</span>
                 </div>
               </div>
-            </AccordionContent>
-          </AccordionItem>
-        </Accordion>
-      </div>
+
+              <div className="flex items-start gap-2">
+                <Mail className="h-4 w-4 text-primary mt-0.5" />
+                <div>
+                  <span className="text-muted-foreground block text-xs">Email</span>
+                  <span className="font-medium">{selectedCustomerData.email}</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2">
+                <Phone className="h-4 w-4 text-primary mt-0.5" />
+                <div>
+                  <span className="text-muted-foreground block text-xs">Phone</span>
+                  <span className="font-medium">{selectedCustomerData.mobile}</span>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-2">
+                <Building2 className="h-4 w-4 text-primary mt-0.5" />
+                <div>
+                  <span className="text-muted-foreground block text-xs">Company</span>
+                  <span className="font-medium">{selectedCustomerData.company || 'N/A'}</span>
+                </div>
+              </div>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     );
   };
 
@@ -1101,7 +1099,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 <div key="step-1" className="animate-fade-in">
                   {/* Show selected customer - Accordion */}
                   {companyMode && selectedCustomerData && (
-                    <div className="px-3 sm:px-4 pb-2">
+                    <div className="px-3 sm:px-4 pb-2 mb-3">
                       {renderCustomerAccordion()}
                     </div>
                   )}
