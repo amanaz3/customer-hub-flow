@@ -148,7 +148,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
         variant="secondary"
         onClick={toggleCollapsed}
         className={`absolute top-1 h-10 w-10 rounded-full shadow-lg bg-secondary hover:bg-secondary/80 border-2 border-border hover:scale-110 transition-all z-[100002] ${
-          isCollapsed ? 'left-[-16px]' : 'left-[-20px]'
+          isCollapsed ? 'left-[-8px]' : 'left-[-8px]'
         }`}
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
