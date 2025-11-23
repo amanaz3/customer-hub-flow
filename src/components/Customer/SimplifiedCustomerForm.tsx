@@ -301,7 +301,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   
   // Scroll to top when step changes
   useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
+    // Also scroll the main content area if it exists
+    const mainContent = document.querySelector('main');
+    if (mainContent) {
+      mainContent.scrollTop = 0;
+    }
   }, [currentStep]);
   
   // Auto-switch to existing customer tab when a customer is selected
