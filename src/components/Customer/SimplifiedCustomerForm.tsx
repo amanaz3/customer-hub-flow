@@ -413,10 +413,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           
           setApplicationId(application.id);
           
-          toast({
-            title: "Step 1 Saved",
-            description: `Application #${nextAppRefNumber} created`,
-          });
+          // Silent save - no toast notification
         } else {
           // Update existing application
           const { error: updateError } = await supabase
@@ -429,10 +426,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
           if (updateError) throw updateError;
           
-          toast({
-            title: "Step 1 Saved",
-            description: "Customer details saved",
-          });
+          // Silent save - no toast notification
         }
       }
 
@@ -466,10 +460,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
         if (updateError) throw updateError;
 
-        toast({
-          title: "Step 2 Saved",
-          description: "Service selection saved",
-        });
+        // Silent save - no toast notification
       }
 
       // Step 3: Update application with service details
@@ -509,10 +500,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
         if (updateError) throw updateError;
 
-        toast({
-          title: "Step 3 Saved",
-          description: "Service details saved",
-        });
+        // Silent save - no toast notification
       }
 
     } catch (error: any) {
