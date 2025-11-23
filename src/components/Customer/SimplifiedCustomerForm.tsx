@@ -1603,30 +1603,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         </FormItem>
                       )}
                     />
-
-                    {/* Submit Button */}
-                    <div className="pt-4 border-t border-border">
-                      <Button
-                        type="submit"
-                        size="lg"
-                        disabled={isSubmitting}
-                        className="w-full h-12 text-base font-semibold"
-                      >
-                        {isSubmitting ? (
-                          <>
-                            <span className="animate-pulse">Submitting...</span>
-                          </>
-                        ) : (
-                          <>
-                            <Check className="mr-2 h-5 w-5" />
-                            Submit Application
-                          </>
-                        )}
-                      </Button>
-                      <p className="text-xs text-muted-foreground text-center mt-2">
-                        By submitting, you confirm that all information provided is accurate.
-                      </p>
-                    </div>
                   </CardContent>
                 </div>
               )}
