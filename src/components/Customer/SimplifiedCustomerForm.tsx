@@ -1606,8 +1606,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           </Button>
         )}
         
-        {/* Save Draft Button - Show when all 3 steps completed */}
-        {completedSteps.has(1) && completedSteps.has(2) && completedSteps.has(3) && (
+        {/* Save Draft Button - Show only in Step 4 when all 3 steps completed */}
+        {currentStep === 4 && completedSteps.has(1) && completedSteps.has(2) && completedSteps.has(3) && (
           <Button
             type="button"
             size="icon"
