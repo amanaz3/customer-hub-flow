@@ -1704,21 +1704,26 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         />
       )}
 
-      {/* Floating Dock All Sidebars Button */}
+      {/* Floating Dock All Sidebars Button - Highly Visible */}
       <Button
-        variant="outline"
+        variant="default"
         size="sm"
         onClick={handleDockAllSidebars}
         className={cn(
-          "fixed top-20 bg-card border-2 border-primary/20 shadow-lg hover:shadow-xl hover:border-primary/40 transition-all duration-300 z-[9999]",
-          processSidebarCollapsed && customerEventsSidebarCollapsed ? "right-4" : "right-4"
+          "fixed top-20 right-4 bg-primary text-primary-foreground border-2 border-primary shadow-xl hover:shadow-2xl hover:scale-110 transition-all duration-300 z-[100001] px-3 py-2 gap-2",
         )}
         title={processSidebarCollapsed && customerEventsSidebarCollapsed ? "Expand all sidebars" : "Collapse all sidebars"}
       >
         {processSidebarCollapsed && customerEventsSidebarCollapsed ? (
-          <PanelRightOpen className="h-4 w-4" />
+          <>
+            <PanelRightOpen className="h-5 w-5" />
+            <span className="text-xs font-medium">Show</span>
+          </>
         ) : (
-          <PanelRightClose className="h-4 w-4" />
+          <>
+            <PanelRightClose className="h-5 w-5" />
+            <span className="text-xs font-medium">Hide</span>
+          </>
         )}
       </Button>
 
