@@ -45,15 +45,29 @@ const formSchema = z.object({
   mobile: z.string()
     .trim()
     .min(1, "Mobile number is required")
+    .max(20, "Mobile number is too long")
     .refine((val) => {
       // Remove all spaces, hyphens, and parentheses
       const cleaned = val.replace(/[\s\-()]/g, '');
-      // Must start with +971 or 971 or 0, followed by 9 digits
+      // Validate numeric only (after removing +971 prefix)
+      const withoutPrefix = cleaned.replace(/^\+?971/, '').replace(/^0/, '');
+      
+      // Check if contains only digits
+      if (!/^[0-9]+$/.test(withoutPrefix)) {
+        return false;
+      }
+      
+      // Validate exact length: must be exactly 9 digits after prefix
+      if (withoutPrefix.length !== 9) {
+        return false;
+      }
+      
+      // Must start with +971 or 971 or 0, followed by exactly 9 digits
       return /^\+971[0-9]{9}$/.test(cleaned) || 
              /^971[0-9]{9}$/.test(cleaned) || 
              /^0[0-9]{9}$/.test(cleaned) ||
              /^[0-9]{9}$/.test(cleaned);
-    }, "Enter a valid UAE mobile number (9 digits after +971)"),
+    }, "Enter a valid UAE mobile number: numeric only, exactly 9 digits after +971"),
   customer_type: z.enum(['individual', 'company']).default('individual'),
   company: z.string().optional(),
   license_type: z.enum(['Mainland', 'Freezone', 'Offshore']),
@@ -870,20 +884,25 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                     <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
                                       +971
                                     </span>
-                                    <Input 
+                                     <Input 
+                                      type="tel"
+                                      inputMode="numeric"
+                                      pattern="[0-9]*"
                                       value={field.value.replace(/^\+?971\s*/, '')}
                                       onChange={(e) => {
                                         let value = e.target.value;
-                                        // Remove non-digit characters except spaces
-                                        value = value.replace(/[^\d\s]/g, '');
+                                        // Remove all non-digit characters
+                                        value = value.replace(/\D/g, '');
+                                        // Limit to exactly 9 digits
+                                        value = value.slice(0, 9);
                                         // Store with +971 prefix
-                                        const formattedValue = '+971 ' + value.trim();
+                                        const formattedValue = '+971 ' + value;
                                         field.onChange(formattedValue);
                                         onMobileChange?.(formattedValue);
                                       }}
-                                      placeholder="50 123 4567"
+                                      placeholder="501234567"
                                       className="h-10 text-sm pl-14"
-                                      maxLength={20}
+                                      maxLength={9}
                                     />
                                   </div>
                                 </FormControl>
