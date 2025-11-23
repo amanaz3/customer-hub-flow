@@ -96,7 +96,7 @@ interface TeamStats {
   applications: Application[];
 }
 
-const statusColors: Record<ApplicationStatus, string> = {
+const statusColors = {
   predraft: 'bg-gray-400',
   draft: 'bg-gray-500',
   submitted: 'bg-blue-500',
@@ -107,7 +107,7 @@ const statusColors: Record<ApplicationStatus, string> = {
   under_review: 'bg-purple-500',
   approved: 'bg-teal-500',
   'need more info': 'bg-yellow-500'
-};
+} as Record<ApplicationStatus, string>;
 
 const ApplicationsByTeam = () => {
   const [teamStats, setTeamStats] = useState<TeamStats[]>([]);
