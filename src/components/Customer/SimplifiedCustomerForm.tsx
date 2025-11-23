@@ -1488,7 +1488,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
                       <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
                         <div className="w-1 h-6 bg-primary rounded-full" />
-                        <h4 className="font-semibold text-foreground">Customer Information</h4>
+                        <h4 className="font-semibold text-foreground text-base">Customer Information</h4>
                       </div>
                       <dl className="space-y-2 text-sm">
                         <div className="flex justify-between py-1">
@@ -1528,7 +1528,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
                       <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
                         <div className="w-1 h-6 bg-primary rounded-full" />
-                        <h4 className="font-semibold text-foreground">Service Information</h4>
+                        <h4 className="font-semibold text-foreground text-base">Service Information</h4>
                       </div>
                       <dl className="space-y-2 text-sm">
                         <div className="flex justify-between py-1">
@@ -1569,7 +1569,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                           <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
                             <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
                               <div className="w-1 h-6 bg-primary rounded-full" />
-                              <h4 className="font-semibold text-foreground">Service Details</h4>
+                              <h4 className="font-semibold text-foreground text-base">Service Details</h4>
                             </div>
                             <dl className="space-y-2 text-sm">
                               {serviceDetailsFields.map(({ label, value, key }) => (
