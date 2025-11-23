@@ -270,7 +270,7 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
       case 'tel':
       case 'number':
         return (
-          <div key={fieldKey} className="space-y-2">
+          <div key={fieldKey} className="space-y-1.5">
             <Label htmlFor={fieldKey}>
               {field.label}
               {field.required && <span className="text-destructive ml-1">*</span>}
@@ -312,7 +312,7 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
 
       case 'textarea':
         return (
-          <div key={fieldKey} className="space-y-2">
+          <div key={fieldKey} className="space-y-1.5">
             <Label htmlFor={fieldKey}>
               {field.label}
               {field.required && <span className="text-destructive ml-1">*</span>}
@@ -337,7 +337,7 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
 
       case 'select':
         return (
-          <div key={fieldKey} className="space-y-2">
+          <div key={fieldKey} className="space-y-1.5">
             <Label htmlFor={fieldKey}>
               {field.label}
               {field.required && <span className="text-destructive ml-1">*</span>}
@@ -385,7 +385,7 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
 
       case 'radio':
         return (
-          <div key={fieldKey} className="space-y-2">
+          <div key={fieldKey} className="space-y-1.5">
             <Label>
               {field.label}
               {field.required && <span className="text-destructive ml-1">*</span>}
@@ -453,7 +453,7 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       {showSubmitButton && (
         <Card>
           <CardHeader>
@@ -462,17 +462,17 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
               Please fill out all required fields to submit your application.
             </CardDescription>
           </CardHeader>
-          <CardContent className="space-y-8">
+          <CardContent className="space-y-4">
           {formConfig.sections.map((section, sectionIndex) => (
-            <div key={sectionIndex} className="space-y-6">
+            <div key={sectionIndex} className="space-y-3">
               <div>
-                <h3 className="text-lg font-semibold">{section.title}</h3>
+                <h3 className="text-base font-semibold">{section.title}</h3>
                 {section.description && (
                   <p className="text-sm text-muted-foreground mt-1">{section.description}</p>
                 )}
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {section.fields.filter((field) => shouldShowField(field, sectionIndex)).map((field) => renderField(field, sectionIndex))}
               </div>
 
@@ -483,13 +483,13 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
           ))}
 
           {showDocuments && formConfig.documents && formConfig.documents.length > 0 && (
-            <div className="space-y-4 pt-6 border-t">
-              <h3 className="text-lg font-semibold">Required Documents</h3>
-              <div className="space-y-3">
+            <div className="space-y-3 pt-4 border-t">
+              <h3 className="text-base font-semibold">Required Documents</h3>
+              <div className="space-y-2">
                 {formConfig.documents.map((docCategory, index) => (
-                  <div key={index} className="space-y-2">
+                  <div key={index} className="space-y-1.5">
                     <h4 className="font-medium text-sm">{docCategory.category}</h4>
-                    <ul className="space-y-1 pl-4">
+                    <ul className="space-y-0.5 pl-4">
                       {docCategory.documents.map((doc, docIndex) => (
                         <li key={docIndex} className="text-sm flex items-center gap-2">
                           <span className="text-muted-foreground">•</span>
@@ -515,17 +515,17 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
       )}
 
       {!showSubmitButton && formConfig && formConfig.sections.length > 0 && (
-        <div className="space-y-8">
+        <div className="space-y-4">
           {formConfig.sections.map((section, sectionIndex) => (
-            <div key={sectionIndex} className="space-y-6">
+            <div key={sectionIndex} className="space-y-3">
               <div>
-                <h3 className="text-lg font-semibold">{section.title}</h3>
+                <h3 className="text-base font-semibold">{section.title}</h3>
                 {section.description && (
                   <p className="text-sm text-muted-foreground mt-1">{section.description}</p>
                 )}
               </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {section.fields.filter((field) => shouldShowField(field, sectionIndex)).map((field) => renderField(field, sectionIndex))}
               </div>
 
