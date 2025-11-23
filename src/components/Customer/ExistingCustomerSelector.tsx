@@ -100,7 +100,7 @@ export const ExistingCustomerSelector = ({
 
         {/* Results dropdown */}
         {hasQuery && filteredCustomers.length > 0 && (
-          <div className="absolute z-50 w-full mt-2 border rounded-lg shadow-lg bg-popover">
+          <div className="absolute z-50 w-full bottom-full mb-2 border rounded-lg shadow-lg bg-popover">
             <ScrollArea className="max-h-[400px]">
               <div className="p-2">
                 {filteredCustomers.map((customer) => (
@@ -151,14 +151,14 @@ export const ExistingCustomerSelector = ({
 
         {/* No results message */}
         {hasQuery && filteredCustomers.length === 0 && !loading && (
-          <div className="absolute z-50 w-full mt-2 p-4 border rounded-lg shadow-lg bg-popover text-center text-sm text-muted-foreground">
+          <div className="absolute z-50 w-full bottom-full mb-2 p-4 border rounded-lg shadow-lg bg-popover text-center text-sm text-muted-foreground">
             No customers found matching "{searchTerm}"
           </div>
         )}
 
         {/* Loading state */}
         {loading && hasQuery && (
-          <div className="absolute z-50 w-full mt-2 p-4 border rounded-lg shadow-lg bg-popover text-center text-sm text-muted-foreground">
+          <div className="absolute z-50 w-full bottom-full mb-2 p-4 border rounded-lg shadow-lg bg-popover text-center text-sm text-muted-foreground">
             Loading customers...
           </div>
         )}
