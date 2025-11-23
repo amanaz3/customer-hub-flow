@@ -171,6 +171,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [showModeChangeWarning, setShowModeChangeWarning] = useState(false);
   const [pendingMode, setPendingMode] = useState<'new' | 'existing' | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
+  const [processSidebarCollapsed, setProcessSidebarCollapsed] = useState(false);
   const [accordionOpen, setAccordionOpen] = useState<string | undefined>(undefined);
   const [selectedCustomerData, setSelectedCustomerData] = useState<any>(null);
   const [showCustomerSidebar, setShowCustomerSidebar] = useState(false);
@@ -1755,8 +1756,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             license_type: form.watch('license_type'),
           }}
           productName={selectedProductName}
-          isCollapsed={sidebarCollapsed}
-          onToggleCollapse={setSidebarCollapsed}
+          isCollapsed={processSidebarCollapsed}
+          onToggleCollapse={setProcessSidebarCollapsed}
         />
       </div>
 

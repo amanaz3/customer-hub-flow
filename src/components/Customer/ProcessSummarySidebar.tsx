@@ -1,7 +1,8 @@
 import { useState } from 'react';
-import { Check, Circle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Check, Circle, ChevronLeft, ChevronRight, FileText } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 
 interface ProcessStep {
   step: number;
@@ -77,8 +78,8 @@ export const ProcessSummarySidebar = ({
 
   return (
     <div 
-      className={`fixed top-20 right-0 h-[calc(100vh-5rem)] transition-all duration-300 ease-in-out z-[500] ${
-        isCollapsed ? 'w-0' : 'w-80'
+      className={`fixed top-0 left-0 h-screen transition-all duration-300 ease-in-out z-[400] ${
+        isCollapsed ? 'w-12' : 'w-80'
       }`}
     >
       {/* Toggle Button - Always Visible */}
@@ -87,21 +88,29 @@ export const ProcessSummarySidebar = ({
         variant="secondary"
         onClick={handleToggle}
         className={`absolute top-4 h-10 w-10 rounded-full shadow-lg bg-secondary hover:bg-secondary/80 border-2 border-border hover:scale-110 transition-all z-50 ${
-          isCollapsed ? '-left-12' : '-left-5'
+          isCollapsed ? 'right-[-16px]' : 'right-[-20px]'
         }`}
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? (
-          <ChevronLeft className="h-5 w-5" />
-        ) : (
           <ChevronRight className="h-5 w-5" />
+        ) : (
+          <ChevronLeft className="h-5 w-5" />
         )}
       </Button>
+
+      {/* Collapsed State */}
+      {isCollapsed && (
+        <div className="flex flex-col items-center py-4 gap-4 h-full bg-card border-r border-border">
+          <FileText className="h-6 w-6 text-muted-foreground" />
+          <Badge className="writing-mode-vertical text-xs">Process</Badge>
+        </div>
+      )}
 
       {/* Sidebar Content */}
       {!isCollapsed && (
       <div 
-        className="h-full overflow-auto py-4 px-3 bg-background border-l border-border shadow-xl transition-all duration-300"
+        className="h-full overflow-auto py-4 px-3 bg-background border-r border-border shadow-xl transition-all duration-300"
       >
         <Card className="border-border bg-card/50">
         <CardHeader className="pb-3">
