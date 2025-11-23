@@ -25,7 +25,7 @@ interface ApplicationTimelineProps {
   application: Application;
 }
 
-const statusColors: Record<ApplicationStatus, { bg: string; text: string; label: string }> = {
+const statusColors = {
   predraft: { bg: 'hsl(var(--muted))', text: 'hsl(var(--muted-foreground))', label: 'Pre-Draft' },
   draft: { bg: 'hsl(var(--muted))', text: 'hsl(var(--muted-foreground))', label: 'Draft' },
   submitted: { bg: 'hsl(var(--chart-1))', text: 'hsl(var(--chart-1-foreground))', label: 'Submitted' },
@@ -36,7 +36,7 @@ const statusColors: Record<ApplicationStatus, { bg: string; text: string; label:
   under_review: { bg: 'hsl(var(--chart-4))', text: 'hsl(var(--chart-4-foreground))', label: 'Under Review' },
   approved: { bg: 'hsl(var(--chart-5))', text: 'hsl(var(--chart-5-foreground))', label: 'Approved' },
   'need more info': { bg: 'hsl(var(--chart-3))', text: 'hsl(var(--chart-3-foreground))', label: 'Need More Info' }
-};
+} as Record<ApplicationStatus, { bg: string; text: string; label: string }>;
 
 const ApplicationTimeline = ({ application }: ApplicationTimelineProps) => {
   const statusChanges = application.statusChanges || [];

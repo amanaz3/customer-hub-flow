@@ -44,7 +44,7 @@ interface StageStats {
   applications: Application[];
 }
 
-const statusConfig: Record<ApplicationStatus, { label: string; icon: any; color: string }> = {
+const statusConfig = {
   predraft: { label: 'Pre-Draft', icon: FileText, color: 'bg-gray-400' },
   draft: { label: 'Draft', icon: FileText, color: 'bg-gray-500' },
   submitted: { label: 'Submitted', icon: Send, color: 'bg-blue-500' },
@@ -55,7 +55,7 @@ const statusConfig: Record<ApplicationStatus, { label: string; icon: any; color:
   under_review: { label: 'Under Review', icon: Eye, color: 'bg-purple-500' },
   approved: { label: 'Approved', icon: CheckCircle2, color: 'bg-teal-500' },
   'need more info': { label: 'Need More Info', icon: AlertCircle, color: 'bg-yellow-500' }
-};
+} as Record<ApplicationStatus, { label: string; icon: any; color: string }>;
 
 const ApplicationsByStage = () => {
   const [stageStats, setStageStats] = useState<StageStats[]>([]);
