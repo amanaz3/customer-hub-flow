@@ -49,6 +49,7 @@ export const BulkStatusChangeDialog: React.FC<BulkStatusChangeDialogProps> = ({
   }, [isOpen]);
 
   const statusColors: Record<ApplicationStatus, string> = {
+    predraft: 'bg-gray-500',
     draft: 'bg-yellow-500',
     submitted: 'bg-blue-500',
     returned: 'bg-orange-500',
@@ -61,6 +62,7 @@ export const BulkStatusChangeDialog: React.FC<BulkStatusChangeDialogProps> = ({
   };
 
   const statusLabels: Record<ApplicationStatus, string> = {
+    predraft: 'Pre-Draft',
     draft: 'Draft',
     submitted: 'Submitted',
     returned: 'Returned',

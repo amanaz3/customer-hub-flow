@@ -1,6 +1,7 @@
 // Application Management Types
 
 export type ApplicationStatus = 
+  | 'predraft' // Auto-saved while progressing through form steps
   | 'draft' 
   | 'submitted' 
   | 'returned'
@@ -13,6 +14,7 @@ export type ApplicationStatus =
   | 'approved';
 
 export const NewApplicationStatuses = [
+  'predraft',
   'draft',
   'submitted',
   'returned',

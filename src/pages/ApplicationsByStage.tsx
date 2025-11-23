@@ -45,6 +45,7 @@ interface StageStats {
 }
 
 const statusConfig: Record<ApplicationStatus, { label: string; icon: any; color: string }> = {
+  predraft: { label: 'Pre-Draft', icon: FileText, color: 'bg-gray-400' },
   draft: { label: 'Draft', icon: FileText, color: 'bg-gray-500' },
   submitted: { label: 'Submitted', icon: Send, color: 'bg-blue-500' },
   returned: { label: 'Returned', icon: RefreshCw, color: 'bg-orange-500' },

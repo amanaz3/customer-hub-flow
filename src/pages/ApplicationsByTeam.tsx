@@ -97,6 +97,7 @@ interface TeamStats {
 }
 
 const statusColors: Record<ApplicationStatus, string> = {
+  predraft: 'bg-gray-400',
   draft: 'bg-gray-500',
   submitted: 'bg-blue-500',
   returned: 'bg-orange-500',

@@ -403,7 +403,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             .insert([{
               customer_id: currentCustomerId,
               application_data: applicationData,
-              status: 'draft',
+              status: 'predraft',
               reference_number: nextAppRefNumber,
             }])
             .select()

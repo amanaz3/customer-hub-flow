@@ -26,6 +26,7 @@ interface ApplicationTimelineProps {
 }
 
 const statusColors: Record<ApplicationStatus, { bg: string; text: string; label: string }> = {
+  predraft: { bg: 'hsl(var(--muted))', text: 'hsl(var(--muted-foreground))', label: 'Pre-Draft' },
   draft: { bg: 'hsl(var(--muted))', text: 'hsl(var(--muted-foreground))', label: 'Draft' },
   submitted: { bg: 'hsl(var(--chart-1))', text: 'hsl(var(--chart-1-foreground))', label: 'Submitted' },
   returned: { bg: 'hsl(var(--chart-3))', text: 'hsl(var(--chart-3-foreground))', label: 'Returned' },

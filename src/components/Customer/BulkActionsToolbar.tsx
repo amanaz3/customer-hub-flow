@@ -44,6 +44,13 @@ const STATUS_CONFIG: Record<ApplicationStatus, {
   bgColor: string;
   hoverColor: string;
 }> = {
+  predraft: {
+    label: 'Pre-Draft',
+    icon: FileText,
+    color: 'text-gray-600',
+    bgColor: 'bg-gray-100 dark:bg-gray-900',
+    hoverColor: 'hover:bg-gray-200 dark:hover:bg-gray-800'
+  },
   draft: {
     label: 'Draft',
     icon: FileText,
