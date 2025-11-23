@@ -21,8 +21,10 @@ interface ProcessSummarySidebarProps {
     product_id?: string;
     amount?: number;
     license_type?: string;
+    [key: string]: any; // Allow dynamic fields
   };
   productName?: string;
+  fieldLabelMap?: Record<string, string>;
   isCollapsed?: boolean;
   onToggleCollapse?: (collapsed: boolean) => void;
 }
@@ -31,6 +33,7 @@ export const ProcessSummarySidebar = ({
   currentStep,
   formData,
   productName,
+  fieldLabelMap = {},
   isCollapsed: externalCollapsed,
   onToggleCollapse
 }: ProcessSummarySidebarProps) => {
@@ -231,17 +234,48 @@ export const ProcessSummarySidebar = ({
               )}
 
               {/* Service Details Section */}
-              {currentStep > 2 && formData.license_type && (
-                <div className="mb-3">
-                  <p className="text-[10px] font-semibold text-primary mb-1.5">Service Details</p>
-                  <div className="space-y-1.5 pl-2 border-l-2 border-primary/20">
-                    <div className="text-[11px]">
-                      <span className="text-muted-foreground">License Type:</span>
-                      <span className="ml-1 font-medium text-foreground">{formData.license_type}</span>
+              {currentStep > 2 && (() => {
+                // Get dynamic service detail fields (those starting with section_)
+                const dynamicFields = Object.entries(formData)
+                  .filter(([key, value]) => key.startsWith('section_') && value)
+                  .map(([key, value]) => {
+                    const label = fieldLabelMap[key] || (() => {
+                      const parts = key.replace('section_', '').split('_');
+                      const fieldName = parts.slice(1).join(' ');
+                      return fieldName.split('_').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+                    })();
+                    
+                    return {
+                      label,
+                      value: typeof value === 'boolean' ? (value ? 'Yes' : 'No') : String(value),
+                      key
+                    };
+                  });
+
+                // If there are dynamic fields OR license_type, show the section
+                if (dynamicFields.length > 0 || formData.license_type) {
+                  return (
+                    <div className="mb-3">
+                      <p className="text-[10px] font-semibold text-primary mb-1.5">Service Details</p>
+                      <div className="space-y-1.5 pl-2 border-l-2 border-primary/20">
+                        {formData.license_type && (
+                          <div className="text-[11px]">
+                            <span className="text-muted-foreground">License Type:</span>
+                            <span className="ml-1 font-medium text-foreground">{formData.license_type}</span>
+                          </div>
+                        )}
+                        {dynamicFields.map(({ label, value, key }) => (
+                          <div key={key} className="text-[11px]">
+                            <span className="text-muted-foreground">{label}:</span>
+                            <span className="ml-1 font-medium text-foreground">{value}</span>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  </div>
-                </div>
-              )}
+                  );
+                }
+                return null;
+              })()}
             </div>
           )}
 

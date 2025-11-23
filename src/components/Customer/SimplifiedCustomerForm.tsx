@@ -1750,13 +1750,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       <div className="hidden lg:block">
         <ProcessSummarySidebar
           currentStep={currentStep}
-          formData={{
-            name: form.watch('name'),
-            email: form.watch('email'),
-            mobile: form.watch('mobile'),
-            product_id: form.watch('product_id'),
-            license_type: form.watch('license_type'),
-          }}
+          formData={form.getValues()}
+          fieldLabelMap={fieldLabelMap}
           productName={selectedProductName}
           isCollapsed={processSidebarCollapsed}
           onToggleCollapse={setProcessSidebarCollapsed}
