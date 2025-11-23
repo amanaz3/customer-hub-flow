@@ -326,7 +326,7 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
   return (
     <div 
       className={cn(
-        "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[10000]",
+        "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[99999]",
         isCollapsed ? "w-12" : "w-80"
       )}
     >
@@ -334,7 +334,7 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
       <Button
         variant="ghost"
         size="sm"
-        className="absolute -left-8 top-4 h-16 w-8 rounded-r-none border-l-0 bg-card border shadow-md z-[9999]"
+        className="absolute -left-8 top-4 h-16 w-8 rounded-r-none border-l-0 bg-card border shadow-md z-[99998]"
         onClick={toggleCollapsed}
       >
         {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
