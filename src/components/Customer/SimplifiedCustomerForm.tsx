@@ -938,7 +938,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     if (!selectedCustomerData || !companyMode) return null;
 
     return (
-      <Accordion type="single" collapsible defaultValue="customer-info">
+      <Accordion type="single" collapsible>
         <AccordionItem value="customer-info" className="border rounded-lg bg-card">
           <AccordionTrigger className="px-4 py-3 hover:no-underline">
             <div className="flex items-center gap-2">
