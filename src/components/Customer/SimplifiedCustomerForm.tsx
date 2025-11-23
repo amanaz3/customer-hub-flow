@@ -558,7 +558,75 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       return productValid && licenseValid;
     }
 
-    return true; // Steps 3 and 4 don't have mandatory fields
+    if (currentStep === 3) {
+      // Validate Step 3 - Dynamic form fields
+      if (!values.product_id) {
+        toast({
+          title: "Product Required",
+          description: "Please select a service in Step 2 before proceeding",
+          variant: "destructive",
+        });
+        return false;
+      }
+
+      // Fetch form configuration to check required fields
+      try {
+        const { data: configData, error } = await supabase
+          .from('service_form_configurations')
+          .select('form_config')
+          .eq('product_id', values.product_id)
+          .maybeSingle();
+
+        if (error) {
+          console.error('Error fetching form config:', error);
+          return true; // Allow progression if config can't be fetched
+        }
+
+        if (!configData || !configData.form_config) {
+          return true; // No configuration means no required fields
+        }
+
+        const config = configData.form_config as any;
+        const sections = config.sections || [];
+        
+        const missingFields: string[] = [];
+
+        // Check each section for required fields
+        sections.forEach((section: any, sectionIndex: number) => {
+          const fields = section.fields || [];
+          
+          fields.forEach((field: any) => {
+            // Check if field is required
+            if (field.required) {
+              const fieldKey = `section_${sectionIndex}_${field.name || field.id}`;
+              const fieldValue = values[fieldKey];
+              const isEmpty = fieldValue === undefined || fieldValue === null || fieldValue === '';
+              
+              if (isEmpty) {
+                const fieldLabel = field.label || field.name || field.id || 'Field';
+                missingFields.push(fieldLabel);
+              }
+            }
+          });
+        });
+
+        if (missingFields.length > 0) {
+          toast({
+            title: "Required Fields Missing",
+            description: `Please fill in: ${missingFields.join(', ')}`,
+            variant: "destructive",
+          });
+          return false;
+        }
+
+        return true;
+      } catch (error) {
+        console.error('Error validating step 3:', error);
+        return true; // Allow progression if validation fails
+      }
+    }
+
+    return true; // Step 4 doesn't have mandatory fields
   };
 
   const renderProductFields = () => {
