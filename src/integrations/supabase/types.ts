@@ -2224,6 +2224,7 @@ export type Database = {
         | "under_review"
         | "approved"
         | "need more info"
+        | "predraft"
       customer_status:
         | "Draft"
         | "Submitted"
@@ -2421,6 +2422,7 @@ export const Constants = {
         "under_review",
         "approved",
         "need more info",
+        "predraft",
       ],
       customer_status: [
         "Draft",
