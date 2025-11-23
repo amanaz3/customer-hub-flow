@@ -82,7 +82,7 @@ export const ExistingCustomerSelector = ({
 
   return (
     <div className="space-y-4">
-      <div className="relative">
+      <div className="relative z-50">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
@@ -100,7 +100,7 @@ export const ExistingCustomerSelector = ({
 
         {/* Results dropdown */}
         {hasQuery && filteredCustomers.length > 0 && (
-          <div className="absolute z-50 w-full bottom-full mb-2 border rounded-lg shadow-lg bg-popover">
+          <div className="absolute z-[100] w-full bottom-full mb-2 border rounded-lg shadow-xl bg-popover">
             <ScrollArea className="max-h-[400px]">
               <div className="p-2">
                 {filteredCustomers.map((customer) => (
@@ -151,14 +151,14 @@ export const ExistingCustomerSelector = ({
 
         {/* No results message */}
         {hasQuery && filteredCustomers.length === 0 && !loading && (
-          <div className="absolute z-50 w-full bottom-full mb-2 p-4 border rounded-lg shadow-lg bg-popover text-center text-sm text-muted-foreground">
+          <div className="absolute z-[100] w-full bottom-full mb-2 p-4 border rounded-lg shadow-xl bg-popover text-center text-sm text-muted-foreground">
             No customers found matching "{searchTerm}"
           </div>
         )}
 
         {/* Loading state */}
         {loading && hasQuery && (
-          <div className="absolute z-50 w-full bottom-full mb-2 p-4 border rounded-lg shadow-lg bg-popover text-center text-sm text-muted-foreground">
+          <div className="absolute z-[100] w-full bottom-full mb-2 p-4 border rounded-lg shadow-xl bg-popover text-center text-sm text-muted-foreground">
             Loading customers...
           </div>
         )}
