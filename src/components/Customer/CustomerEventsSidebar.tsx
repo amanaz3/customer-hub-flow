@@ -158,16 +158,16 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
       {!isCollapsed && (
       <div className="p-4 space-y-4">
         {/* Collapse Button - Inside expanded content */}
-        <div className="flex items-center justify-between mb-2">
+        <div className="flex items-center justify-between pb-3 border-b border-border sticky top-0 bg-card z-10">
           <h2 className="text-sm font-semibold text-foreground">Customer Events</h2>
           <Button
             size="icon"
-            variant="ghost"
+            variant="outline"
             onClick={toggleCollapsed}
-            className="h-8 w-8 hover:bg-muted"
+            className="h-9 w-9 hover:bg-muted border-border"
             title="Collapse sidebar"
           >
-            <ChevronRight className="h-4 w-4" />
+            <ChevronRight className="h-5 w-5" />
           </Button>
         </div>
         
