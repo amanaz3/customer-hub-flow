@@ -704,9 +704,17 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         description: "Application submitted successfully",
       });
 
+      // Reset form and all states including sidebars
       form.reset();
       setApplicationId(null);
       setCustomerId(null);
+      onCustomerSelect?.(null);
+      setSelectedCustomerData(null);
+      setCurrentStep(1);
+      setProcessSidebarCollapsed(true);
+      setCustomerEventsSidebarCollapsed(true);
+      setSidebarCollapsed(true);
+      setCompletedSteps(new Set());
       onSuccess?.();
     } catch (error: any) {
       console.error('Error submitting application:', error);
