@@ -411,6 +411,75 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 
                     <Tooltip>
                       <TooltipTrigger asChild>
+                         <Button
+                           type="button"
+                           variant="ghost"
+                           size="sm"
+                           className="h-8 px-2"
+                           onClick={() => {
+                             const productTitle = getProductTitle();
+                             const categories = getDocumentCategories();
+                             
+                             let checklist = `${productTitle.toUpperCase()} - REQUIRED DOCUMENTS CHECKLIST\n\n`;
+                             checklist += `Generated: ${new Date().toLocaleDateString()}\n\n`;
+                             checklist += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+                             
+                             categories.forEach(cat => {
+                               checklist += `${cat.title.toUpperCase()} (${cat.count})\n`;
+                               checklist += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+                               cat.items.forEach((item: string) => {
+                                 checklist += `□ ${item}\n`;
+                               });
+                               checklist += '\n\n';
+                             });
+                             
+                             const blob = new Blob([checklist], { type: 'text/plain' });
+                             const url = window.URL.createObjectURL(blob);
+                             const a = document.createElement('a');
+                             a.href = url;
+                             a.download = `${productTitle.replace(/\s+/g, '-')}-Checklist-${new Date().toISOString().split('T')[0]}.txt`;
+                             document.body.appendChild(a);
+                             a.click();
+                             window.URL.revokeObjectURL(url);
+                             document.body.removeChild(a);
+                             
+                             toast({
+                               title: "Text File Downloaded",
+                               description: "Document checklist has been saved as text file",
+                             });
+                           }}
+                         >
+                          <FileText className="h-4 w-4" />
+                         </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Download Text</TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2"
+                          onClick={() => {
+                            const categories = getDocumentCategories();
+                            const checklistText = formatChecklistForSharing(categories);
+                            navigator.clipboard.writeText(checklistText);
+                            toast({
+                              title: "Copied",
+                              description: "Document checklist copied to clipboard",
+                            });
+                          }}
+                        >
+                          <ClipboardList className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Copy to Clipboard</TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
                         <Button
                           type="button"
                           variant="ghost"
