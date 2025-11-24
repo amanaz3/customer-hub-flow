@@ -307,38 +307,48 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
       {!isCollapsed && (
         <div className="flex-1 flex flex-col overflow-hidden min-h-0">
           {/* Header with view switcher */}
-          <div className="px-4 pt-4 pb-2 border-b border-border flex-shrink-0 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {activeTab === 'events' ? (
-                <>
+          <div className="px-4 pt-4 pb-2 border-b border-border flex-shrink-0">
+            {activeTab === 'events' ? (
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
                   <User className="h-4 w-4 text-primary" />
                   <span className="text-sm font-medium">Events</span>
-                </>
-              ) : (
-                <>
-                  <FileText className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">Documents</span>
-                </>
-              )}
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => setActiveTab(activeTab === 'events' ? 'documents' : 'events')}
-              className="h-8 px-2"
-            >
-              {activeTab === 'events' ? (
-                <>
+                </div>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setActiveTab('documents')}
+                  className="h-8 px-2"
+                >
                   <FileText className="h-4 w-4 mr-1" />
                   <span className="text-xs">Docs</span>
-                </>
-              ) : (
-                <>
-                  <User className="h-4 w-4 mr-1" />
-                  <span className="text-xs">Events</span>
-                </>
-              )}
-            </Button>
+                </Button>
+              </div>
+            ) : (
+              <div className="space-y-1">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <FileText className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">Required Documents</span>
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setActiveTab('events')}
+                    className="h-8 px-2"
+                  >
+                    <User className="h-4 w-4 mr-1" />
+                    <span className="text-xs">Events</span>
+                  </Button>
+                </div>
+                {productType && (
+                  <div className="flex items-center justify-between text-xs text-muted-foreground pl-6">
+                    <span>{documentCategories.reduce((sum, cat) => sum + cat.count, 0)} docs</span>
+                    <span className="font-medium">{getProductTitle()}</span>
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Events View */}
