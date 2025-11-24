@@ -1694,19 +1694,21 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Right Sidebar - Process Summary (Fixed Position) */}
-      <div className="hidden lg:block">
-        <ProcessSummarySidebar
-          currentStep={currentStep}
-          formData={form.getValues()}
-          fieldLabelMap={fieldLabelMap}
-          productName={selectedProductName}
-          isCollapsed={processSidebarCollapsed}
-          onToggleCollapse={setProcessSidebarCollapsed}
-          selectedCustomerData={selectedCustomerData}
-          companyMode={companyMode}
-        />
-      </div>
+      {/* Right Sidebar - Process Summary (Only shows from step 2 onwards) */}
+      {currentStep >= 2 && (
+        <div className="hidden lg:block">
+          <ProcessSummarySidebar
+            currentStep={currentStep}
+            formData={form.getValues()}
+            fieldLabelMap={fieldLabelMap}
+            productName={selectedProductName}
+            isCollapsed={processSidebarCollapsed}
+            onToggleCollapse={setProcessSidebarCollapsed}
+            selectedCustomerData={selectedCustomerData}
+            companyMode={companyMode}
+          />
+        </div>
+      )}
 
       {/* Customer Events Sidebar - Auto-expands when customer selected */}
       {companyMode && selectedCustomerId && (
