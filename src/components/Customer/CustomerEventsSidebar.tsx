@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Calendar, FileText, User, Building2, Clock, ChevronLeft, ChevronRight, Users, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -414,36 +415,118 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
         </TabsContent>
 
         {/* Documents Tab Content */}
-        <TabsContent value="documents" className="flex-1 overflow-y-auto p-4 space-y-4 mt-0">
+        <TabsContent value="documents" className="flex-1 overflow-hidden flex flex-col mt-0">
           {productType ? (
-            <Card className="border-primary/20">
-              <CardHeader className="pb-3 border-b">
-                <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-primary" />
-                  <CardTitle className="text-sm font-medium">{getProductTitle()}</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent className="pt-4">
-                <Accordion type="single" collapsible className="w-full">
+            <>
+              {/* Action Buttons */}
+              <div className="flex items-center justify-between gap-1 px-4 py-2 border-b bg-muted/30">
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2"
+                        onClick={() => {
+                          const doc = new (window as any).jspdf.jsPDF();
+                          const categories = getDocumentCategories();
+                          const productTitle = getProductTitle();
+                          
+                          let yPos = 20;
+                          doc.setFontSize(18);
+                          doc.setFont(undefined, 'bold');
+                          doc.text(productTitle.toUpperCase(), 20, yPos);
+                          yPos += 8;
+                          
+                          doc.setFontSize(12);
+                          doc.setFont(undefined, 'normal');
+                          doc.text('Required Documents Checklist', 20, yPos);
+                          yPos += 10;
+                          
+                          doc.setFontSize(10);
+                          doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, yPos);
+                          yPos += 15;
+                          
+                          categories.forEach(cat => {
+                            doc.setFontSize(12);
+                            doc.setFont(undefined, 'bold');
+                            doc.text(`${cat.title.toUpperCase()} (${cat.count})`, 20, yPos);
+                            yPos += 8;
+                            
+                            doc.setFontSize(10);
+                            doc.setFont(undefined, 'normal');
+                            cat.items.forEach((item: string) => {
+                              doc.text(`☐ ${item}`, 25, yPos);
+                              yPos += 7;
+                            });
+                            yPos += 5;
+                          });
+                          
+                          doc.save(`${productTitle.replace(/\s+/g, '-')}-Checklist.pdf`);
+                        }}
+                      >
+                        <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
+                        </svg>
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Download PDF</p></TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2"
+                        onClick={() => {
+                          const categories = getDocumentCategories();
+                          const checklist = categories
+                            .map(cat => `${cat.title}:\n${cat.items.map(item => `• ${item}`).join('\n')}`)
+                            .join('\n\n');
+                          navigator.clipboard.writeText(checklist);
+                        }}
+                      >
+                        <ClipboardList className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Copy to clipboard</p></TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
+
+              {/* Info Banner */}
+              <div className="px-4 py-2 bg-blue-50 dark:bg-blue-950/20 border-b flex items-start gap-2">
+                <Calendar className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                <p className="text-xs text-blue-900 dark:text-blue-100">
+                  Reference only - Documents collected in subsequent steps
+                </p>
+              </div>
+
+              {/* Document Categories */}
+              <div className="flex-1 overflow-y-auto p-4">
+                <Accordion type="single" collapsible defaultValue="item-0" className="space-y-2">
                   {documentCategories.map((category, index) => {
                     const IconComponent = category.icon;
                     return (
-                      <AccordionItem key={index} value={`doc-${index}`} className="border-b last:border-0">
-                        <AccordionTrigger className="py-3 hover:no-underline">
+                      <AccordionItem key={index} value={`item-${index}`} className="border rounded-lg">
+                        <AccordionTrigger className="px-3 py-2 hover:no-underline">
                           <div className="flex items-center gap-2">
-                            <IconComponent className={`h-4 w-4 ${category.color}`} />
-                            <span className="text-xs font-medium">{category.title}</span>
-                            <Badge variant="secondary" className="ml-auto text-[10px] h-5">
-                              {category.count}
-                            </Badge>
+                            <IconComponent className={cn("h-4 w-4", category.color)} />
+                            <span className="text-sm font-medium">{category.title}</span>
+                            <Badge variant="outline" className="text-xs">{category.count}</Badge>
                           </div>
                         </AccordionTrigger>
-                        <AccordionContent>
-                          <ul className="space-y-2 pl-6">
+                        <AccordionContent className="px-3 pb-3">
+                          <ul className="space-y-2">
                             {category.items.map((item, itemIndex) => (
-                              <li key={itemIndex} className="text-xs text-muted-foreground flex items-start gap-2">
-                                <span className="text-primary mt-0.5">•</span>
-                                <span>{item}</span>
+                              <li key={itemIndex} className="flex items-start gap-2 text-sm">
+                                <span className={cn("mt-1", category.color)}>•</span>
+                                <span className="text-muted-foreground">{item}</span>
                               </li>
                             ))}
                           </ul>
@@ -452,10 +535,10 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                     );
                   })}
                 </Accordion>
-              </CardContent>
-            </Card>
+              </div>
+            </>
           ) : (
-            <Card className="border-muted">
+            <Card className="border-muted m-4">
               <CardContent className="pt-6 text-center">
                 <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                 <p className="text-sm text-muted-foreground">
