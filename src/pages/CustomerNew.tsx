@@ -54,12 +54,14 @@ const CustomerNew = () => {
     }
   }, [currentStep, companyMode]);
 
-  // Collapse sidebar when switching between new/existing customer
+  // Collapse sidebar and clear customer selection when switching between new/existing customer
   const handleModeChange = (newMode: boolean) => {
     setCompanyMode(newMode);
-    // Don't collapse if product already selected
-    if (!hasSelectedProduct) {
-      setSidebarCollapsed(true);
+    setSidebarCollapsed(true);
+    
+    // Clear customer selection when switching to new customer mode
+    if (!newMode) {
+      setSelectedCustomerId(null);
     }
   };
 
