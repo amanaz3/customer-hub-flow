@@ -74,7 +74,7 @@
     --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.08), 0 10px 10px -5px hsl(0 0% 0% / 0.02);
   }
 
-  .dark {
+  html.dark, .dark {
     /* Rich, refined dark - softer on eyes */
     --background: 220 12% 11%;
     --foreground: 180 35% 82%;
