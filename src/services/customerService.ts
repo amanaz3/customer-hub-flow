@@ -281,7 +281,7 @@ export class CustomerService {
       { name: 'Company Profile', is_mandatory: false, category: 'additional' },
       { name: 'Audited Financial Statements', is_mandatory: false, category: 'additional' },
       { name: 'Business Plan', is_mandatory: false, category: 'additional' },
-      { name: 'Proof of Address', is_mandatory: false, category: 'shareholder' },
+      { name: 'Proof of Address', is_mandatory: false, category: 'signatory' },
       
       // Signatory documents
       { name: 'Authorized Signatory Passport', is_mandatory: false, category: 'signatory' },

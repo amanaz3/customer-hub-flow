@@ -354,6 +354,10 @@ const TabbedDocumentUpload: React.FC<TabbedDocumentUploadProps> = ({
   };
 
   const getDocumentsByCategory = (category: string) => {
+    if (category === 'shareholder') {
+      // Include both shareholder and signatory categories in the shareholder tab
+      return documents.filter(doc => doc.category === 'shareholder' || doc.category === 'signatory');
+    }
     return documents.filter(doc => doc.category === category);
   };
 
