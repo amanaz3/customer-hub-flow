@@ -675,16 +675,16 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 
           {/* Events View */}
           {activeTab === 'events' && (
-            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
         {/* Customer Info Card */}
         <Card className="border-primary/20">
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-2 px-3 sm:px-4">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <User className="w-4 h-4 text-primary" />
               Customer Details
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2 text-xs">
+          <CardContent className="space-y-2 text-xs p-3 sm:p-4">
             <div className="flex items-start gap-2">
               <Building2 className="w-3 h-3 text-muted-foreground mt-0.5" />
               <div>
@@ -704,13 +704,13 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 
         {/* Recent Applications */}
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-2 px-3 sm:px-4">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <FileText className="w-4 h-4 text-primary" />
               Recent Applications
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-3">
+          <CardContent className="space-y-2 p-3 sm:p-4">
             {applicationsLoading ? (
               <div className="space-y-2">
                 <div className="h-16 bg-muted animate-pulse rounded" />
@@ -748,13 +748,13 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 
         {/* Recent Activity */}
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-2 px-3 sm:px-4">
             <CardTitle className="text-sm font-medium flex items-center gap-2">
               <Clock className="w-4 h-4 text-primary" />
               Recent Activity
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-2">
+          <CardContent className="space-y-2 p-3 sm:p-4">
             {statusHistory && statusHistory.length > 0 ? (
               (statusHistory as any[]).slice(0, 8).map((history: any, index: number) => (
                 <div
@@ -786,10 +786,10 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 
         {/* Quick Stats */}
         <Card>
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-2 px-3 sm:px-4">
             <CardTitle className="text-sm font-medium">Quick Stats</CardTitle>
           </CardHeader>
-          <CardContent className="grid grid-cols-2 gap-3">
+          <CardContent className="grid grid-cols-2 gap-3 p-3 sm:p-4">
             <div className="text-center p-2 bg-muted/30 rounded">
               <div className="text-lg font-semibold text-foreground">
                 {applications?.length || 0}
@@ -1077,14 +1077,16 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                </div>
              </>
            ) : (
-             <Card className="border-muted m-4">
-               <CardContent className="pt-6 text-center">
-                 <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                 <p className="text-sm text-muted-foreground">
-                   Select a product to view required documents
-                 </p>
-               </CardContent>
+             <div className="flex-1 overflow-y-auto p-4">
+               <Card className="border-muted">
+                 <CardContent className="pt-6 text-center p-3 sm:p-4">
+                   <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                   <p className="text-sm text-muted-foreground">
+                     Select a product to view required documents
+                   </p>
+                 </CardContent>
                </Card>
+             </div>
              )}
              </div>
            )}
