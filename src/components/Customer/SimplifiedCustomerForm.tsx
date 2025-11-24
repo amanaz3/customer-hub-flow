@@ -178,6 +178,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [sidebarCollapsed, setSidebarCollapsed] = useState(true);
   const [processSidebarCollapsed, setProcessSidebarCollapsed] = useState(true);
   const [accordionOpen, setAccordionOpen] = useState<string | undefined>(undefined);
+  const [step1AccordionOpen, setStep1AccordionOpen] = useState<string>('');
   const [selectedCustomerData, setSelectedCustomerData] = useState<any>(null);
   const [customerEventsSidebarCollapsed, setCustomerEventsSidebarCollapsed] = useState(true);
   const [fieldLabelMap, setFieldLabelMap] = useState<Record<string, string>>({});
@@ -984,13 +985,21 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     if (!selectedCustomerData || !companyMode) return null;
 
     return (
-      <Accordion type="single" collapsible className="w-1/4 mx-auto">
+      <Accordion 
+        type="single" 
+        collapsible 
+        className="w-1/4 mx-auto"
+        value={step1AccordionOpen}
+        onValueChange={setStep1AccordionOpen}
+      >
         <AccordionItem value="customer-info" className="border rounded-lg bg-card">
           <AccordionTrigger className="px-4 py-3 hover:no-underline">
-            <div className="flex items-center gap-2">
-              <User className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium">{selectedCustomerData.name}</span>
-            </div>
+            {step1AccordionOpen !== 'customer-info' && (
+              <div className="flex items-center gap-2">
+                <User className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium">{selectedCustomerData.name}</span>
+              </div>
+            )}
           </AccordionTrigger>
           <AccordionContent className="px-4 pb-4">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
@@ -1089,10 +1098,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   >
                     <AccordionItem value="customer-info" className="border rounded-lg">
                     <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                      <div className="flex items-center gap-2">
-                        <User className="h-4 w-4 text-primary" />
-                        <span className="text-sm font-medium">{form.watch('name')}</span>
-                      </div>
+                      {accordionOpen !== 'customer-info' && (
+                        <div className="flex items-center gap-2">
+                          <User className="h-4 w-4 text-primary" />
+                          <span className="text-sm font-medium">{form.watch('name')}</span>
+                        </div>
+                      )}
                     </AccordionTrigger>
                     <AccordionContent className="px-4 pb-4">
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
