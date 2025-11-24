@@ -31,7 +31,8 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 }) => {
   const { toast } = useToast();
   const [internalCollapsed, setInternalCollapsed] = React.useState(true);
-  const [activeTab, setActiveTab] = useState<string>('events');
+  // Initialize active tab based on application type
+  const [activeTab, setActiveTab] = useState<string>(isNewApplication ? 'events' : 'documents');
   const [hasAutoExpanded, setHasAutoExpanded] = React.useState(false);
   const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed;
 
