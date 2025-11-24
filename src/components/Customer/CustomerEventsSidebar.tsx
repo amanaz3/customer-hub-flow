@@ -510,20 +510,6 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
              <div className="flex-1 flex flex-col overflow-hidden min-h-0">
            {productType ? (
              <>
-               {/* Static Header - Not expandable */}
-               <div className="px-4 py-3 border-b bg-background flex-shrink-0">
-                 <div className="space-y-1">
-                   <div className="flex items-center justify-between">
-                     <div className="flex items-center gap-2">
-                       <Badge variant="secondary" className="text-xs">
-                         {documentCategories.reduce((sum, cat) => sum + cat.count, 0)} docs
-                       </Badge>
-                       <span className="text-xs text-muted-foreground">{getProductTitle()}</span>
-                     </div>
-                   </div>
-                 </div>
-               </div>
-
                {/* Action Buttons Bar */}
                <div className="flex items-center justify-around gap-1 px-2 py-2 border-b bg-muted/20 flex-shrink-0">
                  <TooltipProvider>
