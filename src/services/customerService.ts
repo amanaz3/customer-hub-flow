@@ -278,10 +278,10 @@ export class CustomerService {
       { name: 'Bank Statements (Last 6 months)', is_mandatory: true, category: 'mandatory' },
       
       // Supporting documents (optional but recommended)
-      { name: 'Company Profile', is_mandatory: false, category: 'supporting' },
-      { name: 'Audited Financial Statements', is_mandatory: false, category: 'supporting' },
-      { name: 'Business Plan', is_mandatory: false, category: 'supporting' },
-      { name: 'Proof of Address', is_mandatory: false, category: 'supporting' },
+      { name: 'Company Profile', is_mandatory: false, category: 'additional' },
+      { name: 'Audited Financial Statements', is_mandatory: false, category: 'additional' },
+      { name: 'Business Plan', is_mandatory: false, category: 'additional' },
+      { name: 'Proof of Address', is_mandatory: false, category: 'shareholder' },
       
       // Signatory documents
       { name: 'Authorized Signatory Passport', is_mandatory: false, category: 'signatory' },
