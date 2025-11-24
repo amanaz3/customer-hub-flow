@@ -238,10 +238,11 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             title: 'Shareholder Documents',
             icon: Users,
             color: 'text-blue-600',
-            count: 2,
+            count: 3,
             items: [
               'Passport Copies of all Shareholders',
-              'Emirates ID or Visa Copies'
+              'Emirates ID or Visa Copies',
+              'Proof of Address'
             ]
           }
         ];
