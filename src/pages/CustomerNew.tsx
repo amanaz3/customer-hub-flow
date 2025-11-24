@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom';
 import { useCustomer } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
 import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
-import { RequiredDocumentsSidebar } from '@/components/Customer/RequiredDocumentsSidebar';
 import { CustomerEventsSidebar } from '@/components/Customer/CustomerEventsSidebar';
 
 const CustomerNew = () => {
@@ -109,29 +108,16 @@ const CustomerNew = () => {
           </div>
         </div>
       
-      {/* Sticky Sidebar - Show after product selection, persist through step navigation */}
-      {hasSelectedProduct && selectedProduct && (
+      {/* Sticky Sidebar - Show after product selection with tabs interface */}
+      {hasSelectedProduct && selectedProduct && selectedCustomerId && (
         <div className="hidden lg:block">
-          {currentStep >= 3 && companyMode && selectedCustomerId ? (
-            <CustomerEventsSidebar 
-              key="customer-events-sidebar"
-              customerId={selectedCustomerId} 
-              collapsed={sidebarCollapsed}
-              onCollapsedChange={setSidebarCollapsed}
-              productType={getProductType()}
-            />
-          ) : (
-            <RequiredDocumentsSidebar
-              key="required-documents-sidebar"
-              productType={getProductType()}
-              customerEmail={customerEmail}
-              customerName={customerName}
-              customerMobile={customerMobile}
-              customerCompany={customerCompany}
-              collapsed={sidebarCollapsed}
-              onCollapsedChange={setSidebarCollapsed}
-            />
-          )}
+          <CustomerEventsSidebar 
+            key="customer-events-sidebar"
+            customerId={selectedCustomerId} 
+            collapsed={sidebarCollapsed}
+            onCollapsedChange={setSidebarCollapsed}
+            productType={getProductType()}
+          />
         </div>
       )}
 
