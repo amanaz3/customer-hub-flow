@@ -1735,8 +1735,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         </div>
       )}
 
-      {/* Customer Events Sidebar - Auto-expands when customer selected */}
-      {companyMode && selectedCustomerId && (
+      {/* Customer Events Sidebar - Shows when service selected (step 3+) in existing customer flow */}
+      {companyMode && selectedCustomerId && currentStep >= 3 && (
         <CustomerEventsSidebar
           customerId={selectedCustomerId}
           collapsed={customerEventsSidebarCollapsed}
