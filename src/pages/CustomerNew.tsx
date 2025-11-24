@@ -33,9 +33,9 @@ const CustomerNew = () => {
     }
   }, [selectedProduct, companyMode]);
 
-  // Auto-expand sidebar for existing customer when moving to step 2
+  // Auto-expand sidebar for existing customer when customer is selected (step 1)
   React.useEffect(() => {
-    if (companyMode && selectedCustomerId && currentStep === 2) {
+    if (companyMode && selectedCustomerId && currentStep === 1) {
       setSidebarCollapsed(false);
     }
   }, [companyMode, selectedCustomerId, currentStep]);
@@ -46,6 +46,13 @@ const CustomerNew = () => {
       setHasSelectedProduct(true);
     }
   }, [selectedProduct]);
+
+  // Keep sidebar collapsed in step 1 for new customer only
+  React.useEffect(() => {
+    if (currentStep === 1 && !companyMode) {
+      setSidebarCollapsed(true);
+    }
+  }, [currentStep, companyMode]);
 
   // Collapse sidebar when switching between new/existing customer
   const handleModeChange = (newMode: boolean) => {
@@ -115,8 +122,8 @@ const CustomerNew = () => {
           </div>
         </div>
       
-      {/* Sticky Sidebar - Show after product selection OR when existing customer is selected */}
-      {((hasSelectedProduct && selectedProduct) || (companyMode && selectedCustomerId)) && (selectedCustomerId || internalCustomerId) && (
+      {/* Sticky Sidebar - Show when customer is selected (existing or new) */}
+      {(selectedCustomerId || internalCustomerId) && (
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
             key={`sidebar-${companyMode ? 'existing' : 'new'}-${selectedCustomerId || internalCustomerId}`}
