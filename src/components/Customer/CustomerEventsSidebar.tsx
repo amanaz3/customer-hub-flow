@@ -32,12 +32,20 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   const [activeTab, setActiveTab] = useState<string>('events');
   const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed;
 
-  // Auto-switch to documents tab when productType changes and is available
+  // Auto-expand sidebar and switch to documents tab when productType is selected
   React.useEffect(() => {
-    if (productType && !isCollapsed) {
+    if (productType) {
       setActiveTab('documents');
+      // Auto-expand sidebar when product is selected
+      if (isCollapsed) {
+        if (collapsed !== undefined) {
+          onCollapsedChange?.(false);
+        } else {
+          setInternalCollapsed(false);
+        }
+      }
     }
-  }, [productType, isCollapsed]);
+  }, [productType]);
 
   const toggleCollapsed = () => {
     const newValue = !isCollapsed;
