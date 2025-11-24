@@ -68,16 +68,20 @@ const CustomerNew = () => {
   }, [selectedProduct]);
 
   // Keep sidebar collapsed in step 1 for new customer only
-  // In step 2+, show sidebar for new customer when there's customer data or product selected
+  // In step 2, show sidebar for new customer when there's customer data or product selected
+  // In step 3+, keep sidebar collapsed
   React.useEffect(() => {
     if (currentStep === 1 && !companyMode) {
       setSidebarCollapsed(true);
-    } else if (currentStep >= 2 && !companyMode) {
+    } else if (currentStep === 2 && !companyMode) {
       // Show if there's any customer data entered or product selected
       const hasCustomerData = customerEmail || customerName || customerMobile || customerCompany;
       if (hasCustomerData || hasSelectedProduct || internalCustomerId) {
         setSidebarCollapsed(false);
       }
+    } else if (currentStep >= 3 && !companyMode) {
+      // Collapse in step 3 and beyond for new customers
+      setSidebarCollapsed(true);
     }
   }, [currentStep, companyMode, hasSelectedProduct, internalCustomerId, customerEmail, customerName, customerMobile, customerCompany]);
 
