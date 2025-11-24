@@ -62,6 +62,7 @@ const CustomerNew = () => {
     // Clear customer selection when switching to new customer mode
     if (!newMode) {
       setSelectedCustomerId(null);
+      setInternalCustomerId(null);
     }
   };
 
