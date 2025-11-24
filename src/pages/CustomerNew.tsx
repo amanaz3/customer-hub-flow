@@ -108,8 +108,8 @@ const CustomerNew = () => {
           </div>
         </div>
       
-      {/* Sticky Sidebar - Show only for existing customers */}
-      {hasSelectedProduct && selectedProduct && selectedCustomerId && companyMode && (
+      {/* Sticky Sidebar - Show after product selection with tabs interface */}
+      {hasSelectedProduct && selectedProduct && selectedCustomerId && (
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
             key="customer-events-sidebar"
@@ -117,7 +117,6 @@ const CustomerNew = () => {
             collapsed={sidebarCollapsed}
             onCollapsedChange={setSidebarCollapsed}
             productType={getProductType()}
-            isNewApplication={true}
           />
         </div>
       )}

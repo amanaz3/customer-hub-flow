@@ -273,18 +273,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     }
   }, [products, form, currentStep, onProductChange]);
 
-  // When entering step 2, notify parent about already selected product and customer
+  // When entering step 2, notify parent about already selected product
   useEffect(() => {
-    if (currentStep === 2) {
-      if (selectedProductName) {
-        onProductChange?.(selectedProductName);
-      }
-      // Also ensure parent has the customer ID
-      if (customerId) {
-        onCustomerSelect?.(customerId);
-      }
+    if (currentStep === 2 && selectedProductName) {
+      onProductChange?.(selectedProductName);
     }
-  }, [currentStep, selectedProductName, onProductChange, customerId, onCustomerSelect]);
+  }, [currentStep, selectedProductName, onProductChange]);
 
   const handleProductChange = (productId: string) => {
     const product = products?.find(p => p.id === productId);
@@ -363,8 +357,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         if (companyMode && selectedCustomerId) {
           currentCustomerId = selectedCustomerId;
           setCustomerId(selectedCustomerId);
-          // Notify parent about the customer selection
-          onCustomerSelect?.(selectedCustomerId);
         } else {
           // Create or update customer
           if (!currentCustomerId) {
@@ -401,8 +393,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             
             currentCustomerId = customer.id;
             setCustomerId(customer.id);
-            // Notify parent about the customer selection
-            onCustomerSelect?.(customer.id);
           } else {
             // Update existing customer
             const { error: updateError } = await supabase
@@ -575,13 +565,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     }
   }, [currentStep]);
   
-  // Auto-switch to existing customer tab when a customer is selected from dropdown
-  // BUT NOT when we're creating a new customer and it gets an ID
+  // Auto-switch to existing customer tab when a customer is selected
   useEffect(() => {
-    if (selectedCustomerId && !companyMode && selectedCustomerData) {
+    if (selectedCustomerId && !companyMode) {
       onModeChange?.(true);
     }
-  }, [selectedCustomerId, companyMode, onModeChange, selectedCustomerData]);
+  }, [selectedCustomerId, companyMode, onModeChange]);
 
   // Populate form with existing customer data when selected
   useEffect(() => {
