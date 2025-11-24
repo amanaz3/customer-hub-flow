@@ -317,7 +317,8 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
           </TabsList>
         </div>
 
-        <TabsContent value="events" className="flex-1 overflow-y-auto p-4 space-y-4 mt-0 data-[state=active]:flex data-[state=active]:flex-col">
+        <TabsContent value="events" className="flex-1 overflow-hidden mt-0">
+          <div className="h-full overflow-y-auto p-4 space-y-4">
         {/* Customer Info Card */}
         <Card className="border-primary/20">
           <CardHeader className="pb-3">
@@ -446,6 +447,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             </div>
           </CardContent>
         </Card>
+          </div>
         </TabsContent>
 
         {/* Documents Tab Content */}
