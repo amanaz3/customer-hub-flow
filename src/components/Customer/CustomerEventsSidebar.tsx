@@ -666,6 +666,21 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
           {/* Events View */}
           {activeTab === 'events' && (
             <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
+        {customerId === 'temp' || !customer ? (
+          // Placeholder for new customers without data
+          <Card className="border-muted">
+            <CardContent className="pt-6 text-center p-3 sm:p-4">
+              <User className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm font-medium text-foreground mb-1">
+                Customer Information Pending
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Customer events and history will be available after the application is created
+              </p>
+            </CardContent>
+          </Card>
+        ) : (
+          <>
         {/* Customer Info Card */}
         <Card className="border-primary/20">
           <CardHeader className="pb-2 px-3 sm:px-4">
@@ -794,6 +809,8 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             </div>
           </CardContent>
         </Card>
+          </>
+        )}
             </div>
           )}
 
