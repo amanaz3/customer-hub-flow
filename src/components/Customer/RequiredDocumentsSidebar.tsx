@@ -463,34 +463,40 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
             </TooltipProvider>
           </div>
 
-          {/* Info Banner */}
-          <div className="px-4 py-2 bg-blue-50 dark:bg-blue-950/20 border-b flex items-start gap-2 flex-shrink-0">
-            <Calendar className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-            <p className="text-xs text-blue-900 dark:text-blue-100">
-              Reference only - Documents collected in subsequent steps
-            </p>
-          </div>
-
           {/* Document Categories */}
-          <div className="flex-1 overflow-y-auto p-4">
-            <Accordion type="single" collapsible defaultValue="item-0" className="space-y-2">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3">
+            {/* Info Banner */}
+            <div className="px-4 py-3 bg-gradient-to-r from-amber-500/10 to-amber-600/10 border-2 border-amber-500/30 rounded-xl flex items-start gap-3">
+              <Calendar className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+              <p className="text-sm font-medium text-amber-700 dark:text-amber-300">
+                Reference only - Documents collected in subsequent steps
+              </p>
+            </div>
+            
+            <Accordion type="single" collapsible defaultValue="item-0" className="space-y-3">
               {categories.map((category, index) => {
                 const Icon = category.icon;
                 return (
-                  <AccordionItem key={index} value={`item-${index}`} className="border rounded-lg">
-                    <AccordionTrigger className="px-3 py-2 hover:no-underline">
-                      <div className="flex items-center gap-2">
-                        <Icon className={cn("h-4 w-4", category.color)} />
-                        <span className="text-sm font-medium">{category.title}</span>
-                        <Badge variant="outline" className="text-xs">{category.count}</Badge>
+                  <AccordionItem 
+                    key={index} 
+                    value={`item-${index}`} 
+                    className="border-2 border-border/60 rounded-xl bg-card/50 backdrop-blur-sm overflow-hidden"
+                  >
+                    <AccordionTrigger className="px-4 py-3 hover:no-underline hover:bg-muted/50 transition-colors">
+                      <div className="flex items-center gap-3 flex-1">
+                        <Icon className={cn("h-5 w-5", category.color)} />
+                        <span className="text-sm font-semibold">{category.title}</span>
+                        <Badge variant="secondary" className="text-xs ml-auto mr-2">
+                          {category.count}
+                        </Badge>
                       </div>
                     </AccordionTrigger>
-                    <AccordionContent className="px-3 pb-3">
-                      <ul className="space-y-2">
+                    <AccordionContent className="px-4 pb-4 pt-2">
+                      <ul className="space-y-2.5">
                         {category.items.map((item, itemIndex) => (
-                          <li key={itemIndex} className="flex items-start gap-2 text-sm">
-                            <span className={cn("mt-1", category.color)}>•</span>
-                            <span className="text-muted-foreground">{item}</span>
+                          <li key={itemIndex} className="flex items-start gap-2.5 text-sm">
+                            <span className={cn("text-lg leading-none mt-0.5", category.color)}>•</span>
+                            <span className="text-muted-foreground leading-relaxed">{item}</span>
                           </li>
                         ))}
                       </ul>
