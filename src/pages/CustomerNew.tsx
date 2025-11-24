@@ -94,25 +94,28 @@ const CustomerNew = () => {
         </div>
       
       {/* Sticky Sidebar - Hidden on mobile/tablet, each sidebar has its own toggle */}
-      <div className="hidden lg:block">
-        {companyMode && selectedCustomerId ? (
-          <CustomerEventsSidebar 
-            customerId={selectedCustomerId} 
-            collapsed={sidebarCollapsed}
-            onCollapsedChange={setSidebarCollapsed}
-          />
-        ) : (
-          <RequiredDocumentsSidebar
-            productType={getProductType()}
-            customerEmail={customerEmail}
-            customerName={customerName}
-            customerMobile={customerMobile}
-            customerCompany={customerCompany}
-            collapsed={sidebarCollapsed}
-            onCollapsedChange={setSidebarCollapsed}
-          />
-        )}
-      </div>
+      {/* Only show when there's meaningful data (product selected or customer selected) */}
+      {(selectedProduct || (companyMode && selectedCustomerId)) && (
+        <div className="hidden lg:block">
+          {companyMode && selectedCustomerId ? (
+            <CustomerEventsSidebar 
+              customerId={selectedCustomerId} 
+              collapsed={sidebarCollapsed}
+              onCollapsedChange={setSidebarCollapsed}
+            />
+          ) : (
+            <RequiredDocumentsSidebar
+              productType={getProductType()}
+              customerEmail={customerEmail}
+              customerName={customerName}
+              customerMobile={customerMobile}
+              customerCompany={customerCompany}
+              collapsed={sidebarCollapsed}
+              onCollapsedChange={setSidebarCollapsed}
+            />
+          )}
+        </div>
+      )}
 
         {/* Mobile Notice for Required Documents */}
         <div className="lg:hidden mt-8 bg-muted border border-border rounded-lg p-6 shadow-sm">
