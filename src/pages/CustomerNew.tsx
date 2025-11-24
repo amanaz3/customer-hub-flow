@@ -109,6 +109,29 @@ const CustomerNew = () => {
           </div>
         </div>
       
+      {/* Sticky Sidebar - Show after product selection, persist through step navigation */}
+      {hasSelectedProduct && selectedProduct && (
+        <div className="hidden lg:block">
+          {currentStep >= 3 && companyMode && selectedCustomerId ? (
+            <CustomerEventsSidebar 
+              customerId={selectedCustomerId} 
+              collapsed={sidebarCollapsed}
+              onCollapsedChange={setSidebarCollapsed}
+              productType={getProductType()}
+            />
+          ) : (
+            <RequiredDocumentsSidebar
+              productType={getProductType()}
+              customerEmail={customerEmail}
+              customerName={customerName}
+              customerMobile={customerMobile}
+              customerCompany={customerCompany}
+              collapsed={sidebarCollapsed}
+              onCollapsedChange={setSidebarCollapsed}
+            />
+          )}
+        </div>
+      )}
 
         {/* Mobile Notice for Required Documents */}
         <div className="lg:hidden mt-8 bg-muted border border-border rounded-lg p-6 shadow-sm">
