@@ -648,14 +648,11 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 text-primary" />
-                  <div className="flex flex-col flex-1">
+                  <div className="flex flex-col">
                     <span className="text-sm font-semibold text-primary">Required Documents</span>
                     {productType && (
                       <span className="text-xs text-muted-foreground">{getProductTitle()}</span>
                     )}
-                    <span className="text-xs text-amber-600 dark:text-amber-400 mt-1 font-medium">
-                      Reference only - Documents collected in subsequent steps
-                    </span>
                   </div>
                   {productType && (
                     <Badge variant="secondary" className="text-xs">
