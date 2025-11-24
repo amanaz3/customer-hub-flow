@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
-import { Building2, Mail, Phone, FileText, Check, Search, Loader2 } from 'lucide-react';
+import { Building2, Mail, Phone, Check, Search, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { CustomerService } from '@/services/customerService';
-import { ApplicationService } from '@/services/applicationService';
 import type { Customer } from '@/types/customer';
 
 interface ExistingCustomerSelectorProps {
@@ -21,7 +20,6 @@ export const ExistingCustomerSelector = ({
 }: ExistingCustomerSelectorProps) => {
   const [customers, setCustomers] = useState<Partial<Customer>[]>([]);
   const [loading, setLoading] = useState(true);
-  const [applicationCounts, setApplicationCounts] = useState<Record<string, number>>({});
   const [searchTerm, setSearchTerm] = useState('');
 
   useEffect(() => {
@@ -30,14 +28,6 @@ export const ExistingCustomerSelector = ({
         setLoading(true);
         const data = await CustomerService.fetchUserCustomers(userId);
         setCustomers(data);
-        
-        // Fetch application counts for each customer
-        const counts: Record<string, number> = {};
-        for (const customer of data) {
-          const apps = await ApplicationService.fetchApplicationsByCustomerId(customer.id);
-          counts[customer.id] = apps.length;
-        }
-        setApplicationCounts(counts);
       } catch (error) {
         console.error('Error fetching customers:', error);
       } finally {
@@ -101,9 +91,9 @@ export const ExistingCustomerSelector = ({
           <p className="mt-2 text-xs text-muted-foreground">Type at least 2 characters to search</p>
         )}
 
-        {/* Results dropdown */}
+        {/* Results dropdown - appears below input */}
         {hasQuery && filteredCustomers.length > 0 && (
-          <div className="absolute z-[500] w-full bottom-full mb-2 border rounded-lg shadow-2xl bg-popover backdrop-blur-sm">
+          <div className="absolute z-[500] w-full top-full mt-2 border rounded-lg shadow-2xl bg-popover backdrop-blur-sm">
             <ScrollArea className="max-h-[400px]">
               <div className="p-2">
                 {filteredCustomers.map((customer) => (
@@ -126,12 +116,6 @@ export const ExistingCustomerSelector = ({
                         <div className="flex items-center gap-2">
                           <Building2 className="h-5 w-5 text-muted-foreground" />
                           <span className="font-semibold text-base">{customer.company}</span>
-                          {applicationCounts[customer.id] > 0 && (
-                            <Badge variant="secondary" className="ml-auto text-xs">
-                              <FileText className="h-3.5 w-3.5 mr-1" />
-                              {applicationCounts[customer.id]} app{applicationCounts[customer.id] !== 1 ? 's' : ''}
-                            </Badge>
-                          )}
                         </div>
                         <div className="flex items-center gap-3 text-sm text-muted-foreground">
                           <span className="flex items-center gap-1.5">
@@ -152,16 +136,16 @@ export const ExistingCustomerSelector = ({
           </div>
         )}
 
-        {/* No results message */}
+        {/* No results message - appears below input */}
         {hasQuery && filteredCustomers.length === 0 && !loading && (
-          <div className="absolute z-[500] w-full bottom-full mb-2 p-4 border rounded-lg shadow-2xl bg-popover backdrop-blur-sm text-center text-sm text-muted-foreground">
+          <div className="absolute z-[500] w-full top-full mt-2 p-4 border rounded-lg shadow-2xl bg-popover backdrop-blur-sm text-center text-sm text-muted-foreground">
             No customers found matching "{searchTerm}"
           </div>
         )}
 
-        {/* Loading state */}
+        {/* Loading state - appears below input */}
         {loading && hasQuery && (
-          <div className="absolute z-[500] w-full bottom-full mb-2 p-6 border rounded-lg shadow-2xl bg-popover backdrop-blur-sm">
+          <div className="absolute z-[500] w-full top-full mt-2 p-6 border rounded-lg shadow-2xl bg-popover backdrop-blur-sm">
             <div className="flex flex-col items-center justify-center gap-2">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground">Searching customers...</p>
