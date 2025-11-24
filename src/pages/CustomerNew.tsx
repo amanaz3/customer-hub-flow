@@ -22,6 +22,7 @@ const CustomerNew = () => {
   // Customer selection state
   const [companyMode, setCompanyMode] = useState<boolean>(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [internalCustomerId, setInternalCustomerId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(true);
 
   // Track when product is selected and expand sidebar
@@ -103,17 +104,18 @@ const CustomerNew = () => {
               selectedCustomerId={selectedCustomerId}
               onModeChange={handleModeChange}
               onCustomerSelect={setSelectedCustomerId}
+              onCustomerIdChange={setInternalCustomerId}
               onCancel={() => navigate('/customers')}
             />
           </div>
         </div>
       
       {/* Sticky Sidebar - Show after product selection with tabs interface */}
-      {hasSelectedProduct && selectedProduct && selectedCustomerId && (
+      {hasSelectedProduct && selectedProduct && (selectedCustomerId || internalCustomerId) && (
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
             key="customer-events-sidebar"
-            customerId={selectedCustomerId} 
+            customerId={selectedCustomerId || internalCustomerId || ''} 
             collapsed={sidebarCollapsed}
             onCollapsedChange={setSidebarCollapsed}
             productType={getProductType()}
