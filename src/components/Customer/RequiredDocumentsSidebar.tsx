@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Building2, Users, FileText, ClipboardList, Mail, Share2, ChevronLeft, ChevronRight, Info } from 'lucide-react';
+import { Building2, Users, FileText, ClipboardList, Mail, MessageCircle, Download, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { validateEmail, validatePhoneNumber } from '@/utils/inputValidation';
 import { emailDocumentChecklist, shareViaWhatsApp } from '@/utils/documentChecklistSharing';
@@ -216,8 +216,8 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
     doc.save(`${productTitle.replace(/\s+/g, '-')}-Checklist-${new Date().toISOString().split('T')[0]}.pdf`);
     
     toast({
-      title: "Downloaded!",
-      description: "PDF checklist saved to downloads",
+      title: "PDF Downloaded",
+      description: "Document checklist has been saved as PDF",
     });
   };
 
@@ -249,8 +249,8 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
     document.body.removeChild(a);
     
     toast({
-      title: "Downloaded!",
-      description: "Text checklist saved to downloads",
+      title: "Text File Downloaded",
+      description: "Document checklist has been saved as text file",
     });
   };
 
@@ -258,8 +258,8 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
     const checklist = `${getProductTitle()} - Required Documents\n\n${getChecklistText()}`;
     navigator.clipboard.writeText(checklist);
     toast({
-      title: "Copied!",
-      description: "Checklist copied to clipboard",
+      title: "Copied to Clipboard",
+      description: "Document checklist has been copied",
     });
   };
 
@@ -283,13 +283,13 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
     
     if (success) {
       toast({
-        title: "Email Sent!",
-        description: `Checklist sent to ${customerEmail}`,
+        title: "Email Sent",
+        description: `Document checklist sent to ${customerEmail}`,
       });
     } else {
       toast({
-        title: "Failed to send",
-        description: "Please try again or contact support",
+        title: "Error",
+        description: "Failed to send email. Please try again",
         variant: "destructive",
       });
     }
@@ -307,14 +307,10 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
     
     try {
       shareViaWhatsApp(customerMobile, getChecklistText(), getProductTitle());
-      toast({
-        title: "Opening WhatsApp...",
-        description: "Share checklist via WhatsApp",
-      });
     } catch (error) {
       toast({
-        title: "Failed to open WhatsApp",
-        description: "Please check the mobile number",
+        title: "Error",
+        description: "Failed to open WhatsApp",
         variant: "destructive",
       });
     }
@@ -360,8 +356,8 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
             <p className="text-xs text-muted-foreground">{getProductTitle()}</p>
           </div>
 
-          {/* Action Buttons */}
-          <div className="flex items-center justify-between gap-1 px-4 py-2 border-b bg-muted/30">
+          {/* Action Buttons Bar */}
+          <div className="flex items-center justify-around gap-1 px-2 py-2 border-b bg-muted/20 flex-shrink-0">
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
@@ -391,12 +387,44 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
                     className="h-8 px-2"
                     onClick={handleDownloadText}
                   >
-                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                    </svg>
+                    <Download className="h-4 w-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent><p>Download text</p></TooltipContent>
+                <TooltipContent><p>Download Text</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2"
+                    onClick={handleEmailChecklist}
+                  >
+                    <Mail className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>Email Checklist</p></TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="h-8 px-2"
+                    onClick={handleWhatsAppShare}
+                  >
+                    <MessageCircle className="h-4 w-4" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent><p>Share via WhatsApp</p></TooltipContent>
               </Tooltip>
             </TooltipProvider>
 
@@ -416,45 +444,11 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
                 <TooltipContent><p>Copy to clipboard</p></TooltipContent>
               </Tooltip>
             </TooltipProvider>
-
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 px-2"
-                    onClick={handleEmailChecklist}
-                  >
-                    <Mail className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent><p>Email checklist</p></TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="h-8 px-2"
-                    onClick={handleWhatsAppShare}
-                  >
-                    <Share2 className="h-4 w-4" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent><p>Share via WhatsApp</p></TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
           </div>
 
           {/* Info Banner */}
-          <div className="px-4 py-2 bg-blue-50 dark:bg-blue-950/20 border-b flex items-start gap-2">
-            <Info className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+          <div className="px-4 py-2 bg-blue-50 dark:bg-blue-950/20 border-b flex items-start gap-2 flex-shrink-0">
+            <Calendar className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
             <p className="text-xs text-blue-900 dark:text-blue-100">
               Reference only - Documents collected in subsequent steps
             </p>
