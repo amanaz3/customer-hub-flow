@@ -93,9 +93,8 @@ const CustomerNew = () => {
           </div>
         </div>
       
-      {/* Sticky Sidebar - Hidden on mobile/tablet, each sidebar has its own toggle */}
-      {/* Only show when there's meaningful data (product selected or customer selected) */}
-      {(selectedProduct || (companyMode && selectedCustomerId)) && (
+      {/* Sticky Sidebar - Only show after product selection (step 2) */}
+      {selectedProduct && (
         <div className="hidden lg:block">
           {companyMode && selectedCustomerId ? (
             <CustomerEventsSidebar 
