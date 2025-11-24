@@ -57,6 +57,30 @@
     --chart-5: 340 82% 52%;
     --chart-5-foreground: 0 0% 100%;
 
+    /* Status colors */
+    --status-draft: 220 13% 85%;
+    --status-draft-foreground: 220 10% 25%;
+    --status-submitted: 213 94% 48%;
+    --status-submitted-foreground: 0 0% 100%;
+    --status-returned: 38 92% 50%;
+    --status-returned-foreground: 0 0% 100%;
+    --status-approved: 142 71% 45%;
+    --status-approved-foreground: 0 0% 100%;
+    --status-rejected: 0 84% 60%;
+    --status-rejected-foreground: 0 0% 100%;
+    --status-complete: 142 71% 45%;
+    --status-complete-foreground: 0 0% 100%;
+
+    /* Severity colors */
+    --severity-info: 213 94% 48%;
+    --severity-info-foreground: 0 0% 100%;
+    --severity-warning: 38 92% 50%;
+    --severity-warning-foreground: 0 0% 100%;
+    --severity-error: 0 84% 60%;
+    --severity-error-foreground: 0 0% 100%;
+    --severity-success: 142 71% 45%;
+    --severity-success-foreground: 0 0% 100%;
+
     /* Clean sidebar with frosted effect */
     --sidebar-background: 220 15% 99%;
     --sidebar-foreground: 180 45% 25%;
@@ -122,6 +146,30 @@
     --chart-4-foreground: 0 0% 100%;
     --chart-5: 340 82% 58%;
     --chart-5-foreground: 0 0% 100%;
+
+    /* Status colors for dark */
+    --status-draft: 220 10% 25%;
+    --status-draft-foreground: 220 10% 92%;
+    --status-submitted: 213 94% 55%;
+    --status-submitted-foreground: 0 0% 100%;
+    --status-returned: 38 92% 55%;
+    --status-returned-foreground: 0 0% 100%;
+    --status-approved: 142 71% 52%;
+    --status-approved-foreground: 0 0% 100%;
+    --status-rejected: 0 84% 62%;
+    --status-rejected-foreground: 0 0% 98%;
+    --status-complete: 142 71% 52%;
+    --status-complete-foreground: 0 0% 100%;
+
+    /* Severity colors for dark */
+    --severity-info: 213 94% 55%;
+    --severity-info-foreground: 0 0% 100%;
+    --severity-warning: 38 92% 55%;
+    --severity-warning-foreground: 0 0% 100%;
+    --severity-error: 0 84% 62%;
+    --severity-error-foreground: 0 0% 98%;
+    --severity-success: 142 71% 52%;
+    --severity-success-foreground: 0 0% 100%;
     
     /* Dark sidebar with better contrast */
     --sidebar-background: 220 12% 10%;
