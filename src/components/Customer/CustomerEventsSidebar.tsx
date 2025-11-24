@@ -251,7 +251,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 
   return (
     <div className={cn(
-      "fixed right-0 top-16 h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-[100000]",
+      "fixed right-0 top-16 h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-[100000] flex flex-col",
       isCollapsed ? "w-12" : "w-80"
     )}>
       {/* Toggle Button - Fixed positioning for better visibility */}
@@ -303,7 +303,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 
       {/* Tabbed Interface - Always visible when expanded */}
       {!isCollapsed && (
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col overflow-hidden">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden min-h-0">
         <div className="px-4 pt-4 pb-2 border-b border-border flex-shrink-0">
           <TabsList className="w-full grid grid-cols-2">
             <TabsTrigger value="events" className="text-xs">
