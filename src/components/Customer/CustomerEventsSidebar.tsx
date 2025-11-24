@@ -19,24 +19,31 @@ interface CustomerEventsSidebarProps {
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
   productType?: 'goaml' | 'home_finance' | 'bank_account' | null;
+  isExistingCustomer?: boolean;
 }
 
 export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({ 
   customerId,
   collapsed,
   onCollapsedChange,
-  productType 
+  productType,
+  isExistingCustomer = false
 }) => {
   const { toast } = useToast();
   const [internalCollapsed, setInternalCollapsed] = React.useState(true);
-  const [activeTab, setActiveTab] = useState<string>('documents');
+  // Default to 'events' for existing customer flow, 'documents' for new customer flow
+  const [activeTab, setActiveTab] = useState<string>(isExistingCustomer ? 'events' : 'documents');
   const [hasAutoExpanded, setHasAutoExpanded] = React.useState(false);
   const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed;
 
-  // Auto-expand sidebar and switch to documents tab when productType is selected (only once)
+  // Auto-expand sidebar when productType is selected (only once)
+  // For new customer: switch to documents tab
+  // For existing customer: keep events tab
   React.useEffect(() => {
     if (productType && !hasAutoExpanded && isCollapsed) {
-      setActiveTab('documents');
+      if (!isExistingCustomer) {
+        setActiveTab('documents');
+      }
       setHasAutoExpanded(true);
       
       if (collapsed !== undefined) {
@@ -45,7 +52,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
         setInternalCollapsed(false);
       }
     }
-  }, [productType, hasAutoExpanded, isCollapsed, collapsed, onCollapsedChange]);
+  }, [productType, hasAutoExpanded, isCollapsed, collapsed, onCollapsedChange, isExistingCustomer]);
 
   const toggleCollapsed = (targetTab?: string) => {
     const newValue = !isCollapsed;

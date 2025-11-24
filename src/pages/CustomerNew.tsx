@@ -119,6 +119,7 @@ const CustomerNew = () => {
             collapsed={sidebarCollapsed}
             onCollapsedChange={setSidebarCollapsed}
             productType={getProductType()}
+            isExistingCustomer={companyMode && !!selectedCustomerId}
           />
         </div>
       )}
