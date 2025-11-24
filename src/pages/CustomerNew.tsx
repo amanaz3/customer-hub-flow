@@ -48,14 +48,18 @@ const CustomerNew = () => {
   }, [selectedProduct]);
 
   // Keep sidebar collapsed in step 1 for new customer only
-  // In step 2+, expand sidebar for new customer if product selected or customer created
+  // In step 2+, show sidebar for new customer when there's customer data or product selected
   React.useEffect(() => {
     if (currentStep === 1 && !companyMode) {
       setSidebarCollapsed(true);
-    } else if (currentStep >= 2 && !companyMode && (hasSelectedProduct || internalCustomerId)) {
-      setSidebarCollapsed(false);
+    } else if (currentStep >= 2 && !companyMode) {
+      // Show if there's any customer data entered or product selected
+      const hasCustomerData = customerEmail || customerName || customerMobile || customerCompany;
+      if (hasCustomerData || hasSelectedProduct || internalCustomerId) {
+        setSidebarCollapsed(false);
+      }
     }
-  }, [currentStep, companyMode, hasSelectedProduct, internalCustomerId]);
+  }, [currentStep, companyMode, hasSelectedProduct, internalCustomerId, customerEmail, customerName, customerMobile, customerCompany]);
 
   // Collapse sidebar and clear customer selection when switching between new/existing customer
   const handleModeChange = (newMode: boolean) => {
@@ -131,7 +135,7 @@ const CustomerNew = () => {
       {/* Sticky Sidebar - Show when customer is selected OR in step 2+ for new customer */}
       {(
         (companyMode && selectedCustomerId) || // Existing customer: only show when customer selected
-        (!companyMode && ((currentStep >= 2 && hasSelectedProduct) || internalCustomerId)) // New customer: show in step 2+ with product OR when customer created
+        (!companyMode && currentStep >= 2 && (customerEmail || customerName || customerMobile || customerCompany || hasSelectedProduct || internalCustomerId)) // New customer: show in step 2+ with any customer data
       ) && (
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
