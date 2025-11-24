@@ -47,12 +47,17 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
     }
   }, [productType]);
 
-  const toggleCollapsed = () => {
+  const toggleCollapsed = (targetTab?: string) => {
     const newValue = !isCollapsed;
     
-    // When expanding sidebar and productType is available, show documents
-    if (!newValue && productType) {
-      setActiveTab('documents');
+    // When expanding sidebar with a specific tab target, use that
+    // Otherwise, when expanding with productType available, default to documents
+    if (!newValue) {
+      if (targetTab) {
+        setActiveTab(targetTab);
+      } else if (productType && activeTab !== 'events') {
+        setActiveTab('documents');
+      }
     }
     
     if (collapsed !== undefined) {
@@ -287,7 +292,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
           "fixed top-4 h-16 w-10 rounded-l-lg rounded-r-none border border-r-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100001]",
           isCollapsed ? "right-12" : "right-80"
         )}
-        onClick={toggleCollapsed}
+        onClick={() => toggleCollapsed()}
       >
         {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
       </Button>
@@ -301,8 +306,11 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
               activeTab === 'events' && "bg-muted"
             )}
             onClick={() => {
-              setActiveTab('events');
-              toggleCollapsed();
+              if (isCollapsed) {
+                toggleCollapsed('events');
+              } else {
+                setActiveTab('events');
+              }
             }}
             title="View Events"
           >
@@ -315,8 +323,11 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
               activeTab === 'documents' && "bg-muted"
             )}
             onClick={() => {
-              setActiveTab('documents');
-              toggleCollapsed();
+              if (isCollapsed) {
+                toggleCollapsed('documents');
+              } else {
+                setActiveTab('documents');
+              }
             }}
             title="View Documents"
           >
