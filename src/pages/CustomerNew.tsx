@@ -40,6 +40,13 @@ const CustomerNew = () => {
     }
   }, [companyMode, selectedCustomerId, currentStep]);
 
+  // Auto-expand sidebar for existing customer in step 2+ when product is selected
+  React.useEffect(() => {
+    if (companyMode && selectedCustomerId && currentStep >= 2 && selectedProduct) {
+      setSidebarCollapsed(false);
+    }
+  }, [companyMode, selectedCustomerId, currentStep, selectedProduct]);
+
   // Track when product is selected
   React.useEffect(() => {
     if (selectedProduct) {
@@ -145,6 +152,7 @@ const CustomerNew = () => {
             onCollapsedChange={setSidebarCollapsed}
             productType={getProductType()}
             isExistingCustomer={companyMode}
+            defaultTab={companyMode && currentStep >= 2 && selectedProduct ? 'documents' : undefined}
             newCustomerData={{
               email: customerEmail,
               name: customerName,
