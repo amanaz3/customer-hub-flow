@@ -33,6 +33,13 @@ const CustomerNew = () => {
     }
   }, [selectedProduct]);
 
+  // Auto-expand sidebar when existing customer is selected
+  React.useEffect(() => {
+    if (companyMode && selectedCustomerId) {
+      setSidebarCollapsed(false);
+    }
+  }, [companyMode, selectedCustomerId]);
+
   // Keep sidebar state when navigating between steps
   // Only reset when starting completely fresh (no product selected)
   React.useEffect(() => {
@@ -110,8 +117,8 @@ const CustomerNew = () => {
           </div>
         </div>
       
-      {/* Sticky Sidebar - Show after product selection with tabs interface */}
-      {hasSelectedProduct && selectedProduct && (selectedCustomerId || internalCustomerId) && (
+      {/* Sticky Sidebar - Show after product selection OR when existing customer is selected */}
+      {((hasSelectedProduct && selectedProduct) || (companyMode && selectedCustomerId)) && (selectedCustomerId || internalCustomerId) && (
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
             key="customer-events-sidebar"
