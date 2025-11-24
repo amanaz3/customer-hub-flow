@@ -48,11 +48,14 @@ const CustomerNew = () => {
   }, [selectedProduct]);
 
   // Keep sidebar collapsed in step 1 for new customer only
+  // In step 2+, expand sidebar for new customer if product selected or customer created
   React.useEffect(() => {
     if (currentStep === 1 && !companyMode) {
       setSidebarCollapsed(true);
+    } else if (currentStep >= 2 && !companyMode && (hasSelectedProduct || internalCustomerId)) {
+      setSidebarCollapsed(false);
     }
-  }, [currentStep, companyMode]);
+  }, [currentStep, companyMode, hasSelectedProduct, internalCustomerId]);
 
   // Collapse sidebar and clear customer selection when switching between new/existing customer
   const handleModeChange = (newMode: boolean) => {
