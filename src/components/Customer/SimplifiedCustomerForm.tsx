@@ -24,7 +24,6 @@ import { ExistingCustomerSelector } from './ExistingCustomerSelector';
 import { ProcessSummarySidebar } from './ProcessSummarySidebar';
 import { UnifiedProgressHeader } from './UnifiedProgressHeader';
 import { ValidationIcon } from './ValidationIcon';
-import { CustomerEventsSidebar } from './CustomerEventsSidebar';
 import { HomeFinanceFields } from './fields/HomeFinanceFields';
 import { BankAccountFields } from './fields/BankAccountFields';
 import { GoAMLFields } from './fields/GoAMLFields';
@@ -182,19 +181,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [accordionOpen, setAccordionOpen] = useState<string | undefined>(undefined);
   const [step1AccordionOpen, setStep1AccordionOpen] = useState<string>('');
   const [selectedCustomerData, setSelectedCustomerData] = useState<any>(null);
-  const [customerEventsSidebarCollapsed, setCustomerEventsSidebarCollapsed] = useState(true);
   const [fieldLabelMap, setFieldLabelMap] = useState<Record<string, string>>({});
   const [applicationId, setApplicationId] = useState<string | null>(null);
   const [customerId, setCustomerId] = useState<string | null>(null);
   const { toast } = useToast();
   const { user } = useAuth();
-
-  // Auto-expand customer events sidebar when customer is selected
-  useEffect(() => {
-    if (companyMode && selectedCustomerId) {
-      setCustomerEventsSidebarCollapsed(false);
-    }
-  }, [companyMode, selectedCustomerId]);
 
   // Auto-expand process sidebar from step 2 onwards, collapse when going back to step 1
   useEffect(() => {
@@ -205,11 +196,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     }
   }, [currentStep]);
 
-  // Function to dock/collapse all right sidebars
+  // Function to dock/collapse process sidebar
   const handleDockAllSidebars = () => {
-    const allCollapsed = processSidebarCollapsed && customerEventsSidebarCollapsed;
-    setProcessSidebarCollapsed(!allCollapsed);
-    setCustomerEventsSidebarCollapsed(!allCollapsed);
+    setProcessSidebarCollapsed(!processSidebarCollapsed);
   };
 
   const form = useForm<FormData>({
@@ -732,7 +721,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       setCurrentStep(1);
       onStepChange?.(1);
       setProcessSidebarCollapsed(true);
-      setCustomerEventsSidebarCollapsed(true);
       setSidebarCollapsed(true);
       setCompletedSteps(new Set());
       onSuccess?.();
@@ -1748,22 +1736,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             companyMode={companyMode}
           />
         </div>
-      )}
-
-      {/* Customer Events Sidebar - Auto-expands when customer selected */}
-      {companyMode && selectedCustomerId && (
-        <CustomerEventsSidebar
-          customerId={selectedCustomerId}
-          collapsed={customerEventsSidebarCollapsed}
-          onCollapsedChange={setCustomerEventsSidebarCollapsed}
-          productType={(() => {
-            const productLower = selectedProductName.toLowerCase();
-            if (productLower.includes('aml') || productLower.includes('goaml')) return 'goaml';
-            if ((productLower.includes('home') && productLower.includes('finance')) || productLower.includes('mortgage')) return 'home_finance';
-            if (productLower.includes('bank') && productLower.includes('account')) return 'bank_account';
-            return null;
-          })()}
-        />
       )}
 
     </div>
