@@ -311,10 +311,10 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 
       {/* Collapsed State - Shows icons vertically */}
       {isCollapsed && (
-        <div className="flex flex-col items-center py-4 gap-6">
+        <div className="flex flex-col items-center py-6 gap-4 w-full">
           <div 
             className={cn(
-              "flex flex-col items-center gap-2 cursor-pointer hover:bg-muted/50 transition-colors p-2 rounded",
+              "flex flex-col items-center gap-1.5 cursor-pointer hover:bg-muted/50 transition-colors p-3 rounded w-full",
               activeTab === 'events' && "bg-muted"
             )}
             onClick={() => {
@@ -326,13 +326,13 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             }}
             title="View Events"
           >
-            <User className="h-6 w-6 text-muted-foreground" />
-            <Badge className="writing-mode-vertical text-[10px] px-1 py-2">Events</Badge>
+            <User className="h-5 w-5 text-muted-foreground" />
+            <span className="text-[10px] font-medium text-muted-foreground">Events</span>
           </div>
           {!isNewApplication && (
             <div 
               className={cn(
-                "flex flex-col items-center gap-2 pt-4 border-t border-border w-full cursor-pointer hover:bg-muted/50 transition-colors p-2 rounded",
+                "flex flex-col items-center gap-1.5 cursor-pointer hover:bg-muted/50 transition-colors p-3 rounded w-full border-t border-border pt-4",
                 activeTab === 'documents' && "bg-muted"
               )}
               onClick={() => {
@@ -344,8 +344,8 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
               }}
               title="View Documents"
             >
-              <FileText className="h-6 w-6 text-muted-foreground" />
-              <Badge className="writing-mode-vertical text-[10px] px-1 py-2">Docs</Badge>
+              <FileText className="h-5 w-5 text-muted-foreground" />
+              <span className="text-[10px] font-medium text-muted-foreground">Docs</span>
             </div>
           )}
         </div>
