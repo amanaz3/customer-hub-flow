@@ -349,32 +349,30 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                 </Button>
               </div>
             ) : (
-              <div className="space-y-1">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-primary" />
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-primary" />
+                  <div className="flex flex-col">
                     <span className="text-sm font-semibold text-primary">Required Documents</span>
                     {productType && (
-                      <Badge variant="secondary" className="text-xs">
-                        {documentCategories.reduce((sum, cat) => sum + cat.count, 0)} docs
-                      </Badge>
+                      <span className="text-xs text-muted-foreground">{getProductTitle()}</span>
                     )}
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setActiveTab('events')}
-                    className="h-8 px-2"
-                  >
-                    <User className="h-4 w-4 mr-1" />
-                    <span className="text-xs">Events</span>
-                  </Button>
+                  {productType && (
+                    <Badge variant="secondary" className="text-xs">
+                      {documentCategories.reduce((sum, cat) => sum + cat.count, 0)} docs
+                    </Badge>
+                  )}
                 </div>
-                {productType && (
-                  <div className="text-xs text-muted-foreground pl-6">
-                    <span className="font-medium">{getProductTitle()}</span>
-                  </div>
-                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setActiveTab('events')}
+                  className="h-8 px-2"
+                >
+                  <User className="h-4 w-4 mr-1" />
+                  <span className="text-xs">Events</span>
+                </Button>
               </div>
             )}
           </div>
