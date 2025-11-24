@@ -4,7 +4,7 @@ import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Calendar, FileText, User, Building2, Clock, ChevronLeft, ChevronRight, Users, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -301,24 +301,47 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
         </div>
       )}
 
-      {/* Tabbed Interface - Always visible when expanded */}
+      {/* Content Area - Always visible when expanded */}
       {!isCollapsed && (
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden min-h-0">
-        <div className="px-4 pt-4 pb-2 border-b border-border flex-shrink-0">
-          <TabsList className="w-full grid grid-cols-2">
-            <TabsTrigger value="events" className="text-xs">
-              <User className="h-4 w-4 mr-1" />
-              Events
-            </TabsTrigger>
-            <TabsTrigger value="documents" className="text-xs">
-              <FileText className="h-4 w-4 mr-1" />
-              Documents
-            </TabsTrigger>
-          </TabsList>
-        </div>
+        <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+          {/* Header with view switcher */}
+          <div className="px-4 pt-4 pb-2 border-b border-border flex-shrink-0 flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {activeTab === 'events' ? (
+                <>
+                  <User className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">Events</span>
+                </>
+              ) : (
+                <>
+                  <FileText className="h-4 w-4 text-primary" />
+                  <span className="text-sm font-medium">Documents</span>
+                </>
+              )}
+            </div>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setActiveTab(activeTab === 'events' ? 'documents' : 'events')}
+              className="h-8 px-2"
+            >
+              {activeTab === 'events' ? (
+                <>
+                  <FileText className="h-4 w-4 mr-1" />
+                  <span className="text-xs">Docs</span>
+                </>
+              ) : (
+                <>
+                  <User className="h-4 w-4 mr-1" />
+                  <span className="text-xs">Events</span>
+                </>
+              )}
+            </Button>
+          </div>
 
-        <TabsContent value="events" className="flex-1 min-h-0 overflow-hidden mt-0 data-[state=active]:flex data-[state=active]:flex-col">
-          <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
+          {/* Events View */}
+          {activeTab === 'events' && (
+            <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4">
         {/* Customer Info Card */}
         <Card className="border-primary/20">
           <CardHeader className="pb-3">
@@ -447,11 +470,12 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             </div>
           </CardContent>
         </Card>
-          </div>
-        </TabsContent>
+            </div>
+          )}
 
-        {/* Documents Tab Content */}
-        <TabsContent value="documents" className="flex-1 overflow-hidden flex flex-col mt-0 min-h-0">
+          {/* Documents View */}
+          {activeTab === 'documents' && (
+            <div className="flex-1 flex flex-col overflow-hidden min-h-0">
           {productType ? (
             <>
               {/* Action Buttons */}
@@ -581,10 +605,11 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                   Select a product to view required documents
                 </p>
               </CardContent>
-            </Card>
+              </Card>
+            )}
+            </div>
           )}
-        </TabsContent>
-      </Tabs>
+        </div>
       )}
     </div>
   );
