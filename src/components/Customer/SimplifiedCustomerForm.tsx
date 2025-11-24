@@ -273,12 +273,18 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     }
   }, [products, form, currentStep, onProductChange]);
 
-  // When entering step 2, notify parent about already selected product
+  // When entering step 2, notify parent about already selected product and customer
   useEffect(() => {
-    if (currentStep === 2 && selectedProductName) {
-      onProductChange?.(selectedProductName);
+    if (currentStep === 2) {
+      if (selectedProductName) {
+        onProductChange?.(selectedProductName);
+      }
+      // Also ensure parent has the customer ID
+      if (customerId) {
+        onCustomerSelect?.(customerId);
+      }
     }
-  }, [currentStep, selectedProductName, onProductChange]);
+  }, [currentStep, selectedProductName, onProductChange, customerId, onCustomerSelect]);
 
   const handleProductChange = (productId: string) => {
     const product = products?.find(p => p.id === productId);
@@ -357,6 +363,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         if (companyMode && selectedCustomerId) {
           currentCustomerId = selectedCustomerId;
           setCustomerId(selectedCustomerId);
+          // Notify parent about the customer selection
+          onCustomerSelect?.(selectedCustomerId);
         } else {
           // Create or update customer
           if (!currentCustomerId) {
@@ -393,6 +401,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             
             currentCustomerId = customer.id;
             setCustomerId(customer.id);
+            // Notify parent about the customer selection
+            onCustomerSelect?.(customer.id);
           } else {
             // Update existing customer
             const { error: updateError } = await supabase
