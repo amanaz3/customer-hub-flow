@@ -129,7 +129,10 @@ const CustomerNew = () => {
         </div>
       
       {/* Sticky Sidebar - Show when customer is selected OR in step 2+ for new customer */}
-      {((selectedCustomerId || internalCustomerId) || (currentStep >= 2 && !companyMode && hasSelectedProduct)) && (
+      {(
+        (companyMode && selectedCustomerId) || // Existing customer: only show when customer selected
+        (!companyMode && ((currentStep >= 2 && hasSelectedProduct) || internalCustomerId)) // New customer: show in step 2+ with product OR when customer created
+      ) && (
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
             key={`sidebar-${companyMode ? 'existing' : 'new'}-${selectedCustomerId || internalCustomerId || 'temp'}`}
