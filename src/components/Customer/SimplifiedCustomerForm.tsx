@@ -1173,7 +1173,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   <div className="space-y-3 px-3 sm:px-4">
                   
                   {companyMode && user && (
-                    <div className={`transform transition-all duration-300 relative z-[100] ${companyMode ? 'opacity-100 scale-100' : 'opacity-40 scale-95 pointer-events-none'}`}>
+                    <div className={`transform transition-all duration-300 relative z-[200] ${companyMode ? 'opacity-100 scale-100' : 'opacity-40 scale-95 pointer-events-none'}`}>
                       <ExistingCustomerSelector
                         userId={user.id}
                         value={selectedCustomerId || ''}
