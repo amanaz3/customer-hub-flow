@@ -254,12 +254,20 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
       {/* Collapsed State - Clickable to expand */}
       {isCollapsed && (
         <div 
-          className="flex flex-col items-center py-4 gap-4 cursor-pointer hover:bg-muted/50 transition-colors h-full"
+          className="flex flex-col items-center py-4 gap-6 cursor-pointer hover:bg-muted/50 transition-colors h-full"
           onClick={toggleCollapsed}
           title="Expand sidebar"
         >
-          <User className="h-6 w-6 text-muted-foreground" />
-          <Badge className="writing-mode-vertical">Events</Badge>
+          <div className="flex flex-col items-center gap-2">
+            <User className="h-6 w-6 text-muted-foreground" />
+            <Badge className="writing-mode-vertical text-[10px] px-1 py-2">Events</Badge>
+          </div>
+          {productType && (
+            <div className="flex flex-col items-center gap-2 pt-4 border-t border-border w-full">
+              <FileText className="h-6 w-6 text-muted-foreground" />
+              <Badge className="writing-mode-vertical text-[10px] px-1 py-2">Docs</Badge>
+            </div>
+          )}
         </div>
       )}
 
