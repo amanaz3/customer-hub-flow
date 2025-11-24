@@ -251,13 +251,19 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
       "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[100000] overflow-y-auto",
       isCollapsed ? "w-12" : "w-80"
     )}>
-      {/* Collapsed State - Clickable to expand */}
+      {/* Toggle Button */}
+      <Button
+        variant="ghost"
+        size="sm"
+        className="absolute -left-8 top-4 h-16 w-8 rounded-r-none border-l-0 bg-card border shadow-md z-[99998]"
+        onClick={toggleCollapsed}
+      >
+        {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+      </Button>
+
+      {/* Collapsed State - Shows icons vertically */}
       {isCollapsed && (
-        <div 
-          className="flex flex-col items-center py-4 gap-6 cursor-pointer hover:bg-muted/50 transition-colors h-full"
-          onClick={toggleCollapsed}
-          title="Expand sidebar"
-        >
+        <div className="flex flex-col items-center py-4 gap-6">
           <div className="flex flex-col items-center gap-2">
             <User className="h-6 w-6 text-muted-foreground" />
             <Badge className="writing-mode-vertical text-[10px] px-1 py-2">Events</Badge>
@@ -274,18 +280,9 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
       {/* Expanded State */}
       {!isCollapsed && (
       <div className="p-4 space-y-4">
-        {/* Collapse Button - Inside expanded content */}
-        <div className="flex items-center justify-between pb-3 border-b border-border sticky top-0 bg-card z-10">
-          <h2 className="text-sm font-semibold text-foreground">Customer Events</h2>
-          <Button
-            size="icon"
-            variant="outline"
-            onClick={toggleCollapsed}
-            className="h-9 w-9 hover:bg-muted border-border"
-            title="Collapse sidebar"
-          >
-            <ChevronRight className="h-5 w-5" />
-          </Button>
+        {/* Header - No collapse button here, using external toggle */}
+        <div className="pb-3 border-b border-border">
+          <h2 className="text-sm font-semibold text-foreground">Customer Events & Documents</h2>
         </div>
         
         {/* Customer Info Card */}
