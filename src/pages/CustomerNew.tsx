@@ -108,8 +108,8 @@ const CustomerNew = () => {
           </div>
         </div>
       
-      {/* Sticky Sidebar - Show after product selection with tabs interface */}
-      {hasSelectedProduct && selectedProduct && selectedCustomerId && (
+      {/* Sticky Sidebar - Show only for existing customers */}
+      {hasSelectedProduct && selectedProduct && selectedCustomerId && companyMode && (
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
             key="customer-events-sidebar"
