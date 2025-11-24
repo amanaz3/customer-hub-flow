@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { jsPDF } from 'jspdf';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { Building2, Users, FileText, ClipboardList, Mail, MessageCircle, Download, ChevronLeft, ChevronRight, Calendar } from 'lucide-react';
+import { Building2, Users, FileText, ClipboardList, Mail, MessageCircle, Download, ChevronLeft, ChevronRight, Calendar, User } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { validateEmail, validatePhoneNumber } from '@/utils/inputValidation';
 import { emailDocumentChecklist, shareViaWhatsApp } from '@/utils/documentChecklistSharing';
@@ -30,6 +31,7 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
   onCollapsedChange,
 }) => {
   const [internalCollapsed, setInternalCollapsed] = React.useState(true);
+  const [activeTab, setActiveTab] = useState<string>('documents');
   const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed;
   const { toast } = useToast();
 
@@ -364,14 +366,62 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
       {/* Expanded State */}
       {!isCollapsed && (
         <div className="flex flex-col h-full">
-          {/* Header */}
-          <div className="p-4 border-b space-y-2">
-            <div className="flex items-center justify-between">
-              <h3 className="font-semibold text-sm">Required Documents</h3>
-              <Badge variant="secondary">{totalDocs} docs</Badge>
+          {/* Header with tab switcher */}
+          <div className="px-4 pt-4 pb-0 border-b border-border flex-shrink-0">
+            <div className="flex items-center gap-1">
+              {/* Events Tab */}
+              <button
+                onClick={() => setActiveTab('events')}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-2 rounded-t-lg text-sm font-medium transition-colors border-b-2",
+                  activeTab === 'events'
+                    ? "bg-background border-primary text-primary"
+                    : "bg-transparent border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )}
+              >
+                <User className="h-4 w-4" />
+                <span>Events</span>
+              </button>
+
+              {/* Documents Tab */}
+              <button
+                onClick={() => setActiveTab('documents')}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-2 rounded-t-lg text-sm font-medium transition-colors border-b-2",
+                  activeTab === 'documents'
+                    ? "bg-background border-primary text-primary"
+                    : "bg-transparent border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )}
+              >
+                <FileText className="h-4 w-4" />
+                <span>Documents</span>
+                <Badge variant="secondary" className="text-xs">
+                  {totalDocs}
+                </Badge>
+              </button>
             </div>
-            <p className="text-xs text-muted-foreground">{getProductTitle()}</p>
           </div>
+
+          {/* Events Tab Content */}
+          {activeTab === 'events' && (
+            <div className="flex-1 overflow-y-auto p-4">
+              <Card className="border-muted">
+                <CardContent className="pt-6 text-center p-3 sm:p-4">
+                  <User className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm font-medium text-foreground mb-1">
+                    Customer Information Pending
+                  </p>
+                  <p className="text-xs text-muted-foreground">
+                    Customer events and history will be available after the application is created
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+
+          {/* Documents Tab Content */}
+          {activeTab === 'documents' && (
+            <>
 
           {/* Action Buttons Bar */}
           <div className="flex items-center justify-around gap-1 px-2 py-2 border-b bg-muted/20 flex-shrink-0">
@@ -506,6 +556,8 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
               })}
             </Accordion>
           </div>
+          </>
+          )}
         </div>
       )}
     </div>
