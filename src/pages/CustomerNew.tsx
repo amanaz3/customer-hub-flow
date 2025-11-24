@@ -100,10 +100,10 @@ const CustomerNew = () => {
           </div>
         </div>
       
-      {/* Sticky Sidebar - Only show in step 2 and onwards after product selection */}
+      {/* Sticky Sidebar - Show documents in step 2, customer events in steps 3-4 for existing customers */}
       {currentStep >= 2 && selectedProduct && (
         <div className="hidden lg:block">
-          {companyMode && selectedCustomerId ? (
+          {currentStep >= 3 && companyMode && selectedCustomerId ? (
             <CustomerEventsSidebar 
               customerId={selectedCustomerId} 
               collapsed={sidebarCollapsed}
