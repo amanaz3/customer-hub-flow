@@ -1085,9 +1085,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             />
 
             <Card 
-              className="-mt-px border-t-0 border-x border-b border-border bg-card shadow-sm rounded-t-none rounded-b-lg max-w-2xl mx-auto overflow-visible"
+              className="-mt-px border-t-0 border-x border-b border-border/50 bg-card/98 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 ease-out rounded-t-none rounded-b-xl max-w-2xl mx-auto overflow-visible"
             >
-            <CardContent className="p-3 sm:p-4 space-y-2 overflow-visible">
+            <CardContent className="p-4 sm:p-6 space-y-3 overflow-visible">
               {/* Customer Information Summary Accordion - Show after step 1 */}
               {currentStep > 1 && form.watch('name') && (
                 <div className="sticky z-20 bg-card/95 backdrop-blur-sm -mx-3 sm:-mx-4 px-3 sm:px-4 pt-2 pb-3 mb-3 border-b border-border shadow-md" style={{ top: 'var(--unified-header-h, 160px)' }}>
@@ -1592,7 +1592,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       </Form>
       
       {/* Floating Action Buttons */}
-      <div className={`fixed bottom-4 flex flex-col gap-2 z-[9999] transition-all duration-300 ${
+      <div className={`fixed bottom-6 flex flex-col gap-3 z-[9999] transition-all duration-500 ease-out ${
         sidebarCollapsed ? 'right-[72px]' : 'right-[344px]'
       }`}>
         {/* Cancel Button */}
@@ -1602,7 +1602,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           variant="outline"
           onClick={() => setShowCancelDialog(true)}
           disabled={isSubmitting}
-          className="h-10 w-10 rounded-full shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 bg-background border-2 border-destructive hover:bg-destructive hover:text-destructive-foreground"
+          className="h-11 w-11 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 border border-border/60 hover:border-destructive/50 hover:bg-destructive/5 backdrop-blur-sm bg-background/95"
           title="Cancel and return"
         >
           <X className="h-4 w-4" />
@@ -1620,7 +1620,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               onStepChange?.(prevStep);
             }}
             disabled={isSubmitting}
-            className="h-10 w-10 rounded-full shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 bg-background border-2 border-border"
+            className="h-11 w-11 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 border border-border/60 hover:border-primary/50 hover:bg-primary/5 backdrop-blur-sm bg-background/95"
             title="Previous Step"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -1652,10 +1652,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               }
             }}
             disabled={isSubmitting}
-            className="h-10 w-10 rounded-full shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 bg-primary text-primary-foreground"
+            className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 bg-primary hover:bg-primary/90 text-primary-foreground"
             title="Next Step"
           >
-            <ArrowRight className="h-4 w-4" />
+            <ArrowRight className="h-5 w-5" />
           </Button>
         )}
         
@@ -1666,7 +1666,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             size="icon"
             onClick={saveDraft}
             disabled={isSubmitting}
-            className="h-11 w-11 rounded-full shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 bg-success hover:bg-success/90 text-success-foreground"
+            className="h-11 w-11 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 border border-border/60 hover:border-success/50 hover:bg-success/5 backdrop-blur-sm bg-background/95"
             title="Save Draft"
           >
             <Save className="h-5 w-5" />

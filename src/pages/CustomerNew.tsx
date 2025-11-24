@@ -129,7 +129,7 @@ const CustomerNew = () => {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 bg-background">
+    <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 bg-gradient-to-br from-background via-background to-muted/20">
       <div className="w-full max-w-[95%] lg:max-w-[90%] xl:max-w-[85%] 2xl:max-w-[80%] px-4 sm:px-6">
         <div className="w-full flex justify-center">
           <div className="w-full max-w-4xl">
@@ -177,12 +177,12 @@ const CustomerNew = () => {
       )}
 
         {/* Mobile Notice for Required Documents */}
-        <div className="lg:hidden mt-8 bg-muted border border-border rounded-lg p-6 shadow-sm">
+        <div className="lg:hidden mt-8 bg-gradient-to-br from-muted/80 to-muted/60 border border-border/60 backdrop-blur-sm rounded-xl p-6 shadow-lg hover:shadow-xl transition-all duration-300">
           <div className="flex items-start gap-3">
             <span className="text-2xl">📋</span>
             <div>
-              <h3 className="font-semibold text-foreground text-base mb-1">Required Documents</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
+              <h3 className="font-semibold text-foreground text-base mb-1 tracking-tight">Required Documents</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed font-medium">
                 After submitting this application, you'll receive an email with a detailed list of required documents specific to your selected service.
               </p>
             </div>
