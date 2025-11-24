@@ -13,6 +13,7 @@ const CustomerNew = () => {
   
   // Track form state for sidebar
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState<number>(1);
   const [customerEmail, setCustomerEmail] = useState<string>('');
   const [customerName, setCustomerName] = useState<string>('');
   const [customerMobile, setCustomerMobile] = useState<string>('');
@@ -80,6 +81,7 @@ const CustomerNew = () => {
             <SimplifiedCustomerForm
               onSuccess={handleSuccess}
               onProductChange={setSelectedProduct}
+              onStepChange={setCurrentStep}
               onEmailChange={setCustomerEmail}
               onNameChange={setCustomerName}
               onMobileChange={setCustomerMobile}
@@ -93,8 +95,8 @@ const CustomerNew = () => {
           </div>
         </div>
       
-      {/* Sticky Sidebar - Only show after product selection (step 2) */}
-      {selectedProduct && (
+      {/* Sticky Sidebar - Only show in step 2 and onwards after product selection */}
+      {currentStep >= 2 && selectedProduct && (
         <div className="hidden lg:block">
           {companyMode && selectedCustomerId ? (
             <CustomerEventsSidebar 

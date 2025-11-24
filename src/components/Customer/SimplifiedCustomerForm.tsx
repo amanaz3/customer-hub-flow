@@ -151,6 +151,7 @@ interface SimplifiedCustomerFormProps {
   onModeChange?: (mode: boolean) => void;
   onCancel?: () => void;
   onCustomerSelect?: (customerId: string | null) => void;
+  onStepChange?: (step: number) => void;
 }
 
 const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
@@ -165,6 +166,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   onModeChange,
   onCustomerSelect,
   onCancel,
+  onStepChange,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -711,6 +713,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       onCustomerSelect?.(null);
       setSelectedCustomerData(null);
       setCurrentStep(1);
+      onStepChange?.(1);
       setProcessSidebarCollapsed(true);
       setCustomerEventsSidebarCollapsed(true);
       setSidebarCollapsed(true);
@@ -1409,7 +1412,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         <Button 
                           variant="outline" 
                           size="sm"
-                          onClick={() => setCurrentStep(2)}
+                          onClick={() => {
+                            setCurrentStep(2);
+                            onStepChange?.(2);
+                          }}
                           className="mt-4"
                         >
                           Go to Step 2
@@ -1582,7 +1588,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             type="button"
             size="icon"
             variant="outline"
-            onClick={() => setCurrentStep(prev => Math.max(1, prev - 1))}
+            onClick={() => {
+              const prevStep = Math.max(1, currentStep - 1);
+              setCurrentStep(prevStep);
+              onStepChange?.(prevStep);
+            }}
             disabled={isSubmitting}
             className="h-10 w-10 rounded-full shadow-md hover:shadow-lg transition-all duration-200 hover:scale-105 active:scale-95 bg-background border-2 border-border"
             title="Previous Step"
@@ -1601,7 +1611,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               if (canProgress) {
                 // Save application data at current step before progressing
                 await saveApplicationAtStep(currentStep);
-                setCurrentStep(prev => Math.min(4, prev + 1));
+                const nextStep = Math.min(4, currentStep + 1);
+                setCurrentStep(nextStep);
+                onStepChange?.(nextStep);
                 // Mark current step as completed
                 setCompletedSteps(prev => new Set(prev).add(currentStep));
                 setSidebarCollapsed(true);
@@ -1656,6 +1668,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               if (pendingMode) {
                 const newMode = pendingMode === 'existing';
                 setCurrentStep(1);
+                onStepChange?.(1);
                 onModeChange?.(newMode);
                 if (!newMode) {
                   onCustomerSelect?.(null);
