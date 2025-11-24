@@ -666,7 +666,10 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
           {/* Events View */}
           {activeTab === 'events' && (
             <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
-        {customerId === 'temp' || !customer ? (
+        {(() => {
+          console.log('Events Tab - customerId:', customerId, 'customer:', customer, 'isExistingCustomer:', isExistingCustomer);
+          return customerId === 'temp' || !customer;
+        })() ? (
           // Placeholder for new customers without data
           <Card className="border-muted">
             <CardContent className="pt-6 text-center p-3 sm:p-4">
