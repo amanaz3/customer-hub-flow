@@ -257,7 +257,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
       <Button
         variant="ghost"
         size="sm"
-        className="absolute -left-8 top-4 h-16 w-8 rounded-r-none border-l-0 bg-card border shadow-md z-[99998]"
+        className="absolute -left-8 top-4 h-16 w-8 rounded-r-none border border-l-0 bg-card shadow-lg hover:bg-accent z-[100001]"
         onClick={toggleCollapsed}
       >
         {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
