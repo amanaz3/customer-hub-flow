@@ -253,7 +253,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     },
   });
 
-  // Set default product to Business Bank Account
+  // Set default product to Business Bank Account and notify parent when in step 2
   useEffect(() => {
     if (products && !form.getValues('product_id')) {
       const businessBankAccount = products.find(p => 
@@ -262,10 +262,20 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       if (businessBankAccount) {
         form.setValue('product_id', businessBankAccount.id);
         setSelectedProductName(businessBankAccount.name);
-        // Don't call onProductChange here - only when user actively selects
+        // If we're in step 2, notify parent about the selected product
+        if (currentStep === 2) {
+          onProductChange?.(businessBankAccount.name);
+        }
       }
     }
-  }, [products, form]);
+  }, [products, form, currentStep, onProductChange]);
+
+  // When entering step 2, notify parent about already selected product
+  useEffect(() => {
+    if (currentStep === 2 && selectedProductName && onProductChange) {
+      onProductChange(selectedProductName);
+    }
+  }, [currentStep, selectedProductName, onProductChange]);
 
   const handleProductChange = (productId: string) => {
     const product = products?.find(p => p.id === productId);
