@@ -117,6 +117,7 @@ const CustomerNew = () => {
             collapsed={sidebarCollapsed}
             onCollapsedChange={setSidebarCollapsed}
             productType={getProductType()}
+            isFreshApplication={true}
           />
         </div>
       )}
