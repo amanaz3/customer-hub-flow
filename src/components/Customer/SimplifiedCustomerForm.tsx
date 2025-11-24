@@ -1739,6 +1739,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           customerId={selectedCustomerId}
           collapsed={customerEventsSidebarCollapsed}
           onCollapsedChange={setCustomerEventsSidebarCollapsed}
+          productType={(() => {
+            const productLower = selectedProductName.toLowerCase();
+            if (productLower.includes('aml') || productLower.includes('goaml')) return 'goaml';
+            if ((productLower.includes('home') && productLower.includes('finance')) || productLower.includes('mortgage')) return 'home_finance';
+            if (productLower.includes('bank') && productLower.includes('account')) return 'bank_account';
+            return null;
+          })()}
         />
       )}
 
