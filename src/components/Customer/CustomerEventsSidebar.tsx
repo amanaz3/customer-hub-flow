@@ -142,26 +142,13 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
       "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[100000] overflow-y-auto",
       isCollapsed ? "w-12" : "w-80"
     )}>
-      {/* Toggle Button - Rounded Arrow */}
-      <Button
-        size="icon"
-        variant="secondary"
-        onClick={toggleCollapsed}
-        className={`absolute top-20 h-10 w-10 rounded-full shadow-lg bg-secondary hover:bg-secondary/80 border-2 border-border hover:scale-110 transition-all z-[100002] ${
-          isCollapsed ? 'left-[-8px]' : 'left-[-8px]'
-        }`}
-        title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-      >
-        {isCollapsed ? (
-          <ChevronLeft className="h-5 w-5" />
-        ) : (
-          <ChevronRight className="h-5 w-5" />
-        )}
-      </Button>
-
-      {/* Collapsed State */}
+      {/* Collapsed State - Clickable to expand */}
       {isCollapsed && (
-        <div className="flex flex-col items-center py-4 gap-4">
+        <div 
+          className="flex flex-col items-center py-4 gap-4 cursor-pointer hover:bg-muted/50 transition-colors h-full"
+          onClick={toggleCollapsed}
+          title="Expand sidebar"
+        >
           <User className="h-6 w-6 text-muted-foreground" />
           <Badge className="writing-mode-vertical">Events</Badge>
         </div>
@@ -170,6 +157,20 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
       {/* Expanded State */}
       {!isCollapsed && (
       <div className="p-4 space-y-4">
+        {/* Collapse Button - Inside expanded content */}
+        <div className="flex items-center justify-between mb-2">
+          <h2 className="text-sm font-semibold text-foreground">Customer Events</h2>
+          <Button
+            size="icon"
+            variant="ghost"
+            onClick={toggleCollapsed}
+            className="h-8 w-8 hover:bg-muted"
+            title="Collapse sidebar"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </Button>
+        </div>
+        
         {/* Customer Info Card */}
         <Card className="border-primary/20">
           <CardHeader className="pb-3">
