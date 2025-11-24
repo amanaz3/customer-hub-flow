@@ -311,21 +311,141 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
           {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </Button>
 
-        {/* Show documents tab only for temp customer */}
+        {/* Collapsed State - Show Docs icon only for temp */}
+        {isCollapsed && (
+          <div className="flex flex-col items-center py-4">
+            <div 
+              className="flex flex-col items-center gap-2 cursor-pointer hover:bg-muted/50 transition-colors p-2 rounded bg-muted"
+              onClick={() => toggleCollapsed('documents')}
+              title="View Documents"
+            >
+              <FileText className="h-6 w-6 text-muted-foreground" />
+              <Badge className="writing-mode-vertical text-[10px] px-1 py-2">Docs</Badge>
+            </div>
+          </div>
+        )}
+
+        {/* Show documents with full features for temp customer */}
         {!isCollapsed && (
-          <div className="flex-1 flex flex-col overflow-hidden min-h-0 p-4">
-            <div className="flex items-center gap-2 mb-4">
-              <FileText className="h-4 w-4 text-primary" />
-              <div className="flex flex-col">
-                <span className="text-sm font-semibold text-primary">Required Documents</span>
+          <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+            {/* Header */}
+            <div className="px-4 pt-4 pb-2 border-b border-border flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-primary" />
+                <div className="flex flex-col">
+                  <span className="text-sm font-semibold text-primary">Required Documents</span>
+                  {productType && (
+                    <span className="text-xs text-muted-foreground">{getProductTitle()}</span>
+                  )}
+                </div>
                 {productType && (
-                  <span className="text-xs text-muted-foreground">{getProductTitle()}</span>
+                  <Badge variant="secondary" className="text-xs ml-auto">
+                    {documentCategories.reduce((sum, cat) => sum + cat.count, 0)} docs
+                  </Badge>
                 )}
               </div>
             </div>
-            
+
+            <div className="flex-1 flex flex-col overflow-hidden min-h-0">
             {productType ? (
-              <Accordion type="multiple" className="w-full space-y-2">
+              <>
+                {/* Action Buttons Bar */}
+                <div className="flex items-center justify-around gap-1 px-2 py-2 border-b bg-muted/20 flex-shrink-0">
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                         <Button
+                           type="button"
+                           variant="ghost"
+                           size="sm"
+                           className="h-8 px-2"
+                           onClick={() => {
+                             const doc = new jsPDF();
+                             const categories = getDocumentCategories();
+                             const productTitle = getProductTitle();
+                             
+                             let yPos = 20;
+                             
+                             doc.setFontSize(18);
+                             doc.setFont(undefined, 'bold');
+                             doc.text(productTitle.toUpperCase(), 20, yPos);
+                             yPos += 8;
+                             
+                             doc.setFontSize(12);
+                             doc.setFont(undefined, 'normal');
+                             doc.text('Required Documents Checklist', 20, yPos);
+                             yPos += 10;
+                             
+                             doc.setFontSize(10);
+                             doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, yPos);
+                             yPos += 15;
+                             
+                             categories.forEach(cat => {
+                               doc.setFontSize(12);
+                               doc.setFont(undefined, 'bold');
+                               doc.text(`${cat.title.toUpperCase()} (${cat.count})`, 20, yPos);
+                               yPos += 8;
+                               
+                               doc.setFontSize(10);
+                               doc.setFont(undefined, 'normal');
+                               cat.items.forEach((item: string) => {
+                                 doc.text(`☐ ${item}`, 25, yPos);
+                                 yPos += 7;
+                               });
+                               yPos += 5;
+                             });
+                             
+                             doc.save(`${productTitle.replace(/\s+/g, '-')}-Checklist-${new Date().toISOString().split('T')[0]}.pdf`);
+                             
+                             toast({
+                               title: "PDF Downloaded",
+                               description: "Document checklist has been saved as PDF",
+                             });
+                           }}
+                         >
+                          <Download className="h-4 w-4" />
+                         </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Download PDF</TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2"
+                          disabled
+                          title="Complete customer details first"
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>WhatsApp (complete customer details first)</TooltipContent>
+                    </Tooltip>
+
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2"
+                          disabled
+                          title="Complete customer details first"
+                        >
+                          <Mail className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent>Email (complete customer details first)</TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                </div>
+
+                {/* Document Categories */}
+                <div className="flex-1 overflow-y-auto p-4">
+            <Accordion type="multiple" className="w-full space-y-2">
                 {documentCategories.map((category, index) => {
                   const Icon = category.icon;
                   return (
@@ -352,9 +472,11 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                     </AccordionItem>
                   );
                 })}
-              </Accordion>
+            </Accordion>
+                </div>
+              </>
             ) : (
-              <Card className="border-muted">
+              <Card className="border-muted m-4">
                 <CardContent className="pt-6 text-center">
                   <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
                   <p className="text-sm text-muted-foreground">
@@ -363,6 +485,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                 </CardContent>
               </Card>
             )}
+            </div>
           </div>
         )}
       </div>
