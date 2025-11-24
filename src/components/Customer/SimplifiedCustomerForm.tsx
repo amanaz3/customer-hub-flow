@@ -1052,7 +1052,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   ];
 
   return (
-    <div className="w-full">
+    <div className="w-full bg-white min-h-screen">
       <Form {...form}>
           <form 
             onSubmit={form.handleSubmit(onSubmit)} 
