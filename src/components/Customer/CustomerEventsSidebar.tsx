@@ -93,7 +93,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
       if (error) throw error;
       return data;
     },
-    enabled: !!customerId,
+    enabled: !!customerId && customerId !== 'temp',
   });
 
   // Fetch customer applications with manual product lookup
@@ -128,7 +128,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
       
       return apps || [];
     },
-    enabled: !!customerId,
+    enabled: !!customerId && customerId !== 'temp',
   });
 
   // Fetch status history
@@ -291,7 +291,83 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
     );
   }
 
-  if (!customer) return null;
+  // For temp customer (new customer in step 2 before save), show documents only
+  if (customerId === 'temp' || !customer) {
+    return (
+      <div className={cn(
+        "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[100000] flex flex-col",
+        isCollapsed ? "w-12" : "w-80"
+      )}>
+        {/* Toggle Button */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className={cn(
+            "fixed top-4 h-16 w-10 rounded-l-lg rounded-r-none border border-r-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100001]",
+            isCollapsed ? "right-12" : "right-80"
+          )}
+          onClick={() => toggleCollapsed()}
+        >
+          {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+        </Button>
+
+        {/* Show documents tab only for temp customer */}
+        {!isCollapsed && (
+          <div className="flex-1 flex flex-col overflow-hidden min-h-0 p-4">
+            <div className="flex items-center gap-2 mb-4">
+              <FileText className="h-4 w-4 text-primary" />
+              <div className="flex flex-col">
+                <span className="text-sm font-semibold text-primary">Required Documents</span>
+                {productType && (
+                  <span className="text-xs text-muted-foreground">{getProductTitle()}</span>
+                )}
+              </div>
+            </div>
+            
+            {productType ? (
+              <Accordion type="multiple" className="w-full space-y-2">
+                {documentCategories.map((category, index) => {
+                  const Icon = category.icon;
+                  return (
+                    <AccordionItem key={index} value={`cat-${index}`} className="border rounded-lg px-3">
+                      <AccordionTrigger className="hover:no-underline py-3">
+                        <div className="flex items-center gap-2">
+                          <Icon className={cn("h-4 w-4", category.color)} />
+                          <span className="text-sm font-medium">{category.title}</span>
+                          <Badge variant="secondary" className="ml-auto mr-2 text-xs">
+                            {category.count}
+                          </Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="pt-2 pb-3">
+                        <ul className="space-y-2">
+                          {category.items.map((item, itemIndex) => (
+                            <li key={itemIndex} className="flex items-start gap-2 text-sm">
+                              <span className={cn("mt-1", category.color)}>•</span>
+                              <span className="text-muted-foreground">{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
+            ) : (
+              <Card className="border-muted">
+                <CardContent className="pt-6 text-center">
+                  <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">
+                    Select a product to view required documents
+                  </p>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+        )}
+      </div>
+    );
+  }
 
   return (
     <div className={cn(

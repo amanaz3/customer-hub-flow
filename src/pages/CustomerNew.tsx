@@ -128,12 +128,12 @@ const CustomerNew = () => {
           </div>
         </div>
       
-      {/* Sticky Sidebar - Show when customer is selected (existing or new) */}
-      {(selectedCustomerId || internalCustomerId) && (
+      {/* Sticky Sidebar - Show when customer is selected OR in step 2+ for new customer */}
+      {((selectedCustomerId || internalCustomerId) || (currentStep >= 2 && !companyMode && hasSelectedProduct)) && (
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
-            key={`sidebar-${companyMode ? 'existing' : 'new'}-${selectedCustomerId || internalCustomerId}`}
-            customerId={selectedCustomerId || internalCustomerId || ''} 
+            key={`sidebar-${companyMode ? 'existing' : 'new'}-${selectedCustomerId || internalCustomerId || 'temp'}`}
+            customerId={selectedCustomerId || internalCustomerId || 'temp'} 
             collapsed={sidebarCollapsed}
             onCollapsedChange={setSidebarCollapsed}
             productType={getProductType()}
