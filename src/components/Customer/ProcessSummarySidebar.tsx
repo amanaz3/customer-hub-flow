@@ -100,7 +100,7 @@ export const ProcessSummarySidebar = ({
 
   return (
     <div 
-      className={`fixed top-0 right-0 h-screen transition-all duration-300 ease-in-out z-[600] ${
+      className={`fixed top-0 left-0 h-screen transition-all duration-300 ease-in-out z-[600] ${
         isCollapsed ? 'w-12' : 'w-80'
       }`}
     >
@@ -110,20 +110,20 @@ export const ProcessSummarySidebar = ({
         variant="secondary"
         onClick={handleToggle}
         className={`absolute top-1 h-10 w-10 rounded-full shadow-lg bg-secondary hover:bg-secondary/80 border-2 border-border hover:scale-110 transition-all z-[9999] ${
-          isCollapsed ? 'left-[-16px]' : 'left-[-20px]'
+          isCollapsed ? 'right-[-16px]' : 'right-[-20px]'
         }`}
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? (
-          <ChevronLeft className="h-5 w-5" />
-        ) : (
           <ChevronRight className="h-5 w-5" />
+        ) : (
+          <ChevronLeft className="h-5 w-5" />
         )}
       </Button>
 
       {/* Collapsed State */}
       {isCollapsed && (
-        <div className="flex flex-col items-center py-4 gap-4 h-full bg-card border-l border-border">
+        <div className="flex flex-col items-center py-4 gap-4 h-full bg-card border-r border-border">
           <FileText className="h-6 w-6 text-muted-foreground" />
           <Badge className="writing-mode-vertical text-xs">Process</Badge>
         </div>
