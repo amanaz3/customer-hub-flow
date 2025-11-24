@@ -575,12 +575,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     }
   }, [currentStep]);
   
-  // Auto-switch to existing customer tab when a customer is selected
+  // Auto-switch to existing customer tab when a customer is selected from dropdown
+  // BUT NOT when we're creating a new customer and it gets an ID
   useEffect(() => {
-    if (selectedCustomerId && !companyMode) {
+    if (selectedCustomerId && !companyMode && selectedCustomerData) {
       onModeChange?.(true);
     }
-  }, [selectedCustomerId, companyMode, onModeChange]);
+  }, [selectedCustomerId, companyMode, onModeChange, selectedCustomerData]);
 
   // Populate form with existing customer data when selected
   useEffect(() => {
