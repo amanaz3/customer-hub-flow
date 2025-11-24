@@ -336,15 +336,18 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
   return (
     <div 
       className={cn(
-        "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[99999]",
+        "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[99999] flex flex-col",
         isCollapsed ? "w-12" : "w-80"
       )}
     >
-      {/* Toggle Button */}
+      {/* Toggle Button - Fixed positioning */}
       <Button
         variant="ghost"
         size="sm"
-        className="absolute -left-8 top-4 h-16 w-8 rounded-r-none border-l-0 bg-card border shadow-md z-[99998]"
+        className={cn(
+          "fixed top-4 h-16 w-10 rounded-l-lg rounded-r-none border border-r-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[99998]",
+          isCollapsed ? "right-12" : "right-80"
+        )}
         onClick={toggleCollapsed}
       >
         {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}

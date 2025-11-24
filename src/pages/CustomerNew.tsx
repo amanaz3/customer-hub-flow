@@ -114,6 +114,7 @@ const CustomerNew = () => {
         <div className="hidden lg:block">
           {currentStep >= 3 && companyMode && selectedCustomerId ? (
             <CustomerEventsSidebar 
+              key="customer-events-sidebar"
               customerId={selectedCustomerId} 
               collapsed={sidebarCollapsed}
               onCollapsedChange={setSidebarCollapsed}
@@ -121,6 +122,7 @@ const CustomerNew = () => {
             />
           ) : (
             <RequiredDocumentsSidebar
+              key="required-documents-sidebar"
               productType={getProductType()}
               customerEmail={customerEmail}
               customerName={customerName}
