@@ -73,7 +73,13 @@ const CustomerNew = () => {
 
   return (
     <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 bg-background">
-      <div className="w-full max-w-[95%] lg:max-w-[90%] xl:max-w-[85%] 2xl:max-w-[80%] px-4 sm:px-6">
+      {/* Main content area - shifts when sidebar expands */}
+      <div 
+        className={`w-full px-4 sm:px-6 transition-all duration-300 ${
+          selectedProduct && !sidebarCollapsed ? 'lg:mr-80' : 'lg:mr-0'
+        }`}
+        style={{ maxWidth: '95%' }}
+      >
         <div className="w-full flex justify-center">
           <div className="w-full max-w-4xl">
             {/* Simplified Form with Dynamic Service Configuration in Step 3 */}
@@ -92,6 +98,20 @@ const CustomerNew = () => {
             />
           </div>
         </div>
+
+        {/* Mobile Notice for Required Documents */}
+        <div className="lg:hidden mt-8 bg-muted border border-border rounded-lg p-6 shadow-sm">
+          <div className="flex items-start gap-3">
+            <span className="text-2xl">📋</span>
+            <div>
+              <h3 className="font-semibold text-foreground text-base mb-1">Required Documents</h3>
+              <p className="text-sm text-muted-foreground leading-relaxed">
+                After submitting this application, you'll receive an email with a detailed list of required documents specific to your selected service.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
       
       {/* Sticky Sidebar - Only show after product selection (step 2) */}
       {selectedProduct && (
@@ -115,20 +135,6 @@ const CustomerNew = () => {
           )}
         </div>
       )}
-
-        {/* Mobile Notice for Required Documents */}
-        <div className="lg:hidden mt-8 bg-muted border border-border rounded-lg p-6 shadow-sm">
-          <div className="flex items-start gap-3">
-            <span className="text-2xl">📋</span>
-            <div>
-              <h3 className="font-semibold text-foreground text-base mb-1">Required Documents</h3>
-              <p className="text-sm text-muted-foreground leading-relaxed">
-                After submitting this application, you'll receive an email with a detailed list of required documents specific to your selected service.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
   );
 };
