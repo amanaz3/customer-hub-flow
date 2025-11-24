@@ -40,16 +40,19 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   // For new customer: switch to documents tab
   // For existing customer: keep events tab
   React.useEffect(() => {
-    if (productType && !hasAutoExpanded && isCollapsed) {
+    if (productType && !hasAutoExpanded) {
       if (!isExistingCustomer) {
         setActiveTab('documents');
       }
-      setHasAutoExpanded(true);
       
-      if (collapsed !== undefined) {
-        onCollapsedChange?.(false);
-      } else {
-        setInternalCollapsed(false);
+      if (isCollapsed) {
+        setHasAutoExpanded(true);
+        
+        if (collapsed !== undefined) {
+          onCollapsedChange?.(false);
+        } else {
+          setInternalCollapsed(false);
+        }
       }
     }
   }, [productType, hasAutoExpanded, isCollapsed, collapsed, onCollapsedChange, isExistingCustomer]);

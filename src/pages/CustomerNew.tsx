@@ -27,11 +27,11 @@ const CustomerNew = () => {
 
   // Track when product is selected and expand sidebar (only in new customer flow)
   React.useEffect(() => {
-    if (selectedProduct && !companyMode) {
+    if (selectedProduct && !companyMode && currentStep === 2) {
       setHasSelectedProduct(true);
       setSidebarCollapsed(false);
     }
-  }, [selectedProduct, companyMode]);
+  }, [selectedProduct, companyMode, currentStep]);
 
   // Auto-expand sidebar for existing customer when customer is selected (step 1)
   React.useEffect(() => {
