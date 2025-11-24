@@ -33,21 +33,19 @@ const CustomerNew = () => {
     }
   }, [selectedProduct]);
 
-  // Auto-expand sidebar when existing customer is selected
+  // Auto-expand sidebar when existing customer is selected (only after step 1)
   React.useEffect(() => {
-    if (companyMode && selectedCustomerId) {
+    if (companyMode && selectedCustomerId && currentStep > 1) {
       setSidebarCollapsed(false);
     }
-  }, [companyMode, selectedCustomerId]);
+  }, [companyMode, selectedCustomerId, currentStep]);
 
-  // Keep sidebar state when navigating between steps
-  // Only reset when starting completely fresh (no product selected)
+  // Keep sidebar collapsed in step 1, allow expansion from step 2 onwards
   React.useEffect(() => {
-    if (!selectedProduct && currentStep === 1) {
-      setHasSelectedProduct(false);
+    if (currentStep === 1) {
       setSidebarCollapsed(true);
     }
-  }, [selectedProduct, currentStep]);
+  }, [currentStep]);
 
   // Collapse sidebar when switching between new/existing customer
   const handleModeChange = (newMode: boolean) => {
