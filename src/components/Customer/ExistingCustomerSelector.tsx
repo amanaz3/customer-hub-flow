@@ -91,9 +91,9 @@ export const ExistingCustomerSelector = ({
           <p className="mt-2 text-xs text-muted-foreground">Type at least 2 characters to search</p>
         )}
 
-        {/* Results dropdown - appears below input */}
+        {/* Results dropdown - appears above input */}
         {hasQuery && filteredCustomers.length > 0 && (
-          <div className="absolute z-[500] w-full top-full mt-2 border rounded-lg shadow-2xl bg-popover backdrop-blur-sm">
+          <div className="absolute z-[500] w-full bottom-full mb-2 border rounded-lg shadow-2xl bg-popover backdrop-blur-sm">
             <ScrollArea className="max-h-[400px]">
               <div className="p-2">
                 {filteredCustomers.map((customer) => (
@@ -136,16 +136,16 @@ export const ExistingCustomerSelector = ({
           </div>
         )}
 
-        {/* No results message - appears below input */}
+        {/* No results message - appears above input */}
         {hasQuery && filteredCustomers.length === 0 && !loading && (
-          <div className="absolute z-[500] w-full top-full mt-2 p-4 border rounded-lg shadow-2xl bg-popover backdrop-blur-sm text-center text-sm text-muted-foreground">
+          <div className="absolute z-[500] w-full bottom-full mb-2 p-4 border rounded-lg shadow-2xl bg-popover backdrop-blur-sm text-center text-sm text-muted-foreground">
             No customers found matching "{searchTerm}"
           </div>
         )}
 
-        {/* Loading state - appears below input */}
+        {/* Loading state - appears above input */}
         {loading && hasQuery && (
-          <div className="absolute z-[500] w-full top-full mt-2 p-6 border rounded-lg shadow-2xl bg-popover backdrop-blur-sm">
+          <div className="absolute z-[500] w-full bottom-full mb-2 p-6 border rounded-lg shadow-2xl bg-popover backdrop-blur-sm">
             <div className="flex flex-col items-center justify-center gap-2">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground">Searching customers...</p>
