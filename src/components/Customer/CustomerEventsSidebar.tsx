@@ -352,15 +352,10 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <FileText className="h-4 w-4 text-primary" />
-                  <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-primary">Required Documents</span>
-                    {productType && (
-                      <span className="text-xs text-muted-foreground">{getProductTitle()}</span>
-                    )}
-                  </div>
+                  <span className="text-sm font-semibold text-primary">Documents</span>
                   {productType && (
                     <Badge variant="secondary" className="text-xs">
-                      {documentCategories.reduce((sum, cat) => sum + cat.count, 0)} docs
+                      {documentCategories.reduce((sum, cat) => sum + cat.count, 0)}
                     </Badge>
                   )}
                 </div>
