@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Building2, Mail, Phone, FileText, Check, Search } from 'lucide-react';
+import { Building2, Mail, Phone, FileText, Check, Search, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
@@ -89,9 +89,12 @@ export const ExistingCustomerSelector = ({
             placeholder="Start typing customer name, company, or email..."
             value={searchTerm}
             onChange={handleInputChange}
-            className="pl-12 h-14 text-base font-medium"
+            className="pl-12 pr-12 h-14 text-base font-medium"
             autoFocus
           />
+          {loading && hasQuery && (
+            <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-primary" />
+          )}
         </div>
 
         {searchTerm.trim().length > 0 && searchTerm.trim().length < 2 && (
@@ -158,8 +161,11 @@ export const ExistingCustomerSelector = ({
 
         {/* Loading state */}
         {loading && hasQuery && (
-          <div className="absolute z-[100] w-full bottom-full mb-2 p-4 border rounded-lg shadow-xl bg-popover text-center text-sm text-muted-foreground">
-            Loading customers...
+          <div className="absolute z-[100] w-full bottom-full mb-2 p-6 border rounded-lg shadow-xl bg-popover">
+            <div className="flex flex-col items-center justify-center gap-2">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <p className="text-sm text-muted-foreground">Searching customers...</p>
+            </div>
           </div>
         )}
       </div>
