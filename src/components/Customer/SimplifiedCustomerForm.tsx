@@ -273,7 +273,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   // When entering step 2, notify parent about already selected product
   useEffect(() => {
     if (currentStep === 2 && selectedProductName) {
-      console.log('🔸 Step 2 entered, selected product:', selectedProductName);
       onProductChange?.(selectedProductName);
     }
   }, [currentStep, selectedProductName, onProductChange]);
@@ -281,10 +280,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const handleProductChange = (productId: string) => {
     const product = products?.find(p => p.id === productId);
     if (product) {
-      console.log('🔹 Product selected:', product.name);
       setSelectedProductName(product.name);
       onProductChange?.(product.name);
-      console.log('🔹 onProductChange called with:', product.name);
     }
   };
 
