@@ -152,6 +152,7 @@ interface SimplifiedCustomerFormProps {
   onCancel?: () => void;
   onCustomerSelect?: (customerId: string | null) => void;
   onStepChange?: (step: number) => void;
+  onCustomerIdChange?: (customerId: string | null) => void;
 }
 
 const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
@@ -167,6 +168,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   onCustomerSelect,
   onCancel,
   onStepChange,
+  onCustomerIdChange,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -357,6 +359,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         if (companyMode && selectedCustomerId) {
           currentCustomerId = selectedCustomerId;
           setCustomerId(selectedCustomerId);
+          onCustomerIdChange?.(selectedCustomerId);
         } else {
           // Create or update customer
           if (!currentCustomerId) {
@@ -393,6 +396,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             
             currentCustomerId = customer.id;
             setCustomerId(customer.id);
+            onCustomerIdChange?.(customer.id);
           } else {
             // Update existing customer
             const { error: updateError } = await supabase
