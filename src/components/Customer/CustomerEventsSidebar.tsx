@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, FileText, User, Building2, Clock, ChevronLeft, ChevronRight, Users, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
@@ -23,6 +24,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   productType 
 }) => {
   const [internalCollapsed, setInternalCollapsed] = React.useState(true);
+  const [activeTab, setActiveTab] = useState<string>('events');
   const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed;
 
   const toggleCollapsed = () => {
@@ -264,12 +266,32 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
       {/* Collapsed State - Shows icons vertically */}
       {isCollapsed && (
         <div className="flex flex-col items-center py-4 gap-6">
-          <div className="flex flex-col items-center gap-2">
+          <div 
+            className={cn(
+              "flex flex-col items-center gap-2 cursor-pointer hover:bg-muted/50 transition-colors p-2 rounded",
+              activeTab === 'events' && "bg-muted"
+            )}
+            onClick={() => {
+              setActiveTab('events');
+              toggleCollapsed();
+            }}
+            title="View Events"
+          >
             <User className="h-6 w-6 text-muted-foreground" />
             <Badge className="writing-mode-vertical text-[10px] px-1 py-2">Events</Badge>
           </div>
           {productType && (
-            <div className="flex flex-col items-center gap-2 pt-4 border-t border-border w-full">
+            <div 
+              className={cn(
+                "flex flex-col items-center gap-2 pt-4 border-t border-border w-full cursor-pointer hover:bg-muted/50 transition-colors p-2 rounded",
+                activeTab === 'documents' && "bg-muted"
+              )}
+              onClick={() => {
+                setActiveTab('documents');
+                toggleCollapsed();
+              }}
+              title="View Documents"
+            >
               <FileText className="h-6 w-6 text-muted-foreground" />
               <Badge className="writing-mode-vertical text-[10px] px-1 py-2">Docs</Badge>
             </div>
@@ -277,14 +299,25 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
         </div>
       )}
 
-      {/* Expanded State */}
+      {/* Expanded State with Tabs */}
       {!isCollapsed && (
-      <div className="p-4 space-y-4">
-        {/* Header - No collapse button here, using external toggle */}
-        <div className="pb-3 border-b border-border">
-          <h2 className="text-sm font-semibold text-foreground">Customer Events & Documents</h2>
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col">
+        <div className="px-4 pt-4 pb-2 border-b border-border">
+          <TabsList className="w-full grid grid-cols-2">
+            <TabsTrigger value="events" className="text-xs">
+              <User className="h-4 w-4 mr-1" />
+              Events
+            </TabsTrigger>
+            {productType && (
+              <TabsTrigger value="documents" className="text-xs">
+                <FileText className="h-4 w-4 mr-1" />
+                Documents
+              </TabsTrigger>
+            )}
+          </TabsList>
         </div>
-        
+
+        <TabsContent value="events" className="flex-1 overflow-y-auto p-4 space-y-4 mt-0">
         {/* Customer Info Card */}
         <Card className="border-primary/20">
           <CardHeader className="pb-3">
@@ -413,49 +446,52 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             </div>
           </CardContent>
         </Card>
+        </TabsContent>
 
-        {/* Required Documents Section */}
-        {productType && documentCategories.length > 0 && (
-          <Card className="border-primary/20">
-            <CardHeader className="pb-3 border-b">
-              <div className="flex items-center gap-2">
-                <FileText className="h-4 w-4 text-primary" />
-                <CardTitle className="text-sm font-medium">{getProductTitle()}</CardTitle>
-              </div>
-            </CardHeader>
-            <CardContent className="pt-4">
-              <Accordion type="single" collapsible className="w-full">
-                {documentCategories.map((category, index) => {
-                  const IconComponent = category.icon;
-                  return (
-                    <AccordionItem key={index} value={`doc-${index}`} className="border-b last:border-0">
-                      <AccordionTrigger className="py-3 hover:no-underline">
-                        <div className="flex items-center gap-2">
-                          <IconComponent className={`h-4 w-4 ${category.color}`} />
-                          <span className="text-xs font-medium">{category.title}</span>
-                          <Badge variant="secondary" className="ml-auto text-[10px] h-5">
-                            {category.count}
-                          </Badge>
-                        </div>
-                      </AccordionTrigger>
-                      <AccordionContent>
-                        <ul className="space-y-2 pl-6">
-                          {category.items.map((item, itemIndex) => (
-                            <li key={itemIndex} className="text-xs text-muted-foreground flex items-start gap-2">
-                              <span className="text-primary mt-0.5">•</span>
-                              <span>{item}</span>
-                            </li>
-                          ))}
-                        </ul>
-                      </AccordionContent>
-                    </AccordionItem>
-                  );
-                })}
-              </Accordion>
-            </CardContent>
-          </Card>
+        {/* Documents Tab Content */}
+        {productType && (
+          <TabsContent value="documents" className="flex-1 overflow-y-auto p-4 space-y-4 mt-0">
+            <Card className="border-primary/20">
+              <CardHeader className="pb-3 border-b">
+                <div className="flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-primary" />
+                  <CardTitle className="text-sm font-medium">{getProductTitle()}</CardTitle>
+                </div>
+              </CardHeader>
+              <CardContent className="pt-4">
+                <Accordion type="single" collapsible className="w-full">
+                  {documentCategories.map((category, index) => {
+                    const IconComponent = category.icon;
+                    return (
+                      <AccordionItem key={index} value={`doc-${index}`} className="border-b last:border-0">
+                        <AccordionTrigger className="py-3 hover:no-underline">
+                          <div className="flex items-center gap-2">
+                            <IconComponent className={`h-4 w-4 ${category.color}`} />
+                            <span className="text-xs font-medium">{category.title}</span>
+                            <Badge variant="secondary" className="ml-auto text-[10px] h-5">
+                              {category.count}
+                            </Badge>
+                          </div>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <ul className="space-y-2 pl-6">
+                            {category.items.map((item, itemIndex) => (
+                              <li key={itemIndex} className="text-xs text-muted-foreground flex items-start gap-2">
+                                <span className="text-primary mt-0.5">•</span>
+                                <span>{item}</span>
+                              </li>
+                            ))}
+                          </ul>
+                        </AccordionContent>
+                      </AccordionItem>
+                    );
+                  })}
+                </Accordion>
+              </CardContent>
+            </Card>
+          </TabsContent>
         )}
-      </div>
+      </Tabs>
       )}
     </div>
   );
