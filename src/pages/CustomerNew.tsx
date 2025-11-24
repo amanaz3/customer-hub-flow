@@ -40,10 +40,14 @@ const CustomerNew = () => {
     }
   }, [companyMode, selectedCustomerId, currentStep]);
 
-  // Auto-expand sidebar for existing customer in step 2+ when product is selected
+  // Auto-expand sidebar for existing customer in step 2 when product is selected, collapse in step 3+
   React.useEffect(() => {
-    if (companyMode && selectedCustomerId && currentStep >= 2 && selectedProduct) {
-      setSidebarCollapsed(false);
+    if (companyMode && selectedCustomerId && selectedProduct) {
+      if (currentStep === 2) {
+        setSidebarCollapsed(false);
+      } else if (currentStep >= 3) {
+        setSidebarCollapsed(true);
+      }
     }
   }, [companyMode, selectedCustomerId, currentStep, selectedProduct]);
 
