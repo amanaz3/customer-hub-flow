@@ -312,10 +312,11 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <User className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-medium">Events</span>
+                  <span className="text-sm font-semibold text-primary">Events</span>
+                  <Badge variant="default" className="text-xs">Active</Badge>
                 </div>
                 <Button
-                  variant="ghost"
+                  variant="outline"
                   size="sm"
                   onClick={() => setActiveTab('documents')}
                   className="h-8 px-2"
@@ -329,7 +330,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     <FileText className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium">Required Documents</span>
+                    <span className="text-sm font-semibold text-primary">Required Documents</span>
                     {productType && (
                       <Badge variant="secondary" className="text-xs">
                         {documentCategories.reduce((sum, cat) => sum + cat.count, 0)} docs
@@ -337,7 +338,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                     )}
                   </div>
                   <Button
-                    variant="ghost"
+                    variant="outline"
                     size="sm"
                     onClick={() => setActiveTab('events')}
                     className="h-8 px-2"
