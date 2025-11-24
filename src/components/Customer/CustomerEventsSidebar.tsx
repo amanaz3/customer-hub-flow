@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { jsPDF } from 'jspdf';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -10,7 +11,8 @@ import { Calendar, FileText, User, Building2, Clock, ChevronLeft, ChevronRight, 
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
-import { formatChecklistForSharing, shareViaWhatsApp } from '@/utils/documentChecklistSharing';
+import { formatChecklistForSharing, shareViaWhatsApp, emailDocumentChecklist } from '@/utils/documentChecklistSharing';
+import { validateEmail, validatePhoneNumber } from '@/utils/inputValidation';
 
 interface CustomerEventsSidebarProps {
   customerId: string;
@@ -527,53 +529,55 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                  <TooltipProvider>
                    <Tooltip>
                      <TooltipTrigger asChild>
-                       <Button
-                         type="button"
-                         variant="ghost"
-                         size="sm"
-                         className="h-8 px-2"
-                         onClick={() => {
-                           const doc = new (window as any).jspdf.jsPDF();
-                           const categories = getDocumentCategories();
-                           const productTitle = getProductTitle();
-                           
-                           let yPos = 20;
-                           doc.setFontSize(18);
-                           doc.setFont(undefined, 'bold');
-                           doc.text(productTitle.toUpperCase(), 20, yPos);
-                           yPos += 8;
-                           
-                           doc.setFontSize(12);
-                           doc.setFont(undefined, 'normal');
-                           doc.text('Required Documents Checklist', 20, yPos);
-                           yPos += 10;
-                           
-                           doc.setFontSize(10);
-                           doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, yPos);
-                           yPos += 15;
-                           
-                           categories.forEach(cat => {
-                             doc.setFontSize(12);
-                             doc.setFont(undefined, 'bold');
-                             doc.text(`${cat.title.toUpperCase()} (${cat.count})`, 20, yPos);
-                             yPos += 8;
-                             
-                             doc.setFontSize(10);
-                             doc.setFont(undefined, 'normal');
-                             cat.items.forEach((item: string) => {
-                               doc.text(`☐ ${item}`, 25, yPos);
-                               yPos += 7;
-                             });
-                             yPos += 5;
-                           });
-                           
-                           doc.save(`${productTitle.replace(/\s+/g, '-')}-Checklist.pdf`);
-                           toast({
-                             title: "PDF Downloaded",
-                             description: "Document checklist has been saved as PDF",
-                           });
-                         }}
-                       >
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2"
+                          onClick={() => {
+                            const doc = new jsPDF();
+                            const categories = getDocumentCategories();
+                            const productTitle = getProductTitle();
+                            
+                            let yPos = 20;
+                            
+                            doc.setFontSize(18);
+                            doc.setFont(undefined, 'bold');
+                            doc.text(productTitle.toUpperCase(), 20, yPos);
+                            yPos += 8;
+                            
+                            doc.setFontSize(12);
+                            doc.setFont(undefined, 'normal');
+                            doc.text('Required Documents Checklist', 20, yPos);
+                            yPos += 10;
+                            
+                            doc.setFontSize(10);
+                            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, yPos);
+                            yPos += 15;
+                            
+                            categories.forEach(cat => {
+                              doc.setFontSize(12);
+                              doc.setFont(undefined, 'bold');
+                              doc.text(`${cat.title.toUpperCase()} (${cat.count})`, 20, yPos);
+                              yPos += 8;
+                              
+                              doc.setFontSize(10);
+                              doc.setFont(undefined, 'normal');
+                              cat.items.forEach((item: string) => {
+                                doc.text(`☐ ${item}`, 25, yPos);
+                                yPos += 7;
+                              });
+                              yPos += 5;
+                            });
+                            
+                            doc.save(`${productTitle.replace(/\s+/g, '-')}-Checklist-${new Date().toISOString().split('T')[0]}.pdf`);
+                            
+                            toast({
+                              title: "PDF Downloaded",
+                              description: "Document checklist has been saved as PDF",
+                            });
+                          }}
+                        >
                          <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                          </svg>
@@ -586,33 +590,44 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                  <TooltipProvider>
                    <Tooltip>
                      <TooltipTrigger asChild>
-                       <Button
-                         type="button"
-                         variant="ghost"
-                         size="sm"
-                         className="h-8 px-2"
-                         onClick={() => {
-                           const categories = getDocumentCategories();
-                           const productTitle = getProductTitle();
-                           const checklistText = formatChecklistForSharing(categories);
-                           const fullText = `${productTitle}\n\nRequired Documents Checklist:\n\n${checklistText}`;
-                           
-                           const blob = new Blob([fullText], { type: 'text/plain' });
-                           const url = URL.createObjectURL(blob);
-                           const a = document.createElement('a');
-                           a.href = url;
-                           a.download = `${productTitle.replace(/\s+/g, '-')}-Checklist.txt`;
-                           document.body.appendChild(a);
-                           a.click();
-                           document.body.removeChild(a);
-                           URL.revokeObjectURL(url);
-                           
-                           toast({
-                             title: "Text File Downloaded",
-                             description: "Document checklist has been saved as text file",
-                           });
-                         }}
-                       >
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2"
+                          onClick={() => {
+                            const productTitle = getProductTitle();
+                            const categories = getDocumentCategories();
+                            
+                            let checklist = `${productTitle.toUpperCase()} - REQUIRED DOCUMENTS CHECKLIST\n\n`;
+                            checklist += `Generated: ${new Date().toLocaleDateString()}\n\n`;
+                            checklist += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+                            
+                            categories.forEach(cat => {
+                              checklist += `${cat.title.toUpperCase()} (${cat.count})\n`;
+                              checklist += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
+                              cat.items.forEach((item: string) => {
+                                checklist += `□ ${item}\n`;
+                              });
+                              checklist += '\n\n';
+                            });
+                            
+                            const blob = new Blob([checklist], { type: 'text/plain' });
+                            const url = window.URL.createObjectURL(blob);
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = `${productTitle.replace(/\s+/g, '-')}-Checklist-${new Date().toISOString().split('T')[0]}.txt`;
+                            document.body.appendChild(a);
+                            a.click();
+                            window.URL.revokeObjectURL(url);
+                            document.body.removeChild(a);
+                            
+                            toast({
+                              title: "Text File Downloaded",
+                              description: "Document checklist has been saved as text file",
+                            });
+                          }}
+                        >
                          <Download className="h-4 w-4" />
                        </Button>
                      </TooltipTrigger>
@@ -620,94 +635,120 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                    </Tooltip>
                  </TooltipProvider>
 
-                 <TooltipProvider>
-                   <Tooltip>
-                     <TooltipTrigger asChild>
-                       <Button
-                         type="button"
-                         variant="ghost"
-                         size="sm"
-                         className="h-8 px-2"
-                         onClick={() => {
-                           const categories = getDocumentCategories();
-                           const productTitle = getProductTitle();
-                           const checklistText = formatChecklistForSharing(categories);
-                           const subject = encodeURIComponent(`${productTitle} - Required Documents`);
-                           const body = encodeURIComponent(`Required Documents Checklist:\n\n${checklistText}\n\nPlease prepare these documents for your application.`);
-                           
-                           window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
-                         }}
-                       >
-                         <Mail className="h-4 w-4" />
-                       </Button>
-                     </TooltipTrigger>
-                     <TooltipContent><p>Email Checklist</p></TooltipContent>
-                   </Tooltip>
-                 </TooltipProvider>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2"
+                          onClick={async () => {
+                            if (!customer?.email || !validateEmail(customer.email)) {
+                              toast({
+                                title: "Email Required",
+                                description: "Please enter a valid email address in the form first",
+                                variant: "destructive",
+                              });
+                              return;
+                            }
+                            
+                            const categories = getDocumentCategories();
+                            const checklistText = formatChecklistForSharing(categories);
+                            
+                            const success = await emailDocumentChecklist({
+                              recipientEmail: customer.email,
+                              recipientName: customer.name || 'Customer',
+                              documentList: checklistText,
+                              productType: getProductTitle(),
+                              customerName: customer.company,
+                            });
+                            
+                            if (success) {
+                              toast({
+                                title: "Email Sent",
+                                description: `Document checklist sent to ${customer.email}`,
+                              });
+                            } else {
+                              toast({
+                                title: "Error",
+                                description: "Failed to send email. Please try again",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                        >
+                          <Mail className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>Email Checklist</p></TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
 
-                 <TooltipProvider>
-                   <Tooltip>
-                     <TooltipTrigger asChild>
-                       <Button
-                         type="button"
-                         variant="ghost"
-                         size="sm"
-                         className="h-8 px-2"
-                         onClick={() => {
-                           if (!customer?.mobile) {
-                             toast({
-                               title: "Phone Number Missing",
-                               description: "Customer phone number is required to share via WhatsApp",
-                               variant: "destructive",
-                             });
-                             return;
-                           }
-                           
-                           try {
-                             const categories = getDocumentCategories();
-                             const productTitle = getProductTitle();
-                             const checklistText = formatChecklistForSharing(categories);
-                             shareViaWhatsApp(customer.mobile, checklistText, productTitle);
-                           } catch (error) {
-                             toast({
-                               title: "Error",
-                               description: "Failed to open WhatsApp",
-                               variant: "destructive",
-                             });
-                           }
-                         }}
-                       >
-                         <MessageCircle className="h-4 w-4" />
-                       </Button>
-                     </TooltipTrigger>
-                     <TooltipContent><p>Share via WhatsApp</p></TooltipContent>
-                   </Tooltip>
-                 </TooltipProvider>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2"
+                          onClick={() => {
+                            if (!customer?.mobile || !validatePhoneNumber(customer.mobile)) {
+                              toast({
+                                title: "Phone Required",
+                                description: "Please enter a valid mobile number in the form first",
+                                variant: "destructive",
+                              });
+                              return;
+                            }
+                            
+                            try {
+                              const categories = getDocumentCategories();
+                              const productTitle = getProductTitle();
+                              const checklistText = formatChecklistForSharing(categories);
+                              shareViaWhatsApp(customer.mobile, checklistText, productTitle);
+                            } catch (error) {
+                              toast({
+                                title: "Error",
+                                description: "Failed to open WhatsApp",
+                                variant: "destructive",
+                              });
+                            }
+                          }}
+                        >
+                          <MessageCircle className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>Share via WhatsApp</p></TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
 
-                 <TooltipProvider>
-                   <Tooltip>
-                     <TooltipTrigger asChild>
-                       <Button
-                         type="button"
-                         variant="ghost"
-                         size="sm"
-                         className="h-8 px-2"
-                         onClick={() => {
-                           const categories = getDocumentCategories();
-                           const checklist = formatChecklistForSharing(categories);
-                           navigator.clipboard.writeText(checklist);
-                           toast({
-                             title: "Copied to Clipboard",
-                             description: "Document checklist has been copied",
-                           });
-                         }}
-                       >
-                         <ClipboardList className="h-4 w-4" />
-                       </Button>
-                     </TooltipTrigger>
-                     <TooltipContent><p>Copy to clipboard</p></TooltipContent>
-                   </Tooltip>
-                 </TooltipProvider>
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Button
+                          type="button"
+                          variant="ghost"
+                          size="sm"
+                          className="h-8 px-2"
+                          onClick={() => {
+                            const categories = getDocumentCategories();
+                            const checklistText = formatChecklistForSharing(categories);
+                            const checklist = `${getProductTitle()} - Required Documents\n\n${checklistText}`;
+                            navigator.clipboard.writeText(checklist);
+                            toast({
+                              title: "Copied to Clipboard",
+                              description: "Document checklist has been copied",
+                            });
+                          }}
+                        >
+                          <ClipboardList className="h-4 w-4" />
+                        </Button>
+                      </TooltipTrigger>
+                      <TooltipContent><p>Copy to clipboard</p></TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                </div>
 
                {/* Info Banner */}
