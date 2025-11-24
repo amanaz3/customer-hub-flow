@@ -193,12 +193,14 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     }
   }, [companyMode, selectedCustomerId]);
 
-  // Auto-expand process sidebar in step 2 for existing customers
+  // Auto-expand process sidebar from step 2 onwards, collapse when going back to step 1
   useEffect(() => {
-    if (currentStep === 2 && selectedCustomerId) {
+    if (currentStep >= 2) {
       setProcessSidebarCollapsed(false);
+    } else if (currentStep === 1) {
+      setProcessSidebarCollapsed(true);
     }
-  }, [currentStep, selectedCustomerId]);
+  }, [currentStep]);
 
   // Function to dock/collapse all right sidebars
   const handleDockAllSidebars = () => {
