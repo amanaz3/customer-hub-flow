@@ -317,8 +317,8 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
           </TabsList>
         </div>
 
-        <TabsContent value="events" className="flex-1 mt-0 flex flex-col">
-          <div className="flex-1 overflow-y-auto p-4 space-y-4" style={{ overflowY: 'scroll' }}>
+        <TabsContent value="events" className="flex-1 mt-0 flex flex-col overflow-hidden">
+          <div className="flex-1 overflow-y-scroll p-4 space-y-4">
         {/* Customer Info Card */}
         <Card className="border-primary/20">
           <CardHeader className="pb-3">
@@ -544,7 +544,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
               </div>
 
               {/* Document Categories */}
-              <div className="flex-1 overflow-y-auto p-4 min-h-0" style={{ overflowY: 'scroll' }}>
+              <div className="flex-1 overflow-y-scroll p-4 min-h-0">
                 <Accordion type="single" collapsible defaultValue="item-0" className="space-y-2">
                   {documentCategories.map((category, index) => {
                     const IconComponent = category.icon;
