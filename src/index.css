@@ -6,14 +6,14 @@
   :root {
     /* Pure, clean backgrounds with warmth */
     --background: 220 15% 98%;
-    --foreground: 220 10% 12%;
+    --foreground: 180 45% 25%;
 
     /* Elevated cards with subtle depth */
     --card: 0 0% 100%;
-    --card-foreground: 220 10% 12%;
+    --card-foreground: 180 45% 25%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 10% 12%;
+    --popover-foreground: 180 45% 25%;
 
     /* Sophisticated blue - trust & innovation */
     --primary: 213 94% 48%;
@@ -59,11 +59,11 @@
 
     /* Clean sidebar with frosted effect */
     --sidebar-background: 220 15% 99%;
-    --sidebar-foreground: 220 10% 12%;
+    --sidebar-foreground: 180 45% 25%;
     --sidebar-primary: 213 94% 48%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 12% 95%;
-    --sidebar-accent-foreground: 220 10% 12%;
+    --sidebar-accent-foreground: 180 45% 25%;
     --sidebar-border: 220 13% 88%;
     --sidebar-ring: 213 94% 48%;
     
@@ -77,14 +77,14 @@
   .dark {
     /* Rich, refined dark - softer on eyes */
     --background: 220 12% 11%;
-    --foreground: 220 10% 96%;
+    --foreground: 180 35% 82%;
 
     /* Elevated dark cards with clear separation */
     --card: 220 10% 15%;
-    --card-foreground: 220 10% 96%;
+    --card-foreground: 180 35% 82%;
 
     --popover: 220 10% 15%;
-    --popover-foreground: 220 10% 96%;
+    --popover-foreground: 180 35% 82%;
 
     /* Bright, vibrant blue for dark */
     --primary: 213 94% 55%;
@@ -125,11 +125,11 @@
     
     /* Dark sidebar with better contrast */
     --sidebar-background: 220 12% 10%;
-    --sidebar-foreground: 220 10% 96%;
+    --sidebar-foreground: 180 35% 82%;
     --sidebar-primary: 213 94% 55%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 10% 18%;
-    --sidebar-accent-foreground: 220 10% 96%;
+    --sidebar-accent-foreground: 180 35% 82%;
     --sidebar-border: 220 10% 22%;
     --sidebar-ring: 213 94% 55%;
     
