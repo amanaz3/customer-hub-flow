@@ -329,23 +329,25 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             <User className="h-6 w-6 text-muted-foreground" />
             <Badge className="writing-mode-vertical text-[10px] px-1 py-2">Events</Badge>
           </div>
-          <div 
-            className={cn(
-              "flex flex-col items-center gap-2 pt-4 border-t border-border w-full cursor-pointer hover:bg-muted/50 transition-colors p-2 rounded",
-              activeTab === 'documents' && "bg-muted"
-            )}
-            onClick={() => {
-              if (isCollapsed) {
-                toggleCollapsed('documents');
-              } else {
-                setActiveTab('documents');
-              }
-            }}
-            title="View Documents"
-          >
-            <FileText className="h-6 w-6 text-muted-foreground" />
-            <Badge className="writing-mode-vertical text-[10px] px-1 py-2">Docs</Badge>
-          </div>
+          {!isNewApplication && (
+            <div 
+              className={cn(
+                "flex flex-col items-center gap-2 pt-4 border-t border-border w-full cursor-pointer hover:bg-muted/50 transition-colors p-2 rounded",
+                activeTab === 'documents' && "bg-muted"
+              )}
+              onClick={() => {
+                if (isCollapsed) {
+                  toggleCollapsed('documents');
+                } else {
+                  setActiveTab('documents');
+                }
+              }}
+              title="View Documents"
+            >
+              <FileText className="h-6 w-6 text-muted-foreground" />
+              <Badge className="writing-mode-vertical text-[10px] px-1 py-2">Docs</Badge>
+            </div>
+          )}
         </div>
       )}
 
@@ -361,15 +363,17 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                   <span className="text-sm font-semibold text-primary">Events</span>
                   <Badge variant="default" className="text-xs">Active</Badge>
                 </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setActiveTab('documents')}
-                  className="h-8 px-2"
-                >
-                  <FileText className="h-4 w-4 mr-1" />
-                  <span className="text-xs">Docs</span>
-                </Button>
+                {!isNewApplication && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setActiveTab('documents')}
+                    className="h-8 px-2"
+                  >
+                    <FileText className="h-4 w-4 mr-1" />
+                    <span className="text-xs">Docs</span>
+                  </Button>
+                )}
               </div>
             ) : (
               <div className="flex items-center justify-between">
