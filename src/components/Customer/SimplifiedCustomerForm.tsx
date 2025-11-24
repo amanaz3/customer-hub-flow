@@ -906,7 +906,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
         if (error) {
           console.error('Error fetching form config:', error);
-          return true; // Allow progression if config can't be fetched
+          toast({
+            title: "Validation Error",
+            description: "Unable to validate form. Please try again or contact support.",
+            variant: "destructive",
+          });
+          return false; // Prevent progression if config can't be fetched
         }
 
         if (!configData || !configData.form_config) {
@@ -949,7 +954,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         return true;
       } catch (error) {
         console.error('Error validating step 3:', error);
-        return true; // Allow progression if validation fails
+        toast({
+          title: "Validation Error",
+          description: "An error occurred during validation. Please try again.",
+          variant: "destructive",
+        });
+        return false; // Prevent progression if validation encounters an error
       }
     }
 
