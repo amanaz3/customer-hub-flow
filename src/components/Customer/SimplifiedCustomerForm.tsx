@@ -1631,7 +1631,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 onStepChange?.(nextStep);
                 // Mark current step as completed
                 setCompletedSteps(prev => new Set(prev).add(currentStep));
-                setSidebarCollapsed(true);
+                // Don't collapse sidebar when progressing - let the step logic handle it
               } else {
                 toast({
                   title: "Cannot Progress",
