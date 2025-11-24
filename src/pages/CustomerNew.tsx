@@ -121,7 +121,7 @@ const CustomerNew = () => {
       {((hasSelectedProduct && selectedProduct) || (companyMode && selectedCustomerId)) && (selectedCustomerId || internalCustomerId) && (
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
-            key="customer-events-sidebar"
+            key={`sidebar-${companyMode ? 'existing' : 'new'}-${selectedCustomerId || internalCustomerId}`}
             customerId={selectedCustomerId || internalCustomerId || ''} 
             collapsed={sidebarCollapsed}
             onCollapsedChange={setSidebarCollapsed}
