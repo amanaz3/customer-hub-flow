@@ -625,52 +625,42 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
       {/* Content Area - Always visible when expanded */}
       {!isCollapsed && (
         <div className="flex-1 flex flex-col overflow-hidden min-h-0">
-          {/* Header with view switcher */}
-          <div className="px-4 pt-4 pb-2 border-b border-border flex-shrink-0">
-            {activeTab === 'events' ? (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <User className="h-4 w-4 text-primary" />
-                  <span className="text-sm font-semibold text-primary">Events</span>
-                  <Badge variant="default" className="text-xs">Active</Badge>
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setActiveTab('documents')}
-                  className="h-8 px-2"
-                >
-                  <FileText className="h-4 w-4 mr-1" />
-                  <span className="text-xs">Docs</span>
-                </Button>
-              </div>
-            ) : (
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-primary" />
-                  <div className="flex flex-col">
-                    <span className="text-sm font-semibold text-primary">Required Documents</span>
-                    {productType && (
-                      <span className="text-xs text-muted-foreground">{getProductTitle()}</span>
-                    )}
-                  </div>
-                  {productType && (
-                    <Badge variant="secondary" className="text-xs">
-                      {documentCategories.reduce((sum, cat) => sum + cat.count, 0)} docs
-                    </Badge>
-                  )}
-                </div>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setActiveTab('events')}
-                  className="h-8 px-2"
-                >
-                  <User className="h-4 w-4 mr-1" />
-                  <span className="text-xs">Events</span>
-                </Button>
-              </div>
-            )}
+          {/* Header with tab switcher */}
+          <div className="px-4 pt-4 pb-0 border-b border-border flex-shrink-0">
+            <div className="flex items-center gap-1">
+              {/* Events Tab */}
+              <button
+                onClick={() => setActiveTab('events')}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-2 rounded-t-lg text-sm font-medium transition-colors border-b-2",
+                  activeTab === 'events'
+                    ? "bg-background border-primary text-primary"
+                    : "bg-transparent border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )}
+              >
+                <User className="h-4 w-4" />
+                <span>Events</span>
+              </button>
+
+              {/* Documents Tab */}
+              <button
+                onClick={() => setActiveTab('documents')}
+                className={cn(
+                  "flex items-center gap-2 px-3 py-2 rounded-t-lg text-sm font-medium transition-colors border-b-2",
+                  activeTab === 'documents'
+                    ? "bg-background border-primary text-primary"
+                    : "bg-transparent border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                )}
+              >
+                <FileText className="h-4 w-4" />
+                <span>Documents</span>
+                {productType && (
+                  <Badge variant="secondary" className="text-xs">
+                    {documentCategories.reduce((sum, cat) => sum + cat.count, 0)}
+                  </Badge>
+                )}
+              </button>
+            </div>
           </div>
 
           {/* Events View */}
