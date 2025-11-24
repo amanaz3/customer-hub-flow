@@ -33,6 +33,20 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
   const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed;
   const { toast } = useToast();
 
+  // Auto-expand sidebar when productType is selected
+  React.useEffect(() => {
+    if (productType) {
+      // Auto-expand sidebar when product is selected
+      if (isCollapsed) {
+        if (collapsed !== undefined) {
+          onCollapsedChange?.(false);
+        } else {
+          setInternalCollapsed(false);
+        }
+      }
+    }
+  }, [productType]);
+
   const toggleCollapsed = () => {
     const newValue = !isCollapsed;
     if (collapsed !== undefined) {
