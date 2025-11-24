@@ -103,6 +103,7 @@ const CustomerNew = () => {
               customerId={selectedCustomerId} 
               collapsed={sidebarCollapsed}
               onCollapsedChange={setSidebarCollapsed}
+              productType={getProductType()}
             />
           ) : (
             <RequiredDocumentsSidebar

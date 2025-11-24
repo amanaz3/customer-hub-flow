@@ -4,20 +4,23 @@ import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Calendar, FileText, User, Building2, Clock, ChevronLeft, ChevronRight } from 'lucide-react';
+import { Calendar, FileText, User, Building2, Clock, ChevronLeft, ChevronRight, Users, ClipboardList } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 interface CustomerEventsSidebarProps {
   customerId: string;
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
+  productType?: 'goaml' | 'home_finance' | 'bank_account' | null;
 }
 
 export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({ 
   customerId,
   collapsed,
-  onCollapsedChange 
+  onCollapsedChange,
+  productType 
 }) => {
   const [internalCollapsed, setInternalCollapsed] = React.useState(true);
   const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed;
@@ -119,6 +122,112 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
     };
     return colors[status] || 'bg-muted text-muted-foreground';
   };
+
+  // Get document categories based on product type
+  const getDocumentCategories = () => {
+    if (!productType) return [];
+    
+    switch (productType) {
+      case 'goaml':
+        return [
+          {
+            title: 'Company Documents',
+            icon: Building2,
+            color: 'text-purple-600',
+            count: 3,
+            items: [
+              'Trade License Copy (certified)',
+              'Memorandum of Association (MOA)',
+              'Company Organization Chart'
+            ]
+          },
+          {
+            title: 'Beneficial Owner Documents',
+            icon: Users,
+            color: 'text-blue-600',
+            count: 3,
+            items: [
+              'Passport Copies of all UBOs',
+              'Emirates ID Copies of all UBOs',
+              'Proof of Address for all UBOs'
+            ]
+          },
+          {
+            title: 'Compliance Documents',
+            icon: FileText,
+            color: 'text-green-600',
+            count: 2,
+            items: [
+              'Board Resolution appointing Compliance Officer',
+              'Bank Account Details & Statements (Last 6 months)'
+            ]
+          }
+        ];
+      
+      case 'home_finance':
+        return [
+          {
+            title: 'Personal Documents',
+            icon: Users,
+            color: 'text-blue-600',
+            count: 2,
+            items: [
+              'Passport Copy with valid UAE Visa',
+              'Emirates ID Copy (both sides)'
+            ]
+          },
+          {
+            title: 'Employment & Financial',
+            icon: FileText,
+            color: 'text-green-600',
+            count: 2,
+            items: [
+              'Salary Certificate (last 3 months)',
+              'Bank Statements (last 6 months)'
+            ]
+          }
+        ];
+
+      case 'bank_account':
+        return [
+          {
+            title: 'Company Documents',
+            icon: Building2,
+            color: 'text-purple-600',
+            count: 3,
+            items: [
+              'Trade License Copy',
+              'Memorandum of Association (MOA)',
+              'Share Certificates'
+            ]
+          },
+          {
+            title: 'Shareholder Documents',
+            icon: Users,
+            color: 'text-blue-600',
+            count: 2,
+            items: [
+              'Passport Copies of all Shareholders',
+              'Emirates ID or Visa Copies'
+            ]
+          }
+        ];
+      
+      default:
+        return [];
+    }
+  };
+
+  const getProductTitle = () => {
+    switch (productType) {
+      case 'goaml': return 'GoAML Registration';
+      case 'home_finance': return 'Home Finance Mortgage';
+      case 'bank_account': return 'Business Bank Account';
+      default: return 'Required Documents';
+    }
+  };
+
+  const documentCategories = getDocumentCategories();
 
   if (customerLoading) {
     return (
@@ -299,6 +408,48 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             </div>
           </CardContent>
         </Card>
+
+        {/* Required Documents Section */}
+        {productType && documentCategories.length > 0 && (
+          <Card className="border-primary/20">
+            <CardHeader className="pb-3 border-b">
+              <div className="flex items-center gap-2">
+                <FileText className="h-4 w-4 text-primary" />
+                <CardTitle className="text-sm font-medium">{getProductTitle()}</CardTitle>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-4">
+              <Accordion type="single" collapsible className="w-full">
+                {documentCategories.map((category, index) => {
+                  const IconComponent = category.icon;
+                  return (
+                    <AccordionItem key={index} value={`doc-${index}`} className="border-b last:border-0">
+                      <AccordionTrigger className="py-3 hover:no-underline">
+                        <div className="flex items-center gap-2">
+                          <IconComponent className={`h-4 w-4 ${category.color}`} />
+                          <span className="text-xs font-medium">{category.title}</span>
+                          <Badge variant="secondary" className="ml-auto text-[10px] h-5">
+                            {category.count}
+                          </Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <ul className="space-y-2 pl-6">
+                          {category.items.map((item, itemIndex) => (
+                            <li key={itemIndex} className="text-xs text-muted-foreground flex items-start gap-2">
+                              <span className="text-primary mt-0.5">•</span>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      </AccordionContent>
+                    </AccordionItem>
+                  );
+                })}
+              </Accordion>
+            </CardContent>
+          </Card>
+        )}
       </div>
       )}
     </div>
