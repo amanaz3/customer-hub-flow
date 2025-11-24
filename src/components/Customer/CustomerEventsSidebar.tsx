@@ -20,6 +20,12 @@ interface CustomerEventsSidebarProps {
   onCollapsedChange?: (collapsed: boolean) => void;
   productType?: 'goaml' | 'home_finance' | 'bank_account' | null;
   isExistingCustomer?: boolean;
+  newCustomerData?: {
+    email?: string;
+    name?: string;
+    mobile?: string;
+    company?: string;
+  };
 }
 
 export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({ 
@@ -27,7 +33,8 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   collapsed,
   onCollapsedChange,
   productType,
-  isExistingCustomer = false
+  isExistingCustomer = false,
+  newCustomerData
 }) => {
   const { toast } = useToast();
   const [internalCollapsed, setInternalCollapsed] = React.useState(true);
@@ -666,20 +673,40 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
           {/* Events View */}
           {activeTab === 'events' && (
             <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-3">
-        {(() => {
-          console.log('Events Tab - customerId:', customerId, 'customer:', customer, 'isExistingCustomer:', isExistingCustomer);
-          return customerId === 'temp' || !customer;
-        })() ? (
-          // Placeholder for new customers without data
-          <Card className="border-muted">
-            <CardContent className="pt-6 text-center p-3 sm:p-4">
-              <User className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-              <p className="text-sm font-medium text-foreground mb-1">
-                Customer Information Pending
-              </p>
-              <p className="text-xs text-muted-foreground">
-                Customer events and history will be available after the application is created
-              </p>
+        {customerId === 'temp' || !customer ? (
+          // Display new customer data in placeholder
+          <Card className="border-primary/20">
+            <CardHeader className="pb-2 px-3 sm:px-4">
+              <CardTitle className="text-sm font-medium flex items-center gap-2">
+                <User className="w-4 h-4 text-primary" />
+                Customer Details
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-xs p-3 sm:p-4">
+              {newCustomerData?.company && (
+                <div className="flex items-start gap-2">
+                  <Building2 className="w-3 h-3 text-muted-foreground mt-0.5" />
+                  <div>
+                    <div className="font-medium text-foreground">{newCustomerData.company}</div>
+                    {newCustomerData.name && (
+                      <div className="text-muted-foreground">{newCustomerData.name}</div>
+                    )}
+                  </div>
+                </div>
+              )}
+              {newCustomerData?.email && (
+                <div className="text-muted-foreground">{newCustomerData.email}</div>
+              )}
+              {newCustomerData?.mobile && (
+                <div className="text-muted-foreground">{newCustomerData.mobile}</div>
+              )}
+              {!newCustomerData?.company && !newCustomerData?.email && !newCustomerData?.mobile && (
+                <div className="text-center py-4">
+                  <p className="text-xs text-muted-foreground">
+                    Customer information will appear here as you fill the form
+                  </p>
+                </div>
+              )}
             </CardContent>
           </Card>
         ) : (

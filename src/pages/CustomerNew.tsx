@@ -141,6 +141,12 @@ const CustomerNew = () => {
             onCollapsedChange={setSidebarCollapsed}
             productType={getProductType()}
             isExistingCustomer={companyMode}
+            newCustomerData={{
+              email: customerEmail,
+              name: customerName,
+              mobile: customerMobile,
+              company: customerCompany,
+            }}
           />
         </div>
       )}
