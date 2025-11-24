@@ -38,8 +38,10 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   // Auto-expand sidebar but stay on events tab for new applications
   React.useEffect(() => {
     if (productType && !hasAutoExpanded && isCollapsed) {
-      // For new applications, don't switch to documents tab
-      if (!isNewApplication) {
+      // Explicitly set tab based on application type
+      if (isNewApplication) {
+        setActiveTab('events');
+      } else {
         setActiveTab('documents');
       }
       setHasAutoExpanded(true);
