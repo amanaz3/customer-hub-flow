@@ -19,15 +19,13 @@ interface CustomerEventsSidebarProps {
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
   productType?: 'goaml' | 'home_finance' | 'bank_account' | null;
-  isFreshApplication?: boolean;
 }
 
 export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({ 
   customerId,
   collapsed,
   onCollapsedChange,
-  productType,
-  isFreshApplication = false
+  productType 
 }) => {
   const { toast } = useToast();
   const [internalCollapsed, setInternalCollapsed] = React.useState(true);
@@ -528,7 +526,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
            {/* Documents View */}
            {activeTab === 'documents' && (
              <div className="flex-1 flex flex-col overflow-hidden min-h-0">
-           {productType && !isFreshApplication ? (
+           {productType ? (
              <>
                {/* Action Buttons Bar */}
                <div className="flex items-center justify-around gap-1 px-2 py-2 border-b bg-muted/20 flex-shrink-0">
@@ -795,19 +793,16 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                  </Accordion>
                </div>
              </>
-            ) : (
-              <Card className="border-muted m-4">
-                <CardContent className="pt-6 text-center">
-                  <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
-                  <p className="text-sm text-muted-foreground">
-                    {isFreshApplication 
-                      ? "No documents yet - Documents will be available after application is created"
-                      : "Select a product to view required documents"
-                    }
-                  </p>
-                </CardContent>
-                </Card>
-              )}
+           ) : (
+             <Card className="border-muted m-4">
+               <CardContent className="pt-6 text-center">
+                 <FileText className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+                 <p className="text-sm text-muted-foreground">
+                   Select a product to view required documents
+                 </p>
+               </CardContent>
+               </Card>
+             )}
              </div>
            )}
         </div>
