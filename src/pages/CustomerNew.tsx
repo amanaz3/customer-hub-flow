@@ -24,6 +24,11 @@ const CustomerNew = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(true);
 
+  // Debug: Log when selectedProduct or currentStep changes
+  React.useEffect(() => {
+    console.log('📊 CustomerNew state:', { currentStep, selectedProduct, companyMode, selectedCustomerId });
+  }, [currentStep, selectedProduct, companyMode, selectedCustomerId]);
+
   // Expand sidebar when product is selected
   React.useEffect(() => {
     if (selectedProduct) {
