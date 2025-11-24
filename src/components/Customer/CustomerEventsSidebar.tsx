@@ -252,7 +252,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   return (
     <div className={cn(
       "fixed right-0 top-16 h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-[100000]",
-      isCollapsed ? "w-0 border-0" : "w-80"
+      isCollapsed ? "w-12" : "w-80"
     )}>
       {/* Toggle Button - Fixed positioning for better visibility */}
       <Button
@@ -260,12 +260,46 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
         size="sm"
         className={cn(
           "fixed top-24 h-16 w-10 rounded-l-lg rounded-r-none border border-r-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100001]",
-          isCollapsed ? "right-0" : "right-80"
+          isCollapsed ? "right-12" : "right-80"
         )}
         onClick={toggleCollapsed}
       >
         {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
       </Button>
+
+      {/* Collapsed State - Shows icons vertically */}
+      {isCollapsed && (
+        <div className="flex flex-col items-center py-4 gap-6">
+          <div 
+            className={cn(
+              "flex flex-col items-center gap-2 cursor-pointer hover:bg-muted/50 transition-colors p-2 rounded",
+              activeTab === 'events' && "bg-muted"
+            )}
+            onClick={() => {
+              setActiveTab('events');
+              toggleCollapsed();
+            }}
+            title="View Events"
+          >
+            <User className="h-6 w-6 text-muted-foreground" />
+            <Badge className="writing-mode-vertical text-[10px] px-1 py-2">Events</Badge>
+          </div>
+          <div 
+            className={cn(
+              "flex flex-col items-center gap-2 pt-4 border-t border-border w-full cursor-pointer hover:bg-muted/50 transition-colors p-2 rounded",
+              activeTab === 'documents' && "bg-muted"
+            )}
+            onClick={() => {
+              setActiveTab('documents');
+              toggleCollapsed();
+            }}
+            title="View Documents"
+          >
+            <FileText className="h-6 w-6 text-muted-foreground" />
+            <Badge className="writing-mode-vertical text-[10px] px-1 py-2">Docs</Badge>
+          </div>
+        </div>
+      )}
 
       {/* Tabbed Interface - Always visible when expanded */}
       {!isCollapsed && (
