@@ -1085,7 +1085,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             />
 
             <Card 
-              className="relative z-0 -mt-px border-t-0 border-x border-b border-border/50 bg-card/98 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 ease-out rounded-t-none rounded-b-xl max-w-2xl mx-auto overflow-visible"
+              className="-mt-px border-t-0 border-x border-b border-border/50 bg-card/98 backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 ease-out rounded-t-none rounded-b-xl max-w-2xl mx-auto overflow-visible"
             >
             <CardContent className="p-4 sm:p-6 space-y-3 overflow-visible">
               {/* Customer Information Summary Accordion - Show after step 1 */}
