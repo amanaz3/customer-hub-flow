@@ -19,13 +19,15 @@ interface CustomerEventsSidebarProps {
   collapsed?: boolean;
   onCollapsedChange?: (collapsed: boolean) => void;
   productType?: 'goaml' | 'home_finance' | 'bank_account' | null;
+  isNewApplication?: boolean;
 }
 
 export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({ 
   customerId,
   collapsed,
   onCollapsedChange,
-  productType 
+  productType,
+  isNewApplication = false
 }) => {
   const { toast } = useToast();
   const [internalCollapsed, setInternalCollapsed] = React.useState(true);
@@ -33,10 +35,13 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   const [hasAutoExpanded, setHasAutoExpanded] = React.useState(false);
   const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed;
 
-  // Auto-expand sidebar and switch to documents tab when productType is selected (only once)
+  // Auto-expand sidebar but stay on events tab for new applications
   React.useEffect(() => {
     if (productType && !hasAutoExpanded && isCollapsed) {
-      setActiveTab('documents');
+      // For new applications, don't switch to documents tab
+      if (!isNewApplication) {
+        setActiveTab('documents');
+      }
       setHasAutoExpanded(true);
       
       if (collapsed !== undefined) {
@@ -45,7 +50,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
         setInternalCollapsed(false);
       }
     }
-  }, [productType, hasAutoExpanded, isCollapsed, collapsed, onCollapsedChange]);
+  }, [productType, hasAutoExpanded, isCollapsed, collapsed, onCollapsedChange, isNewApplication]);
 
   const toggleCollapsed = (targetTab?: string) => {
     const newValue = !isCollapsed;
@@ -528,270 +533,65 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
              <div className="flex-1 flex flex-col overflow-hidden min-h-0">
            {productType ? (
              <>
-               {/* Action Buttons Bar */}
-               <div className="flex items-center justify-around gap-1 px-2 py-2 border-b bg-muted/20 flex-shrink-0">
-                 <TooltipProvider>
-                   <Tooltip>
-                     <TooltipTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-2"
-                          onClick={() => {
-                            const doc = new jsPDF();
-                            const categories = getDocumentCategories();
-                            const productTitle = getProductTitle();
-                            
-                            let yPos = 20;
-                            
-                            doc.setFontSize(18);
-                            doc.setFont(undefined, 'bold');
-                            doc.text(productTitle.toUpperCase(), 20, yPos);
-                            yPos += 8;
-                            
-                            doc.setFontSize(12);
-                            doc.setFont(undefined, 'normal');
-                            doc.text('Required Documents Checklist', 20, yPos);
-                            yPos += 10;
-                            
-                            doc.setFontSize(10);
-                            doc.text(`Generated: ${new Date().toLocaleDateString()}`, 20, yPos);
-                            yPos += 15;
-                            
-                            categories.forEach(cat => {
-                              doc.setFontSize(12);
-                              doc.setFont(undefined, 'bold');
-                              doc.text(`${cat.title.toUpperCase()} (${cat.count})`, 20, yPos);
-                              yPos += 8;
-                              
-                              doc.setFontSize(10);
-                              doc.setFont(undefined, 'normal');
-                              cat.items.forEach((item: string) => {
-                                doc.text(`☐ ${item}`, 25, yPos);
-                                yPos += 7;
-                              });
-                              yPos += 5;
-                            });
-                            
-                            doc.save(`${productTitle.replace(/\s+/g, '-')}-Checklist-${new Date().toISOString().split('T')[0]}.pdf`);
-                            
-                            toast({
-                              title: "PDF Downloaded",
-                              description: "Document checklist has been saved as PDF",
-                            });
-                          }}
-                        >
-                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
-                         </svg>
-                       </Button>
-                     </TooltipTrigger>
-                     <TooltipContent><p>Download PDF</p></TooltipContent>
-                   </Tooltip>
-                 </TooltipProvider>
+               {isNewApplication ? (
+                 /* Empty State for New Applications */
+                 <div className="flex-1 flex items-center justify-center p-6">
+                   <Card className="border-muted max-w-sm">
+                     <CardContent className="pt-6 text-center">
+                       <FileText className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                       <h3 className="text-sm font-semibold text-foreground mb-2">No Documents Yet</h3>
+                       <p className="text-xs text-muted-foreground">
+                         This is a new application. Documents will be uploaded after the application is submitted.
+                       </p>
+                     </CardContent>
+                   </Card>
+                 </div>
+               ) : (
+                 <>
+                   {/* Action Buttons Bar */}
+                   <div className="flex items-center justify-around gap-1 px-2 py-2 border-b bg-muted/20 flex-shrink-0">
+...
+                   </div>
 
-                 <TooltipProvider>
-                   <Tooltip>
-                     <TooltipTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-2"
-                          onClick={() => {
-                            const productTitle = getProductTitle();
-                            const categories = getDocumentCategories();
-                            
-                            let checklist = `${productTitle.toUpperCase()} - REQUIRED DOCUMENTS CHECKLIST\n\n`;
-                            checklist += `Generated: ${new Date().toLocaleDateString()}\n\n`;
-                            checklist += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
-                            
-                            categories.forEach(cat => {
-                              checklist += `${cat.title.toUpperCase()} (${cat.count})\n`;
-                              checklist += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
-                              cat.items.forEach((item: string) => {
-                                checklist += `□ ${item}\n`;
-                              });
-                              checklist += '\n\n';
-                            });
-                            
-                            const blob = new Blob([checklist], { type: 'text/plain' });
-                            const url = window.URL.createObjectURL(blob);
-                            const a = document.createElement('a');
-                            a.href = url;
-                            a.download = `${productTitle.replace(/\s+/g, '-')}-Checklist-${new Date().toISOString().split('T')[0]}.txt`;
-                            document.body.appendChild(a);
-                            a.click();
-                            window.URL.revokeObjectURL(url);
-                            document.body.removeChild(a);
-                            
-                            toast({
-                              title: "Text File Downloaded",
-                              description: "Document checklist has been saved as text file",
-                            });
-                          }}
-                        >
-                         <Download className="h-4 w-4" />
-                       </Button>
-                     </TooltipTrigger>
-                     <TooltipContent><p>Download Text</p></TooltipContent>
-                   </Tooltip>
-                 </TooltipProvider>
+                   {/* Info Banner */}
+                   <div className="px-4 py-2 bg-blue-50 dark:bg-blue-950/20 border-b flex items-start gap-2 flex-shrink-0">
+                     <Calendar className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                     <p className="text-xs text-blue-900 dark:text-blue-100">
+                       Reference only - Documents collected in subsequent steps
+                     </p>
+                   </div>
 
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-2"
-                          onClick={async () => {
-                            if (!customer?.email || !validateEmail(customer.email)) {
-                              toast({
-                                title: "Email Required",
-                                description: "Please enter a valid email address in the form first",
-                                variant: "destructive",
-                              });
-                              return;
-                            }
-                            
-                            const categories = getDocumentCategories();
-                            const checklistText = formatChecklistForSharing(categories);
-                            
-                            const success = await emailDocumentChecklist({
-                              recipientEmail: customer.email,
-                              recipientName: customer.name || 'Customer',
-                              documentList: checklistText,
-                              productType: getProductTitle(),
-                              customerName: customer.company,
-                            });
-                            
-                            if (success) {
-                              toast({
-                                title: "Email Sent",
-                                description: `Document checklist sent to ${customer.email}`,
-                              });
-                            } else {
-                              toast({
-                                title: "Error",
-                                description: "Failed to send email. Please try again",
-                                variant: "destructive",
-                              });
-                            }
-                          }}
-                        >
-                          <Mail className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent><p>Email Checklist</p></TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-2"
-                          onClick={() => {
-                            if (!customer?.mobile || !validatePhoneNumber(customer.mobile)) {
-                              toast({
-                                title: "Phone Required",
-                                description: "Please enter a valid mobile number in the form first",
-                                variant: "destructive",
-                              });
-                              return;
-                            }
-                            
-                            try {
-                              const categories = getDocumentCategories();
-                              const productTitle = getProductTitle();
-                              const checklistText = formatChecklistForSharing(categories);
-                              shareViaWhatsApp(customer.mobile, checklistText, productTitle);
-                            } catch (error) {
-                              toast({
-                                title: "Error",
-                                description: "Failed to open WhatsApp",
-                                variant: "destructive",
-                              });
-                            }
-                          }}
-                        >
-                          <MessageCircle className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent><p>Share via WhatsApp</p></TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          className="h-8 px-2"
-                          onClick={() => {
-                            const categories = getDocumentCategories();
-                            const checklistText = formatChecklistForSharing(categories);
-                            const checklist = `${getProductTitle()} - Required Documents\n\n${checklistText}`;
-                            navigator.clipboard.writeText(checklist);
-                            toast({
-                              title: "Copied to Clipboard",
-                              description: "Document checklist has been copied",
-                            });
-                          }}
-                        >
-                          <ClipboardList className="h-4 w-4" />
-                        </Button>
-                      </TooltipTrigger>
-                      <TooltipContent><p>Copy to clipboard</p></TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-               </div>
-
-               {/* Info Banner */}
-               <div className="px-4 py-2 bg-blue-50 dark:bg-blue-950/20 border-b flex items-start gap-2 flex-shrink-0">
-                 <Calendar className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                 <p className="text-xs text-blue-900 dark:text-blue-100">
-                   Reference only - Documents collected in subsequent steps
-                 </p>
-               </div>
-
-               {/* Accordion-based Document Categories - Only expandable section */}
-               <div className="flex-1 overflow-y-auto p-4 min-h-0">
-                 <Accordion type="single" collapsible defaultValue="item-0" className="space-y-2">
-                   {documentCategories.map((category, index) => {
-                     const IconComponent = category.icon;
-                     return (
-                       <AccordionItem key={index} value={`item-${index}`} className="border rounded-lg">
-                         <AccordionTrigger className="px-3 py-2 hover:no-underline">
-                           <div className="flex items-center gap-2">
-                             <IconComponent className={cn("h-4 w-4", category.color)} />
-                             <span className="text-sm font-medium">{category.title}</span>
-                             <Badge variant="outline" className="text-xs">{category.count}</Badge>
-                           </div>
-                         </AccordionTrigger>
-                         <AccordionContent className="px-3 pb-3">
-                           <ul className="space-y-2">
-                             {category.items.map((item, itemIndex) => (
-                               <li key={itemIndex} className="flex items-start gap-2 text-sm">
-                                 <span className={cn("mt-1", category.color)}>•</span>
-                                 <span className="text-muted-foreground">{item}</span>
-                               </li>
-                             ))}
-                           </ul>
-                         </AccordionContent>
-                       </AccordionItem>
-                     );
-                   })}
-                 </Accordion>
-               </div>
+                   {/* Accordion-based Document Categories - Only expandable section */}
+                   <div className="flex-1 overflow-y-auto p-4 min-h-0">
+                     <Accordion type="single" collapsible defaultValue="item-0" className="space-y-2">
+                       {documentCategories.map((category, index) => {
+                         const IconComponent = category.icon;
+                         return (
+                           <AccordionItem key={index} value={`item-${index}`} className="border rounded-lg">
+                             <AccordionTrigger className="px-3 py-2 hover:no-underline">
+                               <div className="flex items-center gap-2">
+                                 <IconComponent className={cn("h-4 w-4", category.color)} />
+                                 <span className="text-sm font-medium">{category.title}</span>
+                                 <Badge variant="outline" className="text-xs">{category.count}</Badge>
+                               </div>
+                             </AccordionTrigger>
+                             <AccordionContent className="px-3 pb-3">
+                               <ul className="space-y-2">
+                                 {category.items.map((item, itemIndex) => (
+                                   <li key={itemIndex} className="flex items-start gap-2 text-sm">
+                                     <span className={cn("mt-1", category.color)}>•</span>
+                                     <span className="text-muted-foreground">{item}</span>
+                                   </li>
+                                 ))}
+                               </ul>
+                             </AccordionContent>
+                           </AccordionItem>
+                         );
+                       })}
+                     </Accordion>
+                   </div>
+                 </>
+               )}
              </>
            ) : (
              <Card className="border-muted m-4">
