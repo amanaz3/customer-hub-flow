@@ -262,10 +262,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       if (businessBankAccount) {
         form.setValue('product_id', businessBankAccount.id);
         setSelectedProductName(businessBankAccount.name);
-        onProductChange?.(businessBankAccount.name);
+        // Don't call onProductChange here - only when user actively selects
       }
     }
-  }, [products, form, onProductChange]);
+  }, [products, form]);
 
   const handleProductChange = (productId: string) => {
     const product = products?.find(p => p.id === productId);
