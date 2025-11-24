@@ -58,10 +58,13 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
     const newValue = !isCollapsed;
     
     // When expanding sidebar with a specific tab target, use that
-    // Otherwise, when expanding with productType available, default to documents
+    // For new applications, default to events tab
+    // For existing applications with productType, default to documents
     if (!newValue) {
       if (targetTab) {
         setActiveTab(targetTab);
+      } else if (isNewApplication) {
+        setActiveTab('events');
       } else if (productType && activeTab !== 'events') {
         setActiveTab('documents');
       }
