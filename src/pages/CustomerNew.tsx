@@ -18,23 +18,37 @@ const CustomerNew = () => {
   const [customerName, setCustomerName] = useState<string>('');
   const [customerMobile, setCustomerMobile] = useState<string>('');
   const [customerCompany, setCustomerCompany] = useState<string>('');
+  const [hasSelectedProduct, setHasSelectedProduct] = useState<boolean>(false);
   
   // Customer selection state
   const [companyMode, setCompanyMode] = useState<boolean>(false);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(true);
 
-  // Expand sidebar when product is selected
+  // Track when product is selected and expand sidebar
   React.useEffect(() => {
     if (selectedProduct) {
+      setHasSelectedProduct(true);
       setSidebarCollapsed(false);
     }
   }, [selectedProduct]);
 
+  // Keep sidebar state when navigating between steps
+  // Only reset when starting completely fresh (no product selected)
+  React.useEffect(() => {
+    if (!selectedProduct && currentStep === 1) {
+      setHasSelectedProduct(false);
+      setSidebarCollapsed(true);
+    }
+  }, [selectedProduct, currentStep]);
+
   // Collapse sidebar when switching between new/existing customer
   const handleModeChange = (newMode: boolean) => {
     setCompanyMode(newMode);
-    setSidebarCollapsed(true);
+    // Don't collapse if product already selected
+    if (!hasSelectedProduct) {
+      setSidebarCollapsed(true);
+    }
   };
 
   const handleSuccess = () => {
@@ -95,8 +109,8 @@ const CustomerNew = () => {
           </div>
         </div>
       
-      {/* Sticky Sidebar - Show documents in step 2, customer events in steps 3-4 for existing customers */}
-      {currentStep >= 2 && selectedProduct && (
+      {/* Sticky Sidebar - Show after product selection, persist through step navigation */}
+      {hasSelectedProduct && selectedProduct && (
         <div className="hidden lg:block">
           {currentStep >= 3 && companyMode && selectedCustomerId ? (
             <CustomerEventsSidebar 
