@@ -4,12 +4,13 @@ import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-
+import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Calendar, FileText, User, Building2, Clock, ChevronLeft, ChevronRight, Users, ClipboardList } from 'lucide-react';
+import { Calendar, FileText, User, Building2, Clock, ChevronLeft, ChevronRight, Users, ClipboardList, Download, Mail, MessageCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { formatChecklistForSharing, shareViaWhatsApp } from '@/utils/documentChecklistSharing';
 
 interface CustomerEventsSidebarProps {
   customerId: string;
@@ -24,6 +25,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   onCollapsedChange,
   productType 
 }) => {
+  const { toast } = useToast();
   const [internalCollapsed, setInternalCollapsed] = React.useState(true);
   const [activeTab, setActiveTab] = useState<string>('events');
   const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed;
@@ -524,6 +526,10 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                           });
                           
                           doc.save(`${productTitle.replace(/\s+/g, '-')}-Checklist.pdf`);
+                          toast({
+                            title: "PDF Downloaded",
+                            description: "Document checklist has been saved as PDF",
+                          });
                         }}
                       >
                         <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -545,10 +551,113 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                         className="h-8 px-2"
                         onClick={() => {
                           const categories = getDocumentCategories();
-                          const checklist = categories
-                            .map(cat => `${cat.title}:\n${cat.items.map(item => `• ${item}`).join('\n')}`)
-                            .join('\n\n');
+                          const productTitle = getProductTitle();
+                          const checklistText = formatChecklistForSharing(categories);
+                          const fullText = `${productTitle}\n\nRequired Documents Checklist:\n\n${checklistText}`;
+                          
+                          const blob = new Blob([fullText], { type: 'text/plain' });
+                          const url = URL.createObjectURL(blob);
+                          const a = document.createElement('a');
+                          a.href = url;
+                          a.download = `${productTitle.replace(/\s+/g, '-')}-Checklist.txt`;
+                          document.body.appendChild(a);
+                          a.click();
+                          document.body.removeChild(a);
+                          URL.revokeObjectURL(url);
+                          
+                          toast({
+                            title: "Text File Downloaded",
+                            description: "Document checklist has been saved as text file",
+                          });
+                        }}
+                      >
+                        <Download className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Download Text</p></TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2"
+                        onClick={() => {
+                          const categories = getDocumentCategories();
+                          const productTitle = getProductTitle();
+                          const checklistText = formatChecklistForSharing(categories);
+                          const subject = encodeURIComponent(`${productTitle} - Required Documents`);
+                          const body = encodeURIComponent(`Required Documents Checklist:\n\n${checklistText}\n\nPlease prepare these documents for your application.`);
+                          
+                          window.open(`mailto:?subject=${subject}&body=${body}`, '_blank');
+                        }}
+                      >
+                        <Mail className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Email Checklist</p></TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2"
+                        onClick={() => {
+                          if (!customer?.mobile) {
+                            toast({
+                              title: "Phone Number Missing",
+                              description: "Customer phone number is required to share via WhatsApp",
+                              variant: "destructive",
+                            });
+                            return;
+                          }
+                          
+                          try {
+                            const categories = getDocumentCategories();
+                            const productTitle = getProductTitle();
+                            const checklistText = formatChecklistForSharing(categories);
+                            shareViaWhatsApp(customer.mobile, checklistText, productTitle);
+                          } catch (error) {
+                            toast({
+                              title: "Error",
+                              description: "Failed to open WhatsApp",
+                              variant: "destructive",
+                            });
+                          }
+                        }}
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent><p>Share via WhatsApp</p></TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="h-8 px-2"
+                        onClick={() => {
+                          const categories = getDocumentCategories();
+                          const checklist = formatChecklistForSharing(categories);
                           navigator.clipboard.writeText(checklist);
+                          toast({
+                            title: "Copied to Clipboard",
+                            description: "Document checklist has been copied",
+                          });
                         }}
                       >
                         <ClipboardList className="h-4 w-4" />
