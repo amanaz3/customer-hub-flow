@@ -29,7 +29,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 }) => {
   const { toast } = useToast();
   const [internalCollapsed, setInternalCollapsed] = React.useState(true);
-  const [activeTab, setActiveTab] = useState<string>('events');
+  const [activeTab, setActiveTab] = useState<string>('documents');
   const [hasAutoExpanded, setHasAutoExpanded] = React.useState(false);
   const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed;
 
