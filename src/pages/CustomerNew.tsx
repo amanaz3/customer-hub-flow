@@ -24,6 +24,7 @@ const CustomerNew = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [internalCustomerId, setInternalCustomerId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(true);
+  const [hasProgressedPastStep1, setHasProgressedPastStep1] = useState<boolean>(false);
 
   // Track when product is selected and expand sidebar (only in new customer flow)
   React.useEffect(() => {
@@ -33,12 +34,20 @@ const CustomerNew = () => {
     }
   }, [selectedProduct, companyMode, currentStep]);
 
-  // Auto-expand sidebar for existing customer when customer is selected (step 1)
+  // Track if user has progressed past step 1
   React.useEffect(() => {
-    if (companyMode && selectedCustomerId && currentStep === 1) {
+    if (currentStep >= 2) {
+      setHasProgressedPastStep1(true);
+    }
+  }, [currentStep]);
+
+  // Auto-expand sidebar for existing customer when customer is selected (step 1)
+  // But only on initial selection, not when navigating back
+  React.useEffect(() => {
+    if (companyMode && selectedCustomerId && currentStep === 1 && !hasProgressedPastStep1) {
       setSidebarCollapsed(false);
     }
-  }, [companyMode, selectedCustomerId, currentStep]);
+  }, [companyMode, selectedCustomerId, currentStep, hasProgressedPastStep1]);
 
   // Auto-expand sidebar for existing customer in step 2 when product is selected, collapse in step 3+
   React.useEffect(() => {
