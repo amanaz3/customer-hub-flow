@@ -822,8 +822,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       if (error) throw error;
 
       toast({
-        title: "Draft Saved",
-        description: `Draft saved at Step ${currentStep} with reference #${nextRefNumber}`,
+        title: "✅ Draft Saved Successfully",
+        description: `Application draft saved at Step ${currentStep} • Reference #${nextRefNumber}`,
+        className: "bg-gradient-to-r from-green-50 to-emerald-50 border-green-200",
       });
 
       form.reset();
