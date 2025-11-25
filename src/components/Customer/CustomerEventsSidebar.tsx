@@ -671,42 +671,54 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
         {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
       </Button>
 
-      {/* Collapsed State - Shows icons vertically */}
+      {/* Collapsed State - Animated indicator */}
       {isCollapsed && (
-        <div className="flex flex-col items-center py-3 gap-3">
+        <div className="flex flex-col items-center py-4 gap-3">
+          {/* Events indicator - only for existing customer */}
+          {isExistingCustomer && (
+            <div 
+              className={cn(
+                "flex flex-col items-center gap-1.5 cursor-pointer hover:bg-muted/50 transition-colors p-1.5 rounded-lg",
+                activeTab === 'events' && "bg-muted"
+              )}
+              onClick={() => toggleCollapsed('events')}
+              title="View Events"
+            >
+              <User className="h-5 w-5 text-muted-foreground" />
+              <Badge variant="secondary" className="writing-mode-vertical text-[9px] px-0.5 py-1.5 font-medium">Events</Badge>
+            </div>
+          )}
+          
+          {/* Documents indicator with pulse animation */}
           <div 
-            className={cn(
-              "flex flex-col items-center gap-1.5 cursor-pointer hover:bg-muted/50 transition-colors p-1.5 rounded-lg",
-              activeTab === 'events' && "bg-muted"
-            )}
-            onClick={() => {
-              if (isCollapsed) {
-                toggleCollapsed('events');
-              } else {
-                setActiveTab('events');
-              }
-            }}
-            title="View Events"
+            className="flex flex-col items-center gap-3 cursor-pointer"
+            onClick={() => toggleCollapsed('documents')}
+            title="View Required Documents"
           >
-            <User className="h-5 w-5 text-muted-foreground" />
-            <Badge variant="secondary" className="writing-mode-vertical text-[9px] px-0.5 py-1.5 font-medium">Events</Badge>
-          </div>
-          <div 
-            className={cn(
-              "flex flex-col items-center gap-1.5 pt-3 border-t border-border/50 w-10 cursor-pointer hover:bg-muted/50 transition-colors p-1.5 rounded-lg",
-              activeTab === 'documents' && "bg-muted"
-            )}
-            onClick={() => {
-              if (isCollapsed) {
-                toggleCollapsed('documents');
-              } else {
-                setActiveTab('documents');
-              }
-            }}
-            title="View Documents"
-          >
-            <FileText className="h-5 w-5 text-muted-foreground" />
-            <Badge variant="secondary" className="writing-mode-vertical text-[9px] px-0.5 py-1.5 font-medium">Docs</Badge>
+            <div className="relative">
+              <FileText className="h-6 w-6 text-primary" />
+              {/* Pulsing glow effect behind icon */}
+              <div className="absolute inset-0 bg-primary/30 rounded-full blur-md animate-pulse" />
+            </div>
+            
+            {/* Document count badge with pulse animation */}
+            <div className="relative">
+              <Badge 
+                className="bg-primary text-primary-foreground font-bold text-sm px-2.5 py-1 animate-pulse shadow-lg"
+              >
+                {documentCategories.reduce((sum, cat) => sum + cat.count, 0)}
+              </Badge>
+              {/* Glow ring effect */}
+              <div className="absolute -inset-1 bg-primary/20 rounded-full blur-sm animate-pulse" />
+            </div>
+            
+            {/* Vertical text indicator */}
+            <span 
+              className="text-[10px] font-medium text-primary tracking-wider uppercase"
+              style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+            >
+              DOCS
+            </span>
           </div>
         </div>
       )}
