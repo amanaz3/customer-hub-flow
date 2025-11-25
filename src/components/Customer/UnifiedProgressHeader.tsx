@@ -50,16 +50,16 @@ export const UnifiedProgressHeader = ({
   }, []);
 
   return (
-    <div ref={containerRef} className="sticky top-0 left-0 right-0 bg-white z-[100]">
+    <div ref={containerRef} className="sticky top-0 left-0 right-0 bg-card/95 backdrop-blur-xl z-[100] border-b border-border/30 shadow-sm">
       <div className="w-full max-w-2xl mx-auto">
-        <div className="px-4 sm:px-6 py-4 bg-white border border-b-0 border-border rounded-t-lg shadow-sm">
+        <div className="px-4 sm:px-6 py-5 bg-gradient-to-b from-muted/20 to-transparent rounded-t-2xl">
         {/* Unified Container with consistent styling */}
         <div className="flex flex-col items-center gap-4">
           {/* Customer Type Selector */}
           <div className="w-full max-w-2xl">
             <div className="text-center mb-3">
-              <h3 className="text-sm font-semibold text-foreground">Customer Selection</h3>
-              <p className="text-xs text-muted-foreground mt-1">Choose whether to create a new customer or select an existing one</p>
+              <h3 className="text-base font-semibold text-foreground tracking-tight">Customer Selection</h3>
+              <p className="text-sm text-muted-foreground/80 mt-1.5 font-medium">Choose whether to create a new customer or select an existing one</p>
             </div>
             <CustomerTypeSelector
               value={customerType}
@@ -69,9 +69,9 @@ export const UnifiedProgressHeader = ({
 
           {/* Progress Bar */}
           <div className="w-full max-w-2xl">
-            <div className="h-1 bg-muted rounded-full overflow-hidden">
+            <div className="h-1.5 bg-muted/40 rounded-full overflow-hidden shadow-inner">
               <div 
-                className="h-full bg-primary transition-all duration-500 ease-out"
+                className="h-full bg-gradient-to-r from-primary via-primary to-primary/80 transition-all duration-500 ease-out shadow-sm"
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>
@@ -103,17 +103,18 @@ export const UnifiedProgressHeader = ({
                     ? 'polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 50%)'
                     : 'polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%)',
                   backgroundColor: step < currentStep 
-                    ? 'hsl(142 76% 36%)' // green for completed steps
+                    ? 'hsl(var(--success))' // green for completed steps
                     : step === currentStep 
                     ? 'hsl(var(--primary))' 
-                    : 'hsl(var(--muted))'
+                    : 'hsl(var(--muted))',
+                  boxShadow: step === currentStep ? '0 4px 8px -2px hsl(var(--primary) / 0.3)' : 'none'
                 }}
               >
                 <div className={cn(
-                  "flex items-center justify-center w-5 h-5 rounded-full text-xs font-semibold",
-                  step < currentStep && "bg-white text-green-700",
+                  "flex items-center justify-center w-5 h-5 rounded-full text-xs font-semibold shadow-sm",
+                  step < currentStep && "bg-success-foreground text-success",
                   step === currentStep && "bg-primary-foreground text-primary",
-                  step > currentStep && "bg-background text-muted-foreground"
+                  step > currentStep && "bg-muted text-muted-foreground"
                 )}>
                   {step < currentStep ? (
                     <Check className="h-3 w-3" />
