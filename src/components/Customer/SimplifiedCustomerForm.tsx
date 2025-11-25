@@ -1247,7 +1247,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                         onMobileChange?.(formattedValue);
                                       }}
                                       placeholder="501234567"
-                                      className="h-10 text-sm pl-14"
+                                      className="h-10 text-sm pl-16"
                                       maxLength={9}
                                     />
                                   </div>
