@@ -135,6 +135,8 @@ const CustomerNew = () => {
   return (
     <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 bg-gradient-to-br from-background via-background to-muted/30">
       <div className="w-full max-w-[95%] lg:max-w-[90%] xl:max-w-[85%] 2xl:max-w-[80%] px-4 sm:px-6">
+        {/* Outer Card Container */}
+        <div className="w-full bg-card/60 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/40 p-6 sm:p-8 lg:p-10 animate-fade-in">
         <div className="w-full flex justify-center">
           <div className="w-full max-w-4xl">
             {/* Simplified Form with Dynamic Service Configuration in Step 3 */}
@@ -154,6 +156,7 @@ const CustomerNew = () => {
               onCancel={() => navigate('/customers')}
             />
           </div>
+        </div>
         </div>
       
       {/* Sticky Sidebar - Show when customer is selected OR in step 2+ for new customer */}
@@ -181,7 +184,8 @@ const CustomerNew = () => {
       )}
 
         {/* Mobile Notice for Required Documents */}
-        <div className="lg:hidden mt-8 bg-card/60 backdrop-blur-xl border border-border/40 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+        <div className="lg:hidden mt-8">
+          <div className="bg-gradient-to-br from-primary/5 via-primary/3 to-transparent backdrop-blur-sm border border-primary/20 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
           <div className="flex items-start gap-3">
             <span className="text-2xl">📋</span>
             <div>
@@ -190,6 +194,7 @@ const CustomerNew = () => {
                 After submitting this application, you'll receive an email with a detailed list of required documents specific to your selected service.
               </p>
             </div>
+          </div>
           </div>
         </div>
       </div>
