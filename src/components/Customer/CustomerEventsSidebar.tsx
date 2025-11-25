@@ -727,49 +727,51 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             </div>
           )}
           
-          {/* Documents indicator with pulse animation */}
-          <div 
-            className="flex flex-col items-center gap-3 cursor-pointer"
-            onClick={() => toggleCollapsed('documents')}
-            title="View Required Documents"
-          >
-            <div className="relative">
-              <FileText className="h-6 w-6 text-primary" />
-              {/* Pulsing glow effect behind icon */}
-              <div className="absolute inset-0 bg-primary/30 rounded-full blur-md animate-pulse" />
-            </div>
-            
-            {/* Document count badge with pulse animation and sparkles */}
-            <div className="relative">
-              {/* Sparkle effects around badge */}
-              <div className="absolute -inset-3 pointer-events-none">
-                <span className="absolute top-0 left-1/2 -translate-x-1/2 text-yellow-400 animate-twinkle" style={{ animationDelay: '0s' }}>✦</span>
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-yellow-300 animate-twinkle" style={{ animationDelay: '0.3s' }}>✦</span>
-                <span className="absolute left-0 top-1/2 -translate-y-1/2 text-amber-400 animate-twinkle" style={{ animationDelay: '0.5s' }}>✧</span>
-                <span className="absolute right-0 top-1/2 -translate-y-1/2 text-yellow-400 animate-twinkle" style={{ animationDelay: '0.7s' }}>✧</span>
-                <span className="absolute top-0 left-0 text-amber-300 animate-sparkle text-xs" style={{ animationDelay: '0.2s' }}>★</span>
-                <span className="absolute top-0 right-0 text-yellow-300 animate-sparkle text-xs" style={{ animationDelay: '0.6s' }}>★</span>
-                <span className="absolute bottom-0 left-0 text-yellow-400 animate-sparkle text-xs" style={{ animationDelay: '0.9s' }}>★</span>
-                <span className="absolute bottom-0 right-0 text-amber-400 animate-sparkle text-xs" style={{ animationDelay: '1.2s' }}>★</span>
+          {/* Documents indicator with pulse animation - only show when documents exist */}
+          {documentCategories.reduce((sum, cat) => sum + cat.count, 0) > 0 && (
+            <div 
+              className="flex flex-col items-center gap-3 cursor-pointer"
+              onClick={() => toggleCollapsed('documents')}
+              title="View Required Documents"
+            >
+              <div className="relative">
+                <FileText className="h-6 w-6 text-primary" />
+                {/* Pulsing glow effect behind icon */}
+                <div className="absolute inset-0 bg-primary/30 rounded-full blur-md animate-pulse" />
               </div>
               
-              <Badge 
-                className="bg-primary text-primary-foreground font-bold text-sm px-2.5 py-1 animate-pulse shadow-lg relative z-10"
+              {/* Document count badge with pulse animation and sparkles */}
+              <div className="relative">
+                {/* Sparkle effects around badge */}
+                <div className="absolute -inset-3 pointer-events-none">
+                  <span className="absolute top-0 left-1/2 -translate-x-1/2 text-yellow-400 animate-twinkle" style={{ animationDelay: '0s' }}>✦</span>
+                  <span className="absolute bottom-0 left-1/2 -translate-x-1/2 text-yellow-300 animate-twinkle" style={{ animationDelay: '0.3s' }}>✦</span>
+                  <span className="absolute left-0 top-1/2 -translate-y-1/2 text-amber-400 animate-twinkle" style={{ animationDelay: '0.5s' }}>✧</span>
+                  <span className="absolute right-0 top-1/2 -translate-y-1/2 text-yellow-400 animate-twinkle" style={{ animationDelay: '0.7s' }}>✧</span>
+                  <span className="absolute top-0 left-0 text-amber-300 animate-sparkle text-xs" style={{ animationDelay: '0.2s' }}>★</span>
+                  <span className="absolute top-0 right-0 text-yellow-300 animate-sparkle text-xs" style={{ animationDelay: '0.6s' }}>★</span>
+                  <span className="absolute bottom-0 left-0 text-yellow-400 animate-sparkle text-xs" style={{ animationDelay: '0.9s' }}>★</span>
+                  <span className="absolute bottom-0 right-0 text-amber-400 animate-sparkle text-xs" style={{ animationDelay: '1.2s' }}>★</span>
+                </div>
+                
+                <Badge 
+                  className="bg-primary text-primary-foreground font-bold text-sm px-2.5 py-1 animate-pulse shadow-lg relative z-10"
+                >
+                  {documentCategories.reduce((sum, cat) => sum + cat.count, 0)}
+                </Badge>
+                {/* Glow ring effect */}
+                <div className="absolute -inset-1 bg-primary/20 rounded-full blur-sm animate-pulse" />
+              </div>
+              
+              {/* Vertical text indicator */}
+              <span 
+                className="text-[10px] font-medium text-primary tracking-wider uppercase"
+                style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
               >
-                {documentCategories.reduce((sum, cat) => sum + cat.count, 0)}
-              </Badge>
-              {/* Glow ring effect */}
-              <div className="absolute -inset-1 bg-primary/20 rounded-full blur-sm animate-pulse" />
+                DOCS
+              </span>
             </div>
-            
-            {/* Vertical text indicator */}
-            <span 
-              className="text-[10px] font-medium text-primary tracking-wider uppercase"
-              style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
-            >
-              DOCS
-            </span>
-          </div>
+          )}
         </div>
       )}
 
