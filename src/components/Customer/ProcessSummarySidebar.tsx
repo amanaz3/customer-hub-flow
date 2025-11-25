@@ -111,7 +111,7 @@ export const ProcessSummarySidebar = ({
         size="sm"
         onClick={handleToggle}
         className={cn(
-          "fixed top-4 h-16 w-10 rounded-r-lg rounded-l-none border border-l-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[10000]",
+          "fixed top-4 h-16 w-10 rounded-r-lg rounded-l-none border border-l-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100002]",
           isCollapsed ? 'left-12' : 'left-80'
         )}
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
