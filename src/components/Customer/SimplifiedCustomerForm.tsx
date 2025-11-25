@@ -1091,7 +1091,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             <CardContent className="p-5 sm:p-7 space-y-4 overflow-visible bg-gradient-to-b from-transparent to-slate-50/30 relative">
               {/* Customer Information Summary Accordion - Show after step 1 */}
               {currentStep > 1 && form.watch('name') && (
-                <div className="sticky z-[90] bg-white/95 backdrop-blur-xl -mx-5 sm:-mx-7 px-5 sm:px-7 pt-0 pb-1 mb-1 border-b border-slate-200/50 shadow-sm" style={{ top: 'var(--unified-header-h, 160px)' }}>
+                <div className="sticky z-[90] bg-white/95 backdrop-blur-xl -mx-5 sm:-mx-7 px-5 sm:px-7 pt-0 pb-0 mb-0 border-b border-slate-200/50 shadow-sm" style={{ top: 'var(--unified-header-h, 160px)' }}>
                   <div className="flex justify-center">
                   <Accordion 
                     type="single" 
@@ -1365,7 +1365,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Step 2: Service Selection */}
               {currentStep === 2 && (
                 <div key="step-2" className="animate-fade-in">
-                  <CardHeader className="pt-1 pb-2 px-3 sm:px-4">
+                  <CardHeader className="pt-0 pb-2 px-3 sm:px-4">
                     <CardTitle className="text-lg">Service Selection</CardTitle>
                     <CardDescription className="text-xs">
                       Choose the service you need and provide the required details.
