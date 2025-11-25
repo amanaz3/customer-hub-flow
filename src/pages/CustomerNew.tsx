@@ -188,7 +188,13 @@ const CustomerNew = () => {
             onCollapsedChange={setSidebarCollapsed}
             productType={getProductType()}
             isExistingCustomer={companyMode}
-            defaultTab={companyMode && currentStep >= 2 && selectedProduct ? 'documents' : undefined}
+            defaultTab={
+              companyMode && currentStep >= 2 && selectedProduct 
+                ? 'documents' 
+                : (!companyMode && currentStep === 2 && selectedProduct && shouldShowSidebarInStep2)
+                ? 'documents'
+                : undefined
+            }
             newCustomerData={{
               email: customerEmail,
               name: customerName,
