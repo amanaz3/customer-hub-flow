@@ -79,16 +79,12 @@ const CustomerNew = () => {
   }, [currentStep]);
 
   // Auto-expand sidebar for existing customer when customer is selected (step 1)
-  // Expand on initial selection AND when navigating back from step 2 to step 1
+  // Expand whenever a customer is selected in step 1, including new selections from search
   React.useEffect(() => {
-    const isBackTransitionToStep1 = currentStep === 1 && previousStep === 2;
     if (companyMode && selectedCustomerId && currentStep === 1) {
-      // Expand sidebar on initial selection OR back navigation from step 2
-      if (!hasProgressedPastStep1 || isBackTransitionToStep1) {
-        setSidebarCollapsed(false);
-      }
+      setSidebarCollapsed(false);
     }
-  }, [companyMode, selectedCustomerId, currentStep, hasProgressedPastStep1, previousStep]);
+  }, [companyMode, selectedCustomerId, currentStep]);
 
   // Auto-expand sidebar for existing customer in step 2 when product is selected
   React.useEffect(() => {
@@ -190,9 +186,9 @@ const CustomerNew = () => {
         </div>
         </div>
       
-      {/* Sticky Sidebar - Show from step 2 onwards when product is selected */}
+      {/* Sticky Sidebar - Show for existing customer in step 1+, new customer from step 2+ */}
       {(
-        (companyMode && selectedCustomerId && currentStep >= 2) || // Existing customer: show from step 2 onwards
+        (companyMode && selectedCustomerId && currentStep >= 1) || // Existing customer: show from step 1 when customer selected
         (!companyMode && currentStep >= 2 && selectedProduct && shouldShowSidebarInStep2) // New customer: show from step 2 onwards
       ) && (
         <div className="hidden lg:block">
