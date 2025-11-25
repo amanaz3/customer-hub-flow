@@ -189,7 +189,8 @@ const CustomerNew = () => {
       {/* Sticky Sidebar - Show from step 2 onwards when product is selected */}
       {(
         (companyMode && selectedCustomerId && currentStep >= 2) || // Existing customer: show from step 2 onwards
-        (!companyMode && currentStep >= 2 && selectedProduct && shouldShowSidebarInStep2) // New customer: show from step 2 onwards
+        (!companyMode && currentStep >= 3 && selectedProduct) || // New customer steps 3-4: always show if product selected
+        (!companyMode && currentStep === 2 && selectedProduct && shouldShowSidebarInStep2) // New customer step 2: respect user preference
       ) && (
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
