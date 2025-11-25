@@ -13,6 +13,7 @@ const CustomerNew = () => {
   // Track form state for sidebar
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
   const [currentStep, setCurrentStep] = useState<number>(1);
+  const [previousStep, setPreviousStep] = useState<number>(1);
   const [customerEmail, setCustomerEmail] = useState<string>('');
   const [customerName, setCustomerName] = useState<string>('');
   const [customerMobile, setCustomerMobile] = useState<string>('');
@@ -26,12 +27,14 @@ const CustomerNew = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(true);
   const [hasProgressedPastStep1, setHasProgressedPastStep1] = useState<boolean>(false);
 
-  // Track when product is selected and expand sidebar (only in new customer flow)
+  // Track when product is selected and expand sidebar (only in new customer flow and only when moving forward)
   React.useEffect(() => {
-    if (selectedProduct && !companyMode && currentStep === 2) {
+    const movingForward = currentStep > previousStep;
+    if (selectedProduct && !companyMode && currentStep === 2 && movingForward) {
       setHasSelectedProduct(true);
       setSidebarCollapsed(false);
     }
+    setPreviousStep(currentStep);
   }, [selectedProduct, companyMode, currentStep]);
 
   // Track if user has progressed past step 1
@@ -68,14 +71,17 @@ const CustomerNew = () => {
   }, [selectedProduct]);
 
   // Keep sidebar collapsed in step 1 for new customer only
-  // In step 2, show sidebar ONLY when product is selected
+  // In step 2, show sidebar ONLY when product is selected AND moving forward
   // In step 3+, keep sidebar collapsed
+  // When navigating backwards, collapse sidebar
   React.useEffect(() => {
+    const movingBackward = currentStep < previousStep;
+    
     if (currentStep === 1 && !companyMode) {
       setSidebarCollapsed(true);
     } else if (currentStep === 2 && !companyMode) {
-      // Show ONLY if product is selected
-      if (selectedProduct) {
+      // Show ONLY if product is selected AND not moving backward
+      if (selectedProduct && !movingBackward) {
         setSidebarCollapsed(false);
       } else {
         setSidebarCollapsed(true);
@@ -84,7 +90,12 @@ const CustomerNew = () => {
       // Collapse in step 3 and beyond for new customers
       setSidebarCollapsed(true);
     }
-  }, [currentStep, companyMode, selectedProduct]);
+    
+    // Collapse when moving backward
+    if (movingBackward && !companyMode) {
+      setSidebarCollapsed(true);
+    }
+  }, [currentStep, companyMode, selectedProduct, previousStep]);
 
   // Collapse sidebar and clear customer selection when switching between new/existing customer
   const handleModeChange = (newMode: boolean) => {
