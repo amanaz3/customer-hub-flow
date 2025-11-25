@@ -1052,37 +1052,38 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   ];
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
+      {/* Unified Progress Header - Outside form for proper sticky behavior */}
+      <UnifiedProgressHeader
+        currentStep={currentStep}
+        totalSteps={4}
+        customerName={form.watch('name')}
+        customerEmail={form.watch('email')}
+        customerMobile={form.watch('mobile')}
+        selectedProduct={products?.find(p => p.id === form.watch('product_id'))?.name}
+        customerType={companyMode ? 'existing' : 'new'}
+        onCustomerTypeChange={(value) => {
+          // Check if user is past step 1 and trying to switch customer type
+          if (currentStep > 1) {
+            setPendingMode(value);
+            setShowModeChangeWarning(true);
+            return;
+          }
+          
+          // Proceed with change if on step 1
+          const newMode = value === 'existing';
+          onModeChange?.(newMode);
+          if (!newMode) {
+            onCustomerSelect?.(null);
+          }
+        }}
+      />
+
       <Form {...form}>
           <form 
             onSubmit={form.handleSubmit(onSubmit)} 
             className="w-full"
           >
-            {/* Unified Progress Header */}
-            <UnifiedProgressHeader
-              currentStep={currentStep}
-              totalSteps={4}
-              customerName={form.watch('name')}
-              customerEmail={form.watch('email')}
-              customerMobile={form.watch('mobile')}
-              selectedProduct={products?.find(p => p.id === form.watch('product_id'))?.name}
-              customerType={companyMode ? 'existing' : 'new'}
-              onCustomerTypeChange={(value) => {
-                // Check if user is past step 1 and trying to switch customer type
-                if (currentStep > 1) {
-                  setPendingMode(value);
-                  setShowModeChangeWarning(true);
-                  return;
-                }
-                
-                // Proceed with change if on step 1
-                const newMode = value === 'existing';
-                onModeChange?.(newMode);
-                if (!newMode) {
-                  onCustomerSelect?.(null);
-                }
-              }}
-            />
 
             <Card 
               className="-mt-px border-t-0 border-x border-b border-slate-200 bg-white shadow-lg hover:shadow-xl transition-all duration-300 ease-out rounded-t-none rounded-b-2xl max-w-2xl mx-auto overflow-visible relative"
