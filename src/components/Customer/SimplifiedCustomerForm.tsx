@@ -1160,7 +1160,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 <div key="step-1" className="animate-fade-in">
                   {/* Show selected customer - Accordion */}
                   {companyMode && selectedCustomerData && (
-                    <div className="px-3 sm:px-4 pb-2 mb-3">
+                    <div className="px-3 sm:px-4 pb-1 mb-1">
                       {renderCustomerAccordion()}
                     </div>
                   )}
