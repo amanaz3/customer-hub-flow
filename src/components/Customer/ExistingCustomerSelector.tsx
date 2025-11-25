@@ -23,6 +23,15 @@ export const ExistingCustomerSelector = ({
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [open, setOpen] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-focus the search input when component mounts (tab switches)
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      inputRef.current?.focus();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -81,11 +90,11 @@ export const ExistingCustomerSelector = ({
           <div className="relative">
             <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
             <Input
+              ref={inputRef}
               placeholder="Start typing customer name, company, or email..."
               value={searchTerm}
               onChange={handleInputChange}
               className="pl-12 pr-12 h-12 text-base font-medium bg-white border-slate-200 focus-visible:border-primary/50"
-              autoFocus
             />
             {loading && hasQuery && (
               <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-primary" />
