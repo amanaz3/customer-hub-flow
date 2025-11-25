@@ -1085,12 +1085,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             />
 
             <Card 
-              className="-mt-px border-t-0 border-x border-b border-slate-200 bg-white shadow-lg hover:shadow-xl transition-all duration-300 ease-out rounded-t-none rounded-b-2xl max-w-2xl mx-auto overflow-visible"
+              className="-mt-px border-t-0 border-x border-b border-slate-200 bg-white shadow-lg hover:shadow-xl transition-all duration-300 ease-out rounded-t-none rounded-b-2xl max-w-2xl mx-auto overflow-visible relative"
             >
-            <CardContent className="p-5 sm:p-7 space-y-4 overflow-visible bg-gradient-to-b from-transparent to-slate-50/30">
+            <CardContent className="p-5 sm:p-7 space-y-4 overflow-visible bg-gradient-to-b from-transparent to-slate-50/30 relative">
               {/* Customer Information Summary Accordion - Show after step 1 */}
               {currentStep > 1 && form.watch('name') && (
-                <div className="sticky z-20 bg-white/95 backdrop-blur-xl -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 pb-3 mb-4 border-b border-slate-200/50 shadow-sm" style={{ top: 'var(--unified-header-h, 160px)' }}>
+                <div className="sticky z-[90] bg-white/95 backdrop-blur-xl -mx-5 sm:-mx-7 px-5 sm:px-7 pt-3 pb-3 mb-4 border-b border-slate-200/50 shadow-sm" style={{ top: 'var(--unified-header-h, 160px)' }}>
                   <div className="flex justify-center">
                   <Accordion 
                     type="single" 
