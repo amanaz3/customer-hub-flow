@@ -35,19 +35,7 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
   const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed;
   const { toast } = useToast();
 
-  // Auto-expand sidebar when productType is selected
-  React.useEffect(() => {
-    if (productType) {
-      // Auto-expand sidebar when product is selected
-      if (isCollapsed) {
-        if (collapsed !== undefined) {
-          onCollapsedChange?.(false);
-        } else {
-          setInternalCollapsed(false);
-        }
-      }
-    }
-  }, [productType]);
+  // No auto-expand - sidebar stays collapsed with indicator badge
 
   const toggleCollapsed = () => {
     const newValue = !isCollapsed;
@@ -355,11 +343,33 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
         {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
       </Button>
 
-      {/* Collapsed State */}
+      {/* Collapsed State - Animated indicator */}
       {isCollapsed && (
-        <div className="flex flex-col items-center py-4 gap-4">
-          <FileText className="h-6 w-6 text-muted-foreground" />
-          <Badge className="writing-mode-vertical">{totalDocs}</Badge>
+        <div className="flex flex-col items-center py-4 gap-3 cursor-pointer" onClick={toggleCollapsed}>
+          <div className="relative">
+            <FileText className="h-6 w-6 text-primary" />
+            {/* Pulsing glow effect behind icon */}
+            <div className="absolute inset-0 bg-primary/30 rounded-full blur-md animate-pulse" />
+          </div>
+          
+          {/* Document count badge with pulse animation */}
+          <div className="relative">
+            <Badge 
+              className="bg-primary text-primary-foreground font-bold text-sm px-2.5 py-1 animate-pulse shadow-lg"
+            >
+              {totalDocs}
+            </Badge>
+            {/* Glow ring effect */}
+            <div className="absolute -inset-1 bg-primary/20 rounded-full blur-sm animate-pulse" />
+          </div>
+          
+          {/* Vertical text indicator */}
+          <span 
+            className="text-[10px] font-medium text-primary tracking-wider uppercase"
+            style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+          >
+            DOCS
+          </span>
         </div>
       )}
 
