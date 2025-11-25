@@ -1227,7 +1227,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                 <FormLabel className="text-xs font-medium">Mobile (UAE) *</FormLabel>
                                 <FormControl>
                                   <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-foreground pointer-events-none">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-primary pointer-events-none">
                                       +971
                                     </span>
                                      <Input 
