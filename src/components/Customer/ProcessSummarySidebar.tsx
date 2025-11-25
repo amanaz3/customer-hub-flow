@@ -123,7 +123,7 @@ export const ProcessSummarySidebar = ({
 
       {/* Collapsed State */}
       {isCollapsed && (
-        <div className="flex flex-col items-center py-4 gap-4 h-full bg-card border-r border-border">
+        <div className="flex flex-col items-center py-4 gap-4 h-full bg-white border-r border-border">
           <FileText className="h-6 w-6 text-muted-foreground" />
           <Badge className="writing-mode-vertical text-xs">Process</Badge>
         </div>
@@ -132,9 +132,9 @@ export const ProcessSummarySidebar = ({
       {/* Sidebar Content */}
       {!isCollapsed && (
       <div 
-        className="h-full overflow-auto py-4 px-3 bg-background border-r border-border shadow-xl transition-all duration-300"
+        className="h-full overflow-auto py-4 px-3 bg-white border-r border-border shadow-xl transition-all duration-300"
       >
-        <Card className="border-border bg-card/50">
+        <Card className="border-border bg-white/50">
         <CardHeader className="pb-3">
           <CardTitle className="text-sm font-semibold">Process Summary</CardTitle>
           <p className="text-xs text-muted-foreground mt-1">
@@ -164,8 +164,8 @@ export const ProcessSummarySidebar = ({
                       step.completed
                         ? 'bg-primary border-primary'
                         : step.active
-                        ? 'bg-background border-primary'
-                        : 'bg-background border-border'
+                        ? 'bg-white border-primary'
+                        : 'bg-white border-border'
                     }`}
                   >
                     {step.completed ? (

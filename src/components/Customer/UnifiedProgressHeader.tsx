@@ -50,9 +50,9 @@ export const UnifiedProgressHeader = ({
   }, []);
 
   return (
-    <div ref={containerRef} className="sticky top-0 left-0 right-0 bg-background">
+    <div ref={containerRef} className="sticky top-0 left-0 right-0 bg-white z-[100]">
       <div className="w-full max-w-2xl mx-auto">
-        <div className="px-4 sm:px-6 py-4 bg-card border border-b-0 border-border rounded-t-lg shadow-sm">
+        <div className="px-4 sm:px-6 py-4 bg-white border border-b-0 border-border rounded-t-lg shadow-sm">
         {/* Unified Container with consistent styling */}
         <div className="flex flex-col items-center gap-4">
           {/* Customer Type Selector */}

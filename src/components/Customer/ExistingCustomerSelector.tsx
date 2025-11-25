@@ -79,7 +79,7 @@ export const ExistingCustomerSelector = ({
             placeholder="Start typing customer name, company, or email..."
             value={searchTerm}
             onChange={handleInputChange}
-            className="pl-12 pr-12 h-14 text-base font-medium bg-background"
+            className="pl-12 pr-12 h-14 text-base font-medium bg-white"
             autoFocus
           />
           {loading && hasQuery && (
