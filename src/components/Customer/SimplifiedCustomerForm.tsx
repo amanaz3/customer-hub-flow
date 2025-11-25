@@ -152,6 +152,7 @@ interface SimplifiedCustomerFormProps {
   onCustomerSelect?: (customerId: string | null) => void;
   onStepChange?: (step: number) => void;
   onCustomerIdChange?: (customerId: string | null) => void;
+  onLeftSidebarCollapsedChange?: (collapsed: boolean) => void;
 }
 
 const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
@@ -168,6 +169,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   onCancel,
   onStepChange,
   onCustomerIdChange,
+  onLeftSidebarCollapsedChange,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -195,6 +197,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       setProcessSidebarCollapsed(true);
     }
   }, [currentStep]);
+
+  // Notify parent when process sidebar collapse state changes
+  useEffect(() => {
+    onLeftSidebarCollapsedChange?.(processSidebarCollapsed);
+  }, [processSidebarCollapsed, onLeftSidebarCollapsedChange]);
 
   // Function to dock/collapse process sidebar
   const handleDockAllSidebars = () => {
@@ -1742,7 +1749,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             fieldLabelMap={fieldLabelMap}
             productName={selectedProductName}
             isCollapsed={processSidebarCollapsed}
-            onToggleCollapse={setProcessSidebarCollapsed}
+            onToggleCollapse={(collapsed) => {
+              setProcessSidebarCollapsed(collapsed);
+              onLeftSidebarCollapsedChange?.(collapsed);
+            }}
             selectedCustomerData={selectedCustomerData}
             companyMode={companyMode}
           />
