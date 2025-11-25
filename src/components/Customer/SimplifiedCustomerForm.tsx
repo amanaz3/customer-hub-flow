@@ -1679,7 +1679,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
       {/* Action Buttons Portal - Rendered in outer card container */}
       {typeof document !== 'undefined' && document.getElementById('customer-form-container') && createPortal(
-        <div className="absolute bottom-6 right-6 flex flex-col gap-2 z-50">
+        <div className="fixed bottom-6 right-6 flex flex-col gap-2 z-50">
           {/* Cancel Button */}
           <Button
             type="button"
