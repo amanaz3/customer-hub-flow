@@ -101,9 +101,10 @@ export const ProcessSummarySidebar = ({
 
   return (
     <div 
-      className={`fixed top-0 left-0 h-screen transition-all duration-300 ease-in-out z-[100001] ${
+      className={cn(
+        "fixed top-0 left-0 h-screen bg-card border-r shadow-lg transition-all duration-300 ease-in-out z-[100001]",
         isCollapsed ? 'w-12' : 'w-80'
-      }`}
+      )}
     >
       {/* Toggle Button - Always Visible */}
       <Button
@@ -125,7 +126,7 @@ export const ProcessSummarySidebar = ({
 
       {/* Collapsed State */}
       {isCollapsed && (
-        <div className="flex flex-col items-center py-4 gap-4 h-full bg-white/95 backdrop-blur-xl border-r border-slate-200/60 shadow-sm">
+        <div className="flex flex-col items-center py-4 gap-4">
           <FileText className="h-6 w-6 text-muted-foreground" />
           <Badge className="writing-mode-vertical text-xs bg-primary/10 text-primary border-primary/20">Process</Badge>
         </div>
@@ -134,7 +135,7 @@ export const ProcessSummarySidebar = ({
       {/* Sidebar Content */}
       {!isCollapsed && (
       <div 
-        className="h-full overflow-auto py-4 px-3 bg-gradient-to-b from-white via-slate-50/50 to-slate-100/30 backdrop-blur-xl border-r shadow-lg transition-all duration-300"
+        className="h-full overflow-auto py-4 px-3"
       >
         <Card className="border-slate-200/50 bg-white/70 backdrop-blur-sm shadow-sm">
         <CardHeader className="pb-3 space-y-1.5">
