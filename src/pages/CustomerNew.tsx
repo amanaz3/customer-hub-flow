@@ -133,34 +133,7 @@ const CustomerNew = () => {
   };
 
   return (
-    <div className="light w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 bg-white">
-      <style>{`
-        /* Force light mode for this page only */
-        .light, .light * {
-          color-scheme: light !important;
-        }
-        .light {
-          background: white !important;
-        }
-        .light * {
-          color: #1e293b !important;
-        }
-        .light input,
-        .light textarea,
-        .light select {
-          background: rgba(255, 255, 255, 0.8) !important;
-          color: #1e293b !important;
-          border-color: #cbd5e1 !important;
-        }
-        .light button {
-          background: rgba(255, 255, 255, 0.9) !important;
-          color: #1e293b !important;
-        }
-        .light [data-state="active"] {
-          background: white !important;
-          color: hsl(var(--primary)) !important;
-        }
-      `}</style>
+    <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 bg-white">
       <div className="w-full max-w-[95%] lg:max-w-[90%] xl:max-w-[85%] 2xl:max-w-[80%] px-4 sm:px-6">
         {/* Outer Card Container */}
         <div className="w-full bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200/60 p-6 sm:p-8 lg:p-10 animate-fade-in">
