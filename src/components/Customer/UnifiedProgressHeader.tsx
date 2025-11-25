@@ -50,7 +50,7 @@ export const UnifiedProgressHeader = ({
   }, []);
 
   return (
-    <div ref={containerRef} className="sticky top-14 sm:top-16 left-0 right-0 bg-white backdrop-blur-xl z-[100] border-b border-slate-200 shadow-sm">
+    <div ref={containerRef} className="sticky top-0 left-0 right-0 bg-white backdrop-blur-xl z-[100] border-b border-slate-200 shadow-sm">
       <div className="w-full max-w-2xl mx-auto">
         <div className="px-4 sm:px-6 py-5 bg-gradient-to-b from-slate-50 to-transparent rounded-t-2xl">
         {/* Unified Container with consistent styling */}
