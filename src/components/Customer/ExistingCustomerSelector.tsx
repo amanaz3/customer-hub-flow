@@ -1,9 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Building2, Mail, Phone, Check, Search, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { CustomerService } from '@/services/customerService';
 import type { Customer } from '@/types/customer';
 
@@ -21,6 +22,7 @@ export const ExistingCustomerSelector = ({
   const [customers, setCustomers] = useState<Partial<Customer>[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     const fetchCustomers = async () => {
@@ -63,46 +65,57 @@ export const ExistingCustomerSelector = ({
   };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+    const newValue = e.target.value;
+    setSearchTerm(newValue);
+    setOpen(newValue.trim().length >= 2);
     // Clear selection if user modifies the search
-    if (value && e.target.value !== selectedCustomer?.company && e.target.value !== selectedCustomer?.name) {
+    if (value && newValue !== selectedCustomer?.company && newValue !== selectedCustomer?.name) {
       onChange(null, null);
     }
   };
 
   return (
     <div className="space-y-4">
-      <div className="relative">
-        <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-          <Input
-            placeholder="Start typing customer name, company, or email..."
-            value={searchTerm}
-            onChange={handleInputChange}
-            className="pl-12 pr-12 h-12 text-base font-medium bg-white/80 backdrop-blur-sm border-slate-200/60 focus-visible:border-primary/50"
-            autoFocus
-          />
-          {loading && hasQuery && (
-            <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-primary" />
-          )}
-        </div>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <div className="relative">
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
+            <Input
+              placeholder="Start typing customer name, company, or email..."
+              value={searchTerm}
+              onChange={handleInputChange}
+              className="pl-12 pr-12 h-12 text-base font-medium bg-white border-slate-200 focus-visible:border-primary/50"
+              autoFocus
+            />
+            {loading && hasQuery && (
+              <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-primary" />
+            )}
+          </div>
+        </PopoverTrigger>
 
         {searchTerm.trim().length > 0 && searchTerm.trim().length < 2 && (
-          <p className="mt-2 text-xs text-muted-foreground">Type at least 2 characters to search</p>
+          <p className="mt-2 text-xs text-slate-600">Type at least 2 characters to search</p>
         )}
 
-        {/* Results dropdown - appears above input */}
-        {hasQuery && filteredCustomers.length > 0 && (
-          <div className="absolute z-[100000] w-full bottom-full mb-2 border border-slate-200/60 rounded-xl shadow-2xl bg-white backdrop-blur-xl">
+        <PopoverContent 
+          className="w-[600px] p-0 bg-white border-slate-200 shadow-2xl"
+          align="start"
+          side="top"
+          sideOffset={8}
+        >
+          {hasQuery && filteredCustomers.length > 0 && (
             <ScrollArea className="max-h-[400px]">
               <div className="p-2">
                 {filteredCustomers.map((customer) => (
                   <button
                     key={customer.id}
-                    onClick={() => handleSelect(customer.id)}
+                    onClick={() => {
+                      handleSelect(customer.id);
+                      setOpen(false);
+                    }}
                     className={cn(
-                      "w-full text-left p-4 rounded-md hover:bg-muted transition-colors",
-                      value === customer.id && "bg-muted"
+                      "w-full text-left p-4 rounded-md hover:bg-slate-100 transition-colors",
+                      value === customer.id && "bg-slate-100"
                     )}
                   >
                     <div className="flex items-start gap-3">
@@ -114,10 +127,10 @@ export const ExistingCustomerSelector = ({
                       />
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-2">
-                          <Building2 className="h-5 w-5 text-muted-foreground" />
-                          <span className="font-semibold text-base">{customer.company}</span>
+                          <Building2 className="h-5 w-5 text-slate-500" />
+                          <span className="font-semibold text-base text-slate-900">{customer.company}</span>
                         </div>
-                        <div className="flex items-center gap-3 text-sm text-muted-foreground">
+                        <div className="flex items-center gap-3 text-sm text-slate-600">
                           <span className="flex items-center gap-1.5">
                             <Mail className="h-4 w-4" />
                             {customer.email}
@@ -133,27 +146,22 @@ export const ExistingCustomerSelector = ({
                 ))}
               </div>
             </ScrollArea>
-          </div>
-        )}
+          )}
 
-        {/* No results message - appears above input */}
-        {hasQuery && filteredCustomers.length === 0 && !loading && (
-          <div className="absolute z-[100000] w-full bottom-full mb-2 p-4 border rounded-lg shadow-2xl bg-white backdrop-blur-sm text-center text-sm text-slate-600">
-            No customers found matching "{searchTerm}"
-          </div>
-        )}
-
-        {/* Loading state - appears above input */}
-        {loading && hasQuery && (
-          <div className="absolute z-[100000] w-full bottom-full mb-2 p-6 border rounded-lg shadow-2xl bg-white backdrop-blur-sm">
-            <div className="flex flex-col items-center justify-center gap-2">
-              <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              <p className="text-sm text-muted-foreground">Searching customers...</p>
+          {hasQuery && filteredCustomers.length === 0 && !loading && (
+            <div className="p-6 text-center text-sm text-slate-600">
+              No customers found matching "{searchTerm}"
             </div>
-          </div>
-        )}
-      </div>
+          )}
 
+          {loading && hasQuery && (
+            <div className="p-6 flex flex-col items-center justify-center gap-2">
+              <Loader2 className="h-6 w-6 animate-spin text-primary" />
+              <p className="text-sm text-slate-600">Searching customers...</p>
+            </div>
+          )}
+        </PopoverContent>
+      </Popover>
     </div>
   );
 };
