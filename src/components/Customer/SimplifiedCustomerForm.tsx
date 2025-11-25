@@ -1603,10 +1603,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           variant="outline"
           onClick={() => setShowCancelDialog(true)}
           disabled={isSubmitting}
-          className="h-9 w-9 rounded-full shadow-[0_2px_12px_rgba(239,68,68,0.15)] hover:shadow-[0_4px_20px_rgba(239,68,68,0.25)] transition-all duration-300 hover:scale-105 active:scale-95 border border-red-200/80 hover:border-red-400/80 bg-gradient-to-br from-white via-red-50/50 to-white backdrop-blur-sm hover:from-red-50 hover:via-red-100/50 hover:to-red-50 group relative overflow-hidden"
+          className="h-9 w-9 rounded-full shadow-[0_2px_12px_rgba(239,68,68,0.25)] hover:shadow-[0_4px_20px_rgba(239,68,68,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 border border-red-300 hover:border-red-400 bg-gradient-to-br from-red-50 via-red-100/80 to-red-50 backdrop-blur-sm hover:from-red-100 hover:via-red-200/80 hover:to-red-100 group relative overflow-hidden"
           title="Cancel and return"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-red-400/0 via-red-500/0 to-red-400/0 group-hover:from-red-400/10 group-hover:via-red-500/5 group-hover:to-red-400/10 transition-all duration-300" />
+          <div className="absolute inset-0 bg-gradient-to-br from-red-400/10 via-red-500/5 to-red-400/10 group-hover:from-red-400/20 group-hover:via-red-500/10 group-hover:to-red-400/20 transition-all duration-300" />
           <X className="h-3.5 w-3.5 text-red-600 group-hover:text-red-700 relative z-10 transition-colors duration-300" />
         </Button>
 
@@ -1622,11 +1622,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               onStepChange?.(prevStep);
             }}
             disabled={isSubmitting}
-            className="h-9 w-9 rounded-full shadow-[0_2px_12px_rgba(99,102,241,0.15)] hover:shadow-[0_4px_20px_rgba(99,102,241,0.25)] transition-all duration-300 hover:scale-105 active:scale-95 border border-primary/30 hover:border-primary/60 bg-gradient-to-br from-white via-primary/5 to-white backdrop-blur-sm hover:from-primary/10 hover:via-primary/20 hover:to-primary/10 group relative overflow-hidden"
+            className="h-9 w-9 rounded-full shadow-[0_2px_12px_rgba(234,179,8,0.25)] hover:shadow-[0_4px_20px_rgba(234,179,8,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 border border-yellow-300 hover:border-yellow-400 bg-gradient-to-br from-yellow-50 via-yellow-100/80 to-yellow-50 backdrop-blur-sm hover:from-yellow-100 hover:via-yellow-200/80 hover:to-yellow-100 group relative overflow-hidden"
             title="Previous Step"
           >
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/0 group-hover:from-primary/10 group-hover:via-primary/5 group-hover:to-primary/10 transition-all duration-300" />
-            <ArrowLeft className="h-3.5 w-3.5 text-primary group-hover:text-primary relative z-10 transition-all duration-300 group-hover:translate-x-[-1px]" />
+            <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/10 via-yellow-500/5 to-yellow-400/10 group-hover:from-yellow-400/20 group-hover:via-yellow-500/10 group-hover:to-yellow-400/20 transition-all duration-300" />
+            <ArrowLeft className="h-3.5 w-3.5 text-yellow-600 group-hover:text-yellow-700 relative z-10 transition-all duration-300 group-hover:translate-x-[-1px]" />
           </Button>
         )}
         
