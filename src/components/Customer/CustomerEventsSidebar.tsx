@@ -295,7 +295,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   if (customerLoading) {
     return (
       <div className={cn(
-        "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[100000]",
+        "fixed right-0 top-14 sm:top-16 h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-[100000]",
         isCollapsed ? "w-12" : "w-80"
       )}>
         <div className="space-y-4 p-4">
@@ -311,7 +311,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   if (customerId === 'temp' || !customer) {
     return (
       <div className={cn(
-        "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[100000] flex flex-col",
+        "fixed right-0 top-14 sm:top-16 h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-[100000] flex flex-col",
         isCollapsed ? "w-12" : "w-80"
       )}>
         {/* Toggle Button */}
@@ -319,7 +319,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
           variant="ghost"
           size="sm"
           className={cn(
-            "fixed top-4 h-16 w-10 rounded-l-lg rounded-r-none border border-r-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100001]",
+            "fixed top-20 sm:top-24 h-16 w-10 rounded-l-lg rounded-r-none border border-r-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100001]",
             isCollapsed ? "right-12" : "right-80"
           )}
           onClick={() => toggleCollapsed()}
@@ -582,7 +582,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 
   return (
     <div className={cn(
-      "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[100000] flex flex-col",
+      "fixed right-0 top-14 sm:top-16 h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] bg-card border-l shadow-lg transition-all duration-300 z-[100000] flex flex-col",
       isCollapsed ? "w-12" : "w-80"
     )}>
       {/* Toggle Button - Fixed positioning for better visibility */}
@@ -590,7 +590,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
         variant="ghost"
         size="sm"
         className={cn(
-          "fixed top-4 h-16 w-10 rounded-l-lg rounded-r-none border border-r-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100001]",
+          "fixed top-20 sm:top-24 h-16 w-10 rounded-l-lg rounded-r-none border border-r-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100001]",
           isCollapsed ? "right-12" : "right-80"
         )}
         onClick={() => toggleCollapsed()}
