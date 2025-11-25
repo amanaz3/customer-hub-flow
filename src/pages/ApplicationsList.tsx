@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/SecureAuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, FileText, Building2, BarChart3, XCircle, Clock } from 'lucide-react';
+import { Plus, FileText, Building2, BarChart3, XCircle, Clock, Edit } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
@@ -63,12 +63,13 @@ const ApplicationsList = () => {
   );
   
   // Separate bulk selections for each tab
-  const activeSelection = useTableSelection(applications.filter(app => app.status !== 'rejected' && app.status !== 'predraft'));
+  const activeSelection = useTableSelection(applications.filter(app => !['rejected', 'predraft', 'draft'].includes(app.status)));
   const rejectedSelection = useTableSelection(applications.filter(app => app.status === 'rejected'));
   const incompleteSelection = useTableSelection(applications.filter(app => app.status === 'predraft'));
+  const draftSelection = useTableSelection(applications.filter(app => app.status === 'draft'));
   
   // Use the selection based on active tab
-  const currentSelection = activeTab === 'rejected' ? rejectedSelection : activeTab === 'incomplete' ? incompleteSelection : activeSelection;
+  const currentSelection = activeTab === 'rejected' ? rejectedSelection : activeTab === 'incomplete' ? incompleteSelection : activeTab === 'drafts' ? draftSelection : activeSelection;
   
   const { updateApplicationsStatus, isLoading: isUpdating } = useBulkStatusUpdate();
   const [bulkStatusDialog, setBulkStatusDialog] = useState<{
@@ -154,9 +155,9 @@ const ApplicationsList = () => {
     }
   };
 
-  // Separate active, rejected, and incomplete (predraft) applications
+  // Separate active, rejected, incomplete (predraft), and draft applications
   const activeApplications = useMemo(() => {
-    return applications.filter(app => app.status !== 'rejected' && app.status !== 'predraft');
+    return applications.filter(app => !['rejected', 'predraft', 'draft'].includes(app.status));
   }, [applications]);
 
   const rejectedApplications = useMemo(() => {
@@ -165,6 +166,10 @@ const ApplicationsList = () => {
 
   const incompleteApplications = useMemo(() => {
     return applications.filter(app => app.status === 'predraft');
+  }, [applications]);
+
+  const draftApplications = useMemo(() => {
+    return applications.filter(app => app.status === 'draft');
   }, [applications]);
 
   // Filter active applications with search and status
@@ -220,6 +225,22 @@ const ApplicationsList = () => {
         (!isNaN(parsedRefNum) && app.reference_number === parsedRefNum);
     });
   }, [incompleteApplications, searchTerm]);
+
+  // Filter draft applications with search only
+  const filteredDraftApplications = useMemo(() => {
+    return draftApplications.filter(app => {
+      if (searchTerm === '') return true;
+      
+      const searchLower = searchTerm.toLowerCase();
+      const refNum = searchTerm.replace(/^#/, '').trim();
+      const parsedRefNum = parseInt(refNum, 10);
+      
+      return app.customer?.company?.toLowerCase().includes(searchLower) ||
+        app.customer?.name?.toLowerCase().includes(searchLower) ||
+        app.application_type?.toLowerCase().includes(searchLower) ||
+        (!isNaN(parsedRefNum) && app.reference_number === parsedRefNum);
+    });
+  }, [draftApplications, searchTerm]);
 
   const statusColors: Record<string, string> = {
     predraft: 'bg-gray-500',
@@ -311,7 +332,7 @@ const ApplicationsList = () => {
 
       {/* Tab-based Layout */}
       <Tabs defaultValue="applications" className="w-full" onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-4 max-w-3xl">
+        <TabsList className="grid w-full grid-cols-5 max-w-4xl">
           <TabsTrigger 
             value="applications" 
             className="flex items-center gap-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:border-b-2 data-[state=active]:border-b-green-500 dark:data-[state=active]:bg-green-950 dark:data-[state=active]:text-green-400"
@@ -320,6 +341,16 @@ const ApplicationsList = () => {
             Applications
             <Badge variant="secondary" className="ml-1">
               {filteredActiveApplications.length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger 
+            value="drafts" 
+            className="flex items-center gap-2 data-[state=active]:bg-yellow-50 data-[state=active]:text-yellow-700 data-[state=active]:border-b-2 data-[state=active]:border-b-yellow-500 dark:data-[state=active]:bg-yellow-950 dark:data-[state=active]:text-yellow-400"
+          >
+            <Edit className="h-4 w-4" />
+            Drafts
+            <Badge variant="secondary" className="ml-1">
+              {filteredDraftApplications.length}
             </Badge>
           </TabsTrigger>
           <TabsTrigger 
@@ -367,7 +398,6 @@ const ApplicationsList = () => {
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="all">All Statuses</SelectItem>
-                <SelectItem value="draft">Draft</SelectItem>
                 <SelectItem value="submitted">Submitted</SelectItem>
                 <SelectItem value="under_review">Under Review</SelectItem>
                 <SelectItem value="approved">Approved</SelectItem>
@@ -818,6 +848,151 @@ const ApplicationsList = () => {
                             }}
                           >
                             Continue
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Drafts Tab */}
+        <TabsContent value="drafts" className="space-y-3 mt-4">
+          {/* Search Only */}
+          <div className="flex flex-col sm:flex-row gap-3 bg-card rounded-lg p-3 border">
+            <Input
+              placeholder="Search draft applications..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1"
+            />
+          </div>
+
+          {/* Draft Applications Table */}
+          <div className="border rounded-lg bg-card overflow-hidden">
+            <div className="bg-yellow-50 dark:bg-yellow-950/20 border-b px-3 py-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-yellow-700 dark:text-yellow-400">
+                <Edit className="h-4 w-4" />
+                Draft Applications ({filteredDraftApplications.length})
+                <span className="text-xs text-muted-foreground ml-2">Ready for submission</span>
+              </div>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader className="sticky top-0 bg-muted backdrop-blur-sm z-10">
+                  <TableRow className="hover:bg-transparent border-b-2">
+                    <TableHead className="h-10 px-3 py-2 w-12">
+                      <Checkbox
+                        checked={draftSelection.isAllSelected}
+                        onCheckedChange={draftSelection.toggleAll}
+                        aria-label="Select all"
+                      />
+                    </TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Ref #</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Product/Service</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Company</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Contact</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Status</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide text-right">Amount</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Created</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Updated</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredDraftApplications.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={10} className="text-center py-12 text-muted-foreground">
+                        <Edit className="h-12 w-12 mx-auto mb-3 opacity-20 text-yellow-500" />
+                        <p className="font-medium">No draft applications</p>
+                        <p className="text-xs mt-1">Saved drafts ready for submission will appear here</p>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredDraftApplications.map((app) => (
+                      <TableRow 
+                        key={app.id}
+                        className="hover:bg-muted/50 cursor-pointer transition-colors border-b"
+                        onClick={(e) => {
+                          if (!(e.target as HTMLElement).closest('.checkbox-cell')) {
+                            navigate(`/applications/${app.id}`);
+                          }
+                        }}
+                      >
+                        <TableCell 
+                          className="px-3 py-3 checkbox-cell"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Checkbox
+                            checked={draftSelection.isSelected(app.id)}
+                            onCheckedChange={() => draftSelection.toggleItem(app.id)}
+                            aria-label={`Select ${app.customer?.company}`}
+                          />
+                        </TableCell>
+                        <TableCell className="px-3 py-3 font-mono font-bold text-sm text-primary">
+                          {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at)}
+                        </TableCell>
+                        <TableCell className="px-3 py-3 font-semibold text-sm">
+                          <div className="flex items-center gap-2 min-w-[150px]">
+                            <div className="h-2 w-2 rounded-full bg-yellow-500 flex-shrink-0" />
+                            <span className="truncate text-foreground">{app.product?.name || 'N/A'}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-3 py-3 text-sm font-medium">
+                          <Button
+                            variant="link"
+                            className="p-0 h-auto text-sm font-semibold hover:underline text-primary"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (app.customer?.id) navigate(`/customers/${app.customer.id}`);
+                            }}
+                          >
+                            <Building2 className="h-4 w-4 mr-1.5" />
+                            <span className="max-w-[200px] truncate">{app.customer?.company || 'N/A'}</span>
+                          </Button>
+                        </TableCell>
+                        <TableCell className="px-3 py-3 text-sm font-medium text-foreground">
+                          <span className="max-w-[150px] truncate block">{app.customer?.name || 'N/A'}</span>
+                        </TableCell>
+                        <TableCell className="px-3 py-3">
+                          <Badge 
+                            className="bg-yellow-400 text-black border-0 text-xs px-3 py-1 font-bold uppercase tracking-wide shadow-sm ring-1 ring-yellow-600"
+                          >
+                            DRAFT
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="px-3 py-3 text-sm font-bold text-right">
+                          <span className="text-primary">${app.application_data?.amount?.toLocaleString() || '0'}</span>
+                        </TableCell>
+                        <TableCell className="px-3 py-3 text-xs font-medium text-foreground/70 whitespace-nowrap">
+                          {new Date(app.created_at).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })}
+                        </TableCell>
+                        <TableCell className="px-3 py-3 text-xs font-medium text-foreground/70 whitespace-nowrap">
+                          {new Date(app.updated_at).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })}
+                        </TableCell>
+                        <TableCell className="px-3 py-3 text-right">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-3 text-xs font-semibold border-2 hover:bg-primary hover:text-primary-foreground"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/applications/${app.id}`);
+                            }}
+                          >
+                            Edit
                           </Button>
                         </TableCell>
                       </TableRow>
