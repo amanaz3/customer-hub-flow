@@ -1085,7 +1085,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             />
 
             <Card 
-              className="-mt-px border-t-0 border-x border-b border-slate-200/50 bg-white/95 backdrop-blur-xl shadow-lg hover:shadow-xl transition-all duration-300 ease-out rounded-t-none rounded-b-2xl max-w-2xl mx-auto overflow-visible"
+              className="-mt-px border-t-0 border-x border-b border-slate-200 bg-white shadow-lg hover:shadow-xl transition-all duration-300 ease-out rounded-t-none rounded-b-2xl max-w-2xl mx-auto overflow-visible"
             >
             <CardContent className="p-5 sm:p-7 space-y-4 overflow-visible bg-gradient-to-b from-transparent to-slate-50/30">
               {/* Customer Information Summary Accordion - Show after step 1 */}
@@ -1165,8 +1165,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   )}
 
                   <CardHeader className="pb-2 px-3 sm:px-4">
-                    <CardTitle className="text-lg">Customer Details</CardTitle>
-                    <CardDescription className="text-xs">
+                    <CardTitle className="text-lg text-slate-900">Customer Details</CardTitle>
+                    <CardDescription className="text-xs text-slate-600">
                       {companyMode ? 'Select an existing customer or provide new customer information.' : "Enter the customer's basic information to get started."}
                     </CardDescription>
                   </CardHeader>
