@@ -727,6 +727,11 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             </div>
           )}
           
+          {/* Separator between Events and Docs */}
+          {isExistingCustomer && documentCategories.reduce((sum, cat) => sum + cat.count, 0) > 0 && (
+            <div className="w-8 border-t border-border my-2" />
+          )}
+          
           {/* Documents indicator with pulse animation - only show when documents exist */}
           {documentCategories.reduce((sum, cat) => sum + cat.count, 0) > 0 && (
             <div 
