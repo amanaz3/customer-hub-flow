@@ -69,10 +69,10 @@ export const UnifiedProgressHeader = ({
 
           {/* Progress Bar */}
           <div className="w-full max-w-2xl">
-            <div className="h-3 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 rounded-full overflow-hidden shadow-md relative border border-slate-200">
+            <div className="h-3 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 rounded-full overflow-hidden shadow-md relative border border-slate-300">
               <div 
                 className="h-full bg-gradient-to-r from-primary via-secondary to-accent transition-all duration-500 ease-out shadow-lg relative overflow-hidden"
-                style={{ width: `${progressPercentage}%` }}
+                style={{ width: `${Math.max(progressPercentage, 8)}%` }}
               >
                 <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
               </div>
