@@ -109,18 +109,18 @@ export const ProcessSummarySidebar = ({
       {/* Toggle Button - Always Visible */}
       <Button
         variant="ghost"
-        size="sm"
+        size="icon"
         onClick={handleToggle}
         className={cn(
-          "fixed top-20 sm:top-24 h-16 w-10 rounded-r-lg rounded-l-none border border-l-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100000]",
+          "fixed top-20 sm:top-24 h-12 w-12 rounded-full border-2 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100000]",
           isCollapsed ? 'left-12' : 'left-80'
         )}
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? (
-          <ChevronRight className="h-4 w-4" />
+          <ChevronRight className="h-5 w-5" />
         ) : (
-          <ChevronLeft className="h-4 w-4" />
+          <ChevronLeft className="h-5 w-5" />
         )}
       </Button>
 
