@@ -1734,8 +1734,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Right Sidebar - Process Summary (Only shows from step 2 onwards) */}
-      {currentStep >= 2 && (
+      {/* Right Sidebar - Process Summary (Hidden in step 2 for new customers to show documents sidebar instead) */}
+      {currentStep >= 2 && !(currentStep === 2 && !companyMode) && (
         <div className="hidden lg:block">
           <ProcessSummarySidebar
             currentStep={currentStep}
