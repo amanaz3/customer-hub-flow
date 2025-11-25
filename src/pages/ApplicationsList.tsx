@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/SecureAuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, FileText, Building2, BarChart3, XCircle, Clock, Edit } from 'lucide-react';
+import { Plus, FileText, Building2, XCircle, Clock, Edit } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
@@ -12,7 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Checkbox } from '@/components/ui/checkbox';
-import ProductUsageAnalytics from '@/components/Analytics/ProductUsageAnalytics';
+
 import { useTableSelection } from '@/hooks/useTableSelection';
 import { useBulkStatusUpdate } from '@/hooks/useBulkStatusUpdate';
 import { BulkActionsToolbar } from '@/components/Customer/BulkActionsToolbar';
@@ -332,7 +332,7 @@ const ApplicationsList = () => {
 
       {/* Tab-based Layout */}
       <Tabs defaultValue="applications" className="w-full" onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5 max-w-4xl">
+        <TabsList className="grid w-full grid-cols-4 max-w-3xl">
           <TabsTrigger 
             value="applications" 
             className="flex items-center gap-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:border-b-2 data-[state=active]:border-b-green-500 dark:data-[state=active]:bg-green-950 dark:data-[state=active]:text-green-400"
@@ -372,13 +372,6 @@ const ApplicationsList = () => {
             <Badge variant="secondary" className="ml-1">
               {filteredRejectedApplications.length}
             </Badge>
-          </TabsTrigger>
-          <TabsTrigger 
-            value="analytics" 
-            className="flex items-center gap-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:border-b-2 data-[state=active]:border-b-green-500 dark:data-[state=active]:bg-green-950 dark:data-[state=active]:text-green-400"
-          >
-            <BarChart3 className="h-4 w-4" />
-            Analytics
           </TabsTrigger>
         </TabsList>
 
@@ -1004,10 +997,6 @@ const ApplicationsList = () => {
           </div>
         </TabsContent>
 
-        {/* Analytics Tab */}
-        <TabsContent value="analytics" className="mt-6">
-          <ProductUsageAnalytics />
-        </TabsContent>
       </Tabs>
 
       {/* Bulk Actions Toolbar */}
