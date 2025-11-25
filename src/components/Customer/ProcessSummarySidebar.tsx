@@ -135,65 +135,74 @@ export const ProcessSummarySidebar = ({
       {/* Sidebar Content */}
       {!isCollapsed && (
       <div 
-        className="h-full overflow-auto pt-4 pb-4 px-3"
+        className="h-full overflow-auto pt-3 pb-3 px-2"
       >
-        <Card className="border-slate-200/50 bg-white/70 backdrop-blur-sm shadow-sm">
-        <CardHeader className="pb-3 space-y-1.5">
-          <CardTitle className="text-base font-semibold tracking-tight">Process Summary</CardTitle>
-          <p className="text-sm text-muted-foreground/80 font-medium">
-            Step {currentStep} of 4
-          </p>
+        <Card className="border-border/50 bg-gradient-to-br from-card via-card to-primary/5 backdrop-blur-sm shadow-md">
+        <CardHeader className="pb-2 space-y-1 px-3 pt-3">
+          <div className="flex items-center gap-2">
+            <div className="h-8 w-1 bg-gradient-to-b from-primary to-secondary rounded-full" />
+            <div>
+              <CardTitle className="text-sm font-bold tracking-tight bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">Process Summary</CardTitle>
+              <p className="text-xs text-muted-foreground/90 font-medium mt-0.5">
+                Step {currentStep} of 4
+              </p>
+            </div>
+          </div>
         </CardHeader>
         
-        <CardContent className="space-y-4">
+        <CardContent className="space-y-3 px-3 pb-3">
           {/* Progress Steps */}
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {steps.map((step, index) => (
               <div key={step.step} className="relative">
                 {/* Connector Line */}
                 {index < steps.length - 1 && (
                   <div
-                    className={`absolute left-3.5 top-8 h-full w-0.5 transition-colors duration-200 ${
-                      step.completed ? 'bg-success' : 'bg-slate-200'
+                    className={`absolute left-3 top-7 h-full w-0.5 transition-all duration-300 ${
+                      step.completed 
+                        ? 'bg-gradient-to-b from-success to-success/50' 
+                        : 'bg-slate-200'
                     }`}
                   />
                 )}
                 
                 {/* Step Item */}
-                <div className="flex gap-3 relative">
+                <div className="flex gap-2.5 relative">
                   {/* Step Icon */}
                   <div
-                    className={`flex-shrink-0 w-7 h-7 rounded-full flex items-center justify-center border-2 shadow-sm transition-all duration-200 ${
+                    className={`flex-shrink-0 w-6 h-6 rounded-full flex items-center justify-center border-2 transition-all duration-300 ${
                       step.completed
-                        ? 'bg-success border-success shadow-success/20'
+                        ? 'bg-gradient-to-br from-success to-success/80 border-success shadow-md shadow-success/30'
                         : step.active
-                        ? 'bg-white border-primary shadow-primary/20 scale-105'
+                        ? 'bg-gradient-to-br from-primary to-secondary border-primary shadow-md shadow-primary/30 scale-110'
                         : 'bg-white border-slate-200'
                     }`}
                   >
                     {step.completed ? (
-                      <Check className="h-3.5 w-3.5 text-success-foreground" />
+                      <Check className="h-3 w-3 text-white font-bold" />
                     ) : (
                       <Circle
-                        className={`h-2.5 w-2.5 ${
-                          step.active ? 'fill-primary text-primary' : 'text-muted-foreground'
+                        className={`h-2 w-2 ${
+                          step.active ? 'fill-white text-white' : 'text-muted-foreground/50'
                         }`}
                       />
                     )}
                   </div>
 
                   {/* Step Content */}
-                  <div className="flex-1 pb-4">
+                  <div className="flex-1 pb-3">
                     <p
-                      className={`text-xs font-medium ${
-                        step.active || step.completed
+                      className={`text-xs font-semibold leading-tight ${
+                        step.active 
+                          ? 'text-primary'
+                          : step.completed
                           ? 'text-foreground'
-                          : 'text-muted-foreground'
+                          : 'text-muted-foreground/70'
                       }`}
                     >
                       {step.title}
                     </p>
-                    <p className="text-[10px] text-muted-foreground mt-0.5">
+                    <p className="text-[10px] text-muted-foreground/70 mt-0.5 leading-tight">
                       {step.description}
                     </p>
                   </div>
@@ -204,43 +213,46 @@ export const ProcessSummarySidebar = ({
 
           {/* Captured Information */}
           {currentStep > 1 && (
-            <div className="pt-3 border-t border-border">
-              <h4 className="text-xs font-semibold mb-3">Captured Info</h4>
+            <div className="pt-2 border-t border-border/50">
+              <div className="flex items-center gap-1.5 mb-2">
+                <div className="h-3 w-0.5 bg-gradient-to-b from-primary to-secondary rounded-full" />
+                <h4 className="text-[11px] font-bold text-foreground">Captured Info</h4>
+              </div>
               
               {/* Customer Information Section */}
-              <div className="mb-3">
-                <p className="text-[10px] font-semibold text-primary mb-1.5">Customer Information</p>
-                <div className="space-y-1.5 pl-2 border-l-2 border-primary/20">
+              <div className="mb-2">
+                <p className="text-[10px] font-semibold text-primary/90 mb-1.5 ml-1">Customer</p>
+                <div className="space-y-1.5 pl-2.5 border-l-2 border-gradient-to-b from-primary/30 to-secondary/30 rounded-sm bg-gradient-to-br from-primary/5 to-transparent py-1.5">
                   {customerReference && (
-                    <div className="text-[11px]">
-                      <span className="text-muted-foreground">Ref #:</span>
-                      <span className="ml-1 font-medium text-foreground">{customerReference}</span>
+                    <div className="text-[10px]">
+                      <span className="text-muted-foreground/80 font-medium">Ref:</span>
+                      <span className="ml-1.5 font-semibold text-foreground">#{customerReference}</span>
                     </div>
                   )}
                   {customerName && (
-                    <div className="text-[11px]">
-                      <span className="text-muted-foreground">Name:</span>
-                      <span className="ml-1 font-medium text-foreground">{customerName}</span>
+                    <div className="text-[10px]">
+                      <span className="text-muted-foreground/80 font-medium">Name:</span>
+                      <span className="ml-1.5 font-semibold text-foreground">{customerName}</span>
                     </div>
                   )}
                   {customerEmail && (
-                    <div className="text-[11px]">
-                      <span className="text-muted-foreground">Email:</span>
-                      <span className="ml-1 font-medium text-foreground break-all">
+                    <div className="text-[10px]">
+                      <span className="text-muted-foreground/80 font-medium">Email:</span>
+                      <span className="ml-1.5 font-semibold text-foreground break-all">
                         {customerEmail}
                       </span>
                     </div>
                   )}
                   {customerMobile && (
-                    <div className="text-[11px]">
-                      <span className="text-muted-foreground">Mobile:</span>
-                      <span className="ml-1 font-medium text-foreground">{customerMobile}</span>
+                    <div className="text-[10px]">
+                      <span className="text-muted-foreground/80 font-medium">Mobile:</span>
+                      <span className="ml-1.5 font-semibold text-foreground">{customerMobile}</span>
                     </div>
                   )}
                   {customerCompany && (
-                    <div className="text-[11px]">
-                      <span className="text-muted-foreground">Company:</span>
-                      <span className="ml-1 font-medium text-foreground">{customerCompany}</span>
+                    <div className="text-[10px]">
+                      <span className="text-muted-foreground/80 font-medium">Company:</span>
+                      <span className="ml-1.5 font-semibold text-foreground">{customerCompany}</span>
                     </div>
                   )}
                 </div>
@@ -248,17 +260,17 @@ export const ProcessSummarySidebar = ({
 
               {/* Service Section */}
               {currentStep > 2 && productName && (
-                <div className="mb-3">
-                  <p className="text-[10px] font-semibold text-primary mb-1.5">Service</p>
-                  <div className="space-y-1.5 pl-2 border-l-2 border-primary/20">
-                    <div className="text-[11px]">
-                      <span className="text-muted-foreground">Product:</span>
-                      <span className="ml-1 font-medium text-foreground">{productName}</span>
+                <div className="mb-2">
+                  <p className="text-[10px] font-semibold text-secondary/90 mb-1.5 ml-1">Service</p>
+                  <div className="space-y-1.5 pl-2.5 border-l-2 border-gradient-to-b from-secondary/30 to-primary/30 rounded-sm bg-gradient-to-br from-secondary/5 to-transparent py-1.5">
+                    <div className="text-[10px]">
+                      <span className="text-muted-foreground/80 font-medium">Product:</span>
+                      <span className="ml-1.5 font-semibold text-foreground">{productName}</span>
                     </div>
                     {formData.amount && (
-                      <div className="text-[11px]">
-                        <span className="text-muted-foreground">Amount:</span>
-                        <span className="ml-1 font-medium text-foreground">
+                      <div className="text-[10px]">
+                        <span className="text-muted-foreground/80 font-medium">Amount:</span>
+                        <span className="ml-1.5 font-semibold text-foreground">
                           AED {formData.amount.toLocaleString()}
                         </span>
                       </div>
@@ -289,19 +301,19 @@ export const ProcessSummarySidebar = ({
                 // If there are dynamic fields OR license_type, show the section
                 if (dynamicFields.length > 0 || formData.license_type) {
                   return (
-                    <div className="mb-3">
-                      <p className="text-[10px] font-semibold text-primary mb-1.5">Service Details</p>
-                      <div className="space-y-1.5 pl-2 border-l-2 border-primary/20">
+                    <div className="mb-2">
+                      <p className="text-[10px] font-semibold text-accent/90 mb-1.5 ml-1">Details</p>
+                      <div className="space-y-1.5 pl-2.5 border-l-2 border-gradient-to-b from-accent/30 to-primary/30 rounded-sm bg-gradient-to-br from-accent/5 to-transparent py-1.5">
                         {formData.license_type && (
-                          <div className="text-[11px]">
-                            <span className="text-muted-foreground">License Type:</span>
-                            <span className="ml-1 font-medium text-foreground">{formData.license_type}</span>
+                          <div className="text-[10px]">
+                            <span className="text-muted-foreground/80 font-medium">License:</span>
+                            <span className="ml-1.5 font-semibold text-foreground">{formData.license_type}</span>
                           </div>
                         )}
                         {dynamicFields.map(({ label, value, key }) => (
-                          <div key={key} className="text-[11px]">
-                            <span className="text-muted-foreground">{label}:</span>
-                            <span className="ml-1 font-medium text-foreground">{value}</span>
+                          <div key={key} className="text-[10px]">
+                            <span className="text-muted-foreground/80 font-medium">{label}:</span>
+                            <span className="ml-1.5 font-semibold text-foreground">{value}</span>
                           </div>
                         ))}
                       </div>
@@ -314,9 +326,9 @@ export const ProcessSummarySidebar = ({
           )}
 
           {/* Help Tips */}
-          <div className="pt-3 border-t border-border">
-            <div className="bg-muted/30 rounded-md p-2.5">
-              <p className="text-[10px] text-muted-foreground leading-relaxed">
+          <div className="pt-2 border-t border-border/50">
+            <div className="bg-gradient-to-br from-primary/10 via-secondary/5 to-accent/10 rounded-lg p-2 border border-primary/20">
+              <p className="text-[10px] text-muted-foreground/90 leading-relaxed font-medium">
                 {currentStep === 1 && '💡 Provide customer contact details to proceed'}
                 {currentStep === 2 && '💡 Select the service and enter key information'}
                 {currentStep === 3 && '💡 Fill in additional details specific to the service'}
