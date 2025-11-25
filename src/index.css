@@ -4,98 +4,109 @@
 
 @layer base {
   :root {
-    /* Pure, clean backgrounds with warmth */
-    --background: 220 15% 98%;
-    --foreground: 180 45% 25%;
+    /* Vibrant fintech background */
+    --background: 220 20% 97%;
+    --foreground: 222 47% 11%;
 
-    /* Elevated cards with subtle depth */
+    /* Bright white cards with depth */
     --card: 0 0% 100%;
-    --card-foreground: 180 45% 25%;
+    --card-foreground: 222 47% 11%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 180 45% 25%;
+    --popover-foreground: 222 47% 11%;
 
-    /* Sophisticated blue - trust & innovation */
-    --primary: 213 94% 48%;
+    /* Electric blue primary - fintech energy */
+    --primary: 217 91% 60%;
     --primary-foreground: 0 0% 100%;
 
-    /* Warm gray for secondary elements */
-    --secondary: 220 12% 95%;
-    --secondary-foreground: 220 10% 25%;
+    /* Vibrant purple secondary */
+    --secondary: 262 83% 58%;
+    --secondary-foreground: 0 0% 100%;
 
-    /* Subtle muted areas with warmth */
-    --muted: 220 10% 96%;
-    --muted-foreground: 220 8% 48%;
+    /* Soft purple-gray muted */
+    --muted: 250 20% 95%;
+    --muted-foreground: 250 10% 45%;
 
-    /* Refined accent */
-    --accent: 213 94% 92%;
-    --accent-foreground: 213 94% 35%;
+    /* Bright cyan accent */
+    --accent: 189 94% 43%;
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84% 60%;
     --destructive-foreground: 0 0% 100%;
     
-    /* Clean emerald success */
-    --success: 142 71% 45%;
+    /* Vibrant green success */
+    --success: 142 76% 36%;
     --success-foreground: 0 0% 100%;
 
-    /* Visible, refined borders */
-    --border: 220 13% 85%;
-    --input: 220 13% 85%;
-    --ring: 213 94% 48%;
+    /* Subtle but visible borders */
+    --border: 220 13% 88%;
+    --input: 220 13% 88%;
+    --ring: 217 91% 60%;
 
-    --radius: 0.75rem;
+    --radius: 0.875rem;
+    
+    /* Vibrant gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(217 91% 60%) 0%, hsl(262 83% 58%) 100%);
+    --gradient-accent: linear-gradient(135deg, hsl(189 94% 43%) 0%, hsl(217 91% 60%) 100%);
+    --gradient-success: linear-gradient(135deg, hsl(142 76% 36%) 0%, hsl(158 64% 52%) 100%);
+    --gradient-warm: linear-gradient(135deg, hsl(262 83% 58%) 0%, hsl(340 82% 52%) 100%);
+    
+    /* Colorful shadows */
+    --shadow-primary: 0 8px 16px -4px hsl(217 91% 60% / 0.3);
+    --shadow-accent: 0 8px 16px -4px hsl(189 94% 43% / 0.3);
+    --shadow-success: 0 8px 16px -4px hsl(142 76% 36% / 0.3);
 
-    /* Refined chart palette */
-    --chart-1: 213 94% 45%;
+    /* Vibrant chart palette */
+    --chart-1: 217 91% 60%;
     --chart-1-foreground: 0 0% 100%;
-    --chart-2: 142 71% 45%;
+    --chart-2: 142 76% 36%;
     --chart-2-foreground: 0 0% 100%;
     --chart-3: 38 92% 50%;
     --chart-3-foreground: 0 0% 100%;
-    --chart-4: 250 84% 54%;
+    --chart-4: 262 83% 58%;
     --chart-4-foreground: 0 0% 100%;
     --chart-5: 340 82% 52%;
     --chart-5-foreground: 0 0% 100%;
 
-    /* Status colors */
-    --status-draft: 220 13% 85%;
-    --status-draft-foreground: 220 10% 25%;
-    --status-submitted: 213 94% 48%;
+    /* Bright status colors */
+    --status-draft: 250 20% 80%;
+    --status-draft-foreground: 250 30% 25%;
+    --status-submitted: 217 91% 60%;
     --status-submitted-foreground: 0 0% 100%;
     --status-returned: 38 92% 50%;
     --status-returned-foreground: 0 0% 100%;
-    --status-approved: 142 71% 45%;
+    --status-approved: 142 76% 36%;
     --status-approved-foreground: 0 0% 100%;
     --status-rejected: 0 84% 60%;
     --status-rejected-foreground: 0 0% 100%;
-    --status-complete: 142 71% 45%;
+    --status-complete: 142 76% 36%;
     --status-complete-foreground: 0 0% 100%;
 
-    /* Severity colors */
-    --severity-info: 213 94% 48%;
+    /* Bright severity colors */
+    --severity-info: 217 91% 60%;
     --severity-info-foreground: 0 0% 100%;
     --severity-warning: 38 92% 50%;
     --severity-warning-foreground: 0 0% 100%;
     --severity-error: 0 84% 60%;
     --severity-error-foreground: 0 0% 100%;
-    --severity-success: 142 71% 45%;
+    --severity-success: 142 76% 36%;
     --severity-success-foreground: 0 0% 100%;
 
-    /* Clean sidebar with frosted effect */
-    --sidebar-background: 220 15% 99%;
-    --sidebar-foreground: 180 45% 25%;
-    --sidebar-primary: 213 94% 48%;
+    /* Vibrant gradient sidebar */
+    --sidebar-background: 220 20% 98%;
+    --sidebar-foreground: 222 47% 11%;
+    --sidebar-primary: 217 91% 60%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 12% 95%;
-    --sidebar-accent-foreground: 180 45% 25%;
-    --sidebar-border: 220 13% 88%;
-    --sidebar-ring: 213 94% 48%;
+    --sidebar-accent: 250 20% 95%;
+    --sidebar-accent-foreground: 222 47% 11%;
+    --sidebar-border: 220 13% 90%;
+    --sidebar-ring: 217 91% 60%;
     
-    /* Soft, elegant shadows - Apple style */
-    --shadow-sm: 0 1px 2px 0 hsl(0 0% 0% / 0.03), 0 1px 3px 0 hsl(0 0% 0% / 0.02);
-    --shadow-md: 0 4px 6px -1px hsl(0 0% 0% / 0.05), 0 2px 4px -1px hsl(0 0% 0% / 0.03);
-    --shadow-lg: 0 10px 15px -3px hsl(0 0% 0% / 0.06), 0 4px 6px -2px hsl(0 0% 0% / 0.03);
-    --shadow-xl: 0 20px 25px -5px hsl(0 0% 0% / 0.08), 0 10px 10px -5px hsl(0 0% 0% / 0.02);
+    /* Vibrant colorful shadows */
+    --shadow-sm: 0 2px 4px 0 hsl(217 91% 60% / 0.08);
+    --shadow-md: 0 4px 8px -2px hsl(217 91% 60% / 0.12), 0 2px 4px -1px hsl(217 91% 60% / 0.06);
+    --shadow-lg: 0 12px 20px -4px hsl(217 91% 60% / 0.15), 0 4px 8px -2px hsl(217 91% 60% / 0.08);
+    --shadow-xl: 0 20px 32px -8px hsl(217 91% 60% / 0.18), 0 8px 16px -4px hsl(217 91% 60% / 0.1);
   }
 
   html.dark, .dark {
