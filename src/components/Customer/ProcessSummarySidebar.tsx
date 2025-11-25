@@ -102,7 +102,7 @@ export const ProcessSummarySidebar = ({
   return (
     <div 
       className={cn(
-        "fixed top-0 left-0 h-screen bg-card border-r shadow-lg transition-all duration-300 ease-in-out z-[100001]",
+        "fixed top-0 left-0 h-screen bg-card border-r shadow-lg transition-all duration-300 ease-in-out z-[99999]",
         isCollapsed ? 'w-12' : 'w-80'
       )}
     >
@@ -112,7 +112,7 @@ export const ProcessSummarySidebar = ({
         size="sm"
         onClick={handleToggle}
         className={cn(
-          "fixed top-4 h-16 w-10 rounded-r-lg rounded-l-none border border-l-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100002]",
+          "fixed top-4 h-16 w-10 rounded-r-lg rounded-l-none border border-l-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100000]",
           isCollapsed ? 'left-12' : 'left-80'
         )}
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
