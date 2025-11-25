@@ -1587,98 +1587,96 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 </div>
               )}
             </CardContent>
+            
+            {/* Action Buttons - Positioned inside form */}
+            <div className="absolute bottom-6 right-6 flex flex-col gap-2 z-50">
+              {/* Cancel Button */}
+              <Button
+                type="button"
+                size="icon"
+                variant="outline"
+                onClick={() => setShowCancelDialog(true)}
+                disabled={isSubmitting}
+                className="h-9 w-9 rounded-full shadow-[0_2px_12px_rgba(239,68,68,0.25)] hover:shadow-[0_4px_20px_rgba(239,68,68,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 border border-red-300 hover:border-red-400 bg-gradient-to-br from-red-50 via-red-100/80 to-red-50 backdrop-blur-sm hover:from-red-100 hover:via-red-200/80 hover:to-red-100 group relative overflow-hidden"
+                title="Cancel and return"
+              >
+                <div className="absolute inset-0 bg-gradient-to-br from-red-400/10 via-red-500/5 to-red-400/10 group-hover:from-red-400/20 group-hover:via-red-500/10 group-hover:to-red-400/20 transition-all duration-300" />
+                <X className="h-3.5 w-3.5 text-red-600 group-hover:text-red-700 relative z-10 transition-colors duration-300" />
+              </Button>
+
+              {/* Previous Step Button */}
+              {currentStep > 1 && (
+                <Button
+                  type="button"
+                  size="icon"
+                  variant="outline"
+                  onClick={() => {
+                    const prevStep = Math.max(1, currentStep - 1);
+                    setCurrentStep(prevStep);
+                    onStepChange?.(prevStep);
+                  }}
+                  disabled={isSubmitting}
+                  className="h-9 w-9 rounded-full shadow-[0_2px_12px_rgba(234,179,8,0.25)] hover:shadow-[0_4px_20px_rgba(234,179,8,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 border border-yellow-300 hover:border-yellow-400 bg-gradient-to-br from-yellow-50 via-yellow-100/80 to-yellow-50 backdrop-blur-sm hover:from-yellow-100 hover:via-yellow-200/80 hover:to-yellow-100 group relative overflow-hidden"
+                  title="Previous Step"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/10 via-yellow-500/5 to-yellow-400/10 group-hover:from-yellow-400/20 group-hover:via-yellow-500/10 group-hover:to-yellow-400/20 transition-all duration-300" />
+                  <ArrowLeft className="h-3.5 w-3.5 text-yellow-600 group-hover:text-yellow-700 relative z-10 transition-all duration-300 group-hover:translate-x-[-1px]" />
+                </Button>
+              )}
+              
+              {/* Next Step Button */}
+              {currentStep < 4 && (
+                <Button
+                  type="button"
+                  size="icon"
+                  onClick={async () => {
+                    const canProgress = await canProgressToNextStep();
+                    if (canProgress) {
+                      // Save application data at current step before progressing
+                      await saveApplicationAtStep(currentStep);
+                      const nextStep = Math.min(4, currentStep + 1);
+                      setCurrentStep(nextStep);
+                      onStepChange?.(nextStep);
+                      // Mark current step as completed
+                      setCompletedSteps(prev => new Set(prev).add(currentStep));
+                      // Don't collapse sidebar when progressing - let the step logic handle it
+                    } else {
+                      toast({
+                        title: "Cannot Progress",
+                        description: "Please complete all mandatory fields correctly before proceeding",
+                        variant: "destructive",
+                      });
+                    }
+                  }}
+                  disabled={isSubmitting}
+                  className="h-10 w-10 rounded-full shadow-[0_4px_20px_rgba(99,102,241,0.3)] hover:shadow-[0_6px_25px_rgba(99,102,241,0.45)] transition-all duration-300 hover:scale-105 active:scale-95 bg-gradient-to-br from-primary via-primary/90 to-primary/80 hover:from-primary hover:via-primary/95 hover:to-primary/85 text-primary-foreground border border-primary/20 hover:border-primary/30 group relative overflow-hidden ring-1 ring-primary/20 hover:ring-2 hover:ring-primary/30"
+                  title="Next Step"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent group-hover:from-white/20 transition-all duration-300" />
+                  <ArrowRight className="h-4 w-4 relative z-10 transition-all duration-300 group-hover:translate-x-[1px]" />
+                </Button>
+              )}
+              
+              {/* Save Draft Button - Show only in Step 4 when all 3 steps completed */}
+              {currentStep === 4 && completedSteps.has(1) && completedSteps.has(2) && completedSteps.has(3) && (
+                <Button
+                  type="button"
+                  size="icon"
+                  onClick={saveDraft}
+                  disabled={isSubmitting}
+                  className="h-9 w-9 rounded-full shadow-[0_2px_12px_rgba(34,197,94,0.15)] hover:shadow-[0_4px_20px_rgba(34,197,94,0.25)] transition-all duration-300 hover:scale-105 active:scale-95 border border-green-200/80 hover:border-green-400/80 bg-gradient-to-br from-white via-green-50/50 to-white backdrop-blur-sm hover:from-green-50 hover:via-green-100/50 hover:to-green-50 group relative overflow-hidden"
+                  title="Save Draft"
+                >
+                  <div className="absolute inset-0 bg-gradient-to-br from-green-400/0 via-green-500/0 to-green-400/0 group-hover:from-green-400/10 group-hover:via-green-500/5 group-hover:to-green-400/10 transition-all duration-300" />
+                  <Save className="h-4 w-4 text-green-600 group-hover:text-green-700 relative z-10 transition-colors duration-300" />
+                </Button>
+              )}
+            </div>
           </Card>
 
         </form>
       </Form>
       
-      {/* Floating Action Buttons */}
-      <div className={`fixed bottom-4 flex flex-col gap-2 z-[9999] transition-all duration-500 ease-out ${
-        sidebarCollapsed ? 'right-[72px]' : 'right-[344px]'
-      }`}>
-        {/* Cancel Button */}
-        <Button
-          type="button"
-          size="icon"
-          variant="outline"
-          onClick={() => setShowCancelDialog(true)}
-          disabled={isSubmitting}
-          className="h-9 w-9 rounded-full shadow-[0_2px_12px_rgba(239,68,68,0.25)] hover:shadow-[0_4px_20px_rgba(239,68,68,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 border border-red-300 hover:border-red-400 bg-gradient-to-br from-red-50 via-red-100/80 to-red-50 backdrop-blur-sm hover:from-red-100 hover:via-red-200/80 hover:to-red-100 group relative overflow-hidden"
-          title="Cancel and return"
-        >
-          <div className="absolute inset-0 bg-gradient-to-br from-red-400/10 via-red-500/5 to-red-400/10 group-hover:from-red-400/20 group-hover:via-red-500/10 group-hover:to-red-400/20 transition-all duration-300" />
-          <X className="h-3.5 w-3.5 text-red-600 group-hover:text-red-700 relative z-10 transition-colors duration-300" />
-        </Button>
-
-        {/* Previous Step Button */}
-        {currentStep > 1 && (
-          <Button
-            type="button"
-            size="icon"
-            variant="outline"
-            onClick={() => {
-              const prevStep = Math.max(1, currentStep - 1);
-              setCurrentStep(prevStep);
-              onStepChange?.(prevStep);
-            }}
-            disabled={isSubmitting}
-            className="h-9 w-9 rounded-full shadow-[0_2px_12px_rgba(234,179,8,0.25)] hover:shadow-[0_4px_20px_rgba(234,179,8,0.4)] transition-all duration-300 hover:scale-105 active:scale-95 border border-yellow-300 hover:border-yellow-400 bg-gradient-to-br from-yellow-50 via-yellow-100/80 to-yellow-50 backdrop-blur-sm hover:from-yellow-100 hover:via-yellow-200/80 hover:to-yellow-100 group relative overflow-hidden"
-            title="Previous Step"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-yellow-400/10 via-yellow-500/5 to-yellow-400/10 group-hover:from-yellow-400/20 group-hover:via-yellow-500/10 group-hover:to-yellow-400/20 transition-all duration-300" />
-            <ArrowLeft className="h-3.5 w-3.5 text-yellow-600 group-hover:text-yellow-700 relative z-10 transition-all duration-300 group-hover:translate-x-[-1px]" />
-          </Button>
-        )}
-        
-        {/* Next Step Button */}
-        {currentStep < 4 && (
-          <Button
-            type="button"
-            size="icon"
-            onClick={async () => {
-              const canProgress = await canProgressToNextStep();
-              if (canProgress) {
-                // Save application data at current step before progressing
-                await saveApplicationAtStep(currentStep);
-                const nextStep = Math.min(4, currentStep + 1);
-                setCurrentStep(nextStep);
-                onStepChange?.(nextStep);
-                // Mark current step as completed
-                setCompletedSteps(prev => new Set(prev).add(currentStep));
-                // Don't collapse sidebar when progressing - let the step logic handle it
-              } else {
-                toast({
-                  title: "Cannot Progress",
-                  description: "Please complete all mandatory fields correctly before proceeding",
-                  variant: "destructive",
-                });
-              }
-            }}
-            disabled={isSubmitting}
-            className="h-10 w-10 rounded-full shadow-[0_4px_20px_rgba(99,102,241,0.3)] hover:shadow-[0_6px_25px_rgba(99,102,241,0.45)] transition-all duration-300 hover:scale-105 active:scale-95 bg-gradient-to-br from-primary via-primary/90 to-primary/80 hover:from-primary hover:via-primary/95 hover:to-primary/85 text-primary-foreground border border-primary/20 hover:border-primary/30 group relative overflow-hidden ring-1 ring-primary/20 hover:ring-2 hover:ring-primary/30"
-            title="Next Step"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent group-hover:from-white/20 transition-all duration-300" />
-            <ArrowRight className="h-4 w-4 relative z-10 transition-all duration-300 group-hover:translate-x-[1px]" />
-          </Button>
-        )}
-        
-        {/* Save Draft Button - Show only in Step 4 when all 3 steps completed */}
-        {currentStep === 4 && completedSteps.has(1) && completedSteps.has(2) && completedSteps.has(3) && (
-          <Button
-            type="button"
-            size="icon"
-            onClick={saveDraft}
-            disabled={isSubmitting}
-            className="h-9 w-9 rounded-full shadow-[0_2px_12px_rgba(34,197,94,0.15)] hover:shadow-[0_4px_20px_rgba(34,197,94,0.25)] transition-all duration-300 hover:scale-105 active:scale-95 border border-green-200/80 hover:border-green-400/80 bg-gradient-to-br from-white via-green-50/50 to-white backdrop-blur-sm hover:from-green-50 hover:via-green-100/50 hover:to-green-50 group relative overflow-hidden"
-            title="Save Draft"
-          >
-            <div className="absolute inset-0 bg-gradient-to-br from-green-400/0 via-green-500/0 to-green-400/0 group-hover:from-green-400/10 group-hover:via-green-500/5 group-hover:to-green-400/10 transition-all duration-300" />
-            <Save className="h-4 w-4 text-green-600 group-hover:text-green-700 relative z-10 transition-colors duration-300" />
-          </Button>
-        )}
-      </div>
-
       {/* Mode Change Warning Dialog */}
       <AlertDialog open={showModeChangeWarning} onOpenChange={setShowModeChangeWarning}>
         <AlertDialogContent>
