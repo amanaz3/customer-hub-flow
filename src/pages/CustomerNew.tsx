@@ -79,12 +79,13 @@ const CustomerNew = () => {
   }, [currentStep]);
 
   // Auto-expand sidebar for existing customer when customer is selected (step 1)
-  // Expand whenever a customer is selected in step 1, including new selections from search
+  // Expand on new customer selection, but NOT on back transition from step 2
   React.useEffect(() => {
-    if (companyMode && selectedCustomerId && currentStep === 1) {
+    const isBackTransitionFromStep2 = currentStep === 1 && previousStep === 2;
+    if (companyMode && selectedCustomerId && currentStep === 1 && !isBackTransitionFromStep2) {
       setSidebarCollapsed(false);
     }
-  }, [companyMode, selectedCustomerId, currentStep]);
+  }, [companyMode, selectedCustomerId, currentStep, previousStep]);
 
   // Auto-expand sidebar for existing customer in step 2 when product is selected
   React.useEffect(() => {
