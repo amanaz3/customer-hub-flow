@@ -31,20 +31,21 @@ const CustomerNew = () => {
   // Track when product is selected and expand sidebar (only in new customer flow and only when moving forward from step 1 to step 2, and only once)
   React.useEffect(() => {
     const movingForwardToStep2 = currentStep === 2 && previousStep === 1;
-    if (selectedProduct && !companyMode && movingForwardToStep2 && !hasShownDocumentsSidebar) {
+    if (selectedProduct && !companyMode && movingForwardToStep2) {
       setHasSelectedProduct(true);
       setSidebarCollapsed(false);
       setHasShownDocumentsSidebar(true);
     }
     
-    // Always collapse when moving backward
+    // Always collapse when moving backward OR when in step 2 but coming from step 3+
     const movingBackward = currentStep < previousStep;
-    if (movingBackward && !companyMode) {
+    const returningToStep2 = currentStep === 2 && previousStep > 2;
+    if ((movingBackward || returningToStep2) && !companyMode) {
       setSidebarCollapsed(true);
     }
     
     setPreviousStep(currentStep);
-  }, [currentStep, previousStep, selectedProduct, companyMode, hasShownDocumentsSidebar]);
+  }, [currentStep, previousStep, selectedProduct, companyMode]);
 
   // Track if user has progressed past step 1
   React.useEffect(() => {
@@ -166,10 +167,10 @@ const CustomerNew = () => {
         </div>
         </div>
       
-      {/* Sticky Sidebar - Show only once when transitioning forward to step 2 */}
+      {/* Sticky Sidebar - Show when product is selected in step 2 */}
       {(
         (companyMode && selectedCustomerId) || // Existing customer: only show when customer selected
-        (!companyMode && currentStep === 2 && selectedProduct && hasShownDocumentsSidebar) // New customer: only show in step 2 if we've shown it once
+        (!companyMode && currentStep === 2 && selectedProduct) // New customer: show in step 2 when product selected
       ) && (
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
