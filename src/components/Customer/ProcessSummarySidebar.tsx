@@ -109,7 +109,7 @@ export const ProcessSummarySidebar = ({
         size="icon"
         variant="secondary"
         onClick={handleToggle}
-        className={`absolute top-1 h-10 w-10 rounded-full shadow-md bg-card/90 backdrop-blur-sm hover:bg-muted border border-border/40 hover:scale-105 transition-all z-[9999] ${
+        className={`absolute top-1 h-10 w-10 rounded-full shadow-md bg-white/90 backdrop-blur-sm hover:bg-slate-50 border border-slate-200/60 hover:scale-105 transition-all z-[9999] ${
           isCollapsed ? 'right-[-16px]' : 'right-[-20px]'
         }`}
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -123,7 +123,7 @@ export const ProcessSummarySidebar = ({
 
       {/* Collapsed State */}
       {isCollapsed && (
-        <div className="flex flex-col items-center py-4 gap-4 h-full bg-card/95 backdrop-blur-xl border-r border-border/40 shadow-sm">
+        <div className="flex flex-col items-center py-4 gap-4 h-full bg-white/95 backdrop-blur-xl border-r border-slate-200/60 shadow-sm">
           <FileText className="h-6 w-6 text-muted-foreground" />
           <Badge className="writing-mode-vertical text-xs bg-primary/10 text-primary border-primary/20">Process</Badge>
         </div>
@@ -132,9 +132,9 @@ export const ProcessSummarySidebar = ({
       {/* Sidebar Content */}
       {!isCollapsed && (
       <div 
-        className="h-full overflow-auto py-4 px-3 bg-gradient-to-b from-card/98 via-card/95 to-muted/30 backdrop-blur-xl border-r border-border/40 shadow-lg transition-all duration-300"
+        className="h-full overflow-auto py-4 px-3 bg-gradient-to-b from-white via-slate-50/50 to-slate-100/30 backdrop-blur-xl border-r border-slate-200/60 shadow-lg transition-all duration-300"
       >
-        <Card className="border-border/30 bg-card/50 backdrop-blur-sm shadow-sm">
+        <Card className="border-slate-200/50 bg-white/70 backdrop-blur-sm shadow-sm">
         <CardHeader className="pb-3 space-y-1.5">
           <CardTitle className="text-base font-semibold tracking-tight">Process Summary</CardTitle>
           <p className="text-sm text-muted-foreground/80 font-medium">
@@ -151,7 +151,7 @@ export const ProcessSummarySidebar = ({
                 {index < steps.length - 1 && (
                   <div
                     className={`absolute left-3.5 top-8 h-full w-0.5 transition-colors duration-200 ${
-                      step.completed ? 'bg-success' : 'bg-border/60'
+                      step.completed ? 'bg-success' : 'bg-slate-200'
                     }`}
                   />
                 )}
@@ -164,8 +164,8 @@ export const ProcessSummarySidebar = ({
                       step.completed
                         ? 'bg-success border-success shadow-success/20'
                         : step.active
-                        ? 'bg-card border-primary shadow-primary/20 scale-105'
-                        : 'bg-card border-border'
+                        ? 'bg-white border-primary shadow-primary/20 scale-105'
+                        : 'bg-white border-slate-200'
                     }`}
                   >
                     {step.completed ? (

@@ -133,10 +133,10 @@ const CustomerNew = () => {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 bg-gradient-to-br from-background via-background to-muted/30">
+    <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 bg-gradient-to-br from-slate-50 via-white to-slate-100">
       <div className="w-full max-w-[95%] lg:max-w-[90%] xl:max-w-[85%] 2xl:max-w-[80%] px-4 sm:px-6">
         {/* Outer Card Container */}
-        <div className="w-full bg-card/60 backdrop-blur-xl rounded-2xl shadow-2xl border border-border/40 p-6 sm:p-8 lg:p-10 animate-fade-in">
+        <div className="w-full bg-white/80 backdrop-blur-xl rounded-2xl shadow-2xl border border-slate-200/60 p-6 sm:p-8 lg:p-10 animate-fade-in">
         <div className="w-full flex justify-center">
           <div className="w-full max-w-4xl">
             {/* Simplified Form with Dynamic Service Configuration in Step 3 */}

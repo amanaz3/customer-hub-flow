@@ -1085,17 +1085,17 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             />
 
             <Card 
-              className="-mt-px border-t-0 border-x border-b border-border/30 bg-card/95 backdrop-blur-xl shadow-lg hover:shadow-xl transition-all duration-300 ease-out rounded-t-none rounded-b-2xl max-w-2xl mx-auto overflow-visible"
+              className="-mt-px border-t-0 border-x border-b border-slate-200/50 bg-white/95 backdrop-blur-xl shadow-lg hover:shadow-xl transition-all duration-300 ease-out rounded-t-none rounded-b-2xl max-w-2xl mx-auto overflow-visible"
             >
-            <CardContent className="p-5 sm:p-7 space-y-4 overflow-visible bg-gradient-to-b from-transparent to-muted/10">
+            <CardContent className="p-5 sm:p-7 space-y-4 overflow-visible bg-gradient-to-b from-transparent to-slate-50/30">
               {/* Customer Information Summary Accordion - Show after step 1 */}
               {currentStep > 1 && form.watch('name') && (
-                <div className="sticky z-20 bg-card/95 backdrop-blur-xl -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 pb-3 mb-4 border-b border-border/30 shadow-sm" style={{ top: 'var(--unified-header-h, 160px)' }}>
+                <div className="sticky z-20 bg-white/95 backdrop-blur-xl -mx-4 sm:-mx-6 px-4 sm:px-6 pt-3 pb-3 mb-4 border-b border-slate-200/50 shadow-sm" style={{ top: 'var(--unified-header-h, 160px)' }}>
                   <div className="flex justify-center">
                   <Accordion 
                     type="single" 
                     collapsible 
-                    className={`bg-card/50 backdrop-blur-sm rounded-xl border border-border/40 shadow-sm transition-all duration-300 ${accordionOpen === 'customer-info' ? 'w-1/2' : 'w-1/4'}`}
+                    className={`bg-white/70 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-sm transition-all duration-300 ${accordionOpen === 'customer-info' ? 'w-1/2' : 'w-1/4'}`}
                     value={accordionOpen}
                     onValueChange={setAccordionOpen}
                   >

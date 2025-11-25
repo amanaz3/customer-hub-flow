@@ -50,9 +50,9 @@ export const UnifiedProgressHeader = ({
   }, []);
 
   return (
-    <div ref={containerRef} className="sticky top-0 left-0 right-0 bg-card/95 backdrop-blur-xl z-[100] border-b border-border/30 shadow-sm">
+    <div ref={containerRef} className="sticky top-0 left-0 right-0 bg-white/95 backdrop-blur-xl z-[100] border-b border-slate-200/50 shadow-sm">
       <div className="w-full max-w-2xl mx-auto">
-        <div className="px-4 sm:px-6 py-5 bg-gradient-to-b from-muted/20 to-transparent rounded-t-2xl">
+        <div className="px-4 sm:px-6 py-5 bg-gradient-to-b from-slate-50/50 to-transparent rounded-t-2xl">
         {/* Unified Container with consistent styling */}
         <div className="flex flex-col items-center gap-4">
           {/* Customer Type Selector */}
@@ -69,7 +69,7 @@ export const UnifiedProgressHeader = ({
 
           {/* Progress Bar */}
           <div className="w-full max-w-2xl">
-            <div className="h-1.5 bg-muted/40 rounded-full overflow-hidden shadow-inner">
+            <div className="h-1.5 bg-slate-100 rounded-full overflow-hidden shadow-inner">
               <div 
                 className="h-full bg-gradient-to-r from-primary via-primary to-primary/80 transition-all duration-500 ease-out shadow-sm"
                 style={{ width: `${progressPercentage}%` }}
@@ -106,7 +106,7 @@ export const UnifiedProgressHeader = ({
                     ? 'hsl(var(--success))' // green for completed steps
                     : step === currentStep 
                     ? 'hsl(var(--primary))' 
-                    : 'hsl(var(--muted))',
+                    : '#f1f5f9', // slate-100 for inactive
                   boxShadow: step === currentStep ? '0 4px 8px -2px hsl(var(--primary) / 0.3)' : 'none'
                 }}
               >
@@ -114,7 +114,7 @@ export const UnifiedProgressHeader = ({
                   "flex items-center justify-center w-5 h-5 rounded-full text-xs font-semibold shadow-sm",
                   step < currentStep && "bg-success-foreground text-success",
                   step === currentStep && "bg-primary-foreground text-primary",
-                  step > currentStep && "bg-muted text-muted-foreground"
+                  step > currentStep && "bg-slate-100 text-slate-400"
                 )}>
                   {step < currentStep ? (
                     <Check className="h-3 w-3" />
