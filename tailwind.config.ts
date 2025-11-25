@@ -193,6 +193,34 @@ export default {
 					'50%': {
 						'box-shadow': '0 0 30px hsl(217 91% 60% / 0.6), 0 0 60px hsl(217 91% 60% / 0.3)'
 					}
+				},
+				'sparkle': {
+					'0%, 100%': {
+						opacity: '0',
+						transform: 'scale(0) rotate(0deg)'
+					},
+					'50%': {
+						opacity: '1',
+						transform: 'scale(1) rotate(180deg)'
+					}
+				},
+				'sparkle-spin': {
+					'0%': {
+						transform: 'rotate(0deg)'
+					},
+					'100%': {
+						transform: 'rotate(360deg)'
+					}
+				},
+				'twinkle': {
+					'0%, 100%': {
+						opacity: '0.3',
+						transform: 'scale(0.8)'
+					},
+					'50%': {
+						opacity: '1',
+						transform: 'scale(1.2)'
+					}
 				}
 			},
 			animation: {
@@ -201,7 +229,10 @@ export default {
 				'scale-in': 'scale-in 0.3s ease-out',
 				'shimmer': 'shimmer 2s ease-in-out infinite',
 				'gradient': 'gradient 8s linear infinite',
-				'glow-pulse': 'glow-pulse 2s ease-in-out infinite'
+				'glow-pulse': 'glow-pulse 2s ease-in-out infinite',
+				'sparkle': 'sparkle 1.5s ease-in-out infinite',
+				'sparkle-spin': 'sparkle-spin 3s linear infinite',
+				'twinkle': 'twinkle 1s ease-in-out infinite'
 			},
 			backgroundImage: {
 				'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
