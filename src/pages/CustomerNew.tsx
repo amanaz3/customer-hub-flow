@@ -21,6 +21,10 @@ const CustomerNew = () => {
   const [hasSelectedProduct, setHasSelectedProduct] = useState<boolean>(false);
   const [shouldShowSidebarInStep2, setShouldShowSidebarInStep2] = useState<boolean>(false);
   const [userManuallyClosed, setUserManuallyClosed] = useState<boolean>(false);
+  const [serviceDocuments, setServiceDocuments] = useState<Array<{
+    category: string;
+    documents: Array<{ name: string; required: boolean; requiredAtStages?: string[] }>;
+  }>>([]);
   
   // Customer selection state
   const [companyMode, setCompanyMode] = useState<boolean>(false);
@@ -188,6 +192,7 @@ const CustomerNew = () => {
               onCustomerSelect={setSelectedCustomerId}
               onCustomerIdChange={setInternalCustomerId}
               onCancel={() => navigate('/customers')}
+              onDocumentsChange={setServiceDocuments}
             />
           </div>
         </div>
@@ -227,6 +232,7 @@ const CustomerNew = () => {
               mobile: customerMobile,
               company: customerCompany,
             }}
+            serviceDocuments={serviceDocuments}
           />
         </div>
       )}

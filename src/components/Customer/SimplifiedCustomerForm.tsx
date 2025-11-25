@@ -152,6 +152,10 @@ interface SimplifiedCustomerFormProps {
   onCustomerSelect?: (customerId: string | null) => void;
   onStepChange?: (step: number) => void;
   onCustomerIdChange?: (customerId: string | null) => void;
+  onDocumentsChange?: (documents: Array<{
+    category: string;
+    documents: Array<{ name: string; required: boolean; requiredAtStages?: string[] }>;
+  }>) => void;
   onFormStateChange?: (state: {
     currentStep: number;
     completedSteps: Set<number>;
@@ -177,6 +181,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   onCancel,
   onStepChange,
   onCustomerIdChange,
+  onDocumentsChange,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -265,26 +270,67 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       if (businessBankAccount) {
         form.setValue('product_id', businessBankAccount.id);
         setSelectedProductName(businessBankAccount.name);
-        // If we're in step 2, notify parent about the selected product
+        // If we're in step 2, notify parent about the selected product and fetch documents
         if (currentStep === 2) {
           onProductChange?.(businessBankAccount.name);
+          // Fetch documents for default product
+          fetchDocumentsForProduct(businessBankAccount.id);
         }
       }
     }
   }, [products, form, currentStep, onProductChange]);
 
-  // When entering step 2, notify parent about already selected product
+  // When entering step 2, notify parent about already selected product and fetch documents
   useEffect(() => {
     if (currentStep === 2 && selectedProductName) {
       onProductChange?.(selectedProductName);
+      const productId = form.getValues('product_id');
+      if (productId) {
+        fetchDocumentsForProduct(productId);
+      }
     }
   }, [currentStep, selectedProductName, onProductChange]);
 
-  const handleProductChange = (productId: string) => {
+  // Helper function to fetch documents for a product
+  const fetchDocumentsForProduct = async (productId: string) => {
+    try {
+      const { data: configData } = await supabase
+        .from('service_form_configurations')
+        .select('form_config')
+        .eq('product_id', productId)
+        .maybeSingle();
+      
+      if (configData?.form_config) {
+        const raw = configData.form_config as any;
+        let documents: Array<{
+          category: string;
+          documents: Array<{ name: string; required: boolean; requiredAtStages?: string[] }>;
+        }> = [];
+        
+        if (raw.requiredDocuments?.categories) {
+          documents = raw.requiredDocuments.categories.map((cat: any) => ({
+            category: cat.name,
+            documents: (cat.documents || []).map((d: any) => ({
+              name: d.name,
+              required: Boolean(d.isMandatory),
+              requiredAtStages: d.requiredAtStages || [],
+            }))
+          }));
+        }
+        
+        onDocumentsChange?.(documents);
+      }
+    } catch (error) {
+      console.error('Error fetching documents config:', error);
+    }
+  };
+
+  const handleProductChange = async (productId: string) => {
     const product = products?.find(p => p.id === productId);
     if (product) {
       setSelectedProductName(product.name);
       onProductChange?.(product.name);
+      fetchDocumentsForProduct(productId);
     }
   };
 
