@@ -196,7 +196,7 @@ const CustomerNew = () => {
       
       {/* Sticky Sidebar - Show from step 2 onwards when product is selected */}
       {(
-        (companyMode && selectedCustomerId && currentStep >= 2) || // Existing customer: show from step 2 onwards
+        (companyMode && selectedCustomerId) || // Existing customer: show when customer is selected (any step)
         (!companyMode && currentStep >= 3 && selectedProduct) || // New customer steps 3-4: always show if product selected
         (!companyMode && currentStep === 2 && selectedProduct) // New customer step 2: always show when product selected (collapsed with indicator)
       ) && (
