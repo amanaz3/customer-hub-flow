@@ -27,6 +27,10 @@ interface CustomerEventsSidebarProps {
     mobile?: string;
     company?: string;
   };
+  serviceDocuments?: Array<{
+    category: string;
+    documents: Array<{ name: string; required: boolean; requiredAtStages?: string[] }>;
+  }>;
 }
 
 export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({ 
@@ -36,7 +40,8 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   productType,
   isExistingCustomer = false,
   defaultTab,
-  newCustomerData
+  newCustomerData,
+  serviceDocuments = []
 }) => {
   console.log('[CustomerEventsSidebar] Mounted/Rendered', { customerId, collapsed, productType, isExistingCustomer });
   const { toast } = useToast();
@@ -187,8 +192,70 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
     return colors[status] || 'bg-muted text-muted-foreground';
   };
 
-  // Get document categories based on product type
+  // Get document categories from service configuration or fallback to hardcoded
   const getDocumentCategories = () => {
+    // If we have service documents from configuration, use them
+    if (serviceDocuments && serviceDocuments.length > 0) {
+      const iconMap: Record<string, any> = {
+        'Company': Building2,
+        'Shareholder': Users,
+        'Source of Funds': FileText,
+        'Additional': FileText,
+        'Personal': Users,
+        'Employment': FileText,
+        'Financial': FileText,
+        'Compliance': FileText,
+        'Beneficial': Users,
+      };
+      
+      const colorMap: Record<string, string> = {
+        'Company': 'text-purple-600',
+        'Shareholder': 'text-blue-600',
+        'Source of Funds': 'text-green-600',
+        'Additional': 'text-orange-600',
+        'Personal': 'text-blue-600',
+        'Employment': 'text-green-600',
+        'Financial': 'text-emerald-600',
+        'Compliance': 'text-amber-600',
+        'Beneficial': 'text-indigo-600',
+      };
+      
+      return serviceDocuments.map((cat, index) => {
+        // Try to match icon and color based on category name keywords
+        let icon = FileText;
+        let color = 'text-muted-foreground';
+        
+        for (const [keyword, iconComponent] of Object.entries(iconMap)) {
+          if (cat.category.toLowerCase().includes(keyword.toLowerCase())) {
+            icon = iconComponent;
+            break;
+          }
+        }
+        
+        for (const [keyword, colorClass] of Object.entries(colorMap)) {
+          if (cat.category.toLowerCase().includes(keyword.toLowerCase())) {
+            color = colorClass;
+            break;
+          }
+        }
+        
+        // Fallback colors based on index
+        if (color === 'text-muted-foreground') {
+          const fallbackColors = ['text-purple-600', 'text-blue-600', 'text-green-600', 'text-orange-600'];
+          color = fallbackColors[index % fallbackColors.length];
+        }
+        
+        return {
+          title: cat.category,
+          icon,
+          color,
+          count: cat.documents.length,
+          items: cat.documents.map(d => d.required ? `${d.name} *` : d.name)
+        };
+      });
+    }
+    
+    // Fallback to hardcoded categories if no service documents
     if (!productType) return [];
     
     switch (productType) {
