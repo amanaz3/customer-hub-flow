@@ -109,30 +109,30 @@ export const ProcessSummarySidebar = ({
         size="icon"
         variant="secondary"
         onClick={handleToggle}
-        className={`absolute top-1 h-10 w-10 rounded-full shadow-md bg-white/90 backdrop-blur-sm hover:bg-slate-50 border border-slate-200/60 hover:scale-105 transition-all z-[9999] ${
+        className={`absolute top-1 h-10 w-10 rounded-full shadow-[0_0_20px_rgba(59,130,246,0.5)] bg-gradient-to-br from-primary to-secondary hover:shadow-[0_0_25px_rgba(59,130,246,0.7)] border-2 border-white hover:scale-110 transition-all z-[9999] ${
           isCollapsed ? 'right-[-16px]' : 'right-[-20px]'
         }`}
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? (
-          <ChevronRight className="h-5 w-5" />
+          <ChevronRight className="h-5 w-5 text-white" />
         ) : (
-          <ChevronLeft className="h-5 w-5" />
+          <ChevronLeft className="h-5 w-5 text-white" />
         )}
       </Button>
 
       {/* Collapsed State */}
       {isCollapsed && (
-        <div className="flex flex-col items-center py-4 gap-4 h-full bg-white/95 backdrop-blur-xl border-r border-slate-200/60 shadow-sm">
-          <FileText className="h-6 w-6 text-muted-foreground" />
-          <Badge className="writing-mode-vertical text-xs bg-primary/10 text-primary border-primary/20">Process</Badge>
+        <div className="flex flex-col items-center py-4 gap-4 h-full bg-gradient-to-b from-blue-50 via-purple-50/50 to-blue-50/30 backdrop-blur-xl border-r border-primary/20 shadow-lg">
+          <FileText className="h-6 w-6 text-primary" />
+          <Badge className="writing-mode-vertical text-xs bg-gradient-to-br from-primary to-secondary text-white border-0">Process</Badge>
         </div>
       )}
 
       {/* Sidebar Content */}
       {!isCollapsed && (
       <div 
-        className="h-full overflow-auto py-4 px-3 bg-gradient-to-b from-white via-slate-50/50 to-slate-100/30 backdrop-blur-xl border-r border-slate-200/60 shadow-lg transition-all duration-300"
+        className="h-full overflow-auto py-4 px-3 bg-gradient-to-b from-blue-50 via-purple-50/50 to-blue-50/30 backdrop-blur-xl border-r border-primary/20 shadow-lg transition-all duration-300"
       >
         <Card className="border-slate-200/50 bg-white/70 backdrop-blur-sm shadow-sm">
         <CardHeader className="pb-3 space-y-1.5">
