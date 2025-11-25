@@ -1734,7 +1734,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Right Sidebar - Process Summary (Shows from step 2 onwards) */}
+      {/* Left Sidebar - Process Summary (Shows from step 2 onwards) */}
       {currentStep >= 2 && (
         <div className="hidden lg:block">
           <ProcessSummarySidebar
