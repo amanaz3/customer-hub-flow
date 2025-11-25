@@ -106,9 +106,9 @@ const Tracker = () => {
     },
     {
       title: "By Services",
-      description: "View applications organized by service type",
+      description: "View applications and analytics organized by service type",
       icon: Layers,
-      path: "/applications-by-services",
+      path: "/analytics",
       color: "text-indigo-600"
     }
   ];
