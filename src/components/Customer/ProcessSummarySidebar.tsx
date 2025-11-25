@@ -101,7 +101,7 @@ export const ProcessSummarySidebar = ({
 
   return (
     <div 
-      className={`fixed top-0 left-0 h-screen transition-all duration-300 ease-in-out z-[600] ${
+      className={`fixed top-0 left-0 h-screen transition-all duration-300 ease-in-out z-[100001] ${
         isCollapsed ? 'w-12' : 'w-80'
       }`}
     >
