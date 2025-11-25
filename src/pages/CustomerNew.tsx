@@ -21,6 +21,7 @@ const CustomerNew = () => {
   const [hasSelectedProduct, setHasSelectedProduct] = useState<boolean>(false);
   const [shouldShowSidebarInStep2, setShouldShowSidebarInStep2] = useState<boolean>(false);
   const [userManuallyClosed, setUserManuallyClosed] = useState<boolean>(false);
+  const [isBackwardTransition, setIsBackwardTransition] = useState<boolean>(false);
   
   // Customer selection state
   const [companyMode, setCompanyMode] = useState<boolean>(false);
@@ -29,47 +30,38 @@ const CustomerNew = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(true);
   const [hasProgressedPastStep1, setHasProgressedPastStep1] = useState<boolean>(false);
 
-  // Track when product is selected and control sidebar visibility and state
+  // Track step transitions and control sidebar visibility
   React.useEffect(() => {
-    const movingForwardToStep2 = currentStep === 2 && previousStep === 1;
-    const returningToStep2FromStep3Plus = currentStep === 2 && previousStep >= 3;
-    const leavingStep2 = previousStep === 2 && currentStep !== 2;
+    const movingForward = currentStep > previousStep;
+    const movingBackward = currentStep < previousStep;
     
     console.log('[CustomerNew] Step transition:', { 
       currentStep, 
       previousStep, 
-      movingForwardToStep2, 
-      returningToStep2FromStep3Plus,
+      movingForward,
+      movingBackward,
       sidebarCollapsed,
       shouldShowSidebarInStep2,
       userManuallyClosed
     });
     
-    // Expand sidebar ONLY when moving forward from step 1 to step 2, and user hasn't manually closed it
-    if (selectedProduct && !companyMode && movingForwardToStep2 && !userManuallyClosed) {
-      console.log('[CustomerNew] Expanding sidebar on forward transition to step 2');
-      setHasSelectedProduct(true);
-      setSidebarCollapsed(false);
-      setShouldShowSidebarInStep2(true);
+    // Track backward transition state
+    if (movingBackward) {
+      setIsBackwardTransition(true);
+    } else if (movingForward) {
+      setIsBackwardTransition(false);
     }
     
-    // Hide sidebar completely when returning to step 2 from step 3+
-    if (returningToStep2FromStep3Plus && !companyMode) {
-      console.log('[CustomerNew] Hiding sidebar when returning from step 3+');
+    // Hide sidebar when returning to step 1
+    if (currentStep === 1 && !companyMode) {
+      console.log('[CustomerNew] Resetting sidebar state on step 1');
       setShouldShowSidebarInStep2(false);
-    }
-    
-    // Hide sidebar when leaving step 2 or moving to step 1
-    if ((leavingStep2 || currentStep === 1) && !companyMode) {
-      if (currentStep === 1) {
-        console.log('[CustomerNew] Resetting sidebar state on step 1');
-        setShouldShowSidebarInStep2(false);
-        setUserManuallyClosed(false); // Reset manual close flag when going back to step 1
-      }
+      setUserManuallyClosed(false);
+      setIsBackwardTransition(false);
     }
     
     setPreviousStep(currentStep);
-  }, [currentStep, previousStep, selectedProduct, companyMode, userManuallyClosed]);
+  }, [currentStep, previousStep, companyMode]);
 
   // Track if user has progressed past step 1
   React.useEffect(() => {
@@ -95,15 +87,15 @@ const CustomerNew = () => {
     }
   }, [companyMode, selectedCustomerId, currentStep, selectedProduct, userManuallyClosed]);
 
-  // Track when product is selected - expand sidebar immediately with Documents tab
+  // Expand sidebar when product is selected/changed (but NOT during backward transitions)
   React.useEffect(() => {
-    if (selectedProduct && !companyMode && !userManuallyClosed) {
-      console.log('[CustomerNew] Product selected, expanding sidebar with Documents tab');
+    if (selectedProduct && !companyMode && !userManuallyClosed && !isBackwardTransition) {
+      console.log('[CustomerNew] Product selected/changed, expanding sidebar with Documents tab');
       setHasSelectedProduct(true);
       setSidebarCollapsed(false);
       setShouldShowSidebarInStep2(true);
     }
-  }, [selectedProduct, companyMode, userManuallyClosed]);
+  }, [selectedProduct, companyMode, userManuallyClosed, isBackwardTransition]);
 
   // Keep sidebar collapsed in step 1 for new customer ONLY if no product selected
   React.useEffect(() => {
