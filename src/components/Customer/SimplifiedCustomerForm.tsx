@@ -1603,10 +1603,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           variant="outline"
           onClick={() => setShowCancelDialog(true)}
           disabled={isSubmitting}
-          className="h-11 w-11 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 border border-border/60 hover:border-destructive/50 hover:bg-destructive/5 backdrop-blur-sm bg-white/95"
+          className="h-12 w-12 rounded-full shadow-[0_4px_20px_rgba(239,68,68,0.15)] hover:shadow-[0_8px_30px_rgba(239,68,68,0.3)] transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-red-200/80 hover:border-red-400/80 bg-gradient-to-br from-white via-red-50/50 to-white backdrop-blur-sm hover:from-red-50 hover:via-red-100/50 hover:to-red-50 group relative overflow-hidden"
           title="Cancel and return"
         >
-          <X className="h-4 w-4" />
+          <div className="absolute inset-0 bg-gradient-to-br from-red-400/0 via-red-500/0 to-red-400/0 group-hover:from-red-400/10 group-hover:via-red-500/5 group-hover:to-red-400/10 transition-all duration-300" />
+          <X className="h-4 w-4 text-red-600 group-hover:text-red-700 relative z-10 transition-colors duration-300" />
         </Button>
 
         {/* Previous Step Button */}
@@ -1621,10 +1622,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               onStepChange?.(prevStep);
             }}
             disabled={isSubmitting}
-            className="h-11 w-11 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 border border-border/60 hover:border-primary/50 hover:bg-primary/5 backdrop-blur-sm bg-white/95"
+            className="h-12 w-12 rounded-full shadow-[0_4px_20px_rgba(99,102,241,0.15)] hover:shadow-[0_8px_30px_rgba(99,102,241,0.3)] transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-primary/30 hover:border-primary/60 bg-gradient-to-br from-white via-primary/5 to-white backdrop-blur-sm hover:from-primary/10 hover:via-primary/20 hover:to-primary/10 group relative overflow-hidden"
             title="Previous Step"
           >
-            <ArrowLeft className="h-4 w-4" />
+            <div className="absolute inset-0 bg-gradient-to-br from-primary/0 via-primary/0 to-primary/0 group-hover:from-primary/10 group-hover:via-primary/5 group-hover:to-primary/10 transition-all duration-300" />
+            <ArrowLeft className="h-4 w-4 text-primary group-hover:text-primary relative z-10 transition-all duration-300 group-hover:translate-x-[-2px]" />
           </Button>
         )}
         
@@ -1653,10 +1655,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               }
             }}
             disabled={isSubmitting}
-            className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 bg-primary hover:bg-primary/90 text-primary-foreground"
+            className="h-14 w-14 rounded-full shadow-[0_8px_30px_rgba(99,102,241,0.4)] hover:shadow-[0_12px_40px_rgba(99,102,241,0.6)] transition-all duration-300 hover:scale-110 active:scale-95 bg-gradient-to-br from-primary via-primary/90 to-primary/80 hover:from-primary hover:via-primary/95 hover:to-primary/85 text-primary-foreground border-2 border-primary/20 hover:border-primary/30 group relative overflow-hidden ring-2 ring-primary/20 hover:ring-4 hover:ring-primary/30"
             title="Next Step"
           >
-            <ArrowRight className="h-5 w-5" />
+            <div className="absolute inset-0 bg-gradient-to-br from-white/10 via-transparent to-transparent group-hover:from-white/20 transition-all duration-300" />
+            <ArrowRight className="h-5 w-5 relative z-10 transition-all duration-300 group-hover:translate-x-[2px]" />
           </Button>
         )}
         
@@ -1667,10 +1670,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             size="icon"
             onClick={saveDraft}
             disabled={isSubmitting}
-            className="h-11 w-11 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 border border-border/60 hover:border-success/50 hover:bg-success/5 backdrop-blur-sm bg-white/95"
+            className="h-12 w-12 rounded-full shadow-[0_4px_20px_rgba(34,197,94,0.15)] hover:shadow-[0_8px_30px_rgba(34,197,94,0.3)] transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-green-200/80 hover:border-green-400/80 bg-gradient-to-br from-white via-green-50/50 to-white backdrop-blur-sm hover:from-green-50 hover:via-green-100/50 hover:to-green-50 group relative overflow-hidden"
             title="Save Draft"
           >
-            <Save className="h-5 w-5" />
+            <div className="absolute inset-0 bg-gradient-to-br from-green-400/0 via-green-500/0 to-green-400/0 group-hover:from-green-400/10 group-hover:via-green-500/5 group-hover:to-green-400/10 transition-all duration-300" />
+            <Save className="h-5 w-5 text-green-600 group-hover:text-green-700 relative z-10 transition-colors duration-300" />
           </Button>
         )}
       </div>
