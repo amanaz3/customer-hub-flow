@@ -106,12 +106,8 @@ const CustomerNew = () => {
     }
   }, [selectedProduct]);
 
-  // Auto-expand sidebar in steps 3-4 for new customer flow
-  React.useEffect(() => {
-    if (!companyMode && selectedProduct && currentStep >= 3 && !userManuallyClosed) {
-      setSidebarCollapsed(false);
-    }
-  }, [currentStep, companyMode, selectedProduct, userManuallyClosed]);
+  // Sidebar stays collapsed in steps 2-4 - user expands manually via pulsing indicator
+  // No auto-expand behavior
 
   // Keep sidebar collapsed in step 1 for new customer
   React.useEffect(() => {
