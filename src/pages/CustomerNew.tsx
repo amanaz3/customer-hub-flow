@@ -82,22 +82,21 @@ const CustomerNew = () => {
     }
   }, [currentStep]);
 
-  // Auto-expand sidebar for existing customer when customer is selected (step 1)
-  // But only on initial selection, not when navigating back
+  // Show sidebar collapsed with pulsating effect for existing customer when customer is selected
+  // Don't auto-expand - let user click to expand
   React.useEffect(() => {
-    if (companyMode && selectedCustomerId && currentStep === 1 && !hasProgressedPastStep1) {
-      setSidebarCollapsed(false);
+    if (companyMode && selectedCustomerId) {
+      setSidebarCollapsed(true); // Keep collapsed - show pulsating indicator instead
     }
-  }, [companyMode, selectedCustomerId, currentStep, hasProgressedPastStep1]);
+  }, [companyMode, selectedCustomerId]);
 
-  // Auto-expand sidebar for existing customer in step 2 when product is selected
+  // Keep sidebar collapsed for existing customer - user expands manually via pulsating indicator
   React.useEffect(() => {
     if (companyMode && selectedCustomerId && selectedProduct) {
-      if (currentStep === 2 && !userManuallyClosed) {
-        setSidebarCollapsed(false);
-      }
+      // Don't auto-expand in step 2 either - keep collapsed with sparkle effect
+      setSidebarCollapsed(true);
     }
-  }, [companyMode, selectedCustomerId, currentStep, selectedProduct, userManuallyClosed]);
+  }, [companyMode, selectedCustomerId, selectedProduct]);
 
   // Track when product is selected
   React.useEffect(() => {
