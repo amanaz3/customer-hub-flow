@@ -108,12 +108,11 @@ export const UnifiedProgressHeader = ({
                     : index === 3
                     ? 'polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 50%)'
                     : 'polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%)',
-                  background: step < currentStep 
-                    ? '#16a34a' // completed - green
+                  backgroundColor: step < currentStep 
+                    ? '#22c55e'
                     : step === currentStep 
-                    ? 'hsl(var(--primary))' // current - blue (same as active tab)
-                    : 'hsl(var(--muted))', // inactive
-                  boxShadow: 'none'
+                    ? '#3b82f6'
+                    : '#e5e7eb'
                 }}
               >
                 <div className={cn(
