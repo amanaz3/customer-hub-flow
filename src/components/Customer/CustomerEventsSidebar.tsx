@@ -295,7 +295,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   if (customerLoading) {
     return (
       <div className={cn(
-        "fixed right-0 top-0 h-screen bg-gradient-to-b from-cyan-50 via-teal-50/50 to-cyan-50/30 border-l border-accent/20 shadow-lg transition-all duration-300 z-[100000]",
+        "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[100000]",
         isCollapsed ? "w-12" : "w-80"
       )}>
         <div className="space-y-4 p-4">
@@ -311,7 +311,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   if (customerId === 'temp' || !customer) {
     return (
       <div className={cn(
-        "fixed right-0 top-0 h-screen bg-gradient-to-b from-cyan-50 via-teal-50/50 to-cyan-50/30 border-l border-accent/20 shadow-lg transition-all duration-300 z-[100000] flex flex-col",
+        "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[100000] flex flex-col",
         isCollapsed ? "w-12" : "w-80"
       )}>
         {/* Toggle Button */}
@@ -319,24 +319,24 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
           variant="ghost"
           size="sm"
           className={cn(
-            "fixed top-4 h-16 w-10 rounded-l-lg rounded-r-none border-2 border-r-0 border-white bg-gradient-to-br from-accent to-secondary shadow-[0_0_20px_rgba(6,182,212,0.5)] hover:shadow-[0_0_25px_rgba(6,182,212,0.7)] hover:scale-105 transition-all duration-300 z-[100001]",
+            "fixed top-4 h-16 w-10 rounded-l-lg rounded-r-none border border-r-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100001]",
             isCollapsed ? "right-12" : "right-80"
           )}
           onClick={() => toggleCollapsed()}
         >
-          {isCollapsed ? <ChevronLeft className="h-4 w-4 text-white" /> : <ChevronRight className="h-4 w-4 text-white" />}
+          {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </Button>
 
         {/* Collapsed State - Show Docs icon only for temp */}
         {isCollapsed && (
           <div className="flex flex-col items-center py-4">
             <div 
-              className="flex flex-col items-center gap-2 cursor-pointer hover:bg-accent/20 transition-colors p-2 rounded bg-gradient-to-br from-accent to-secondary"
+              className="flex flex-col items-center gap-2 cursor-pointer hover:bg-muted/50 transition-colors p-2 rounded bg-muted"
               onClick={() => toggleCollapsed('documents')}
               title="View Documents"
             >
-              <FileText className="h-6 w-6 text-white" />
-              <Badge className="writing-mode-vertical text-[10px] px-1 py-2 bg-white text-accent">Docs</Badge>
+              <FileText className="h-6 w-6 text-muted-foreground" />
+              <Badge className="writing-mode-vertical text-[10px] px-1 py-2">Docs</Badge>
             </div>
           </div>
         )}
@@ -582,7 +582,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 
   return (
     <div className={cn(
-      "fixed right-0 top-0 h-screen bg-gradient-to-b from-cyan-50 via-teal-50/50 to-cyan-50/30 border-l border-accent/20 shadow-lg transition-all duration-300 z-[100000] flex flex-col",
+      "fixed right-0 top-0 h-screen bg-card border-l shadow-lg transition-all duration-300 z-[100000] flex flex-col",
       isCollapsed ? "w-12" : "w-80"
     )}>
       {/* Toggle Button - Fixed positioning for better visibility */}
@@ -590,12 +590,12 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
         variant="ghost"
         size="sm"
         className={cn(
-          "fixed top-4 h-16 w-10 rounded-l-lg rounded-r-none border-2 border-r-0 border-white bg-gradient-to-br from-accent to-secondary shadow-[0_0_20px_rgba(6,182,212,0.5)] hover:shadow-[0_0_25px_rgba(6,182,212,0.7)] hover:scale-105 transition-all duration-300 z-[100001]",
+          "fixed top-4 h-16 w-10 rounded-l-lg rounded-r-none border border-r-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100001]",
           isCollapsed ? "right-12" : "right-80"
         )}
         onClick={() => toggleCollapsed()}
       >
-        {isCollapsed ? <ChevronLeft className="h-4 w-4 text-white" /> : <ChevronRight className="h-4 w-4 text-white" />}
+        {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
       </Button>
 
       {/* Collapsed State - Shows icons vertically */}
@@ -603,8 +603,8 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
         <div className="flex flex-col items-center py-4 gap-6">
           <div 
             className={cn(
-              "flex flex-col items-center gap-2 cursor-pointer hover:bg-accent/20 transition-colors p-2 rounded",
-              activeTab === 'events' && "bg-gradient-to-br from-accent to-secondary"
+              "flex flex-col items-center gap-2 cursor-pointer hover:bg-muted/50 transition-colors p-2 rounded",
+              activeTab === 'events' && "bg-muted"
             )}
             onClick={() => {
               if (isCollapsed) {
@@ -615,13 +615,13 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             }}
             title="View Events"
           >
-            <User className={cn("h-6 w-6", activeTab === 'events' ? "text-white" : "text-accent")} />
-            <Badge className={cn("writing-mode-vertical text-[10px] px-1 py-2", activeTab === 'events' ? "bg-white text-accent" : "bg-accent/20 text-accent")}>Events</Badge>
+            <User className="h-6 w-6 text-muted-foreground" />
+            <Badge className="writing-mode-vertical text-[10px] px-1 py-2">Events</Badge>
           </div>
           <div 
             className={cn(
-              "flex flex-col items-center gap-2 pt-4 border-t border-accent/20 w-full cursor-pointer hover:bg-accent/20 transition-colors p-2 rounded",
-              activeTab === 'documents' && "bg-gradient-to-br from-accent to-secondary"
+              "flex flex-col items-center gap-2 pt-4 border-t border-border w-full cursor-pointer hover:bg-muted/50 transition-colors p-2 rounded",
+              activeTab === 'documents' && "bg-muted"
             )}
             onClick={() => {
               if (isCollapsed) {
@@ -632,8 +632,8 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             }}
             title="View Documents"
           >
-            <FileText className={cn("h-6 w-6", activeTab === 'documents' ? "text-white" : "text-accent")} />
-            <Badge className={cn("writing-mode-vertical text-[10px] px-1 py-2", activeTab === 'documents' ? "bg-white text-accent" : "bg-accent/20 text-accent")}>Docs</Badge>
+            <FileText className="h-6 w-6 text-muted-foreground" />
+            <Badge className="writing-mode-vertical text-[10px] px-1 py-2">Docs</Badge>
           </div>
         </div>
       )}
