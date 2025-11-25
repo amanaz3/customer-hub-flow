@@ -1,5 +1,5 @@
 import React, { useLayoutEffect, useRef } from 'react';
-import { Check, ChevronRight } from 'lucide-react';
+import { Check, ChevronRight, User, Package, FileText, CheckCircle } from 'lucide-react';
 import { CustomerTypeSelector } from './CustomerTypeSelector';
 import { cn } from '@/lib/utils';
 
@@ -18,10 +18,10 @@ interface UnifiedProgressHeaderProps {
 }
 
 const stepConfig = [
-  { title: 'Customer', desc: 'Select type' },
-  { title: 'Service', desc: 'Choose service' },
-  { title: 'Details', desc: 'Additional info' },
-  { title: 'Submit', desc: 'Review & send' }
+  { title: 'Customer', desc: 'Select type', icon: User },
+  { title: 'Service', desc: 'Choose service', icon: Package },
+  { title: 'Details', desc: 'Additional info', icon: FileText },
+  { title: 'Submit', desc: 'Review & send', icon: CheckCircle }
 ];
 
 export const UnifiedProgressHeader = ({
@@ -80,58 +80,77 @@ export const UnifiedProgressHeader = ({
           {/* Step Breadcrumbs - Arrow Style */}
           <div className="w-full max-w-2xl flex items-center justify-center">
             <div className="flex items-center -space-x-2">
-            {[
-              { step: 1, label: 'Customer' },
-              { step: 2, label: 'Service' },
-              { step: 3, label: 'Details' },
-              { step: 4, label: 'Review' },
-            ].map(({ step, label }, index) => (
-              <button
-                key={step}
-                onClick={() => onStepClick(step)}
-                disabled={step > currentStep}
-                className={cn(
-                  "relative flex items-center gap-2 px-6 py-2.5 transition-all duration-200",
-                  "first:pl-4 last:pr-4",
-                  step === currentStep && "z-10",
-                  step > currentStep && "opacity-50 cursor-not-allowed"
-                )}
-                style={{
-                  clipPath: index === 0 
-                    ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
-                    : index === 3
-                    ? 'polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 50%)'
-                    : 'polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%)',
-                  backgroundColor: step < currentStep 
-                    ? 'hsl(var(--success))' // green for completed steps
-                    : step === currentStep 
-                    ? 'hsl(var(--primary))' 
-                    : '#f1f5f9', // slate-100 for inactive
-                  boxShadow: step === currentStep ? '0 4px 8px -2px hsl(var(--primary) / 0.3)' : 'none'
-                }}
-              >
-                <div className={cn(
-                  "flex items-center justify-center w-5 h-5 rounded-full text-xs font-semibold shadow-sm",
-                  step < currentStep && "bg-white text-green-600",
-                  step === currentStep && "bg-white text-blue-600",
-                  step > currentStep && "bg-slate-100 text-slate-400"
-                )}>
-                  {step < currentStep ? (
-                    <Check className="h-3 w-3" />
-                  ) : (
-                    step
+            {stepConfig.map(({ title, desc, icon: Icon }, index) => {
+              const step = index + 1;
+              const isCompleted = step < currentStep;
+              const isActive = step === currentStep;
+              const isDisabled = step > currentStep;
+              
+              return (
+                <button
+                  key={step}
+                  onClick={() => onStepClick(step)}
+                  disabled={isDisabled}
+                  className={cn(
+                    "relative flex flex-col items-center justify-center gap-1 px-6 py-3 transition-all duration-300",
+                    "first:pl-4 last:pr-4",
+                    "group",
+                    isActive && "z-10 scale-110",
+                    isDisabled && "opacity-50 cursor-not-allowed",
+                    !isDisabled && "hover:scale-105 hover:z-20"
                   )}
-                </div>
-                <span className={cn(
-                  "text-xs font-medium whitespace-nowrap",
-                  step < currentStep && "text-white",
-                  step === currentStep && "text-white",
-                  step > currentStep && "text-slate-500"
-                )}>
-                  {label}
-                 </span>
-               </button>
-             ))}
+                  style={{
+                    clipPath: index === 0 
+                      ? 'polygon(0 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 0 100%)'
+                      : index === 3
+                      ? 'polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 50%)'
+                      : 'polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%)',
+                    backgroundColor: isCompleted
+                      ? 'hsl(var(--success))' 
+                      : isActive
+                      ? 'hsl(var(--primary))' 
+                      : '#f1f5f9',
+                    boxShadow: isActive 
+                      ? '0 6px 12px -3px hsl(var(--primary) / 0.4), 0 3px 6px -2px hsl(var(--primary) / 0.3)' 
+                      : isCompleted
+                      ? '0 2px 4px -1px rgba(0, 0, 0, 0.1)'
+                      : 'none',
+                    animation: isCompleted ? 'bounce 0.5s ease-out' : 'none'
+                  }}
+                >
+                  <div className="flex items-center gap-2">
+                    <div className={cn(
+                      "flex items-center justify-center w-5 h-5 rounded-full text-xs font-semibold shadow-sm transition-transform",
+                      isCompleted && "bg-white text-green-600",
+                      isActive && "bg-white text-blue-600 scale-110",
+                      isDisabled && "bg-slate-100 text-slate-400"
+                    )}>
+                      {isCompleted ? (
+                        <Check className="h-3 w-3" />
+                      ) : (
+                        <Icon className="h-3 w-3" />
+                      )}
+                    </div>
+                    <span className={cn(
+                      "text-xs font-semibold whitespace-nowrap transition-colors",
+                      isCompleted && "text-white",
+                      isActive && "text-white",
+                      isDisabled && "text-slate-500"
+                    )}>
+                      {title}
+                    </span>
+                  </div>
+                  <span className={cn(
+                    "text-[10px] font-medium whitespace-nowrap transition-opacity",
+                    isCompleted && "text-white/90",
+                    isActive && "text-white/90",
+                    isDisabled && "text-slate-400"
+                  )}>
+                    {desc}
+                  </span>
+                </button>
+              );
+            })}
              </div>
            </div>
          </div>
