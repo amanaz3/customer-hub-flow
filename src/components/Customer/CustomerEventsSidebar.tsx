@@ -319,14 +319,14 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
         {/* Toggle Button */}
         <Button
           variant="ghost"
-          size="sm"
+          size="icon"
           className={cn(
-            "fixed top-20 sm:top-24 h-16 w-10 rounded-l-lg rounded-r-none border border-r-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100001]",
+            "fixed top-20 sm:top-24 h-12 w-12 rounded-full border-2 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100001]",
             isCollapsed ? "right-12" : "right-80"
           )}
           onClick={() => toggleCollapsed()}
         >
-          {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+          {isCollapsed ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
         </Button>
 
         {/* Collapsed State - Show Docs icon only for temp */}
@@ -590,14 +590,14 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
       {/* Toggle Button - Fixed positioning for better visibility */}
       <Button
         variant="ghost"
-        size="sm"
+        size="icon"
         className={cn(
-          "fixed top-20 sm:top-24 h-16 w-10 rounded-l-lg rounded-r-none border border-r-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100001]",
+          "fixed top-20 sm:top-24 h-12 w-12 rounded-full border-2 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100001]",
           isCollapsed ? "right-12" : "right-80"
         )}
         onClick={() => toggleCollapsed()}
       >
-        {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
+        {isCollapsed ? <ChevronLeft className="h-5 w-5" /> : <ChevronRight className="h-5 w-5" />}
       </Button>
 
       {/* Collapsed State - Shows icons vertically */}
