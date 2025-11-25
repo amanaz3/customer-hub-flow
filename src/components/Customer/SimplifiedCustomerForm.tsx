@@ -1677,7 +1677,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
       {/* Mode Change Warning Dialog */}
       <AlertDialog open={showModeChangeWarning} onOpenChange={setShowModeChangeWarning}>
-        <AlertDialogContent>
+        <AlertDialogContent className="z-[9999]">
           <AlertDialogHeader>
             <AlertDialogTitle>Switch Customer Type?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -1712,7 +1712,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
       {/* Cancel Confirmation Dialog */}
       <AlertDialog open={showCancelDialog} onOpenChange={setShowCancelDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="z-[9999]">
           <AlertDialogHeader>
             <AlertDialogTitle>Cancel Application?</AlertDialogTitle>
             <AlertDialogDescription>
