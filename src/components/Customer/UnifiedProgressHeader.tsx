@@ -67,24 +67,23 @@ export const UnifiedProgressHeader = ({
             />
           </div>
 
-          {/* Progress Bar - Segmented */}
+          {/* Progress Bar & Step Breadcrumbs in Card */}
           <div className="w-full max-w-2xl">
-            <div className="flex gap-1">
-              {[1, 2, 3, 4].map((step) => (
-                <div 
-                  key={step}
-                  className={cn(
-                    "h-1.5 flex-1 transition-colors duration-300",
-                    step <= currentStep ? "bg-primary" : "bg-muted"
-                  )}
-                />
-              ))}
-            </div>
-          </div>
+            <div className="bg-card border border-border rounded-xl p-4 shadow-sm space-y-3">
+              {/* Progress Bar - Segmented */}
+              <div className="flex gap-1">
+                {[1, 2, 3, 4].map((step) => (
+                  <div 
+                    key={step}
+                    className={cn(
+                      "h-1.5 flex-1 rounded-full transition-colors duration-300",
+                      step <= currentStep ? "bg-primary" : "bg-muted"
+                    )}
+                  />
+                ))}
+              </div>
 
-          {/* Step Breadcrumbs - Arrow Style in Card */}
-          <div className="w-full max-w-2xl">
-            <div className="bg-card border border-border rounded-xl p-3 shadow-sm">
+              {/* Step Breadcrumbs - Arrow Style */}
               <div className="flex items-center justify-center">
                 <div className="flex items-center -space-x-2">
                 {[
@@ -111,10 +110,10 @@ export const UnifiedProgressHeader = ({
                         ? 'polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 50%)'
                         : 'polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%)',
                       backgroundColor: step < currentStep 
-                        ? '#059669' // Darker emerald green for completed
+                        ? '#059669'
                         : step === currentStep 
-                        ? '#1d4ed8' // Darker blue for current - better contrast
-                        : '#d1d5db' // Light gray for future
+                        ? '#1d4ed8'
+                        : '#d1d5db'
                     }}
                   >
                     <div className={cn(
