@@ -86,13 +86,11 @@ const CustomerNew = () => {
     }
   }, [companyMode, selectedCustomerId, currentStep, hasProgressedPastStep1]);
 
-  // Auto-expand sidebar for existing customer in step 2 when product is selected, collapse in step 3+
+  // Auto-expand sidebar for existing customer in step 2 when product is selected
   React.useEffect(() => {
     if (companyMode && selectedCustomerId && selectedProduct) {
       if (currentStep === 2 && !userManuallyClosed) {
         setSidebarCollapsed(false);
-      } else if (currentStep >= 3) {
-        setSidebarCollapsed(true);
       }
     }
   }, [companyMode, selectedCustomerId, currentStep, selectedProduct, userManuallyClosed]);
@@ -104,15 +102,12 @@ const CustomerNew = () => {
     }
   }, [selectedProduct]);
 
-  // Keep sidebar collapsed in step 1 for new customer, don't interfere in step 2
+  // Keep sidebar collapsed in step 1 for new customer
   React.useEffect(() => {
     if (currentStep === 1 && !companyMode) {
       setSidebarCollapsed(true);
-    } else if (currentStep >= 3 && !companyMode) {
-      // Collapse in step 3 and beyond for new customers
-      setSidebarCollapsed(true);
     }
-    // Don't touch sidebarCollapsed in step 2 - let user control it manually
+    // Don't touch sidebarCollapsed in steps 2-4 - let user control it manually
   }, [currentStep, companyMode]);
 
   // Collapse sidebar and clear customer selection when switching between new/existing customer
