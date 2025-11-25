@@ -3,6 +3,7 @@ import { Check, Circle, ChevronLeft, ChevronRight, FileText } from 'lucide-react
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 interface ProcessStep {
   step: number;
@@ -106,18 +107,19 @@ export const ProcessSummarySidebar = ({
     >
       {/* Toggle Button - Always Visible */}
       <Button
-        size="icon"
-        variant="secondary"
+        variant="ghost"
+        size="sm"
         onClick={handleToggle}
-        className={`fixed top-20 h-14 w-14 rounded-full shadow-2xl bg-white hover:bg-white border-4 border-primary hover:border-secondary hover:scale-110 transition-all duration-300 z-[10000] ${
-          isCollapsed ? 'left-10' : 'left-[304px]'
-        }`}
+        className={cn(
+          "fixed top-4 h-16 w-10 rounded-r-lg rounded-l-none border border-l-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[10000]",
+          isCollapsed ? 'left-12' : 'left-80'
+        )}
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
       >
         {isCollapsed ? (
-          <ChevronRight className="h-7 w-7 text-primary" />
+          <ChevronRight className="h-4 w-4" />
         ) : (
-          <ChevronLeft className="h-7 w-7 text-primary" />
+          <ChevronLeft className="h-4 w-4" />
         )}
       </Button>
 
