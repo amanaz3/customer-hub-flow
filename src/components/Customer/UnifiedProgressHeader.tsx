@@ -69,7 +69,7 @@ export const UnifiedProgressHeader = ({
 
           {/* Progress Bar & Step Breadcrumbs in Card */}
           <div className="w-full">
-            <div className="bg-card border border-border p-4 shadow-sm space-y-3">
+            <div className="bg-card border border-border p-4 shadow-sm space-y-3 rounded-none">
               {/* Progress Bar - Segmented */}
               <div className="flex gap-1">
                 {[1, 2, 3, 4].map((step) => (
