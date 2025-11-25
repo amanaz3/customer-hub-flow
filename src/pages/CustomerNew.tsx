@@ -19,6 +19,7 @@ const CustomerNew = () => {
   const [customerMobile, setCustomerMobile] = useState<string>('');
   const [customerCompany, setCustomerCompany] = useState<string>('');
   const [hasSelectedProduct, setHasSelectedProduct] = useState<boolean>(false);
+  const [hasShownDocumentsSidebar, setHasShownDocumentsSidebar] = useState<boolean>(false);
   
   // Customer selection state
   const [companyMode, setCompanyMode] = useState<boolean>(false);
@@ -27,12 +28,13 @@ const CustomerNew = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(true);
   const [hasProgressedPastStep1, setHasProgressedPastStep1] = useState<boolean>(false);
 
-  // Track when product is selected and expand sidebar (only in new customer flow and only when moving forward from step 1 to step 2)
+  // Track when product is selected and expand sidebar (only in new customer flow and only when moving forward from step 1 to step 2, and only once)
   React.useEffect(() => {
     const movingForwardToStep2 = currentStep === 2 && previousStep === 1;
-    if (selectedProduct && !companyMode && movingForwardToStep2) {
+    if (selectedProduct && !companyMode && movingForwardToStep2 && !hasShownDocumentsSidebar) {
       setHasSelectedProduct(true);
       setSidebarCollapsed(false);
+      setHasShownDocumentsSidebar(true);
     }
     
     // Always collapse when moving backward
@@ -42,7 +44,7 @@ const CustomerNew = () => {
     }
     
     setPreviousStep(currentStep);
-  }, [currentStep, previousStep, selectedProduct, companyMode]);
+  }, [currentStep, previousStep, selectedProduct, companyMode, hasShownDocumentsSidebar]);
 
   // Track if user has progressed past step 1
   React.useEffect(() => {
@@ -164,10 +166,10 @@ const CustomerNew = () => {
         </div>
         </div>
       
-      {/* Sticky Sidebar - Show when product is selected in step 2 */}
+      {/* Sticky Sidebar - Show only once when transitioning forward to step 2 */}
       {(
         (companyMode && selectedCustomerId) || // Existing customer: only show when customer selected
-        (!companyMode && currentStep === 2 && selectedProduct) // New customer: only show in step 2 when product selected
+        (!companyMode && currentStep === 2 && selectedProduct && hasShownDocumentsSidebar) // New customer: only show in step 2 if we've shown it once
       ) && (
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
