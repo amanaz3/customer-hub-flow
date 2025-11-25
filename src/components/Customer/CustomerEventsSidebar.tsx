@@ -238,7 +238,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
           icon,
           color,
           count: cat.documents.length,
-          items: cat.documents.map(d => d.required ? `${d.name} *` : d.name)
+          items: cat.documents.map(d => ({ name: d.name, required: d.required }))
         };
       });
     }
@@ -255,9 +255,9 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             color: 'text-purple-600',
             count: 3,
             items: [
-              'Trade License Copy (certified)',
-              'Memorandum of Association (MOA)',
-              'Company Organization Chart'
+              { name: 'Trade License Copy (certified)', required: true },
+              { name: 'Memorandum of Association (MOA)', required: true },
+              { name: 'Company Organization Chart', required: false }
             ]
           },
           {
@@ -266,9 +266,9 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             color: 'text-blue-600',
             count: 3,
             items: [
-              'Passport Copies of all UBOs',
-              'Emirates ID Copies of all UBOs',
-              'Proof of Address for all UBOs'
+              { name: 'Passport Copies of all UBOs', required: true },
+              { name: 'Emirates ID Copies of all UBOs', required: true },
+              { name: 'Proof of Address for all UBOs', required: false }
             ]
           },
           {
@@ -277,8 +277,8 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             color: 'text-green-600',
             count: 2,
             items: [
-              'Board Resolution appointing Compliance Officer',
-              'Bank Account Details & Statements (Last 6 months)'
+              { name: 'Board Resolution appointing Compliance Officer', required: true },
+              { name: 'Bank Account Details & Statements (Last 6 months)', required: false }
             ]
           }
         ];
@@ -291,8 +291,8 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             color: 'text-blue-600',
             count: 2,
             items: [
-              'Passport Copy with valid UAE Visa',
-              'Emirates ID Copy (both sides)'
+              { name: 'Passport Copy with valid UAE Visa', required: true },
+              { name: 'Emirates ID Copy (both sides)', required: true }
             ]
           },
           {
@@ -301,8 +301,8 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             color: 'text-green-600',
             count: 2,
             items: [
-              'Salary Certificate (last 3 months)',
-              'Bank Statements (last 6 months)'
+              { name: 'Salary Certificate (last 3 months)', required: true },
+              { name: 'Bank Statements (last 6 months)', required: true }
             ]
           }
         ];
@@ -315,9 +315,9 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             color: 'text-purple-600',
             count: 3,
             items: [
-              'Trade License Copy',
-              'Memorandum of Association (MOA)',
-              'Share Certificates'
+              { name: 'Trade License Copy', required: true },
+              { name: 'Memorandum of Association (MOA)', required: true },
+              { name: 'Share Certificates', required: false }
             ]
           },
           {
@@ -326,9 +326,9 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
             color: 'text-blue-600',
             count: 3,
             items: [
-              'Passport Copies of all Shareholders',
-              'Emirates ID or Visa Copies',
-              'Proof of Address'
+              { name: 'Passport Copies of all Shareholders', required: true },
+              { name: 'Emirates ID or Visa Copies', required: true },
+              { name: 'Proof of Address', required: false }
             ]
           }
         ];
@@ -492,8 +492,9 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                                
                                doc.setFontSize(10);
                                doc.setFont(undefined, 'normal');
-                               cat.items.forEach((item: string) => {
-                                 doc.text(`☐ ${item}`, 25, yPos);
+                               cat.items.forEach((item) => {
+                                 const itemText = typeof item === 'string' ? item : `${item.name}${item.required ? ' (Mandatory)' : ' (Optional)'}`;
+                                 doc.text(`☐ ${itemText}`, 25, yPos);
                                  yPos += 7;
                                });
                                yPos += 5;
@@ -531,8 +532,9 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                              categories.forEach(cat => {
                                checklist += `${cat.title.toUpperCase()} (${cat.count})\n`;
                                checklist += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
-                               cat.items.forEach((item: string) => {
-                                 checklist += `□ ${item}\n`;
+                               cat.items.forEach((item) => {
+                                 const itemText = typeof item === 'string' ? item : `${item.name}${item.required ? ' (Mandatory)' : ' (Optional)'}`;
+                                 checklist += `□ ${itemText}\n`;
                                });
                                checklist += '\n\n';
                              });
@@ -634,12 +636,27 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                       </AccordionTrigger>
                       <AccordionContent className="pt-2 pb-3">
                         <ul className="space-y-2">
-                          {category.items.map((item, itemIndex) => (
-                            <li key={itemIndex} className="flex items-start gap-2 text-sm">
-                              <span className={cn("mt-1", category.color)}>•</span>
-                              <span className="text-muted-foreground">{item}</span>
-                            </li>
-                          ))}
+                          {category.items.map((item, itemIndex) => {
+                            const itemData = typeof item === 'string' ? { name: item, required: false } : item;
+                            const { name: itemName, required: isRequired } = itemData;
+                            return (
+                              <li key={itemIndex} className="flex items-center gap-2 text-sm">
+                                <span className={cn("", category.color)}>•</span>
+                                <span className="text-muted-foreground flex-1">{itemName}</span>
+                                <Badge 
+                                  variant="outline" 
+                                  className={cn(
+                                    "text-[10px] px-1.5 py-0 h-5 font-medium",
+                                    isRequired 
+                                      ? "bg-red-50 text-red-600 border-red-200" 
+                                      : "bg-yellow-50 text-yellow-600 border-yellow-200"
+                                  )}
+                                >
+                                  {isRequired ? 'Mandatory' : 'Optional'}
+                                </Badge>
+                              </li>
+                            );
+                          })}
                         </ul>
                       </AccordionContent>
                     </AccordionItem>
@@ -1039,8 +1056,9 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                               
                               doc.setFontSize(10);
                               doc.setFont(undefined, 'normal');
-                              cat.items.forEach((item: string) => {
-                                doc.text(`☐ ${item}`, 25, yPos);
+                              cat.items.forEach((item) => {
+                                const itemText = typeof item === 'string' ? item : `${item.name}${item.required ? ' (Mandatory)' : ' (Optional)'}`;
+                                doc.text(`☐ ${itemText}`, 25, yPos);
                                 yPos += 7;
                               });
                               yPos += 5;
@@ -1082,8 +1100,9 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                             categories.forEach(cat => {
                               checklist += `${cat.title.toUpperCase()} (${cat.count})\n`;
                               checklist += '━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n';
-                              cat.items.forEach((item: string) => {
-                                checklist += `□ ${item}\n`;
+                              cat.items.forEach((item) => {
+                                const itemText = typeof item === 'string' ? item : `${item.name}${item.required ? ' (Mandatory)' : ' (Optional)'}`;
+                                checklist += `□ ${itemText}\n`;
                               });
                               checklist += '\n\n';
                             });
@@ -1257,12 +1276,27 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                          </AccordionTrigger>
                          <AccordionContent className="px-4 pb-4 pt-2">
                            <ul className="space-y-2.5">
-                             {category.items.map((item, itemIndex) => (
-                               <li key={itemIndex} className="flex items-start gap-2.5 text-sm">
-                                 <span className={cn("text-lg leading-none mt-0.5", category.color)}>•</span>
-                                 <span className="text-muted-foreground leading-relaxed">{item}</span>
-                               </li>
-                             ))}
+                             {category.items.map((item, itemIndex) => {
+                               const itemName = typeof item === 'string' ? item : item.name;
+                               const isRequired = typeof item === 'string' ? false : item.required;
+                               return (
+                                 <li key={itemIndex} className="flex items-center gap-2 text-sm">
+                                   <span className={cn("", category.color)}>•</span>
+                                   <span className="text-muted-foreground flex-1">{itemName}</span>
+                                   <Badge 
+                                     variant="outline" 
+                                     className={cn(
+                                       "text-[10px] px-1.5 py-0 h-5 font-medium",
+                                       isRequired 
+                                         ? "bg-red-50 text-red-600 border-red-200" 
+                                         : "bg-yellow-50 text-yellow-600 border-yellow-200"
+                                     )}
+                                   >
+                                     {isRequired ? 'Mandatory' : 'Optional'}
+                                   </Badge>
+                                 </li>
+                               );
+                             })}
                            </ul>
                          </AccordionContent>
                        </AccordionItem>
