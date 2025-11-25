@@ -38,12 +38,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   }
 
   return (
-    <div className="flex h-screen bg-background transition-all duration-300 overflow-hidden">
+    <div className="flex h-screen bg-white transition-all duration-300 overflow-hidden">
       <Sidebar />
       <div className="flex flex-col flex-1 overflow-hidden w-full min-w-0 min-h-0">
         <Navbar />
         <main className={cn(
-          "flex-1 overflow-y-auto overscroll-contain bg-background",
+          "flex-1 overflow-y-auto overscroll-contain bg-white",
           "px-3 sm:px-4 md:px-6",
           isMobile ? "pt-4" : "pt-2"
         )}>
