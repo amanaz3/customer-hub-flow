@@ -126,9 +126,9 @@ export const ProcessSummarySidebar = ({
 
       {/* Collapsed State */}
       {isCollapsed && (
-        <div className="flex flex-col items-center py-4 gap-4">
-          <FileText className="h-6 w-6 text-muted-foreground" />
-          <Badge className="writing-mode-vertical text-xs bg-primary/10 text-primary border-primary/20">Process</Badge>
+        <div className="flex flex-col items-center py-3 gap-3">
+          <FileText className="h-5 w-5 text-muted-foreground" />
+          <Badge variant="secondary" className="writing-mode-vertical text-[9px] px-0.5 py-1.5 font-medium bg-primary/10 text-primary border-primary/20">Process</Badge>
         </div>
       )}
 
