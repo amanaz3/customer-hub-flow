@@ -4,7 +4,7 @@ import { useAuth } from '@/contexts/SecureAuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, FileText, Building2, BarChart3, XCircle } from 'lucide-react';
+import { Plus, FileText, Building2, BarChart3, XCircle, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useToast } from '@/hooks/use-toast';
@@ -63,11 +63,12 @@ const ApplicationsList = () => {
   );
   
   // Separate bulk selections for each tab
-  const activeSelection = useTableSelection(applications.filter(app => app.status !== 'rejected'));
+  const activeSelection = useTableSelection(applications.filter(app => app.status !== 'rejected' && app.status !== 'predraft'));
   const rejectedSelection = useTableSelection(applications.filter(app => app.status === 'rejected'));
+  const incompleteSelection = useTableSelection(applications.filter(app => app.status === 'predraft'));
   
   // Use the selection based on active tab
-  const currentSelection = activeTab === 'rejected' ? rejectedSelection : activeSelection;
+  const currentSelection = activeTab === 'rejected' ? rejectedSelection : activeTab === 'incomplete' ? incompleteSelection : activeSelection;
   
   const { updateApplicationsStatus, isLoading: isUpdating } = useBulkStatusUpdate();
   const [bulkStatusDialog, setBulkStatusDialog] = useState<{
@@ -153,13 +154,17 @@ const ApplicationsList = () => {
     }
   };
 
-  // Separate active and rejected applications
+  // Separate active, rejected, and incomplete (predraft) applications
   const activeApplications = useMemo(() => {
-    return applications.filter(app => app.status !== 'rejected');
+    return applications.filter(app => app.status !== 'rejected' && app.status !== 'predraft');
   }, [applications]);
 
   const rejectedApplications = useMemo(() => {
     return applications.filter(app => app.status === 'rejected');
+  }, [applications]);
+
+  const incompleteApplications = useMemo(() => {
+    return applications.filter(app => app.status === 'predraft');
   }, [applications]);
 
   // Filter active applications with search and status
@@ -199,6 +204,22 @@ const ApplicationsList = () => {
         (!isNaN(parsedRefNum) && app.reference_number === parsedRefNum);
     });
   }, [rejectedApplications, searchTerm]);
+
+  // Filter incomplete (predraft) applications with search only
+  const filteredIncompleteApplications = useMemo(() => {
+    return incompleteApplications.filter(app => {
+      if (searchTerm === '') return true;
+      
+      const searchLower = searchTerm.toLowerCase();
+      const refNum = searchTerm.replace(/^#/, '').trim();
+      const parsedRefNum = parseInt(refNum, 10);
+      
+      return app.customer?.company?.toLowerCase().includes(searchLower) ||
+        app.customer?.name?.toLowerCase().includes(searchLower) ||
+        app.application_type?.toLowerCase().includes(searchLower) ||
+        (!isNaN(parsedRefNum) && app.reference_number === parsedRefNum);
+    });
+  }, [incompleteApplications, searchTerm]);
 
   const statusColors: Record<string, string> = {
     predraft: 'bg-gray-500',
@@ -290,7 +311,7 @@ const ApplicationsList = () => {
 
       {/* Tab-based Layout */}
       <Tabs defaultValue="applications" className="w-full" onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3 max-w-2xl">
+        <TabsList className="grid w-full grid-cols-4 max-w-3xl">
           <TabsTrigger 
             value="applications" 
             className="flex items-center gap-2 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:border-b-2 data-[state=active]:border-b-green-500 dark:data-[state=active]:bg-green-950 dark:data-[state=active]:text-green-400"
@@ -299,6 +320,16 @@ const ApplicationsList = () => {
             Applications
             <Badge variant="secondary" className="ml-1">
               {filteredActiveApplications.length}
+            </Badge>
+          </TabsTrigger>
+          <TabsTrigger 
+            value="incomplete" 
+            className="flex items-center gap-2 data-[state=active]:bg-amber-50 data-[state=active]:text-amber-700 data-[state=active]:border-b-2 data-[state=active]:border-b-amber-500 dark:data-[state=active]:bg-amber-950 dark:data-[state=active]:text-amber-400"
+          >
+            <Clock className="h-4 w-4" />
+            Incomplete
+            <Badge variant="secondary" className="ml-1">
+              {filteredIncompleteApplications.length}
             </Badge>
           </TabsTrigger>
           <TabsTrigger 
@@ -646,6 +677,147 @@ const ApplicationsList = () => {
                             }}
                           >
                             View
+                          </Button>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
+                </TableBody>
+              </Table>
+            </div>
+          </div>
+        </TabsContent>
+
+        {/* Incomplete (Predraft) Tab */}
+        <TabsContent value="incomplete" className="space-y-3 mt-4">
+          {/* Search Only */}
+          <div className="flex flex-col sm:flex-row gap-3 bg-card rounded-lg p-3 border">
+            <Input
+              placeholder="Search incomplete applications..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1"
+            />
+          </div>
+
+          {/* Incomplete Applications Table */}
+          <div className="border rounded-lg bg-card overflow-hidden">
+            <div className="bg-amber-50 dark:bg-amber-950/20 border-b px-3 py-2">
+              <div className="flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-400">
+                <Clock className="h-4 w-4" />
+                Incomplete Applications ({filteredIncompleteApplications.length})
+                <span className="text-xs text-muted-foreground ml-2">Forms not yet submitted</span>
+              </div>
+            </div>
+            
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader className="sticky top-0 bg-muted backdrop-blur-sm z-10">
+                  <TableRow className="hover:bg-transparent border-b-2">
+                    <TableHead className="h-10 px-3 py-2 w-12">
+                      <Checkbox
+                        checked={incompleteSelection.isAllSelected}
+                        onCheckedChange={incompleteSelection.toggleAll}
+                        aria-label="Select all"
+                      />
+                    </TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Ref #</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Product/Service</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Company</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Contact</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Status</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Created</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide">Updated</TableHead>
+                    <TableHead className="h-10 px-3 py-2 text-xs font-bold text-foreground uppercase tracking-wide text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredIncompleteApplications.length === 0 ? (
+                    <TableRow>
+                      <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
+                        <Clock className="h-12 w-12 mx-auto mb-3 opacity-20 text-amber-500" />
+                        <p className="font-medium">No incomplete applications</p>
+                        <p className="text-xs mt-1">Partially filled forms will appear here</p>
+                      </TableCell>
+                    </TableRow>
+                  ) : (
+                    filteredIncompleteApplications.map((app) => (
+                      <TableRow 
+                        key={app.id}
+                        className="hover:bg-muted/50 cursor-pointer transition-colors border-b"
+                        onClick={(e) => {
+                          if (!(e.target as HTMLElement).closest('.checkbox-cell')) {
+                            navigate(`/applications/${app.id}`);
+                          }
+                        }}
+                      >
+                        <TableCell 
+                          className="px-3 py-3 checkbox-cell"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Checkbox
+                            checked={incompleteSelection.isSelected(app.id)}
+                            onCheckedChange={() => incompleteSelection.toggleItem(app.id)}
+                            aria-label={`Select ${app.customer?.company}`}
+                          />
+                        </TableCell>
+                        <TableCell className="px-3 py-3 font-mono font-bold text-sm text-primary">
+                          {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at)}
+                        </TableCell>
+                        <TableCell className="px-3 py-3 font-semibold text-sm">
+                          <div className="flex items-center gap-2 min-w-[150px]">
+                            <div className="h-2 w-2 rounded-full bg-amber-500 flex-shrink-0" />
+                            <span className="truncate text-foreground">{app.product?.name || 'N/A'}</span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="px-3 py-3 text-sm font-medium">
+                          <Button
+                            variant="link"
+                            className="p-0 h-auto text-sm font-semibold hover:underline text-primary"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (app.customer?.id) navigate(`/customers/${app.customer.id}`);
+                            }}
+                          >
+                            <Building2 className="h-4 w-4 mr-1.5" />
+                            <span className="max-w-[200px] truncate">{app.customer?.company || 'N/A'}</span>
+                          </Button>
+                        </TableCell>
+                        <TableCell className="px-3 py-3 text-sm font-medium text-foreground">
+                          <span className="max-w-[150px] truncate block">{app.customer?.name || 'N/A'}</span>
+                        </TableCell>
+                        <TableCell className="px-3 py-3">
+                          <Badge 
+                            className="bg-amber-500 text-white border-0 text-xs px-3 py-1 font-bold uppercase tracking-wide shadow-sm"
+                          >
+                            PRE-DRAFT
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="px-3 py-3 text-xs font-medium text-foreground/70 whitespace-nowrap">
+                          {new Date(app.created_at).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })}
+                        </TableCell>
+                        <TableCell className="px-3 py-3 text-xs font-medium text-foreground/70 whitespace-nowrap">
+                          {new Date(app.updated_at).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })}
+                        </TableCell>
+                        <TableCell className="px-3 py-3 text-right">
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 px-3 text-xs font-semibold border-2 hover:bg-primary hover:text-primary-foreground"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              navigate(`/applications/${app.id}`);
+                            }}
+                          >
+                            Continue
                           </Button>
                         </TableCell>
                       </TableRow>
