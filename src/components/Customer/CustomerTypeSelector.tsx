@@ -10,25 +10,19 @@ export const CustomerTypeSelector = ({ value, onChange }: CustomerTypeSelectorPr
   return (
     <div className="space-y-2">
       <Tabs value={value} onValueChange={onChange} className="w-full relative z-50">
-        <TabsList className="grid w-full grid-cols-2 h-auto bg-slate-100/50 backdrop-blur-sm border border-slate-200/50 rounded-xl p-1 shadow-sm">
+        <TabsList className="grid w-full grid-cols-2 h-auto bg-white/80 backdrop-blur-sm border border-slate-200 rounded-xl p-1.5 shadow-md">
           <TabsTrigger 
             value="new" 
-            className="relative flex items-center justify-center gap-2 py-3 px-3 sm:px-4 h-11 sm:h-12 rounded-lg transition-all duration-300 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-lg data-[state=active]:scale-[1.02] data-[state=inactive]:text-muted-foreground data-[state=inactive]:opacity-70 hover:opacity-100 hover:bg-white/50 group overflow-hidden"
+            className="relative flex items-center justify-center gap-2 py-3 px-3 sm:px-4 h-11 sm:h-12 rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:shadow-blue-500/30 data-[state=active]:scale-[1.02] data-[state=inactive]:text-slate-500 data-[state=inactive]:bg-transparent hover:bg-slate-50 group"
           >
-            {/* Active indicator bar */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-0 bg-primary transition-all duration-300 group-data-[state=active]:w-3/4 rounded-full" />
-            
-            <UserPlus className="h-4 w-4 shrink-0 transition-all duration-300 group-data-[state=active]:scale-110 group-data-[state=active]:text-primary group-data-[state=inactive]:text-muted-foreground" />
+            <UserPlus className="h-4 w-4 shrink-0 transition-all duration-300 group-data-[state=active]:scale-110" />
             <span className="font-semibold text-sm whitespace-nowrap">New Customer</span>
           </TabsTrigger>
           <TabsTrigger 
             value="existing" 
-            className="relative flex items-center justify-center gap-2 py-3 px-3 sm:px-4 h-11 sm:h-12 rounded-lg transition-all duration-300 data-[state=active]:bg-white data-[state=active]:text-primary data-[state=active]:shadow-lg data-[state=active]:scale-[1.02] data-[state=inactive]:text-muted-foreground data-[state=inactive]:opacity-70 hover:opacity-100 hover:bg-white/50 group overflow-hidden"
+            className="relative flex items-center justify-center gap-2 py-3 px-3 sm:px-4 h-11 sm:h-12 rounded-lg transition-all duration-300 data-[state=active]:bg-gradient-to-br data-[state=active]:from-blue-500 data-[state=active]:to-blue-600 data-[state=active]:text-white data-[state=active]:shadow-xl data-[state=active]:shadow-blue-500/30 data-[state=active]:scale-[1.02] data-[state=inactive]:text-slate-500 data-[state=inactive]:bg-transparent hover:bg-slate-50 group"
           >
-            {/* Active indicator bar */}
-            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-0 bg-primary transition-all duration-300 group-data-[state=active]:w-3/4 rounded-full" />
-            
-            <Users className="h-4 w-4 shrink-0 transition-all duration-300 group-data-[state=active]:scale-110 group-data-[state=active]:text-primary group-data-[state=inactive]:text-muted-foreground" />
+            <Users className="h-4 w-4 shrink-0 transition-all duration-300 group-data-[state=active]:scale-110" />
             <span className="font-semibold text-sm whitespace-nowrap">Existing Customer</span>
           </TabsTrigger>
         </TabsList>
