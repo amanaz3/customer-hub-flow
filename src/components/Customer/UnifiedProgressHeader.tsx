@@ -82,7 +82,7 @@ export const UnifiedProgressHeader = ({
             </div>
           </div>
 
-          {/* Step Breadcrumbs - Arrow Style */}
+          {/* Step Breadcrumbs - Arrow Style with improved readability */}
           <div className="w-full max-w-2xl flex items-center justify-center">
             <div className="flex items-center -space-x-2">
             {[
@@ -99,7 +99,7 @@ export const UnifiedProgressHeader = ({
                   "relative flex items-center gap-2 px-6 py-2.5 transition-all duration-300 group",
                   "first:pl-4 last:pr-4",
                   step === currentStep && "z-10 scale-105",
-                  step > currentStep && "opacity-50 cursor-not-allowed",
+                  step > currentStep && "opacity-60 cursor-not-allowed",
                   step < currentStep && "hover:scale-105"
                 )}
                 style={{
@@ -109,29 +109,29 @@ export const UnifiedProgressHeader = ({
                     ? 'polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 50%)'
                     : 'polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%)',
                   backgroundColor: step < currentStep 
-                    ? '#22c55e'
+                    ? '#059669' // Darker emerald green for completed
                     : step === currentStep 
-                    ? '#3b82f6'
-                    : '#e5e7eb'
+                    ? '#1d4ed8' // Darker blue for current - better contrast
+                    : '#d1d5db' // Light gray for future
                 }}
               >
                 <div className={cn(
-                  "flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold shadow-md transition-all",
-                  step < currentStep && "bg-white text-success",
-                  step === currentStep && "bg-white text-primary ring-2 ring-white/50",
-                  step > currentStep && "bg-white/80 text-muted-foreground"
+                  "flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold shadow-md transition-all border-2",
+                  step < currentStep && "bg-white text-emerald-700 border-white",
+                  step === currentStep && "bg-white text-blue-800 border-white ring-2 ring-white/50",
+                  step > currentStep && "bg-gray-100 text-gray-500 border-gray-200"
                 )}>
                   {step < currentStep ? (
-                    <Check className="h-3 w-3 animate-scale-in" />
+                    <Check className="h-3.5 w-3.5 animate-scale-in" />
                   ) : (
                     step
                   )}
                 </div>
                 <span className={cn(
-                  "text-xs font-semibold whitespace-nowrap transition-all",
+                  "text-sm font-bold whitespace-nowrap transition-all drop-shadow-sm",
                   step < currentStep && "text-white",
                   step === currentStep && "text-white",
-                  step > currentStep && "text-muted-foreground"
+                  step > currentStep && "text-gray-600"
                 )}>
                   {label}
                  </span>
