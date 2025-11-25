@@ -67,15 +67,18 @@ export const UnifiedProgressHeader = ({
             />
           </div>
 
-          {/* Progress Bar */}
+          {/* Progress Bar - Segmented */}
           <div className="w-full max-w-2xl">
-            <div className="h-3 bg-gradient-to-r from-slate-200 via-slate-100 to-slate-200 rounded-full overflow-hidden shadow-md relative border border-slate-300">
-              <div 
-                className="h-full bg-gradient-to-r from-primary via-secondary to-accent transition-all duration-500 ease-out shadow-lg relative overflow-hidden"
-                style={{ width: `${Math.max(progressPercentage, 8)}%` }}
-              >
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-shimmer" />
-              </div>
+            <div className="flex gap-1">
+              {[1, 2, 3, 4].map((step) => (
+                <div 
+                  key={step}
+                  className={cn(
+                    "h-1.5 flex-1 transition-colors duration-300",
+                    step <= currentStep ? "bg-primary" : "bg-muted"
+                  )}
+                />
+              ))}
             </div>
           </div>
 
