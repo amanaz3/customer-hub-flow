@@ -28,26 +28,26 @@ const CustomerNew = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(true);
   const [hasProgressedPastStep1, setHasProgressedPastStep1] = useState<boolean>(false);
 
-  // Track when product is selected and expand sidebar (only when moving forward from step 1 to step 2)
+  // Track when product is selected and control sidebar visibility and state
   React.useEffect(() => {
     const movingForwardToStep2 = currentStep === 2 && previousStep === 1;
     const returningToStep2 = currentStep === 2 && previousStep > 2;
     
     if (selectedProduct && !companyMode && movingForwardToStep2) {
       setHasSelectedProduct(true);
-      setSidebarCollapsed(false);
+      setSidebarCollapsed(false); // EXPAND when moving forward
       setShouldShowSidebarInStep2(true);
     }
     
-    // Hide sidebar when returning to step 2 from step 3+
-    if (returningToStep2 && !companyMode) {
-      setSidebarCollapsed(true);
-      setShouldShowSidebarInStep2(false);
+    // Show sidebar but keep COLLAPSED when returning to step 2 from step 3+
+    if (returningToStep2 && !companyMode && selectedProduct) {
+      setSidebarCollapsed(true); // Keep COLLAPSED when going back
+      setShouldShowSidebarInStep2(true); // But still SHOW it
     }
     
-    // Always collapse when moving backward to step 1
-    const movingBackward = currentStep < previousStep;
-    if (movingBackward && !companyMode) {
+    // Hide sidebar when moving backward to step 1
+    const movingBackwardToStep1 = currentStep === 1 && previousStep > 1;
+    if (movingBackwardToStep1 && !companyMode) {
       setSidebarCollapsed(true);
       setShouldShowSidebarInStep2(false);
     }
