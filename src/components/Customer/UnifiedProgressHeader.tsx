@@ -66,23 +66,24 @@ export const UnifiedProgressHeader = ({
             />
           </div>
 
-          {/* Progress Bar & Step Breadcrumbs */}
-          <div className="w-full space-y-3 pt-2 border-t border-border">
-            {/* Progress Bar - Segmented */}
-            <div className="flex gap-1">
-              {[1, 2, 3, 4].map((step) => (
-                <div 
-                  key={step}
-                  className={cn(
-                    "h-1.5 flex-1 rounded-full transition-colors duration-300",
-                    step <= currentStep ? "bg-primary" : "bg-muted"
-                  )}
-                />
-              ))}
-            </div>
+          {/* Progress Bar & Step Breadcrumbs - Grouped */}
+          <div className="w-full pt-2 border-t border-border">
+            <div className="bg-muted/30 p-3 space-y-3">
+              {/* Progress Bar - Segmented */}
+              <div className="flex gap-1">
+                {[1, 2, 3, 4].map((step) => (
+                  <div 
+                    key={step}
+                    className={cn(
+                      "h-1.5 flex-1 transition-colors duration-300",
+                      step <= currentStep ? "bg-primary" : "bg-muted"
+                    )}
+                  />
+                ))}
+              </div>
 
-            {/* Step Breadcrumbs - Arrow Style */}
-            <div className="flex items-center justify-center">
+              {/* Step Breadcrumbs - Arrow Style */}
+              <div className="flex items-center justify-center">
               <div className="flex items-center -space-x-2">
               {[
                 { step: 1, label: 'Customer' },
@@ -136,11 +137,12 @@ export const UnifiedProgressHeader = ({
                    </span>
                  </button>
                ))}
-               </div>
-             </div>
-           </div>
-         </div>
-       </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
     </div>
   );
 };
