@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Package, Shield, Wrench, BookOpen, ListTodo, RefreshCcw } from "lucide-react";
+import { Users, MessageSquare, Package, Shield, Wrench, BookOpen, ListTodo, RefreshCcw, UserCog, Code } from "lucide-react";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -12,179 +12,117 @@ const Manage = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <Card 
-          className="hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => navigate('/products')}
-        >
-          <CardHeader>
+        {/* User Configuration Card */}
+        <Card className="border-2">
+          <CardHeader className="pb-4">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-primary/10 rounded-lg">
-                <Package className="h-6 w-6 text-primary" />
+                <UserCog className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <CardTitle>Product Management</CardTitle>
-                <CardDescription>Manage products and services</CardDescription>
+                <CardTitle>User</CardTitle>
+                <CardDescription>User and business configuration</CardDescription>
               </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Create and manage products, assign service categories, and configure service offerings.
-            </p>
+          <CardContent className="space-y-3">
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => navigate('/products')}
+            >
+              <Package className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">Product Management</p>
+                <p className="text-xs text-muted-foreground">Manage products and services</p>
+              </div>
+            </div>
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => navigate('/users')}
+            >
+              <Shield className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">User Management</p>
+                <p className="text-xs text-muted-foreground">Manage users and permissions</p>
+              </div>
+            </div>
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => navigate('/customer-services')}
+            >
+              <Users className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">Customer Services</p>
+                <p className="text-xs text-muted-foreground">Manage customer services and products</p>
+              </div>
+            </div>
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => navigate('/messages')}
+            >
+              <MessageSquare className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">Messages</p>
+                <p className="text-xs text-muted-foreground">Notification settings and preferences</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card 
-          className="hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => navigate('/users')}
-        >
-          <CardHeader>
+        {/* Dev Configuration Card */}
+        <Card className="border-2">
+          <CardHeader className="pb-4">
             <div className="flex items-center gap-3">
               <div className="p-3 bg-primary/10 rounded-lg">
-                <Shield className="h-6 w-6 text-primary" />
+                <Code className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <CardTitle>User Management</CardTitle>
-                <CardDescription>Manage users and permissions</CardDescription>
+                <CardTitle>Dev</CardTitle>
+                <CardDescription>Developer and admin tools</CardDescription>
               </div>
             </div>
           </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Create and manage system users, assign roles, and control access permissions.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card 
-          className="hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => navigate('/customer-services')}
-        >
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Users className="h-6 w-6 text-primary" />
-              </div>
+          <CardContent className="space-y-3">
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => navigate('/dev-tools')}
+            >
+              <Wrench className="h-5 w-5 text-muted-foreground" />
               <div>
-                <CardTitle>Customer Services</CardTitle>
-                <CardDescription>Manage customer services and products</CardDescription>
+                <p className="font-medium text-sm">Admin Tools</p>
+                <p className="text-xs text-muted-foreground">Developer and admin testing tools</p>
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Configure and manage customer services, service types, and ARR tracking.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card 
-          className="hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => navigate('/messages')}
-        >
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <MessageSquare className="h-6 w-6 text-primary" />
-              </div>
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => navigate('/admin/help-editor')}
+            >
+              <BookOpen className="h-5 w-5 text-muted-foreground" />
               <div>
-                <CardTitle>Messages</CardTitle>
-                <CardDescription>Notification settings and message preferences</CardDescription>
+                <p className="font-medium text-sm">Help Editor</p>
+                <p className="text-xs text-muted-foreground">Manage help content and documentation</p>
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Manage email and in-app notification settings for application status changes.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card 
-          className="hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => navigate('/dev-tools')}
-        >
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Wrench className="h-6 w-6 text-primary" />
-              </div>
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => navigate('/task-settings')}
+            >
+              <ListTodo className="h-5 w-5 text-muted-foreground" />
               <div>
-                <CardTitle>Admin Tools</CardTitle>
-                <CardDescription>Developer and admin testing tools</CardDescription>
+                <p className="font-medium text-sm">Tasks</p>
+                <p className="text-xs text-muted-foreground">Manage task and project settings</p>
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Access notification testing, database viewer, and data migration tools.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card 
-          className="hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => navigate('/admin/help-editor')}
-        >
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <BookOpen className="h-6 w-6 text-primary" />
-              </div>
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => navigate('/cycles')}
+            >
+              <RefreshCcw className="h-5 w-5 text-muted-foreground" />
               <div>
-                <CardTitle>Help Editor</CardTitle>
-                <CardDescription>Manage help content and documentation</CardDescription>
+                <p className="font-medium text-sm">Cycles</p>
+                <p className="text-xs text-muted-foreground">Manage development cycles</p>
               </div>
             </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Create and edit help articles, FAQs, and user documentation.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card 
-          className="hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => navigate('/task-settings')}
-        >
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <ListTodo className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <CardTitle>Tasks</CardTitle>
-                <CardDescription>Manage task and project settings</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Configure GitHub repositories, manage projects, and task settings.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card 
-          className="hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => navigate('/cycles')}
-        >
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <RefreshCcw className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <CardTitle>Cycles</CardTitle>
-                <CardDescription>Manage development cycles</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <p className="text-sm text-muted-foreground">
-              Create and manage time-boxed development cycles for task organization and sprint planning.
-            </p>
           </CardContent>
         </Card>
       </div>
