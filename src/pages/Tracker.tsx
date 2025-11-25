@@ -103,6 +103,13 @@ const Tracker = () => {
       icon: Target,
       path: "/team-targets",
       color: "text-teal-600"
+    },
+    {
+      title: "By Services",
+      description: "View applications organized by service type",
+      icon: Layers,
+      path: "/applications-by-services",
+      color: "text-indigo-600"
     }
   ];
 
