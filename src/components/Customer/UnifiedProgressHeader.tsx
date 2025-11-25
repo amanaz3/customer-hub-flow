@@ -50,16 +50,16 @@ export const UnifiedProgressHeader = ({
   }, []);
 
   return (
-    <div ref={containerRef} className="sticky top-0 left-0 right-0 bg-white z-[100] shadow-sm border-b border-border/30">
+    <div ref={containerRef} className="sticky top-0 left-0 right-0 bg-white z-[100]">
       <div className="w-full max-w-2xl mx-auto">
-        <div className="px-4 sm:px-6 py-6 bg-white">
+        <div className="px-4 sm:px-6 py-4 bg-white border border-b-0 border-border rounded-t-lg shadow-sm">
         {/* Unified Container with consistent styling */}
         <div className="flex flex-col items-center gap-4">
           {/* Customer Type Selector */}
           <div className="w-full max-w-2xl">
-            <div className="text-center mb-4">
-              <h3 className="text-base font-bold text-foreground tracking-tight">Customer Selection</h3>
-              <p className="text-sm text-muted-foreground mt-1.5">Choose whether to create a new customer or select an existing one</p>
+            <div className="text-center mb-3">
+              <h3 className="text-sm font-semibold text-foreground">Customer Selection</h3>
+              <p className="text-xs text-muted-foreground mt-1">Choose whether to create a new customer or select an existing one</p>
             </div>
             <CustomerTypeSelector
               value={customerType}
@@ -69,9 +69,9 @@ export const UnifiedProgressHeader = ({
 
           {/* Progress Bar */}
           <div className="w-full max-w-2xl">
-            <div className="h-1.5 bg-muted/50 rounded-full overflow-hidden shadow-inner">
+            <div className="h-1 bg-muted rounded-full overflow-hidden">
               <div 
-                className="h-full bg-gradient-to-r from-primary to-primary/80 transition-all duration-500 ease-out shadow-sm"
+                className="h-full bg-primary transition-all duration-500 ease-out"
                 style={{ width: `${progressPercentage}%` }}
               />
             </div>

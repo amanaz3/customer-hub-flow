@@ -995,12 +995,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         value={step1AccordionOpen}
         onValueChange={setStep1AccordionOpen}
       >
-        <AccordionItem value="customer-info" className="border-0 bg-white">
-          <AccordionTrigger className="px-5 py-3.5 hover:no-underline font-semibold">
+        <AccordionItem value="customer-info" className="border rounded-lg bg-white">
+          <AccordionTrigger className="px-4 py-3 hover:no-underline">
             {step1AccordionOpen !== 'customer-info' && (
-              <div className="flex items-center gap-2.5">
+              <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-primary" />
-                <span className="text-sm font-semibold">{selectedCustomerData.name}</span>
+                <span className="text-sm font-medium">{selectedCustomerData.name}</span>
               </div>
             )}
           </AccordionTrigger>
@@ -1085,17 +1085,17 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             />
 
             <Card 
-              className="border border-border/40 bg-white shadow-lg rounded-2xl max-w-2xl mx-auto overflow-visible mt-6"
+              className="-mt-px border-t-0 border-x border-b border-border/50 bg-white backdrop-blur-xl shadow-xl hover:shadow-2xl transition-all duration-500 ease-out rounded-t-none rounded-b-xl max-w-2xl mx-auto overflow-visible"
             >
-            <CardContent className="p-6 sm:p-8 space-y-6 overflow-visible">
+            <CardContent className="p-4 sm:p-6 space-y-3 overflow-visible">
               {/* Customer Information Summary Accordion - Show after step 1 */}
               {currentStep > 1 && form.watch('name') && (
-                <div className="sticky z-20 bg-white/95 backdrop-blur-sm -mx-6 sm:-mx-8 px-6 sm:px-8 py-4 mb-6 border-b border-border/30 shadow-sm" style={{ top: 'var(--unified-header-h, 160px)' }}>
+                <div className="sticky z-20 bg-white/95 backdrop-blur-sm -mx-3 sm:-mx-4 px-3 sm:px-4 pt-2 pb-3 mb-3 border-b border-border shadow-md" style={{ top: 'var(--unified-header-h, 160px)' }}>
                   <div className="flex justify-center">
                   <Accordion 
                     type="single" 
                     collapsible 
-                    className={`bg-white transition-all duration-300 rounded-xl border border-border/40 shadow-sm ${accordionOpen === 'customer-info' ? 'w-2/3' : 'w-1/3'}`}
+                    className={`bg-white transition-all duration-300 ${accordionOpen === 'customer-info' ? 'w-1/2' : 'w-1/4'}`}
                     value={accordionOpen}
                     onValueChange={setAccordionOpen}
                   >
@@ -1201,16 +1201,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             name="name"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-semibold text-foreground">Name *</FormLabel>
+                                <FormLabel className="text-xs font-medium">Name *</FormLabel>
                                 <FormControl>
                                   <Input 
-                                    {...field}
+                                    {...field} 
                                     onChange={(e) => {
                                       field.onChange(e);
                                       onNameChange?.(e.target.value);
                                     }}
                                     placeholder="John Doe"
-                                    className="h-11 text-sm border-border/60 focus:border-primary transition-colors"
+                                    className="h-10 text-sm"
                                   />
                                 </FormControl>
                                 <FormMessage className="text-xs" />
@@ -1224,10 +1224,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             name="mobile"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-semibold text-foreground">Mobile (UAE) *</FormLabel>
+                                <FormLabel className="text-xs font-medium">Mobile (UAE) *</FormLabel>
                                 <FormControl>
                                   <div className="relative">
-                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm font-semibold text-foreground pointer-events-none">
+                                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground pointer-events-none">
                                       +971
                                     </span>
                                      <Input 
@@ -1247,7 +1247,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                         onMobileChange?.(formattedValue);
                                       }}
                                       placeholder="501234567"
-                                      className="h-11 text-sm pl-16 border-border/60 focus:border-primary transition-colors"
+                                      className="h-10 text-sm pl-14"
                                       maxLength={9}
                                     />
                                   </div>
@@ -1263,7 +1263,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             name="email"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-semibold text-foreground">Email *</FormLabel>
+                                <FormLabel className="text-xs font-medium">Email *</FormLabel>
                                 <FormControl>
                                   <Input 
                                     {...field} 
@@ -1273,7 +1273,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                     }}
                                     placeholder="john@example.com"
                                     type="email"
-                                    className="h-11 text-sm border-border/60 focus:border-primary transition-colors"
+                                    className="h-10 text-sm"
                                   />
                                 </FormControl>
                                 <FormMessage className="text-xs" />
@@ -1287,10 +1287,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             name="customer_type"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-semibold text-foreground">Type *</FormLabel>
+                                <FormLabel className="text-xs font-medium">Type *</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                   <FormControl>
-                                    <SelectTrigger className="h-11 text-sm border-border/60 focus:border-primary transition-colors">
+                                    <SelectTrigger className="h-10 text-sm">
                                       <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                   </FormControl>
@@ -1311,7 +1311,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                               name="company"
                               render={({ field }) => (
                                 <FormItem>
-                                  <FormLabel className="text-sm font-semibold text-foreground">Company *</FormLabel>
+                                  <FormLabel className="text-xs font-medium">Company *</FormLabel>
                                   <FormControl>
                                     <Input 
                                       {...field} 
@@ -1320,7 +1320,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                         onCompanyChange?.(e.target.value);
                                       }}
                                       placeholder="ABC Trading LLC"
-                                      className="h-11 text-sm border-border/60 focus:border-primary transition-colors"
+                                      className="h-10 text-sm"
                                     />
                                   </FormControl>
                                   <FormMessage className="text-xs" />
@@ -1335,10 +1335,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                             name="lead_source"
                             render={({ field }) => (
                               <FormItem>
-                                <FormLabel className="text-sm font-semibold text-foreground">Source *</FormLabel>
+                                <FormLabel className="text-xs font-medium">Source *</FormLabel>
                                 <Select onValueChange={field.onChange} value={field.value}>
                                   <FormControl>
-                                    <SelectTrigger className="h-11 text-sm border-border/60 focus:border-primary transition-colors">
+                                    <SelectTrigger className="h-10 text-sm">
                                       <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                   </FormControl>
@@ -1378,16 +1378,16 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     name="product_id"
                     render={({ field }) => (
                       <FormItem className="md:col-span-2 relative">
-                        <FormLabel className="text-sm font-semibold text-foreground ml-1">Select Service *</FormLabel>
+                        <FormLabel className="text-xs font-semibold text-foreground/90 ml-1">Select Service *</FormLabel>
                         <Select onValueChange={(value) => {
                           field.onChange(value);
                           handleProductChange(value);
                         }} value={field.value}>
                           <FormControl>
-                            <SelectTrigger className="h-14 text-sm border-2 border-border/60 bg-white/50 backdrop-blur-sm rounded-xl
+                            <SelectTrigger className="h-12 text-sm border-2 border-border/60 bg-white/50 backdrop-blur-sm rounded-lg
                               focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-white
-                              hover:border-primary/50 hover:bg-white/80 font-medium
-                              transition-all duration-300 shadow-sm">
+                              hover:border-primary/50 hover:bg-white/80
+                              transition-all duration-300">
                               <SelectValue placeholder="🎯 Choose a service" />
                             </SelectTrigger>
                           </FormControl>
@@ -1411,13 +1411,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Step 3: Service Details - Dynamic Form Configuration */}
               {currentStep === 3 && (
                 <div key="step-3" className="animate-fade-in">
-                  <CardHeader className="pb-4 px-6 sm:px-8">
-                    <CardTitle className="text-xl font-bold tracking-tight">Service Details</CardTitle>
-                    <CardDescription className="text-sm mt-2">
+                  <CardHeader className="pb-2 px-3 sm:px-4">
+                    <CardTitle className="text-lg">Service Details</CardTitle>
+                    <CardDescription className="text-xs">
                       Complete the details specific to your selected service.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="px-6 sm:px-8 space-y-4">
+                  <CardContent className="px-3 sm:px-4 space-y-3">
                     {form.watch('product_id') ? (
                       <DynamicServiceForm
                         productId={form.watch('product_id')}
@@ -1455,20 +1455,20 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Step 4: Confirmation & Preview */}
               {currentStep === 4 && (
                 <div key="step-4" className="animate-fade-in">
-                  <CardHeader className="pb-4 px-6 sm:px-8">
-                    <CardTitle className="text-xl font-bold tracking-tight">Review & Submit</CardTitle>
-                    <CardDescription className="text-sm mt-2 leading-relaxed">
+                  <CardHeader className="pb-2 px-3 sm:px-4">
+                    <CardTitle className="text-base">Review & Submit</CardTitle>
+                    <CardDescription className="text-xs leading-relaxed">
                       Please review all information carefully before submitting.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="px-6 sm:px-8 space-y-5">
+                  <CardContent className="px-3 sm:px-4 space-y-4">
                     {/* Customer Information Preview */}
-                    <div className="rounded-xl border border-border/40 bg-gradient-to-br from-primary/5 to-transparent p-5 shadow-sm">
-                      <div className="flex items-center gap-2.5 mb-4 pb-3 border-b border-border/40">
+                    <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
+                      <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
                         <div className="w-1 h-6 bg-primary rounded-full" />
-                        <h4 className="font-bold text-foreground text-base">Customer Information</h4>
+                        <h4 className="font-semibold text-foreground text-base">Customer Information</h4>
                       </div>
-                      <dl className="space-y-2.5 text-sm">
+                      <dl className="space-y-2 text-sm">
                         <div className="flex justify-between py-1">
                           <dt className="text-muted-foreground">Name:</dt>
                           <dd className="font-medium text-foreground">{form.watch('name')}</dd>
@@ -1592,8 +1592,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       </Form>
       
       {/* Floating Action Buttons */}
-      <div className={`fixed bottom-8 flex flex-col gap-3.5 z-[9999] transition-all duration-500 ease-out ${
-        sidebarCollapsed ? 'right-20' : 'right-[360px]'
+      <div className={`fixed bottom-6 flex flex-col gap-3 z-[9999] transition-all duration-500 ease-out ${
+        sidebarCollapsed ? 'right-[72px]' : 'right-[344px]'
       }`}>
         {/* Cancel Button */}
         <Button
@@ -1602,10 +1602,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           variant="outline"
           onClick={() => setShowCancelDialog(true)}
           disabled={isSubmitting}
-          className="h-14 w-14 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-border/60 hover:border-destructive/70 hover:bg-destructive/10 backdrop-blur-md bg-white font-semibold"
+          className="h-11 w-11 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 border border-border/60 hover:border-destructive/50 hover:bg-destructive/5 backdrop-blur-sm bg-white/95"
           title="Cancel and return"
         >
-          <X className="h-5 w-5" />
+          <X className="h-4 w-4" />
         </Button>
 
         {/* Previous Step Button */}
@@ -1620,10 +1620,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               onStepChange?.(prevStep);
             }}
             disabled={isSubmitting}
-            className="h-14 w-14 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-border/60 hover:border-primary/70 hover:bg-primary/10 backdrop-blur-md bg-white"
+            className="h-11 w-11 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 border border-border/60 hover:border-primary/50 hover:bg-primary/5 backdrop-blur-sm bg-white/95"
             title="Previous Step"
           >
-            <ArrowLeft className="h-5 w-5" />
+            <ArrowLeft className="h-4 w-4" />
           </Button>
         )}
         
@@ -1652,7 +1652,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               }
             }}
             disabled={isSubmitting}
-            className="h-14 w-14 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 bg-primary hover:bg-primary/90 text-primary-foreground border-0"
+            className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 bg-primary hover:bg-primary/90 text-primary-foreground"
             title="Next Step"
           >
             <ArrowRight className="h-5 w-5" />
@@ -1666,7 +1666,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             size="icon"
             onClick={saveDraft}
             disabled={isSubmitting}
-            className="h-14 w-14 rounded-full shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-110 active:scale-95 border-2 border-border/60 hover:border-success/70 hover:bg-success/10 backdrop-blur-md bg-white"
+            className="h-11 w-11 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 border border-border/60 hover:border-success/50 hover:bg-success/5 backdrop-blur-sm bg-white/95"
             title="Save Draft"
           >
             <Save className="h-5 w-5" />
