@@ -53,7 +53,7 @@ export const UnifiedProgressHeader = ({
     <div ref={containerRef} className="sticky top-0 left-0 right-0 bg-card backdrop-blur-xl z-[100]">
       <div className="w-full">
         {/* Card container that connects with form below */}
-        <div className="bg-card border-x border-t border-border p-4 sm:p-6 space-y-4">
+        <div className="bg-card p-4 sm:p-6 space-y-4">
           {/* Customer Type Selector */}
           <div className="w-full">
             <div className="text-center mb-3">
