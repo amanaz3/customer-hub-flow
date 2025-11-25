@@ -74,12 +74,12 @@ export const ExistingCustomerSelector = ({
     <div className="space-y-4">
       <div className="relative z-[200]">
         <div className="relative">
-          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground/70" />
           <Input
             placeholder="Start typing customer name, company, or email..."
             value={searchTerm}
             onChange={handleInputChange}
-            className="pl-12 pr-12 h-14 text-base font-medium bg-white"
+            className="pl-12 pr-12 h-14 text-base font-medium bg-white border-border/60 focus:border-primary transition-colors shadow-sm"
             autoFocus
           />
           {loading && hasQuery && (
