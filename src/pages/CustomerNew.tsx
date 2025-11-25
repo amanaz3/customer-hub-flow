@@ -35,8 +35,19 @@ const CustomerNew = () => {
     const returningToStep2FromStep3Plus = currentStep === 2 && previousStep >= 3;
     const leavingStep2 = previousStep === 2 && currentStep !== 2;
     
+    console.log('[CustomerNew] Step transition:', { 
+      currentStep, 
+      previousStep, 
+      movingForwardToStep2, 
+      returningToStep2FromStep3Plus,
+      sidebarCollapsed,
+      shouldShowSidebarInStep2,
+      userManuallyClosed
+    });
+    
     // Expand sidebar ONLY when moving forward from step 1 to step 2, and user hasn't manually closed it
     if (selectedProduct && !companyMode && movingForwardToStep2 && !userManuallyClosed) {
+      console.log('[CustomerNew] Expanding sidebar on forward transition to step 2');
       setHasSelectedProduct(true);
       setSidebarCollapsed(false);
       setShouldShowSidebarInStep2(true);
@@ -44,12 +55,14 @@ const CustomerNew = () => {
     
     // Hide sidebar completely when returning to step 2 from step 3+
     if (returningToStep2FromStep3Plus && !companyMode) {
+      console.log('[CustomerNew] Hiding sidebar when returning from step 3+');
       setShouldShowSidebarInStep2(false);
     }
     
     // Hide sidebar when leaving step 2 or moving to step 1
     if ((leavingStep2 || currentStep === 1) && !companyMode) {
       if (currentStep === 1) {
+        console.log('[CustomerNew] Resetting sidebar state on step 1');
         setShouldShowSidebarInStep2(false);
         setUserManuallyClosed(false); // Reset manual close flag when going back to step 1
       }
@@ -189,8 +202,10 @@ const CustomerNew = () => {
             customerId={selectedCustomerId || internalCustomerId || 'temp'} 
             collapsed={sidebarCollapsed}
             onCollapsedChange={(collapsed) => {
+              console.log('[CustomerNew] Sidebar collapse changed:', collapsed);
               setSidebarCollapsed(collapsed);
               if (collapsed && currentStep === 2 && !companyMode) {
+                console.log('[CustomerNew] User manually closed sidebar in step 2');
                 setUserManuallyClosed(true); // Track that user manually closed it
               }
             }}

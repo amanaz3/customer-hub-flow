@@ -38,6 +38,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   defaultTab,
   newCustomerData
 }) => {
+  console.log('[CustomerEventsSidebar] Mounted/Rendered', { customerId, collapsed, productType, isExistingCustomer });
   const { toast } = useToast();
   const [internalCollapsed, setInternalCollapsed] = React.useState(true);
   // Use defaultTab if provided, otherwise default to 'events' for existing customer flow, 'documents' for new customer flow
@@ -57,6 +58,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   // For existing customer: keep events tab
   React.useEffect(() => {
     if (productType && !hasAutoExpanded) {
+      console.log('[CustomerEventsSidebar] Auto-expanding for productType:', productType);
       if (!isExistingCustomer) {
         setActiveTab('documents');
       }
@@ -71,7 +73,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
         }
       }
     }
-  }, [productType, hasAutoExpanded, isCollapsed, collapsed, onCollapsedChange, isExistingCustomer]);
+  }, [productType, hasAutoExpanded, isExistingCustomer]); // Removed isCollapsed and collapsed from dependencies
 
   const toggleCollapsed = (targetTab?: string) => {
     const newValue = !isCollapsed;
