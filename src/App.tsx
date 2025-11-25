@@ -55,6 +55,7 @@ import LegacyApplicationsView from '@/pages/LegacyApplicationsView';
 import Tracker from '@/pages/Tracker';
 import AI360View from '@/pages/AI360View';
 import Cycles from '@/pages/Cycles';
+import ApplicationsByServices from '@/pages/ApplicationsByServices';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -284,6 +285,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Legacy Applications">
                           <LegacyApplicationsView />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/applications-by-services" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Applications by Services">
+                          <ApplicationsByServices />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
