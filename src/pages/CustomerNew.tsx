@@ -133,14 +133,14 @@ const CustomerNew = () => {
   };
 
   return (
-    <div className="light w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 bg-gradient-to-br from-slate-50 via-white to-slate-100">
+    <div className="light w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 bg-white">
       <style>{`
         /* Force light mode for this page only */
         .light, .light * {
           color-scheme: light !important;
         }
         .light {
-          background: linear-gradient(to bottom right, #f8fafc, #ffffff, #f1f5f9) !important;
+          background: white !important;
         }
         .light * {
           color: #1e293b !important;
