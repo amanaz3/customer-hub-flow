@@ -365,7 +365,7 @@ export const RequiredDocumentsSidebar: React.FC<RequiredDocumentsSidebarProps> =
 
       {/* Expanded State */}
       {!isCollapsed && (
-        <div className="flex flex-col h-full pt-20">
+        <div className="flex flex-col h-full">
           {/* Header with tab switcher */}
           <div className="px-4 pt-4 pb-0 border-b border-border flex-shrink-0">
             <div className="flex items-center gap-1">
