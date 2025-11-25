@@ -109,15 +109,11 @@ export const UnifiedProgressHeader = ({
                     ? 'polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 50%)'
                     : 'polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%)',
                   background: step < currentStep 
-                    ? 'linear-gradient(135deg, hsl(142 76% 36%), hsl(158 64% 52%))' // vibrant green gradient for completed
+                    ? 'hsl(var(--primary))' // completed - same as active tab
                     : step === currentStep 
-                    ? 'linear-gradient(135deg, hsl(217 91% 60%), hsl(262 83% 58%))' // vibrant blue-purple gradient
-                    : 'hsl(250 20% 95%)', // soft muted for inactive
-                  boxShadow: step === currentStep 
-                    ? '0 4px 12px -2px hsl(217 91% 60% / 0.4), 0 2px 6px -1px hsl(262 83% 58% / 0.3)' 
-                    : step < currentStep
-                    ? '0 2px 8px -2px hsl(142 76% 36% / 0.3)'
-                    : 'none'
+                    ? 'hsl(var(--primary))' // current - same as active tab
+                    : 'hsl(var(--muted))', // inactive
+                  boxShadow: 'none'
                 }}
               >
                 <div className={cn(
