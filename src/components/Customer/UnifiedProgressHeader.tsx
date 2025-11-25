@@ -109,29 +109,29 @@ export const UnifiedProgressHeader = ({
                     ? 'polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 50%)'
                     : 'polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%)',
                   backgroundColor: step < currentStep 
-                    ? '#22c55e'
+                    ? '#dcfce7' // completed - light green
                     : step === currentStep 
-                    ? '#3b82f6'
-                    : '#e5e7eb'
+                    ? '#dbeafe' // current - light blue
+                    : '#f3f4f6' // inactive - light gray
                 }}
               >
                 <div className={cn(
-                  "flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold shadow-md transition-all",
-                  step < currentStep && "bg-white text-success",
-                  step === currentStep && "bg-white text-primary ring-2 ring-white/50",
-                  step > currentStep && "bg-white/80 text-muted-foreground"
+                  "flex items-center justify-center w-5 h-5 rounded-full text-xs font-bold transition-all",
+                  step < currentStep && "bg-green-600 text-white",
+                  step === currentStep && "bg-blue-600 text-white",
+                  step > currentStep && "bg-gray-300 text-gray-500"
                 )}>
                   {step < currentStep ? (
-                    <Check className="h-3 w-3 animate-scale-in" />
+                    <Check className="h-3 w-3" />
                   ) : (
                     step
                   )}
                 </div>
                 <span className={cn(
                   "text-xs font-semibold whitespace-nowrap transition-all",
-                  step < currentStep && "text-white",
-                  step === currentStep && "text-white",
-                  step > currentStep && "text-muted-foreground"
+                  step < currentStep && "text-green-700",
+                  step === currentStep && "text-blue-700",
+                  step > currentStep && "text-gray-500"
                 )}>
                   {label}
                  </span>
