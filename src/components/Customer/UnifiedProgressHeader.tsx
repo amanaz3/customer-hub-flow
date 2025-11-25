@@ -52,14 +52,14 @@ export const UnifiedProgressHeader = ({
   return (
     <div ref={containerRef} className="sticky top-0 left-0 right-0 bg-gradient-to-br from-background via-white to-purple-50/30 backdrop-blur-xl z-[100] border-b border-border shadow-md">
       <div className="w-full max-w-2xl mx-auto">
-        <div className="px-4 sm:px-6 py-2 bg-gradient-to-b from-white/50 to-transparent rounded-t-2xl">
+        <div className="px-4 sm:px-6 py-1 bg-gradient-to-b from-white/50 to-transparent rounded-t-2xl">
         {/* Unified Container with consistent styling */}
-        <div className="flex flex-col items-center gap-4">
+        <div className="flex flex-col items-center gap-2">
           {/* Customer Type Selector */}
           <div className="w-full max-w-2xl">
-            <div className="text-center mb-3">
+            <div className="text-center mb-1">
               <h3 className="text-base font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent">Customer Selection</h3>
-              <p className="text-sm text-muted-foreground mt-0.5 font-medium">Choose whether to create a new customer or select an existing one</p>
+              <p className="text-sm text-muted-foreground mt-0 font-medium">Choose whether to create a new customer or select an existing one</p>
             </div>
             <CustomerTypeSelector
               value={customerType}
