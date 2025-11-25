@@ -109,7 +109,7 @@ export const UnifiedProgressHeader = ({
                     ? 'polygon(12px 0, 100% 0, 100% 100%, 12px 100%, 0 50%)'
                     : 'polygon(12px 0, calc(100% - 12px) 0, 100% 50%, calc(100% - 12px) 100%, 12px 100%, 0 50%)',
                   background: step < currentStep 
-                    ? 'hsl(var(--primary))' // completed - same as active tab
+                    ? 'hsl(142 76% 36%)' // completed - green
                     : step === currentStep 
                     ? 'hsl(var(--primary))' // current - same as active tab
                     : 'hsl(var(--muted))', // inactive
