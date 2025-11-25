@@ -95,20 +95,23 @@ const CustomerNew = () => {
     }
   }, [companyMode, selectedCustomerId, currentStep, selectedProduct, userManuallyClosed]);
 
-  // Track when product is selected
+  // Track when product is selected - expand sidebar immediately with Documents tab
   React.useEffect(() => {
-    if (selectedProduct) {
+    if (selectedProduct && !companyMode && !userManuallyClosed) {
+      console.log('[CustomerNew] Product selected, expanding sidebar with Documents tab');
       setHasSelectedProduct(true);
+      setSidebarCollapsed(false);
+      setShouldShowSidebarInStep2(true);
     }
-  }, [selectedProduct]);
+  }, [selectedProduct, companyMode, userManuallyClosed]);
 
-  // Keep sidebar collapsed in step 1 for new customer
+  // Keep sidebar collapsed in step 1 for new customer ONLY if no product selected
   React.useEffect(() => {
-    if (currentStep === 1 && !companyMode) {
+    if (currentStep === 1 && !companyMode && !selectedProduct) {
       setSidebarCollapsed(true);
     }
-    // Don't touch sidebarCollapsed in steps 2-4 - let user control it manually
-  }, [currentStep, companyMode]);
+    // Don't touch sidebarCollapsed when product is selected or in steps 2-4
+  }, [currentStep, companyMode, selectedProduct]);
 
   // Collapse sidebar and clear customer selection when switching between new/existing customer
   const handleModeChange = (newMode: boolean) => {
@@ -186,10 +189,10 @@ const CustomerNew = () => {
         </div>
         </div>
       
-      {/* Sticky Sidebar - Show from step 2 onwards when product is selected */}
+      {/* Sticky Sidebar - Show when product is selected (step 1+) for new customer, or step 2+ for existing */}
       {(
         (companyMode && selectedCustomerId && currentStep >= 2) || // Existing customer: show from step 2 onwards
-        (!companyMode && currentStep >= 2 && selectedProduct && shouldShowSidebarInStep2) // New customer: show from step 2 onwards
+        (!companyMode && selectedProduct && shouldShowSidebarInStep2) // New customer: show when product selected
       ) && (
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
@@ -209,7 +212,7 @@ const CustomerNew = () => {
             defaultTab={
               companyMode && currentStep >= 2 && selectedProduct 
                 ? 'documents' 
-                : (!companyMode && currentStep === 2 && selectedProduct && shouldShowSidebarInStep2)
+                : (!companyMode && selectedProduct && shouldShowSidebarInStep2)
                 ? 'documents'
                 : undefined
             }
