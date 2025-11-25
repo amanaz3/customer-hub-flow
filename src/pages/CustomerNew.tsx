@@ -19,7 +19,7 @@ const CustomerNew = () => {
   const [customerMobile, setCustomerMobile] = useState<string>('');
   const [customerCompany, setCustomerCompany] = useState<string>('');
   const [hasSelectedProduct, setHasSelectedProduct] = useState<boolean>(false);
-  const [hasShownDocumentsSidebar, setHasShownDocumentsSidebar] = useState<boolean>(false);
+  const [shouldShowSidebarInStep2, setShouldShowSidebarInStep2] = useState<boolean>(false);
   
   // Customer selection state
   const [companyMode, setCompanyMode] = useState<boolean>(false);
@@ -28,20 +28,28 @@ const CustomerNew = () => {
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(true);
   const [hasProgressedPastStep1, setHasProgressedPastStep1] = useState<boolean>(false);
 
-  // Track when product is selected and expand sidebar (only in new customer flow and only when moving forward from step 1 to step 2, and only once)
+  // Track when product is selected and expand sidebar (only when moving forward from step 1 to step 2)
   React.useEffect(() => {
     const movingForwardToStep2 = currentStep === 2 && previousStep === 1;
+    const returningToStep2 = currentStep === 2 && previousStep > 2;
+    
     if (selectedProduct && !companyMode && movingForwardToStep2) {
       setHasSelectedProduct(true);
       setSidebarCollapsed(false);
-      setHasShownDocumentsSidebar(true);
+      setShouldShowSidebarInStep2(true);
     }
     
-    // Always collapse when moving backward OR when in step 2 but coming from step 3+
-    const movingBackward = currentStep < previousStep;
-    const returningToStep2 = currentStep === 2 && previousStep > 2;
-    if ((movingBackward || returningToStep2) && !companyMode) {
+    // Hide sidebar when returning to step 2 from step 3+
+    if (returningToStep2 && !companyMode) {
       setSidebarCollapsed(true);
+      setShouldShowSidebarInStep2(false);
+    }
+    
+    // Always collapse when moving backward to step 1
+    const movingBackward = currentStep < previousStep;
+    if (movingBackward && !companyMode) {
+      setSidebarCollapsed(true);
+      setShouldShowSidebarInStep2(false);
     }
     
     setPreviousStep(currentStep);
@@ -167,10 +175,10 @@ const CustomerNew = () => {
         </div>
         </div>
       
-      {/* Sticky Sidebar - Show when product is selected in step 2 */}
+      {/* Sticky Sidebar - Only show in step 2 when coming from step 1 */}
       {(
         (companyMode && selectedCustomerId) || // Existing customer: only show when customer selected
-        (!companyMode && currentStep === 2 && selectedProduct) // New customer: show in step 2 when product selected
+        (!companyMode && currentStep === 2 && selectedProduct && shouldShowSidebarInStep2) // New customer: only show in step 2 if we got here from step 1
       ) && (
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
