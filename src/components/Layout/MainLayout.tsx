@@ -44,8 +44,7 @@ const MainLayout: React.FC<MainLayoutProps> = ({
         <Navbar />
         <main className={cn(
           "flex-1 overflow-y-auto overscroll-contain bg-white",
-          "px-3 sm:px-4 md:px-6",
-          isMobile ? "pt-4" : "pt-2"
+          "px-3 sm:px-4 md:px-6"
         )}>
           <div className="w-full mx-auto">
             {children}
