@@ -343,7 +343,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 
         {/* Show documents with full features for temp customer */}
         {!isCollapsed && (
-          <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+          <div className="flex-1 flex flex-col overflow-hidden min-h-0 pt-20">
             {/* Header */}
             <div className="px-4 pt-4 pb-2 border-b border-border flex-shrink-0">
               <div className="flex items-center gap-2">
@@ -640,7 +640,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
 
       {/* Content Area - Always visible when expanded */}
       {!isCollapsed && (
-        <div className="flex-1 flex flex-col overflow-hidden min-h-0">
+        <div className="flex-1 flex flex-col overflow-hidden min-h-0 pt-20">
           {/* Header with tab switcher */}
           <div className="px-4 pt-4 pb-0 border-b border-border flex-shrink-0">
             <div className="flex items-center gap-1">
