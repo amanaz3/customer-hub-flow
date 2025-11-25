@@ -36,7 +36,7 @@ const Navbar: React.FC = () => {
 
   return (
     <header className={cn(
-      "bg-card backdrop-blur-md border-b border-border transition-all duration-300",
+      "bg-white backdrop-blur-md border-b border-slate-200 transition-all duration-300",
       "sticky top-0 z-40 shadow-sm"
     )}>
       <div className={cn(
@@ -45,7 +45,7 @@ const Navbar: React.FC = () => {
       )}>
         <div className="flex items-center space-x-3 sm:space-x-4 overflow-hidden min-w-0 flex-1">
           <h2 className={cn(
-            "font-semibold text-card-foreground transition-all duration-300",
+            "font-semibold text-slate-900 transition-all duration-300",
             "text-sm sm:text-base md:text-lg lg:text-xl",
             "truncate"
           )}>
@@ -73,7 +73,7 @@ const Navbar: React.FC = () => {
             </DropdownMenuTrigger>
             <DropdownMenuContent className={cn(
               "w-56 sm:w-64 lg:w-72 transition-all duration-200",
-              "bg-popover border shadow-lg"
+              "bg-white border shadow-lg"
             )} align="end" forceMount>
               <DropdownMenuLabel className="font-normal p-3">
                 <div className="flex flex-col space-y-1">
