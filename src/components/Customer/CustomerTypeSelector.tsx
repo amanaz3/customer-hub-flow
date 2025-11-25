@@ -10,19 +10,25 @@ export const CustomerTypeSelector = ({ value, onChange }: CustomerTypeSelectorPr
   return (
     <div className="space-y-2">
       <Tabs value={value} onValueChange={onChange} className="w-full relative z-50">
-        <TabsList className="grid w-full grid-cols-2 h-auto bg-muted/50 backdrop-blur-sm border border-border/40 rounded-xl p-1.5 shadow-sm">
+        <TabsList className="grid w-full grid-cols-2 h-auto bg-muted/30 backdrop-blur-sm border border-border/30 rounded-xl p-1 shadow-sm">
           <TabsTrigger 
             value="new" 
-            className="relative flex items-center justify-center gap-2 py-2.5 px-3 sm:px-4 h-10 sm:h-11 rounded-lg transition-all duration-300 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:scale-[1.02] data-[state=inactive]:opacity-60 hover:opacity-100 group"
+            className="relative flex items-center justify-center gap-2 py-3 px-3 sm:px-4 h-11 sm:h-12 rounded-lg transition-all duration-300 data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-lg data-[state=active]:scale-[1.02] data-[state=inactive]:text-muted-foreground data-[state=inactive]:opacity-70 hover:opacity-100 hover:bg-card/50 group overflow-hidden"
           >
-            <UserPlus className="h-4 w-4 shrink-0 transition-transform duration-300 group-data-[state=active]:scale-110" />
+            {/* Active indicator bar */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-0 bg-primary transition-all duration-300 group-data-[state=active]:w-3/4 rounded-full" />
+            
+            <UserPlus className="h-4 w-4 shrink-0 transition-all duration-300 group-data-[state=active]:scale-110 group-data-[state=active]:text-primary group-data-[state=inactive]:text-muted-foreground" />
             <span className="font-semibold text-sm whitespace-nowrap">New Customer</span>
           </TabsTrigger>
           <TabsTrigger 
             value="existing" 
-            className="relative flex items-center justify-center gap-2 py-2.5 px-3 sm:px-4 h-10 sm:h-11 rounded-lg transition-all duration-300 data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-md data-[state=active]:scale-[1.02] data-[state=inactive]:opacity-60 hover:opacity-100 group"
+            className="relative flex items-center justify-center gap-2 py-3 px-3 sm:px-4 h-11 sm:h-12 rounded-lg transition-all duration-300 data-[state=active]:bg-card data-[state=active]:text-primary data-[state=active]:shadow-lg data-[state=active]:scale-[1.02] data-[state=inactive]:text-muted-foreground data-[state=inactive]:opacity-70 hover:opacity-100 hover:bg-card/50 group overflow-hidden"
           >
-            <Users className="h-4 w-4 shrink-0 transition-transform duration-300 group-data-[state=active]:scale-110" />
+            {/* Active indicator bar */}
+            <div className="absolute bottom-0 left-1/2 -translate-x-1/2 h-0.5 w-0 bg-primary transition-all duration-300 group-data-[state=active]:w-3/4 rounded-full" />
+            
+            <Users className="h-4 w-4 shrink-0 transition-all duration-300 group-data-[state=active]:scale-110 group-data-[state=active]:text-primary group-data-[state=inactive]:text-muted-foreground" />
             <span className="font-semibold text-sm whitespace-nowrap">Existing Customer</span>
           </TabsTrigger>
         </TabsList>
