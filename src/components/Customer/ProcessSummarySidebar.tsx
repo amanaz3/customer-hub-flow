@@ -132,7 +132,7 @@ export const ProcessSummarySidebar = ({
       {/* Sidebar Content */}
       {!isCollapsed && (
       <div 
-        className="h-full overflow-auto py-4 px-3 bg-gradient-to-b from-white via-slate-50/50 to-slate-100/30 backdrop-blur-xl border-r border-slate-200/60 shadow-lg transition-all duration-300"
+        className="h-full overflow-auto py-4 px-3 bg-gradient-to-b from-white via-slate-50/50 to-slate-100/30 backdrop-blur-xl border-r-4 border-primary shadow-lg shadow-primary/20 transition-all duration-300"
       >
         <Card className="border-slate-200/50 bg-white/70 backdrop-blur-sm shadow-sm">
         <CardHeader className="pb-3 space-y-1.5">
