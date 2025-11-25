@@ -72,7 +72,7 @@ export const ExistingCustomerSelector = ({
 
   return (
     <div className="space-y-4">
-      <div className="relative z-[1000]">
+      <div className="relative">
         <div className="relative">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
           <Input
@@ -93,7 +93,7 @@ export const ExistingCustomerSelector = ({
 
         {/* Results dropdown - appears above input */}
         {hasQuery && filteredCustomers.length > 0 && (
-          <div className="fixed z-[99999] w-[calc(100%-2rem)] max-w-[600px] border border-slate-200/60 rounded-xl shadow-2xl bg-white backdrop-blur-xl" style={{ top: 'auto', bottom: '100%', marginBottom: '0.5rem' }}>
+          <div className="absolute z-[100000] w-full bottom-full mb-2 border border-slate-200/60 rounded-xl shadow-2xl bg-white backdrop-blur-xl">
             <ScrollArea className="max-h-[400px]">
               <div className="p-2">
                 {filteredCustomers.map((customer) => (
@@ -138,14 +138,14 @@ export const ExistingCustomerSelector = ({
 
         {/* No results message - appears above input */}
         {hasQuery && filteredCustomers.length === 0 && !loading && (
-          <div className="fixed z-[99999] w-[calc(100%-2rem)] max-w-[600px] p-4 border rounded-lg shadow-2xl bg-white backdrop-blur-sm text-center text-sm text-slate-600" style={{ top: 'auto', bottom: '100%', marginBottom: '0.5rem' }}>
+          <div className="absolute z-[100000] w-full bottom-full mb-2 p-4 border rounded-lg shadow-2xl bg-white backdrop-blur-sm text-center text-sm text-slate-600">
             No customers found matching "{searchTerm}"
           </div>
         )}
 
         {/* Loading state - appears above input */}
         {loading && hasQuery && (
-          <div className="fixed z-[99999] w-[calc(100%-2rem)] max-w-[600px] p-6 border rounded-lg shadow-2xl bg-white backdrop-blur-sm" style={{ top: 'auto', bottom: '100%', marginBottom: '0.5rem' }}>
+          <div className="absolute z-[100000] w-full bottom-full mb-2 p-6 border rounded-lg shadow-2xl bg-white backdrop-blur-sm">
             <div className="flex flex-col items-center justify-center gap-2">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
               <p className="text-sm text-muted-foreground">Searching customers...</p>
