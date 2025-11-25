@@ -68,22 +68,23 @@ const CustomerNew = () => {
   }, [selectedProduct]);
 
   // Keep sidebar collapsed in step 1 for new customer only
-  // In step 2, show sidebar for new customer when there's customer data or product selected
+  // In step 2, show sidebar ONLY when product is selected
   // In step 3+, keep sidebar collapsed
   React.useEffect(() => {
     if (currentStep === 1 && !companyMode) {
       setSidebarCollapsed(true);
     } else if (currentStep === 2 && !companyMode) {
-      // Show if there's any customer data entered or product selected
-      const hasCustomerData = customerEmail || customerName || customerMobile || customerCompany;
-      if (hasCustomerData || hasSelectedProduct || internalCustomerId) {
+      // Show ONLY if product is selected
+      if (selectedProduct) {
         setSidebarCollapsed(false);
+      } else {
+        setSidebarCollapsed(true);
       }
     } else if (currentStep >= 3 && !companyMode) {
       // Collapse in step 3 and beyond for new customers
       setSidebarCollapsed(true);
     }
-  }, [currentStep, companyMode, hasSelectedProduct, internalCustomerId, customerEmail, customerName, customerMobile, customerCompany]);
+  }, [currentStep, companyMode, selectedProduct]);
 
   // Collapse sidebar and clear customer selection when switching between new/existing customer
   const handleModeChange = (newMode: boolean) => {
@@ -161,10 +162,10 @@ const CustomerNew = () => {
         </div>
         </div>
       
-      {/* Sticky Sidebar - Show when customer is selected OR in step 2+ for new customer */}
+      {/* Sticky Sidebar - Show when product is selected in step 2 */}
       {(
         (companyMode && selectedCustomerId) || // Existing customer: only show when customer selected
-        (!companyMode && currentStep >= 2 && (customerEmail || customerName || customerMobile || customerCompany || hasSelectedProduct || internalCustomerId)) // New customer: show in step 2+ with any customer data
+        (!companyMode && currentStep === 2 && selectedProduct) // New customer: only show in step 2 when product selected
       ) && (
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
