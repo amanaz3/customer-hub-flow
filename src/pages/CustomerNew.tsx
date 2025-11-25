@@ -20,6 +20,7 @@ const CustomerNew = () => {
   const [customerCompany, setCustomerCompany] = useState<string>('');
   const [hasSelectedProduct, setHasSelectedProduct] = useState<boolean>(false);
   const [shouldShowSidebarInStep2, setShouldShowSidebarInStep2] = useState<boolean>(false);
+  const [userManuallyClosed, setUserManuallyClosed] = useState<boolean>(false);
   
   // Customer selection state
   const [companyMode, setCompanyMode] = useState<boolean>(false);
@@ -34,8 +35,8 @@ const CustomerNew = () => {
     const returningToStep2FromStep3Plus = currentStep === 2 && previousStep >= 3;
     const leavingStep2 = previousStep === 2 && currentStep !== 2;
     
-    // Expand sidebar ONLY when moving forward from step 1 to step 2
-    if (selectedProduct && !companyMode && movingForwardToStep2) {
+    // Expand sidebar ONLY when moving forward from step 1 to step 2, and user hasn't manually closed it
+    if (selectedProduct && !companyMode && movingForwardToStep2 && !userManuallyClosed) {
       setHasSelectedProduct(true);
       setSidebarCollapsed(false);
       setShouldShowSidebarInStep2(true);
@@ -50,11 +51,12 @@ const CustomerNew = () => {
     if ((leavingStep2 || currentStep === 1) && !companyMode) {
       if (currentStep === 1) {
         setShouldShowSidebarInStep2(false);
+        setUserManuallyClosed(false); // Reset manual close flag when going back to step 1
       }
     }
     
     setPreviousStep(currentStep);
-  }, [currentStep, previousStep, selectedProduct, companyMode]);
+  }, [currentStep, previousStep, selectedProduct, companyMode, userManuallyClosed]);
 
   // Track if user has progressed past step 1
   React.useEffect(() => {
@@ -184,9 +186,14 @@ const CustomerNew = () => {
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
             key={`sidebar-${companyMode ? 'existing' : 'new'}`}
-            customerId={selectedCustomerId || internalCustomerId || 'temp'}
+            customerId={selectedCustomerId || internalCustomerId || 'temp'} 
             collapsed={sidebarCollapsed}
-            onCollapsedChange={setSidebarCollapsed}
+            onCollapsedChange={(collapsed) => {
+              setSidebarCollapsed(collapsed);
+              if (collapsed && currentStep === 2 && !companyMode) {
+                setUserManuallyClosed(true); // Track that user manually closed it
+              }
+            }}
             productType={getProductType()}
             isExistingCustomer={companyMode}
             defaultTab={
