@@ -1676,8 +1676,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         </div>
       )}
 
-      {/* Action Buttons - Positioned in bottom-left of card */}
-      <div className="absolute bottom-3 left-3 flex flex-col gap-2 z-[9999]">
+      {/* Action Buttons - Positioned in bottom-right of card */}
+      <div className="absolute bottom-3 right-3 flex flex-col gap-2 z-[9999]">
         {/* Cancel Button */}
         <Button
           type="button"
