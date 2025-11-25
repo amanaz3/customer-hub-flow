@@ -41,15 +41,13 @@ const CustomerNew = () => {
       setShouldShowSidebarInStep2(true);
     }
     
-    // Keep collapsed when returning to step 2 from step 3+
+    // Hide sidebar completely when returning to step 2 from step 3+
     if (returningToStep2FromStep3Plus && !companyMode) {
-      setSidebarCollapsed(true); // Keep collapsed
-      setShouldShowSidebarInStep2(false); // Don't show at all
+      setShouldShowSidebarInStep2(false);
     }
     
     // Hide sidebar when leaving step 2 or moving to step 1
     if ((leavingStep2 || currentStep === 1) && !companyMode) {
-      setSidebarCollapsed(true);
       if (currentStep === 1) {
         setShouldShowSidebarInStep2(false);
       }
@@ -91,8 +89,7 @@ const CustomerNew = () => {
     }
   }, [selectedProduct]);
 
-  // Keep sidebar collapsed in step 1 and step 3+ for new customer
-  // Only show in step 2 when transitioning forward from step 1
+  // Keep sidebar collapsed in step 1 for new customer, don't interfere in step 2
   React.useEffect(() => {
     if (currentStep === 1 && !companyMode) {
       setSidebarCollapsed(true);
@@ -100,6 +97,7 @@ const CustomerNew = () => {
       // Collapse in step 3 and beyond for new customers
       setSidebarCollapsed(true);
     }
+    // Don't touch sidebarCollapsed in step 2 - let user control it manually
   }, [currentStep, companyMode]);
 
   // Collapse sidebar and clear customer selection when switching between new/existing customer
