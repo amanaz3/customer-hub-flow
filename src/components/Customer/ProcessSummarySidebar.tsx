@@ -102,7 +102,7 @@ export const ProcessSummarySidebar = ({
   return (
     <div 
       className={cn(
-        "fixed top-0 left-0 h-screen bg-card border-r shadow-lg transition-all duration-300 ease-in-out z-[99999]",
+        "fixed top-14 sm:top-16 left-0 h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] bg-card border-r shadow-lg transition-all duration-300 ease-in-out z-[99999]",
         isCollapsed ? 'w-12' : 'w-80'
       )}
     >
@@ -112,7 +112,7 @@ export const ProcessSummarySidebar = ({
         size="sm"
         onClick={handleToggle}
         className={cn(
-          "fixed top-4 h-16 w-10 rounded-r-lg rounded-l-none border border-l-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100000]",
+          "fixed top-20 sm:top-24 h-16 w-10 rounded-r-lg rounded-l-none border border-l-0 bg-card shadow-xl hover:bg-accent transition-all duration-300 z-[100000]",
           isCollapsed ? 'left-12' : 'left-80'
         )}
         title={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
@@ -135,7 +135,7 @@ export const ProcessSummarySidebar = ({
       {/* Sidebar Content */}
       {!isCollapsed && (
       <div 
-        className="h-full overflow-auto pt-20 pb-4 px-3"
+        className="h-full overflow-auto pt-4 pb-4 px-3"
       >
         <Card className="border-slate-200/50 bg-white/70 backdrop-blur-sm shadow-sm">
         <CardHeader className="pb-3 space-y-1.5">
