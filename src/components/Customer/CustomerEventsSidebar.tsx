@@ -58,27 +58,15 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
     }
   }, [defaultTab]);
 
-  // Auto-expand sidebar when productType is selected (only once)
-  // For new customer: switch to documents tab
-  // For existing customer: keep events tab
+  // Set documents tab for new customer when productType is set - NO auto-expand
   React.useEffect(() => {
-    if (productType && !hasAutoExpanded) {
-      console.log('[CustomerEventsSidebar] Auto-expanding for productType:', productType);
-      if (!isExistingCustomer) {
-        setActiveTab('documents');
-      }
-      
-      if (isCollapsed) {
-        setHasAutoExpanded(true);
-        
-        if (collapsed !== undefined) {
-          onCollapsedChange?.(false);
-        } else {
-          setInternalCollapsed(false);
-        }
-      }
+    if (productType && !hasAutoExpanded && !isExistingCustomer) {
+      console.log('[CustomerEventsSidebar] Setting documents tab for productType:', productType);
+      setActiveTab('documents');
+      setHasAutoExpanded(true);
+      // No auto-expand - sidebar stays collapsed with indicator
     }
-  }, [productType, hasAutoExpanded, isExistingCustomer]); // Removed isCollapsed and collapsed from dependencies
+  }, [productType, hasAutoExpanded, isExistingCustomer]);
 
   const toggleCollapsed = (targetTab?: string) => {
     const newValue = !isCollapsed;
@@ -396,17 +384,33 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
           {isCollapsed ? <ChevronLeft className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
         </Button>
 
-        {/* Collapsed State - Show Docs icon only for temp */}
+        {/* Collapsed State - Animated indicator for documents */}
         {isCollapsed && (
-          <div className="flex flex-col items-center py-3">
-            <div 
-              className="flex flex-col items-center gap-1.5 cursor-pointer hover:bg-muted/50 transition-colors p-1.5 rounded-lg bg-muted"
-              onClick={() => toggleCollapsed('documents')}
-              title="View Documents"
-            >
-              <FileText className="h-5 w-5 text-muted-foreground" />
-              <Badge variant="secondary" className="writing-mode-vertical text-[9px] px-0.5 py-1.5 font-medium">Docs</Badge>
+          <div className="flex flex-col items-center py-4 gap-3 cursor-pointer" onClick={() => toggleCollapsed('documents')}>
+            <div className="relative">
+              <FileText className="h-6 w-6 text-primary" />
+              {/* Pulsing glow effect behind icon */}
+              <div className="absolute inset-0 bg-primary/30 rounded-full blur-md animate-pulse" />
             </div>
+            
+            {/* Document count badge with pulse animation */}
+            <div className="relative">
+              <Badge 
+                className="bg-primary text-primary-foreground font-bold text-sm px-2.5 py-1 animate-pulse shadow-lg"
+              >
+                {documentCategories.reduce((sum, cat) => sum + cat.count, 0)}
+              </Badge>
+              {/* Glow ring effect */}
+              <div className="absolute -inset-1 bg-primary/20 rounded-full blur-sm animate-pulse" />
+            </div>
+            
+            {/* Vertical text indicator */}
+            <span 
+              className="text-[10px] font-medium text-primary tracking-wider uppercase"
+              style={{ writingMode: 'vertical-rl', textOrientation: 'mixed' }}
+            >
+              DOCS
+            </span>
           </div>
         )}
 

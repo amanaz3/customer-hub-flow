@@ -49,12 +49,12 @@ const CustomerNew = () => {
       userManuallyClosed
     });
     
-    // Expand sidebar ONLY when moving forward from step 1 to step 2, and user hasn't manually closed it
-    if (selectedProduct && !companyMode && movingForwardToStep2 && !userManuallyClosed) {
-      console.log('[CustomerNew] Expanding sidebar on forward transition to step 2');
+    // Show sidebar (collapsed) when moving forward from step 1 to step 2 - no auto-expand
+    if (selectedProduct && !companyMode && movingForwardToStep2) {
+      console.log('[CustomerNew] Showing sidebar (collapsed) on forward transition to step 2');
       setHasSelectedProduct(true);
-      setSidebarCollapsed(false);
       setShouldShowSidebarInStep2(true);
+      // Keep sidebar collapsed - user can expand manually via indicator
     }
     
     // Hide sidebar completely when returning to step 2 from step 3+
@@ -202,7 +202,7 @@ const CustomerNew = () => {
       {(
         (companyMode && selectedCustomerId && currentStep >= 2) || // Existing customer: show from step 2 onwards
         (!companyMode && currentStep >= 3 && selectedProduct) || // New customer steps 3-4: always show if product selected
-        (!companyMode && currentStep === 2 && selectedProduct && shouldShowSidebarInStep2) // New customer step 2: respect user preference
+        (!companyMode && currentStep === 2 && selectedProduct) // New customer step 2: always show when product selected (collapsed with indicator)
       ) && (
         <div className="hidden lg:block">
           <CustomerEventsSidebar 
