@@ -159,7 +159,7 @@ Format the response as structured JSON with these exact keys:
           { role: 'user', content: userPrompt }
         ],
         temperature: 0.7,
-        max_tokens: 2000,
+        max_tokens: 4000,
       }),
     });
 
@@ -186,13 +186,50 @@ Format the response as structured JSON with these exact keys:
     let recommendations;
     try {
       // Extract JSON from markdown code blocks if present
-      const jsonMatch = aiContent.match(/```json\s*([\s\S]*?)\s*```/) || aiContent.match(/```\s*([\s\S]*?)\s*```/);
-      const jsonString = jsonMatch ? jsonMatch[1] : aiContent;
+      let jsonString = aiContent;
+      
+      // Try to extract from code blocks first
+      const jsonMatch = aiContent.match(/```(?:json)?\s*([\s\S]*?)\s*```/);
+      if (jsonMatch) {
+        jsonString = jsonMatch[1].trim();
+      }
+      
+      // Clean up any leading/trailing whitespace
+      jsonString = jsonString.trim();
+      
+      // If starts with { and doesn't end with }, the response was truncated
+      if (jsonString.startsWith('{') && !jsonString.endsWith('}')) {
+        console.warn('JSON appears truncated, attempting to fix...');
+        // Count open braces and brackets to try to close them
+        let openBraces = (jsonString.match(/{/g) || []).length;
+        let closeBraces = (jsonString.match(/}/g) || []).length;
+        let openBrackets = (jsonString.match(/\[/g) || []).length;
+        let closeBrackets = (jsonString.match(/\]/g) || []).length;
+        
+        // Add missing closing brackets and braces
+        while (closeBrackets < openBrackets) {
+          jsonString += ']';
+          closeBrackets++;
+        }
+        while (closeBraces < openBraces) {
+          jsonString += '}';
+          closeBraces++;
+        }
+      }
+      
       recommendations = JSON.parse(jsonString);
     } catch (parseError) {
       console.error('Failed to parse AI response:', parseError);
-      console.log('Raw AI response:', aiContent);
-      throw new Error('Failed to parse AI recommendations');
+      console.log('Raw AI response (first 500 chars):', aiContent.substring(0, 500));
+      
+      // Return a default structure if parsing fails
+      recommendations = {
+        key_insights: ['AI analysis could not be fully processed. Please try again.'],
+        immediate_actions: [],
+        blockers_and_risks: [],
+        collaboration_opportunities: [],
+        individual_guidance: []
+      };
     }
 
     console.log('AI analysis complete');
