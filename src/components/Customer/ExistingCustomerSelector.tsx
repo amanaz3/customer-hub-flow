@@ -27,10 +27,14 @@ export const ExistingCustomerSelector = ({
 
   // Auto-focus the search input when component mounts (tab switches)
   useEffect(() => {
-    const timer = setTimeout(() => {
-      inputRef.current?.focus();
-    }, 100);
-    return () => clearTimeout(timer);
+    // Use requestAnimationFrame + timeout to ensure DOM is ready after tab switch
+    const raf = requestAnimationFrame(() => {
+      const timer = setTimeout(() => {
+        inputRef.current?.focus();
+      }, 150);
+      return () => clearTimeout(timer);
+    });
+    return () => cancelAnimationFrame(raf);
   }, []);
 
   useEffect(() => {
