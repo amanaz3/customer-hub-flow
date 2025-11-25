@@ -79,7 +79,7 @@ export const ExistingCustomerSelector = ({
             placeholder="Start typing customer name, company, or email..."
             value={searchTerm}
             onChange={handleInputChange}
-            className="pl-12 pr-12 h-14 text-base font-medium bg-white"
+            className="pl-12 pr-12 h-12 text-base font-medium bg-background/50 backdrop-blur-sm border-border/50 focus-visible:border-primary/50"
             autoFocus
           />
           {loading && hasQuery && (
@@ -93,7 +93,7 @@ export const ExistingCustomerSelector = ({
 
         {/* Results dropdown - appears above input */}
         {hasQuery && filteredCustomers.length > 0 && (
-          <div className="absolute z-[9999] w-full bottom-full mb-2 border rounded-lg shadow-2xl bg-popover backdrop-blur-sm">
+          <div className="absolute z-[9999] w-full bottom-full mb-2 border border-border/40 rounded-xl shadow-xl bg-popover/95 backdrop-blur-xl">
             <ScrollArea className="max-h-[400px]">
               <div className="p-2">
                 {filteredCustomers.map((customer) => (
