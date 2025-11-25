@@ -1677,7 +1677,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       )}
 
       {/* Action Buttons - Fixed sticky position */}
-      <div className="fixed bottom-6 right-6 flex flex-col gap-2 z-[99999]">
+      <div className="fixed bottom-6 right-3 flex flex-col gap-2 z-[99999]">
         {/* Cancel Button */}
         <Button
           type="button"
