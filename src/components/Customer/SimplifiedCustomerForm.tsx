@@ -1079,6 +1079,70 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         }}
       />
 
+      {/* Customer Information Summary Accordion - Centered below stepper */}
+      {currentStep > 1 && form.watch('name') && (
+        <div className="w-full flex justify-center py-4 bg-white/80 backdrop-blur-sm border-b border-slate-200/50">
+          <Accordion 
+            type="single" 
+            collapsible 
+            className={`bg-white/90 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-md transition-all duration-300 ${accordionOpen === 'customer-info' ? 'w-1/2' : 'w-1/4'}`}
+            value={accordionOpen}
+            onValueChange={setAccordionOpen}
+          >
+            <AccordionItem value="customer-info" className="border-0">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                {accordionOpen !== 'customer-info' && (
+                  <div className="flex items-center gap-2">
+                    <User className="h-4 w-4 text-primary" />
+                    <span className="text-sm font-medium">{form.watch('name')}</span>
+                  </div>
+                )}
+              </AccordionTrigger>
+              <AccordionContent className="px-4 pb-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                  {form.watch('name') && (
+                    <div className="flex items-start gap-2">
+                      <User className="h-4 w-4 text-primary mt-0.5" />
+                      <div>
+                        <span className="text-muted-foreground block text-xs">Name</span>
+                        <span className="font-medium">{form.watch('name')}</span>
+                      </div>
+                    </div>
+                  )}
+                  {form.watch('email') && (
+                    <div className="flex items-start gap-2">
+                      <Mail className="h-4 w-4 text-primary mt-0.5" />
+                      <div>
+                        <span className="text-muted-foreground block text-xs">Email</span>
+                        <span className="font-medium">{form.watch('email')}</span>
+                      </div>
+                    </div>
+                  )}
+                  {form.watch('mobile') && (
+                    <div className="flex items-start gap-2">
+                      <Phone className="h-4 w-4 text-primary mt-0.5" />
+                      <div>
+                        <span className="text-muted-foreground block text-xs">Phone</span>
+                        <span className="font-medium">{form.watch('mobile')}</span>
+                      </div>
+                    </div>
+                  )}
+                  {form.watch('company') && (
+                    <div className="flex items-start gap-2">
+                      <Building2 className="h-4 w-4 text-primary mt-0.5" />
+                      <div>
+                        <span className="text-muted-foreground block text-xs">Company</span>
+                        <span className="font-medium">{form.watch('company')}</span>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
+        </div>
+      )}
+
       <Form {...form}>
           <form 
             onSubmit={form.handleSubmit(onSubmit)} 
@@ -1089,72 +1153,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               className="-mt-px border-t-0 border-x border-b border-slate-200 bg-white shadow-lg hover:shadow-xl transition-all duration-300 ease-out rounded-t-none rounded-b-2xl max-w-2xl mx-auto overflow-visible relative"
             >
             <CardContent className="p-5 sm:p-7 space-y-4 overflow-visible bg-gradient-to-b from-transparent to-slate-50/30 relative">
-              {/* Customer Information Summary Accordion - Show after step 1 */}
-              {currentStep > 1 && form.watch('name') && (
-                <div className="sticky z-[90] bg-white/95 backdrop-blur-xl -mx-5 sm:-mx-7 px-5 sm:px-7 pt-3 pb-3 mb-4 border-b border-slate-200/50 shadow-sm" style={{ top: 'var(--unified-header-h, 160px)' }}>
-                  <div className="flex justify-center">
-                  <Accordion 
-                    type="single" 
-                    collapsible 
-                    className={`bg-white/70 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-sm transition-all duration-300 ${accordionOpen === 'customer-info' ? 'w-1/2' : 'w-1/4'}`}
-                    value={accordionOpen}
-                    onValueChange={setAccordionOpen}
-                  >
-                    <AccordionItem value="customer-info" className="border-0">
-                    <AccordionTrigger className="px-4 py-3 hover:no-underline">
-                      {accordionOpen !== 'customer-info' && (
-                        <div className="flex items-center gap-2">
-                          <User className="h-4 w-4 text-primary" />
-                          <span className="text-sm font-medium">{form.watch('name')}</span>
-                        </div>
-                      )}
-                    </AccordionTrigger>
-                    <AccordionContent className="px-4 pb-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-                        {form.watch('name') && (
-                          <div className="flex items-start gap-2">
-                            <User className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
-                              <span className="text-muted-foreground block text-xs">Name</span>
-                              <span className="font-medium">{form.watch('name')}</span>
-                            </div>
-                          </div>
-                        )}
-                        {form.watch('email') && (
-                          <div className="flex items-start gap-2">
-                            <Mail className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
-                              <span className="text-muted-foreground block text-xs">Email</span>
-                              <span className="font-medium">{form.watch('email')}</span>
-                            </div>
-                          </div>
-                        )}
-                        {form.watch('mobile') && (
-                          <div className="flex items-start gap-2">
-                            <Phone className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
-                              <span className="text-muted-foreground block text-xs">Phone</span>
-                              <span className="font-medium">{form.watch('mobile')}</span>
-                            </div>
-                          </div>
-                        )}
-                        {form.watch('company') && (
-                          <div className="flex items-start gap-2">
-                            <Building2 className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
-                              <span className="text-muted-foreground block text-xs">Company</span>
-                              <span className="font-medium">{form.watch('company')}</span>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    </AccordionContent>
-                  </AccordionItem>
-                  </Accordion>
-                  </div>
-                </div>
-              )}
-
               {/* Step 1: Customer Selection */}
               {currentStep === 1 && (
                 <div key="step-1" className="animate-fade-in">
