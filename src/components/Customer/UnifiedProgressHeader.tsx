@@ -59,7 +59,7 @@ export const UnifiedProgressHeader = ({
           <div className="w-full max-w-2xl">
             <div className="text-center mb-3">
               <h3 className="text-base font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent">Customer Selection</h3>
-              <p className="text-sm text-muted-foreground mt-1.5 font-medium">Choose whether to create a new customer or select an existing one</p>
+              <p className="text-sm text-muted-foreground mt-0.5 font-medium">Choose whether to create a new customer or select an existing one</p>
             </div>
             <CustomerTypeSelector
               value={customerType}
