@@ -66,8 +66,16 @@ export const shareViaWhatsApp = (phoneNumber: string, checklistText: string, pro
 /**
  * Format checklist for sharing
  */
-export const formatChecklistForSharing = (categories: { title: string; items: string[] }[]): string => {
+export const formatChecklistForSharing = (categories: { title: string; items: (string | { name: string; required: boolean })[] }[]): string => {
   return categories
-    .map(cat => `${cat.title}:\n${cat.items.map(item => `• ${item}`).join('\n')}`)
+    .map(cat => {
+      const itemsList = cat.items.map(item => {
+        if (typeof item === 'string') {
+          return `• ${item}`;
+        }
+        return `• ${item.name}${item.required ? ' (Mandatory)' : ' (Optional)'}`;
+      }).join('\n');
+      return `${cat.title}:\n${itemsList}`;
+    })
     .join('\n\n');
 };
