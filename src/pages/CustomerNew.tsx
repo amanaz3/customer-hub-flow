@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCustomer } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
-import { cn } from '@/lib/utils';
 import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
 import { CustomerEventsSidebar } from '@/components/Customer/CustomerEventsSidebar';
 
@@ -25,7 +24,6 @@ const CustomerNew = () => {
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [internalCustomerId, setInternalCustomerId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState<boolean>(true);
-  const [leftSidebarCollapsed, setLeftSidebarCollapsed] = useState<boolean>(true);
   const [hasProgressedPastStep1, setHasProgressedPastStep1] = useState<boolean>(false);
 
   // Track when product is selected and expand sidebar (only in new customer flow)
@@ -135,13 +133,7 @@ const CustomerNew = () => {
   };
 
   return (
-    <div 
-      className={cn(
-        "w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 bg-gradient-to-br from-white via-blue-50/20 to-purple-50/30 transition-all duration-300",
-        !leftSidebarCollapsed && "lg:ml-72",
-        !sidebarCollapsed && "lg:mr-80"
-      )}
-    >
+    <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 bg-gradient-to-br from-white via-blue-50/20 to-purple-50/30">
       <div className="w-full max-w-[95%] lg:max-w-[90%] xl:max-w-[85%] 2xl:max-w-[80%] px-4 sm:px-6">
         {/* Outer Card Container */}
         <div className="w-full bg-white rounded-2xl shadow-2xl border-2 border-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-6 sm:p-8 lg:p-10 animate-fade-in relative overflow-hidden">
@@ -164,7 +156,6 @@ const CustomerNew = () => {
               onCustomerSelect={setSelectedCustomerId}
               onCustomerIdChange={setInternalCustomerId}
               onCancel={() => navigate('/customers')}
-              onLeftSidebarCollapsedChange={setLeftSidebarCollapsed}
             />
           </div>
         </div>
