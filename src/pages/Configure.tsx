@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Package, Shield, Wrench, BookOpen, ListTodo } from "lucide-react";
+import { Users, MessageSquare, Package, Shield, Wrench, BookOpen, ListTodo, RefreshCcw } from "lucide-react";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -162,6 +162,28 @@ const Manage = () => {
           <CardContent>
             <p className="text-sm text-muted-foreground">
               Configure GitHub repositories, manage projects, and task settings.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/cycles')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <RefreshCcw className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Cycles</CardTitle>
+                <CardDescription>Manage development cycles</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Create and manage time-boxed development cycles for task organization and sprint planning.
             </p>
           </CardContent>
         </Card>
