@@ -42,8 +42,8 @@ const Manage = () => {
             >
               <Users className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="font-medium text-sm">Customer Services</p>
-                <p className="text-xs text-muted-foreground">Manage customer services and products</p>
+                <p className="font-medium text-sm">Services</p>
+                <p className="text-xs text-muted-foreground">Manage services and products</p>
               </div>
             </div>
             <div 
