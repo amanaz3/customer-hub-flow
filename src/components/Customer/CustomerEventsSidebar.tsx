@@ -107,12 +107,12 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
     enabled: !!customerId && customerId !== 'temp',
   });
 
-  // Fetch customer applications with manual product lookup
+  // Fetch customer applications from account_applications table
   const { data: applications, isLoading: applicationsLoading } = useQuery({
     queryKey: ['customer-applications', customerId],
     queryFn: async () => {
-      const { data: apps, error: appsError } = await (supabase as any)
-        .from('applications')
+      const { data: apps, error: appsError } = await supabase
+        .from('account_applications')
         .select('*')
         .eq('customer_id', customerId)
         .order('created_at', { ascending: false })
@@ -120,37 +120,24 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
       
       if (appsError) throw appsError;
       
-      // Fetch products separately
-      if (apps && apps.length > 0) {
-        const productIds = [...new Set(apps.map((app: any) => app.product_id).filter(Boolean))];
-        if (productIds.length > 0) {
-          const { data: products } = await (supabase as any)
-            .from('products')
-            .select('id, name')
-            .in('id', productIds);
-          
-          // Merge product data
-          return apps.map((app: any) => ({
-            ...app,
-            product_name: products?.find((p: any) => p.id === app.product_id)?.name,
-          }));
-        }
-      }
-      
-      return apps || [];
+      // Get product info from application_data JSON if available
+      return (apps || []).map((app: any) => ({
+        ...app,
+        product_name: app.application_data?.service_name || app.application_type || 'Application',
+      }));
     },
     enabled: !!customerId && customerId !== 'temp',
   });
 
-  // Fetch status history
+  // Fetch status history from application_status_changes table
   const { data: statusHistory } = useQuery({
     queryKey: ['customer-status-history', customerId],
     queryFn: async () => {
       if (!applications || applications.length === 0) return [];
       
       const appIds = (applications as any[]).map((app: any) => app.id);
-      const { data, error } = await (supabase as any)
-        .from('status_history')
+      const { data, error } = await supabase
+        .from('application_status_changes')
         .select('*')
         .in('application_id', appIds)
         .order('created_at', { ascending: false })
