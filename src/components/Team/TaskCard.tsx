@@ -505,7 +505,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                     Add Subtask
                   </Button>
                 )}
-                {onAIAssignImportance && importanceCounts.none > 0 && (
+                {onAIAssignImportance && (
                   <Button
                     variant="ghost"
                     size="sm"
@@ -521,7 +521,7 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                     ) : (
                       <Sparkles className="h-3 w-3 mr-1" />
                     )}
-                    AI Assign ({importanceCounts.none})
+                    {importanceCounts.none > 0 ? `AI Assign (${importanceCounts.none})` : 'AI Re-assign'}
                   </Button>
                 )}
               </div>
