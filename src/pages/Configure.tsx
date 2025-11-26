@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Shield, Wrench, BookOpen, ListTodo, RefreshCcw, UserCog, Code } from "lucide-react";
+import { Users, MessageSquare, Shield, Wrench, BookOpen, UserCog, Code, Terminal } from "lucide-react";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -95,22 +95,12 @@ const Manage = () => {
             </div>
             <div 
               className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
-              onClick={() => navigate('/task-settings')}
+              onClick={() => navigate('/dev-management')}
             >
-              <ListTodo className="h-5 w-5 text-muted-foreground" />
+              <Terminal className="h-5 w-5 text-muted-foreground" />
               <div>
-                <p className="font-medium text-sm">Tasks</p>
-                <p className="text-xs text-muted-foreground">Manage task and project settings</p>
-              </div>
-            </div>
-            <div 
-              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
-              onClick={() => navigate('/cycles')}
-            >
-              <RefreshCcw className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium text-sm">Cycles</p>
-                <p className="text-xs text-muted-foreground">Manage development cycles</p>
+                <p className="font-medium text-sm">Dev</p>
+                <p className="text-xs text-muted-foreground">Task management and development cycles</p>
               </div>
             </div>
           </CardContent>

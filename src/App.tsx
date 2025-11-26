@@ -55,6 +55,7 @@ import LegacyApplicationsView from '@/pages/LegacyApplicationsView';
 import Tracker from '@/pages/Tracker';
 import AI360View from '@/pages/AI360View';
 import Cycles from '@/pages/Cycles';
+import DevManagement from '@/pages/DevManagement';
 import ApplicationsByServices from '@/pages/ApplicationsByServices';
 import ServiceFees from '@/pages/ServiceFees';
 import ErrorTracker from '@/utils/errorTracking';
@@ -491,6 +492,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Customer Services Management">
                           <CustomerServicesManagement />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/dev-management" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Dev Management">
+                          <DevManagement />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
