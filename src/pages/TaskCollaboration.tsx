@@ -1465,6 +1465,27 @@ const TaskCollaboration: React.FC = () => {
                   </Badge>
                 </Button>
                 <Button
+                  variant={activeSmartView === 'cycle' ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    setActiveSmartView('cycle');
+                    setImportanceFilter('all');
+                    setStatusFilter('todo');
+                    setModuleFilter('all');
+                    setGroupByModule(false);
+                    // Set to active cycle if available, otherwise first cycle
+                    const activeCycle = cycles.find(c => c.status === 'active');
+                    setCycleFilter(activeCycle?.id || (cycles[0]?.id || 'all'));
+                  }}
+                  className="gap-1.5"
+                >
+                  <Calendar className="h-3.5 w-3.5 text-blue-500" />
+                  By Cycle
+                  <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                    {tasks.filter(t => t.cycle_id).length}
+                  </Badge>
+                </Button>
+                <Button
                   variant={activeSmartView === 'all' ? "default" : "outline"}
                   size="sm"
                   onClick={() => {
@@ -1474,6 +1495,7 @@ const TaskCollaboration: React.FC = () => {
                     setModuleFilter('all');
                     setPriorityFilter('all');
                     setProjectFilter('all');
+                    setCycleFilter('all');
                     setGroupByModule(false);
                   }}
                   className="gap-1.5"
