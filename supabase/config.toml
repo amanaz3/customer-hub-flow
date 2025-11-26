@@ -116,3 +116,6 @@ verify_jwt = true
 
 [functions.analyze-services-insights]
 verify_jwt = true
+
+[functions.assign-task-importance]
+verify_jwt = true

@@ -36,6 +36,8 @@ import {
   CornerDownRight,
   ListTree,
   Plus,
+  Sparkles,
+  Loader2,
 } from 'lucide-react';
 
 interface TaskAttachment {
@@ -77,6 +79,8 @@ interface TaskCardProps {
   subtaskAttachments?: Record<string, TaskAttachment[]>;
   onAddSubtask?: (parentTaskId: string) => void;
   onImportanceChange?: (taskId: string, importance: string | null) => void;
+  onAIAssignImportance?: (parentTaskId: string) => void;
+  isAssigningImportance?: boolean;
 }
 
 // Helper functions for status and priority icons/colors
@@ -281,6 +285,8 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   subtaskAttachments = {},
   onAddSubtask,
   onImportanceChange,
+  onAIAssignImportance,
+  isAssigningImportance = false,
 }) => {
   const imageAttachments = attachments.filter(
     (att) => att.attachment_type === 'file' && att.file_type?.startsWith('image/')
@@ -462,21 +468,42 @@ export const TaskCard: React.FC<TaskCardProps> = ({
                 ))}
               </div>
               
-              {/* Add Subtask Button */}
-              {onAddSubtask && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="w-full mt-2 h-7 text-xs text-muted-foreground hover:text-primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onAddSubtask(task.id);
-                  }}
-                >
-                  <Plus className="h-3 w-3 mr-1" />
-                  Add Subtask
-                </Button>
-              )}
+              {/* Action Buttons */}
+              <div className="flex gap-2 mt-2">
+                {onAddSubtask && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex-1 h-7 text-xs text-muted-foreground hover:text-primary"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAddSubtask(task.id);
+                    }}
+                  >
+                    <Plus className="h-3 w-3 mr-1" />
+                    Add Subtask
+                  </Button>
+                )}
+                {onAIAssignImportance && importanceCounts.none > 0 && (
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="flex-1 h-7 text-xs text-purple-600 hover:text-purple-700 hover:bg-purple-50"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onAIAssignImportance(task.id);
+                    }}
+                    disabled={isAssigningImportance}
+                  >
+                    {isAssigningImportance ? (
+                      <Loader2 className="h-3 w-3 mr-1 animate-spin" />
+                    ) : (
+                      <Sparkles className="h-3 w-3 mr-1" />
+                    )}
+                    AI Assign ({importanceCounts.none})
+                  </Button>
+                )}
+              </div>
             </AccordionContent>
           </AccordionItem>
         </Accordion>
