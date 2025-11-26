@@ -1900,6 +1900,7 @@ export type Database = {
           github_repo: string | null
           id: string
           importance: string | null
+          importance_reason: string | null
           mission: string | null
           module: string | null
           parent_id: string | null
@@ -1924,6 +1925,7 @@ export type Database = {
           github_repo?: string | null
           id?: string
           importance?: string | null
+          importance_reason?: string | null
           mission?: string | null
           module?: string | null
           parent_id?: string | null
@@ -1948,6 +1950,7 @@ export type Database = {
           github_repo?: string | null
           id?: string
           importance?: string | null
+          importance_reason?: string | null
           mission?: string | null
           module?: string | null
           parent_id?: string | null

@@ -4,6 +4,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import {
   Select,
   SelectContent,
@@ -68,6 +69,7 @@ interface TaskCardProps {
     github_repo?: string | null;
     github_branch?: string | null;
     importance?: string | null;
+    importance_reason?: string | null;
   };
   attachments?: TaskAttachment[];
   onClick: (taskId: string) => void;
@@ -223,9 +225,20 @@ const SubtaskCard: React.FC<{
               <span className="ml-1 capitalize">{subtask.priority}</span>
             </Badge>
             {subtask.importance && (
-              <Badge className={cn('text-xs border', getImportanceColor(subtask.importance))}>
-                {getImportanceLabel(subtask.importance)}
-              </Badge>
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Badge className={cn('text-xs border cursor-help', getImportanceColor(subtask.importance))}>
+                      {getImportanceLabel(subtask.importance)}
+                    </Badge>
+                  </TooltipTrigger>
+                  {subtask.importance_reason && (
+                    <TooltipContent side="top" className="max-w-xs">
+                      <p className="text-xs">{subtask.importance_reason}</p>
+                    </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
             )}
             {!subtask.importance && (
               <Badge variant="outline" className="text-xs border-dashed text-muted-foreground">
