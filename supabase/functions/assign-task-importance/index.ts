@@ -160,7 +160,10 @@ Return a JSON array with objects containing "id" and "importance" for each task.
     for (const assignment of assignments) {
       const { error: updateError } = await supabase
         .from('tasks')
-        .update({ importance: assignment.importance })
+        .update({ 
+          importance: assignment.importance,
+          importance_reason: assignment.reason || null
+        })
         .eq('id', assignment.id);
 
       if (updateError) {

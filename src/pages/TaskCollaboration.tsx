@@ -75,6 +75,7 @@ interface Task {
   github_repo?: string | null;
   github_branch?: string | null;
   importance?: string | null;
+  importance_reason?: string | null;
 }
 
 interface Cycle {
