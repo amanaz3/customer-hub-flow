@@ -1,6 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Database, Wrench, RefreshCw } from "lucide-react";
+import { Wrench } from "lucide-react";
 
 export default function DevTools() {
   const navigate = useNavigate();
@@ -17,48 +16,8 @@ export default function DevTools() {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <Card 
-          className="hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => navigate('/dev-tools/database')}
-        >
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Database className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <CardTitle>Database Viewer</CardTitle>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <CardDescription>
-              Browse and inspect database tables, schema, and records
-            </CardDescription>
-          </CardContent>
-        </Card>
-
-        <Card 
-          className="hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => navigate('/dev-tools/migration')}
-        >
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <RefreshCw className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <CardTitle>Data Migration</CardTitle>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <CardDescription>
-              Migrate customer records to the new applications architecture
-            </CardDescription>
-          </CardContent>
-        </Card>
+      <div className="text-muted-foreground text-center py-12">
+        <p>All tools have been moved to Configure → Dev section</p>
       </div>
     </div>
   );
