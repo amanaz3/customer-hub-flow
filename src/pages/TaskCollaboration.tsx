@@ -62,9 +62,11 @@ interface Task {
   assigned_to: string | null;
   project_id: string | null;
   parent_id?: string | null;
+  cycle_id?: string | null;
   created_at: string;
   assignee_name?: string;
   product_name?: string;
+  cycle_name?: string;
   module?: string | null;
   category?: string | null;
   architectural_component?: string | null;
@@ -73,6 +75,14 @@ interface Task {
   github_repo?: string | null;
   github_branch?: string | null;
   importance?: string | null;
+}
+
+interface Cycle {
+  id: string;
+  name: string;
+  status: string;
+  start_date: string;
+  end_date: string;
 }
 
 interface TaskAttachment {
@@ -135,6 +145,7 @@ const TaskCollaboration: React.FC = () => {
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>([]);
   const [recentActivity, setRecentActivity] = useState<ActivityItem[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [cycles, setCycles] = useState<Cycle[]>([]);
   const [products, setProducts] = useState<Product[]>([]);
   const [applications, setApplications] = useState<Application[]>([]);
   const [activeCasesCount, setActiveCasesCount] = useState(0);
@@ -150,6 +161,7 @@ const TaskCollaboration: React.FC = () => {
   const [projectFilter, setProjectFilter] = useState<string>('all');
   const [importanceFilter, setImportanceFilter] = useState<string>('all');
   const [moduleFilter, setModuleFilter] = useState<string>('all');
+  const [cycleFilter, setCycleFilter] = useState<string>('all');
   const [groupByModule, setGroupByModule] = useState<boolean>(true);
   const [showAllFilters, setShowAllFilters] = useState(false);
   const [activeSmartView, setActiveSmartView] = useState<string>('module'); // 'blockers' | 'module' | 'triage' | 'all'
@@ -243,6 +255,20 @@ const TaskCollaboration: React.FC = () => {
     };
   }, []);
 
+  const fetchCycles = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('cycles')
+        .select('id, name, status, start_date, end_date')
+        .order('start_date', { ascending: false });
+
+      if (error) throw error;
+      setCycles(data || []);
+    } catch (error) {
+      console.error('Error fetching cycles:', error);
+    }
+  };
+
   const fetchTasks = async () => {
     try {
       const { data, error } = await supabase
@@ -250,7 +276,8 @@ const TaskCollaboration: React.FC = () => {
         .select(`
           *,
           profiles!tasks_assigned_to_fkey(name),
-          projects(name)
+          projects(name),
+          cycles(name)
         `)
         .order('created_at', { ascending: false });
 
@@ -259,7 +286,8 @@ const TaskCollaboration: React.FC = () => {
       const tasksWithNames: Task[] = (data || []).map((task: any) => ({
         ...task,
         assignee_name: task.profiles?.name,
-        product_name: task.projects?.name, // Still using 'projects' relation
+        product_name: task.projects?.name,
+        cycle_name: task.cycles?.name,
       }));
 
       setTasks(tasksWithNames);
@@ -561,6 +589,9 @@ const TaskCollaboration: React.FC = () => {
       
       // Fetch products
       await fetchProducts();
+
+      // Fetch cycles
+      await fetchCycles();
     } catch (error) {
       console.error('Error fetching team data:', error);
       toast.error('Failed to load team data');
@@ -630,7 +661,10 @@ const TaskCollaboration: React.FC = () => {
     const matchesModule = moduleFilter === 'all' || 
                           (moduleFilter === 'none' && !task.module) ||
                           task.module === moduleFilter;
-    return matchesSearch && matchesStatus && matchesPriority && matchesProject && matchesImportance && matchesModule;
+    const matchesCycle = cycleFilter === 'all' || 
+                         (cycleFilter === 'none' && !task.cycle_id) ||
+                         task.cycle_id === cycleFilter;
+    return matchesSearch && matchesStatus && matchesPriority && matchesProject && matchesImportance && matchesModule && matchesCycle;
   });
 
   // Get unique modules from tasks
@@ -1547,7 +1581,24 @@ const TaskCollaboration: React.FC = () => {
                         <SelectItem value="none">Uncategorized</SelectItem>
                         {uniqueModules.map((module) => (
                           <SelectItem key={module} value={module}>
-                            {module.charAt(0).toUpperCase() + module.slice(1)}
+                          {module.charAt(0).toUpperCase() + module.slice(1)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select value={cycleFilter} onValueChange={setCycleFilter}>
+                      <SelectTrigger className="w-40">
+                        <div className="flex items-center gap-2">
+                          <Calendar className="h-4 w-4" />
+                          <SelectValue placeholder="Cycle" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        <SelectItem value="all">All Cycles</SelectItem>
+                        <SelectItem value="none">No Cycle</SelectItem>
+                        {cycles.map((cycle) => (
+                          <SelectItem key={cycle.id} value={cycle.id}>
+                            {cycle.name} {cycle.status === 'active' && '(Active)'}
                           </SelectItem>
                         ))}
                       </SelectContent>
