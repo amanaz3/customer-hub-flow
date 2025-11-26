@@ -38,16 +38,6 @@ const Manage = () => {
             </div>
             <div 
               className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
-              onClick={() => navigate('/customer-services')}
-            >
-              <Users className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium text-sm">Services</p>
-                <p className="text-xs text-muted-foreground">Manage services and products</p>
-              </div>
-            </div>
-            <div 
-              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
               onClick={() => navigate('/messages')}
             >
               <MessageSquare className="h-5 w-5 text-muted-foreground" />
@@ -73,7 +63,16 @@ const Manage = () => {
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
-            {/* Add business-related items here */}
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => navigate('/customer-services')}
+            >
+              <Users className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">Services</p>
+                <p className="text-xs text-muted-foreground">Manage services and products</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
