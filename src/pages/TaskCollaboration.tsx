@@ -164,7 +164,8 @@ const TaskCollaboration: React.FC = () => {
   const [cycleFilter, setCycleFilter] = useState<string>('all');
   const [groupByModule, setGroupByModule] = useState<boolean>(true);
   const [showAllFilters, setShowAllFilters] = useState(false);
-  const [activeSmartView, setActiveSmartView] = useState<string>('module'); // 'blockers' | 'module' | 'triage' | 'all'
+  const [showQuickViews, setShowQuickViews] = useState(false);
+  const [activeSmartView, setActiveSmartView] = useState<string>('module'); // 'blockers' | 'module' | 'triage' | 'cycle' | 'all'
   const [showTaskStats, setShowTaskStats] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
   const [quickAddBugOpen, setQuickAddBugOpen] = useState(false);
@@ -1410,102 +1411,113 @@ const TaskCollaboration: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
-              {/* Smart View Buttons */}
-              <div className="flex flex-wrap gap-2 mb-4 pb-4 border-b">
-                <span className="text-sm text-muted-foreground mr-2 self-center">Quick Views:</span>
+              {/* Smart View Buttons - Collapsible */}
+              <div className="mb-4 pb-4 border-b">
                 <Button
-                  variant={activeSmartView === 'blockers' ? "default" : "outline"}
+                  variant="ghost"
                   size="sm"
-                  onClick={() => {
-                    setActiveSmartView('blockers');
-                    setImportanceFilter('must');
-                    setStatusFilter('all');
-                    setModuleFilter('all');
-                    setGroupByModule(false);
-                  }}
-                  className="gap-1.5"
+                  onClick={() => setShowQuickViews(!showQuickViews)}
+                  className="text-muted-foreground mb-2 -ml-2"
                 >
-                  <Flame className="h-3.5 w-3.5 text-orange-500" />
-                  Blockers
-                  <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
-                    {tasks.filter(t => t.importance === 'must' && t.status !== 'done').length}
-                  </Badge>
+                  <ChevronRight className={`h-4 w-4 mr-1 transition-transform ${showQuickViews ? 'rotate-90' : ''}`} />
+                  Quick Views
                 </Button>
-                <Button
-                  variant={activeSmartView === 'module' ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => {
-                    setActiveSmartView('module');
-                    setImportanceFilter('all');
-                    setStatusFilter('todo');
-                    setModuleFilter('all');
-                    setGroupByModule(true);
-                  }}
-                  className="gap-1.5"
-                >
-                  <LayoutGrid className="h-3.5 w-3.5" />
-                  By Module
-                </Button>
-                <Button
-                  variant={activeSmartView === 'triage' ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => {
-                    setActiveSmartView('triage');
-                    setImportanceFilter('none');
-                    setStatusFilter('all');
-                    setModuleFilter('all');
-                    setGroupByModule(false);
-                  }}
-                  className="gap-1.5"
-                >
-                  <Inbox className="h-3.5 w-3.5 text-yellow-500" />
-                  Triage
-                  <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
-                    {tasks.filter(t => !t.importance || !t.module).length}
-                  </Badge>
-                </Button>
-                <Button
-                  variant={activeSmartView === 'cycle' ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => {
-                    setActiveSmartView('cycle');
-                    setImportanceFilter('all');
-                    setStatusFilter('todo');
-                    setModuleFilter('all');
-                    setGroupByModule(false);
-                    // Set to active cycle if available, otherwise first cycle
-                    const activeCycle = cycles.find(c => c.status === 'active');
-                    setCycleFilter(activeCycle?.id || (cycles[0]?.id || 'all'));
-                  }}
-                  className="gap-1.5"
-                >
-                  <Calendar className="h-3.5 w-3.5 text-blue-500" />
-                  By Cycle
-                  <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
-                    {tasks.filter(t => t.cycle_id).length}
-                  </Badge>
-                </Button>
-                <Button
-                  variant={activeSmartView === 'all' ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => {
-                    setActiveSmartView('all');
-                    setImportanceFilter('all');
-                    setStatusFilter('all');
-                    setModuleFilter('all');
-                    setPriorityFilter('all');
-                    setProjectFilter('all');
-                    setCycleFilter('all');
-                    setGroupByModule(false);
-                  }}
-                  className="gap-1.5"
-                >
-                  <ListTodo className="h-3.5 w-3.5" />
-                  All Tasks
-                  <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
-                    {tasks.length}
-                  </Badge>
-                </Button>
+                {showQuickViews && (
+                  <div className="flex flex-wrap gap-2">
+                    <Button
+                      variant={activeSmartView === 'blockers' ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setActiveSmartView('blockers');
+                        setImportanceFilter('must');
+                        setStatusFilter('all');
+                        setModuleFilter('all');
+                        setGroupByModule(false);
+                      }}
+                      className="gap-1.5"
+                    >
+                      <Flame className="h-3.5 w-3.5 text-orange-500" />
+                      Blockers
+                      <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                        {tasks.filter(t => t.importance === 'must' && t.status !== 'done').length}
+                      </Badge>
+                    </Button>
+                    <Button
+                      variant={activeSmartView === 'module' ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setActiveSmartView('module');
+                        setImportanceFilter('all');
+                        setStatusFilter('todo');
+                        setModuleFilter('all');
+                        setGroupByModule(true);
+                      }}
+                      className="gap-1.5"
+                    >
+                      <LayoutGrid className="h-3.5 w-3.5" />
+                      By Module
+                    </Button>
+                    <Button
+                      variant={activeSmartView === 'triage' ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setActiveSmartView('triage');
+                        setImportanceFilter('none');
+                        setStatusFilter('all');
+                        setModuleFilter('all');
+                        setGroupByModule(false);
+                      }}
+                      className="gap-1.5"
+                    >
+                      <Inbox className="h-3.5 w-3.5 text-yellow-500" />
+                      Triage
+                      <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                        {tasks.filter(t => !t.importance || !t.module).length}
+                      </Badge>
+                    </Button>
+                    <Button
+                      variant={activeSmartView === 'cycle' ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setActiveSmartView('cycle');
+                        setImportanceFilter('all');
+                        setStatusFilter('todo');
+                        setModuleFilter('all');
+                        setGroupByModule(false);
+                        const activeCycle = cycles.find(c => c.status === 'active');
+                        setCycleFilter(activeCycle?.id || (cycles[0]?.id || 'all'));
+                      }}
+                      className="gap-1.5"
+                    >
+                      <Calendar className="h-3.5 w-3.5 text-blue-500" />
+                      By Cycle
+                      <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                        {tasks.filter(t => t.cycle_id).length}
+                      </Badge>
+                    </Button>
+                    <Button
+                      variant={activeSmartView === 'all' ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setActiveSmartView('all');
+                        setImportanceFilter('all');
+                        setStatusFilter('all');
+                        setModuleFilter('all');
+                        setPriorityFilter('all');
+                        setProjectFilter('all');
+                        setCycleFilter('all');
+                        setGroupByModule(false);
+                      }}
+                      className="gap-1.5"
+                    >
+                      <ListTodo className="h-3.5 w-3.5" />
+                      All Tasks
+                      <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                        {tasks.length}
+                      </Badge>
+                    </Button>
+                  </div>
+                )}
               </div>
 
               {/* Filters */}
