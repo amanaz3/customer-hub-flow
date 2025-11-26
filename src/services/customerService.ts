@@ -4,13 +4,29 @@ import { Customer } from '@/types/customer';
 export class CustomerService {
   /**
    * Fetch customers for a specific user (lightweight version for dropdowns)
+   * Admins see all customers, regular users see only their assigned customers
    */
   static async fetchUserCustomers(userId: string): Promise<Partial<Customer>[]> {
-    const { data, error } = await supabase
+    // First check if user is admin
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('role')
+      .eq('id', userId)
+      .single();
+    
+    const isAdmin = profile?.role === 'admin';
+    
+    let query = supabase
       .from('customers')
       .select('id, name, email, mobile, company, created_at')
-      .eq('user_id', userId)
       .order('company', { ascending: true });
+    
+    // Only filter by user_id for non-admins
+    if (!isAdmin) {
+      query = query.eq('user_id', userId);
+    }
+    
+    const { data, error } = await query;
 
     if (error) {
       console.error('Error fetching user customers:', error);
