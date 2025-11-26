@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Package, FolderTree, ArrowLeft, Settings2 } from "lucide-react";
+import { Package, FolderTree, ArrowLeft, Settings2, DollarSign, Box } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const CustomerServicesManagement = () => {
@@ -30,6 +30,50 @@ const CustomerServicesManagement = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/products')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Box className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Product Management</CardTitle>
+                <CardDescription>Manage products and services</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Create and manage products and service offerings.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/service-fees')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <DollarSign className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Service Fees</CardTitle>
+                <CardDescription>Manage fee configurations</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Configure fee structures and pricing for products and bundles.
+            </p>
+          </CardContent>
+        </Card>
+
         <Card 
           className="hover:shadow-lg transition-shadow cursor-pointer"
           onClick={() => navigate('/bundles')}
