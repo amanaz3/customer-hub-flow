@@ -160,53 +160,53 @@ const CustomerNew = () => {
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <div className="w-full max-w-4xl mx-auto">
             
-            {/* Seamless Connected Tabs */}
-            <TabsList className="w-full h-auto p-0 bg-transparent rounded-none flex">
+            {/* Connected Tabs with Clear Boundary */}
+            <div className="flex rounded-t-lg overflow-hidden border border-b-0 border-border">
               {/* New Customer Tab */}
-              <TabsTrigger 
-                value="new" 
-                className={`flex-1 relative h-12 rounded-t-lg rounded-b-none border border-b-0 transition-all duration-200 ${
+              <button
+                onClick={() => handleTabChange('new')}
+                className={`flex-1 relative h-12 transition-all duration-200 ${
                   activeTab === 'new' 
-                    ? 'bg-card border-border z-10' 
-                    : 'bg-muted/50 border-transparent hover:bg-muted/80'
+                    ? 'bg-card shadow-sm' 
+                    : 'bg-muted/60 hover:bg-muted/80'
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
-                  <UserPlus className={`h-4 w-4 transition-colors ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground'}`} />
-                  <span className={`font-medium text-sm transition-colors ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground'}`}>
+                  <UserPlus className={`h-4 w-4 transition-colors ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground/60'}`} />
+                  <span className={`font-medium text-sm transition-colors ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground/60'}`}>
                     New Customer
                   </span>
                 </div>
-                {/* Bottom connector - hides border when active */}
+                {/* Active indicator bar */}
                 {activeTab === 'new' && (
-                  <div className="absolute -bottom-px left-0 right-0 h-px bg-card" />
+                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />
                 )}
-              </TabsTrigger>
+              </button>
               
-              {/* Divider between tabs */}
-              <div className="w-px bg-border self-stretch my-2" />
+              {/* Vertical Boundary */}
+              <div className="w-px bg-border" />
               
               {/* Existing Customer Tab */}
-              <TabsTrigger 
-                value="existing" 
-                className={`flex-1 relative h-12 rounded-t-lg rounded-b-none border border-b-0 transition-all duration-200 ${
+              <button
+                onClick={() => handleTabChange('existing')}
+                className={`flex-1 relative h-12 transition-all duration-200 ${
                   activeTab === 'existing' 
-                    ? 'bg-card border-border z-10' 
-                    : 'bg-muted/50 border-transparent hover:bg-muted/80'
+                    ? 'bg-card shadow-sm' 
+                    : 'bg-muted/60 hover:bg-muted/80'
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
-                  <Users className={`h-4 w-4 transition-colors ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground'}`} />
-                  <span className={`font-medium text-sm transition-colors ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground'}`}>
+                  <Users className={`h-4 w-4 transition-colors ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground/60'}`} />
+                  <span className={`font-medium text-sm transition-colors ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground/60'}`}>
                     Existing Customer
                   </span>
                 </div>
-                {/* Bottom connector - hides border when active */}
+                {/* Active indicator bar */}
                 {activeTab === 'existing' && (
-                  <div className="absolute -bottom-px left-0 right-0 h-px bg-card" />
+                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />
                 )}
-              </TabsTrigger>
-            </TabsList>
+              </button>
+            </div>
 
             {/* Seamless Content Panel - connects to active tab */}
             <div className="bg-card border border-border rounded-b-lg -mt-px">
