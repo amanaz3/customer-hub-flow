@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Bell, ArrowLeft } from "lucide-react";
+import { Bell, ArrowLeft, UserCog } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Messages = () => {
@@ -48,6 +48,28 @@ const Messages = () => {
           <CardContent>
             <p className="text-sm text-muted-foreground">
               Manage email and in-app notification settings for application status changes.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/settings')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <UserCog className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>User Preferences</CardTitle>
+                <CardDescription>Personal notification preferences</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Manage your personal notification preferences and settings.
             </p>
           </CardContent>
         </Card>
