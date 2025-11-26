@@ -1639,7 +1639,7 @@ const TaskCollaboration: React.FC = () => {
                               <div className="flex items-start justify-between mb-2">
                                 <div className="flex items-center gap-2">
                                   <span className="text-sm font-semibold text-foreground">
-                                    {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at)}
+                                    {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at, app.application_type)}
                                   </span>
                                   <Badge className={`${statusBadgeColor} text-xs`}>
                                     {app.status.replace('_', ' ')}
@@ -1707,7 +1707,7 @@ const TaskCollaboration: React.FC = () => {
                           <div className="flex items-start justify-between mb-2">
                             <div>
                               <h3 className="text-xl font-semibold text-foreground">
-                                {formatApplicationReferenceWithPrefix(selectedCase.reference_number, maxReferenceNumber, selectedCase.created_at)}
+                                {formatApplicationReferenceWithPrefix(selectedCase.reference_number, maxReferenceNumber, selectedCase.created_at, selectedCase.application_type)}
                               </h3>
                               <p className="text-sm text-muted-foreground">
                                 {selectedCase.application_type?.replace('_', ' ') || 'Application'}

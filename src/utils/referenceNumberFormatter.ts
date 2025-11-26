@@ -40,12 +40,57 @@ export const formatApplicationReferenceAuto = (num: number, maxReference: number
 };
 
 /**
- * Format application reference with APP-yyyy- prefix and auto-scaling: 1001 → "APP-2025-01001"
+ * Extract initials from product/service name for reference number
+ * Rules:
+ * - 1 word → 1 letter (first letter)
+ * - 2 words → 2 letters (first letter of first 2 words)
+ * - 3+ words → 3 letters (first letter of first 3 words)
+ * - Skip words containing non-alphabet characters
+ * - "N/A" or null/undefined → "NA"
+ * - "Others" → "OT"
+ */
+export const extractProductInitials = (productName: string | null | undefined): string => {
+  if (!productName || productName.trim() === '' || productName.toLowerCase() === 'n/a') {
+    return 'NA';
+  }
+  
+  if (productName.toLowerCase() === 'others') {
+    return 'OT';
+  }
+  
+  // Split into words and filter out words with non-alphabet characters
+  const words = productName.split(/\s+/).filter(word => /^[a-zA-Z]+$/.test(word));
+  
+  if (words.length === 0) {
+    return 'NA';
+  }
+  
+  // Determine how many letters to take based on word count
+  const maxLetters = words.length >= 3 ? 3 : words.length;
+  
+  // Take first letter of each word (up to maxLetters)
+  const initials = words
+    .slice(0, maxLetters)
+    .map(word => word.charAt(0).toUpperCase())
+    .join('');
+  
+  return initials || 'NA';
+};
+
+/**
+ * Format application reference with APP-[INITIALS]-yyyy-[NUMBER] format
+ * Example: "Bank Account Opening" → "APP-BAO-2025-01001"
  * Year is extracted from the application's created_at timestamp from database
  */
-export const formatApplicationReferenceWithPrefix = (num: number, maxReference: number, createdAt: string): string => {
+export const formatApplicationReferenceWithPrefix = (
+  num: number, 
+  maxReference: number, 
+  createdAt: string,
+  productName?: string | null
+): string => {
   const year = new Date(createdAt).getFullYear();
-  return `APP-${year}-${formatApplicationReferenceAuto(num, maxReference)}`;
+  const initials = extractProductInitials(productName);
+  return `APP-${initials}-${year}-${formatApplicationReferenceAuto(num, maxReference)}`;
 };
 
 /**

@@ -467,7 +467,7 @@ const ApplicationsList = () => {
                           />
                         </TableCell>
                         <TableCell className="px-3 py-3 font-mono font-bold text-sm text-primary">
-                          {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at)}
+                          {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at, app.product?.name)}
                         </TableCell>
                         <TableCell className="px-3 py-3 font-semibold text-sm">
                           <div className="flex items-center gap-2 min-w-[150px]">
@@ -630,7 +630,7 @@ const ApplicationsList = () => {
                           />
                         </TableCell>
                         <TableCell className="px-3 py-3 font-mono font-bold text-sm text-primary">
-                          {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at)}
+                          {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at, app.product?.name)}
                         </TableCell>
                         <TableCell className="px-3 py-3 font-semibold text-sm">
                           <div className="flex items-center gap-2 min-w-[150px]">
@@ -785,7 +785,7 @@ const ApplicationsList = () => {
                           />
                         </TableCell>
                         <TableCell className="px-3 py-3 font-mono font-bold text-sm text-primary">
-                          {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at)}
+                          {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at, app.product?.name)}
                         </TableCell>
                         <TableCell className="px-3 py-3 font-semibold text-sm">
                           <div className="flex items-center gap-2 min-w-[150px]">
@@ -927,7 +927,7 @@ const ApplicationsList = () => {
                           />
                         </TableCell>
                         <TableCell className="px-3 py-3 font-mono font-bold text-sm text-primary">
-                          {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at)}
+                          {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at, app.product?.name)}
                         </TableCell>
                         <TableCell className="px-3 py-3 font-semibold text-sm">
                           <div className="flex items-center gap-2 min-w-[150px]">

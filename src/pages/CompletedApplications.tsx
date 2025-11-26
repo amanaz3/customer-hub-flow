@@ -425,7 +425,7 @@ const CompletedApplications = () => {
                     onClick={() => navigate(`/applications/${app.id}`)}
                   >
                     <TableCell className="font-mono font-bold text-sm text-primary">
-                      {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at)}
+                      {formatApplicationReferenceWithPrefix(app.reference_number, maxReferenceNumber, app.created_at, app.application_type)}
                     </TableCell>
                     <TableCell>{app.customer?.name}</TableCell>
                     <TableCell>{app.customer?.company}</TableCell>
