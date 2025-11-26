@@ -1118,50 +1118,48 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   ];
 
   return (
-    <div className="w-full relative flex flex-col items-center">
+    <div className="w-full relative">
       {/* Progress Header - Conditionally show full or stepper-only version */}
-      <div className="w-full max-w-2xl">
-        {hideCustomerTypeSelector ? (
-          <TabbedCustomerProgressHeader
-            currentStep={currentStep}
-            totalSteps={4}
-            onStepClick={(step) => {
-              if (step < currentStep) {
-                setCurrentStep(step);
-                onStepChange?.(step);
-              }
-            }}
-          />
-        ) : (
-          <UnifiedProgressHeader
-            currentStep={currentStep}
-            totalSteps={4}
-            customerName={form.watch('name')}
-            customerEmail={form.watch('email')}
-            customerMobile={form.watch('mobile')}
-            selectedProduct={products?.find(p => p.id === form.watch('product_id'))?.name}
-            customerType={companyMode ? 'existing' : 'new'}
-            onCustomerTypeChange={(value) => {
-              if (currentStep > 1) {
-                setPendingMode(value);
-                setShowModeChangeWarning(true);
-                return;
-              }
-              
-              const newMode = value === 'existing';
-              onModeChange?.(newMode);
-              if (!newMode) {
-                onCustomerSelect?.(null);
-              }
-            }}
-          />
-        )}
-      </div>
+      {hideCustomerTypeSelector ? (
+        <TabbedCustomerProgressHeader
+          currentStep={currentStep}
+          totalSteps={4}
+          onStepClick={(step) => {
+            if (step < currentStep) {
+              setCurrentStep(step);
+              onStepChange?.(step);
+            }
+          }}
+        />
+      ) : (
+        <UnifiedProgressHeader
+          currentStep={currentStep}
+          totalSteps={4}
+          customerName={form.watch('name')}
+          customerEmail={form.watch('email')}
+          customerMobile={form.watch('mobile')}
+          selectedProduct={products?.find(p => p.id === form.watch('product_id'))?.name}
+          customerType={companyMode ? 'existing' : 'new'}
+          onCustomerTypeChange={(value) => {
+            if (currentStep > 1) {
+              setPendingMode(value);
+              setShowModeChangeWarning(true);
+              return;
+            }
+            
+            const newMode = value === 'existing';
+            onModeChange?.(newMode);
+            if (!newMode) {
+              onCustomerSelect?.(null);
+            }
+          }}
+        />
+      )}
 
       <Form {...form}>
           <form 
             onSubmit={form.handleSubmit(onSubmit)} 
-            className="w-full flex justify-center"
+            className="w-full"
           >
 
             <Card 
