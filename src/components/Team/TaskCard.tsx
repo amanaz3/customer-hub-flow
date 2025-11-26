@@ -232,11 +232,9 @@ const SubtaskCard: React.FC<{
                       {getImportanceLabel(subtask.importance)}
                     </Badge>
                   </TooltipTrigger>
-                  {subtask.importance_reason && (
-                    <TooltipContent side="top" className="max-w-xs">
-                      <p className="text-xs">{subtask.importance_reason}</p>
-                    </TooltipContent>
-                  )}
+                  <TooltipContent side="top" className="max-w-xs">
+                    <p className="text-xs">{subtask.importance_reason || 'No reason available'}</p>
+                  </TooltipContent>
                 </Tooltip>
               </TooltipProvider>
             )}
