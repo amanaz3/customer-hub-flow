@@ -160,43 +160,56 @@ const CustomerNew = () => {
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <div className="w-full max-w-4xl mx-auto">
             
-            {/* Underline Tabs Header */}
-            <div className="bg-card border border-border border-b-0 rounded-t-lg">
-              <TabsList className="w-full h-auto p-0 bg-transparent rounded-none">
-                <div className="flex w-full">
-                  <TabsTrigger 
-                    value="new" 
-                    className="flex-1 relative h-12 rounded-none border-0 bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      <UserPlus className={`h-4 w-4 ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground'}`} />
-                      <span className={`font-medium text-sm ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground'}`}>
-                        New Customer
-                      </span>
-                    </div>
-                    {/* Active underline indicator */}
-                    <div className={`absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-200 ${activeTab === 'new' ? 'bg-primary' : 'bg-transparent'}`} />
-                  </TabsTrigger>
-                  
-                  <TabsTrigger 
-                    value="existing" 
-                    className="flex-1 relative h-12 rounded-none border-0 bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none"
-                  >
-                    <div className="flex items-center justify-center gap-2">
-                      <Users className={`h-4 w-4 ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground'}`} />
-                      <span className={`font-medium text-sm ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground'}`}>
-                        Existing Customer
-                      </span>
-                    </div>
-                    {/* Active underline indicator */}
-                    <div className={`absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-200 ${activeTab === 'existing' ? 'bg-primary' : 'bg-transparent'}`} />
-                  </TabsTrigger>
+            {/* Seamless Connected Tabs */}
+            <TabsList className="w-full h-auto p-0 bg-transparent rounded-none flex">
+              {/* New Customer Tab */}
+              <TabsTrigger 
+                value="new" 
+                className={`flex-1 relative h-12 rounded-t-lg rounded-b-none border border-b-0 transition-all duration-200 ${
+                  activeTab === 'new' 
+                    ? 'bg-card border-border z-10' 
+                    : 'bg-muted/50 border-transparent hover:bg-muted/80'
+                }`}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <UserPlus className={`h-4 w-4 transition-colors ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <span className={`font-medium text-sm transition-colors ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    New Customer
+                  </span>
                 </div>
-              </TabsList>
-            </div>
+                {/* Bottom connector - hides border when active */}
+                {activeTab === 'new' && (
+                  <div className="absolute -bottom-px left-0 right-0 h-px bg-card" />
+                )}
+              </TabsTrigger>
+              
+              {/* Divider between tabs */}
+              <div className="w-px bg-border self-stretch my-2" />
+              
+              {/* Existing Customer Tab */}
+              <TabsTrigger 
+                value="existing" 
+                className={`flex-1 relative h-12 rounded-t-lg rounded-b-none border border-b-0 transition-all duration-200 ${
+                  activeTab === 'existing' 
+                    ? 'bg-card border-border z-10' 
+                    : 'bg-muted/50 border-transparent hover:bg-muted/80'
+                }`}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  <Users className={`h-4 w-4 transition-colors ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground'}`} />
+                  <span className={`font-medium text-sm transition-colors ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    Existing Customer
+                  </span>
+                </div>
+                {/* Bottom connector - hides border when active */}
+                {activeTab === 'existing' && (
+                  <div className="absolute -bottom-px left-0 right-0 h-px bg-card" />
+                )}
+              </TabsTrigger>
+            </TabsList>
 
-            {/* Seamless Content Panel */}
-            <div className="bg-card border border-border border-t-0 rounded-b-lg">
+            {/* Seamless Content Panel - connects to active tab */}
+            <div className="bg-card border border-border rounded-b-lg -mt-px">
               <TabsContent value="new" className="mt-0 p-6 sm:p-8">
                 <SimplifiedCustomerForm
                   onSuccess={handleSuccess}
