@@ -59,6 +59,7 @@ import DevManagement from '@/pages/DevManagement';
 import ApplicationsByServices from '@/pages/ApplicationsByServices';
 import ServiceFees from '@/pages/ServiceFees';
 import DevToolsNew from '@/pages/DevToolsNew';
+import AdminManage from '@/pages/AdminManage';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -238,6 +239,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="DevTools">
                           <DevToolsNew />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/admin-manage" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Manage">
+                          <AdminManage />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
