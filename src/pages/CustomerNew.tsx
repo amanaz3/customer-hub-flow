@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
 import { CustomerEventsSidebar } from '@/components/Customer/CustomerEventsSidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Users, ChevronRight, ChevronDown } from 'lucide-react';
+import { UserPlus, Users, ChevronRight } from 'lucide-react';
 
 const CustomerNew = () => {
   const { refreshData } = useCustomer();
@@ -161,170 +161,82 @@ const CustomerNew = () => {
           {/* Tabbed Interface Container */}
           <div className="w-full max-w-4xl mx-auto">
             
-            {/* Overall Flow Indicator */}
-            <div className="flex items-center justify-center gap-2 mb-6">
-              <div className="flex items-center gap-2">
-                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
-                  1
-                </div>
-                <span className="text-sm font-medium text-foreground">Select Customer Type</span>
+            {/* Compact Flow Indicator */}
+            <div className="flex items-center justify-center gap-1.5 mb-3">
+              <div className="flex items-center gap-1.5">
+                <div className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">1</div>
+                <span className="text-xs font-medium text-foreground">Select Type</span>
               </div>
-              <ChevronRight className="h-4 w-4 text-muted-foreground" />
-              <div className="flex items-center gap-2">
-                <div className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${currentStep >= 1 ? 'bg-muted text-muted-foreground' : 'bg-muted text-muted-foreground'}`}>
-                  2
-                </div>
-                <span className="text-sm text-muted-foreground">Complete Application</span>
+              <ChevronRight className="h-3 w-3 text-muted-foreground" />
+              <div className="flex items-center gap-1.5">
+                <div className="flex items-center justify-center w-5 h-5 rounded-full bg-muted text-muted-foreground text-[10px] font-bold">2</div>
+                <span className="text-xs text-muted-foreground">Complete</span>
               </div>
             </div>
 
-            {/* Section Header with Instructions */}
-            <div className="bg-card border border-border rounded-t-lg p-4">
-              <div className="flex items-start gap-3">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary shrink-0">
-                  <span className="text-sm font-bold">1</span>
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-foreground">
-                    Select Customer Type
-                  </h2>
-                  <p className="text-sm text-muted-foreground mt-0.5">
-                    Choose one option below to begin your application
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Card-based Radio Selection */}
-            <div className="bg-muted/30 border-x border-border p-4">
-              <TabsList className="w-full h-auto p-0 bg-transparent grid grid-cols-2 gap-4">
+            {/* Compact Card-based Radio Selection */}
+            <div className="bg-card border border-border rounded-t-lg p-3">
+              <TabsList className="w-full h-auto p-0 bg-transparent grid grid-cols-2 gap-3">
                 <TabsTrigger 
                   value="new" 
-                  className="relative h-auto p-0 bg-transparent border-0 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-lg group"
+                  className="relative h-auto p-0 bg-transparent border-0 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-md group"
                 >
                   <div className={`
-                    w-full p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer relative
+                    w-full p-3 rounded-md border-2 transition-all duration-200 cursor-pointer relative
                     ${activeTab === 'new' 
-                      ? 'border-primary bg-primary/5 shadow-md' 
+                      ? 'border-primary bg-primary/5' 
                       : 'border-border bg-card hover:border-primary/50 hover:bg-muted/50'
                     }
                   `}>
-                    {/* Start Here Badge - Only show on first option when nothing selected yet */}
                     {activeTab === 'new' && (
-                      <div className="absolute -top-2.5 left-4 px-2 py-0.5 bg-primary text-primary-foreground text-[10px] font-semibold rounded-full uppercase tracking-wide">
-                        Selected
+                      <div className="absolute -top-2 right-2 px-1.5 py-0.5 bg-primary text-primary-foreground text-[9px] font-semibold rounded">
+                        ✓
                       </div>
                     )}
-                    
-                    <div className="flex items-start gap-3">
-                      {/* Radio Circle */}
-                      <div className={`
-                        mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all
-                        ${activeTab === 'new' 
-                          ? 'border-primary' 
-                          : 'border-muted-foreground/40'
-                        }
-                      `}>
-                        {activeTab === 'new' && (
-                          <div className="w-2.5 h-2.5 rounded-full bg-primary animate-scale-in" />
-                        )}
+                    <div className="flex items-center gap-2">
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${activeTab === 'new' ? 'border-primary' : 'border-muted-foreground/40'}`}>
+                        {activeTab === 'new' && <div className="w-2 h-2 rounded-full bg-primary" />}
                       </div>
-                      
-                      {/* Content */}
-                      <div className="flex-1 text-left">
-                        <div className="flex items-center gap-2 mb-1">
-                          <UserPlus className={`h-4 w-4 ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground'}`} />
-                          <span className={`font-semibold text-sm ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground'}`}>
-                            New Customer
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Create a new customer record and application
-                        </p>
-                      </div>
+                      <UserPlus className={`h-3.5 w-3.5 ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground'}`} />
+                      <span className={`font-medium text-xs ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground'}`}>
+                        New Customer
+                      </span>
                     </div>
                   </div>
                 </TabsTrigger>
                 
                 <TabsTrigger 
                   value="existing" 
-                  className="relative h-auto p-0 bg-transparent border-0 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-lg group"
+                  className="relative h-auto p-0 bg-transparent border-0 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-md group"
                 >
                   <div className={`
-                    w-full p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer relative
+                    w-full p-3 rounded-md border-2 transition-all duration-200 cursor-pointer relative
                     ${activeTab === 'existing' 
-                      ? 'border-primary bg-primary/5 shadow-md' 
+                      ? 'border-primary bg-primary/5' 
                       : 'border-border bg-card hover:border-primary/50 hover:bg-muted/50'
                     }
                   `}>
                     {activeTab === 'existing' && (
-                      <div className="absolute -top-2.5 left-4 px-2 py-0.5 bg-primary text-primary-foreground text-[10px] font-semibold rounded-full uppercase tracking-wide">
-                        Selected
+                      <div className="absolute -top-2 right-2 px-1.5 py-0.5 bg-primary text-primary-foreground text-[9px] font-semibold rounded">
+                        ✓
                       </div>
                     )}
-                    
-                    <div className="flex items-start gap-3">
-                      {/* Radio Circle */}
-                      <div className={`
-                        mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all
-                        ${activeTab === 'existing' 
-                          ? 'border-primary' 
-                          : 'border-muted-foreground/40'
-                        }
-                      `}>
-                        {activeTab === 'existing' && (
-                          <div className="w-2.5 h-2.5 rounded-full bg-primary animate-scale-in" />
-                        )}
+                    <div className="flex items-center gap-2">
+                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${activeTab === 'existing' ? 'border-primary' : 'border-muted-foreground/40'}`}>
+                        {activeTab === 'existing' && <div className="w-2 h-2 rounded-full bg-primary" />}
                       </div>
-                      
-                      {/* Content */}
-                      <div className="flex-1 text-left">
-                        <div className="flex items-center gap-2 mb-1">
-                          <Users className={`h-4 w-4 ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground'}`} />
-                          <span className={`font-semibold text-sm ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground'}`}>
-                            Existing Customer
-                          </span>
-                        </div>
-                        <p className="text-xs text-muted-foreground">
-                          Add application for an existing customer
-                        </p>
-                      </div>
+                      <Users className={`h-3.5 w-3.5 ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground'}`} />
+                      <span className={`font-medium text-xs ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground'}`}>
+                        Existing Customer
+                      </span>
                     </div>
                   </div>
                 </TabsTrigger>
               </TabsList>
             </div>
 
-            {/* Visual Flow Connector */}
-            <div className="flex justify-center bg-muted/30 border-x border-border py-2">
-              <div className="flex flex-col items-center">
-                <div className="w-0.5 h-4 bg-border" />
-                <ChevronDown className="h-4 w-4 text-muted-foreground -mt-1" />
-              </div>
-            </div>
-
-            {/* Step 2 Header */}
-            <div className="bg-card border-x border-border p-4">
-              <div className="flex items-start gap-3">
-                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary shrink-0">
-                  <span className="text-sm font-bold">2</span>
-                </div>
-                <div>
-                  <h2 className="text-lg font-semibold text-foreground">
-                    Complete Application
-                  </h2>
-                  <p className="text-sm text-muted-foreground mt-0.5">
-                    {activeTab === 'new' 
-                      ? 'Enter customer details and service information' 
-                      : 'Select customer and add service information'
-                    }
-                  </p>
-                </div>
-              </div>
-            </div>
-
             {/* Tab Content Panel */}
-            <div className="bg-card border border-t-0 border-border shadow-lg rounded-b-lg">
+            <div className="bg-card border border-t-0 border-border rounded-b-lg">
               {/* New Customer Tab Content */}
               <TabsContent value="new" className="mt-0 p-6 sm:p-8">
                 <SimplifiedCustomerForm
