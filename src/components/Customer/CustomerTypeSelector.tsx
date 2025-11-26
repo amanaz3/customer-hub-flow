@@ -14,10 +14,10 @@ export const CustomerTypeSelector = ({ value, onChange }: CustomerTypeSelectorPr
           type="button"
           onClick={() => onChange('new')}
           className={cn(
-            "flex items-center gap-3 p-3 border rounded-lg transition-all duration-200",
+            "flex items-center gap-3 p-3 border rounded-lg transition-all duration-200 bg-card",
             value === 'new' 
-              ? "border-primary bg-primary/5 text-primary" 
-              : "border-border bg-transparent text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground"
+              ? "border-primary bg-primary/10 text-primary shadow-sm" 
+              : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground hover:bg-muted/50"
           )}
         >
           {value === 'new' ? (
@@ -33,10 +33,10 @@ export const CustomerTypeSelector = ({ value, onChange }: CustomerTypeSelectorPr
           type="button"
           onClick={() => onChange('existing')}
           className={cn(
-            "flex items-center gap-3 p-3 border rounded-lg transition-all duration-200",
+            "flex items-center gap-3 p-3 border rounded-lg transition-all duration-200 bg-card",
             value === 'existing' 
-              ? "border-primary bg-primary/5 text-primary" 
-              : "border-border bg-transparent text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground"
+              ? "border-primary bg-primary/10 text-primary shadow-sm" 
+              : "border-border text-muted-foreground hover:border-primary/50 hover:text-foreground hover:bg-muted/50"
           )}
         >
           {value === 'existing' ? (
