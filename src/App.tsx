@@ -56,6 +56,7 @@ import Tracker from '@/pages/Tracker';
 import AI360View from '@/pages/AI360View';
 import Cycles from '@/pages/Cycles';
 import ApplicationsByServices from '@/pages/ApplicationsByServices';
+import ServiceFees from '@/pages/ServiceFees';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -412,6 +413,15 @@ function App() {
                     </ProtectedRoute>
                   } />
                   
+                  <Route path="/service-fees" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Service Fees">
+                          <ServiceFees />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
                   
                   <Route path="/settings" element={
                     <ProtectedRoute>
