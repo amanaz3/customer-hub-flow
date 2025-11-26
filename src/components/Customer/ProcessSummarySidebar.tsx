@@ -140,7 +140,7 @@ export const ProcessSummarySidebar = ({
                 key={step.step}
                 className={cn(
                   "w-2 h-2 rounded-full transition-all",
-                  step.completed ? "bg-emerald-500" : step.active ? "bg-primary" : "bg-muted"
+                  step.completed || step.active ? "bg-primary" : "bg-muted"
                 )}
               />
             ))}
@@ -174,7 +174,7 @@ export const ProcessSummarySidebar = ({
                   <div 
                     className={cn(
                       "absolute left-[1.15rem] top-10 w-0.5 h-6 transition-all duration-300",
-                      step.completed ? "bg-emerald-500" : "bg-muted"
+                      step.completed ? "bg-primary" : "bg-muted"
                     )}
                   />
                 )}
@@ -183,14 +183,14 @@ export const ProcessSummarySidebar = ({
                   className={cn(
                     "flex items-center gap-3 p-2.5 rounded-lg transition-all duration-200",
                     step.active && "bg-primary/10 border border-primary/20",
-                    step.completed && "opacity-80"
+                    step.completed && "opacity-90"
                   )}
                 >
                   {/* Step Icon */}
                   <div
                     className={cn(
                       "flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all relative z-10",
-                      step.completed && "bg-emerald-500 text-white",
+                      step.completed && "bg-primary text-primary-foreground",
                       step.active && "bg-primary text-primary-foreground shadow-sm",
                       !step.completed && !step.active && "bg-muted text-muted-foreground"
                     )}
@@ -206,7 +206,7 @@ export const ProcessSummarySidebar = ({
                   <div className="flex-1 min-w-0">
                     <p className={cn(
                       "text-xs font-medium leading-tight",
-                      step.active ? "text-primary" : step.completed ? "text-foreground" : "text-muted-foreground"
+                      step.active || step.completed ? "text-foreground" : "text-muted-foreground"
                     )}>
                       {step.title}
                     </p>
@@ -218,10 +218,10 @@ export const ProcessSummarySidebar = ({
                   {/* Step Number Badge */}
                   {!step.completed && (
                     <Badge 
-                      variant="secondary" 
+                      variant="outline" 
                       className={cn(
-                        "h-5 w-5 p-0 flex items-center justify-center text-[10px] font-bold",
-                        step.active && "bg-primary text-primary-foreground"
+                        "h-5 w-5 p-0 flex items-center justify-center text-[10px] font-bold border-muted-foreground/30",
+                        step.active && "border-primary text-primary"
                       )}
                     >
                       {step.step}
@@ -244,7 +244,7 @@ export const ProcessSummarySidebar = ({
               {/* Customer Section */}
               <div className="bg-muted/50 rounded-lg p-3 space-y-2">
                 <div className="flex items-center gap-2 mb-2">
-                  <User className="h-3.5 w-3.5 text-primary" />
+                  <User className="h-3.5 w-3.5 text-muted-foreground" />
                   <span className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Customer</span>
                 </div>
                 
@@ -261,7 +261,7 @@ export const ProcessSummarySidebar = ({
               {currentStep > 2 && productName && (
                 <div className="bg-muted/50 rounded-lg p-3 space-y-2">
                   <div className="flex items-center gap-2 mb-2">
-                    <Package className="h-3.5 w-3.5 text-secondary" />
+                    <Package className="h-3.5 w-3.5 text-muted-foreground" />
                     <span className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Service</span>
                   </div>
                   
@@ -294,7 +294,7 @@ export const ProcessSummarySidebar = ({
                   return (
                     <div className="bg-muted/50 rounded-lg p-3 space-y-2">
                       <div className="flex items-center gap-2 mb-2">
-                        <ClipboardList className="h-3.5 w-3.5 text-accent-foreground" />
+                        <ClipboardList className="h-3.5 w-3.5 text-muted-foreground" />
                         <span className="text-[10px] font-semibold text-foreground uppercase tracking-wide">Details</span>
                       </div>
                       
