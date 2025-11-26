@@ -274,35 +274,41 @@ const ServiceFees: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto py-6 space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">Service Fees</h1>
-          <p className="text-muted-foreground">
-            Manage fee configurations for products and bundles
-          </p>
+    <div className="container mx-auto py-4 space-y-4 max-w-6xl">
+      {/* Compact Header */}
+      <div className="flex justify-between items-center bg-card/50 backdrop-blur-sm border border-border/50 rounded-lg px-4 py-3">
+        <div className="flex items-center gap-3">
+          <div className="h-9 w-9 rounded-lg bg-primary/10 flex items-center justify-center">
+            <DollarSign className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h1 className="text-xl font-semibold tracking-tight">Service Fees</h1>
+            <p className="text-xs text-muted-foreground">
+              Manage fee configurations
+            </p>
+          </div>
         </div>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => resetForm()}>
-              <Plus className="mr-2 h-4 w-4" />
+            <Button size="sm" onClick={() => resetForm()}>
+              <Plus className="mr-1.5 h-3.5 w-3.5" />
               Add Fee
             </Button>
           </DialogTrigger>
-          <DialogContent className="sm:max-w-[500px]">
-            <DialogHeader>
-              <DialogTitle>
+          <DialogContent className="sm:max-w-[450px]">
+            <DialogHeader className="pb-2">
+              <DialogTitle className="text-lg">
                 {editingFee ? 'Edit Service Fee' : 'Add New Service Fee'}
               </DialogTitle>
-              <DialogDescription>
+              <DialogDescription className="text-xs">
                 Configure fee settings for a product or bundle.
               </DialogDescription>
             </DialogHeader>
             <form onSubmit={handleSubmit}>
-              <div className="grid gap-4 py-4">
+              <div className="grid gap-3 py-3">
                 {/* Fee Target Selection */}
-                <div className="grid gap-2">
-                  <Label>Fee For</Label>
+                <div className="grid gap-1.5">
+                  <Label className="text-xs font-medium">Fee For</Label>
                   <Select
                     value={feeTarget}
                     onValueChange={(value: 'product' | 'bundle') => {
@@ -314,7 +320,7 @@ const ServiceFees: React.FC = () => {
                       }));
                     }}
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -326,13 +332,13 @@ const ServiceFees: React.FC = () => {
 
                 {/* Product/Bundle Selection */}
                 {feeTarget === 'product' ? (
-                  <div className="grid gap-2">
-                    <Label>Product</Label>
+                  <div className="grid gap-1.5">
+                    <Label className="text-xs font-medium">Product</Label>
                     <Select
                       value={formData.product_id ?? undefined}
                       onValueChange={(value) => setFormData(prev => ({ ...prev, product_id: value }))}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-9">
                         <SelectValue placeholder="Select a product" />
                       </SelectTrigger>
                       <SelectContent>
@@ -345,13 +351,13 @@ const ServiceFees: React.FC = () => {
                     </Select>
                   </div>
                 ) : (
-                  <div className="grid gap-2">
-                    <Label>Bundle</Label>
+                  <div className="grid gap-1.5">
+                    <Label className="text-xs font-medium">Bundle</Label>
                     <Select
                       value={formData.bundle_id ?? undefined}
                       onValueChange={(value) => setFormData(prev => ({ ...prev, bundle_id: value }))}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-9">
                         <SelectValue placeholder="Select a bundle" />
                       </SelectTrigger>
                       <SelectContent>
@@ -366,27 +372,27 @@ const ServiceFees: React.FC = () => {
                 )}
 
                 {/* Fee Type */}
-                <div className="grid gap-2">
-                  <Label>Fee Type</Label>
+                <div className="grid gap-1.5">
+                  <Label className="text-xs font-medium">Fee Type</Label>
                   <Select
                     value={formData.fee_type}
                     onValueChange={(value: 'fixed' | 'percentage') => 
                       setFormData(prev => ({ ...prev, fee_type: value }))
                     }
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="h-9">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
                       <SelectItem value="fixed">
                         <div className="flex items-center gap-2">
-                          <DollarSign className="h-4 w-4" />
+                          <DollarSign className="h-3.5 w-3.5" />
                           Fixed Amount
                         </div>
                       </SelectItem>
                       <SelectItem value="percentage">
                         <div className="flex items-center gap-2">
-                          <Percent className="h-4 w-4" />
+                          <Percent className="h-3.5 w-3.5" />
                           Percentage
                         </div>
                       </SelectItem>
@@ -395,9 +401,9 @@ const ServiceFees: React.FC = () => {
                 </div>
 
                 {/* Service Charge & Amount */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="grid gap-2">
-                    <Label htmlFor="service_charge">
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="grid gap-1.5">
+                    <Label htmlFor="service_charge" className="text-xs font-medium">
                       Service Charge {formData.fee_type === 'percentage' ? '(%)' : `(${formData.currency})`}
                     </Label>
                     <Input
@@ -405,6 +411,7 @@ const ServiceFees: React.FC = () => {
                       type="number"
                       step={formData.fee_type === 'percentage' ? '0.01' : '1'}
                       min="0"
+                      className="h-9"
                       value={formData.service_charge}
                       onChange={(e) => setFormData(prev => ({ 
                         ...prev, 
@@ -412,8 +419,8 @@ const ServiceFees: React.FC = () => {
                       }))}
                     />
                   </div>
-                  <div className="grid gap-2">
-                    <Label htmlFor="amount">
+                  <div className="grid gap-1.5">
+                    <Label htmlFor="amount" className="text-xs font-medium">
                       Final Amount {formData.fee_type === 'percentage' ? '(%)' : `(${formData.currency})`}
                     </Label>
                     <Input
@@ -421,6 +428,7 @@ const ServiceFees: React.FC = () => {
                       type="number"
                       step={formData.fee_type === 'percentage' ? '0.01' : '1'}
                       min="0"
+                      className="h-9"
                       value={formData.amount}
                       onChange={(e) => setFormData(prev => ({ 
                         ...prev, 
@@ -432,13 +440,13 @@ const ServiceFees: React.FC = () => {
 
                 {/* Currency (only for fixed) */}
                 {formData.fee_type === 'fixed' && (
-                  <div className="grid gap-2">
-                    <Label htmlFor="currency">Currency</Label>
+                  <div className="grid gap-1.5">
+                    <Label htmlFor="currency" className="text-xs font-medium">Currency</Label>
                     <Select
                       value={formData.currency}
                       onValueChange={(value) => setFormData(prev => ({ ...prev, currency: value }))}
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="h-9">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -452,26 +460,28 @@ const ServiceFees: React.FC = () => {
                 )}
 
                 {/* Description */}
-                <div className="grid gap-2">
-                  <Label htmlFor="description">Description (Optional)</Label>
+                <div className="grid gap-1.5">
+                  <Label htmlFor="description" className="text-xs font-medium">Description (Optional)</Label>
                   <Textarea
                     id="description"
                     value={formData.description}
                     onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                     placeholder="Add notes about this fee configuration"
                     rows={2}
+                    className="resize-none text-sm"
                   />
                 </div>
               </div>
-              <DialogFooter>
-                <Button type="button" variant="outline" onClick={resetForm}>
+              <DialogFooter className="gap-2 pt-2">
+                <Button type="button" variant="outline" size="sm" onClick={resetForm}>
                   Cancel
                 </Button>
                 <Button 
                   type="submit" 
+                  size="sm"
                   disabled={createFeeMutation.isPending || updateFeeMutation.isPending}
                 >
-                  {editingFee ? 'Update' : 'Create'} Fee
+                  {editingFee ? 'Update' : 'Create'}
                 </Button>
               </DialogFooter>
             </form>
@@ -480,96 +490,116 @@ const ServiceFees: React.FC = () => {
       </div>
 
       {isLoading ? (
-        <Card>
-          <CardContent className="p-6">
-            <div className="animate-pulse space-y-4">
-              <div className="h-10 bg-muted rounded"></div>
-              <div className="h-10 bg-muted rounded"></div>
-              <div className="h-10 bg-muted rounded"></div>
+        <Card className="border-border/50">
+          <CardContent className="p-4">
+            <div className="animate-pulse space-y-2">
+              <div className="h-8 bg-muted rounded"></div>
+              <div className="h-8 bg-muted rounded"></div>
+              <div className="h-8 bg-muted rounded"></div>
             </div>
           </CardContent>
         </Card>
       ) : serviceFees?.length === 0 ? (
-        <Card>
-          <CardContent className="p-6 text-center">
-            <DollarSign className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No service fees configured</h3>
-            <p className="text-muted-foreground mb-4">
-              Get started by adding fee configurations for your products and bundles.
+        <Card className="border-border/50 border-dashed">
+          <CardContent className="p-8 text-center">
+            <div className="mx-auto h-10 w-10 rounded-full bg-muted flex items-center justify-center mb-3">
+              <DollarSign className="h-5 w-5 text-muted-foreground" />
+            </div>
+            <h3 className="text-sm font-medium mb-1">No service fees configured</h3>
+            <p className="text-xs text-muted-foreground mb-3">
+              Add fee configurations for your products and bundles.
             </p>
-            <Button onClick={() => setIsDialogOpen(true)}>
-              <Plus className="mr-2 h-4 w-4" />
+            <Button size="sm" onClick={() => setIsDialogOpen(true)}>
+              <Plus className="mr-1.5 h-3.5 w-3.5" />
               Add Fee
             </Button>
           </CardContent>
         </Card>
       ) : (
-        <Card>
-          <CardHeader>
-            <CardTitle>Fee Configurations</CardTitle>
-            <CardDescription>
-              {serviceFees?.length} {serviceFees?.length === 1 ? 'configuration' : 'configurations'} total
-            </CardDescription>
+        <Card className="border-border/50">
+          <CardHeader className="py-3 px-4 border-b border-border/50">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium">Fee Configurations</CardTitle>
+              <Badge variant="secondary" className="text-xs font-normal">
+                {serviceFees?.length} {serviceFees?.length === 1 ? 'item' : 'items'}
+              </Badge>
+            </div>
           </CardHeader>
-          <CardContent>
+          <CardContent className="p-0">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead>Product/Bundle</TableHead>
-                  <TableHead>Type</TableHead>
-                  <TableHead>Fee Type</TableHead>
-                  <TableHead>Service Charge</TableHead>
-                  <TableHead>Final Amount</TableHead>
-                  <TableHead>Description</TableHead>
-                  <TableHead className="text-right">Actions</TableHead>
+                <TableRow className="hover:bg-transparent">
+                  <TableHead className="h-9 text-xs font-medium">Product/Bundle</TableHead>
+                  <TableHead className="h-9 text-xs font-medium w-[90px]">Type</TableHead>
+                  <TableHead className="h-9 text-xs font-medium w-[100px]">Fee Type</TableHead>
+                  <TableHead className="h-9 text-xs font-medium w-[110px]">Service Charge</TableHead>
+                  <TableHead className="h-9 text-xs font-medium w-[100px]">Final Amount</TableHead>
+                  <TableHead className="h-9 text-xs font-medium">Description</TableHead>
+                  <TableHead className="h-9 text-xs font-medium text-right w-[80px]">Actions</TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
                 {serviceFees?.map((fee) => (
-                  <TableRow key={fee.id}>
-                    <TableCell className="font-medium">
+                  <TableRow key={fee.id} className="group">
+                    <TableCell className="py-2 font-medium text-sm">
                       {fee.product_name || fee.bundle_name || '-'}
                     </TableCell>
-                    <TableCell>
-                      <Badge variant={fee.product_id ? "default" : "secondary"}>
+                    <TableCell className="py-2">
+                      <Badge 
+                        variant="outline" 
+                        className={`text-[10px] px-1.5 py-0 font-normal ${
+                          fee.product_id 
+                            ? 'bg-blue-500/10 text-blue-600 border-blue-500/20' 
+                            : 'bg-purple-500/10 text-purple-600 border-purple-500/20'
+                        }`}
+                      >
                         {fee.product_id ? "Product" : "Bundle"}
                       </Badge>
                     </TableCell>
-                    <TableCell>
-                      <Badge variant="outline" className="gap-1">
+                    <TableCell className="py-2">
+                      <Badge 
+                        variant="outline" 
+                        className={`text-[10px] px-1.5 py-0 gap-0.5 font-normal ${
+                          fee.fee_type === 'percentage'
+                            ? 'bg-amber-500/10 text-amber-600 border-amber-500/20'
+                            : 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20'
+                        }`}
+                      >
                         {fee.fee_type === 'percentage' ? (
-                          <><Percent className="h-3 w-3" /> Percentage</>
+                          <><Percent className="h-2.5 w-2.5" /> %</>
                         ) : (
-                          <><DollarSign className="h-3 w-3" /> Fixed</>
+                          <><DollarSign className="h-2.5 w-2.5" /> Fixed</>
                         )}
                       </Badge>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-2 text-sm tabular-nums">
                       {fee.fee_type === 'percentage' 
                         ? `${fee.service_charge}%` 
                         : `${fee.currency} ${fee.service_charge.toLocaleString()}`}
                     </TableCell>
-                    <TableCell className="font-semibold">
+                    <TableCell className="py-2 font-semibold text-sm tabular-nums text-primary">
                       {formatFeeDisplay(fee)}
                     </TableCell>
-                    <TableCell className="text-muted-foreground max-w-[200px] truncate">
+                    <TableCell className="py-2 text-xs text-muted-foreground max-w-[180px] truncate">
                       {fee.description || '-'}
                     </TableCell>
-                    <TableCell className="text-right">
-                      <div className="flex gap-2 justify-end">
+                    <TableCell className="py-2 text-right">
+                      <div className="flex gap-1 justify-end opacity-0 group-hover:opacity-100 transition-opacity">
                         <Button
-                          variant="outline"
-                          size="sm"
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7"
                           onClick={() => handleEdit(fee)}
                         >
-                          <Edit className="h-4 w-4" />
+                          <Edit className="h-3.5 w-3.5" />
                         </Button>
                         <Button
-                          variant="destructive"
-                          size="sm"
+                          variant="ghost"
+                          size="icon"
+                          className="h-7 w-7 text-destructive hover:text-destructive"
                           onClick={() => handleDelete(fee)}
                         >
-                          <Trash2 className="h-4 w-4" />
+                          <Trash2 className="h-3.5 w-3.5" />
                         </Button>
                       </div>
                     </TableCell>
