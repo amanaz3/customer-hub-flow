@@ -181,14 +181,8 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
       // Filter out subtasks of the current task
       const filteredTasks = allTasks.filter(t => t.parent_id !== taskId);
       
-      // Only allow tasks with max 1 level of nesting (top-level or direct child of top-level)
-      // This limits hierarchy to: grandparent → parent → current task (2 levels up max)
-      const validParents = filteredTasks.filter(t => {
-        if (!t.parent_id) return true; // Top-level tasks are always valid
-        // Check if the task's parent is a top-level task
-        const parentTask = filteredTasks.find(p => p.id === t.parent_id);
-        return parentTask && !parentTask.parent_id; // Valid if parent has no parent (grandparent level)
-      });
+      // Only show top-level tasks (no parent) - these are valid as parents/grandparents
+      const validParents = filteredTasks.filter(t => !t.parent_id);
       
       setParentTasks(validParents);
     }
