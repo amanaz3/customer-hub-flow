@@ -13,6 +13,15 @@ import { Loader2 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 
+interface ServiceFee {
+  id: string;
+  product_id: string | null;
+  fee_type: 'fixed' | 'percentage';
+  service_charge: number;
+  amount: number;
+  currency: string;
+}
+
 // Normalize different config shapes into a single renderable structure
 function normalizeConfig(raw: any): FormConfig {
   if (!raw) return { sections: [], documents: [] } as any;
@@ -38,6 +47,7 @@ function normalizeConfig(raw: any): FormConfig {
         max: f.max !== undefined ? Number(f.max) : undefined,
         step: f.step !== undefined ? Number(f.step) : undefined,
         conditionalDisplay: f.conditionalDisplay,
+        isServiceChargeField: f.isServiceChargeField || f.name === 'service_charge' || f.label?.toLowerCase().includes('service charge'),
       }))
     }));
 
@@ -82,6 +92,8 @@ interface FormField {
     dependsOn: string;
     showWhen: string[];
   };
+  // Service charge auto-populate flag
+  isServiceChargeField?: boolean;
 }
 
 interface FormSection {
@@ -131,12 +143,33 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
 }) => {
   const [formConfig, setFormConfig] = useState<FormConfig | null>(null);
   const [loading, setLoading] = useState(true);
+  const [serviceFee, setServiceFee] = useState<ServiceFee | null>(null);
   const { toast } = useToast();
   const { register, handleSubmit, setValue, watch, formState: { errors, isSubmitting } } = useForm();
 
   useEffect(() => {
     fetchFormConfiguration();
+    if (productId) {
+      fetchServiceFee(productId);
+    }
   }, [productId, productName]);
+
+  // Fetch service fee for the product
+  const fetchServiceFee = async (prodId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('service_fees')
+        .select('*')
+        .eq('product_id', prodId)
+        .maybeSingle();
+
+      if (!error && data) {
+        setServiceFee(data as ServiceFee);
+      }
+    } catch (error) {
+      console.error('Error fetching service fee:', error);
+    }
+  };
 
   // Sync form data from parent
   useEffect(() => {
@@ -151,6 +184,32 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
       });
     }
   }, [formData, formConfig, setValue]);
+
+  // Auto-populate service charge field when service fee is loaded
+  useEffect(() => {
+    if (serviceFee && formConfig) {
+      formConfig.sections.forEach((section, sectionIndex) => {
+        section.fields.forEach((field) => {
+          // Check if this is a service charge field
+          const isServiceChargeField = 
+            field.isServiceChargeField || 
+            field.name === 'service_charge' || 
+            field.name === 'serviceCharge' ||
+            field.label?.toLowerCase().includes('service charge');
+          
+          if (isServiceChargeField) {
+            const fieldKey = `section_${sectionIndex}_${field.name}`;
+            // Only set if not already set by parent form data
+            if (!formData?.[fieldKey]) {
+              const chargeValue = serviceFee.service_charge;
+              setValue(fieldKey, chargeValue);
+              onFieldChange?.(fieldKey, chargeValue);
+            }
+          }
+        });
+      });
+    }
+  }, [serviceFee, formConfig, formData, setValue, onFieldChange]);
 
   const fetchFormConfiguration = async () => {
     try {
@@ -256,6 +315,15 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
   const renderField = (field: FormField, sectionIndex: number) => {
     const fieldKey = `section_${sectionIndex}_${field.name}`;
     
+    // Check if this is a service charge field with auto-populated value
+    const isServiceChargeField = 
+      field.isServiceChargeField || 
+      field.name === 'service_charge' || 
+      field.name === 'serviceCharge' ||
+      field.label?.toLowerCase().includes('service charge');
+    
+    const hasAutoPopulatedServiceCharge = isServiceChargeField && serviceFee;
+    
     // Notify parent of changes if callback is provided
     const handleChange = (value: any) => {
       setValue(fieldKey, value);
@@ -271,12 +339,26 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
       case 'number':
         return (
           <div key={fieldKey} className="space-y-1.5">
-            <Label htmlFor={fieldKey}>
-              {field.label}
-              {field.required && <span className="text-destructive ml-1">*</span>}
-            </Label>
+            <div className="flex items-center gap-2">
+              <Label htmlFor={fieldKey}>
+                {field.label}
+                {field.required && <span className="text-destructive ml-1">*</span>}
+              </Label>
+              {hasAutoPopulatedServiceCharge && (
+                <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
+                  {serviceFee.fee_type === 'percentage' ? 'Auto %' : 'Auto-filled'}
+                </Badge>
+              )}
+            </div>
             {field.description && (
               <p className="text-sm text-muted-foreground">{field.description}</p>
+            )}
+            {hasAutoPopulatedServiceCharge && (
+              <p className="text-xs text-muted-foreground">
+                {serviceFee.fee_type === 'percentage' 
+                  ? `Service charge rate: ${serviceFee.service_charge}%`
+                  : `Pre-configured service charge from product settings`}
+              </p>
             )}
             <Input
               id={fieldKey}
@@ -285,6 +367,8 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
               min={field.type === 'number' && field.min !== undefined ? field.min : undefined}
               max={field.type === 'number' && field.max !== undefined ? field.max : undefined}
               step={field.type === 'number' && field.step !== undefined ? field.step : undefined}
+              readOnly={hasAutoPopulatedServiceCharge && serviceFee.fee_type === 'percentage'}
+              className={hasAutoPopulatedServiceCharge ? 'bg-muted/50' : ''}
               {...register(fieldKey, { 
                 required: field.required ? 'This field is required' : false,
                 onChange: (e) => handleChange(e.target.value),
