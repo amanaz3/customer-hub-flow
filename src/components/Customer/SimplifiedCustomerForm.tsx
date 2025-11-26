@@ -1050,50 +1050,50 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       <Accordion 
         type="single" 
         collapsible 
-        className="w-1/4 mx-auto"
+        className="w-full max-w-md mx-auto"
         value={step1AccordionOpen}
         onValueChange={setStep1AccordionOpen}
       >
-        <AccordionItem value="customer-info" className="border rounded-lg bg-card">
+        <AccordionItem value="customer-info" className="border rounded-lg bg-card shadow-sm">
           <AccordionTrigger className="px-4 py-3 hover:no-underline">
             {step1AccordionOpen !== 'customer-info' && (
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium">{selectedCustomerData.name}</span>
+                <span className="text-sm font-medium truncate">{selectedCustomerData.name}</span>
               </div>
             )}
           </AccordionTrigger>
           <AccordionContent className="px-4 pb-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
-              <div className="flex items-start gap-2">
-                <User className="h-4 w-4 text-primary mt-0.5" />
-                <div>
+            <div className="space-y-3 text-sm">
+              <div className="flex items-start gap-3">
+                <User className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
                   <span className="text-muted-foreground block text-xs">Name</span>
-                  <span className="font-medium">{selectedCustomerData.name}</span>
+                  <span className="font-medium break-words">{selectedCustomerData.name}</span>
                 </div>
               </div>
 
-              <div className="flex items-start gap-2">
-                <Mail className="h-4 w-4 text-primary mt-0.5" />
-                <div>
+              <div className="flex items-start gap-3">
+                <Mail className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
                   <span className="text-muted-foreground block text-xs">Email</span>
-                  <span className="font-medium">{selectedCustomerData.email}</span>
+                  <span className="font-medium break-all">{selectedCustomerData.email}</span>
                 </div>
               </div>
 
-              <div className="flex items-start gap-2">
-                <Phone className="h-4 w-4 text-primary mt-0.5" />
-                <div>
+              <div className="flex items-start gap-3">
+                <Phone className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
                   <span className="text-muted-foreground block text-xs">Phone</span>
                   <span className="font-medium">{selectedCustomerData.mobile}</span>
                 </div>
               </div>
 
-              <div className="flex items-start gap-2">
-                <Building2 className="h-4 w-4 text-primary mt-0.5" />
-                <div>
+              <div className="flex items-start gap-3">
+                <Building2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                <div className="min-w-0 flex-1">
                   <span className="text-muted-foreground block text-xs">Company</span>
-                  <span className="font-medium">{selectedCustomerData.company || 'N/A'}</span>
+                  <span className="font-medium break-words">{selectedCustomerData.company || 'N/A'}</span>
                 </div>
               </div>
             </div>
@@ -1166,7 +1166,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   <Accordion 
                     type="single" 
                     collapsible 
-                    className={`bg-card/70 backdrop-blur-sm rounded-xl border border-border/60 shadow-sm transition-all duration-300 ${accordionOpen === 'customer-info' ? 'w-1/2' : 'w-1/4'}`}
+                    className="w-full max-w-md bg-card/70 backdrop-blur-sm rounded-xl border border-border/60 shadow-sm transition-all duration-300"
                     value={accordionOpen}
                     onValueChange={setAccordionOpen}
                   >
@@ -1175,45 +1175,45 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       {accordionOpen !== 'customer-info' && (
                         <div className="flex items-center gap-2">
                           <User className="h-4 w-4 text-primary" />
-                          <span className="text-sm font-medium">{form.watch('name')}</span>
+                          <span className="text-sm font-medium truncate">{form.watch('name')}</span>
                         </div>
                       )}
                     </AccordionTrigger>
                     <AccordionContent className="px-4 pb-4">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                      <div className="space-y-3 text-sm">
                         {form.watch('name') && (
-                          <div className="flex items-start gap-2">
-                            <User className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
+                          <div className="flex items-start gap-3">
+                            <User className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                            <div className="min-w-0 flex-1">
                               <span className="text-muted-foreground block text-xs">Name</span>
-                              <span className="font-medium">{form.watch('name')}</span>
+                              <span className="font-medium break-words">{form.watch('name')}</span>
                             </div>
                           </div>
                         )}
                         {form.watch('email') && (
-                          <div className="flex items-start gap-2">
-                            <Mail className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
+                          <div className="flex items-start gap-3">
+                            <Mail className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                            <div className="min-w-0 flex-1">
                               <span className="text-muted-foreground block text-xs">Email</span>
-                              <span className="font-medium">{form.watch('email')}</span>
+                              <span className="font-medium break-all">{form.watch('email')}</span>
                             </div>
                           </div>
                         )}
                         {form.watch('mobile') && (
-                          <div className="flex items-start gap-2">
-                            <Phone className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
+                          <div className="flex items-start gap-3">
+                            <Phone className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                            <div className="min-w-0 flex-1">
                               <span className="text-muted-foreground block text-xs">Phone</span>
                               <span className="font-medium">{form.watch('mobile')}</span>
                             </div>
                           </div>
                         )}
                         {form.watch('company') && (
-                          <div className="flex items-start gap-2">
-                            <Building2 className="h-4 w-4 text-primary mt-0.5" />
-                            <div>
+                          <div className="flex items-start gap-3">
+                            <Building2 className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                            <div className="min-w-0 flex-1">
                               <span className="text-muted-foreground block text-xs">Company</span>
-                              <span className="font-medium">{form.watch('company')}</span>
+                              <span className="font-medium break-words">{form.watch('company')}</span>
                             </div>
                           </div>
                         )}
