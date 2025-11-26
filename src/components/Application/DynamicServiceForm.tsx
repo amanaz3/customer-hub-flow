@@ -148,8 +148,31 @@ const PercentageServiceChargeUI: React.FC<PercentageServiceChargeUIProps> = ({
   onFieldChange
 }) => {
   const dealAmountKey = 'service_charge_deal_amount';
+  const rateKey = 'service_charge_rate';
+  const calculatedKey = 'service_charge_calculated';
+  
   const dealAmount = watch(dealAmountKey) || 0;
   const finalAmount = (Number(dealAmount) * serviceFee.service_charge) / 100;
+
+  // Save rate on mount
+  React.useEffect(() => {
+    setValue(rateKey, serviceFee.service_charge);
+    onFieldChange?.(rateKey, serviceFee.service_charge);
+  }, [serviceFee.service_charge, setValue, onFieldChange]);
+
+  // Save calculated amount when deal amount changes
+  React.useEffect(() => {
+    if (Number(dealAmount) > 0) {
+      setValue(calculatedKey, finalAmount);
+      onFieldChange?.(calculatedKey, finalAmount);
+    }
+  }, [dealAmount, finalAmount, setValue, onFieldChange]);
+
+  const handleDealAmountChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setValue(dealAmountKey, value);
+    onFieldChange?.(dealAmountKey, value);
+  };
 
   return (
     <div className="space-y-4 p-4 rounded-lg bg-muted/30 border border-border">
@@ -180,10 +203,7 @@ const PercentageServiceChargeUI: React.FC<PercentageServiceChargeUIProps> = ({
           {...register(dealAmountKey, { 
             required: 'Deal amount is required',
             min: { value: 0, message: 'Amount must be positive' },
-            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
-              setValue(dealAmountKey, e.target.value);
-              onFieldChange?.(dealAmountKey, e.target.value);
-            }
+            onChange: handleDealAmountChange
           })}
         />
         {errors[dealAmountKey] && (
