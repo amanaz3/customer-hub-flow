@@ -358,7 +358,7 @@ const ApplicationsList = () => {
             className="flex items-center gap-2 data-[state=active]:bg-amber-50 data-[state=active]:text-amber-700 data-[state=active]:border-b-2 data-[state=active]:border-b-amber-500 dark:data-[state=active]:bg-amber-950 dark:data-[state=active]:text-amber-400"
           >
             <Clock className="h-4 w-4" />
-            Incomplete
+            Predraft
             <Badge variant="secondary" className="ml-1">
               {filteredIncompleteApplications.length}
             </Badge>
@@ -716,7 +716,7 @@ const ApplicationsList = () => {
           {/* Search Only */}
           <div className="flex flex-col sm:flex-row gap-3 bg-card rounded-lg p-3 border">
             <Input
-              placeholder="Search incomplete applications..."
+              placeholder="Search predraft applications..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="flex-1"
@@ -728,7 +728,7 @@ const ApplicationsList = () => {
             <div className="bg-amber-50 dark:bg-amber-950/20 border-b px-3 py-2">
               <div className="flex items-center gap-2 text-sm font-medium text-amber-700 dark:text-amber-400">
                 <Clock className="h-4 w-4" />
-                Incomplete Applications ({filteredIncompleteApplications.length})
+                Predraft Applications ({filteredIncompleteApplications.length})
                 <span className="text-xs text-muted-foreground ml-2">Forms not yet submitted</span>
               </div>
             </div>
@@ -759,7 +759,7 @@ const ApplicationsList = () => {
                     <TableRow>
                       <TableCell colSpan={9} className="text-center py-12 text-muted-foreground">
                         <Clock className="h-12 w-12 mx-auto mb-3 opacity-20 text-amber-500" />
-                        <p className="font-medium">No incomplete applications</p>
+                        <p className="font-medium">No predraft applications</p>
                         <p className="text-xs mt-1">Partially filled forms will appear here</p>
                       </TableCell>
                     </TableRow>
