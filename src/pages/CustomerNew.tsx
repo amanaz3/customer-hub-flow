@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
 import { CustomerEventsSidebar } from '@/components/Customer/CustomerEventsSidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Users } from 'lucide-react';
+import { UserPlus, Users, Circle, CircleDot } from 'lucide-react';
 
 const CustomerNew = () => {
   const { refreshData } = useCustomer();
@@ -160,61 +160,66 @@ const CustomerNew = () => {
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <div className="w-full max-w-4xl mx-auto">
             
-            {/* Styled Radio Tab Selector */}
-            <div className="bg-muted/50 p-2 rounded-xl border border-border mb-4">
-              <div className="grid grid-cols-2 gap-2">
-                {/* New Customer Tab */}
-                <button
-                  onClick={() => handleTabChange('new')}
-                  className={`relative flex items-center justify-center gap-3 py-3.5 px-4 rounded-lg transition-all duration-300 ${
-                    activeTab === 'new' 
-                      ? 'bg-card shadow-md border border-primary/20' 
-                      : 'hover:bg-card/50'
-                  }`}
-                >
-                  <div className={`flex items-center justify-center w-5 h-5 rounded-full border-2 transition-all duration-200 ${
-                    activeTab === 'new' 
-                      ? 'border-primary bg-primary' 
-                      : 'border-muted-foreground/40'
-                  }`}>
-                    {activeTab === 'new' && (
-                      <div className="w-2 h-2 rounded-full bg-primary-foreground animate-scale-in" />
-                    )}
-                  </div>
-                  <UserPlus className={`h-4 w-4 transition-colors ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground'}`} />
-                  <span className={`font-medium text-sm transition-colors ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground'}`}>
+            {/* Connected Tabs with Clear Boundary */}
+            <div className="flex rounded-t-lg overflow-hidden border border-b-0 border-border">
+              {/* New Customer Tab */}
+              <button
+                onClick={() => handleTabChange('new')}
+                className={`flex-1 relative h-12 transition-all duration-200 group ${
+                  activeTab === 'new' 
+                    ? 'bg-card shadow-sm' 
+                    : 'bg-muted/60 hover:bg-muted/70 hover:-translate-y-0.5 cursor-pointer'
+                }`}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  {activeTab === 'new' ? (
+                    <CircleDot className="h-4 w-4 text-primary" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-muted-foreground/60 group-hover:text-foreground" />
+                  )}
+                  <UserPlus className={`h-4 w-4 transition-colors ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-foreground'}`} />
+                  <span className={`font-medium text-sm transition-all ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground/60 group-hover:text-foreground'}`}>
                     New Customer
                   </span>
-                </button>
-                
-                {/* Existing Customer Tab */}
-                <button
-                  onClick={() => handleTabChange('existing')}
-                  className={`relative flex items-center justify-center gap-3 py-3.5 px-4 rounded-lg transition-all duration-300 ${
-                    activeTab === 'existing' 
-                      ? 'bg-card shadow-md border border-primary/20' 
-                      : 'hover:bg-card/50'
-                  }`}
-                >
-                  <div className={`flex items-center justify-center w-5 h-5 rounded-full border-2 transition-all duration-200 ${
-                    activeTab === 'existing' 
-                      ? 'border-primary bg-primary' 
-                      : 'border-muted-foreground/40'
-                  }`}>
-                    {activeTab === 'existing' && (
-                      <div className="w-2 h-2 rounded-full bg-primary-foreground animate-scale-in" />
-                    )}
-                  </div>
-                  <Users className={`h-4 w-4 transition-colors ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground'}`} />
-                  <span className={`font-medium text-sm transition-colors ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground'}`}>
+                </div>
+                {/* Active indicator bar */}
+                {activeTab === 'new' && (
+                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />
+                )}
+              </button>
+              
+              {/* Vertical Boundary */}
+              <div className="w-px bg-border" />
+              
+              {/* Existing Customer Tab */}
+              <button
+                onClick={() => handleTabChange('existing')}
+                className={`flex-1 relative h-12 transition-all duration-200 group ${
+                  activeTab === 'existing' 
+                    ? 'bg-card shadow-sm' 
+                    : 'bg-muted/60 hover:bg-muted/70 hover:-translate-y-0.5 cursor-pointer'
+                }`}
+              >
+                <div className="flex items-center justify-center gap-2">
+                  {activeTab === 'existing' ? (
+                    <CircleDot className="h-4 w-4 text-primary" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-muted-foreground/60 group-hover:text-foreground" />
+                  )}
+                  <Users className={`h-4 w-4 transition-colors ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-foreground'}`} />
+                  <span className={`font-medium text-sm transition-all ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground/60 group-hover:text-foreground'}`}>
                     Existing Customer
                   </span>
-                </button>
-              </div>
+                </div>
+                {/* Active indicator bar */}
+                {activeTab === 'existing' && (
+                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />
+                )}
+              </button>
             </div>
 
-            {/* Content Panel */}
-            <div className="bg-card border border-border rounded-xl shadow-sm">
+            {/* Seamless Content Panel - connects to active tab */}
+            <div className="bg-card border border-border rounded-b-lg -mt-px">
               <TabsContent value="new" className="mt-0 p-6 sm:p-8">
                 <SimplifiedCustomerForm
                   onSuccess={handleSuccess}
