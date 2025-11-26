@@ -129,6 +129,88 @@ interface DynamicServiceFormProps {
   onFieldLabelsLoaded?: (labelMap: Record<string, string>) => void;
 }
 
+// Percentage Service Charge UI Component
+interface PercentageServiceChargeUIProps {
+  serviceFee: ServiceFee;
+  register: any;
+  watch: any;
+  setValue: any;
+  errors: any;
+  onFieldChange?: (fieldKey: string, value: any) => void;
+}
+
+const PercentageServiceChargeUI: React.FC<PercentageServiceChargeUIProps> = ({
+  serviceFee,
+  register,
+  watch,
+  setValue,
+  errors,
+  onFieldChange
+}) => {
+  const dealAmountKey = 'service_charge_deal_amount';
+  const dealAmount = watch(dealAmountKey) || 0;
+  const finalAmount = (Number(dealAmount) * serviceFee.service_charge) / 100;
+
+  return (
+    <div className="space-y-4 p-4 rounded-lg bg-muted/30 border border-border">
+      {/* Service Charge Rate - Show First */}
+      <div className="space-y-1.5">
+        <Label className="text-muted-foreground">Service Charge Rate</Label>
+        <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
+          <span className="text-lg font-semibold text-primary">
+            {serviceFee.service_charge}%
+          </span>
+          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 ml-auto">
+            Pre-configured
+          </Badge>
+        </div>
+      </div>
+      
+      {/* Deal Amount Input */}
+      <div className="space-y-1.5">
+        <Label htmlFor={dealAmountKey}>
+          Deal Amount ({serviceFee.currency})
+          <span className="text-destructive ml-1">*</span>
+        </Label>
+        <Input
+          id={dealAmountKey}
+          type="number"
+          min={0}
+          placeholder="Enter deal/loan amount"
+          {...register(dealAmountKey, { 
+            required: 'Deal amount is required',
+            min: { value: 0, message: 'Amount must be positive' },
+            onChange: (e: React.ChangeEvent<HTMLInputElement>) => {
+              setValue(dealAmountKey, e.target.value);
+              onFieldChange?.(dealAmountKey, e.target.value);
+            }
+          })}
+        />
+        {errors[dealAmountKey] && (
+          <p className="text-sm text-destructive">
+            {errors[dealAmountKey]?.message as string}
+          </p>
+        )}
+      </div>
+      
+      {/* Final Amount (Calculated) - Only show when deal amount entered */}
+      {Number(dealAmount) > 0 && (
+        <div className="space-y-1.5">
+          <Label className="text-muted-foreground">Calculated Service Charge</Label>
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+            <span className="text-lg font-semibold text-green-600 dark:text-green-400">
+              {serviceFee.currency} {finalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            </span>
+            <Badge variant="outline" className="bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20 ml-auto">
+              Auto-calculated
+            </Badge>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
   productId,
   productName = 'Company Formation',
@@ -628,6 +710,19 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
                 )}
               </div>
               
+              {/* Inject percentage service charge UI at start of payment sections */}
+              {serviceFee?.fee_type === 'percentage' && 
+               section.title.toLowerCase().includes('payment') && (
+                <PercentageServiceChargeUI 
+                  serviceFee={serviceFee} 
+                  register={register}
+                  watch={watch}
+                  setValue={setValue}
+                  errors={errors}
+                  onFieldChange={onFieldChange}
+                />
+              )}
+              
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {section.fields.filter((field) => shouldShowField(field, sectionIndex)).map((field) => renderField(field, sectionIndex))}
               </div>
@@ -680,6 +775,19 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
                   <p className="text-sm text-muted-foreground mt-1">{section.description}</p>
                 )}
               </div>
+              
+              {/* Inject percentage service charge UI at start of payment sections */}
+              {serviceFee?.fee_type === 'percentage' && 
+               section.title.toLowerCase().includes('payment') && (
+                <PercentageServiceChargeUI 
+                  serviceFee={serviceFee} 
+                  register={register}
+                  watch={watch}
+                  setValue={setValue}
+                  errors={errors}
+                  onFieldChange={onFieldChange}
+                />
+              )}
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 {section.fields.filter((field) => shouldShowField(field, sectionIndex)).map((field) => renderField(field, sectionIndex))}
