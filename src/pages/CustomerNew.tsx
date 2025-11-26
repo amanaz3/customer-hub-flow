@@ -164,32 +164,99 @@ const CustomerNew = () => {
               New Application
             </h2>
             <p className="text-sm text-muted-foreground mt-1">
-              Choose whether to create a new customer or select an existing one
+              Select customer type to begin
             </p>
           </div>
           
           {/* Tabbed Interface Container */}
           <div className="w-full max-w-4xl mx-auto">
-            {/* Tab List - Styled as proper tabs */}
-            <TabsList className="w-full h-auto p-0 bg-transparent border-b border-border rounded-none flex">
+            {/* Card-based Radio Selection */}
+            <TabsList className="w-full h-auto p-0 bg-transparent grid grid-cols-2 gap-4 mb-6">
               <TabsTrigger 
                 value="new" 
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-none border-b-2 border-transparent bg-transparent data-[state=active]:border-primary data-[state=active]:bg-card data-[state=active]:shadow-sm data-[state=active]:border-x data-[state=active]:border-t data-[state=active]:border-b-card data-[state=active]:-mb-px data-[state=active]:rounded-t-lg data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted/50 transition-all duration-200"
+                className="relative h-auto p-0 bg-transparent border-0 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-lg group"
               >
-                <UserPlus className="h-4 w-4 shrink-0" />
-                <span className="font-semibold text-sm whitespace-nowrap">New Customer</span>
+                <div className={`
+                  w-full p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer
+                  ${activeTab === 'new' 
+                    ? 'border-primary bg-primary/5 shadow-md' 
+                    : 'border-border bg-card hover:border-primary/50 hover:bg-muted/50'
+                  }
+                `}>
+                  <div className="flex items-start gap-3">
+                    {/* Radio Circle */}
+                    <div className={`
+                      mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all
+                      ${activeTab === 'new' 
+                        ? 'border-primary' 
+                        : 'border-muted-foreground/40'
+                      }
+                    `}>
+                      {activeTab === 'new' && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-primary animate-scale-in" />
+                      )}
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="flex-1 text-left">
+                      <div className="flex items-center gap-2 mb-1">
+                        <UserPlus className={`h-4 w-4 ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground'}`} />
+                        <span className={`font-semibold text-sm ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground'}`}>
+                          New Customer
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Create a new customer record
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </TabsTrigger>
+              
               <TabsTrigger 
                 value="existing" 
-                className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-none border-b-2 border-transparent bg-transparent data-[state=active]:border-primary data-[state=active]:bg-card data-[state=active]:shadow-sm data-[state=active]:border-x data-[state=active]:border-t data-[state=active]:border-b-card data-[state=active]:-mb-px data-[state=active]:rounded-t-lg data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted/50 transition-all duration-200"
+                className="relative h-auto p-0 bg-transparent border-0 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-lg group"
               >
-                <Users className="h-4 w-4 shrink-0" />
-                <span className="font-semibold text-sm whitespace-nowrap">Existing Customer</span>
+                <div className={`
+                  w-full p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer
+                  ${activeTab === 'existing' 
+                    ? 'border-primary bg-primary/5 shadow-md' 
+                    : 'border-border bg-card hover:border-primary/50 hover:bg-muted/50'
+                  }
+                `}>
+                  <div className="flex items-start gap-3">
+                    {/* Radio Circle */}
+                    <div className={`
+                      mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all
+                      ${activeTab === 'existing' 
+                        ? 'border-primary' 
+                        : 'border-muted-foreground/40'
+                      }
+                    `}>
+                      {activeTab === 'existing' && (
+                        <div className="w-2.5 h-2.5 rounded-full bg-primary animate-scale-in" />
+                      )}
+                    </div>
+                    
+                    {/* Content */}
+                    <div className="flex-1 text-left">
+                      <div className="flex items-center gap-2 mb-1">
+                        <Users className={`h-4 w-4 ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground'}`} />
+                        <span className={`font-semibold text-sm ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground'}`}>
+                          Existing Customer
+                        </span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Select from existing customers
+                      </p>
+                    </div>
+                  </div>
+                </div>
               </TabsTrigger>
             </TabsList>
 
-            {/* Tab Content Panel - Connected to tabs */}
-            <div className="bg-card border border-t-0 border-border shadow-lg rounded-b-lg">
+            {/* Tab Content Panel */}
+            <div className="bg-card border border-border shadow-lg rounded-lg">
               {/* New Customer Tab Content */}
               <TabsContent value="new" className="mt-0 p-6 sm:p-8">
                 <SimplifiedCustomerForm
