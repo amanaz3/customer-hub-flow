@@ -36,8 +36,8 @@ export const TabbedCustomerProgressHeader = ({
       </div>
 
       {/* Step Breadcrumbs - Arrow Style */}
-      <div className="flex items-center justify-center">
-        <div className="flex items-center -space-x-2">
+      <div className="flex items-center justify-center w-full overflow-hidden">
+        <div className="flex items-center w-full max-w-2xl">
           {[
             { step: 1, label: 'Customer' },
             { step: 2, label: 'Service' },
@@ -49,11 +49,10 @@ export const TabbedCustomerProgressHeader = ({
               onClick={() => onStepClick(step)}
               disabled={step > currentStep}
               className={cn(
-                "relative flex items-center gap-3 px-10 py-3 transition-all duration-300 group",
-                "first:pl-6 last:pr-6",
-                step === currentStep && "z-10 scale-105 shadow-lg",
+                "relative flex-1 flex items-center justify-center gap-2 px-3 sm:px-6 py-2.5 transition-all duration-300 group min-w-0",
+                step === currentStep && "z-10 shadow-lg",
                 step > currentStep && "opacity-50 cursor-not-allowed",
-                step < currentStep && "hover:scale-102 hover:brightness-110",
+                step < currentStep && "hover:brightness-110",
                 // Past steps - emerald/green for completed
                 step < currentStep && "bg-emerald-500",
                 // Current step - primary with glow
