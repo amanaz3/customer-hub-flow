@@ -168,55 +168,66 @@ export const ProcessSummarySidebar = ({
           {/* Steps */}
           <div className="space-y-1 mb-5">
             {steps.map((step, index) => (
-              <div 
-                key={step.step}
-                className={cn(
-                  "flex items-center gap-3 p-2.5 rounded-lg transition-all duration-200",
-                  step.active && "bg-primary/10 border border-primary/20",
-                  step.completed && "opacity-80"
+              <div key={step.step} className="relative">
+                {/* Vertical connecting line */}
+                {index < steps.length - 1 && (
+                  <div 
+                    className={cn(
+                      "absolute left-[1.15rem] top-10 w-0.5 h-6 transition-all duration-300",
+                      step.completed ? "bg-emerald-500" : "bg-muted"
+                    )}
+                  />
                 )}
-              >
-                {/* Step Icon */}
-                <div
+                
+                <div 
                   className={cn(
-                    "flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all",
-                    step.completed && "bg-emerald-500 text-white",
-                    step.active && "bg-primary text-primary-foreground shadow-sm",
-                    !step.completed && !step.active && "bg-muted text-muted-foreground"
+                    "flex items-center gap-3 p-2.5 rounded-lg transition-all duration-200",
+                    step.active && "bg-primary/10 border border-primary/20",
+                    step.completed && "opacity-80"
                   )}
                 >
-                  {step.completed ? (
-                    <Check className="h-4 w-4" strokeWidth={3} />
-                  ) : (
-                    step.icon
-                  )}
-                </div>
-
-                {/* Step Text */}
-                <div className="flex-1 min-w-0">
-                  <p className={cn(
-                    "text-xs font-medium leading-tight",
-                    step.active ? "text-primary" : step.completed ? "text-foreground" : "text-muted-foreground"
-                  )}>
-                    {step.title}
-                  </p>
-                  <p className="text-[10px] text-muted-foreground truncate">
-                    {step.description}
-                  </p>
-                </div>
-
-                {/* Step Number Badge */}
-                {!step.completed && (
-                  <Badge 
-                    variant="secondary" 
+                  {/* Step Icon */}
+                  <div
                     className={cn(
-                      "h-5 w-5 p-0 flex items-center justify-center text-[10px] font-bold",
-                      step.active && "bg-primary text-primary-foreground"
+                      "flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center transition-all relative z-10",
+                      step.completed && "bg-emerald-500 text-white",
+                      step.active && "bg-primary text-primary-foreground shadow-sm",
+                      !step.completed && !step.active && "bg-muted text-muted-foreground"
                     )}
                   >
-                    {step.step}
-                  </Badge>
-                )}
+                    {step.completed ? (
+                      <Check className="h-4 w-4" strokeWidth={3} />
+                    ) : (
+                      step.icon
+                    )}
+                  </div>
+
+                  {/* Step Text */}
+                  <div className="flex-1 min-w-0">
+                    <p className={cn(
+                      "text-xs font-medium leading-tight",
+                      step.active ? "text-primary" : step.completed ? "text-foreground" : "text-muted-foreground"
+                    )}>
+                      {step.title}
+                    </p>
+                    <p className="text-[10px] text-muted-foreground truncate">
+                      {step.description}
+                    </p>
+                  </div>
+
+                  {/* Step Number Badge */}
+                  {!step.completed && (
+                    <Badge 
+                      variant="secondary" 
+                      className={cn(
+                        "h-5 w-5 p-0 flex items-center justify-center text-[10px] font-bold",
+                        step.active && "bg-primary text-primary-foreground"
+                      )}
+                    >
+                      {step.step}
+                    </Badge>
+                  )}
+                </div>
               </div>
             ))}
           </div>
