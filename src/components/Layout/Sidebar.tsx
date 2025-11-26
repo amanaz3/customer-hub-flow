@@ -145,12 +145,6 @@ const Sidebar: React.FC = () => {
       path: '/devtools',
       icon: <Code className="h-5 w-5" />,
       roles: ['admin'],
-    },
-    {
-      name: 'Settings',
-      path: '/settings',
-      icon: <Settings className="h-5 w-5" />,
-      roles: ['admin', 'user'],
     }
   ];
 
