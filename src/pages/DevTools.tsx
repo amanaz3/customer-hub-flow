@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { Wrench } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Wrench, FlaskConical } from "lucide-react";
 
 export default function DevTools() {
   const navigate = useNavigate();
@@ -16,8 +17,27 @@ export default function DevTools() {
         </p>
       </div>
 
-      <div className="text-muted-foreground text-center py-12">
-        <p>All tools have been moved to Configure → Dev section</p>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/dev-tools/notifications')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <FlaskConical className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Test</CardTitle>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <CardDescription>
+              Test in-app and email notifications
+            </CardDescription>
+          </CardContent>
+        </Card>
       </div>
     </div>
   );
