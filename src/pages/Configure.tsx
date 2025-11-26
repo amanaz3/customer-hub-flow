@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Shield, Wrench, BookOpen, UserCog, Code, Terminal, Database, Building2 } from "lucide-react";
+import { Users, MessageSquare, Shield, BookOpen, UserCog, Building2 } from "lucide-react";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -81,53 +81,6 @@ const Manage = () => {
               <div>
                 <p className="font-medium text-sm">Services</p>
                 <p className="text-xs text-muted-foreground">Manage services and products</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Dev Configuration Card */}
-        <Card className="border-2">
-          <CardHeader className="pb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Code className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <CardTitle>Dev</CardTitle>
-                <CardDescription>Developer and admin tools</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div 
-              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
-              onClick={() => navigate('/dev-tools')}
-            >
-              <Wrench className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium text-sm">Admin Tools</p>
-                <p className="text-xs text-muted-foreground">Developer and admin testing tools</p>
-              </div>
-            </div>
-            <div 
-              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
-              onClick={() => navigate('/dev-management')}
-            >
-              <Terminal className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium text-sm">Dev</p>
-                <p className="text-xs text-muted-foreground">Task management and development cycles</p>
-              </div>
-            </div>
-            <div 
-              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
-              onClick={() => navigate('/dev-tools/database')}
-            >
-              <Database className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium text-sm">DB</p>
-                <p className="text-xs text-muted-foreground">Database viewer and management</p>
               </div>
             </div>
           </CardContent>
