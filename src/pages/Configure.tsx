@@ -28,16 +28,6 @@ const Manage = () => {
           <CardContent className="space-y-3">
             <div 
               className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
-              onClick={() => navigate('/users')}
-            >
-              <Shield className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium text-sm">User Management</p>
-                <p className="text-xs text-muted-foreground">Manage users and permissions</p>
-              </div>
-            </div>
-            <div 
-              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
               onClick={() => navigate('/messages')}
             >
               <MessageSquare className="h-5 w-5 text-muted-foreground" />
