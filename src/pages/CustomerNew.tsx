@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
 import { CustomerEventsSidebar } from '@/components/Customer/CustomerEventsSidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Users } from 'lucide-react';
+import { UserPlus, Users, Circle, CircleDot } from 'lucide-react';
 
 const CustomerNew = () => {
   const { refreshData } = useCustomer();
@@ -172,6 +172,11 @@ const CustomerNew = () => {
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
+                  {activeTab === 'new' ? (
+                    <CircleDot className="h-4 w-4 text-primary" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-muted-foreground/60 group-hover:text-foreground" />
+                  )}
                   <UserPlus className={`h-4 w-4 transition-colors ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-foreground'}`} />
                   <span className={`font-medium text-sm transition-all ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground/60 group-hover:text-foreground'}`}>
                     New Customer
@@ -196,6 +201,11 @@ const CustomerNew = () => {
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
+                  {activeTab === 'existing' ? (
+                    <CircleDot className="h-4 w-4 text-primary" />
+                  ) : (
+                    <Circle className="h-4 w-4 text-muted-foreground/60 group-hover:text-foreground" />
+                  )}
                   <Users className={`h-4 w-4 transition-colors ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-foreground'}`} />
                   <span className={`font-medium text-sm transition-all ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground/60 group-hover:text-foreground'}`}>
                     Existing Customer
