@@ -23,6 +23,7 @@ import { CustomerTypeSelector } from './CustomerTypeSelector';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
 import { ProcessSummarySidebar } from './ProcessSummarySidebar';
 import { UnifiedProgressHeader } from './UnifiedProgressHeader';
+import { TabbedCustomerProgressHeader } from './TabbedCustomerProgressHeader';
 import { ValidationIcon } from './ValidationIcon';
 import { HomeFinanceFields } from './fields/HomeFinanceFields';
 import { BankAccountFields } from './fields/BankAccountFields';
@@ -165,6 +166,7 @@ interface SimplifiedCustomerFormProps {
     saveDraft: () => Promise<void>;
     showCancelDialog: () => void;
   }) => void;
+  hideCustomerTypeSelector?: boolean;
 }
 
 const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
@@ -182,6 +184,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   onStepChange,
   onCustomerIdChange,
   onDocumentsChange,
+  hideCustomerTypeSelector = false,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -1109,31 +1112,42 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
   return (
     <div className="w-full relative">
-      {/* Unified Progress Header - Outside form for proper sticky behavior */}
-      <UnifiedProgressHeader
-        currentStep={currentStep}
-        totalSteps={4}
-        customerName={form.watch('name')}
-        customerEmail={form.watch('email')}
-        customerMobile={form.watch('mobile')}
-        selectedProduct={products?.find(p => p.id === form.watch('product_id'))?.name}
-        customerType={companyMode ? 'existing' : 'new'}
-        onCustomerTypeChange={(value) => {
-          // Check if user is past step 1 and trying to switch customer type
-          if (currentStep > 1) {
-            setPendingMode(value);
-            setShowModeChangeWarning(true);
-            return;
-          }
-          
-          // Proceed with change if on step 1
-          const newMode = value === 'existing';
-          onModeChange?.(newMode);
-          if (!newMode) {
-            onCustomerSelect?.(null);
-          }
-        }}
-      />
+      {/* Progress Header - Conditionally show full or stepper-only version */}
+      {hideCustomerTypeSelector ? (
+        <TabbedCustomerProgressHeader
+          currentStep={currentStep}
+          totalSteps={4}
+          onStepClick={(step) => {
+            if (step < currentStep) {
+              setCurrentStep(step);
+              onStepChange?.(step);
+            }
+          }}
+        />
+      ) : (
+        <UnifiedProgressHeader
+          currentStep={currentStep}
+          totalSteps={4}
+          customerName={form.watch('name')}
+          customerEmail={form.watch('email')}
+          customerMobile={form.watch('mobile')}
+          selectedProduct={products?.find(p => p.id === form.watch('product_id'))?.name}
+          customerType={companyMode ? 'existing' : 'new'}
+          onCustomerTypeChange={(value) => {
+            if (currentStep > 1) {
+              setPendingMode(value);
+              setShowModeChangeWarning(true);
+              return;
+            }
+            
+            const newMode = value === 'existing';
+            onModeChange?.(newMode);
+            if (!newMode) {
+              onCustomerSelect?.(null);
+            }
+          }}
+        />
+      )}
 
       <Form {...form}>
           <form 
