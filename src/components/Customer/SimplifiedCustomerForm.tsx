@@ -1054,7 +1054,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         value={step1AccordionOpen}
         onValueChange={setStep1AccordionOpen}
       >
-        <AccordionItem value="customer-info" className="border rounded-lg bg-white">
+        <AccordionItem value="customer-info" className="border rounded-lg bg-card">
           <AccordionTrigger className="px-4 py-3 hover:no-underline">
             {step1AccordionOpen !== 'customer-info' && (
               <div className="flex items-center gap-2">
@@ -1156,17 +1156,17 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           >
 
             <Card 
-              className="-mt-px border-t-0 border-x border-b border-slate-200 bg-white shadow-lg hover:shadow-xl transition-all duration-300 ease-out rounded-t-none rounded-b-2xl max-w-2xl mx-auto overflow-visible relative mt-8"
+              className="-mt-px border-t-0 border-x border-b border-border bg-card shadow-lg hover:shadow-xl transition-all duration-300 ease-out rounded-t-none rounded-b-2xl max-w-2xl mx-auto overflow-visible relative mt-8"
             >
-            <CardContent className="p-5 sm:p-7 space-y-4 overflow-visible bg-gradient-to-b from-transparent to-slate-50/30 relative">
+            <CardContent className="p-5 sm:p-7 space-y-4 overflow-visible bg-gradient-to-b from-transparent to-muted/30 relative">
               {/* Customer Information Summary Accordion - Show after step 1 */}
               {currentStep > 1 && form.watch('name') && (
-                <div className="sticky top-0 z-[90] bg-white/95 backdrop-blur-xl -mx-5 sm:-mx-7 px-5 sm:px-7 py-3 mb-4 border-b border-slate-200/50 shadow-sm">
+                <div className="sticky top-0 z-[90] bg-card/95 backdrop-blur-xl -mx-5 sm:-mx-7 px-5 sm:px-7 py-3 mb-4 border-b border-border/50 shadow-sm">
                   <div className="flex justify-center">
                   <Accordion 
                     type="single" 
                     collapsible 
-                    className={`bg-white/70 backdrop-blur-sm rounded-xl border border-slate-200/60 shadow-sm transition-all duration-300 ${accordionOpen === 'customer-info' ? 'w-1/2' : 'w-1/4'}`}
+                    className={`bg-card/70 backdrop-blur-sm rounded-xl border border-border/60 shadow-sm transition-all duration-300 ${accordionOpen === 'customer-info' ? 'w-1/2' : 'w-1/4'}`}
                     value={accordionOpen}
                     onValueChange={setAccordionOpen}
                   >
@@ -1236,8 +1236,8 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                   )}
 
                   <CardHeader className="pb-2 px-3 sm:px-4">
-                    <CardTitle className="text-lg text-slate-900">Customer Details</CardTitle>
-                    <CardDescription className="text-xs text-slate-600">
+                    <CardTitle className="text-lg text-foreground">Customer Details</CardTitle>
+                    <CardDescription className="text-xs text-muted-foreground">
                       {companyMode ? 'Select an existing customer' : "Enter the customer's basic information to get started."}
                     </CardDescription>
                   </CardHeader>
@@ -1365,7 +1365,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                       <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                   </FormControl>
-                                  <SelectContent position="popper" sideOffset={6} className="z-[200] bg-white border border-border shadow-xl pointer-events-auto">
+                                  <SelectContent position="popper" sideOffset={6} className="z-[200] bg-popover border border-border shadow-xl pointer-events-auto">
                                     <SelectItem value="individual">Individual</SelectItem>
                                     <SelectItem value="company">Company</SelectItem>
                                   </SelectContent>
@@ -1413,7 +1413,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                                       <SelectValue placeholder="Select" />
                                     </SelectTrigger>
                                   </FormControl>
-                                  <SelectContent position="popper" sideOffset={6} className="z-[200] bg-white border border-border shadow-xl pointer-events-auto">
+                                  <SelectContent position="popper" sideOffset={6} className="z-[200] bg-popover border border-border shadow-xl pointer-events-auto">
                                     <SelectItem value="Website">Website</SelectItem>
                                     <SelectItem value="Referral">Referral</SelectItem>
                                     <SelectItem value="Social Media">Social Media</SelectItem>
@@ -1455,14 +1455,14 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                           handleProductChange(value);
                         }} value={field.value}>
                           <FormControl>
-                            <SelectTrigger className="h-12 text-sm border-2 border-border/60 bg-white/50 backdrop-blur-sm rounded-lg
-                              focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-white
-                              hover:border-primary/50 hover:bg-white/80
+                            <SelectTrigger className="h-12 text-sm border-2 border-border/60 bg-card/50 backdrop-blur-sm rounded-lg
+                              focus:border-primary focus:ring-4 focus:ring-primary/10 focus:bg-card
+                              hover:border-primary/50 hover:bg-card/80
                               transition-all duration-300">
                               <SelectValue placeholder="🎯 Choose a service" />
                             </SelectTrigger>
                           </FormControl>
-                          <SelectContent position="popper" sideOffset={8} className="z-[200] bg-white border border-border shadow-xl rounded-md pointer-events-auto">
+                          <SelectContent position="popper" sideOffset={8} className="z-[200] bg-popover border border-border shadow-xl rounded-md pointer-events-auto">
                             {products?.map((product: any) => (
                               <SelectItem key={product.id} value={product.id} className="py-3">
                                 {product.name}
