@@ -53,8 +53,8 @@ export const TabbedCustomerProgressHeader = ({
                 step === currentStep && "z-10 shadow-lg",
                 step > currentStep && "opacity-50 cursor-not-allowed",
                 step < currentStep && "hover:brightness-110",
-                // Past steps - emerald/green for completed
-                step < currentStep && "bg-emerald-500",
+                // Past steps - primary color for completed
+                step < currentStep && "bg-primary/80",
                 // Current step - primary with glow
                 step === currentStep && "bg-primary ring-2 ring-primary/30 ring-offset-1 ring-offset-background",
                 // Future steps - muted
@@ -70,8 +70,8 @@ export const TabbedCustomerProgressHeader = ({
             >
               <div className={cn(
                 "flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold shadow-md transition-all border-2",
-                // Past steps - white bg with green text
-                step < currentStep && "bg-white text-emerald-600 border-white",
+                // Past steps - white bg with primary text
+                step < currentStep && "bg-white text-primary border-white",
                 // Current step - white bg with primary text + pulse ring
                 step === currentStep && "bg-white text-primary border-white animate-pulse",
                 // Future steps - muted
