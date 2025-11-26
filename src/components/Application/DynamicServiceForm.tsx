@@ -287,6 +287,21 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
     }
   }, [formData, formConfig, setValue]);
 
+  // Save service fee info to application data when loaded
+  useEffect(() => {
+    if (serviceFee && onFieldChange) {
+      // Always save service fee metadata
+      onFieldChange('service_fee_type', serviceFee.fee_type);
+      onFieldChange('service_fee_currency', serviceFee.currency);
+      
+      if (serviceFee.fee_type === 'fixed') {
+        // For fixed type, save the fixed amount
+        onFieldChange('service_charge_fixed_amount', serviceFee.service_charge);
+      }
+      // For percentage type, the rate/calculated values are saved by PercentageServiceChargeUI
+    }
+  }, [serviceFee, onFieldChange]);
+
   // Auto-populate service charge field when service fee is loaded
   useEffect(() => {
     if (serviceFee && formConfig) {
