@@ -170,7 +170,7 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
   const fetchParentTasks = async () => {
     if (!taskId) return;
     
-    // Fetch all tasks except the current one and its subtasks (to prevent circular references)
+    // Fetch all tasks except the current one
     const { data: allTasks } = await supabase
       .from('tasks')
       .select('id, title, parent_id')
@@ -179,7 +179,17 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
     
     if (allTasks) {
       // Filter out subtasks of the current task
-      const validParents = allTasks.filter(t => t.parent_id !== taskId);
+      const filteredTasks = allTasks.filter(t => t.parent_id !== taskId);
+      
+      // Only allow tasks with max 1 level of nesting (top-level or direct child of top-level)
+      // This limits hierarchy to: grandparent → parent → current task (2 levels up max)
+      const validParents = filteredTasks.filter(t => {
+        if (!t.parent_id) return true; // Top-level tasks are always valid
+        // Check if the task's parent is a top-level task
+        const parentTask = filteredTasks.find(p => p.id === t.parent_id);
+        return parentTask && !parentTask.parent_id; // Valid if parent has no parent (grandparent level)
+      });
+      
       setParentTasks(validParents);
     }
   };
