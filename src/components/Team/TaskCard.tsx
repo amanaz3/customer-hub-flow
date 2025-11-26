@@ -292,26 +292,25 @@ export const TaskCard: React.FC<TaskCardProps> = ({
   // Calculate total nested subtasks count
   const totalSubtasksCount = countAllSubtasks(task.id, subtasks);
   
-  // Count importance levels in subtasks
+  // Count importance levels in subtasks - only for THIS task's subtasks
   const importanceCounts = React.useMemo(() => {
     const counts = { must: 0, should: 0, 'good-to-have': 0, 'nice-to-have': 0, none: 0 };
-    const countImportance = (tasks: typeof subtasks) => {
-      tasks.forEach(subtask => {
+    const countImportance = (parentId: string) => {
+      const children = subtasks.filter(t => t.parent_id === parentId);
+      children.forEach(subtask => {
         if (subtask.importance) {
           counts[subtask.importance as keyof typeof counts]++;
         } else {
           counts.none++;
         }
-        // Recursively count nested subtasks by finding their children
-        const children = tasks.filter(t => t.parent_id === subtask.id);
-        if (children.length > 0) {
-          countImportance(children);
-        }
+        // Recursively count nested subtasks
+        countImportance(subtask.id);
       });
     };
-    countImportance(subtasks);
+    // Start counting from THIS task's children only
+    countImportance(task.id);
     return counts;
-  }, [subtasks]);
+  }, [subtasks, task.id]);
 
   const handleImportanceChange = async (value: string) => {
     if (onImportanceChange) {
