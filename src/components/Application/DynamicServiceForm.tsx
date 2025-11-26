@@ -322,7 +322,10 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
       field.name === 'serviceCharge' ||
       field.label?.toLowerCase().includes('service charge');
     
-    const hasAutoPopulatedServiceCharge = isServiceChargeField && serviceFee;
+    // Hide service charge field if it has auto-populated value from service_fees
+    if (isServiceChargeField && serviceFee) {
+      return null;
+    }
     
     // Notify parent of changes if callback is provided
     const handleChange = (value: any) => {
@@ -339,26 +342,12 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
       case 'number':
         return (
           <div key={fieldKey} className="space-y-1.5">
-            <div className="flex items-center gap-2">
-              <Label htmlFor={fieldKey}>
-                {field.label}
-                {field.required && <span className="text-destructive ml-1">*</span>}
-              </Label>
-              {hasAutoPopulatedServiceCharge && (
-                <Badge variant="outline" className="text-xs bg-primary/10 text-primary border-primary/20">
-                  {serviceFee.fee_type === 'percentage' ? 'Auto %' : 'Auto-filled'}
-                </Badge>
-              )}
-            </div>
+            <Label htmlFor={fieldKey}>
+              {field.label}
+              {field.required && <span className="text-destructive ml-1">*</span>}
+            </Label>
             {field.description && (
               <p className="text-sm text-muted-foreground">{field.description}</p>
-            )}
-            {hasAutoPopulatedServiceCharge && (
-              <p className="text-xs text-muted-foreground">
-                {serviceFee.fee_type === 'percentage' 
-                  ? `Service charge rate: ${serviceFee.service_charge}%`
-                  : `Pre-configured service charge from product settings`}
-              </p>
             )}
             <Input
               id={fieldKey}
@@ -367,8 +356,6 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
               min={field.type === 'number' && field.min !== undefined ? field.min : undefined}
               max={field.type === 'number' && field.max !== undefined ? field.max : undefined}
               step={field.type === 'number' && field.step !== undefined ? field.step : undefined}
-              readOnly={hasAutoPopulatedServiceCharge && serviceFee.fee_type === 'percentage'}
-              className={hasAutoPopulatedServiceCharge ? 'bg-muted/50' : ''}
               {...register(fieldKey, { 
                 required: field.required ? 'This field is required' : false,
                 onChange: (e) => handleChange(e.target.value),
