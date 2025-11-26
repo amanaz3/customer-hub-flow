@@ -494,10 +494,10 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label>Classification</Label>
+              <Label>Importance</Label>
               <Select value={task.importance || 'none'} onValueChange={(v) => handleUpdate({ importance: v === 'none' ? null : v })}>
                 <SelectTrigger>
-                  <SelectValue placeholder="No classification" />
+                  <SelectValue placeholder="Select importance" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">None</SelectItem>
