@@ -168,7 +168,7 @@ const CustomerNew = () => {
                 className={`flex-1 relative h-12 transition-all duration-200 group ${
                   activeTab === 'new' 
                     ? 'bg-card shadow-sm' 
-                    : 'bg-muted/60 hover:bg-muted/70 hover:-translate-y-0.5 cursor-pointer'
+                    : 'bg-muted/60 hover:bg-muted/70 animate-pulse cursor-pointer'
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -192,7 +192,7 @@ const CustomerNew = () => {
                 className={`flex-1 relative h-12 transition-all duration-200 group ${
                   activeTab === 'existing' 
                     ? 'bg-card shadow-sm' 
-                    : 'bg-muted/60 hover:bg-muted/70 hover:-translate-y-0.5 cursor-pointer'
+                    : 'bg-muted/60 hover:bg-muted/70 animate-pulse cursor-pointer'
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -208,16 +208,8 @@ const CustomerNew = () => {
               </button>
             </div>
 
-            {/* Mini Progress Bar */}
-            <div className="h-1 bg-muted/50 w-full">
-              <div 
-                className="h-full bg-primary transition-all duration-300 ease-out"
-                style={{ width: `${(currentStep / 4) * 100}%` }}
-              />
-            </div>
-
             {/* Seamless Content Panel - connects to active tab */}
-            <div className="bg-card border border-t-0 border-border rounded-b-lg">
+            <div className="bg-card border border-border rounded-b-lg -mt-px">
               <TabsContent value="new" className="mt-0 p-6 sm:p-8">
                 <SimplifiedCustomerForm
                   onSuccess={handleSuccess}
