@@ -1053,7 +1053,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         type="single" 
         collapsible 
         className={cn(
-          "transition-all duration-300 ease-in-out",
+          "transition-all duration-300 ease-in-out mx-auto",
           isExpanded ? "w-full max-w-md" : "w-1/2 max-w-[200px]"
         )}
         value={step1AccordionOpen}
@@ -1167,12 +1167,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Customer Information Summary Accordion - Show after step 1 */}
               {currentStep > 1 && form.watch('name') && (
                 <div className="sticky top-0 z-[90] bg-card/95 backdrop-blur-xl -mx-5 sm:-mx-7 px-5 sm:px-7 py-3 mb-4 border-b border-border/50 shadow-sm">
-                  <div className="flex">
+                  <div className="flex justify-center">
                   <Accordion 
                     type="single" 
                     collapsible 
                     className={cn(
-                      "bg-card/70 backdrop-blur-sm rounded-xl border border-border/60 shadow-sm transition-all duration-300",
+                      "bg-card/70 backdrop-blur-sm rounded-xl border border-border/60 shadow-sm transition-all duration-300 mx-auto",
                       accordionOpen === 'customer-info' ? "w-full max-w-md" : "w-1/2 max-w-[200px]"
                     )}
                     value={accordionOpen}
