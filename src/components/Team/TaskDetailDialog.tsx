@@ -501,10 +501,10 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="none">None</SelectItem>
-                  <SelectItem value="must">Must</SelectItem>
-                  <SelectItem value="should">Should</SelectItem>
-                  <SelectItem value="good-to-have">Good</SelectItem>
-                  <SelectItem value="nice-to-have">Nice</SelectItem>
+                  <SelectItem value="must">Must have</SelectItem>
+                  <SelectItem value="should">Should have</SelectItem>
+                  <SelectItem value="good-to-have">Good to have</SelectItem>
+                  <SelectItem value="nice-to-have">Nice to have</SelectItem>
                 </SelectContent>
               </Select>
             </div>
