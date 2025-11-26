@@ -165,15 +165,15 @@ const CustomerNew = () => {
               {/* New Customer Tab */}
               <button
                 onClick={() => handleTabChange('new')}
-                className={`flex-1 relative h-12 transition-all duration-200 ${
+                className={`flex-1 relative h-12 transition-all duration-200 group ${
                   activeTab === 'new' 
                     ? 'bg-card shadow-sm' 
-                    : 'bg-muted/60 hover:bg-muted/80'
+                    : 'bg-muted/60 hover:bg-muted/80 cursor-pointer'
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
-                  <UserPlus className={`h-4 w-4 transition-colors ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground/60'}`} />
-                  <span className={`font-medium text-sm transition-colors ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground/60'}`}>
+                  <UserPlus className={`h-4 w-4 transition-colors ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-muted-foreground'}`} />
+                  <span className={`font-medium text-sm transition-all ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground/60 group-hover:text-muted-foreground group-hover:underline underline-offset-2'}`}>
                     New Customer
                   </span>
                 </div>
@@ -189,15 +189,15 @@ const CustomerNew = () => {
               {/* Existing Customer Tab */}
               <button
                 onClick={() => handleTabChange('existing')}
-                className={`flex-1 relative h-12 transition-all duration-200 ${
+                className={`flex-1 relative h-12 transition-all duration-200 group ${
                   activeTab === 'existing' 
                     ? 'bg-card shadow-sm' 
-                    : 'bg-muted/60 hover:bg-muted/80'
+                    : 'bg-muted/60 hover:bg-muted/80 cursor-pointer'
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
-                  <Users className={`h-4 w-4 transition-colors ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground/60'}`} />
-                  <span className={`font-medium text-sm transition-colors ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground/60'}`}>
+                  <Users className={`h-4 w-4 transition-colors ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-muted-foreground'}`} />
+                  <span className={`font-medium text-sm transition-all ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground/60 group-hover:text-muted-foreground group-hover:underline underline-offset-2'}`}>
                     Existing Customer
                   </span>
                 </div>
