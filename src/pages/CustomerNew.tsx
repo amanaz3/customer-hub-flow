@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
 import { CustomerEventsSidebar } from '@/components/Customer/CustomerEventsSidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Users } from 'lucide-react';
+import { UserPlus, Users, ChevronRight, ChevronDown } from 'lucide-react';
 
 const CustomerNew = () => {
   const { refreshData } = useCustomer();
@@ -154,198 +154,218 @@ const CustomerNew = () => {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-8 bg-background">
+    <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-8 bg-muted/30">
       <div className="w-full max-w-[95%] lg:max-w-[90%] xl:max-w-[85%] 2xl:max-w-[80%] px-4 sm:px-6">
         {/* Primary Tabs Navigation */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           {/* Tabbed Interface Container */}
           <div className="w-full max-w-4xl mx-auto">
             
-            {/* Clean Flow Progress Bar */}
-            <div className="mb-8">
-              <div className="flex items-center justify-between max-w-md mx-auto">
-                {/* Step 1 */}
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary text-primary-foreground text-sm font-semibold">
-                    1
-                  </div>
-                  <span className="text-sm font-medium text-foreground hidden sm:block">Customer Type</span>
+            {/* Overall Flow Indicator */}
+            <div className="flex items-center justify-center gap-2 mb-6">
+              <div className="flex items-center gap-2">
+                <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-bold">
+                  1
                 </div>
-                
-                {/* Progress Line */}
-                <div className="flex-1 mx-4 h-0.5 bg-border relative">
-                  <div 
-                    className="absolute inset-y-0 left-0 bg-primary transition-all duration-500"
-                    style={{ width: currentStep >= 2 ? '100%' : '0%' }}
-                  />
+                <span className="text-sm font-medium text-foreground">Select Customer Type</span>
+              </div>
+              <ChevronRight className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center gap-2">
+                <div className={`flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold ${currentStep >= 1 ? 'bg-muted text-muted-foreground' : 'bg-muted text-muted-foreground'}`}>
+                  2
                 </div>
-                
-                {/* Step 2 */}
-                <div className="flex items-center gap-3">
-                  <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-semibold transition-colors duration-300 ${
-                    currentStep >= 2 ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'
-                  }`}>
-                    2
-                  </div>
-                  <span className={`text-sm font-medium hidden sm:block transition-colors duration-300 ${
-                    currentStep >= 2 ? 'text-foreground' : 'text-muted-foreground'
-                  }`}>Application</span>
+                <span className="text-sm text-muted-foreground">Complete Application</span>
+              </div>
+            </div>
+
+            {/* Section Header with Instructions */}
+            <div className="bg-card border border-border rounded-t-lg p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary shrink-0">
+                  <span className="text-sm font-bold">1</span>
+                </div>
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground">
+                    Select Customer Type
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    Choose one option below to begin your application
+                  </p>
                 </div>
               </div>
             </div>
 
-            {/* Main Card Container */}
-            <div className="bg-card border border-border overflow-hidden">
-              
-              {/* Section: Customer Type Selection */}
-              <div className="p-6 border-b border-border">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-1 h-6 bg-primary rounded-full" />
-                  <h2 className="text-base font-semibold text-foreground tracking-tight">
-                    Select Customer Type
-                  </h2>
-                </div>
-
-                {/* Clean Card Selection */}
-                <TabsList className="w-full h-auto p-0 bg-transparent grid grid-cols-2 gap-4">
-                  <TabsTrigger 
-                    value="new" 
-                    className="relative h-auto p-0 bg-transparent border-0 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none group"
-                  >
-                    <div className={`
-                      w-full p-5 border transition-all duration-200 cursor-pointer
-                      ${activeTab === 'new' 
-                        ? 'border-primary bg-primary/5' 
-                        : 'border-border bg-card hover:border-muted-foreground/50'
-                      }
-                    `}>
-                      <div className="flex items-center gap-4">
-                        {/* Radio Indicator */}
-                        <div className={`
-                          w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all
-                          ${activeTab === 'new' ? 'border-primary' : 'border-muted-foreground/40'}
-                        `}>
-                          {activeTab === 'new' && (
-                            <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                          )}
-                        </div>
-                        
-                        {/* Icon */}
-                        <div className={`
-                          w-10 h-10 rounded-full flex items-center justify-center transition-colors
-                          ${activeTab === 'new' ? 'bg-primary/10' : 'bg-muted'}
-                        `}>
-                          <UserPlus className={`h-5 w-5 ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground'}`} />
-                        </div>
-                        
-                        {/* Content */}
-                        <div className="flex-1 text-left">
-                          <span className={`font-semibold text-sm block ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground'}`}>
+            {/* Card-based Radio Selection */}
+            <div className="bg-muted/30 border-x border-border p-4">
+              <TabsList className="w-full h-auto p-0 bg-transparent grid grid-cols-2 gap-4">
+                <TabsTrigger 
+                  value="new" 
+                  className="relative h-auto p-0 bg-transparent border-0 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-lg group"
+                >
+                  <div className={`
+                    w-full p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer relative
+                    ${activeTab === 'new' 
+                      ? 'border-primary bg-primary/5 shadow-md' 
+                      : 'border-border bg-card hover:border-primary/50 hover:bg-muted/50'
+                    }
+                  `}>
+                    {/* Start Here Badge - Only show on first option when nothing selected yet */}
+                    {activeTab === 'new' && (
+                      <div className="absolute -top-2.5 left-4 px-2 py-0.5 bg-primary text-primary-foreground text-[10px] font-semibold rounded-full uppercase tracking-wide">
+                        Selected
+                      </div>
+                    )}
+                    
+                    <div className="flex items-start gap-3">
+                      {/* Radio Circle */}
+                      <div className={`
+                        mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all
+                        ${activeTab === 'new' 
+                          ? 'border-primary' 
+                          : 'border-muted-foreground/40'
+                        }
+                      `}>
+                        {activeTab === 'new' && (
+                          <div className="w-2.5 h-2.5 rounded-full bg-primary animate-scale-in" />
+                        )}
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="flex-1 text-left">
+                        <div className="flex items-center gap-2 mb-1">
+                          <UserPlus className={`h-4 w-4 ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground'}`} />
+                          <span className={`font-semibold text-sm ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground'}`}>
                             New Customer
                           </span>
-                          <span className="text-xs text-muted-foreground">
-                            Create new record
-                          </span>
                         </div>
+                        <p className="text-xs text-muted-foreground">
+                          Create a new customer record and application
+                        </p>
                       </div>
                     </div>
-                  </TabsTrigger>
-                  
-                  <TabsTrigger 
-                    value="existing" 
-                    className="relative h-auto p-0 bg-transparent border-0 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none group"
-                  >
-                    <div className={`
-                      w-full p-5 border transition-all duration-200 cursor-pointer
-                      ${activeTab === 'existing' 
-                        ? 'border-primary bg-primary/5' 
-                        : 'border-border bg-card hover:border-muted-foreground/50'
-                      }
-                    `}>
-                      <div className="flex items-center gap-4">
-                        {/* Radio Indicator */}
-                        <div className={`
-                          w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all
-                          ${activeTab === 'existing' ? 'border-primary' : 'border-muted-foreground/40'}
-                        `}>
-                          {activeTab === 'existing' && (
-                            <div className="w-2.5 h-2.5 rounded-full bg-primary" />
-                          )}
-                        </div>
-                        
-                        {/* Icon */}
-                        <div className={`
-                          w-10 h-10 rounded-full flex items-center justify-center transition-colors
-                          ${activeTab === 'existing' ? 'bg-primary/10' : 'bg-muted'}
-                        `}>
-                          <Users className={`h-5 w-5 ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground'}`} />
-                        </div>
-                        
-                        {/* Content */}
-                        <div className="flex-1 text-left">
-                          <span className={`font-semibold text-sm block ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground'}`}>
+                  </div>
+                </TabsTrigger>
+                
+                <TabsTrigger 
+                  value="existing" 
+                  className="relative h-auto p-0 bg-transparent border-0 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-lg group"
+                >
+                  <div className={`
+                    w-full p-4 rounded-lg border-2 transition-all duration-200 cursor-pointer relative
+                    ${activeTab === 'existing' 
+                      ? 'border-primary bg-primary/5 shadow-md' 
+                      : 'border-border bg-card hover:border-primary/50 hover:bg-muted/50'
+                    }
+                  `}>
+                    {activeTab === 'existing' && (
+                      <div className="absolute -top-2.5 left-4 px-2 py-0.5 bg-primary text-primary-foreground text-[10px] font-semibold rounded-full uppercase tracking-wide">
+                        Selected
+                      </div>
+                    )}
+                    
+                    <div className="flex items-start gap-3">
+                      {/* Radio Circle */}
+                      <div className={`
+                        mt-0.5 w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-all
+                        ${activeTab === 'existing' 
+                          ? 'border-primary' 
+                          : 'border-muted-foreground/40'
+                        }
+                      `}>
+                        {activeTab === 'existing' && (
+                          <div className="w-2.5 h-2.5 rounded-full bg-primary animate-scale-in" />
+                        )}
+                      </div>
+                      
+                      {/* Content */}
+                      <div className="flex-1 text-left">
+                        <div className="flex items-center gap-2 mb-1">
+                          <Users className={`h-4 w-4 ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground'}`} />
+                          <span className={`font-semibold text-sm ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground'}`}>
                             Existing Customer
                           </span>
-                          <span className="text-xs text-muted-foreground">
-                            Add to existing
-                          </span>
                         </div>
+                        <p className="text-xs text-muted-foreground">
+                          Add application for an existing customer
+                        </p>
                       </div>
                     </div>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
+                  </div>
+                </TabsTrigger>
+              </TabsList>
+            </div>
 
-              {/* Section: Application Form */}
-              <div className="p-6">
-                <div className="flex items-center gap-3 mb-5">
-                  <div className="w-1 h-6 bg-primary/40 rounded-full" />
-                  <h2 className="text-base font-semibold text-foreground tracking-tight">
-                    {activeTab === 'new' ? 'Customer Details' : 'Select & Add Service'}
-                  </h2>
+            {/* Visual Flow Connector */}
+            <div className="flex justify-center bg-muted/30 border-x border-border py-2">
+              <div className="flex flex-col items-center">
+                <div className="w-0.5 h-4 bg-border" />
+                <ChevronDown className="h-4 w-4 text-muted-foreground -mt-1" />
+              </div>
+            </div>
+
+            {/* Step 2 Header */}
+            <div className="bg-card border-x border-border p-4">
+              <div className="flex items-start gap-3">
+                <div className="flex items-center justify-center w-8 h-8 rounded-full bg-primary/10 text-primary shrink-0">
+                  <span className="text-sm font-bold">2</span>
                 </div>
-
-                {/* Tab Content */}
-                <TabsContent value="new" className="mt-0">
-                  <SimplifiedCustomerForm
-                    onSuccess={handleSuccess}
-                    onProductChange={setSelectedProduct}
-                    onStepChange={setCurrentStep}
-                    onEmailChange={setCustomerEmail}
-                    onNameChange={setCustomerName}
-                    onMobileChange={setCustomerMobile}
-                    onCompanyChange={setCustomerCompany}
-                    companyMode={false}
-                    selectedCustomerId={null}
-                    onModeChange={() => {}}
-                    onCustomerSelect={() => {}}
-                    onCustomerIdChange={setInternalCustomerId}
-                    onCancel={() => navigate('/customers')}
-                    onDocumentsChange={setServiceDocuments}
-                    hideCustomerTypeSelector={true}
-                  />
-                </TabsContent>
-
-                <TabsContent value="existing" className="mt-0">
-                  <SimplifiedCustomerForm
-                    onSuccess={handleSuccess}
-                    onProductChange={setSelectedProduct}
-                    onStepChange={setCurrentStep}
-                    onEmailChange={setCustomerEmail}
-                    onNameChange={setCustomerName}
-                    onMobileChange={setCustomerMobile}
-                    onCompanyChange={setCustomerCompany}
-                    companyMode={true}
-                    selectedCustomerId={selectedCustomerId}
-                    onModeChange={() => {}}
-                    onCustomerSelect={setSelectedCustomerId}
-                    onCustomerIdChange={setInternalCustomerId}
-                    onCancel={() => navigate('/customers')}
-                    onDocumentsChange={setServiceDocuments}
-                    hideCustomerTypeSelector={true}
-                  />
-                </TabsContent>
+                <div>
+                  <h2 className="text-lg font-semibold text-foreground">
+                    Complete Application
+                  </h2>
+                  <p className="text-sm text-muted-foreground mt-0.5">
+                    {activeTab === 'new' 
+                      ? 'Enter customer details and service information' 
+                      : 'Select customer and add service information'
+                    }
+                  </p>
+                </div>
               </div>
+            </div>
+
+            {/* Tab Content Panel */}
+            <div className="bg-card border border-t-0 border-border shadow-lg rounded-b-lg">
+              {/* New Customer Tab Content */}
+              <TabsContent value="new" className="mt-0 p-6 sm:p-8">
+                <SimplifiedCustomerForm
+                  onSuccess={handleSuccess}
+                  onProductChange={setSelectedProduct}
+                  onStepChange={setCurrentStep}
+                  onEmailChange={setCustomerEmail}
+                  onNameChange={setCustomerName}
+                  onMobileChange={setCustomerMobile}
+                  onCompanyChange={setCustomerCompany}
+                  companyMode={false}
+                  selectedCustomerId={null}
+                  onModeChange={() => {}}
+                  onCustomerSelect={() => {}}
+                  onCustomerIdChange={setInternalCustomerId}
+                  onCancel={() => navigate('/customers')}
+                  onDocumentsChange={setServiceDocuments}
+                  hideCustomerTypeSelector={true}
+                />
+              </TabsContent>
+
+              {/* Existing Customer Tab Content */}
+              <TabsContent value="existing" className="mt-0 p-6 sm:p-8">
+                <SimplifiedCustomerForm
+                  onSuccess={handleSuccess}
+                  onProductChange={setSelectedProduct}
+                  onStepChange={setCurrentStep}
+                  onEmailChange={setCustomerEmail}
+                  onNameChange={setCustomerName}
+                  onMobileChange={setCustomerMobile}
+                  onCompanyChange={setCustomerCompany}
+                  companyMode={true}
+                  selectedCustomerId={selectedCustomerId}
+                  onModeChange={() => {}}
+                  onCustomerSelect={setSelectedCustomerId}
+                  onCustomerIdChange={setInternalCustomerId}
+                  onCancel={() => navigate('/customers')}
+                  onDocumentsChange={setServiceDocuments}
+                  hideCustomerTypeSelector={true}
+                />
+              </TabsContent>
             </div>
           </div>
         </Tabs>
