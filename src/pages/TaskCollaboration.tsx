@@ -149,6 +149,8 @@ const TaskCollaboration: React.FC = () => {
   const [priorityFilter, setPriorityFilter] = useState<string>('medium-high');
   const [projectFilter, setProjectFilter] = useState<string>('all');
   const [importanceFilter, setImportanceFilter] = useState<string>('all');
+  const [moduleFilter, setModuleFilter] = useState<string>('all');
+  const [groupByModule, setGroupByModule] = useState<boolean>(true);
   const [showTaskStats, setShowTaskStats] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
   const [quickAddBugOpen, setQuickAddBugOpen] = useState(false);
@@ -623,8 +625,52 @@ const TaskCollaboration: React.FC = () => {
     const matchesImportance = importanceFilter === 'all' || 
                               (importanceFilter === 'none' && !task.importance) ||
                               task.importance === importanceFilter;
-    return matchesSearch && matchesStatus && matchesPriority && matchesProject && matchesImportance;
+    const matchesModule = moduleFilter === 'all' || 
+                          (moduleFilter === 'none' && !task.module) ||
+                          task.module === moduleFilter;
+    return matchesSearch && matchesStatus && matchesPriority && matchesProject && matchesImportance && matchesModule;
   });
+
+  // Get unique modules from tasks
+  const uniqueModules = [...new Set(tasks.map(t => t.module).filter(Boolean))] as string[];
+
+  // Priority order for sorting (higher = more urgent)
+  const priorityOrder: Record<string, number> = { critical: 4, high: 3, medium: 2, low: 1 };
+  
+  // Importance order for sorting (higher = more important)
+  const importanceOrder: Record<string, number> = { 
+    'must-have': 4, 
+    'should-have': 3, 
+    'good-to-have': 2, 
+    'nice-to-have': 1,
+    '': 0 
+  };
+
+  // Group and sort tasks by Module → Importance → Priority
+  const groupedTasksByModule = groupByModule ? (() => {
+    const grouped: Record<string, Task[]> = {};
+    
+    filteredTasks.forEach(task => {
+      const module = task.module || 'Uncategorized';
+      if (!grouped[module]) grouped[module] = [];
+      grouped[module].push(task);
+    });
+
+    // Sort tasks within each module: first by importance (desc), then by priority (desc)
+    Object.keys(grouped).forEach(module => {
+      grouped[module].sort((a, b) => {
+        const impA = importanceOrder[a.importance || ''] || 0;
+        const impB = importanceOrder[b.importance || ''] || 0;
+        if (impB !== impA) return impB - impA;
+        
+        const priA = priorityOrder[a.priority] || 0;
+        const priB = priorityOrder[b.priority] || 0;
+        return priB - priA;
+      });
+    });
+
+    return grouped;
+  })() : null;
 
   const filteredApplications = applications.filter((app) => {
     const matchesSearch = 
@@ -1379,17 +1425,39 @@ const TaskCollaboration: React.FC = () => {
                 </Select>
                 <Select value={importanceFilter} onValueChange={setImportanceFilter}>
                   <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Value" />
+                    <SelectValue placeholder="Importance" />
                   </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Values</SelectItem>
+                  <SelectContent className="bg-popover z-50">
+                    <SelectItem value="all">All Importance</SelectItem>
                     <SelectItem value="none">None</SelectItem>
-                    <SelectItem value="must">Must</SelectItem>
-                    <SelectItem value="should">Should</SelectItem>
-                    <SelectItem value="good-to-have">Good</SelectItem>
-                    <SelectItem value="nice-to-have">Nice</SelectItem>
+                    <SelectItem value="must-have">Must Have</SelectItem>
+                    <SelectItem value="should-have">Should Have</SelectItem>
+                    <SelectItem value="good-to-have">Good to Have</SelectItem>
+                    <SelectItem value="nice-to-have">Nice to Have</SelectItem>
                   </SelectContent>
                 </Select>
+                <Select value={moduleFilter} onValueChange={setModuleFilter}>
+                  <SelectTrigger className="w-40">
+                    <SelectValue placeholder="Module" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover z-50">
+                    <SelectItem value="all">All Modules</SelectItem>
+                    <SelectItem value="none">Uncategorized</SelectItem>
+                    {uniqueModules.map((module) => (
+                      <SelectItem key={module} value={module}>
+                        {module.charAt(0).toUpperCase() + module.slice(1)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <Button
+                  variant={groupByModule ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setGroupByModule(!groupByModule)}
+                  className="whitespace-nowrap"
+                >
+                  {groupByModule ? "Grouped by Module" : "Flat View"}
+                </Button>
               </div>
 
               {/* Task Stats Toggle */}
@@ -1521,30 +1589,72 @@ const TaskCollaboration: React.FC = () => {
               </div>
 
               {/* Tasks List */}
-              <div className="space-y-2">
-                {filteredTasks.map((task) => (
-                  <TaskCard
-                    key={task.id}
-                    task={task}
-                    attachments={taskAttachments[task.id] || []}
-                    subtasks={tasks}
-                    subtaskAttachments={taskAttachments}
-                    onClick={(taskId) => {
-                      setSelectedTaskId(taskId);
-                      setTaskDetailOpen(true);
-                    }}
-                    showActions
-                    onDelete={deleteTask}
-                    onAddSubtask={(parentId) => {
-                      setParentTaskIdForNewTask(parentId);
-                      setCreateTaskOpen(true);
-                    }}
-                    onImportanceChange={handleImportanceChange}
-                  />
-                ))}
+              <div className="space-y-4">
+                {groupByModule && groupedTasksByModule ? (
+                  // Grouped by Module View
+                  Object.entries(groupedTasksByModule).map(([module, moduleTasks]) => (
+                    <div key={module} className="space-y-2">
+                      <div className="flex items-center gap-2 py-2 border-b">
+                        <Badge variant="outline" className="bg-primary/10 text-primary font-medium">
+                          {module}
+                        </Badge>
+                        <span className="text-sm text-muted-foreground">
+                          {moduleTasks.length} task{moduleTasks.length !== 1 ? 's' : ''}
+                        </span>
+                        <span className="text-xs text-muted-foreground ml-auto">
+                          Sorted: Importance → Priority
+                        </span>
+                      </div>
+                      <div className="space-y-2 pl-2">
+                        {moduleTasks.map((task) => (
+                          <TaskCard
+                            key={task.id}
+                            task={task}
+                            attachments={taskAttachments[task.id] || []}
+                            subtasks={tasks}
+                            subtaskAttachments={taskAttachments}
+                            onClick={(taskId) => {
+                              setSelectedTaskId(taskId);
+                              setTaskDetailOpen(true);
+                            }}
+                            showActions
+                            onDelete={deleteTask}
+                            onAddSubtask={(parentId) => {
+                              setParentTaskIdForNewTask(parentId);
+                              setCreateTaskOpen(true);
+                            }}
+                            onImportanceChange={handleImportanceChange}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  // Flat View
+                  filteredTasks.map((task) => (
+                    <TaskCard
+                      key={task.id}
+                      task={task}
+                      attachments={taskAttachments[task.id] || []}
+                      subtasks={tasks}
+                      subtaskAttachments={taskAttachments}
+                      onClick={(taskId) => {
+                        setSelectedTaskId(taskId);
+                        setTaskDetailOpen(true);
+                      }}
+                      showActions
+                      onDelete={deleteTask}
+                      onAddSubtask={(parentId) => {
+                        setParentTaskIdForNewTask(parentId);
+                        setCreateTaskOpen(true);
+                      }}
+                      onImportanceChange={handleImportanceChange}
+                    />
+                  ))
+                )}
                 {filteredTasks.length === 0 && (
                   <div className="text-center py-12 text-muted-foreground">
-                    {searchQuery || statusFilter !== 'all' || priorityFilter !== 'all' || projectFilter !== 'all' || importanceFilter !== 'all'
+                    {searchQuery || statusFilter !== 'all' || priorityFilter !== 'all' || projectFilter !== 'all' || importanceFilter !== 'all' || moduleFilter !== 'all'
                       ? 'No tasks match your filters'
                       : 'No tasks yet. Create your first task!'}
                   </div>
