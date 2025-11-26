@@ -27,17 +27,12 @@ export const TabbedCustomerProgressHeader = ({
 
   return (
     <div ref={containerRef} className="w-full bg-card border border-border p-4 shadow-sm space-y-3 rounded-none">
-      {/* Progress Bar - Segmented */}
-      <div className="flex gap-1">
-        {[1, 2, 3, 4].map((step) => (
-          <div 
-            key={step}
-            className={cn(
-              "h-1.5 flex-1 rounded-full transition-colors duration-300",
-              step <= currentStep ? "bg-primary" : "bg-muted"
-            )}
-          />
-        ))}
+      {/* Progress Bar - Continuous */}
+      <div className="h-1.5 w-full bg-muted rounded-full overflow-hidden">
+        <div 
+          className="h-full bg-primary rounded-full transition-all duration-500 ease-out"
+          style={{ width: `${((currentStep - 1) / 3) * 100}%` }}
+        />
       </div>
 
       {/* Step Breadcrumbs - Arrow Style */}
