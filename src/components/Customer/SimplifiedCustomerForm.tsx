@@ -1780,8 +1780,37 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             <ArrowLeft className="h-3.5 w-3.5 text-yellow-600 group-hover:text-yellow-700 relative z-10 transition-all duration-300 group-hover:translate-x-[-1px]" />
           </Button>
         )}
+
+        {/* Save Current Step Button - Show in steps 1-3 */}
+        {currentStep < 4 && (
+          <Button
+            type="button"
+            size="icon"
+            onClick={async () => {
+              const canSave = await canProgressToNextStep();
+              if (canSave) {
+                await saveApplicationAtStep(currentStep);
+                toast({
+                  title: "Saved",
+                  description: `Step ${currentStep} data saved successfully`,
+                });
+              } else {
+                toast({
+                  title: "Cannot Save",
+                  description: "Please complete all mandatory fields correctly before saving",
+                  variant: "destructive",
+                });
+              }
+            }}
+            disabled={isSubmitting}
+            className="h-9 w-9 rounded-full shadow-[0_2px_12px_rgba(20,184,166,0.2)] hover:shadow-[0_4px_20px_rgba(20,184,166,0.35)] transition-all duration-300 hover:scale-105 active:scale-95 border border-teal-300 hover:border-teal-400 bg-gradient-to-br from-teal-50 via-teal-100/80 to-teal-50 backdrop-blur-sm hover:from-teal-100 hover:via-teal-200/80 hover:to-teal-100 group relative overflow-hidden"
+            title="Save Current Step"
+          >
+            <div className="absolute inset-0 bg-gradient-to-br from-teal-400/10 via-teal-500/5 to-teal-400/10 group-hover:from-teal-400/20 group-hover:via-teal-500/10 group-hover:to-teal-400/20 transition-all duration-300" />
+            <Save className="h-3.5 w-3.5 text-teal-600 group-hover:text-teal-700 relative z-10 transition-colors duration-300" />
+          </Button>
+        )}
         
-        {/* Next Step Button */}
         {currentStep < 4 && (
           <Button
             type="button"
