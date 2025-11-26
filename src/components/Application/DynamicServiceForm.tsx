@@ -320,7 +320,8 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
       field.isServiceChargeField || 
       field.name === 'service_charge' || 
       field.name === 'serviceCharge' ||
-      field.label?.toLowerCase().includes('service charge');
+      field.label?.toLowerCase().includes('service charge') ||
+      field.label?.toLowerCase().includes('servicecharge');
     
     // Show service charge as read-only display instead of input field
     if (isServiceChargeField && serviceFee) {
