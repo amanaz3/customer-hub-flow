@@ -219,7 +219,7 @@ const CustomerNew = () => {
             </div>
 
             {/* Seamless Content Panel - connects to active tab */}
-            <div className="bg-card border border-border rounded-b-lg -mt-px">
+            <div className="bg-gradient-to-br from-teal-50/50 to-card dark:from-teal-950/20 dark:to-card border border-border rounded-b-lg -mt-px">
               <TabsContent value="new" className="mt-0 p-6 sm:p-8">
                 <SimplifiedCustomerForm
                   onSuccess={handleSuccess}
