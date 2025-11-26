@@ -58,6 +58,7 @@ import Cycles from '@/pages/Cycles';
 import DevManagement from '@/pages/DevManagement';
 import ApplicationsByServices from '@/pages/ApplicationsByServices';
 import ServiceFees from '@/pages/ServiceFees';
+import DevToolsNew from '@/pages/DevToolsNew';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -227,6 +228,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Data Migration">
                           <DevToolsMigration />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/devtools" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="DevTools">
+                          <DevToolsNew />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
