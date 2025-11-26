@@ -181,8 +181,9 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
       // Filter out subtasks of the current task
       const filteredTasks = allTasks.filter(t => t.parent_id !== taskId);
       
-      // Only show top-level tasks (no parent) - these are valid as parents/grandparents
-      const validParents = filteredTasks.filter(t => !t.parent_id);
+      // Only show top-level tasks (no parent) that have children
+      const tasksWithChildren = new Set(allTasks.map(t => t.parent_id).filter(Boolean));
+      const validParents = filteredTasks.filter(t => !t.parent_id && tasksWithChildren.has(t.id));
       
       setParentTasks(validParents);
     }
