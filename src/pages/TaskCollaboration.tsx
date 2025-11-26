@@ -23,7 +23,7 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, FolderKanban, Flag, Clock, ArrowRight, ChevronRight } from 'lucide-react';
+import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, FolderKanban, Flag, Clock, ArrowRight, ChevronRight, ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CreateTaskDialog } from '@/components/Team/CreateTaskDialog';
@@ -151,6 +151,7 @@ const TaskCollaboration: React.FC = () => {
   const [importanceFilter, setImportanceFilter] = useState<string>('all');
   const [moduleFilter, setModuleFilter] = useState<string>('all');
   const [groupByModule, setGroupByModule] = useState<boolean>(true);
+  const [showAllFilters, setShowAllFilters] = useState(false);
   const [showTaskStats, setShowTaskStats] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
   const [quickAddBugOpen, setQuickAddBugOpen] = useState(false);
@@ -1375,54 +1376,16 @@ const TaskCollaboration: React.FC = () => {
             </CardHeader>
             <CardContent>
               {/* Filters */}
-              <div className="flex gap-3 mb-6">
-                <Select value={projectFilter} onValueChange={setProjectFilter}>
-                  <SelectTrigger className="w-[200px]">
-                    <div className="flex items-center gap-2">
-                      <FolderKanban className="h-4 w-4" />
-                      <SelectValue placeholder="All Projects" />
-                    </div>
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">
-                      <div className="flex items-center gap-2">
-                        <FolderKanban className="h-4 w-4" />
-                        <span>All Projects</span>
-                      </div>
-                    </SelectItem>
-                    {products.map((product) => (
-                      <SelectItem key={product.id} value={product.id}>
-                        {product.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Status</SelectItem>
-                    <SelectItem value="todo">To Do</SelectItem>
-                    <SelectItem value="in_progress">In Progress</SelectItem>
-                    <SelectItem value="in_review">In Review</SelectItem>
-                    <SelectItem value="done">Done</SelectItem>
-                    <SelectItem value="blocked">Blocked</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Priority" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All Priority</SelectItem>
-                    <SelectItem value="medium-high">Medium & High</SelectItem>
-                    <SelectItem value="critical">Critical</SelectItem>
-                    <SelectItem value="high">High</SelectItem>
-                    <SelectItem value="medium">Medium</SelectItem>
-                    <SelectItem value="low">Low</SelectItem>
-                  </SelectContent>
-                </Select>
+              <div className="flex flex-wrap gap-3 mb-6 items-center">
+                {/* Always visible: Grouped by Module and Importance */}
+                <Button
+                  variant={groupByModule ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setGroupByModule(!groupByModule)}
+                  className="whitespace-nowrap"
+                >
+                  {groupByModule ? "Grouped by Module" : "Flat View"}
+                </Button>
                 <Select value={importanceFilter} onValueChange={setImportanceFilter}>
                   <SelectTrigger className="w-40">
                     <SelectValue placeholder="Importance" />
@@ -1436,28 +1399,84 @@ const TaskCollaboration: React.FC = () => {
                     <SelectItem value="nice-to-have">Nice to have</SelectItem>
                   </SelectContent>
                 </Select>
-                <Select value={moduleFilter} onValueChange={setModuleFilter}>
-                  <SelectTrigger className="w-40">
-                    <SelectValue placeholder="Module" />
-                  </SelectTrigger>
-                  <SelectContent className="bg-popover z-50">
-                    <SelectItem value="all">All Modules</SelectItem>
-                    <SelectItem value="none">Uncategorized</SelectItem>
-                    {uniqueModules.map((module) => (
-                      <SelectItem key={module} value={module}>
-                        {module.charAt(0).toUpperCase() + module.slice(1)}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                
+                {/* Expand/Collapse button */}
                 <Button
-                  variant={groupByModule ? "default" : "outline"}
+                  variant="ghost"
                   size="sm"
-                  onClick={() => setGroupByModule(!groupByModule)}
-                  className="whitespace-nowrap"
+                  onClick={() => setShowAllFilters(!showAllFilters)}
+                  className="text-muted-foreground"
                 >
-                  {groupByModule ? "Grouped by Module" : "Flat View"}
+                  {showAllFilters ? "Less filters" : "More filters"}
+                  <ChevronDown className={`h-4 w-4 ml-1 transition-transform ${showAllFilters ? 'rotate-180' : ''}`} />
                 </Button>
+
+                {/* Expanded filters */}
+                {showAllFilters && (
+                  <>
+                    <Select value={projectFilter} onValueChange={setProjectFilter}>
+                      <SelectTrigger className="w-[200px]">
+                        <div className="flex items-center gap-2">
+                          <FolderKanban className="h-4 w-4" />
+                          <SelectValue placeholder="All Projects" />
+                        </div>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">
+                          <div className="flex items-center gap-2">
+                            <FolderKanban className="h-4 w-4" />
+                            <span>All Projects</span>
+                          </div>
+                        </SelectItem>
+                        {products.map((product) => (
+                          <SelectItem key={product.id} value={product.id}>
+                            {product.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="todo">To Do</SelectItem>
+                        <SelectItem value="in_progress">In Progress</SelectItem>
+                        <SelectItem value="in_review">In Review</SelectItem>
+                        <SelectItem value="done">Done</SelectItem>
+                        <SelectItem value="blocked">Blocked</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Priority" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Priority</SelectItem>
+                        <SelectItem value="medium-high">Medium & High</SelectItem>
+                        <SelectItem value="critical">Critical</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Select value={moduleFilter} onValueChange={setModuleFilter}>
+                      <SelectTrigger className="w-40">
+                        <SelectValue placeholder="Module" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        <SelectItem value="all">All Modules</SelectItem>
+                        <SelectItem value="none">Uncategorized</SelectItem>
+                        {uniqueModules.map((module) => (
+                          <SelectItem key={module} value={module}>
+                            {module.charAt(0).toUpperCase() + module.slice(1)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </>
+                )}
               </div>
 
               {/* Task Stats Toggle */}
