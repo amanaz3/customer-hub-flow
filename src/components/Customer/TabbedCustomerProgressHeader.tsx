@@ -51,11 +51,14 @@ export const TabbedCustomerProgressHeader = ({
               className={cn(
                 "relative flex items-center gap-2 px-6 py-2.5 transition-all duration-300 group",
                 "first:pl-4 last:pr-4",
-                step === currentStep && "z-10 scale-105",
-                step > currentStep && "opacity-60 cursor-not-allowed",
-                step < currentStep && "hover:scale-105",
-                step < currentStep && "bg-primary",
-                step === currentStep && "bg-secondary",
+                step === currentStep && "z-10 scale-105 shadow-lg",
+                step > currentStep && "opacity-50 cursor-not-allowed",
+                step < currentStep && "hover:scale-102 hover:brightness-110",
+                // Past steps - emerald/green for completed
+                step < currentStep && "bg-emerald-500",
+                // Current step - primary with glow
+                step === currentStep && "bg-primary ring-2 ring-primary/30 ring-offset-1 ring-offset-background",
+                // Future steps - muted
                 step > currentStep && "bg-muted"
               )}
               style={{
@@ -68,8 +71,11 @@ export const TabbedCustomerProgressHeader = ({
             >
               <div className={cn(
                 "flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold shadow-md transition-all border-2",
-                step < currentStep && "bg-white text-primary border-white",
-                step === currentStep && "bg-white text-secondary border-white ring-2 ring-white/50",
+                // Past steps - white bg with green text
+                step < currentStep && "bg-white text-emerald-600 border-white",
+                // Current step - white bg with primary text + pulse ring
+                step === currentStep && "bg-white text-primary border-white animate-pulse",
+                // Future steps - muted
                 step > currentStep && "bg-muted-foreground/20 text-muted-foreground border-muted"
               )}>
                 {step < currentStep ? (
@@ -80,8 +86,8 @@ export const TabbedCustomerProgressHeader = ({
               </div>
               <span className={cn(
                 "text-sm font-bold whitespace-nowrap transition-all drop-shadow-sm",
-                step < currentStep && "text-primary-foreground",
-                step === currentStep && "text-secondary-foreground",
+                step < currentStep && "text-white",
+                step === currentStep && "text-primary-foreground",
                 step > currentStep && "text-muted-foreground"
               )}>
                 {label}
