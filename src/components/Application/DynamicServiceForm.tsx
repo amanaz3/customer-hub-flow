@@ -325,7 +325,7 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
     
     // Show service charge as read-only display instead of input field
     if (isServiceChargeField && serviceFee) {
-      // For percentage type: show Deal Amount input, percentage, and calculated Final Amount
+      // For percentage type: show Rate, Deal Amount input, and calculated Final Amount
       if (serviceFee.fee_type === 'percentage') {
         const dealAmountKey = `${fieldKey}_deal_amount`;
         const dealAmount = watch(dealAmountKey) || 0;
@@ -333,6 +333,19 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
         
         return (
           <div key={fieldKey} className="col-span-2 space-y-4">
+            {/* Service Charge Rate - Show First */}
+            <div className="space-y-1.5">
+              <Label className="text-muted-foreground">Service Charge Rate</Label>
+              <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                <span className="text-lg font-semibold text-primary">
+                  {serviceFee.service_charge}%
+                </span>
+                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 ml-auto">
+                  Pre-configured
+                </Badge>
+              </div>
+            </div>
+            
             {/* Deal Amount Input */}
             <div className="space-y-1.5">
               <Label htmlFor={dealAmountKey}>
@@ -360,34 +373,20 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
               )}
             </div>
             
-            {/* Service Charge & Final Amount Display */}
-            <div className="grid grid-cols-2 gap-4">
-              {/* Service Charge Rate */}
+            {/* Final Amount (Calculated) - Only show when deal amount entered */}
+            {Number(dealAmount) > 0 && (
               <div className="space-y-1.5">
-                <Label className="text-muted-foreground">Service Charge Rate</Label>
-                <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
-                  <span className="text-lg font-semibold text-primary">
-                    {serviceFee.service_charge}%
-                  </span>
-                  <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20 ml-auto">
-                    Pre-configured
-                  </Badge>
-                </div>
-              </div>
-              
-              {/* Final Amount (Calculated) */}
-              <div className="space-y-1.5">
-                <Label className="text-muted-foreground">Final Service Charge</Label>
+                <Label className="text-muted-foreground">Calculated Service Charge</Label>
                 <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
                   <span className="text-lg font-semibold text-green-600 dark:text-green-400">
                     {serviceFee.currency} {finalAmount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                   </span>
                   <Badge variant="outline" className="bg-green-500/10 text-green-600 dark:text-green-400 border-green-500/20 ml-auto">
-                    Calculated
+                    Auto-calculated
                   </Badge>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         );
       }
