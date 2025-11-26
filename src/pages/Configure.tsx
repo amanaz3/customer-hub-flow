@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Shield, Wrench, BookOpen, UserCog, Code, Terminal, Database } from "lucide-react";
+import { Users, MessageSquare, Shield, Wrench, BookOpen, UserCog, Code, Terminal, Database, Building2 } from "lucide-react";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -11,7 +11,7 @@ const Manage = () => {
         <h1 className="text-3xl font-bold">Configure</h1>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {/* User Configuration Card */}
         <Card className="border-2">
           <CardHeader className="pb-4">
@@ -56,6 +56,24 @@ const Manage = () => {
                 <p className="text-xs text-muted-foreground">Notification settings and preferences</p>
               </div>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Business Configuration Card */}
+        <Card className="border-2">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Building2 className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Business</CardTitle>
+                <CardDescription>Business configuration and settings</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {/* Add business-related items here */}
           </CardContent>
         </Card>
 
