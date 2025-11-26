@@ -245,7 +245,6 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           architectural_component: formData.architectural_component || null,
           github_repo: formData.github_repo || null,
           github_branch: formData.github_branch || null,
-          importance: formData.importance || null,
           created_by: user.id,
         }])
         .select()
