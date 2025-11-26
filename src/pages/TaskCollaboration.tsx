@@ -1463,11 +1463,11 @@ const TaskCollaboration: React.FC = () => {
                   onClick={() => {
                     setActiveSmartView('cycle');
                     setImportanceFilter('all');
-                    setStatusFilter('todo');
+                    setStatusFilter('all');
                     setModuleFilter('all');
                     setGroupByModule(false);
-                    const activeCycle = cycles.find(c => c.status === 'active');
-                    setCycleFilter(activeCycle?.id || (cycles[0]?.id || 'all'));
+                    setCycleFilter('select-cycle'); // Placeholder - won't match any tasks
+                    setShowAllFilters(true); // Expand filters so user can pick a cycle
                   }}
                   className="h-7 text-xs px-2 gap-1"
                 >
