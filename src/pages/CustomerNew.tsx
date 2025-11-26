@@ -208,8 +208,16 @@ const CustomerNew = () => {
               </button>
             </div>
 
+            {/* Mini Progress Bar */}
+            <div className="h-1 bg-muted/50 w-full">
+              <div 
+                className="h-full bg-primary transition-all duration-300 ease-out"
+                style={{ width: `${(currentStep / 4) * 100}%` }}
+              />
+            </div>
+
             {/* Seamless Content Panel - connects to active tab */}
-            <div className="bg-card border border-border rounded-b-lg -mt-px">
+            <div className="bg-card border border-t-0 border-border rounded-b-lg">
               <TabsContent value="new" className="mt-0 p-6 sm:p-8">
                 <SimplifiedCustomerForm
                   onSuccess={handleSuccess}
