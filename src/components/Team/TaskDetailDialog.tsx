@@ -462,6 +462,42 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
                 </SelectContent>
               </Select>
             </div>
+
+            <div className="space-y-2">
+              <Label>Module</Label>
+              <Select value={task.module || 'none'} onValueChange={(v) => handleUpdate({ module: v === 'none' ? null : v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="No module" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">No module</SelectItem>
+                  <SelectItem value="cases">Cases</SelectItem>
+                  <SelectItem value="products">Products</SelectItem>
+                  <SelectItem value="notifications">Notifications</SelectItem>
+                  <SelectItem value="customers">Customers</SelectItem>
+                  <SelectItem value="analytics">Analytics</SelectItem>
+                  <SelectItem value="settings">Settings</SelectItem>
+                  <SelectItem value="auth">Authentication</SelectItem>
+                  <SelectItem value="reports">Reports</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Classification</Label>
+              <Select value={task.importance || 'none'} onValueChange={(v) => handleUpdate({ importance: v === 'none' ? null : v })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="No classification" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="none">None</SelectItem>
+                  <SelectItem value="must">Must</SelectItem>
+                  <SelectItem value="should">Should</SelectItem>
+                  <SelectItem value="good-to-have">Good-to-have</SelectItem>
+                  <SelectItem value="nice-to-have">Nice-to-have</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
           {/* Description */}
@@ -530,26 +566,6 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
             </div>
 
             <div className="space-y-2">
-              <Label>Module</Label>
-              <Select value={task.module || 'none'} onValueChange={(v) => handleUpdate({ module: v === 'none' ? null : v })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="No module" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">No module</SelectItem>
-                  <SelectItem value="cases">Cases</SelectItem>
-                  <SelectItem value="products">Products</SelectItem>
-                  <SelectItem value="notifications">Notifications</SelectItem>
-                  <SelectItem value="customers">Customers</SelectItem>
-                  <SelectItem value="analytics">Analytics</SelectItem>
-                  <SelectItem value="settings">Settings</SelectItem>
-                  <SelectItem value="auth">Authentication</SelectItem>
-                  <SelectItem value="reports">Reports</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
               <Label>Architectural Component</Label>
               <Select value={task.architectural_component || 'none'} onValueChange={(v) => handleUpdate({ architectural_component: v === 'none' ? null : v })}>
                 <SelectTrigger>
@@ -561,22 +577,6 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
                   <SelectItem value="backend">Backend</SelectItem>
                   <SelectItem value="database">Database</SelectItem>
                   <SelectItem value="component_service">Component/Service</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Classification</Label>
-              <Select value={task.importance || 'none'} onValueChange={(v) => handleUpdate({ importance: v === 'none' ? null : v })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="No classification" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="none">None</SelectItem>
-                  <SelectItem value="must">Must</SelectItem>
-                  <SelectItem value="should">Should</SelectItem>
-                  <SelectItem value="good-to-have">Good-to-have</SelectItem>
-                  <SelectItem value="nice-to-have">Nice-to-have</SelectItem>
                 </SelectContent>
               </Select>
             </div>
