@@ -163,8 +163,6 @@ const TaskCollaboration: React.FC = () => {
   const [moduleFilter, setModuleFilter] = useState<string>('all');
   const [cycleFilter, setCycleFilter] = useState<string>('all');
   const [groupByModule, setGroupByModule] = useState<boolean>(true);
-  const [showAllFilters, setShowAllFilters] = useState(false);
-  const [showQuickViews, setShowQuickViews] = useState(false);
   const [activeSmartView, setActiveSmartView] = useState<string>('module'); // 'blockers' | 'module' | 'triage' | 'cycle' | 'all'
   const [showTaskStats, setShowTaskStats] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
@@ -1411,234 +1409,104 @@ const TaskCollaboration: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
-              {/* Smart View Buttons - Collapsible */}
-              <div className="mb-4 pb-4 border-b">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowQuickViews(!showQuickViews)}
-                  className="text-muted-foreground mb-2 -ml-2"
-                >
-                  <ChevronRight className={`h-4 w-4 mr-1 transition-transform ${showQuickViews ? 'rotate-90' : ''}`} />
-                  Quick Views
-                </Button>
-                {showQuickViews && (
-                  <div className="flex flex-wrap gap-2">
-                    <Button
-                      variant={activeSmartView === 'blockers' ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => {
-                        setActiveSmartView('blockers');
-                        setImportanceFilter('must');
-                        setStatusFilter('all');
-                        setModuleFilter('all');
-                        setGroupByModule(false);
-                      }}
-                      className="gap-1.5"
-                    >
-                      <Flame className="h-3.5 w-3.5 text-orange-500" />
-                      Blockers
-                      <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
-                        {tasks.filter(t => t.importance === 'must' && t.status !== 'done').length}
-                      </Badge>
-                    </Button>
-                    <Button
-                      variant={activeSmartView === 'module' ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => {
-                        setActiveSmartView('module');
-                        setImportanceFilter('all');
-                        setStatusFilter('todo');
-                        setModuleFilter('all');
-                        setGroupByModule(true);
-                      }}
-                      className="gap-1.5"
-                    >
-                      <LayoutGrid className="h-3.5 w-3.5" />
-                      By Module
-                    </Button>
-                    <Button
-                      variant={activeSmartView === 'triage' ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => {
-                        setActiveSmartView('triage');
-                        setImportanceFilter('none');
-                        setStatusFilter('all');
-                        setModuleFilter('all');
-                        setGroupByModule(false);
-                      }}
-                      className="gap-1.5"
-                    >
-                      <Inbox className="h-3.5 w-3.5 text-yellow-500" />
-                      Triage
-                      <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
-                        {tasks.filter(t => !t.importance || !t.module).length}
-                      </Badge>
-                    </Button>
-                    <Button
-                      variant={activeSmartView === 'cycle' ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => {
-                        setActiveSmartView('cycle');
-                        setImportanceFilter('all');
-                        setStatusFilter('todo');
-                        setModuleFilter('all');
-                        setGroupByModule(false);
-                        const activeCycle = cycles.find(c => c.status === 'active');
-                        setCycleFilter(activeCycle?.id || (cycles[0]?.id || 'all'));
-                      }}
-                      className="gap-1.5"
-                    >
-                      <Calendar className="h-3.5 w-3.5 text-blue-500" />
-                      By Cycle
-                      <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
-                        {tasks.filter(t => t.cycle_id).length}
-                      </Badge>
-                    </Button>
-                    <Button
-                      variant={activeSmartView === 'all' ? "default" : "outline"}
-                      size="sm"
-                      onClick={() => {
-                        setActiveSmartView('all');
-                        setImportanceFilter('all');
-                        setStatusFilter('all');
-                        setModuleFilter('all');
-                        setPriorityFilter('all');
-                        setProjectFilter('all');
-                        setCycleFilter('all');
-                        setGroupByModule(false);
-                      }}
-                      className="gap-1.5"
-                    >
-                      <ListTodo className="h-3.5 w-3.5" />
-                      All Tasks
-                      <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
-                        {tasks.length}
-                      </Badge>
-                    </Button>
-                  </div>
-                )}
-              </div>
+              {/* Compact Filter Bar */}
+              <div className="flex flex-wrap items-center gap-2 mb-4 pb-4 border-b">
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="h-8 w-[110px] text-xs">
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover z-50">
+                    <SelectItem value="all">All Status</SelectItem>
+                    <SelectItem value="todo">To Do</SelectItem>
+                    <SelectItem value="in_progress">In Progress</SelectItem>
+                    <SelectItem value="in_review">In Review</SelectItem>
+                    <SelectItem value="done">Done</SelectItem>
+                    <SelectItem value="blocked">Blocked</SelectItem>
+                  </SelectContent>
+                </Select>
 
-              {/* Filters */}
-              <div className="flex flex-wrap gap-3 mb-6 items-center">
-                {/* Always visible: Grouped by Module and Importance */}
-                <Button
-                  variant={groupByModule ? "default" : "outline"}
-                  size="sm"
-                  onClick={() => setGroupByModule(!groupByModule)}
-                  className="whitespace-nowrap"
-                >
-                  {groupByModule ? "Grouped by Module" : "Flat View"}
-                </Button>
+                <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                  <SelectTrigger className="h-8 w-[120px] text-xs">
+                    <SelectValue placeholder="Priority" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover z-50">
+                    <SelectItem value="all">All Priority</SelectItem>
+                    <SelectItem value="medium-high">Medium+</SelectItem>
+                    <SelectItem value="critical">Critical</SelectItem>
+                    <SelectItem value="high">High</SelectItem>
+                    <SelectItem value="medium">Medium</SelectItem>
+                    <SelectItem value="low">Low</SelectItem>
+                  </SelectContent>
+                </Select>
+
                 <Select value={importanceFilter} onValueChange={(v) => { setImportanceFilter(v); setActiveSmartView(''); }}>
-                  <SelectTrigger className="w-40">
+                  <SelectTrigger className="h-8 w-[120px] text-xs">
                     <SelectValue placeholder="Importance" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover z-50">
                     <SelectItem value="all">All Importance</SelectItem>
                     <SelectItem value="none">None</SelectItem>
-                    <SelectItem value="must">Must have</SelectItem>
-                    <SelectItem value="should">Should have</SelectItem>
-                    <SelectItem value="good-to-have">Good to have</SelectItem>
-                    <SelectItem value="nice-to-have">Nice to have</SelectItem>
+                    <SelectItem value="must">Must</SelectItem>
+                    <SelectItem value="should">Should</SelectItem>
+                    <SelectItem value="good-to-have">Good-to-have</SelectItem>
+                    <SelectItem value="nice-to-have">Nice-to-have</SelectItem>
                   </SelectContent>
                 </Select>
-                
-                {/* Expand/Collapse button */}
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowAllFilters(!showAllFilters)}
-                  className="text-muted-foreground"
-                >
-                  {showAllFilters ? "Less filters" : "More filters"}
-                  <ChevronDown className={`h-4 w-4 ml-1 transition-transform ${showAllFilters ? 'rotate-180' : ''}`} />
-                </Button>
 
-                {/* Expanded filters */}
-                {showAllFilters && (
-                  <>
-                    <Select value={projectFilter} onValueChange={setProjectFilter}>
-                      <SelectTrigger className="w-[200px]">
-                        <div className="flex items-center gap-2">
-                          <FolderKanban className="h-4 w-4" />
-                          <SelectValue placeholder="All Projects" />
-                        </div>
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">
-                          <div className="flex items-center gap-2">
-                            <FolderKanban className="h-4 w-4" />
-                            <span>All Projects</span>
-                          </div>
-                        </SelectItem>
-                        {products.map((product) => (
-                          <SelectItem key={product.id} value={product.id}>
-                            {product.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Status</SelectItem>
-                        <SelectItem value="todo">To Do</SelectItem>
-                        <SelectItem value="in_progress">In Progress</SelectItem>
-                        <SelectItem value="in_review">In Review</SelectItem>
-                        <SelectItem value="done">Done</SelectItem>
-                        <SelectItem value="blocked">Blocked</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                      <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Priority" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="all">All Priority</SelectItem>
-                        <SelectItem value="medium-high">Medium & High</SelectItem>
-                        <SelectItem value="critical">Critical</SelectItem>
-                        <SelectItem value="high">High</SelectItem>
-                        <SelectItem value="medium">Medium</SelectItem>
-                        <SelectItem value="low">Low</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Select value={moduleFilter} onValueChange={setModuleFilter}>
-                      <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Module" />
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover z-50">
-                        <SelectItem value="all">All Modules</SelectItem>
-                        <SelectItem value="none">Uncategorized</SelectItem>
-                        {uniqueModules.map((module) => (
-                          <SelectItem key={module} value={module}>
-                          {module.charAt(0).toUpperCase() + module.slice(1)}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select value={cycleFilter} onValueChange={setCycleFilter}>
-                      <SelectTrigger className="w-40">
-                        <div className="flex items-center gap-2">
-                          <Calendar className="h-4 w-4" />
-                          <SelectValue placeholder="Cycle" />
-                        </div>
-                      </SelectTrigger>
-                      <SelectContent className="bg-popover z-50">
-                        <SelectItem value="all">All Cycles</SelectItem>
-                        <SelectItem value="none">No Cycle</SelectItem>
-                        {cycles.map((cycle) => (
-                          <SelectItem key={cycle.id} value={cycle.id}>
-                            {cycle.name} {cycle.status === 'active' && '(Active)'}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </>
-                )}
+                <Select value={moduleFilter} onValueChange={setModuleFilter}>
+                  <SelectTrigger className="h-8 w-[120px] text-xs">
+                    <SelectValue placeholder="Module" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover z-50">
+                    <SelectItem value="all">All Modules</SelectItem>
+                    <SelectItem value="none">Uncategorized</SelectItem>
+                    {uniqueModules.map((module) => (
+                      <SelectItem key={module} value={module}>
+                        {module.charAt(0).toUpperCase() + module.slice(1)}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={cycleFilter} onValueChange={setCycleFilter}>
+                  <SelectTrigger className="h-8 w-[120px] text-xs">
+                    <SelectValue placeholder="Cycle" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover z-50">
+                    <SelectItem value="all">All Cycles</SelectItem>
+                    <SelectItem value="none">No Cycle</SelectItem>
+                    {cycles.map((cycle) => (
+                      <SelectItem key={cycle.id} value={cycle.id}>
+                        {cycle.name} {cycle.status === 'active' && '•'}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <Select value={projectFilter} onValueChange={setProjectFilter}>
+                  <SelectTrigger className="h-8 w-[130px] text-xs">
+                    <SelectValue placeholder="Project" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover z-50">
+                    <SelectItem value="all">All Projects</SelectItem>
+                    {products.map((product) => (
+                      <SelectItem key={product.id} value={product.id}>
+                        {product.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+
+                <div className="h-4 w-px bg-border mx-1" />
+
+                <Button
+                  variant={groupByModule ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setGroupByModule(!groupByModule)}
+                  className="h-8 text-xs px-2"
+                >
+                  {groupByModule ? "Grouped" : "Flat"}
+                </Button>
               </div>
 
               {/* Task Stats Toggle */}
