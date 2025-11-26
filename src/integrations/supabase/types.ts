@@ -1619,6 +1619,60 @@ export type Database = {
         }
         Relationships: []
       }
+      service_fees: {
+        Row: {
+          amount: number
+          bundle_id: string | null
+          created_at: string
+          currency: string
+          description: string | null
+          fee_type: string
+          id: string
+          product_id: string | null
+          service_charge: number
+          updated_at: string
+        }
+        Insert: {
+          amount?: number
+          bundle_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          fee_type?: string
+          id?: string
+          product_id?: string | null
+          service_charge?: number
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          bundle_id?: string | null
+          created_at?: string
+          currency?: string
+          description?: string | null
+          fee_type?: string
+          id?: string
+          product_id?: string | null
+          service_charge?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_fees_bundle_id_fkey"
+            columns: ["bundle_id"]
+            isOneToOne: false
+            referencedRelation: "service_bundles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "service_fees_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       service_form_configurations: {
         Row: {
           created_at: string
