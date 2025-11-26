@@ -387,7 +387,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 <SelectTrigger className="h-9">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[200]">
                   <SelectItem value="task">Task</SelectItem>
                   <SelectItem value="bug">Bug</SelectItem>
                   <SelectItem value="feature">Feature</SelectItem>
@@ -403,7 +403,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 <SelectTrigger className="h-9">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[200]">
                   <SelectItem value="low">Low</SelectItem>
                   <SelectItem value="medium">Medium</SelectItem>
                   <SelectItem value="high">High</SelectItem>
@@ -419,7 +419,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
               <SelectTrigger className="h-9">
                 <SelectValue placeholder="Select importance" />
               </SelectTrigger>
-              <SelectContent className="bg-popover z-50">
+              <SelectContent className="bg-popover z-[200]">
                 <SelectItem value="none">None</SelectItem>
                 <SelectItem value="must">Must have</SelectItem>
                 <SelectItem value="should">Should have</SelectItem>
@@ -436,7 +436,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 <SelectTrigger className="h-9">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[200]">
                   <SelectItem value="todo">To Do</SelectItem>
                   <SelectItem value="in_progress">In Progress</SelectItem>
                   <SelectItem value="in_review">In Review</SelectItem>
@@ -452,7 +452,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 <SelectTrigger className="h-9">
                   <SelectValue placeholder="Unassigned" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[200]">
                   <SelectItem value="unassigned">Unassigned</SelectItem>
                   {teamMembers.map((member) => (
                     <SelectItem key={member.id} value={member.id}>
@@ -471,7 +471,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 <SelectTrigger className="h-9">
                   <SelectValue placeholder="No product" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[200]">
                   <SelectItem value="none">No product</SelectItem>
                   {products.map((product) => (
                     <SelectItem key={product.id} value={product.id}>
@@ -491,7 +491,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 <SelectTrigger className="h-9">
                   <SelectValue placeholder="No parent - main task" />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[200]">
                   <SelectItem value="none">No parent - main task</SelectItem>
                   {parentTasks.map((task) => (
                     <SelectItem key={task.id} value={task.id}>
@@ -510,7 +510,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
               <SelectTrigger className="h-9">
                 <SelectValue placeholder="No cycle" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[200]">
                 <SelectItem value="none">No cycle</SelectItem>
                 {cycles.map((cycle) => (
                   <SelectItem key={cycle.id} value={cycle.id}>
@@ -528,7 +528,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 <SelectTrigger className="h-9">
                   <SelectValue placeholder="Select..." />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[200]">
                   <SelectItem value="cases">Cases</SelectItem>
                   <SelectItem value="products">Products</SelectItem>
                   <SelectItem value="notifications">Notifications</SelectItem>
@@ -547,7 +547,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                 <SelectTrigger className="h-9">
                   <SelectValue placeholder="Select..." />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[200]">
                   <SelectItem value="frontend">Frontend</SelectItem>
                   <SelectItem value="backend">Backend</SelectItem>
                   <SelectItem value="database">Database</SelectItem>
@@ -563,7 +563,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
               <SelectTrigger className="h-9">
                 <SelectValue placeholder="Select category..." />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[200]">
                 <SelectItem value="development">Development</SelectItem>
                 <SelectItem value="usability_testing">Usability Testing</SelectItem>
                 <SelectItem value="code_review">Code Review</SelectItem>
@@ -635,7 +635,7 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
                     : "Select a branch..."
                 } />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="z-[200]">
                 <SelectItem value="none">No branch</SelectItem>
                 {branches.map((branch) => (
                   <SelectItem key={branch} value={branch}>
