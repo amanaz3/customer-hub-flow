@@ -3,11 +3,11 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/lib/supabase';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts';
-import { TrendingUp, Award, BarChart3, PieChart as PieChartIcon, Grid3x3 } from 'lucide-react';
+import { TrendingUp, Award, BarChart3, PieChart as PieChartIcon, Grid3x3, Brain } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
-
+import ServicesAIInsights from './ServicesAIInsights';
 interface ProductUsage {
   product_name: string;
   product_id: string;
@@ -350,13 +350,25 @@ const ProductUsageAnalytics = () => {
       </div>
 
       <Tabs value={activeView} onValueChange={setActiveView} className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
+          <TabsTrigger value="combo">Combo ⭐</TabsTrigger>
+          <TabsTrigger value="ai" className="flex items-center gap-1">
+            <Brain className="h-3 w-3" />
+            AI Insights
+          </TabsTrigger>
           <TabsTrigger value="donut">Donut</TabsTrigger>
           <TabsTrigger value="bar">Bar Chart</TabsTrigger>
           <TabsTrigger value="cards">Cards</TabsTrigger>
-          <TabsTrigger value="combo">Combo ⭐</TabsTrigger>
           <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
         </TabsList>
+        
+        <TabsContent value="combo" className="mt-6">
+          <ComboView />
+        </TabsContent>
+
+        <TabsContent value="ai" className="mt-6">
+          <ServicesAIInsights productUsage={productUsage} totalApplications={totalApplications} />
+        </TabsContent>
         
         <TabsContent value="donut" className="mt-6">
           <DonutChartView />
@@ -368,10 +380,6 @@ const ProductUsageAnalytics = () => {
         
         <TabsContent value="cards" className="mt-6">
           <CardGridView />
-        </TabsContent>
-        
-        <TabsContent value="combo" className="mt-6">
-          <ComboView />
         </TabsContent>
         
         <TabsContent value="leaderboard" className="mt-6">
