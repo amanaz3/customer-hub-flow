@@ -1082,10 +1082,10 @@ const TaskCollaboration: React.FC = () => {
                         <SelectContent>
                           <SelectItem value="all">All Values</SelectItem>
                           <SelectItem value="none">None</SelectItem>
-                          <SelectItem value="must">Must</SelectItem>
-                          <SelectItem value="should">Should</SelectItem>
-                          <SelectItem value="good-to-have">Good</SelectItem>
-                          <SelectItem value="nice-to-have">Nice</SelectItem>
+                          <SelectItem value="must">Must have</SelectItem>
+                          <SelectItem value="should">Should have</SelectItem>
+                          <SelectItem value="good-to-have">Good to have</SelectItem>
+                          <SelectItem value="nice-to-have">Nice to have</SelectItem>
                         </SelectContent>
                       </Select>
                     </div>
@@ -1430,10 +1430,10 @@ const TaskCollaboration: React.FC = () => {
                   <SelectContent className="bg-popover z-50">
                     <SelectItem value="all">All Importance</SelectItem>
                     <SelectItem value="none">None</SelectItem>
-                    <SelectItem value="must-have">Must Have</SelectItem>
-                    <SelectItem value="should-have">Should Have</SelectItem>
-                    <SelectItem value="good-to-have">Good to Have</SelectItem>
-                    <SelectItem value="nice-to-have">Nice to Have</SelectItem>
+                    <SelectItem value="must">Must have</SelectItem>
+                    <SelectItem value="should">Should have</SelectItem>
+                    <SelectItem value="good-to-have">Good to have</SelectItem>
+                    <SelectItem value="nice-to-have">Nice to have</SelectItem>
                   </SelectContent>
                 </Select>
                 <Select value={moduleFilter} onValueChange={setModuleFilter}>
