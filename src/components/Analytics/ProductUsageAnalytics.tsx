@@ -337,6 +337,8 @@ const ProductUsageAnalytics = () => {
     </Card>
   );
 
+  const [showAIInsights, setShowAIInsights] = useState(false);
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
@@ -344,48 +346,57 @@ const ProductUsageAnalytics = () => {
           <h2 className="text-2xl font-bold">Product Usage Analytics</h2>
           <p className="text-sm text-muted-foreground">Real-time insights into product popularity</p>
         </div>
-        <Badge variant="secondary" className="text-sm">
-          Live • Updates every 30s
-        </Badge>
+        <div className="flex items-center gap-3">
+          <Badge variant="secondary" className="text-sm">
+            Live • Updates every 30s
+          </Badge>
+          <button
+            onClick={() => setShowAIInsights(!showAIInsights)}
+            className={`flex items-center gap-2 px-4 py-2 rounded-lg font-medium transition-all ${
+              showAIInsights 
+                ? 'bg-primary text-primary-foreground shadow-lg' 
+                : 'bg-muted hover:bg-muted/80 text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            <Brain className="h-4 w-4" />
+            AI Insights
+          </button>
+        </div>
       </div>
 
-      <Tabs value={activeView} onValueChange={setActiveView} className="w-full">
-        <TabsList className="grid w-full grid-cols-6">
-          <TabsTrigger value="combo">Combo ⭐</TabsTrigger>
-          <TabsTrigger value="ai" className="flex items-center gap-1">
-            <Brain className="h-3 w-3" />
-            AI Insights
-          </TabsTrigger>
-          <TabsTrigger value="donut">Donut</TabsTrigger>
-          <TabsTrigger value="bar">Bar Chart</TabsTrigger>
-          <TabsTrigger value="cards">Cards</TabsTrigger>
-          <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
-        </TabsList>
-        
-        <TabsContent value="combo" className="mt-6">
-          <ComboView />
-        </TabsContent>
-
-        <TabsContent value="ai" className="mt-6">
-          <ServicesAIInsights productUsage={productUsage} totalApplications={totalApplications} />
-        </TabsContent>
-        
-        <TabsContent value="donut" className="mt-6">
-          <DonutChartView />
-        </TabsContent>
-        
-        <TabsContent value="bar" className="mt-6">
-          <BarChartView />
-        </TabsContent>
-        
-        <TabsContent value="cards" className="mt-6">
-          <CardGridView />
-        </TabsContent>
-        
-        <TabsContent value="leaderboard" className="mt-6">
-          <LeaderboardView />
-        </TabsContent>
-      </Tabs>
+      {showAIInsights ? (
+        <ServicesAIInsights productUsage={productUsage} totalApplications={totalApplications} />
+      ) : (
+        <Tabs value={activeView} onValueChange={setActiveView} className="w-full">
+          <TabsList className="grid w-full grid-cols-5">
+            <TabsTrigger value="combo">Combo ⭐</TabsTrigger>
+            <TabsTrigger value="donut">Donut</TabsTrigger>
+            <TabsTrigger value="bar">Bar Chart</TabsTrigger>
+            <TabsTrigger value="cards">Cards</TabsTrigger>
+            <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="combo" className="mt-6">
+            <ComboView />
+          </TabsContent>
+          
+          <TabsContent value="donut" className="mt-6">
+            <DonutChartView />
+          </TabsContent>
+          
+          <TabsContent value="bar" className="mt-6">
+            <BarChartView />
+          </TabsContent>
+          
+          <TabsContent value="cards" className="mt-6">
+            <CardGridView />
+          </TabsContent>
+          
+          <TabsContent value="leaderboard" className="mt-6">
+            <LeaderboardView />
+          </TabsContent>
+        </Tabs>
+      )}
     </div>
   );
 };
