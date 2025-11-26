@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Shield, Wrench, BookOpen, UserCog, Code, Terminal, Database, FlaskConical } from "lucide-react";
+import { Users, MessageSquare, Shield, Wrench, BookOpen, UserCog, Code, Terminal, Database } from "lucide-react";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -111,16 +111,6 @@ const Manage = () => {
               <div>
                 <p className="font-medium text-sm">DB</p>
                 <p className="text-xs text-muted-foreground">Database viewer and management</p>
-              </div>
-            </div>
-            <div 
-              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
-              onClick={() => navigate('/dev-tools/notifications')}
-            >
-              <FlaskConical className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium text-sm">Test</p>
-                <p className="text-xs text-muted-foreground">Notification testing tools</p>
               </div>
             </div>
           </CardContent>
