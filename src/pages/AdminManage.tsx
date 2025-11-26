@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Settings, Shield, UserCog } from "lucide-react";
+import { Settings, UserCog, Box } from "lucide-react";
 
 export default function AdminManage() {
   const navigate = useNavigate();
@@ -38,6 +38,28 @@ export default function AdminManage() {
           <CardContent>
             <p className="text-sm text-muted-foreground">
               Create, edit, and manage user accounts and their access permissions.
+            </p>
+          </CardContent>
+        </Card>
+
+        <Card 
+          className="hover:shadow-lg transition-shadow cursor-pointer"
+          onClick={() => navigate('/products')}
+        >
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Box className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Product Management</CardTitle>
+                <CardDescription>Manage products and services</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Create and manage products and service offerings.
             </p>
           </CardContent>
         </Card>
