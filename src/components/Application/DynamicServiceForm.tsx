@@ -322,9 +322,30 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
       field.name === 'serviceCharge' ||
       field.label?.toLowerCase().includes('service charge');
     
-    // Hide service charge field if it has auto-populated value from service_fees
+    // Show service charge as read-only display instead of input field
     if (isServiceChargeField && serviceFee) {
-      return null;
+      return (
+        <div key={fieldKey} className="space-y-1.5">
+          <Label className="text-muted-foreground">{field.label}</Label>
+          <div className="flex items-center gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
+            <div className="flex-1">
+              <span className="text-lg font-semibold text-foreground">
+                {serviceFee.fee_type === 'percentage' 
+                  ? `${serviceFee.service_charge}%`
+                  : `${serviceFee.currency} ${serviceFee.service_charge.toLocaleString()}`}
+              </span>
+              <p className="text-xs text-muted-foreground mt-0.5">
+                {serviceFee.fee_type === 'percentage' 
+                  ? 'Service charge rate applied to loan amount'
+                  : 'Fixed service charge'}
+              </p>
+            </div>
+            <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+              Pre-configured
+            </Badge>
+          </div>
+        </div>
+      );
     }
     
     // Notify parent of changes if callback is provided
