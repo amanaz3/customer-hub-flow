@@ -167,7 +167,7 @@ const ApplicationDetail = () => {
     // Application details
     doc.setFontSize(12);
     doc.setFont('helvetica', 'normal');
-    doc.text(`Application: ${formatApplicationReferenceWithPrefix(application.reference_number, maxApplicationRef, application.created_at)}`, 20, yPos);
+    doc.text(`Application: ${formatApplicationReferenceWithPrefix(application.reference_number, maxApplicationRef, application.created_at, productName)}`, 20, yPos);
     yPos += 7;
     doc.text(`Customer: ${application.customer?.name || 'N/A'}`, 20, yPos);
     yPos += 7;
@@ -536,7 +536,7 @@ const ApplicationDetail = () => {
     }
 
     // Save PDF
-    doc.save(`risk-assessment-${formatApplicationReferenceWithPrefix(application.reference_number, maxApplicationRef, application.created_at)}.pdf`);
+    doc.save(`risk-assessment-${formatApplicationReferenceWithPrefix(application.reference_number, maxApplicationRef, application.created_at, productName)}.pdf`);
     
     toast({
       title: 'PDF Generated',
@@ -851,7 +851,7 @@ const ApplicationDetail = () => {
           <div>
             <div className="flex items-center gap-3">
               <h1 className="text-3xl font-bold">
-                {formatApplicationReferenceWithPrefix(application.reference_number, maxApplicationRef, application.created_at)}
+                {formatApplicationReferenceWithPrefix(application.reference_number, maxApplicationRef, application.created_at, productName)}
               </h1>
               <Badge variant="outline" className="font-mono text-sm">
                 {application.application_type.replace('_', ' ').toUpperCase()}
