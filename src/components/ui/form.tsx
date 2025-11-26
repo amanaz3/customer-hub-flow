@@ -9,7 +9,7 @@ import {
   FormProvider,
   useFormContext,
 } from "react-hook-form"
-import { AlertCircle } from "lucide-react"
+import { AlertCircle, ChevronDown } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Label } from "@/components/ui/label"
@@ -142,10 +142,11 @@ const FormDescription = React.forwardRef<
 FormDescription.displayName = "FormDescription"
 
 const FormMessage = React.forwardRef<
-  HTMLParagraphElement,
-  React.HTMLAttributes<HTMLParagraphElement>
+  HTMLDivElement,
+  React.HTMLAttributes<HTMLDivElement>
 >(({ className, children, ...props }, ref) => {
   const { error, formMessageId } = useFormField()
+  const [isExpanded, setIsExpanded] = React.useState(false)
   const body = error ? String(error?.message) : children
 
   if (!body) {
@@ -153,18 +154,40 @@ const FormMessage = React.forwardRef<
   }
 
   return (
-    <p
+    <div
       ref={ref}
       id={formMessageId}
       className={cn(
-        "flex items-center gap-1 text-[11px] text-amber-600 dark:text-amber-400 animate-fade-in",
+        "animate-fade-in",
         className
       )}
       {...props}
     >
-      <AlertCircle className="h-3 w-3 flex-shrink-0" />
-      <span>{body}</span>
-    </p>
+      <button
+        type="button"
+        onClick={() => setIsExpanded(!isExpanded)}
+        className="flex items-center gap-1 text-[11px] text-amber-600 dark:text-amber-400 hover:text-amber-700 dark:hover:text-amber-300 transition-colors cursor-pointer"
+      >
+        <AlertCircle className="h-3 w-3 flex-shrink-0" />
+        <span className="font-medium">Issue</span>
+        <ChevronDown 
+          className={cn(
+            "h-3 w-3 transition-transform duration-200",
+            isExpanded && "rotate-180"
+          )} 
+        />
+      </button>
+      <div
+        className={cn(
+          "overflow-hidden transition-all duration-200 ease-out",
+          isExpanded ? "max-h-20 opacity-100 mt-1" : "max-h-0 opacity-0"
+        )}
+      >
+        <p className="text-[11px] text-muted-foreground pl-4 border-l-2 border-amber-400/50">
+          {body}
+        </p>
+      </div>
+    </div>
   )
 })
 FormMessage.displayName = "FormMessage"
