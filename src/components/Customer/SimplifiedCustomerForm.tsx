@@ -32,6 +32,7 @@ import { BookkeepingFields } from './fields/BookkeepingFields';
 import { VATFields } from './fields/VATFields';
 import { TaxFields } from './fields/TaxFields';
 import DynamicServiceForm from '@/components/Application/DynamicServiceForm';
+import { ValidationErrorAccordion } from './ValidationErrorAccordion';
 
 const formSchema = z.object({
   name: z.string()
@@ -201,6 +202,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [fieldLabelMap, setFieldLabelMap] = useState<Record<string, string>>({});
   const [applicationId, setApplicationId] = useState<string | null>(null);
   const [customerId, setCustomerId] = useState<string | null>(null);
+  const [validationErrors, setValidationErrors] = useState<string[]>([]);
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -906,53 +908,63 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     // For existing customer mode, skip validation ONLY for step 1 (customer info)
     // Step 2 (service selection) and Step 3 (service details) must always be validated
     if (companyMode && selectedCustomerId && currentStep === 1) {
+      setValidationErrors([]);
       return true;
     }
 
     const values = form.getValues();
+    const collectedErrors: string[] = [];
 
     if (currentStep === 1) {
       // Trigger validation for step 1 fields
       const isValid = await form.trigger(['name', 'email', 'mobile', 'customer_type', 'lead_source', 'company']);
       
-      if (!isValid) {
+      const errors = form.formState.errors;
+      
+      // Collect specific error messages
+      if (!values.name || values.name.length < 2) collectedErrors.push('Name must be at least 2 characters');
+      if (errors.name) collectedErrors.push(errors.name.message || 'Invalid name');
+      if (!values.email) collectedErrors.push('Email is required');
+      if (errors.email) collectedErrors.push(errors.email.message || 'Invalid email');
+      if (!values.mobile) collectedErrors.push('Mobile number is required');
+      if (errors.mobile) collectedErrors.push(errors.mobile.message || 'Invalid mobile');
+      if (!values.customer_type) collectedErrors.push('Customer type is required');
+      if (!values.lead_source) collectedErrors.push('Lead source is required');
+      if (values.customer_type === 'company' && !values.company) collectedErrors.push('Company name is required');
+      
+      if (collectedErrors.length > 0) {
+        setValidationErrors(collectedErrors);
         return false;
       }
       
-      const errors = form.formState.errors;
-      const nameValid = values.name && values.name.length >= 2 && !errors.name;
-      const emailValid = values.email && !errors.email;
-      const mobileValid = values.mobile && !errors.mobile;
-      const typeValid = values.customer_type && !errors.customer_type;
-      const sourceValid = values.lead_source && !errors.lead_source;
-      const companyValid = values.customer_type === 'company' ? (values.company && !errors.company) : true;
-      
-      return nameValid && emailValid && mobileValid && typeValid && sourceValid && companyValid;
+      setValidationErrors([]);
+      return isValid;
     }
 
     if (currentStep === 2) {
       // Trigger validation for step 2 fields
       const isValid = await form.trigger(['product_id', 'license_type']);
       
-      if (!isValid) {
+      const errors = form.formState.errors;
+      
+      if (!values.product_id) collectedErrors.push('Please select a service/product');
+      if (errors.product_id) collectedErrors.push(errors.product_id.message || 'Invalid product');
+      if (!values.license_type) collectedErrors.push('Please select a license type');
+      if (errors.license_type) collectedErrors.push(errors.license_type.message || 'Invalid license type');
+      
+      if (collectedErrors.length > 0) {
+        setValidationErrors(collectedErrors);
         return false;
       }
       
-      const errors = form.formState.errors;
-      const productValid = values.product_id && !errors.product_id;
-      const licenseValid = values.license_type && !errors.license_type;
-      
-      return productValid && licenseValid;
+      setValidationErrors([]);
+      return isValid;
     }
 
     if (currentStep === 3) {
       // Validate Step 3 - Dynamic form fields
       if (!values.product_id) {
-        toast({
-          title: "Product Required",
-          description: "Please select a service in Step 2 before proceeding",
-          variant: "destructive",
-        });
+        setValidationErrors(['Please select a service in Step 2 before proceeding']);
         return false;
       }
 
@@ -966,15 +978,12 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
         if (error) {
           console.error('Error fetching form config:', error);
-          toast({
-            title: "Validation Error",
-            description: "Unable to validate form. Please try again or contact support.",
-            variant: "destructive",
-          });
-          return false; // Prevent progression if config can't be fetched
+          setValidationErrors(['Unable to validate form. Please try again.']);
+          return false;
         }
 
         if (!configData || !configData.form_config) {
+          setValidationErrors([]);
           return true; // No configuration means no required fields
         }
 
@@ -996,30 +1005,23 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               
               if (isEmpty) {
                 const fieldLabel = field.label || field.name || field.id || 'Field';
-                missingFields.push(fieldLabel);
+                missingFields.push(`${fieldLabel} is required`);
               }
             }
           });
         });
 
         if (missingFields.length > 0) {
-          toast({
-            title: "Required Fields Missing",
-            description: `Please fill in: ${missingFields.join(', ')}`,
-            variant: "destructive",
-          });
+          setValidationErrors(missingFields);
           return false;
         }
 
+        setValidationErrors([]);
         return true;
       } catch (error) {
         console.error('Error validating step 3:', error);
-        toast({
-          title: "Validation Error",
-          description: "An error occurred during validation. Please try again.",
-          variant: "destructive",
-        });
-        return false; // Prevent progression if validation encounters an error
+        setValidationErrors(['An error occurred during validation. Please try again.']);
+        return false;
       }
     }
 
@@ -1858,6 +1860,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           </Button>
         )}
       </div>
+
+      {/* Validation Error Accordion - Auto-dismissing */}
+      <ValidationErrorAccordion 
+        errors={validationErrors}
+        autoDismissDelay={5000}
+        onDismiss={() => setValidationErrors([])}
+      />
 
     </div>
   );
