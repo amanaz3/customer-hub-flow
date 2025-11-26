@@ -168,7 +168,7 @@ const CustomerNew = () => {
                 className={`flex-1 relative h-12 transition-all duration-200 group ${
                   activeTab === 'new' 
                     ? 'bg-card shadow-sm' 
-                    : 'bg-muted/60 hover:bg-muted/70 hover:-translate-y-0.5 cursor-pointer'
+                    : 'bg-muted/60 hover:bg-muted/70 animate-pulse cursor-pointer'
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
@@ -192,7 +192,7 @@ const CustomerNew = () => {
                 className={`flex-1 relative h-12 transition-all duration-200 group ${
                   activeTab === 'existing' 
                     ? 'bg-card shadow-sm' 
-                    : 'bg-muted/60 hover:bg-muted/70 hover:-translate-y-0.5 cursor-pointer'
+                    : 'bg-muted/60 hover:bg-muted/70 animate-pulse cursor-pointer'
                 }`}
               >
                 <div className="flex items-center justify-center gap-2">
