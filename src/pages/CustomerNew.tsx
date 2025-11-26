@@ -160,28 +160,36 @@ const CustomerNew = () => {
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <div className="w-full max-w-4xl mx-auto">
             
-            {/* Pill/Segmented Control Header */}
-            <div className="flex justify-center mb-4">
-              <TabsList className="inline-flex h-10 p-1 bg-muted rounded-full">
-                <TabsTrigger 
-                  value="new" 
-                  className="inline-flex items-center gap-2 px-5 h-8 rounded-full text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground"
-                >
-                  <UserPlus className="h-4 w-4" />
-                  New Customer
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="existing" 
-                  className="inline-flex items-center gap-2 px-5 h-8 rounded-full text-sm font-medium transition-all data-[state=active]:bg-background data-[state=active]:text-foreground data-[state=active]:shadow-sm data-[state=inactive]:text-muted-foreground"
-                >
-                  <Users className="h-4 w-4" />
-                  Existing Customer
-                </TabsTrigger>
-              </TabsList>
-            </div>
+            {/* Connected Tab Cards */}
+            <TabsList className="w-full h-auto p-0 bg-transparent flex gap-0">
+              <TabsTrigger 
+                value="new" 
+                className={`flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium border border-border rounded-t-lg transition-all
+                  ${activeTab === 'new' 
+                    ? 'bg-card text-foreground border-b-card z-10 -mb-px' 
+                    : 'bg-muted/50 text-muted-foreground border-b-border hover:bg-muted'
+                  }
+                `}
+              >
+                <UserPlus className="h-4 w-4" />
+                New Customer
+              </TabsTrigger>
+              <TabsTrigger 
+                value="existing" 
+                className={`flex-1 inline-flex items-center justify-center gap-2 px-6 py-3 text-sm font-medium border border-border rounded-t-lg transition-all
+                  ${activeTab === 'existing' 
+                    ? 'bg-card text-foreground border-b-card z-10 -mb-px' 
+                    : 'bg-muted/50 text-muted-foreground border-b-border hover:bg-muted'
+                  }
+                `}
+              >
+                <Users className="h-4 w-4" />
+                Existing Customer
+              </TabsTrigger>
+            </TabsList>
 
-            {/* Content Panel */}
-            <div className="bg-card border border-border rounded-lg">
+            {/* Content Panel - Seamlessly connected */}
+            <div className="bg-card border border-border border-t-0 rounded-b-lg">
               <TabsContent value="new" className="mt-0 p-6 sm:p-8">
                 <SimplifiedCustomerForm
                   onSuccess={handleSuccess}
