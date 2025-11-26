@@ -1059,7 +1059,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         value={step1AccordionOpen}
         onValueChange={setStep1AccordionOpen}
       >
-        <AccordionItem value="customer-info" className="border rounded-lg bg-card shadow-sm">
+        <AccordionItem value="customer-info" className="border bg-card shadow-sm rounded-none">
           <AccordionTrigger className="px-4 py-3 hover:no-underline">
             {step1AccordionOpen !== 'customer-info' && (
               <div className="flex items-center gap-2">
@@ -1172,7 +1172,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     type="single" 
                     collapsible 
                     className={cn(
-                      "bg-card/70 backdrop-blur-sm rounded-xl border border-border/60 shadow-sm transition-all duration-300 mx-auto",
+                      "bg-card/70 backdrop-blur-sm rounded-none border border-border/60 shadow-sm transition-all duration-300 mx-auto",
                       accordionOpen === 'customer-info' ? "w-full max-w-md" : "w-1/2 max-w-[200px]"
                     )}
                     value={accordionOpen}
