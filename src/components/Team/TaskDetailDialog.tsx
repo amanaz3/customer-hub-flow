@@ -184,6 +184,26 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
     }
   };
 
+  // Recursively get all child task IDs for a given parent
+  const getAllChildTaskIds = async (parentId: string): Promise<string[]> => {
+    const { data: children } = await supabase
+      .from('tasks')
+      .select('id')
+      .eq('parent_id', parentId);
+    
+    if (!children || children.length === 0) return [];
+    
+    const childIds = children.map(c => c.id);
+    const grandchildIds: string[] = [];
+    
+    for (const childId of childIds) {
+      const descendants = await getAllChildTaskIds(childId);
+      grandchildIds.push(...descendants);
+    }
+    
+    return [...childIds, ...grandchildIds];
+  };
+
   const handleUpdate = async (updates: Partial<Task>) => {
     if (!taskId || !task) return;
 
@@ -198,6 +218,27 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
         .eq('id', taskId);
 
       if (error) throw error;
+
+      // If status is being updated, cascade to all child tasks
+      if (updates.status) {
+        const childIds = await getAllChildTaskIds(taskId);
+        if (childIds.length > 0) {
+          const { error: childError } = await supabase
+            .from('tasks')
+            .update({ status: updates.status } as any)
+            .in('id', childIds);
+          
+          if (childError) {
+            console.error('Error updating child tasks:', childError);
+          } else {
+            toast.success(`Status updated for task and ${childIds.length} subtask(s)`);
+            setHasUnsavedChanges(false);
+            setLastSaved(new Date());
+            onTaskUpdated();
+            return;
+          }
+        }
+      }
 
       toast.success('Task saved');
       setHasUnsavedChanges(false);
