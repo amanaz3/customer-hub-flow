@@ -184,7 +184,7 @@ const TaskCollaboration: React.FC = () => {
   const [productTaskStatusFilter, setProductTaskStatusFilter] = useState<string>('all');
   const [productTaskPriorityFilter, setProductTaskPriorityFilter] = useState<string>('all');
   const [taskAttachments, setTaskAttachments] = useState<Record<string, TaskAttachment[]>>({});
-
+  const [aiAssigningTaskId, setAIAssigningTaskId] = useState<string | null>(null);
   useEffect(() => {
     fetchTeamData();
     
@@ -440,7 +440,29 @@ const TaskCollaboration: React.FC = () => {
     }
   };
 
-  // Real-time updates for tasks
+  // AI-based importance assignment for subtasks
+  const handleAIAssignImportance = async (parentTaskId: string) => {
+    setAIAssigningTaskId(parentTaskId);
+    try {
+      const { data, error } = await supabase.functions.invoke('assign-task-importance', {
+        body: { parentTaskId }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast.success(`AI assigned importance to ${data.updated} tasks`);
+        await fetchTasks();
+      } else {
+        throw new Error(data?.error || 'Unknown error');
+      }
+    } catch (e) {
+      console.error('Error in AI importance assignment:', e);
+      toast.error('Failed to assign importance via AI');
+    } finally {
+      setAIAssigningTaskId(null);
+    }
+  };
   useRealtimeSubscription({
     table: 'tasks',
     onUpdate: fetchTasks,
@@ -1338,6 +1360,8 @@ const TaskCollaboration: React.FC = () => {
                               onRemoveFromProduct={removeTaskFromProduct}
                               onDelete={deleteTask}
                               onImportanceChange={handleImportanceChange}
+                              onAIAssignImportance={handleAIAssignImportance}
+                              isAssigningImportance={aiAssigningTaskId === task.id}
                               onAddSubtask={(parentId) => {
                                 setParentTaskIdForNewTask(parentId);
                                 setSelectedProductId(selectedProduct.id);
@@ -1770,6 +1794,8 @@ const TaskCollaboration: React.FC = () => {
                               setCreateTaskOpen(true);
                             }}
                             onImportanceChange={handleImportanceChange}
+                            onAIAssignImportance={handleAIAssignImportance}
+                            isAssigningImportance={aiAssigningTaskId === task.id}
                           />
                         ))}
                       </div>
@@ -1795,6 +1821,8 @@ const TaskCollaboration: React.FC = () => {
                         setCreateTaskOpen(true);
                       }}
                       onImportanceChange={handleImportanceChange}
+                      onAIAssignImportance={handleAIAssignImportance}
+                      isAssigningImportance={aiAssigningTaskId === task.id}
                     />
                   ))
                 )}
