@@ -23,7 +23,7 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, FolderKanban, Flag, Clock, ArrowRight, ChevronRight, ChevronDown } from 'lucide-react';
+import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, FolderKanban, Flag, Clock, ArrowRight, ChevronRight, ChevronDown, Flame, Inbox, Calendar, LayoutGrid } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CreateTaskDialog } from '@/components/Team/CreateTaskDialog';
@@ -152,6 +152,7 @@ const TaskCollaboration: React.FC = () => {
   const [moduleFilter, setModuleFilter] = useState<string>('all');
   const [groupByModule, setGroupByModule] = useState<boolean>(true);
   const [showAllFilters, setShowAllFilters] = useState(false);
+  const [activeSmartView, setActiveSmartView] = useState<string>('module'); // 'blockers' | 'module' | 'triage' | 'all'
   const [showTaskStats, setShowTaskStats] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
   const [quickAddBugOpen, setQuickAddBugOpen] = useState(false);
@@ -1375,6 +1376,82 @@ const TaskCollaboration: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
+              {/* Smart View Buttons */}
+              <div className="flex flex-wrap gap-2 mb-4 pb-4 border-b">
+                <span className="text-sm text-muted-foreground mr-2 self-center">Quick Views:</span>
+                <Button
+                  variant={activeSmartView === 'blockers' ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    setActiveSmartView('blockers');
+                    setImportanceFilter('must');
+                    setStatusFilter('all');
+                    setModuleFilter('all');
+                    setGroupByModule(false);
+                  }}
+                  className="gap-1.5"
+                >
+                  <Flame className="h-3.5 w-3.5 text-orange-500" />
+                  Blockers
+                  <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                    {tasks.filter(t => t.importance === 'must' && t.status !== 'done').length}
+                  </Badge>
+                </Button>
+                <Button
+                  variant={activeSmartView === 'module' ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    setActiveSmartView('module');
+                    setImportanceFilter('all');
+                    setStatusFilter('todo');
+                    setModuleFilter('all');
+                    setGroupByModule(true);
+                  }}
+                  className="gap-1.5"
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                  By Module
+                </Button>
+                <Button
+                  variant={activeSmartView === 'triage' ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    setActiveSmartView('triage');
+                    setImportanceFilter('none');
+                    setStatusFilter('all');
+                    setModuleFilter('all');
+                    setGroupByModule(false);
+                  }}
+                  className="gap-1.5"
+                >
+                  <Inbox className="h-3.5 w-3.5 text-yellow-500" />
+                  Triage
+                  <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                    {tasks.filter(t => !t.importance || !t.module).length}
+                  </Badge>
+                </Button>
+                <Button
+                  variant={activeSmartView === 'all' ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    setActiveSmartView('all');
+                    setImportanceFilter('all');
+                    setStatusFilter('all');
+                    setModuleFilter('all');
+                    setPriorityFilter('all');
+                    setProjectFilter('all');
+                    setGroupByModule(false);
+                  }}
+                  className="gap-1.5"
+                >
+                  <ListTodo className="h-3.5 w-3.5" />
+                  All Tasks
+                  <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+                    {tasks.length}
+                  </Badge>
+                </Button>
+              </div>
+
               {/* Filters */}
               <div className="flex flex-wrap gap-3 mb-6 items-center">
                 {/* Always visible: Grouped by Module and Importance */}
@@ -1386,7 +1463,7 @@ const TaskCollaboration: React.FC = () => {
                 >
                   {groupByModule ? "Grouped by Module" : "Flat View"}
                 </Button>
-                <Select value={importanceFilter} onValueChange={setImportanceFilter}>
+                <Select value={importanceFilter} onValueChange={(v) => { setImportanceFilter(v); setActiveSmartView(''); }}>
                   <SelectTrigger className="w-40">
                     <SelectValue placeholder="Importance" />
                   </SelectTrigger>
