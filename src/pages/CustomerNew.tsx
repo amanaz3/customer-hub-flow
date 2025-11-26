@@ -154,96 +154,86 @@ const CustomerNew = () => {
   };
 
   return (
-    <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-12 bg-white">
+    <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-8 bg-muted/30">
       <div className="w-full max-w-[95%] lg:max-w-[90%] xl:max-w-[85%] 2xl:max-w-[80%] px-4 sm:px-6">
-        {/* Outer Card Container */}
-        <div id="customer-form-container" className="w-full bg-white shadow-2xl border-2 border-gradient-to-br from-primary/20 via-secondary/20 to-accent/20 p-6 sm:p-8 lg:p-10 animate-fade-in relative overflow-hidden rounded-none">
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-br from-primary/5 via-transparent to-secondary/5 pointer-events-none" />
+        {/* Primary Tabs Navigation */}
+        <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
+          {/* Tab Header */}
+          <div className="text-center mb-6">
+            <h2 className="text-2xl font-bold text-foreground">
+              New Application
+            </h2>
+            <p className="text-sm text-muted-foreground mt-1">
+              Choose whether to create a new customer or select an existing one
+            </p>
+          </div>
           
-          <div className="relative z-10 w-full">
-            {/* Primary Tabs Navigation */}
-            <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-              {/* Tab Header */}
-              <div className="text-center mb-4">
-                <h2 className="text-xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-secondary to-accent">
-                  New Application
-                </h2>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Choose whether to create a new customer or select an existing one
-                </p>
-              </div>
-              
-              {/* Tab List */}
-              <TabsList className="grid w-full max-w-md mx-auto grid-cols-2 h-auto bg-muted/50 border border-border p-1 rounded-none mb-6">
-                <TabsTrigger 
-                  value="new" 
-                  className="flex items-center justify-center gap-2 py-3 px-4 h-12 rounded-none transition-colors duration-200 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted"
-                >
-                  <UserPlus className="h-4 w-4 shrink-0" />
-                  <span className="font-semibold text-sm whitespace-nowrap">New Customer</span>
-                </TabsTrigger>
-                <TabsTrigger 
-                  value="existing" 
-                  className="flex items-center justify-center gap-2 py-3 px-4 h-12 rounded-none transition-colors duration-200 data-[state=active]:bg-primary data-[state=active]:text-primary-foreground data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted"
-                >
-                  <Users className="h-4 w-4 shrink-0" />
-                  <span className="font-semibold text-sm whitespace-nowrap">Existing Customer</span>
-                </TabsTrigger>
-              </TabsList>
+          {/* Tabbed Interface Container */}
+          <div className="w-full max-w-4xl mx-auto">
+            {/* Tab List - Styled as proper tabs */}
+            <TabsList className="w-full h-auto p-0 bg-transparent border-b border-border rounded-none flex">
+              <TabsTrigger 
+                value="new" 
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-none border-b-2 border-transparent bg-transparent data-[state=active]:border-primary data-[state=active]:bg-card data-[state=active]:shadow-sm data-[state=active]:border-x data-[state=active]:border-t data-[state=active]:border-b-card data-[state=active]:-mb-px data-[state=active]:rounded-t-lg data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted/50 transition-all duration-200"
+              >
+                <UserPlus className="h-4 w-4 shrink-0" />
+                <span className="font-semibold text-sm whitespace-nowrap">New Customer</span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="existing" 
+                className="flex-1 flex items-center justify-center gap-2 py-3 px-6 rounded-none border-b-2 border-transparent bg-transparent data-[state=active]:border-primary data-[state=active]:bg-card data-[state=active]:shadow-sm data-[state=active]:border-x data-[state=active]:border-t data-[state=active]:border-b-card data-[state=active]:-mb-px data-[state=active]:rounded-t-lg data-[state=inactive]:text-muted-foreground data-[state=inactive]:hover:text-foreground data-[state=inactive]:hover:bg-muted/50 transition-all duration-200"
+              >
+                <Users className="h-4 w-4 shrink-0" />
+                <span className="font-semibold text-sm whitespace-nowrap">Existing Customer</span>
+              </TabsTrigger>
+            </TabsList>
 
+            {/* Tab Content Panel - Connected to tabs */}
+            <div className="bg-card border border-t-0 border-border shadow-lg rounded-b-lg">
               {/* New Customer Tab Content */}
-              <TabsContent value="new" className="mt-0">
-                <div className="w-full flex justify-center">
-                  <div className="w-full max-w-4xl">
-                    <SimplifiedCustomerForm
-                      onSuccess={handleSuccess}
-                      onProductChange={setSelectedProduct}
-                      onStepChange={setCurrentStep}
-                      onEmailChange={setCustomerEmail}
-                      onNameChange={setCustomerName}
-                      onMobileChange={setCustomerMobile}
-                      onCompanyChange={setCustomerCompany}
-                      companyMode={false}
-                      selectedCustomerId={null}
-                      onModeChange={() => {}} // No-op since tabs control mode
-                      onCustomerSelect={() => {}}
-                      onCustomerIdChange={setInternalCustomerId}
-                      onCancel={() => navigate('/customers')}
-                      onDocumentsChange={setServiceDocuments}
-                      hideCustomerTypeSelector={true}
-                    />
-                  </div>
-                </div>
+              <TabsContent value="new" className="mt-0 p-6 sm:p-8">
+                <SimplifiedCustomerForm
+                  onSuccess={handleSuccess}
+                  onProductChange={setSelectedProduct}
+                  onStepChange={setCurrentStep}
+                  onEmailChange={setCustomerEmail}
+                  onNameChange={setCustomerName}
+                  onMobileChange={setCustomerMobile}
+                  onCompanyChange={setCustomerCompany}
+                  companyMode={false}
+                  selectedCustomerId={null}
+                  onModeChange={() => {}}
+                  onCustomerSelect={() => {}}
+                  onCustomerIdChange={setInternalCustomerId}
+                  onCancel={() => navigate('/customers')}
+                  onDocumentsChange={setServiceDocuments}
+                  hideCustomerTypeSelector={true}
+                />
               </TabsContent>
 
               {/* Existing Customer Tab Content */}
-              <TabsContent value="existing" className="mt-0">
-                <div className="w-full flex justify-center">
-                  <div className="w-full max-w-4xl">
-                    <SimplifiedCustomerForm
-                      onSuccess={handleSuccess}
-                      onProductChange={setSelectedProduct}
-                      onStepChange={setCurrentStep}
-                      onEmailChange={setCustomerEmail}
-                      onNameChange={setCustomerName}
-                      onMobileChange={setCustomerMobile}
-                      onCompanyChange={setCustomerCompany}
-                      companyMode={true}
-                      selectedCustomerId={selectedCustomerId}
-                      onModeChange={() => {}} // No-op since tabs control mode
-                      onCustomerSelect={setSelectedCustomerId}
-                      onCustomerIdChange={setInternalCustomerId}
-                      onCancel={() => navigate('/customers')}
-                      onDocumentsChange={setServiceDocuments}
-                      hideCustomerTypeSelector={true}
-                    />
-                  </div>
-                </div>
+              <TabsContent value="existing" className="mt-0 p-6 sm:p-8">
+                <SimplifiedCustomerForm
+                  onSuccess={handleSuccess}
+                  onProductChange={setSelectedProduct}
+                  onStepChange={setCurrentStep}
+                  onEmailChange={setCustomerEmail}
+                  onNameChange={setCustomerName}
+                  onMobileChange={setCustomerMobile}
+                  onCompanyChange={setCustomerCompany}
+                  companyMode={true}
+                  selectedCustomerId={selectedCustomerId}
+                  onModeChange={() => {}}
+                  onCustomerSelect={setSelectedCustomerId}
+                  onCustomerIdChange={setInternalCustomerId}
+                  onCancel={() => navigate('/customers')}
+                  onDocumentsChange={setServiceDocuments}
+                  hideCustomerTypeSelector={true}
+                />
               </TabsContent>
-            </Tabs>
+            </div>
           </div>
-        </div>
+        </Tabs>
       
         {/* Sticky Sidebar - Show from step 2 onwards when product is selected */}
         {(
