@@ -1411,8 +1411,92 @@ const TaskCollaboration: React.FC = () => {
             <CardContent>
               {/* Compact Filter Bar */}
               <div className="flex flex-wrap items-center gap-2 mb-4 pb-4 border-b">
+                {/* Quick View Pills */}
+                <Button
+                  variant={activeSmartView === 'blockers' ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => {
+                    setActiveSmartView('blockers');
+                    setImportanceFilter('must');
+                    setStatusFilter('all');
+                    setModuleFilter('all');
+                    setGroupByModule(false);
+                  }}
+                  className="h-7 text-xs px-2 gap-1"
+                >
+                  <Flame className="h-3 w-3 text-orange-500" />
+                  Blockers
+                </Button>
+                <Button
+                  variant={activeSmartView === 'module' ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => {
+                    setActiveSmartView('module');
+                    setImportanceFilter('all');
+                    setStatusFilter('todo');
+                    setModuleFilter('all');
+                    setGroupByModule(true);
+                  }}
+                  className="h-7 text-xs px-2 gap-1"
+                >
+                  <LayoutGrid className="h-3 w-3" />
+                  By Module
+                </Button>
+                <Button
+                  variant={activeSmartView === 'triage' ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => {
+                    setActiveSmartView('triage');
+                    setImportanceFilter('none');
+                    setStatusFilter('all');
+                    setModuleFilter('all');
+                    setGroupByModule(false);
+                  }}
+                  className="h-7 text-xs px-2 gap-1"
+                >
+                  <Inbox className="h-3 w-3 text-yellow-500" />
+                  Triage
+                </Button>
+                <Button
+                  variant={activeSmartView === 'cycle' ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => {
+                    setActiveSmartView('cycle');
+                    setImportanceFilter('all');
+                    setStatusFilter('todo');
+                    setModuleFilter('all');
+                    setGroupByModule(false);
+                    const activeCycle = cycles.find(c => c.status === 'active');
+                    setCycleFilter(activeCycle?.id || (cycles[0]?.id || 'all'));
+                  }}
+                  className="h-7 text-xs px-2 gap-1"
+                >
+                  <Calendar className="h-3 w-3 text-blue-500" />
+                  By Cycle
+                </Button>
+                <Button
+                  variant={activeSmartView === 'all' ? "default" : "ghost"}
+                  size="sm"
+                  onClick={() => {
+                    setActiveSmartView('all');
+                    setImportanceFilter('all');
+                    setStatusFilter('all');
+                    setModuleFilter('all');
+                    setPriorityFilter('all');
+                    setProjectFilter('all');
+                    setCycleFilter('all');
+                    setGroupByModule(false);
+                  }}
+                  className="h-7 text-xs px-2"
+                >
+                  All
+                </Button>
+
+                <div className="h-4 w-px bg-border mx-1" />
+
+                {/* Filter Dropdowns */}
                 <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="h-8 w-[110px] text-xs">
+                  <SelectTrigger className="h-8 w-[100px] text-xs">
                     <SelectValue placeholder="Status" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover z-50">
@@ -1426,7 +1510,7 @@ const TaskCollaboration: React.FC = () => {
                 </Select>
 
                 <Select value={priorityFilter} onValueChange={setPriorityFilter}>
-                  <SelectTrigger className="h-8 w-[120px] text-xs">
+                  <SelectTrigger className="h-8 w-[100px] text-xs">
                     <SelectValue placeholder="Priority" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover z-50">
@@ -1440,7 +1524,7 @@ const TaskCollaboration: React.FC = () => {
                 </Select>
 
                 <Select value={importanceFilter} onValueChange={(v) => { setImportanceFilter(v); setActiveSmartView(''); }}>
-                  <SelectTrigger className="h-8 w-[120px] text-xs">
+                  <SelectTrigger className="h-8 w-[110px] text-xs">
                     <SelectValue placeholder="Importance" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover z-50">
@@ -1454,7 +1538,7 @@ const TaskCollaboration: React.FC = () => {
                 </Select>
 
                 <Select value={moduleFilter} onValueChange={setModuleFilter}>
-                  <SelectTrigger className="h-8 w-[120px] text-xs">
+                  <SelectTrigger className="h-8 w-[110px] text-xs">
                     <SelectValue placeholder="Module" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover z-50">
@@ -1469,7 +1553,7 @@ const TaskCollaboration: React.FC = () => {
                 </Select>
 
                 <Select value={cycleFilter} onValueChange={setCycleFilter}>
-                  <SelectTrigger className="h-8 w-[120px] text-xs">
+                  <SelectTrigger className="h-8 w-[110px] text-xs">
                     <SelectValue placeholder="Cycle" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover z-50">
@@ -1484,7 +1568,7 @@ const TaskCollaboration: React.FC = () => {
                 </Select>
 
                 <Select value={projectFilter} onValueChange={setProjectFilter}>
-                  <SelectTrigger className="h-8 w-[130px] text-xs">
+                  <SelectTrigger className="h-8 w-[110px] text-xs">
                     <SelectValue placeholder="Project" />
                   </SelectTrigger>
                   <SelectContent className="bg-popover z-50">
