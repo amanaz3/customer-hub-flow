@@ -414,12 +414,12 @@ export const CreateTaskDialog: React.FC<CreateTaskDialogProps> = ({
           </div>
 
           <div className="space-y-1">
-            <Label className="text-sm">Classification</Label>
+            <Label className="text-sm">Importance</Label>
             <Select value={formData.importance || 'none'} onValueChange={(v) => setFormData({ ...formData, importance: v === 'none' ? '' : v })}>
               <SelectTrigger className="h-9">
-                <SelectValue placeholder="Select classification" />
+                <SelectValue placeholder="Select importance" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-popover z-50">
                 <SelectItem value="none">None</SelectItem>
                 <SelectItem value="must">Must</SelectItem>
                 <SelectItem value="should">Should</SelectItem>
