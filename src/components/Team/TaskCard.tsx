@@ -222,6 +222,16 @@ const SubtaskCard: React.FC<{
               {getPriorityIcon(subtask.priority)}
               <span className="ml-1 capitalize">{subtask.priority}</span>
             </Badge>
+            {subtask.importance && (
+              <Badge className={cn('text-xs border', getImportanceColor(subtask.importance))}>
+                {getImportanceLabel(subtask.importance)}
+              </Badge>
+            )}
+            {!subtask.importance && (
+              <Badge variant="outline" className="text-xs border-dashed text-muted-foreground">
+                No importance
+              </Badge>
+            )}
             {subtask.assignee_name && (
               <span className="text-xs text-muted-foreground truncate">
                 → {subtask.assignee_name}
