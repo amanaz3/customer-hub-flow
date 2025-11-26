@@ -5,7 +5,7 @@ import { useToast } from '@/hooks/use-toast';
 import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
 import { CustomerEventsSidebar } from '@/components/Customer/CustomerEventsSidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { UserPlus, Users, ChevronRight } from 'lucide-react';
+import { UserPlus, Users } from 'lucide-react';
 
 const CustomerNew = () => {
   const { refreshData } = useCustomer();
@@ -156,88 +156,47 @@ const CustomerNew = () => {
   return (
     <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-8 bg-muted/30">
       <div className="w-full max-w-[95%] lg:max-w-[90%] xl:max-w-[85%] 2xl:max-w-[80%] px-4 sm:px-6">
-        {/* Primary Tabs Navigation */}
+        {/* Seamless Tabbed Interface */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
-          {/* Tabbed Interface Container */}
           <div className="w-full max-w-4xl mx-auto">
             
-            {/* Compact Flow Indicator */}
-            <div className="flex items-center justify-center gap-1.5 mb-3">
-              <div className="flex items-center gap-1.5">
-                <div className="flex items-center justify-center w-5 h-5 rounded-full bg-primary text-primary-foreground text-[10px] font-bold">1</div>
-                <span className="text-xs font-medium text-foreground">Select Type</span>
-              </div>
-              <ChevronRight className="h-3 w-3 text-muted-foreground" />
-              <div className="flex items-center gap-1.5">
-                <div className="flex items-center justify-center w-5 h-5 rounded-full bg-muted text-muted-foreground text-[10px] font-bold">2</div>
-                <span className="text-xs text-muted-foreground">Complete</span>
-              </div>
-            </div>
-
-            {/* Compact Card-based Radio Selection */}
-            <div className="bg-card border border-border rounded-t-lg p-3">
-              <TabsList className="w-full h-auto p-0 bg-transparent grid grid-cols-2 gap-3">
-                <TabsTrigger 
-                  value="new" 
-                  className="relative h-auto p-0 bg-transparent border-0 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-md group"
-                >
-                  <div className={`
-                    w-full p-3 rounded-md border-2 transition-all duration-200 cursor-pointer relative
-                    ${activeTab === 'new' 
-                      ? 'border-primary bg-primary/5' 
-                      : 'border-border bg-card hover:border-primary/50 hover:bg-muted/50'
-                    }
-                  `}>
-                    {activeTab === 'new' && (
-                      <div className="absolute -top-2 right-2 px-1.5 py-0.5 bg-primary text-primary-foreground text-[9px] font-semibold rounded">
-                        ✓
-                      </div>
-                    )}
-                    <div className="flex items-center gap-2">
-                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${activeTab === 'new' ? 'border-primary' : 'border-muted-foreground/40'}`}>
-                        {activeTab === 'new' && <div className="w-2 h-2 rounded-full bg-primary" />}
-                      </div>
-                      <UserPlus className={`h-3.5 w-3.5 ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground'}`} />
-                      <span className={`font-medium text-xs ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground'}`}>
+            {/* Underline Tabs Header */}
+            <div className="bg-card border border-border border-b-0 rounded-t-lg">
+              <TabsList className="w-full h-auto p-0 bg-transparent rounded-none">
+                <div className="flex w-full">
+                  <TabsTrigger 
+                    value="new" 
+                    className="flex-1 relative h-12 rounded-none border-0 bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <UserPlus className={`h-4 w-4 ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground'}`} />
+                      <span className={`font-medium text-sm ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground'}`}>
                         New Customer
                       </span>
                     </div>
-                  </div>
-                </TabsTrigger>
-                
-                <TabsTrigger 
-                  value="existing" 
-                  className="relative h-auto p-0 bg-transparent border-0 shadow-none data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-md group"
-                >
-                  <div className={`
-                    w-full p-3 rounded-md border-2 transition-all duration-200 cursor-pointer relative
-                    ${activeTab === 'existing' 
-                      ? 'border-primary bg-primary/5' 
-                      : 'border-border bg-card hover:border-primary/50 hover:bg-muted/50'
-                    }
-                  `}>
-                    {activeTab === 'existing' && (
-                      <div className="absolute -top-2 right-2 px-1.5 py-0.5 bg-primary text-primary-foreground text-[9px] font-semibold rounded">
-                        ✓
-                      </div>
-                    )}
-                    <div className="flex items-center gap-2">
-                      <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center shrink-0 ${activeTab === 'existing' ? 'border-primary' : 'border-muted-foreground/40'}`}>
-                        {activeTab === 'existing' && <div className="w-2 h-2 rounded-full bg-primary" />}
-                      </div>
-                      <Users className={`h-3.5 w-3.5 ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground'}`} />
-                      <span className={`font-medium text-xs ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    {/* Active underline indicator */}
+                    <div className={`absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-200 ${activeTab === 'new' ? 'bg-primary' : 'bg-transparent'}`} />
+                  </TabsTrigger>
+                  
+                  <TabsTrigger 
+                    value="existing" 
+                    className="flex-1 relative h-12 rounded-none border-0 bg-transparent data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                  >
+                    <div className="flex items-center justify-center gap-2">
+                      <Users className={`h-4 w-4 ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground'}`} />
+                      <span className={`font-medium text-sm ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground'}`}>
                         Existing Customer
                       </span>
                     </div>
-                  </div>
-                </TabsTrigger>
+                    {/* Active underline indicator */}
+                    <div className={`absolute bottom-0 left-0 right-0 h-0.5 transition-all duration-200 ${activeTab === 'existing' ? 'bg-primary' : 'bg-transparent'}`} />
+                  </TabsTrigger>
+                </div>
               </TabsList>
             </div>
 
-            {/* Tab Content Panel */}
-            <div className="bg-card border border-t-0 border-border rounded-b-lg">
-              {/* New Customer Tab Content */}
+            {/* Seamless Content Panel */}
+            <div className="bg-card border border-border border-t-0 rounded-b-lg">
               <TabsContent value="new" className="mt-0 p-6 sm:p-8">
                 <SimplifiedCustomerForm
                   onSuccess={handleSuccess}
@@ -258,7 +217,6 @@ const CustomerNew = () => {
                 />
               </TabsContent>
 
-              {/* Existing Customer Tab Content */}
               <TabsContent value="existing" className="mt-0 p-6 sm:p-8">
                 <SimplifiedCustomerForm
                   onSuccess={handleSuccess}
