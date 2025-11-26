@@ -163,6 +163,7 @@ const TaskCollaboration: React.FC = () => {
   const [moduleFilter, setModuleFilter] = useState<string>('all');
   const [cycleFilter, setCycleFilter] = useState<string>('all');
   const [groupByModule, setGroupByModule] = useState<boolean>(true);
+  const [showAllFilters, setShowAllFilters] = useState(false);
   const [activeSmartView, setActiveSmartView] = useState<string>('module'); // 'blockers' | 'module' | 'triage' | 'cycle' | 'all'
   const [showTaskStats, setShowTaskStats] = useState(false);
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
@@ -1409,7 +1410,7 @@ const TaskCollaboration: React.FC = () => {
               </div>
             </CardHeader>
             <CardContent>
-              {/* Compact Filter Bar - Quick Views Only */}
+              {/* Compact Filter Bar */}
               <div className="flex flex-wrap items-center gap-2 mb-4 pb-4 border-b">
                 <Button
                   variant={activeSmartView === 'blockers' ? "default" : "ghost"}
@@ -1501,6 +1502,108 @@ const TaskCollaboration: React.FC = () => {
                 >
                   {groupByModule ? "Grouped" : "Flat"}
                 </Button>
+
+                {/* Expand/Collapse for more filters */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowAllFilters(!showAllFilters)}
+                  className="h-7 text-xs px-2 text-muted-foreground"
+                >
+                  <ChevronRight className={`h-3 w-3 mr-1 transition-transform ${showAllFilters ? 'rotate-90' : ''}`} />
+                  Filters
+                </Button>
+
+                {/* Collapsible Filter Dropdowns */}
+                {showAllFilters && (
+                  <>
+                    <Select value={statusFilter} onValueChange={setStatusFilter}>
+                      <SelectTrigger className="h-7 w-[100px] text-xs">
+                        <SelectValue placeholder="Status" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        <SelectItem value="all">All Status</SelectItem>
+                        <SelectItem value="todo">To Do</SelectItem>
+                        <SelectItem value="in_progress">In Progress</SelectItem>
+                        <SelectItem value="in_review">In Review</SelectItem>
+                        <SelectItem value="done">Done</SelectItem>
+                        <SelectItem value="blocked">Blocked</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Select value={priorityFilter} onValueChange={setPriorityFilter}>
+                      <SelectTrigger className="h-7 w-[100px] text-xs">
+                        <SelectValue placeholder="Priority" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        <SelectItem value="all">All Priority</SelectItem>
+                        <SelectItem value="medium-high">Medium+</SelectItem>
+                        <SelectItem value="critical">Critical</SelectItem>
+                        <SelectItem value="high">High</SelectItem>
+                        <SelectItem value="medium">Medium</SelectItem>
+                        <SelectItem value="low">Low</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Select value={importanceFilter} onValueChange={(v) => { setImportanceFilter(v); setActiveSmartView(''); }}>
+                      <SelectTrigger className="h-7 w-[110px] text-xs">
+                        <SelectValue placeholder="Importance" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        <SelectItem value="all">All Importance</SelectItem>
+                        <SelectItem value="none">None</SelectItem>
+                        <SelectItem value="must">Must</SelectItem>
+                        <SelectItem value="should">Should</SelectItem>
+                        <SelectItem value="good-to-have">Good-to-have</SelectItem>
+                        <SelectItem value="nice-to-have">Nice-to-have</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Select value={moduleFilter} onValueChange={setModuleFilter}>
+                      <SelectTrigger className="h-7 w-[110px] text-xs">
+                        <SelectValue placeholder="Module" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        <SelectItem value="all">All Modules</SelectItem>
+                        <SelectItem value="none">Uncategorized</SelectItem>
+                        {uniqueModules.map((module) => (
+                          <SelectItem key={module} value={module}>
+                            {module.charAt(0).toUpperCase() + module.slice(1)}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <Select value={cycleFilter} onValueChange={setCycleFilter}>
+                      <SelectTrigger className="h-7 w-[110px] text-xs">
+                        <SelectValue placeholder="Cycle" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        <SelectItem value="all">All Cycles</SelectItem>
+                        <SelectItem value="none">No Cycle</SelectItem>
+                        {cycles.map((cycle) => (
+                          <SelectItem key={cycle.id} value={cycle.id}>
+                            {cycle.name} {cycle.status === 'active' && '•'}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    <Select value={projectFilter} onValueChange={setProjectFilter}>
+                      <SelectTrigger className="h-7 w-[110px] text-xs">
+                        <SelectValue placeholder="Project" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        <SelectItem value="all">All Projects</SelectItem>
+                        {products.map((product) => (
+                          <SelectItem key={product.id} value={product.id}>
+                            {product.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </>
+                )}
               </div>
 
               {/* Task Stats Toggle */}
