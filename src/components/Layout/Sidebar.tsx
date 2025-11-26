@@ -33,7 +33,8 @@ import {
   ListChecks,
   Layers,
   UserCheck,
-  Clock
+  Clock,
+  Code
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -131,6 +132,12 @@ const Sidebar: React.FC = () => {
       name: 'Configure',
       path: '/manage',
       icon: <Layout className="h-5 w-5" />,
+      roles: ['admin'],
+    },
+    {
+      name: 'DevTools',
+      path: '/devtools',
+      icon: <Code className="h-5 w-5" />,
       roles: ['admin'],
     },
     {
