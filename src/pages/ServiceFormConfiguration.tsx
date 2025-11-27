@@ -961,6 +961,9 @@ const ServiceFormConfiguration = () => {
   const [changeNotes, setChangeNotes] = useState("");
   const [batchUpdating, setBatchUpdating] = useState(false);
   const [showValidationPreview, setShowValidationPreview] = useState(false);
+  const [showDraftStagePreview, setShowDraftStagePreview] = useState(false);
+  const [showSnippetPreview, setShowSnippetPreview] = useState(false);
+  const [snippetPreviewData, setSnippetPreviewData] = useState<any>(null);
   const [productSearchOpen, setProductSearchOpen] = useState(false);
 
   // Batch update form field stages to ["draft"]
@@ -1948,16 +1951,27 @@ const ServiceFormConfiguration = () => {
               <Separator orientation="vertical" className="h-5" />
 
               {/* Admin: Set Form Fields to Draft Stage */}
-              <Button
-                variant="default"
-                size="sm"
-                onClick={handleBatchUpdateFormFieldStages}
-                disabled={batchUpdating}
-                className="gap-1.5 h-7 text-xs bg-blue-600 hover:bg-blue-700"
-              >
-                <Save className="h-3 w-3" />
-                {batchUpdating ? "Updating..." : "Set Form Fields to Draft"}
-              </Button>
+              <div className="flex gap-1.5 items-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowDraftStagePreview(true)}
+                  className="gap-1.5 h-7 text-xs border-blue-500 text-blue-600 hover:bg-blue-50"
+                >
+                  <Eye className="h-3 w-3" />
+                  Preview
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleBatchUpdateFormFieldStages}
+                  disabled={batchUpdating}
+                  className="gap-1.5 h-7 text-xs bg-blue-600 hover:bg-blue-700"
+                >
+                  <Save className="h-3 w-3" />
+                  {batchUpdating ? "Updating..." : "Set Form Fields to Draft"}
+                </Button>
+              </div>
               
               {/* JSON Snippet Injector */}
               <Button
@@ -3095,6 +3109,163 @@ const ServiceFormConfiguration = () => {
         </div>
       )}
 
+      {/* Draft Stage Preview Dialog */}
+      <Dialog open={showDraftStagePreview} onOpenChange={setShowDraftStagePreview}>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <Save className="h-4 w-4 text-blue-600" />
+              </div>
+              Set Form Fields to Draft - Preview
+            </DialogTitle>
+            <DialogDescription>
+              This will update ALL form fields (in sections) across all services to have requiredAtStage: ["draft"] only.
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="max-h-[500px]">
+            <div className="space-y-4">
+              <Alert className="border-blue-500/30 bg-blue-500/5">
+                <AlertTriangle className="h-4 w-4 text-blue-600" />
+                <AlertTitle>What This Does</AlertTitle>
+                <AlertDescription className="text-xs space-y-2 mt-2">
+                  <p>✓ Updates <strong>all section-based fields</strong> across all 10 services</p>
+                  <p>✓ Sets <code className="bg-background px-1.5 py-0.5 rounded">requiredAtStage: ["draft"]</code> for each field</p>
+                  <p>✓ Does NOT affect validation fields (those remain unchanged)</p>
+                  <p>✓ Does NOT affect required documents configuration</p>
+                  <p>✓ Ensures form validation only happens during initial draft creation</p>
+                </AlertDescription>
+              </Alert>
+
+              <Card className="border-blue-500/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm">Example: Before → After</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground mb-1">Before:</p>
+                    <pre className="text-xs bg-muted/50 rounded-lg p-3 overflow-x-auto border">
+{`{
+  "id": "field_customer_name",
+  "fieldType": "text",
+  "label": "Customer Name",
+  "required": true,
+  "requiredAtStage": ["draft", "submitted", "review"]
+}`}</pre>
+                  </div>
+                  <div>
+                    <p className="text-xs font-medium text-muted-foreground mb-1">After:</p>
+                    <pre className="text-xs bg-background rounded-lg p-3 overflow-x-auto border border-blue-500/30">
+{`{
+  "id": "field_customer_name",
+  "fieldType": "text",
+  "label": "Customer Name",
+  "required": true,
+  "requiredAtStage": ["draft"]
+}`}</pre>
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Alert>
+                <AlertDescription className="text-xs">
+                  <strong>Affected Services:</strong> All 10 services (Business Bank Account, Home Finance, Business Finance, GoAML Registration, Bookkeeping, VAT Registration, VAT Return, Tax Return, ESR, UBO Registration)
+                </AlertDescription>
+              </Alert>
+            </div>
+          </ScrollArea>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setShowDraftStagePreview(false)}>
+              Close Preview
+            </Button>
+            <Button 
+              onClick={() => {
+                setShowDraftStagePreview(false);
+                handleBatchUpdateFormFieldStages();
+              }}
+              disabled={batchUpdating}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {batchUpdating ? "Updating..." : "Apply Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Snippet JSON Preview Dialog */}
+      <Dialog open={showSnippetPreview} onOpenChange={setShowSnippetPreview}>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <Code className="h-4 w-4 text-blue-600" />
+              </div>
+              Inject JSON - Preview
+            </DialogTitle>
+            <DialogDescription>
+              Review what will be added/updated before applying the changes.
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="max-h-[500px]">
+            <div className="space-y-4">
+              <Alert className="border-blue-500/30 bg-blue-500/5">
+                <AlertTriangle className="h-4 w-4 text-blue-600" />
+                <AlertTitle>What This Does</AlertTitle>
+                <AlertDescription className="text-xs space-y-2 mt-2">
+                  {snippetPreviewData?.applyTo === "all" ? (
+                    <>
+                      <p>✓ Will apply to <strong>all services</strong> (10 services)</p>
+                      <p>✓ If {snippetPreviewData?.type} ID already exists, it will be <strong>replaced</strong></p>
+                    </>
+                  ) : (
+                    <>
+                      <p>✓ Will apply to <strong>current service only</strong></p>
+                      <p>✓ If {snippetPreviewData?.type} ID already exists, it will be <strong>replaced</strong></p>
+                    </>
+                  )}
+                  <p>✓ Type: <strong className="capitalize">{snippetPreviewData?.type?.replace('_', ' ')}</strong></p>
+                </AlertDescription>
+              </Alert>
+
+              <Card className="border-blue-500/30">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm">JSON to be Injected</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <pre className="text-xs bg-background rounded-lg p-4 overflow-x-auto border">
+                    {JSON.stringify(snippetPreviewData?.data, null, 2)}
+                  </pre>
+                </CardContent>
+              </Card>
+
+              {snippetPreviewData?.type === "field" && snippetPreviewData?.applyTo === "all" && (
+                <Alert className="bg-amber-500/10 border-amber-500/30">
+                  <AlertTriangle className="h-4 w-4 text-amber-600" />
+                  <AlertDescription className="text-xs text-amber-700">
+                    This field will be added to the <strong>first section</strong> of each service configuration.
+                  </AlertDescription>
+                </Alert>
+              )}
+            </div>
+          </ScrollArea>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setShowSnippetPreview(false)}>
+              Close Preview
+            </Button>
+            <Button 
+              onClick={() => {
+                setShowSnippetPreview(false);
+                handleApplySnippet();
+              }}
+              disabled={snippetApplying}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {snippetApplying ? "Applying..." : "Apply Changes"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* JSON Snippet Injector Dialog */}
       <Dialog open={showSnippetDialog} onOpenChange={setShowSnippetDialog}>
         <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
@@ -3258,6 +3429,28 @@ const ServiceFormConfiguration = () => {
           <DialogFooter className="border-t pt-4">
             <Button variant="outline" onClick={() => setShowSnippetDialog(false)}>
               Cancel
+            </Button>
+            <Button 
+              variant="outline"
+              onClick={() => {
+                try {
+                  const parsed = JSON.parse(snippetJSON);
+                  setSnippetPreviewData({
+                    type: snippetType,
+                    applyTo,
+                    data: parsed
+                  });
+                  setShowSnippetPreview(true);
+                  setSnippetError(null);
+                } catch (e: any) {
+                  setSnippetError("Invalid JSON: " + e.message);
+                }
+              }}
+              disabled={!snippetJSON.trim()}
+              className="gap-2"
+            >
+              <Eye className="h-4 w-4" />
+              Preview
             </Button>
             <Button 
               onClick={handleApplySnippet} 
