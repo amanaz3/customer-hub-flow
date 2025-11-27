@@ -89,26 +89,33 @@ export const ExistingCustomerSelector = ({
 
   return (
     <div className="space-y-4">
+      <div className="relative">
+        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500 pointer-events-none z-10" />
+        <Input
+          ref={inputRef}
+          placeholder="Start typing customer name, company, or email..."
+          value={searchTerm}
+          onChange={handleInputChange}
+          onFocus={() => {
+            if (searchTerm.trim().length >= 2) {
+              setOpen(true);
+            }
+          }}
+          className="pl-12 pr-12 h-12 text-base font-medium bg-white border-slate-200 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:border-slate-200 hover:border-slate-200 focus-visible:shadow-none"
+        />
+        {loading && hasQuery && (
+          <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-primary pointer-events-none z-10" />
+        )}
+      </div>
+
+      {searchTerm.trim().length > 0 && searchTerm.trim().length < 2 && (
+        <p className="mt-2 text-xs text-slate-600">Type at least 2 characters to search</p>
+      )}
+
       <Popover open={open} onOpenChange={setOpen}>
         <PopoverTrigger asChild>
-          <div className="relative">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-slate-500" />
-            <Input
-              ref={inputRef}
-              placeholder="Start typing customer name, company, or email..."
-              value={searchTerm}
-              onChange={handleInputChange}
-              className="pl-12 pr-12 h-12 text-base font-medium bg-white border-slate-200 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:outline-none focus-visible:border-slate-200 hover:border-slate-200 focus-visible:shadow-none"
-            />
-            {loading && hasQuery && (
-              <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-primary" />
-            )}
-          </div>
+          <div className="hidden" />
         </PopoverTrigger>
-
-        {searchTerm.trim().length > 0 && searchTerm.trim().length < 2 && (
-          <p className="mt-2 text-xs text-slate-600">Type at least 2 characters to search</p>
-        )}
 
         <PopoverContent 
           className="w-[600px] p-0 bg-white border-slate-200 shadow-2xl"
