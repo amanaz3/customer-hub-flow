@@ -87,6 +87,7 @@ interface FormConfig {
     versionNotes?: string;
   };
   sections: FormSection[];
+  validationFields?: FormField[];
   requiredDocuments?: {
     categories: DocumentCategory[];
   };
@@ -938,7 +939,7 @@ const ServiceFormConfiguration = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [activeTab, setActiveTab] = useState<"fields" | "documents">("fields");
+  const [activeTab, setActiveTab] = useState<"fields" | "validation" | "documents">("fields");
   const [currentStage, setCurrentStage] = useState<string>("draft");
   const [importErrors, setImportErrors] = useState<string[]>([]);
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
@@ -2039,11 +2040,15 @@ const ServiceFormConfiguration = () => {
                 Back to Mode Selection
               </Button>
             </div>
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "fields" | "documents")} className="space-y-6">
-              <TabsList className="grid w-full max-w-md grid-cols-2 h-11">
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "fields" | "validation" | "documents")} className="space-y-6">
+              <TabsList className="grid w-full max-w-2xl grid-cols-3 h-11">
                 <TabsTrigger value="fields" className="gap-2">
                   <GripVertical className="h-4 w-4" />
                   Form Fields
+                </TabsTrigger>
+                <TabsTrigger value="validation" className="gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  Validation Fields
                 </TabsTrigger>
                 <TabsTrigger value="documents" className="gap-2">
                   <FileJson className="h-4 w-4" />
@@ -2128,6 +2133,167 @@ const ServiceFormConfiguration = () => {
                     </Card>
                   </div>
                 )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="validation" className="mt-6">
+              <div className="space-y-4">
+                <Card className="border-amber-500/30 bg-amber-500/5">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4 text-amber-600" />
+                      Validation-Only Fields
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      These fields are not displayed in the application form but are validated at specific workflow stages (e.g., estimated completion time, risk assessment).
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+
+                {formConfig.validationFields && formConfig.validationFields.length > 0 ? (
+                  <div className="space-y-3">
+                    {formConfig.validationFields.map((field, index) => (
+                      <Card key={field.id} className="border-l-4 border-l-amber-500">
+                        <CardContent className="pt-4 space-y-3">
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="flex-1 space-y-3">
+                              <div className="grid grid-cols-2 gap-3">
+                                <div>
+                                  <Label className="text-xs">Field Label</Label>
+                                  <Input
+                                    value={field.label}
+                                    onChange={(e) => {
+                                      const updatedFields = [...(formConfig.validationFields || [])];
+                                      updatedFields[index] = { ...field, label: e.target.value };
+                                      setFormConfig({ ...formConfig, validationFields: updatedFields });
+                                    }}
+                                    className="h-8 text-xs"
+                                  />
+                                </div>
+                                <div>
+                                  <Label className="text-xs">Field Type</Label>
+                                  <Select
+                                    value={field.fieldType}
+                                    onValueChange={(value) => {
+                                      const updatedFields = [...(formConfig.validationFields || [])];
+                                      updatedFields[index] = { ...field, fieldType: value };
+                                      setFormConfig({ ...formConfig, validationFields: updatedFields });
+                                    }}
+                                  >
+                                    <SelectTrigger className="h-8 text-xs">
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      {fieldTypes.map((type) => (
+                                        <SelectItem key={type.value} value={type.value}>
+                                          {type.label}
+                                        </SelectItem>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                              </div>
+
+                              <div>
+                                <Label className="text-xs">Required At Stage(s)</Label>
+                                <div className="flex flex-wrap gap-2 mt-1">
+                                  {stages.map((stage) => (
+                                    <label key={stage} className="flex items-center gap-1.5 cursor-pointer">
+                                      <Checkbox
+                                        checked={field.requiredAtStage?.includes(stage)}
+                                        onCheckedChange={(checked) => {
+                                          const updatedFields = [...(formConfig.validationFields || [])];
+                                          const currentStages = field.requiredAtStage || [];
+                                          updatedFields[index] = {
+                                            ...field,
+                                            requiredAtStage: checked
+                                              ? [...currentStages, stage]
+                                              : currentStages.filter((s) => s !== stage),
+                                          };
+                                          setFormConfig({ ...formConfig, validationFields: updatedFields });
+                                        }}
+                                        className="h-3 w-3"
+                                      />
+                                      <span className="text-xs capitalize">{stage}</span>
+                                    </label>
+                                  ))}
+                                </div>
+                              </div>
+
+                              <div className="flex items-center gap-2">
+                                <Checkbox
+                                  checked={field.required}
+                                  onCheckedChange={(checked) => {
+                                    const updatedFields = [...(formConfig.validationFields || [])];
+                                    updatedFields[index] = { ...field, required: !!checked };
+                                    setFormConfig({ ...formConfig, validationFields: updatedFields });
+                                  }}
+                                  className="h-3 w-3"
+                                />
+                                <Label className="text-xs">Required (Base)</Label>
+                              </div>
+                            </div>
+
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => {
+                                const updatedFields = (formConfig.validationFields || []).filter((_, i) => i !== index);
+                                setFormConfig({ ...formConfig, validationFields: updatedFields });
+                              }}
+                              className="h-7 w-7 p-0 text-destructive hover:text-destructive"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                ) : (
+                  <Card className="border-dashed">
+                    <CardContent className="py-12 text-center text-muted-foreground">
+                      <AlertTriangle className="h-8 w-8 mx-auto mb-3 opacity-50" />
+                      <p className="text-sm">No validation fields configured</p>
+                      <p className="text-xs mt-1">Add fields that validate at specific workflow stages</p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    const newField: FormField = {
+                      id: `field_${Date.now()}`,
+                      fieldType: "text",
+                      label: "New Validation Field",
+                      required: false,
+                      requiredAtStage: ["submitted"],
+                    };
+                    setFormConfig({
+                      ...formConfig,
+                      validationFields: [...(formConfig.validationFields || []), newField],
+                    });
+                  }}
+                  className="w-full"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Validation Field
+                </Button>
+
+                {/* Version Notes */}
+                <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                  <CardContent className="pt-6 space-y-3">
+                    <Label className="text-sm font-medium">Version Notes (Optional)</Label>
+                    <Textarea
+                      value={changeNotes}
+                      onChange={(e) => setChangeNotes(e.target.value)}
+                      placeholder="Describe what changed in this version..."
+                      rows={2}
+                      className="resize-none"
+                    />
+                  </CardContent>
+                </Card>
               </div>
             </TabsContent>
 
