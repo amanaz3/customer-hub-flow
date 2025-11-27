@@ -10,6 +10,7 @@ export interface FormField {
   conditionalGroup?: string; // Group ID for "at least one required" logic
   options?: string[];
   helperText?: string;
+  renderInForm?: boolean; // If false, field is validation-only (not rendered in UI)
 }
 
 export interface FormSection {
