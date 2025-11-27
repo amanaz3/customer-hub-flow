@@ -1871,7 +1871,7 @@ const ServiceFormConfiguration = () => {
 
               <Separator orientation="vertical" className="h-5" />
 
-              {/* Admin: Batch Add ECT */}
+              {/* Admin: Migrate Validation Fields */}
               <Button
                 variant="default"
                 size="sm"
@@ -1879,7 +1879,7 @@ const ServiceFormConfiguration = () => {
                 disabled={batchUpdating}
                 className="gap-1.5 h-7 text-xs bg-amber-600 hover:bg-amber-700"
               >
-                {batchUpdating ? "Updating..." : "Add ECT to All"}
+                {batchUpdating ? "Migrating..." : "Migrate Validation Fields"}
               </Button>
               
               {/* JSON Snippet Injector */}

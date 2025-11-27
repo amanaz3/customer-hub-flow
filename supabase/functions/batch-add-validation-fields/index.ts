@@ -18,10 +18,11 @@ serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    const { addRiskLevel, productIds } = await req.json();
+    const body = await req.json().catch(() => ({}));
+    const { forceUpdate = false } = body;
     
-    console.log('Starting batch update for validation fields');
-    console.log('Add risk level to specific products:', addRiskLevel);
+    console.log('Starting batch update for validation fields (using validationFields array)');
+    console.log('Force update:', forceUpdate);
 
     // Fetch all service form configurations
     const { data: configs, error: fetchError } = await supabase
@@ -35,68 +36,86 @@ serve(async (req) => {
 
     console.log(`Found ${configs?.length || 0} service configurations`);
 
-    const results: { product: string; status: string; error?: string }[] = [];
+    const results: { product: string; status: string; details?: string }[] = [];
+
+    // Define validation fields
+    const estimatedCompletionTimeField = {
+      id: "estimated_completion_time",
+      fieldType: "datetime-local",
+      label: "Estimated Completion Time",
+      required: false,
+      requiredAtStage: ["submitted"],
+      renderInForm: false,
+      helperText: "Must be set before submission"
+    };
+
+    const riskLevelField = {
+      id: "risk_level",
+      fieldType: "select",
+      label: "Risk Level",
+      options: ["Low", "Medium", "High"],
+      required: false,
+      requiredAtStage: ["submitted"],
+      renderInForm: false,
+      helperText: "Set via Risk Assessment on Application Detail page"
+    };
 
     for (const config of configs || []) {
       const productName = (config as any).products?.name || 'Unknown';
       
       try {
-        const formConfig = config.form_config as any;
-        const sections = formConfig?.sections || [];
+        const formConfig = config.form_config as any || {};
         
-        // Check if validation section already exists
-        const existingValidationSection = sections.find(
-          (s: any) => s.id === 'section_validation_requirements'
-        );
-
-        if (existingValidationSection) {
-          console.log(`Skipping ${productName} - validation section already exists`);
-          results.push({ product: productName, status: 'skipped', error: 'Already has validation section' });
-          continue;
-        }
-
-        // Create validation fields
-        const validationFields: any[] = [
-          {
-            id: "field_estimated_completion",
-            fieldType: "date",
-            label: "Estimated Completion Date",
-            required: true,
-            requiredAtStage: ["submitted"],
-            renderInForm: false,
-            helperText: "Required before submission",
-            placeholder: ""
+        // Check if validationFields already exists and has required fields
+        const existingValidationFields = formConfig.validationFields || [];
+        const hasECT = existingValidationFields.some((f: any) => f.id === 'estimated_completion_time');
+        const hasRiskLevel = existingValidationFields.some((f: any) => f.id === 'risk_level');
+        
+        // Determine if this is Business Bank Account (for risk_level)
+        const isBusinessBankAccount = productName === 'Business Bank Account';
+        
+        // Skip if already has all required fields (unless force update)
+        if (!forceUpdate) {
+          if (hasECT && (!isBusinessBankAccount || hasRiskLevel)) {
+            console.log(`Skipping ${productName} - already has required validation fields`);
+            results.push({ product: productName, status: 'skipped', details: 'Already configured' });
+            continue;
           }
-        ];
-
-        // Add risk_level only for Bank Account products
-        const isBankAccount = productName.toLowerCase().includes('bank');
-        if (isBankAccount || (productIds && productIds.includes(config.product_id))) {
-          validationFields.unshift({
-            id: "field_risk_level",
-            fieldType: "select",
-            label: "Risk Level",
-            options: ["Low", "Medium", "High"],
-            required: true,
-            requiredAtStage: ["submitted"],
-            renderInForm: false,
-            helperText: "Set via Risk Assessment on Application Detail page",
-            placeholder: ""
-          });
         }
 
-        // Create new validation section
-        const validationSection = {
-          id: "section_validation_requirements",
-          sectionTitle: "Submission Requirements",
-          fields: validationFields
-        };
+        // Build new validationFields array
+        const newValidationFields: any[] = [];
+        
+        // Add estimated_completion_time for ALL services
+        if (!hasECT || forceUpdate) {
+          newValidationFields.push(estimatedCompletionTimeField);
+        } else {
+          // Keep existing
+          const existing = existingValidationFields.find((f: any) => f.id === 'estimated_completion_time');
+          if (existing) newValidationFields.push(existing);
+        }
+        
+        // Add risk_level ONLY for Business Bank Account
+        if (isBusinessBankAccount) {
+          if (!hasRiskLevel || forceUpdate) {
+            newValidationFields.push(riskLevelField);
+          } else {
+            const existing = existingValidationFields.find((f: any) => f.id === 'risk_level');
+            if (existing) newValidationFields.push(existing);
+          }
+        }
+        
+        // Keep any other existing validation fields
+        for (const existing of existingValidationFields) {
+          if (existing.id !== 'estimated_completion_time' && existing.id !== 'risk_level') {
+            newValidationFields.push(existing);
+          }
+        }
 
-        // Add validation section to sections array
-        const updatedSections = [...sections, validationSection];
+        // Update config with validationFields at top level
         const updatedFormConfig = {
           ...formConfig,
-          sections: updatedSections
+          validationFields: newValidationFields
         };
 
         // Update the config in database
@@ -107,18 +126,22 @@ serve(async (req) => {
 
         if (updateError) {
           console.error(`Error updating ${productName}:`, updateError);
-          results.push({ product: productName, status: 'error', error: updateError.message });
+          results.push({ product: productName, status: 'error', details: updateError.message });
         } else {
+          const fieldsAdded = [];
+          if (!hasECT) fieldsAdded.push('ECT');
+          if (isBusinessBankAccount && !hasRiskLevel) fieldsAdded.push('Risk Level');
+          
           console.log(`Successfully updated ${productName}`);
           results.push({ 
             product: productName, 
             status: 'success',
-            error: isBankAccount ? 'Added ECT + Risk Level' : 'Added ECT only'
+            details: fieldsAdded.length > 0 ? `Added: ${fieldsAdded.join(', ')}` : 'Updated'
           });
         }
       } catch (err) {
         console.error(`Error processing ${productName}:`, err);
-        results.push({ product: productName, status: 'error', error: String(err) });
+        results.push({ product: productName, status: 'error', details: String(err) });
       }
     }
 
