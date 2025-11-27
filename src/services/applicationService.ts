@@ -231,24 +231,37 @@ export class ApplicationService {
     userId: string
   ): Promise<void> {
     // Check for notes in step3 (service details section)
-    const notesFields = ['section_0_notes', 'section_1_notes', 'section_2_notes', 'customer_notes', 'notes'];
-    let notesContent = '';
+    const step3NotesFields = ['section_0_notes', 'section_1_notes', 'section_2_notes', 'customer_notes', 'notes'];
+    let step3NotesContent = '';
 
-    // Search through application data for notes fields
+    // Search through application data for notes fields in step3
     if (applicationData?.step3) {
-      for (const fieldKey of notesFields) {
+      for (const fieldKey of step3NotesFields) {
         if (applicationData.step3[fieldKey]) {
-          notesContent = applicationData.step3[fieldKey];
+          step3NotesContent = applicationData.step3[fieldKey];
           break;
         }
       }
     }
 
-    // If notes exist, create a message entry
-    if (notesContent && notesContent.trim()) {
+    // If step3 notes exist, create a message entry
+    if (step3NotesContent && step3NotesContent.trim()) {
       await this.addApplicationMessage(
         applicationId,
-        `📝 Application Notes:\n\n${notesContent}`,
+        `📝 Service Details Notes:\n\n${step3NotesContent}`,
+        userId,
+        'user'
+      );
+    }
+
+    // Check for notes in step4 (Review & Submit - customer_notes)
+    const step4NotesContent = applicationData?.step4?.customer_notes;
+
+    // If step4 customer_notes exist, create a separate message entry
+    if (step4NotesContent && step4NotesContent.trim()) {
+      await this.addApplicationMessage(
+        applicationId,
+        `📝 Final Submission Notes:\n\n${step4NotesContent}`,
         userId,
         'user'
       );
