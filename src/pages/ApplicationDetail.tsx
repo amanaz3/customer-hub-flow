@@ -938,29 +938,46 @@ const ApplicationDetail = () => {
 
       {/* Estimated Completion Date - Visible when in Draft Status */}
       {application.status.toLowerCase() === 'draft' && (
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Calendar className="h-5 w-5" />
-              Estimated Completion Date
+        <Card className="border-primary/20 bg-gradient-to-br from-background via-background to-primary/5 shadow-lg">
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center gap-3 text-lg">
+              <div className="p-2 rounded-lg bg-primary/10 text-primary">
+                <Calendar className="h-5 w-5" />
+              </div>
+              <div>
+                <div className="flex items-center gap-2">
+                  Estimated Completion Date
+                  <Badge variant="secondary" className="text-xs font-normal">Required</Badge>
+                </div>
+                <p className="text-sm font-normal text-muted-foreground mt-1">
+                  Set target completion date before submission
+                </p>
+              </div>
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex flex-col sm:flex-row gap-3 items-start sm:items-end">
-              <div className="flex-1 w-full">
-                <label className="text-sm font-medium mb-2 block">
-                  Expected Date <span className="text-destructive">*</span>
+            <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-end">
+              <div className="flex-1 w-full space-y-2">
+                <label className="text-sm font-semibold flex items-center gap-2">
+                  <Clock className="h-4 w-4 text-primary" />
+                  Target Completion Date
+                  <span className="text-destructive">*</span>
                 </label>
-                <Input
-                  type="date"
-                  value={estimatedCompletionTime}
-                  onChange={(e) => setEstimatedCompletionTime(e.target.value)}
-                  className="w-full"
-                  min={new Date().toISOString().split('T')[0]}
-                />
-                <p className="text-sm text-muted-foreground mt-1">
-                  Required before submitting the application
-                </p>
+                <div className="relative">
+                  <Input
+                    type="date"
+                    value={estimatedCompletionTime}
+                    onChange={(e) => setEstimatedCompletionTime(e.target.value)}
+                    className="w-full h-11 border-2 focus:border-primary transition-colors bg-background/50 backdrop-blur-sm"
+                    min={new Date().toISOString().split('T')[0]}
+                  />
+                </div>
+                <div className="flex items-start gap-2 p-3 rounded-lg bg-primary/5 border border-primary/20">
+                  <AlertTriangle className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
+                  <p className="text-xs text-muted-foreground leading-relaxed">
+                    This date is required before the application can be submitted. It helps track expected delivery timelines and manage customer expectations.
+                  </p>
+                </div>
               </div>
               <Button 
                 onClick={async () => {
@@ -975,7 +992,7 @@ const ApplicationDetail = () => {
                     
                     toast({
                       title: 'Success',
-                      description: 'Estimated completion date saved',
+                      description: 'Estimated completion date saved successfully',
                     });
                   } catch (error) {
                     toast({
@@ -986,8 +1003,7 @@ const ApplicationDetail = () => {
                   }
                 }}
                 disabled={!estimatedCompletionTime}
-                variant="outline"
-                className="whitespace-nowrap"
+                className="whitespace-nowrap h-11 px-6 bg-primary hover:bg-primary/90 text-primary-foreground shadow-md hover:shadow-lg transition-all"
               >
                 <Save className="h-4 w-4 mr-2" />
                 Save Date
