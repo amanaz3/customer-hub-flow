@@ -74,38 +74,20 @@ serve(async (req) => {
         // Determine if this is Business Bank Account (for risk_level)
         const isBusinessBankAccount = productName === 'Business Bank Account';
         
-        // Skip if already has all required fields (unless force update)
-        if (!forceUpdate) {
-          if (hasECT && (!isBusinessBankAccount || hasRiskLevel)) {
-            console.log(`Skipping ${productName} - already has required validation fields`);
-            results.push({ product: productName, status: 'skipped', details: 'Already configured' });
-            continue;
-          }
-        }
+        // Always update to ensure correct field configuration (label, fieldType, etc.)
 
         // Build new validationFields array
         const newValidationFields: any[] = [];
         
-        // Add estimated_completion_time for ALL services
-        if (!hasECT || forceUpdate) {
-          newValidationFields.push(estimatedCompletionTimeField);
-        } else {
-          // Keep existing
-          const existing = existingValidationFields.find((f: any) => f.id === 'estimated_completion_time');
-          if (existing) newValidationFields.push(existing);
-        }
+        // Always add/update estimated_completion_time for ALL services with correct config
+        newValidationFields.push(estimatedCompletionTimeField);
         
-        // Add risk_level ONLY for Business Bank Account
+        // Always add/update risk_level ONLY for Business Bank Account
         if (isBusinessBankAccount) {
-          if (!hasRiskLevel || forceUpdate) {
-            newValidationFields.push(riskLevelField);
-          } else {
-            const existing = existingValidationFields.find((f: any) => f.id === 'risk_level');
-            if (existing) newValidationFields.push(existing);
-          }
+          newValidationFields.push(riskLevelField);
         }
         
-        // Keep any other existing validation fields
+        // Keep any other existing validation fields (not ECT or risk_level)
         for (const existing of existingValidationFields) {
           if (existing.id !== 'estimated_completion_time' && existing.id !== 'risk_level') {
             newValidationFields.push(existing);
@@ -128,15 +110,11 @@ serve(async (req) => {
           console.error(`Error updating ${productName}:`, updateError);
           results.push({ product: productName, status: 'error', details: updateError.message });
         } else {
-          const fieldsAdded = [];
-          if (!hasECT) fieldsAdded.push('ECT');
-          if (isBusinessBankAccount && !hasRiskLevel) fieldsAdded.push('Risk Level');
-          
           console.log(`Successfully updated ${productName}`);
           results.push({ 
             product: productName, 
             status: 'success',
-            details: fieldsAdded.length > 0 ? `Added: ${fieldsAdded.join(', ')}` : 'Updated'
+            details: 'Validation fields updated'
           });
         }
       } catch (err) {
