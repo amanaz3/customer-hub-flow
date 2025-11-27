@@ -1,0 +1,131 @@
+{
+  "validationFields": [
+    {
+      "id": "estimated_completion_time",
+      "label": "Estimated Completion Time",
+      "fieldType": "datetime-local",
+      "required": false,
+      "requiredAtStage": ["submitted"],
+      "helperText": "Must be set before submission",
+      "renderInForm": false
+    }
+  ],
+  "sections": [
+    {
+      "id": "section_1763351780363",
+      "sectionTitle": "ApplicantProfile",
+      "fields": [
+        {
+          "id": "field_1763353138103",
+          "fieldType": "select",
+          "label": "UAE Residency Status",
+          "placeholder": "",
+          "required": true,
+          "requiredAtStage": ["draft", "submitted", "returned", "rejected"],
+          "options": ["Resident", "Non-Resident"],
+          "helperText": ""
+        }
+      ]
+    },
+    {
+      "id": "section_1763353279464",
+      "sectionTitle": "Employment & Income Details",
+      "fields": [
+        {
+          "id": "field_1763353294701",
+          "fieldType": "select",
+          "label": "Employment Type",
+          "placeholder": "",
+          "required": true,
+          "requiredAtStage": ["draft", "submitted", "returned", "rejected"],
+          "options": ["Salaried", "Self-Employed"],
+          "helperText": ""
+        },
+        {
+          "id": "field_1763353334920",
+          "fieldType": "select",
+          "label": "Salary Range",
+          "placeholder": "Select salary range",
+          "required": true,
+          "requiredAtStage": ["submitted", "returned"],
+          "conditionalDisplay": {
+            "dependsOn": "field_1763353294701",
+            "showWhen": ["Salaried"]
+          },
+          "options": ["0-5000 AED", "5000-10000 AED", "10000-20000 AED", "20000+ AED"],
+          "helperText": "Select your monthly salary range"
+        },
+        {
+          "id": "field_1763353455048",
+          "fieldType": "number",
+          "label": "Annual Business Turnover (AED)",
+          "placeholder": "Enter annual turnover",
+          "required": true,
+          "requiredAtStage": ["submitted", "returned"],
+          "conditionalDisplay": {
+            "dependsOn": "field_1763353294701",
+            "showWhen": ["Self-Employed"]
+          },
+          "min": 0,
+          "helperText": "Enter your annual business turnover"
+        }
+      ]
+    },
+    {
+      "id": "section_1763354691864",
+      "sectionTitle": "Property Details",
+      "fields": [
+        {
+          "id": "field_1763354697699",
+          "fieldType": "number",
+          "label": "Property Value",
+          "placeholder": "",
+          "required": true,
+          "requiredAtStage": ["draft", "submitted", "returned", "rejected"],
+          "min": 0,
+          "helperText": ""
+        },
+        {
+          "id": "field_1763354739861",
+          "fieldType": "select",
+          "label": "Property Location",
+          "placeholder": "",
+          "required": true,
+          "requiredAtStage": ["draft", "submitted", "returned", "rejected", "completed"],
+          "options": ["Dubai", "AbuDhabi"],
+          "helperText": ""
+        }
+      ]
+    },
+    {
+      "id": "section_1763385614936",
+      "sectionTitle": "PaymentInformation",
+      "fields": [
+        {
+          "id": "field_1763385627846",
+          "fieldType": "number",
+          "label": "Amount",
+          "placeholder": "",
+          "required": true,
+          "requiredAtStage": ["draft", "submitted", "returned", "rejected", "completed", "paid"],
+          "helperText": ""
+        }
+      ]
+    },
+    {
+      "id": "section_1763385665676",
+      "sectionTitle": "AdditionalInformation",
+      "fields": [
+        {
+          "id": "field_1763385668922",
+          "fieldType": "textarea",
+          "label": "Notes",
+          "placeholder": "",
+          "required": false,
+          "requiredAtStage": ["draft", "submitted", "returned", "rejected", "completed", "paid"],
+          "helperText": ""
+        }
+      ]
+    }
+  ]
+}
