@@ -122,3 +122,6 @@ verify_jwt = true
 
 [functions.batch-add-validation-fields]
 verify_jwt = false
+
+[functions.batch-update-form-field-stages]
+verify_jwt = false
