@@ -971,9 +971,37 @@ const ServiceFormConfiguration = () => {
     selectedStages: [] as string[],
     applyToAllServices: true,
     applyToAllFields: true,
-    applyToAllStages: false
+    applyToAllStages: false,
+    fieldSelectionServiceId: null as string | null, // Track which service to show fields from
   });
+  const [fieldSelectionServiceConfig, setFieldSelectionServiceConfig] = useState<any>(null);
   const [productSearchOpen, setProductSearchOpen] = useState(false);
+
+  // Fetch fields for field selection in draft stage dialog
+  const fetchFieldsForService = async (serviceId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('service_form_configurations')
+        .select('form_config')
+        .eq('product_id', serviceId)
+        .single();
+
+      if (error) throw error;
+      setFieldSelectionServiceConfig(data?.form_config || null);
+    } catch (error) {
+      console.error('Error fetching service fields:', error);
+      setFieldSelectionServiceConfig(null);
+    }
+  };
+
+  // When field selection service changes, fetch its config
+  useEffect(() => {
+    if (draftStageConfig.fieldSelectionServiceId) {
+      fetchFieldsForService(draftStageConfig.fieldSelectionServiceId);
+    } else {
+      setFieldSelectionServiceConfig(null);
+    }
+  }, [draftStageConfig.fieldSelectionServiceId]);
 
   // Batch update form field stages with granular control
   const handleBatchUpdateFormFieldStages = async () => {
@@ -3192,7 +3220,25 @@ const ServiceFormConfiguration = () => {
       )}
 
       {/* Draft Stage Configuration Dialog */}
-      <Dialog open={showDraftStagePreview} onOpenChange={setShowDraftStagePreview}>
+      <Dialog 
+        open={showDraftStagePreview} 
+        onOpenChange={(open) => {
+          setShowDraftStagePreview(open);
+          if (!open) {
+            // Reset state when dialog closes
+            setDraftStageConfig({
+              selectedServices: [],
+              selectedFields: [],
+              selectedStages: [],
+              applyToAllServices: true,
+              applyToAllFields: true,
+              applyToAllStages: false,
+              fieldSelectionServiceId: null,
+            });
+            setFieldSelectionServiceConfig(null);
+          }
+        }}
+      >
         <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
@@ -3267,60 +3313,76 @@ const ServiceFormConfiguration = () => {
                   />
                   <Label htmlFor="all-fields" className="cursor-pointer">All Fields</Label>
                 </div>
-                {!draftStageConfig.applyToAllFields && selectedProductId && (
-                  <div className="space-y-2 p-3 border rounded-md max-h-[200px] overflow-y-auto">
-                    {formConfig.sections.map((section) => (
-                      <div key={section.id} className="space-y-1">
-                        <div className="text-sm font-medium text-muted-foreground">{section.sectionTitle}</div>
-                        {section.fields.map((field) => (
-                          <div key={field.id} className="flex items-center space-x-2 ml-4">
-                            <Checkbox
-                              id={`field-${field.id}`}
-                              checked={draftStageConfig.selectedFields.includes(field.id)}
-                              onCheckedChange={(checked) => {
-                                setDraftStageConfig(prev => ({
-                                  ...prev,
-                                  selectedFields: checked
-                                    ? [...prev.selectedFields, field.id]
-                                    : prev.selectedFields.filter(id => id !== field.id)
-                                }));
-                              }}
-                            />
-                            <Label htmlFor={`field-${field.id}`} className="cursor-pointer text-sm">
-                              {field.label}
-                            </Label>
+                {!draftStageConfig.applyToAllFields && (
+                  <>
+                    {/* Service selector for field filtering */}
+                    <Select
+                      value={draftStageConfig.fieldSelectionServiceId || undefined}
+                      onValueChange={(value) => 
+                        setDraftStageConfig(prev => ({ 
+                          ...prev, 
+                          fieldSelectionServiceId: value,
+                          selectedFields: [] // Reset selected fields when service changes
+                        }))
+                      }
+                    >
+                      <SelectTrigger className="w-full">
+                        <SelectValue placeholder="Select service to view its fields..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {products.map((product) => (
+                          <SelectItem key={product.id} value={product.id}>
+                            {product.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {fieldSelectionServiceConfig && draftStageConfig.fieldSelectionServiceId ? (
+                      <div className="space-y-2 p-3 border rounded-md max-h-[200px] overflow-y-auto">
+                        {(fieldSelectionServiceConfig.sections || []).map((section: any) => (
+                          <div key={section.id} className="space-y-1">
+                            <div className="text-sm font-medium text-muted-foreground">{section.sectionTitle}</div>
+                            {(section.fields || []).map((field: any) => (
+                              <div key={field.id} className="flex items-center space-x-2 ml-4">
+                                <Checkbox
+                                  id={`field-${field.id}`}
+                                  checked={draftStageConfig.selectedFields.includes(field.id)}
+                                  onCheckedChange={(checked) => {
+                                    setDraftStageConfig(prev => ({
+                                      ...prev,
+                                      selectedFields: checked
+                                        ? [...prev.selectedFields, field.id]
+                                        : prev.selectedFields.filter(id => id !== field.id)
+                                    }));
+                                  }}
+                                />
+                                <Label htmlFor={`field-${field.id}`} className="cursor-pointer text-sm">
+                                  {field.label}
+                                </Label>
+                              </div>
+                            ))}
                           </div>
                         ))}
                       </div>
-                    ))}
-                  </div>
-                )}
-                {!draftStageConfig.applyToAllFields && !selectedProductId && (
-                  <p className="text-sm text-muted-foreground italic p-3 border rounded-md">
-                    Select a service above to choose specific fields, or check "All Fields"
-                  </p>
+                    ) : !draftStageConfig.fieldSelectionServiceId ? (
+                      <p className="text-sm text-muted-foreground italic p-3 border rounded-md">
+                        Select a service above to choose specific fields
+                      </p>
+                    ) : (
+                      <p className="text-sm text-muted-foreground italic p-3 border rounded-md">
+                        Loading fields...
+                      </p>
+                    )}
+                  </>
                 )}
               </div>
 
               {/* Stage Selection */}
               <div className="space-y-3">
                 <Label className="text-base font-semibold">Target Stages</Label>
-                <div className="flex items-center space-x-2 mb-2">
-                  <Checkbox
-                    id="all-stages"
-                    checked={draftStageConfig.applyToAllStages}
-                    onCheckedChange={(checked) => 
-                      setDraftStageConfig(prev => ({ 
-                        ...prev, 
-                        applyToAllStages: !!checked,
-                        selectedStages: checked ? ['predraft', 'draft', 'submitted', 'returned', 'paid', 'completed', 'rejected', 'under_review', 'approved', 'need more info'] : prev.selectedStages
-                      }))
-                    }
-                  />
-                  <Label htmlFor="all-stages" className="cursor-pointer">All Stages</Label>
-                </div>
                 <div className="grid grid-cols-2 gap-2 p-3 border rounded-md">
-                  {['predraft', 'draft', 'submitted', 'returned', 'paid', 'completed', 'rejected', 'under_review', 'approved', 'need more info'].map((stage) => (
+                  {['predraft', 'draft', 'submitted', 'returned', 'rejected', 'completed', 'paid'].map((stage) => (
                     <div key={stage} className="flex items-center space-x-2">
                       <Checkbox
                         id={`stage-${stage}`}
@@ -3330,13 +3392,12 @@ const ServiceFormConfiguration = () => {
                             ...prev,
                             selectedStages: checked
                               ? [...prev.selectedStages, stage]
-                              : prev.selectedStages.filter(s => s !== stage),
-                            applyToAllStages: false
+                              : prev.selectedStages.filter(s => s !== stage)
                           }));
                         }}
                       />
                       <Label htmlFor={`stage-${stage}`} className="cursor-pointer text-sm capitalize">
-                        {stage.replace('_', ' ')}
+                        {stage === 'predraft' ? 'Pre-Draft' : stage.replace('_', ' ')}
                       </Label>
                     </div>
                   ))}
