@@ -1,4 +1,15 @@
 {
+  "validationFields": [
+    {
+      "id": "estimated_completion_time",
+      "label": "Estimated Completion Time",
+      "fieldType": "datetime-local",
+      "required": false,
+      "requiredAtStage": ["submitted"],
+      "helperText": "Must be set before submission",
+      "renderInForm": false
+    }
+  ],
   "sections": [
     {
       "id": "section_1763351780363",
