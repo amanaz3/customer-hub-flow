@@ -13,6 +13,7 @@ import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useQuery } from '@tanstack/react-query';
+import { ApplicationService } from '@/services/applicationService';
 import { ChevronLeft, ChevronRight, Check, Save, ArrowLeft, ArrowRight, User, Mail, Phone, Globe, Building2, X, FileText, Calendar, ChevronUp, PanelRightClose, PanelRightOpen } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Badge } from '@/components/ui/badge';
@@ -593,6 +594,20 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
         if (updateError) throw updateError;
 
+        // Create a message from form notes if they exist (when draft is saved at step 3)
+        if (user?.id) {
+          try {
+            await ApplicationService.createMessageFromFormNotes(
+              applicationId,
+              mergedData,
+              user.id
+            );
+          } catch (noteError) {
+            console.error('Error creating message from notes:', noteError);
+            // Don't block save if message creation fails
+          }
+        }
+
         // Silent save - no toast notification
       }
 
@@ -750,6 +765,18 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           .eq('id', applicationId);
 
         if (updateError) throw updateError;
+
+        // Create a message from form notes if they exist
+        try {
+          await ApplicationService.createMessageFromFormNotes(
+            applicationId,
+            mergedData,
+            user.id
+          );
+        } catch (noteError) {
+          console.error('Error creating message from notes:', noteError);
+          // Don't block submission if message creation fails
+        }
       }
 
       toast({
