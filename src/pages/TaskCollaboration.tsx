@@ -172,6 +172,7 @@ const TaskCollaboration: React.FC = () => {
   const [quickAddBugOpen, setQuickAddBugOpen] = useState(false);
   const [quickAddWhatsAppOpen, setQuickAddWhatsAppOpen] = useState(false);
   const [aiAnalyzerOpen, setAiAnalyzerOpen] = useState(false);
+  const [whatsappDialogOpen, setWhatsappDialogOpen] = useState(false);
   const [parentTaskIdForNewTask, setParentTaskIdForNewTask] = useState<string | undefined>(undefined);
   const [caseStatusFilter, setCaseStatusFilter] = useState<string>('active');
   const [caseSearchQuery, setCaseSearchQuery] = useState('');
@@ -1426,14 +1427,20 @@ const TaskCollaboration: React.FC = () => {
                     Track and manage team work
                   </CardDescription>
                 </div>
-            <Button onClick={() => setAiAnalyzerOpen(true)} variant="default" className="gap-2">
-              <Sparkles className="h-4 w-4" />
-              AI Task Analyzer
-            </Button>
-            <Button onClick={() => setCreateTaskOpen(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              New Task
-            </Button>
+            <div className="flex gap-2">
+              <Button onClick={() => setAiAnalyzerOpen(true)} variant="default" className="gap-2">
+                <Sparkles className="h-4 w-4" />
+                AI Task Analyzer
+              </Button>
+              <Button onClick={() => setWhatsappDialogOpen(true)} variant="outline" className="gap-2">
+                <MessageSquare className="h-4 w-4" />
+                Import from WhatsApp
+              </Button>
+              <Button onClick={() => setCreateTaskOpen(true)}>
+                <Plus className="h-4 w-4 mr-2" />
+                New Task
+              </Button>
+            </div>
               </div>
             </CardHeader>
             <CardContent>
@@ -2407,6 +2414,12 @@ const TaskCollaboration: React.FC = () => {
       <AITaskAnalyzer
         open={aiAnalyzerOpen}
         onOpenChange={setAiAnalyzerOpen}
+        onTasksCreated={fetchTasks}
+      />
+      
+      <QuickAddTaskFromWhatsApp
+        open={whatsappDialogOpen}
+        onOpenChange={setWhatsappDialogOpen}
         onTasksCreated={fetchTasks}
       />
     </div>
