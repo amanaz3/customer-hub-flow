@@ -59,6 +59,8 @@ export const AITaskAnalyzer: React.FC<AITaskAnalyzerProps> = ({
     setProjects(data || []);
     if (data && data.length > 0) {
       setSelectedProjectId(data[0].id);
+    } else {
+      setSelectedProjectId("");
     }
   };
 
@@ -120,12 +122,12 @@ export const AITaskAnalyzer: React.FC<AITaskAnalyzerProps> = ({
           {/* Project Selection */}
           <div className="space-y-2">
             <Label htmlFor="project-select">Project (Optional)</Label>
-            <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
+            <Select value={selectedProjectId || "none"} onValueChange={(val) => setSelectedProjectId(val === "none" ? "" : val)}>
               <SelectTrigger id="project-select">
                 <SelectValue placeholder="Select a project" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="">No Project</SelectItem>
+                <SelectItem value="none">No Project</SelectItem>
                 {projects.map((project) => (
                   <SelectItem key={project.id} value={project.id}>
                     {project.name}
