@@ -98,7 +98,7 @@ export const ExistingCustomerSelector = ({
               placeholder="Start typing customer name, company, or email..."
               value={searchTerm}
               onChange={handleInputChange}
-              className="pl-12 pr-12 h-12 text-base font-medium bg-white border-slate-200 focus-visible:border-primary/50"
+              className="pl-12 pr-12 h-12 text-base font-medium bg-white border-slate-200 focus-visible:ring-0 focus-visible:ring-offset-0 focus-visible:border-slate-200"
             />
             {loading && hasQuery && (
               <Loader2 className="absolute right-4 top-1/2 -translate-y-1/2 h-5 w-5 animate-spin text-primary" />
