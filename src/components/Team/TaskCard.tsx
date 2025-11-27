@@ -225,18 +225,9 @@ const SubtaskCard: React.FC<{
               <span className="ml-1 capitalize">{subtask.priority}</span>
             </Badge>
             {subtask.importance && (
-              <TooltipProvider>
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Badge className={cn('text-xs border cursor-help', getImportanceColor(subtask.importance))}>
-                      {getImportanceLabel(subtask.importance)}
-                    </Badge>
-                  </TooltipTrigger>
-                  <TooltipContent side="top" className="max-w-xs">
-                    <p className="text-xs">{subtask.importance_reason || 'No reason available'}</p>
-                  </TooltipContent>
-                </Tooltip>
-              </TooltipProvider>
+              <Badge className={cn('text-xs border', getImportanceColor(subtask.importance))}>
+                {getImportanceLabel(subtask.importance)}
+              </Badge>
             )}
             {!subtask.importance && (
               <Badge variant="outline" className="text-xs border-dashed text-muted-foreground">
@@ -263,6 +254,12 @@ const SubtaskCard: React.FC<{
           </div>
         </div>
       </div>
+      {/* Importance Reason Display */}
+      {subtask.importance_reason && (
+        <div className="ml-6 mt-1 px-2 py-1.5 bg-muted/30 rounded text-xs text-muted-foreground italic border-l-2 border-primary/30">
+          {subtask.importance_reason}
+        </div>
+      )}
       {/* Recursively render child subtasks with Accordion */}
       {childSubtasks.length > 0 && (
         <Accordion type="single" collapsible className="mt-1">
