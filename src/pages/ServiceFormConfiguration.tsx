@@ -1627,6 +1627,24 @@ const ServiceFormConfiguration = () => {
     }
   };
 
+  // Deduplicate validation fields from sections
+  const deduplicateConfig = (config: FormConfig): FormConfig => {
+    const validationFieldIds = new Set(
+      (config.validationFields || []).map(f => f.id)
+    );
+
+    // Remove validation fields from sections if they exist in validationFields array
+    const cleanedSections = config.sections.map(section => ({
+      ...section,
+      fields: section.fields.filter(field => !validationFieldIds.has(field.id))
+    })).filter(section => section.fields.length > 0); // Remove empty sections
+
+    return {
+      ...config,
+      sections: cleanedSections
+    };
+  };
+
   const saveConfiguration = async () => {
     if (!selectedProductId) {
       toast({
@@ -1642,11 +1660,14 @@ const ServiceFormConfiguration = () => {
     // Get current user
     const { data: { user } } = await supabase.auth.getUser();
     
+    // Deduplicate configuration before saving
+    const cleanedConfig = deduplicateConfig(formConfig);
+    
     const { error } = await supabase
       .from("service_form_configurations")
       .upsert({
         product_id: selectedProductId,
-        form_config: formConfig as any,
+        form_config: cleanedConfig as any,
       } as any, {
         onConflict: 'product_id'
       });
@@ -1663,16 +1684,19 @@ const ServiceFormConfiguration = () => {
         description: "Form configuration saved successfully",
       });
       
+      // Update local state with cleaned config
+      setFormConfig(cleanedConfig);
+      
       // Create version history entry
       if (user) {
-        await createVersionEntry(user.id);
+        await createVersionEntry(user.id, cleanedConfig);
       }
     }
     setSaving(false);
   };
 
   // Create version history entry
-  const createVersionEntry = async (userId: string) => {
+  const createVersionEntry = async (userId: string, config: FormConfig = formConfig) => {
     try {
       // Get next version number
       const { data: versionData, error: versionError } = await supabase
@@ -1688,7 +1712,7 @@ const ServiceFormConfiguration = () => {
         .insert({
           product_id: selectedProductId,
           version_number: nextVersion,
-          config_data: formConfig as any,
+          config_data: config as any,
           changed_by: userId,
           change_notes: changeNotes || 'Configuration updated'
         } as any);
