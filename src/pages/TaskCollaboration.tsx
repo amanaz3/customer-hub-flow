@@ -1483,17 +1483,17 @@ const TaskCollaboration: React.FC = () => {
                     Track and manage team work
                   </CardDescription>
                 </div>
-            <div className="flex gap-2 items-center flex-wrap">
+            <div className="flex gap-3 items-center flex-wrap">
               {selectedTaskIds.length > 0 && (
-                <>
+                <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-primary/5 border border-primary/20">
                   <Badge variant="secondary" className="gap-1">
                     {selectedTaskIds.length} selected
                   </Badge>
                   <Button 
                     onClick={handleAnalyzeSelectedTasks} 
                     disabled={analyzingExisting}
-                    className="gap-2"
-                    variant="default"
+                    className="gap-2 h-8"
+                    size="sm"
                   >
                     {analyzingExisting ? (
                       <>
@@ -1503,7 +1503,7 @@ const TaskCollaboration: React.FC = () => {
                     ) : (
                       <>
                         <Sparkles className="h-4 w-4" />
-                        Analyze Selected with AI
+                        Analyze with AI
                       </>
                     )}
                   </Button>
@@ -1511,23 +1511,43 @@ const TaskCollaboration: React.FC = () => {
                     onClick={clearSelection}
                     variant="ghost"
                     size="sm"
+                    className="h-8"
                   >
                     Clear
                   </Button>
-                </>
+                </div>
               )}
-              <Button onClick={() => setAiAnalyzerOpen(true)} variant="default" className="gap-2">
-                <Sparkles className="h-4 w-4" />
-                AI Task Analyzer
-              </Button>
-              <Button onClick={() => setWhatsappDialogOpen(true)} variant="outline" className="gap-2">
-                <MessageSquare className="h-4 w-4" />
-                Import from WhatsApp
-              </Button>
-              <Button onClick={() => setCreateTaskOpen(true)}>
-                <Plus className="h-4 w-4 mr-2" />
-                New Task
-              </Button>
+              
+              <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20">
+                <span className="text-xs font-medium text-muted-foreground">Add Tasks:</span>
+                <Button 
+                  onClick={() => setCreateTaskOpen(true)}
+                  variant="default"
+                  size="sm"
+                  className="h-8 gap-1.5"
+                >
+                  <Plus className="h-4 w-4" />
+                  Manual
+                </Button>
+                <Button 
+                  onClick={() => setAiAnalyzerOpen(true)} 
+                  variant="secondary"
+                  size="sm"
+                  className="h-8 gap-1.5"
+                >
+                  <Sparkles className="h-4 w-4" />
+                  AI Analyze
+                </Button>
+                <Button 
+                  onClick={() => setWhatsappDialogOpen(true)} 
+                  variant="outline"
+                  size="sm"
+                  className="h-8 gap-1.5"
+                >
+                  <MessageSquare className="h-4 w-4" />
+                  WhatsApp
+                </Button>
+              </div>
             </div>
               </div>
             </CardHeader>
