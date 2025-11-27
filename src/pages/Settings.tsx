@@ -1,5 +1,6 @@
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import NotificationSettings from '@/components/Settings/NotificationSettings';
@@ -7,6 +8,15 @@ import { FeatureFlagsSettings } from '@/components/Settings/FeatureFlagsSettings
 import { Settings as SettingsIcon, Flag } from 'lucide-react';
 
 const Settings = () => {
+  const [searchParams] = useSearchParams();
+  const [activeTab, setActiveTab] = useState('notifications');
+
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab === 'features') {
+      setActiveTab('features');
+    }
+  }, [searchParams]);
 
   return (
     <div className="space-y-6">
@@ -15,7 +25,7 @@ const Settings = () => {
         <h1 className="text-2xl font-bold">Settings</h1>
       </div>
 
-      <Tabs defaultValue="notifications" className="space-y-6">
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList>
           <TabsTrigger value="notifications">Notifications</TabsTrigger>
           <TabsTrigger value="features">Feature Flags</TabsTrigger>
