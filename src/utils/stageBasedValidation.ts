@@ -19,6 +19,12 @@ export interface FormSection {
   fields: FormField[];
 }
 
+export interface FormConfig {
+  sections: FormSection[];
+  validationFields?: FormField[]; // Standalone validation fields outside sections
+  requiredDocuments?: any;
+}
+
 export interface ValidationResult {
   isValid: boolean;
   errors: { fieldId: string; message: string }[];
@@ -27,17 +33,24 @@ export interface ValidationResult {
 
 /**
  * Validates form data based on the current stage and conditional requirements
+ * Supports both section-based fields and standalone validationFields
  */
 export const validateFormAtStage = (
   sections: FormSection[],
   formData: Record<string, any>,
-  currentStage: string
+  currentStage: string,
+  validationFields?: FormField[]
 ): ValidationResult => {
   const errors: { fieldId: string; message: string }[] = [];
   const conditionalGroups: Record<string, { fields: FormField[]; filled: number }> = {};
 
-  // Collect all fields
-  const allFields = sections.flatMap((section) => section.fields);
+  // Collect all fields from sections
+  const sectionFields = sections.flatMap((section) => section.fields);
+  
+  // Include standalone validation fields if provided
+  const allFields = validationFields 
+    ? [...sectionFields, ...validationFields]
+    : sectionFields;
 
   // Check individual field requirements
   allFields.forEach((field) => {
@@ -115,12 +128,17 @@ export const validateFormAtStage = (
 
 /**
  * Get fields required at a specific stage
+ * Includes both section fields and standalone validation fields
  */
 export const getRequiredFieldsAtStage = (
   sections: FormSection[],
-  stage: string
+  stage: string,
+  validationFields?: FormField[]
 ): FormField[] => {
-  const allFields = sections.flatMap((section) => section.fields);
+  const sectionFields = sections.flatMap((section) => section.fields);
+  const allFields = validationFields 
+    ? [...sectionFields, ...validationFields]
+    : sectionFields;
   return allFields.filter((field) => field.requiredAtStage?.includes(stage));
 };
 
@@ -133,15 +151,17 @@ export const getFieldRequiredStages = (field: FormField): string[] => {
 
 /**
  * Check if form is ready for stage transition
+ * Includes validation of standalone validation fields
  */
 export const canTransitionToStage = (
   sections: FormSection[],
   formData: Record<string, any>,
   fromStage: string,
-  toStage: string
+  toStage: string,
+  validationFields?: FormField[]
 ): { canTransition: boolean; errors: string[] } => {
   // Validate that all requirements for the "from" stage are met
-  const validation = validateFormAtStage(sections, formData, fromStage);
+  const validation = validateFormAtStage(sections, formData, fromStage, validationFields);
   
   if (!validation.isValid) {
     return {
@@ -158,13 +178,15 @@ export const canTransitionToStage = (
 
 /**
  * Get completion percentage for current stage
+ * Includes standalone validation fields in calculation
  */
 export const getStageCompletionPercentage = (
   sections: FormSection[],
   formData: Record<string, any>,
-  currentStage: string
+  currentStage: string,
+  validationFields?: FormField[]
 ): number => {
-  const requiredFields = getRequiredFieldsAtStage(sections, currentStage);
+  const requiredFields = getRequiredFieldsAtStage(sections, currentStage, validationFields);
   
   if (requiredFields.length === 0) return 100;
 
