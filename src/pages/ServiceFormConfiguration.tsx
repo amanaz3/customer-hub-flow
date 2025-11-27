@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff, Upload, Download, FileJson, AlertTriangle, Code, FileText, Check, ChevronsUpDown } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff, Upload, Download, FileJson, AlertTriangle, Code, FileText, Check, ChevronsUpDown, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
@@ -964,34 +964,126 @@ const ServiceFormConfiguration = () => {
   const [showDraftStagePreview, setShowDraftStagePreview] = useState(false);
   const [showSnippetPreview, setShowSnippetPreview] = useState(false);
   const [snippetPreviewData, setSnippetPreviewData] = useState<any>(null);
+  const [showDraftStageDialog, setShowDraftStageDialog] = useState(false);
+  const [draftStageConfig, setDraftStageConfig] = useState({
+    selectedServices: [] as string[],
+    selectedFields: [] as string[],
+    selectedStages: [] as string[],
+    applyToAllServices: true,
+    applyToAllFields: true,
+    applyToAllStages: false
+  });
   const [productSearchOpen, setProductSearchOpen] = useState(false);
 
-  // Batch update form field stages to ["draft"]
+  // Batch update form field stages with granular control
   const handleBatchUpdateFormFieldStages = async () => {
     setBatchUpdating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('batch-update-form-field-stages', {
-        body: {}
-      });
+      // Determine which services to update
+      const targetProductIds = draftStageConfig.applyToAllServices 
+        ? products.map(p => p.id)
+        : draftStageConfig.selectedServices;
 
-      if (error) throw error;
-
-      if (data.success) {
+      if (targetProductIds.length === 0) {
         toast({
-          title: "Form Field Stages Updated",
-          description: `Updated ${data.summary.totalFieldsUpdated} form fields across ${data.summary.success} services to require only "draft" stage.`,
+          title: "No Services Selected",
+          description: "Please select at least one service",
+          variant: "destructive",
         });
+        return;
+      }
+
+      if (draftStageConfig.selectedStages.length === 0) {
+        toast({
+          title: "No Stages Selected",
+          description: "Please select at least one stage",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const { data: configs, error: fetchError } = await supabase
+        .from('service_form_configurations')
+        .select('*, products(name)')
+        .in('product_id', targetProductIds);
+
+      if (fetchError) throw fetchError;
+
+      const updates = [];
+      let totalFieldsUpdated = 0;
+      
+      for (const config of configs || []) {
+        const formConfig = config.form_config as any;
+        let hasChanges = false;
         
-        // Reload the current product config if one is selected
-        if (selectedProductId) {
-          fetchFormConfig();
+        if (formConfig.sections) {
+          formConfig.sections = formConfig.sections.map((section: any) => ({
+            ...section,
+            fields: section.fields.map((field: any) => {
+              // Check if this field should be updated
+              const shouldUpdate = draftStageConfig.applyToAllFields || 
+                                   draftStageConfig.selectedFields.includes(field.id);
+              
+              if (shouldUpdate) {
+                hasChanges = true;
+                totalFieldsUpdated++;
+                return {
+                  ...field,
+                  requiredAtStage: draftStageConfig.selectedStages
+                };
+              }
+              return field;
+            })
+          }));
+        }
+
+        if (hasChanges) {
+          updates.push({
+            id: config.id,
+            product_name: (config as any).products?.name || 'Unknown',
+            form_config: formConfig
+          });
         }
       }
+
+      if (updates.length === 0) {
+        toast({
+          title: "No Changes Made",
+          description: "No form fields matched your selection criteria",
+        });
+        return;
+      }
+
+      for (const update of updates) {
+        const { error: updateError } = await supabase
+          .from('service_form_configurations')
+          .update({ form_config: update.form_config })
+          .eq('id', update.id);
+
+        if (updateError) {
+          console.error(`Failed to update ${update.product_name}:`, updateError);
+          toast({
+            title: "Update Failed",
+            description: `Failed to update ${update.product_name}`,
+            variant: "destructive",
+          });
+        }
+      }
+
+      const stagesText = draftStageConfig.selectedStages.join(', ');
+      toast({
+        title: "Form Fields Updated",
+        description: `Updated ${totalFieldsUpdated} fields across ${updates.length} service(s) to stages: ${stagesText}`,
+      });
+      
+      if (selectedProductId) {
+        fetchFormConfig();
+      }
     } catch (error) {
-      console.error('Error updating form field stages:', error);
+      console.error('Batch update error:', error);
       toast({
         title: "Update Failed",
-        description: "Failed to update form field stages. Check console for details.",
+        description: "Failed to batch update form field stages. Check console for details.",
         variant: "destructive",
       });
     } finally {
@@ -1953,23 +2045,13 @@ const ServiceFormConfiguration = () => {
               {/* Admin: Set Form Fields to Draft Stage */}
               <div className="flex gap-1.5 items-center">
                 <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowDraftStagePreview(true)}
-                  className="gap-1.5 h-7 text-xs border-blue-500 text-blue-600 hover:bg-blue-50"
-                >
-                  <Eye className="h-3 w-3" />
-                  Preview
-                </Button>
-                <Button
                   variant="default"
                   size="sm"
-                  onClick={handleBatchUpdateFormFieldStages}
-                  disabled={batchUpdating}
+                  onClick={() => setShowDraftStagePreview(true)}
                   className="gap-1.5 h-7 text-xs bg-blue-600 hover:bg-blue-700"
                 >
-                  <Save className="h-3 w-3" />
-                  {batchUpdating ? "Updating..." : "Set Form Fields to Draft"}
+                  <Settings className="h-3 w-3" />
+                  Set Form Fields to Stages
                 </Button>
               </div>
               
@@ -3109,84 +3191,178 @@ const ServiceFormConfiguration = () => {
         </div>
       )}
 
-      {/* Draft Stage Preview Dialog */}
+      {/* Draft Stage Configuration Dialog */}
       <Dialog open={showDraftStagePreview} onOpenChange={setShowDraftStagePreview}>
-        <DialogContent className="sm:max-w-3xl">
+        <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                <Save className="h-4 w-4 text-blue-600" />
+                <Settings className="h-4 w-4 text-blue-600" />
               </div>
-              Set Form Fields to Draft - Preview
+              Configure Form Field Stage Update
             </DialogTitle>
             <DialogDescription>
-              This will update ALL form fields (in sections) across all services to have requiredAtStage: ["draft"] only.
+              Select services, fields, and stages to update requiredAtStage values
             </DialogDescription>
           </DialogHeader>
-          <ScrollArea className="max-h-[500px]">
-            <div className="space-y-4">
-              <Alert className="border-blue-500/30 bg-blue-500/5">
-                <AlertTriangle className="h-4 w-4 text-blue-600" />
-                <AlertTitle>What This Does</AlertTitle>
-                <AlertDescription className="text-xs space-y-2 mt-2">
-                  <p>✓ Updates <strong>all section-based fields</strong> across all 10 services</p>
-                  <p>✓ Sets <code className="bg-background px-1.5 py-0.5 rounded">requiredAtStage: ["draft"]</code> for each field</p>
-                  <p>✓ Does NOT affect validation fields (those remain unchanged)</p>
-                  <p>✓ Does NOT affect required documents configuration</p>
-                  <p>✓ Ensures form validation only happens during initial draft creation</p>
-                </AlertDescription>
-              </Alert>
 
-              <Card className="border-blue-500/30">
-                <CardHeader className="pb-3">
-                  <CardTitle className="text-sm">Example: Before → After</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3">
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">Before:</p>
-                    <pre className="text-xs bg-muted/50 rounded-lg p-3 overflow-x-auto border">
-{`{
-  "id": "field_customer_name",
-  "fieldType": "text",
-  "label": "Customer Name",
-  "required": true,
-  "requiredAtStage": ["draft", "submitted", "review"]
-}`}</pre>
+          <ScrollArea className="max-h-[60vh] pr-4">
+            <div className="space-y-6">
+              {/* Service Selection */}
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">Services</Label>
+                <div className="flex items-center space-x-2 mb-2">
+                  <Checkbox
+                    id="all-services"
+                    checked={draftStageConfig.applyToAllServices}
+                    onCheckedChange={(checked) => 
+                      setDraftStageConfig(prev => ({ 
+                        ...prev, 
+                        applyToAllServices: !!checked,
+                        selectedServices: checked ? [] : prev.selectedServices
+                      }))
+                    }
+                  />
+                  <Label htmlFor="all-services" className="cursor-pointer">All Services</Label>
+                </div>
+                {!draftStageConfig.applyToAllServices && (
+                  <div className="grid grid-cols-2 gap-2 p-3 border rounded-md max-h-[200px] overflow-y-auto">
+                    {products.map((product) => (
+                      <div key={product.id} className="flex items-center space-x-2">
+                        <Checkbox
+                          id={`service-${product.id}`}
+                          checked={draftStageConfig.selectedServices.includes(product.id)}
+                          onCheckedChange={(checked) => {
+                            setDraftStageConfig(prev => ({
+                              ...prev,
+                              selectedServices: checked
+                                ? [...prev.selectedServices, product.id]
+                                : prev.selectedServices.filter(id => id !== product.id)
+                            }));
+                          }}
+                        />
+                        <Label htmlFor={`service-${product.id}`} className="cursor-pointer text-sm">
+                          {product.name}
+                        </Label>
+                      </div>
+                    ))}
                   </div>
-                  <div>
-                    <p className="text-xs font-medium text-muted-foreground mb-1">After:</p>
-                    <pre className="text-xs bg-background rounded-lg p-3 overflow-x-auto border border-blue-500/30">
-{`{
-  "id": "field_customer_name",
-  "fieldType": "text",
-  "label": "Customer Name",
-  "required": true,
-  "requiredAtStage": ["draft"]
-}`}</pre>
-                  </div>
-                </CardContent>
-              </Card>
+                )}
+              </div>
 
-              <Alert>
-                <AlertDescription className="text-xs">
-                  <strong>Affected Services:</strong> All 10 services (Business Bank Account, Home Finance, Business Finance, GoAML Registration, Bookkeeping, VAT Registration, VAT Return, Tax Return, ESR, UBO Registration)
-                </AlertDescription>
-              </Alert>
+              {/* Field Selection */}
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">Fields</Label>
+                <div className="flex items-center space-x-2 mb-2">
+                  <Checkbox
+                    id="all-fields"
+                    checked={draftStageConfig.applyToAllFields}
+                    onCheckedChange={(checked) => 
+                      setDraftStageConfig(prev => ({ 
+                        ...prev, 
+                        applyToAllFields: !!checked,
+                        selectedFields: checked ? [] : prev.selectedFields
+                      }))
+                    }
+                  />
+                  <Label htmlFor="all-fields" className="cursor-pointer">All Fields</Label>
+                </div>
+                {!draftStageConfig.applyToAllFields && selectedProductId && (
+                  <div className="space-y-2 p-3 border rounded-md max-h-[200px] overflow-y-auto">
+                    {formConfig.sections.map((section) => (
+                      <div key={section.id} className="space-y-1">
+                        <div className="text-sm font-medium text-muted-foreground">{section.sectionTitle}</div>
+                        {section.fields.map((field) => (
+                          <div key={field.id} className="flex items-center space-x-2 ml-4">
+                            <Checkbox
+                              id={`field-${field.id}`}
+                              checked={draftStageConfig.selectedFields.includes(field.id)}
+                              onCheckedChange={(checked) => {
+                                setDraftStageConfig(prev => ({
+                                  ...prev,
+                                  selectedFields: checked
+                                    ? [...prev.selectedFields, field.id]
+                                    : prev.selectedFields.filter(id => id !== field.id)
+                                }));
+                              }}
+                            />
+                            <Label htmlFor={`field-${field.id}`} className="cursor-pointer text-sm">
+                              {field.label}
+                            </Label>
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </div>
+                )}
+                {!draftStageConfig.applyToAllFields && !selectedProductId && (
+                  <p className="text-sm text-muted-foreground italic p-3 border rounded-md">
+                    Select a service above to choose specific fields, or check "All Fields"
+                  </p>
+                )}
+              </div>
+
+              {/* Stage Selection */}
+              <div className="space-y-3">
+                <Label className="text-base font-semibold">Target Stages</Label>
+                <div className="flex items-center space-x-2 mb-2">
+                  <Checkbox
+                    id="all-stages"
+                    checked={draftStageConfig.applyToAllStages}
+                    onCheckedChange={(checked) => 
+                      setDraftStageConfig(prev => ({ 
+                        ...prev, 
+                        applyToAllStages: !!checked,
+                        selectedStages: checked ? ['predraft', 'draft', 'submitted', 'returned', 'paid', 'completed', 'rejected', 'under_review', 'approved', 'need more info'] : prev.selectedStages
+                      }))
+                    }
+                  />
+                  <Label htmlFor="all-stages" className="cursor-pointer">All Stages</Label>
+                </div>
+                <div className="grid grid-cols-2 gap-2 p-3 border rounded-md">
+                  {['predraft', 'draft', 'submitted', 'returned', 'paid', 'completed', 'rejected', 'under_review', 'approved', 'need more info'].map((stage) => (
+                    <div key={stage} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={`stage-${stage}`}
+                        checked={draftStageConfig.selectedStages.includes(stage)}
+                        onCheckedChange={(checked) => {
+                          setDraftStageConfig(prev => ({
+                            ...prev,
+                            selectedStages: checked
+                              ? [...prev.selectedStages, stage]
+                              : prev.selectedStages.filter(s => s !== stage),
+                            applyToAllStages: false
+                          }));
+                        }}
+                      />
+                      <Label htmlFor={`stage-${stage}`} className="cursor-pointer text-sm capitalize">
+                        {stage.replace('_', ' ')}
+                      </Label>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </ScrollArea>
-          <DialogFooter className="flex-col sm:flex-row gap-2">
+
+          <DialogFooter>
             <Button variant="outline" onClick={() => setShowDraftStagePreview(false)}>
-              Close Preview
+              Cancel
             </Button>
             <Button 
               onClick={() => {
                 setShowDraftStagePreview(false);
                 handleBatchUpdateFormFieldStages();
               }}
-              disabled={batchUpdating}
+              disabled={
+                batchUpdating ||
+                (!draftStageConfig.applyToAllServices && draftStageConfig.selectedServices.length === 0) ||
+                (!draftStageConfig.applyToAllFields && draftStageConfig.selectedFields.length === 0) ||
+                draftStageConfig.selectedStages.length === 0
+              }
               className="bg-blue-600 hover:bg-blue-700"
             >
-              {batchUpdating ? "Updating..." : "Apply Changes"}
+              {batchUpdating ? "Applying..." : "Apply Changes"}
             </Button>
           </DialogFooter>
         </DialogContent>
