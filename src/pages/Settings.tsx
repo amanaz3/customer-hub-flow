@@ -1,19 +1,27 @@
 
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import NotificationSettings from '@/components/Settings/NotificationSettings';
-import { Settings as SettingsIcon } from 'lucide-react';
+import { FeatureFlagsSettings } from '@/components/Settings/FeatureFlagsSettings';
+import { Settings as SettingsIcon, Flag } from 'lucide-react';
 
 const Settings = () => {
 
   return (
     <div className="space-y-6">
-        <div className="flex items-center gap-2">
-          <SettingsIcon className="w-6 h-6" />
-          <h1 className="text-2xl font-bold">Settings</h1>
-        </div>
+      <div className="flex items-center gap-2">
+        <SettingsIcon className="w-6 h-6" />
+        <h1 className="text-2xl font-bold">Settings</h1>
+      </div>
 
-        <div className="grid gap-6">
+      <Tabs defaultValue="notifications" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="notifications">Notifications</TabsTrigger>
+          <TabsTrigger value="features">Feature Flags</TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="notifications" className="space-y-6">
           <Card>
             <CardHeader>
               <CardTitle>Notification Preferences</CardTitle>
@@ -25,9 +33,27 @@ const Settings = () => {
               <NotificationSettings />
             </CardContent>
           </Card>
-        </div>
-      </div>
-    );
-  };
+        </TabsContent>
+
+        <TabsContent value="features" className="space-y-6">
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Flag className="h-5 w-5" />
+                Application Workflow Features
+              </CardTitle>
+              <CardDescription>
+                Enable or disable advanced workflow features. Disable any feature if you encounter issues.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <FeatureFlagsSettings />
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
 
 export default Settings;
