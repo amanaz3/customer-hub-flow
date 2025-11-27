@@ -3338,16 +3338,30 @@ const ServiceFormConfiguration = () => {
                       </SelectContent>
                     </Select>
 
-                    {fieldSelectionServiceConfig && draftStageConfig.fieldSelectionServiceId ? (
-                      <div className="space-y-2 p-3 border rounded-md max-h-[200px] overflow-y-auto">
-                        {(fieldSelectionServiceConfig.sections || []).map((section: any) => (
-                          <div key={section.id} className="space-y-1">
-                            <div className="text-sm font-medium text-muted-foreground">{section.sectionTitle}</div>
-                            {(section.fields || []).map((field: any) => (
-                              <div key={field.id} className="flex items-center space-x-2 ml-4">
-                                <Checkbox
-                                  id={`field-${field.id}`}
-                                  checked={draftStageConfig.selectedFields.includes(field.id)}
+                    {draftStageConfig.fieldSelectionServiceId ? (
+                      <>
+                        {!fieldSelectionServiceConfig ? (
+                          <div className="p-4 border rounded-md bg-muted/50 text-center">
+                            <p className="text-sm text-muted-foreground">
+                              This service has no form configuration yet. Please configure it first.
+                            </p>
+                          </div>
+                        ) : (fieldSelectionServiceConfig.sections || []).length === 0 ? (
+                          <div className="p-4 border rounded-md bg-muted/50 text-center">
+                            <p className="text-sm text-muted-foreground">
+                              No fields found in this service configuration.
+                            </p>
+                          </div>
+                        ) : (
+                          <div className="space-y-2 p-3 border rounded-md max-h-[200px] overflow-y-auto">
+                            {(fieldSelectionServiceConfig.sections || []).map((section: any) => (
+                              <div key={section.id} className="space-y-1">
+                                <div className="text-sm font-medium text-muted-foreground">{section.sectionTitle}</div>
+                                {(section.fields || []).map((field: any) => (
+                                  <div key={field.id} className="flex items-center space-x-2 ml-4">
+                                    <Checkbox
+                                      id={`field-${field.id}`}
+                                      checked={draftStageConfig.selectedFields.includes(field.id)}
                                   onCheckedChange={(checked) => {
                                     setDraftStageConfig(prev => ({
                                       ...prev,
@@ -3364,14 +3378,12 @@ const ServiceFormConfiguration = () => {
                             ))}
                           </div>
                         ))}
-                      </div>
-                    ) : !draftStageConfig.fieldSelectionServiceId ? (
-                      <p className="text-sm text-muted-foreground italic p-3 border rounded-md">
-                        Select a service above to choose specific fields
-                      </p>
+                          </div>
+                        )}
+                      </>
                     ) : (
                       <p className="text-sm text-muted-foreground italic p-3 border rounded-md">
-                        Loading fields...
+                        Select a service above to choose specific fields
                       </p>
                     )}
                   </>
