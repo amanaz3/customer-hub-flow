@@ -71,10 +71,10 @@ export const UnifiedProgressHeader = ({
           <div className="w-full">
             <div className="bg-card border border-border p-4 shadow-sm space-y-3 rounded-none">
               {/* Stage Indicator Header */}
-              <div className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
-                <span className="font-semibold text-primary">Application Stage</span>
-                <span className="text-muted-foreground/60">•</span>
-                <span>Step {currentStep} of {totalSteps}</span>
+              <div className="flex items-center justify-center gap-2 text-sm pb-1">
+                <span className="font-bold text-primary">Application Stage</span>
+                <span className="text-muted-foreground">•</span>
+                <span className="font-medium text-foreground">Step {currentStep} of {totalSteps}</span>
               </div>
               {/* Progress Bar - Segmented */}
               <div className="flex gap-1">
