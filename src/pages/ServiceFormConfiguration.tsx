@@ -1,12 +1,12 @@
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff, Upload, Download, FileJson, AlertTriangle, Code } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff, Upload, Download, FileJson, AlertTriangle, Code, FileText } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
@@ -943,6 +943,7 @@ const ServiceFormConfiguration = () => {
   const [importErrors, setImportErrors] = useState<string[]>([]);
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
   const [showImportDialog, setShowImportDialog] = useState(false);
+  const [showTemplateLibrary, setShowTemplateLibrary] = useState(false);
   const [editMode, setEditMode] = useState<"visual" | "manual" | null>(null);
   
   // Template management state
@@ -1850,6 +1851,16 @@ const ServiceFormConfiguration = () => {
                 <Button
                   variant="outline"
                   size="sm"
+                  onClick={() => setShowTemplateLibrary(true)}
+                  disabled={!selectedProductId}
+                  className="gap-1.5 h-7 text-xs"
+                >
+                  <FileText className="h-3 w-3" />
+                  Templates
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
                   onClick={() => setShowImportDialog(true)}
                   disabled={!selectedProductId}
                   className="gap-1.5 h-7 text-xs"
@@ -2250,6 +2261,184 @@ const ServiceFormConfiguration = () => {
 
       </div>
       
+      {/* Template Library Dialog */}
+      <Dialog open={showTemplateLibrary} onOpenChange={setShowTemplateLibrary}>
+        <DialogContent className="max-w-3xl max-h-[80vh]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <FileText className="h-4 w-4 text-primary" />
+              </div>
+              Configuration Template Library
+            </DialogTitle>
+            <DialogDescription>
+              Select a pre-configured template to load into your service
+            </DialogDescription>
+          </DialogHeader>
+          
+          <ScrollArea className="max-h-[50vh]">
+            <div className="space-y-3 p-1">
+              {/* Home Finance Template Card */}
+              <Card 
+                className="cursor-pointer hover:border-primary transition-all hover:shadow-md" 
+                onClick={() => {
+                  const homeFinanceTemplate = {
+                    "validationFields": [
+                      {
+                        "id": "estimated_completion_time",
+                        "label": "Estimated Completion Time",
+                        "fieldType": "datetime-local",
+                        "required": false,
+                        "requiredAtStage": ["submitted"],
+                        "helperText": "Must be set before submission",
+                        "renderInForm": false
+                      }
+                    ],
+                    "sections": [
+                      {
+                        "id": "section_1763351780363",
+                        "sectionTitle": "ApplicantProfile",
+                        "fields": [
+                          {
+                            "id": "field_1763353138103",
+                            "fieldType": "select",
+                            "label": "UAE Residency Status",
+                            "placeholder": "",
+                            "required": true,
+                            "requiredAtStage": ["draft", "submitted", "returned", "rejected"],
+                            "options": ["Resident", "Non-Resident"],
+                            "helperText": ""
+                          }
+                        ]
+                      },
+                      {
+                        "id": "section_1763353279464",
+                        "sectionTitle": "Employment & Income Details",
+                        "fields": [
+                          {
+                            "id": "field_1763353294701",
+                            "fieldType": "select",
+                            "label": "Employment Type",
+                            "placeholder": "",
+                            "required": true,
+                            "requiredAtStage": ["draft", "submitted", "returned", "rejected"],
+                            "options": ["Salaried", "Self-Employed"],
+                            "helperText": ""
+                          }
+                        ]
+                      },
+                      {
+                        "id": "section_1763354691864",
+                        "sectionTitle": "Property Details",
+                        "fields": [
+                          {
+                            "id": "field_1763354697699",
+                            "fieldType": "number",
+                            "label": "Property Value",
+                            "placeholder": "",
+                            "required": true,
+                            "requiredAtStage": ["draft", "submitted", "returned", "rejected"],
+                            "min": 0,
+                            "helperText": ""
+                          },
+                          {
+                            "id": "field_1763354739861",
+                            "fieldType": "select",
+                            "label": "Property Location",
+                            "placeholder": "",
+                            "required": true,
+                            "requiredAtStage": ["draft", "submitted", "returned", "rejected", "completed"],
+                            "options": ["Dubai", "AbuDhabi"],
+                            "helperText": ""
+                          }
+                        ]
+                      },
+                      {
+                        "id": "section_1763385614936",
+                        "sectionTitle": "PaymentInformation",
+                        "fields": [
+                          {
+                            "id": "field_1763385627846",
+                            "fieldType": "number",
+                            "label": "Amount",
+                            "placeholder": "",
+                            "required": true,
+                            "requiredAtStage": ["draft", "submitted", "returned", "rejected", "completed", "paid"],
+                            "helperText": ""
+                          }
+                        ]
+                      },
+                      {
+                        "id": "section_1763385665676",
+                        "sectionTitle": "AdditionalInformation",
+                        "fields": [
+                          {
+                            "id": "field_1763385668922",
+                            "fieldType": "textarea",
+                            "label": "Notes",
+                            "placeholder": "",
+                            "required": false,
+                            "requiredAtStage": ["draft", "submitted", "returned", "rejected", "completed", "paid"],
+                            "helperText": ""
+                          }
+                        ]
+                      }
+                    ]
+                  };
+                  
+                  setFormConfig(homeFinanceTemplate);
+                  toast({
+                    title: "Template Loaded",
+                    description: "Home Finance template loaded successfully. Click Save to apply.",
+                  });
+                  setShowTemplateLibrary(false);
+                }}
+              >
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2 text-lg">
+                    <FileText className="h-5 w-5 text-indigo-600" />
+                    Home Finance
+                  </CardTitle>
+                  <CardDescription className="text-sm">
+                    Complete configuration for home finance applications including applicant profile, employment details, property information, and payment details with conditional field logic.
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="flex gap-2 flex-wrap">
+                    <div className="px-2 py-1 bg-indigo-100 text-indigo-700 rounded text-xs font-medium">
+                      5 Sections
+                    </div>
+                    <div className="px-2 py-1 bg-purple-100 text-purple-700 rounded text-xs font-medium">
+                      Conditional Fields
+                    </div>
+                    <div className="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                      Stage Validation
+                    </div>
+                    <div className="px-2 py-1 bg-green-100 text-green-700 rounded text-xs font-medium">
+                      ECT Included
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Placeholder for future templates */}
+              <Alert className="bg-muted/50">
+                <FileText className="h-4 w-4" />
+                <AlertDescription className="text-xs">
+                  More templates coming soon! You can also save your own configurations as templates using the "Save as Template" button.
+                </AlertDescription>
+              </Alert>
+            </div>
+          </ScrollArea>
+          
+          <DialogFooter className="border-t pt-4">
+            <Button variant="outline" onClick={() => setShowTemplateLibrary(false)}>
+              Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Save as Template Dialog */}
       <Dialog open={showSaveTemplateDialog} onOpenChange={setShowSaveTemplateDialog}>
         <DialogContent className="sm:max-w-lg">
