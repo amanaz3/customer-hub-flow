@@ -994,6 +994,7 @@ const ServiceFormConfiguration = () => {
   const [applyTo, setApplyTo] = useState<"current" | "all">("current");
   const [snippetApplying, setSnippetApplying] = useState(false);
   const [snippetError, setSnippetError] = useState<string | null>(null);
+  const [targetSectionId, setTargetSectionId] = useState<string>("");
 
   // Apply JSON snippet to config(s)
   const handleApplySnippet = async () => {
@@ -1094,17 +1095,23 @@ const ServiceFormConfiguration = () => {
         updatedConfig.sections = [...(updatedConfig.sections || []), snippet];
       }
     } else if (snippetType === "field") {
-      // Add field to last section or create new section
+      // Add field to selected section or first section
       if (updatedConfig.sections && updatedConfig.sections.length > 0) {
-        const lastSection = updatedConfig.sections[updatedConfig.sections.length - 1];
-        const existingFieldIds = lastSection.fields.map((f: any) => f.id);
-        if (snippet.id && existingFieldIds.includes(snippet.id)) {
-          // Replace existing field
-          lastSection.fields = lastSection.fields.map((f: any) => 
-            f.id === snippet.id ? snippet : f
-          );
-        } else {
-          lastSection.fields = [...lastSection.fields, snippet];
+        const sectionIndex = targetSectionId 
+          ? updatedConfig.sections.findIndex((s: any) => s.id === targetSectionId)
+          : 0;
+        const targetSection = updatedConfig.sections[sectionIndex >= 0 ? sectionIndex : 0];
+        
+        if (targetSection) {
+          const existingFieldIds = (targetSection.fields || []).map((f: any) => f.id);
+          if (snippet.id && existingFieldIds.includes(snippet.id)) {
+            // Replace existing field
+            targetSection.fields = targetSection.fields.map((f: any) => 
+              f.id === snippet.id ? snippet : f
+            );
+          } else {
+            targetSection.fields = [...(targetSection.fields || []), snippet];
+          }
         }
       }
     } else if (snippetType === "document_category") {
@@ -2553,6 +2560,37 @@ const ServiceFormConfiguration = () => {
                 </SelectContent>
               </Select>
             </div>
+
+            {/* Target Section (only for field type) */}
+            {snippetType === "field" && applyTo === "current" && selectedProductId && formConfig?.sections && (
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Target Section</Label>
+                <Select value={targetSectionId} onValueChange={setTargetSectionId}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select a section to add field to..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {formConfig.sections.map((section: any) => (
+                      <SelectItem key={section.id} value={section.id}>
+                        {section.sectionTitle}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <p className="text-xs text-muted-foreground">
+                  Select which section to add the field to
+                </p>
+              </div>
+            )}
+
+            {snippetType === "field" && applyTo === "all" && (
+              <Alert className="bg-amber-500/10 border-amber-500/30">
+                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                <AlertDescription className="text-xs text-amber-700">
+                  When applying to all services, the field will be added to the <strong>first section</strong> of each service configuration.
+                </AlertDescription>
+              </Alert>
+            )}
 
             {/* Apply To */}
             <div className="space-y-2">
