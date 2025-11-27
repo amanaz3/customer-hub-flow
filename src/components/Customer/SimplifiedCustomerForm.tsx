@@ -1255,9 +1255,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     </div>
                   )}
 
-                  <div className="px-3 sm:px-4 pb-2">
-                    <h3 className="text-lg text-foreground font-semibold mb-1">Customer Details</h3>
-                    <p className="text-xs text-muted-foreground">
+                  <div className="px-3 sm:px-4 pb-2 border-0">
+                    <h3 className="text-lg text-foreground font-semibold mb-1 border-0">Customer Details</h3>
+                    <p className="text-xs text-muted-foreground border-0">
                       {companyMode ? 'Select an existing customer' : "Enter the customer's basic information to get started."}
                     </p>
                   </div>
