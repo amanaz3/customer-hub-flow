@@ -963,6 +963,39 @@ const ServiceFormConfiguration = () => {
   const [showValidationPreview, setShowValidationPreview] = useState(false);
   const [productSearchOpen, setProductSearchOpen] = useState(false);
 
+  // Batch update form field stages to ["draft"]
+  const handleBatchUpdateFormFieldStages = async () => {
+    setBatchUpdating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('batch-update-form-field-stages', {
+        body: {}
+      });
+
+      if (error) throw error;
+
+      if (data.success) {
+        toast({
+          title: "Form Field Stages Updated",
+          description: `Updated ${data.summary.totalFieldsUpdated} form fields across ${data.summary.success} services to require only "draft" stage.`,
+        });
+        
+        // Reload the current product config if one is selected
+        if (selectedProductId) {
+          fetchFormConfig();
+        }
+      }
+    } catch (error) {
+      console.error('Error updating form field stages:', error);
+      toast({
+        title: "Update Failed",
+        description: "Failed to update form field stages. Check console for details.",
+        variant: "destructive",
+      });
+    } finally {
+      setBatchUpdating(false);
+    }
+  };
+
   // Batch add ECT validation field to all services
   const handleBatchAddValidationFields = async () => {
     setBatchUpdating(true);
@@ -1911,6 +1944,20 @@ const ServiceFormConfiguration = () => {
                   {batchUpdating ? "Migrating..." : "Migrate Validation Fields"}
                 </Button>
               </div>
+
+              <Separator orientation="vertical" className="h-5" />
+
+              {/* Admin: Set Form Fields to Draft Stage */}
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleBatchUpdateFormFieldStages}
+                disabled={batchUpdating}
+                className="gap-1.5 h-7 text-xs bg-blue-600 hover:bg-blue-700"
+              >
+                <Save className="h-3 w-3" />
+                {batchUpdating ? "Updating..." : "Set Form Fields to Draft"}
+              </Button>
               
               {/* JSON Snippet Injector */}
               <Button
