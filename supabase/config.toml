@@ -125,3 +125,6 @@ verify_jwt = false
 
 [functions.batch-update-form-field-stages]
 verify_jwt = false
+
+[functions.analyze-tasks-ai]
+verify_jwt = true

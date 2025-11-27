@@ -23,7 +23,7 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, FolderKanban, Flag, Clock, ArrowRight, ChevronRight, ChevronDown, Flame, Inbox, Calendar, LayoutGrid } from 'lucide-react';
+import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, FolderKanban, Flag, Clock, ArrowRight, ChevronRight, ChevronDown, Flame, Inbox, Calendar, LayoutGrid, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CreateTaskDialog } from '@/components/Team/CreateTaskDialog';
@@ -32,6 +32,7 @@ import { TaskCard } from '@/components/Team/TaskCard';
 import { TaskDetailDialog } from '@/components/Team/TaskDetailDialog';
 import { QuickAddBugDialog } from '@/components/Team/QuickAddBugDialog';
 import { QuickAddTaskFromWhatsApp } from '@/components/Team/QuickAddTaskFromWhatsApp';
+import { AITaskAnalyzer } from '@/components/Team/AITaskAnalyzer';
 import { useRealtimeSubscription } from '@/hooks/useRealtimeSubscription';
 import { formatApplicationReferenceWithPrefix } from '@/utils/referenceNumberFormatter';
 
@@ -170,6 +171,7 @@ const TaskCollaboration: React.FC = () => {
   const [selectedProductId, setSelectedProductId] = useState<string | undefined>();
   const [quickAddBugOpen, setQuickAddBugOpen] = useState(false);
   const [quickAddWhatsAppOpen, setQuickAddWhatsAppOpen] = useState(false);
+  const [aiAnalyzerOpen, setAiAnalyzerOpen] = useState(false);
   const [parentTaskIdForNewTask, setParentTaskIdForNewTask] = useState<string | undefined>(undefined);
   const [caseStatusFilter, setCaseStatusFilter] = useState<string>('active');
   const [caseSearchQuery, setCaseSearchQuery] = useState('');
@@ -1424,9 +1426,9 @@ const TaskCollaboration: React.FC = () => {
                     Track and manage team work
                   </CardDescription>
                 </div>
-            <Button onClick={() => setQuickAddWhatsAppOpen(true)} variant="default">
-              <Plus className="h-4 w-4 mr-2" />
-              Add from WhatsApp
+            <Button onClick={() => setAiAnalyzerOpen(true)} variant="default" className="gap-2">
+              <Sparkles className="h-4 w-4" />
+              AI Task Analyzer
             </Button>
             <Button onClick={() => setCreateTaskOpen(true)}>
               <Plus className="h-4 w-4 mr-2" />
@@ -2399,6 +2401,12 @@ const TaskCollaboration: React.FC = () => {
       <QuickAddTaskFromWhatsApp
         open={quickAddWhatsAppOpen}
         onOpenChange={setQuickAddWhatsAppOpen}
+        onTasksCreated={fetchTasks}
+      />
+
+      <AITaskAnalyzer
+        open={aiAnalyzerOpen}
+        onOpenChange={setAiAnalyzerOpen}
         onTasksCreated={fetchTasks}
       />
     </div>
