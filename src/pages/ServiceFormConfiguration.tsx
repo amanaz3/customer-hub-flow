@@ -958,6 +958,7 @@ const ServiceFormConfiguration = () => {
   const [versions, setVersions] = useState<any[]>([]);
   const [changeNotes, setChangeNotes] = useState("");
   const [batchUpdating, setBatchUpdating] = useState(false);
+  const [showValidationPreview, setShowValidationPreview] = useState(false);
 
   // Batch add ECT validation field to all services
   const handleBatchAddValidationFields = async () => {
@@ -1887,15 +1888,26 @@ const ServiceFormConfiguration = () => {
               <Separator orientation="vertical" className="h-5" />
 
               {/* Admin: Migrate Validation Fields */}
-              <Button
-                variant="default"
-                size="sm"
-                onClick={handleBatchAddValidationFields}
-                disabled={batchUpdating}
-                className="gap-1.5 h-7 text-xs bg-amber-600 hover:bg-amber-700"
-              >
-                {batchUpdating ? "Migrating..." : "Migrate Validation Fields"}
-              </Button>
+              <div className="flex gap-1.5 items-center">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowValidationPreview(true)}
+                  className="gap-1.5 h-7 text-xs border-amber-500 text-amber-600 hover:bg-amber-50"
+                >
+                  <Eye className="h-3 w-3" />
+                  Preview
+                </Button>
+                <Button
+                  variant="default"
+                  size="sm"
+                  onClick={handleBatchAddValidationFields}
+                  disabled={batchUpdating}
+                  className="gap-1.5 h-7 text-xs bg-amber-600 hover:bg-amber-700"
+                >
+                  {batchUpdating ? "Migrating..." : "Migrate Validation Fields"}
+                </Button>
+              </div>
               
               {/* JSON Snippet Injector */}
               <Button
@@ -2779,6 +2791,110 @@ const ServiceFormConfiguration = () => {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowLoadTemplateDialog(false)}>
               Close
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Version History Dialog */}
+      {/* Validation Fields Preview Dialog */}
+      <Dialog open={showValidationPreview} onOpenChange={setShowValidationPreview}>
+        <DialogContent className="sm:max-w-3xl">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-amber-500/10 flex items-center justify-center">
+                <AlertTriangle className="h-4 w-4 text-amber-600" />
+              </div>
+              Validation Fields Migration Preview
+            </DialogTitle>
+            <DialogDescription>
+              This JSON structure will be applied to all services. Existing validation fields will be updated/replaced.
+            </DialogDescription>
+          </DialogHeader>
+          <ScrollArea className="max-h-[500px]">
+            <div className="space-y-4">
+              <Card className="border-amber-500/30 bg-amber-500/5">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm">For All Services (10 services)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <pre className="text-xs bg-background rounded-lg p-4 overflow-x-auto border">
+{`{
+  "validationFields": [
+    {
+      "id": "estimated_completion_time",
+      "fieldType": "date",
+      "label": "Expected Date",
+      "required": false,
+      "requiredAtStage": ["submitted"],
+      "renderInForm": false,
+      "helperText": "Must be set before submission"
+    }
+  ]
+}`}
+                  </pre>
+                </CardContent>
+              </Card>
+
+              <Card className="border-blue-500/30 bg-blue-500/5">
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm">Business Bank Account Only (Additional Field)</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <pre className="text-xs bg-background rounded-lg p-4 overflow-x-auto border">
+{`{
+  "validationFields": [
+    {
+      "id": "estimated_completion_time",
+      "fieldType": "date",
+      "label": "Expected Date",
+      "required": false,
+      "requiredAtStage": ["submitted"],
+      "renderInForm": false,
+      "helperText": "Must be set before submission"
+    },
+    {
+      "id": "risk_level",
+      "fieldType": "select",
+      "label": "Risk Level",
+      "options": ["Low", "Medium", "High"],
+      "required": false,
+      "requiredAtStage": ["submitted"],
+      "renderInForm": false,
+      "helperText": "Set via Risk Assessment on Application Detail page"
+    }
+  ]
+}`}
+                  </pre>
+                </CardContent>
+              </Card>
+
+              <Alert className="border-amber-500/30 bg-amber-500/5">
+                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                <AlertTitle>What This Does</AlertTitle>
+                <AlertDescription className="text-xs space-y-2 mt-2">
+                  <p>✓ Updates <strong>estimated_completion_time</strong> field configuration for all services</p>
+                  <p>✓ Ensures correct label ("Expected Date") and fieldType ("date")</p>
+                  <p>✓ Adds/updates <strong>risk_level</strong> field only for Business Bank Account</p>
+                  <p>✓ Preserves any other existing validation fields</p>
+                  <p>✓ Replaces old/incorrect configurations with correct ones</p>
+                </AlertDescription>
+              </Alert>
+            </div>
+          </ScrollArea>
+          <DialogFooter className="flex-col sm:flex-row gap-2">
+            <Button variant="outline" onClick={() => setShowValidationPreview(false)}>
+              Close Preview
+            </Button>
+            <Button 
+              onClick={() => {
+                setShowValidationPreview(false);
+                handleBatchAddValidationFields();
+              }}
+              disabled={batchUpdating}
+              className="bg-amber-600 hover:bg-amber-700"
+            >
+              {batchUpdating ? "Migrating..." : "Apply Migration"}
             </Button>
           </DialogFooter>
         </DialogContent>
