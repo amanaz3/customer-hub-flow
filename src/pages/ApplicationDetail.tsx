@@ -21,6 +21,7 @@ import { formatApplicationReferenceWithPrefix } from '@/utils/referenceNumberFor
 import { CompletionDateDialog } from '@/components/Customer/CompletionDateDialog';
 import { CompletionDateHistory } from '@/components/Customer/CompletionDateHistory';
 import { AssessmentHistory } from '@/components/Customer/AssessmentHistory';
+import { WorkflowSteps } from '@/components/Application/WorkflowSteps';
 
 const ApplicationDetail = () => {
   const { id } = useParams<{ id: string }>();
@@ -56,6 +57,7 @@ const ApplicationDetail = () => {
     };
   } | null>(null);
   const [isCalculating, setIsCalculating] = useState(false);
+  const [workflowEnabled, setWorkflowEnabled] = useState(false);
 
   // Helper function to extract recommendations from assessment
   const getRecommendations = (assessment: any): string[] => {
@@ -1042,6 +1044,12 @@ const ApplicationDetail = () => {
       <Tabs defaultValue="details" className="space-y-4">
         <TabsList>
           <TabsTrigger value="details">Application Details</TabsTrigger>
+          {workflowEnabled && (
+            <TabsTrigger value="workflow">
+              <Clock className="h-4 w-4 mr-2" />
+              Workflow Steps
+            </TabsTrigger>
+          )}
           <TabsTrigger value="documents">
             <FileText className="h-4 w-4 mr-2" />
             Documents ({application.documents?.length || 0})
@@ -2078,6 +2086,12 @@ const ApplicationDetail = () => {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {workflowEnabled && (
+          <TabsContent value="workflow">
+            <WorkflowSteps applicationId={application.id} />
+          </TabsContent>
+        )}
 
         <TabsContent value="documents">
           <Card>
