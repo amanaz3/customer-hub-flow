@@ -966,13 +966,11 @@ const ServiceFormConfiguration = () => {
   const [snippetPreviewData, setSnippetPreviewData] = useState<any>(null);
   const [showDraftStageDialog, setShowDraftStageDialog] = useState(false);
   const [draftStageConfig, setDraftStageConfig] = useState({
-    selectedServices: [] as string[],
+    selectedServiceId: null as string | null, // Single service selection
     selectedFields: [] as string[],
     selectedStages: [] as string[],
-    applyToAllServices: true,
     applyToAllFields: true,
     applyToAllStages: false,
-    fieldSelectionServiceId: null as string | null, // Track which service to show fields from
   });
   const [fieldSelectionServiceConfig, setFieldSelectionServiceConfig] = useState<any>(null);
   const [productSearchOpen, setProductSearchOpen] = useState(false);
@@ -994,28 +992,24 @@ const ServiceFormConfiguration = () => {
     }
   };
 
-  // When field selection service changes, fetch its config
+  // When selected service changes, fetch its config
   useEffect(() => {
-    if (draftStageConfig.fieldSelectionServiceId) {
-      fetchFieldsForService(draftStageConfig.fieldSelectionServiceId);
+    if (draftStageConfig.selectedServiceId) {
+      fetchFieldsForService(draftStageConfig.selectedServiceId);
     } else {
       setFieldSelectionServiceConfig(null);
     }
-  }, [draftStageConfig.fieldSelectionServiceId]);
+  }, [draftStageConfig.selectedServiceId]);
 
   // Batch update form field stages with granular control
   const handleBatchUpdateFormFieldStages = async () => {
     setBatchUpdating(true);
     try {
-      // Determine which services to update
-      const targetProductIds = draftStageConfig.applyToAllServices 
-        ? products.map(p => p.id)
-        : draftStageConfig.selectedServices;
-
-      if (targetProductIds.length === 0) {
+      // Validate service selection
+      if (!draftStageConfig.selectedServiceId) {
         toast({
-          title: "No Services Selected",
-          description: "Please select at least one service",
+          title: "No Service Selected",
+          description: "Please select a service",
           variant: "destructive",
         });
         return;
@@ -1033,7 +1027,7 @@ const ServiceFormConfiguration = () => {
       const { data: configs, error: fetchError } = await supabase
         .from('service_form_configurations')
         .select('*, products(name)')
-        .in('product_id', targetProductIds);
+        .eq('product_id', draftStageConfig.selectedServiceId);
 
       if (fetchError) throw fetchError;
 
@@ -3227,13 +3221,11 @@ const ServiceFormConfiguration = () => {
           if (!open) {
             // Reset state when dialog closes
             setDraftStageConfig({
-              selectedServices: [],
+              selectedServiceId: null,
               selectedFields: [],
               selectedStages: [],
-              applyToAllServices: true,
               applyToAllFields: true,
               applyToAllStages: false,
-              fieldSelectionServiceId: null,
             });
             setFieldSelectionServiceConfig(null);
           }
@@ -3256,44 +3248,28 @@ const ServiceFormConfiguration = () => {
             <div className="space-y-6">
               {/* Service Selection */}
               <div className="space-y-3">
-                <Label className="text-base font-semibold">Services</Label>
-                <div className="flex items-center space-x-2 mb-2">
-                  <Checkbox
-                    id="all-services"
-                    checked={draftStageConfig.applyToAllServices}
-                    onCheckedChange={(checked) => 
-                      setDraftStageConfig(prev => ({ 
-                        ...prev, 
-                        applyToAllServices: !!checked,
-                        selectedServices: checked ? [] : prev.selectedServices
-                      }))
-                    }
-                  />
-                  <Label htmlFor="all-services" className="cursor-pointer">All Services</Label>
-                </div>
-                {!draftStageConfig.applyToAllServices && (
-                  <div className="grid grid-cols-2 gap-2 p-3 border rounded-md max-h-[200px] overflow-y-auto">
+                <Label className="text-base font-semibold">Select Service</Label>
+                <Select
+                  value={draftStageConfig.selectedServiceId || undefined}
+                  onValueChange={(value) => 
+                    setDraftStageConfig(prev => ({ 
+                      ...prev, 
+                      selectedServiceId: value,
+                      selectedFields: [] // Reset selected fields when service changes
+                    }))
+                  }
+                >
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Choose a service..." />
+                  </SelectTrigger>
+                  <SelectContent>
                     {products.map((product) => (
-                      <div key={product.id} className="flex items-center space-x-2">
-                        <Checkbox
-                          id={`service-${product.id}`}
-                          checked={draftStageConfig.selectedServices.includes(product.id)}
-                          onCheckedChange={(checked) => {
-                            setDraftStageConfig(prev => ({
-                              ...prev,
-                              selectedServices: checked
-                                ? [...prev.selectedServices, product.id]
-                                : prev.selectedServices.filter(id => id !== product.id)
-                            }));
-                          }}
-                        />
-                        <Label htmlFor={`service-${product.id}`} className="cursor-pointer text-sm">
-                          {product.name}
-                        </Label>
-                      </div>
+                      <SelectItem key={product.id} value={product.id}>
+                        {product.name}
+                      </SelectItem>
                     ))}
-                  </div>
-                )}
+                  </SelectContent>
+                </Select>
               </div>
 
               {/* Field Selection */}
@@ -3313,40 +3289,11 @@ const ServiceFormConfiguration = () => {
                   />
                   <Label htmlFor="all-fields" className="cursor-pointer">All Fields</Label>
                 </div>
-                {!draftStageConfig.applyToAllFields && (
+                {!draftStageConfig.applyToAllFields && draftStageConfig.selectedServiceId && (
                   <>
-                    {/* Service selector for field filtering */}
-                    <Select
-                      value={draftStageConfig.fieldSelectionServiceId || undefined}
-                      onValueChange={(value) => 
-                        setDraftStageConfig(prev => ({ 
-                          ...prev, 
-                          fieldSelectionServiceId: value,
-                          selectedFields: [] // Reset selected fields when service changes
-                        }))
-                      }
-                    >
-                      <SelectTrigger className="w-full">
-                        <SelectValue placeholder="Select service to view its fields..." />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {products.map((product) => (
-                          <SelectItem key={product.id} value={product.id}>
-                            {product.name}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-
-                    {draftStageConfig.fieldSelectionServiceId ? (
+                    {fieldSelectionServiceConfig ? (
                       <>
-                        {!fieldSelectionServiceConfig ? (
-                          <div className="p-4 border rounded-md bg-muted/50 text-center">
-                            <p className="text-sm text-muted-foreground">
-                              This service has no form configuration yet. Please configure it first.
-                            </p>
-                          </div>
-                        ) : (fieldSelectionServiceConfig.sections || []).length === 0 ? (
+                        {(fieldSelectionServiceConfig.sections || []).length === 0 ? (
                           <div className="p-4 border rounded-md bg-muted/50 text-center">
                             <p className="text-sm text-muted-foreground">
                               No fields found in this service configuration.
@@ -3382,11 +3329,18 @@ const ServiceFormConfiguration = () => {
                         )}
                       </>
                     ) : (
-                      <p className="text-sm text-muted-foreground italic p-3 border rounded-md">
-                        Select a service above to choose specific fields
-                      </p>
+                      <div className="p-4 border rounded-md bg-muted/50 text-center">
+                        <p className="text-sm text-muted-foreground">
+                          This service has no form configuration yet. Please configure it first.
+                        </p>
+                      </div>
                     )}
                   </>
+                )}
+                {!draftStageConfig.applyToAllFields && !draftStageConfig.selectedServiceId && (
+                  <p className="text-sm text-muted-foreground italic p-3 border rounded-md">
+                    Select a service above first
+                  </p>
                 )}
               </div>
 
@@ -3429,7 +3383,7 @@ const ServiceFormConfiguration = () => {
               }}
               disabled={
                 batchUpdating ||
-                (!draftStageConfig.applyToAllServices && draftStageConfig.selectedServices.length === 0) ||
+                !draftStageConfig.selectedServiceId ||
                 (!draftStageConfig.applyToAllFields && draftStageConfig.selectedFields.length === 0) ||
                 draftStageConfig.selectedStages.length === 0
               }
