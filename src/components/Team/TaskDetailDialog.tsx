@@ -66,6 +66,7 @@ interface Task {
   story: string | null;
   architectural_component: string | null;
   importance?: string | null;
+  importance_reason?: string | null;
 }
 
 interface Comment {
@@ -503,6 +504,16 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
               </Select>
             </div>
           </div>
+
+          {/* Importance Reason - Read Only */}
+          {task.importance_reason && (
+            <div className="space-y-2">
+              <Label className="text-muted-foreground">AI Importance Reason</Label>
+              <div className="p-3 bg-muted/50 rounded-md border text-sm text-muted-foreground italic">
+                {task.importance_reason}
+              </div>
+            </div>
+          )}
 
           {/* Description */}
           <div className="space-y-2">
