@@ -41,8 +41,8 @@ serve(async (req) => {
     // Define validation fields
     const estimatedCompletionTimeField = {
       id: "estimated_completion_time",
-      fieldType: "datetime-local",
-      label: "Estimated Completion Time",
+      fieldType: "date",
+      label: "Expected Date",
       required: false,
       requiredAtStage: ["submitted"],
       renderInForm: false,
