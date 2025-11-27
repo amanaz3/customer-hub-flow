@@ -954,6 +954,38 @@ const ServiceFormConfiguration = () => {
   const [templates, setTemplates] = useState<any[]>([]);
   const [versions, setVersions] = useState<any[]>([]);
   const [changeNotes, setChangeNotes] = useState("");
+  const [batchUpdating, setBatchUpdating] = useState(false);
+
+  // Batch add ECT validation field to all services
+  const handleBatchAddValidationFields = async () => {
+    setBatchUpdating(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('batch-add-validation-fields', {
+        body: {}
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Batch Update Complete",
+        description: `Updated ${data.summary?.success || 0} services, skipped ${data.summary?.skipped || 0}`,
+      });
+
+      // Refresh current config if a product is selected
+      if (selectedProductId) {
+        fetchFormConfig();
+      }
+    } catch (error: any) {
+      console.error('Batch update error:', error);
+      toast({
+        title: "Error",
+        description: error.message || "Failed to batch update configurations",
+        variant: "destructive",
+      });
+    } finally {
+      setBatchUpdating(false);
+    }
+  };
 
   // Available stages
   const stages = ['draft', 'submitted', 'review', 'approval', 'completed'];
@@ -1668,6 +1700,19 @@ const ServiceFormConfiguration = () => {
                   Export
                 </Button>
               </div>
+
+              <Separator orientation="vertical" className="h-5" />
+
+              {/* Admin: Batch Add ECT */}
+              <Button
+                variant="default"
+                size="sm"
+                onClick={handleBatchAddValidationFields}
+                disabled={batchUpdating}
+                className="gap-1.5 h-7 text-xs bg-amber-600 hover:bg-amber-700"
+              >
+                {batchUpdating ? "Updating..." : "Add ECT to All Services"}
+              </Button>
             </div>
           </div>
         </div>

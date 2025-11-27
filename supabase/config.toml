@@ -119,3 +119,6 @@ verify_jwt = true
 
 [functions.assign-task-importance]
 verify_jwt = true
+
+[functions.batch-add-validation-fields]
+verify_jwt = false
