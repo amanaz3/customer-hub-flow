@@ -609,8 +609,9 @@ const ApplicationDetail = () => {
   const handleStatusUpdate = async () => {
     if (!id || !selectedStatus || !user) return;
 
-    // Validate estimated completion time for draft->submitted transition
+    // Validate for draft->submitted transition
     if (application?.status.toLowerCase() === 'draft' && selectedStatus.toLowerCase() === 'submitted') {
+      // Check estimated completion time
       if (!estimatedCompletionTime) {
         toast({
           title: 'Estimated Completion Date Required',
@@ -618,6 +619,22 @@ const ApplicationDetail = () => {
           variant: 'destructive',
         });
         return;
+      }
+      
+      // Check risk assessment for bank account applications
+      const isBankAccount = application?.application_type?.toLowerCase().includes('bank') || 
+                           application?.application_type?.toLowerCase() === 'bank_account';
+      
+      if (isBankAccount) {
+        const riskAssessment = (application?.application_assessment as any)?.riskAssessment;
+        if (!riskAssessment?.level) {
+          toast({
+            title: 'Risk Assessment Required',
+            description: 'Please complete the risk assessment before submitting this bank account application.',
+            variant: 'destructive',
+          });
+          return;
+        }
       }
     }
 
