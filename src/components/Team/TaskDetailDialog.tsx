@@ -135,6 +135,8 @@ export const TaskDetailDialog: React.FC<TaskDetailDialogProps> = ({
       .eq('id', taskId)
       .maybeSingle();
     
+    console.log('Fetched task data:', data);
+    console.log('importance_reason:', data?.importance_reason);
     if (data) setTask(data as Task);
   };
 
