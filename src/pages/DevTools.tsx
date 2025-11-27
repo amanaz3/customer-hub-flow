@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Wrench, FlaskConical, Flag } from "lucide-react";
+import { Wrench, FlaskConical } from "lucide-react";
 
 export default function DevTools() {
   const navigate = useNavigate();
@@ -35,27 +35,6 @@ export default function DevTools() {
           <CardContent>
             <CardDescription>
               Test in-app and email notifications
-            </CardDescription>
-          </CardContent>
-        </Card>
-
-        <Card 
-          className="hover:shadow-lg transition-shadow cursor-pointer"
-          onClick={() => navigate('/settings?tab=features')}
-        >
-          <CardHeader>
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-accent/10 rounded-lg">
-                <Flag className="h-6 w-6 text-accent-foreground" />
-              </div>
-              <div>
-                <CardTitle>Feature Flags</CardTitle>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent>
-            <CardDescription>
-              Enable or disable application workflow features
             </CardDescription>
           </CardContent>
         </Card>
