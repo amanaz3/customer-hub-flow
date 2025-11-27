@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Shield, BookOpen, UserCog, Building2, Flag } from "lucide-react";
+import { Users, MessageSquare, Shield, BookOpen, UserCog, Building2, Flag, DollarSign, Settings2 } from "lucide-react";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -71,6 +71,26 @@ const Manage = () => {
               <div>
                 <p className="font-medium text-sm">Services</p>
                 <p className="text-xs text-muted-foreground">Manage services and products</p>
+              </div>
+            </div>
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => navigate('/service-fees')}
+            >
+              <DollarSign className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">Service Fees</p>
+                <p className="text-xs text-muted-foreground">Configure fee structures and pricing</p>
+              </div>
+            </div>
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => navigate('/service-form-configuration')}
+            >
+              <Settings2 className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">Service Details Form</p>
+                <p className="text-xs text-muted-foreground">Configure dynamic forms for services</p>
               </div>
             </div>
             <div 
