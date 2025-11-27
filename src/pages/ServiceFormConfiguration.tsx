@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff, Upload, Download, FileJson, AlertTriangle, Code, FileText } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff, Upload, Download, FileJson, AlertTriangle, Code, FileText, Check, ChevronsUpDown } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
@@ -17,6 +17,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from "@/components/ui/command";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { validateFormConfigJSON, exportFormConfigToJSON, generateSampleFormConfig } from "@/utils/formConfigValidation";
 import {
   DndContext,
@@ -959,6 +961,7 @@ const ServiceFormConfiguration = () => {
   const [changeNotes, setChangeNotes] = useState("");
   const [batchUpdating, setBatchUpdating] = useState(false);
   const [showValidationPreview, setShowValidationPreview] = useState(false);
+  const [productSearchOpen, setProductSearchOpen] = useState(false);
 
   // Batch add ECT validation field to all services
   const handleBatchAddValidationFields = async () => {
@@ -1932,21 +1935,48 @@ const ServiceFormConfiguration = () => {
               <CardTitle className="text-base">Select Product / Service</CardTitle>
             </CardHeader>
             <CardContent className="pt-0 space-y-3">
-              <Select
-                value={selectedProductId}
-                onValueChange={setSelectedProductId}
-              >
-                <SelectTrigger className="h-9">
-                  <SelectValue placeholder="Select a product to configure" />
-                </SelectTrigger>
-                <SelectContent>
-                  {products.map((product) => (
-                    <SelectItem key={product.id} value={product.id}>
-                      {product.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={productSearchOpen} onOpenChange={setProductSearchOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={productSearchOpen}
+                    className="w-full justify-between h-9 font-normal"
+                  >
+                    {selectedProductId
+                      ? products.find((product) => product.id === selectedProductId)?.name
+                      : "Select a product to configure..."}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-full p-0 z-50" align="start">
+                  <Command>
+                    <CommandInput placeholder="Search products..." className="h-9" />
+                    <CommandList>
+                      <CommandEmpty>No product found.</CommandEmpty>
+                      <CommandGroup>
+                        {products.map((product) => (
+                          <CommandItem
+                            key={product.id}
+                            value={product.name}
+                            onSelect={() => {
+                              setSelectedProductId(product.id);
+                              setProductSearchOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={`mr-2 h-4 w-4 ${
+                                selectedProductId === product.id ? "opacity-100" : "opacity-0"
+                              }`}
+                            />
+                            {product.name}
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
               
               {(importErrors.length > 0 || importWarnings.length > 0) && (
                 <div className="space-y-2">
