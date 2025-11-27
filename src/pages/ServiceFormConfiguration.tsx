@@ -987,6 +987,153 @@ const ServiceFormConfiguration = () => {
     }
   };
 
+  // JSON Snippet Injector state
+  const [showSnippetDialog, setShowSnippetDialog] = useState(false);
+  const [snippetJSON, setSnippetJSON] = useState("");
+  const [snippetType, setSnippetType] = useState<"section" | "field" | "document_category">("section");
+  const [applyTo, setApplyTo] = useState<"current" | "all">("current");
+  const [snippetApplying, setSnippetApplying] = useState(false);
+  const [snippetError, setSnippetError] = useState<string | null>(null);
+
+  // Apply JSON snippet to config(s)
+  const handleApplySnippet = async () => {
+    setSnippetError(null);
+    
+    // Validate JSON
+    let parsedSnippet: any;
+    try {
+      parsedSnippet = JSON.parse(snippetJSON);
+    } catch (e) {
+      setSnippetError("Invalid JSON format. Please check your input.");
+      return;
+    }
+
+    setSnippetApplying(true);
+    
+    try {
+      if (applyTo === "current") {
+        // Apply to currently selected product only
+        if (!selectedProductId) {
+          setSnippetError("Please select a product first");
+          setSnippetApplying(false);
+          return;
+        }
+        
+        await applySnippetToProduct(selectedProductId, parsedSnippet);
+        toast({
+          title: "Success",
+          description: "Snippet applied to current service",
+        });
+        fetchFormConfig(); // Refresh
+      } else {
+        // Apply to all products
+        const { data: configs, error } = await supabase
+          .from('service_form_configurations')
+          .select('id, product_id, form_config, products!inner(name)');
+        
+        if (error) throw error;
+        
+        let successCount = 0;
+        let skipCount = 0;
+        
+        for (const config of configs || []) {
+          try {
+            const updated = await applySnippetToProduct(config.product_id, parsedSnippet, config);
+            if (updated) successCount++;
+            else skipCount++;
+          } catch (err) {
+            console.error(`Error applying to ${(config as any).products?.name}:`, err);
+            skipCount++;
+          }
+        }
+        
+        toast({
+          title: "Batch Apply Complete",
+          description: `Applied to ${successCount} services, skipped ${skipCount}`,
+        });
+        
+        if (selectedProductId) fetchFormConfig();
+      }
+      
+      setShowSnippetDialog(false);
+      setSnippetJSON("");
+    } catch (error: any) {
+      console.error('Snippet apply error:', error);
+      setSnippetError(error.message || "Failed to apply snippet");
+    } finally {
+      setSnippetApplying(false);
+    }
+  };
+
+  const applySnippetToProduct = async (productId: string, snippet: any, existingConfig?: any) => {
+    // Fetch current config if not provided
+    let currentFormConfig: any;
+    if (existingConfig) {
+      currentFormConfig = existingConfig.form_config;
+    } else {
+      const { data } = await supabase
+        .from('service_form_configurations')
+        .select('form_config')
+        .eq('product_id', productId)
+        .single();
+      currentFormConfig = data?.form_config || { sections: [], requiredDocuments: { categories: [] } };
+    }
+
+    let updatedConfig = { ...currentFormConfig };
+    
+    if (snippetType === "section") {
+      // Check if section with same ID already exists
+      const existingSectionIds = (updatedConfig.sections || []).map((s: any) => s.id);
+      if (snippet.id && existingSectionIds.includes(snippet.id)) {
+        // Replace existing section
+        updatedConfig.sections = updatedConfig.sections.map((s: any) => 
+          s.id === snippet.id ? snippet : s
+        );
+      } else {
+        // Add new section
+        updatedConfig.sections = [...(updatedConfig.sections || []), snippet];
+      }
+    } else if (snippetType === "field") {
+      // Add field to last section or create new section
+      if (updatedConfig.sections && updatedConfig.sections.length > 0) {
+        const lastSection = updatedConfig.sections[updatedConfig.sections.length - 1];
+        const existingFieldIds = lastSection.fields.map((f: any) => f.id);
+        if (snippet.id && existingFieldIds.includes(snippet.id)) {
+          // Replace existing field
+          lastSection.fields = lastSection.fields.map((f: any) => 
+            f.id === snippet.id ? snippet : f
+          );
+        } else {
+          lastSection.fields = [...lastSection.fields, snippet];
+        }
+      }
+    } else if (snippetType === "document_category") {
+      if (!updatedConfig.requiredDocuments) {
+        updatedConfig.requiredDocuments = { categories: [] };
+      }
+      const existingCategoryIds = updatedConfig.requiredDocuments.categories.map((c: any) => c.id);
+      if (snippet.id && existingCategoryIds.includes(snippet.id)) {
+        updatedConfig.requiredDocuments.categories = updatedConfig.requiredDocuments.categories.map((c: any) =>
+          c.id === snippet.id ? snippet : c
+        );
+      } else {
+        updatedConfig.requiredDocuments.categories = [...updatedConfig.requiredDocuments.categories, snippet];
+      }
+    }
+
+    // Upsert the config
+    const { error } = await supabase
+      .from('service_form_configurations')
+      .upsert({
+        product_id: productId,
+        form_config: updatedConfig,
+        updated_at: new Date().toISOString()
+      }, { onConflict: 'product_id' });
+
+    if (error) throw error;
+    return true;
+  };
+
   // Available stages
   const stages = ['draft', 'submitted', 'review', 'approval', 'completed'];
 
@@ -1711,7 +1858,18 @@ const ServiceFormConfiguration = () => {
                 disabled={batchUpdating}
                 className="gap-1.5 h-7 text-xs bg-amber-600 hover:bg-amber-700"
               >
-                {batchUpdating ? "Updating..." : "Add ECT to All Services"}
+                {batchUpdating ? "Updating..." : "Add ECT to All"}
+              </Button>
+              
+              {/* JSON Snippet Injector */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setShowSnippetDialog(true)}
+                className="gap-1.5 h-7 text-xs border-blue-500 text-blue-600 hover:bg-blue-50"
+              >
+                <Code className="h-3 w-3" />
+                Inject JSON
               </Button>
             </div>
           </div>
@@ -2364,6 +2522,136 @@ const ServiceFormConfiguration = () => {
           </Button>
         </div>
       )}
+
+      {/* JSON Snippet Injector Dialog */}
+      <Dialog open={showSnippetDialog} onOpenChange={setShowSnippetDialog}>
+        <DialogContent className="sm:max-w-2xl max-h-[90vh] overflow-hidden flex flex-col">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <div className="h-8 w-8 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <Code className="h-4 w-4 text-blue-600" />
+              </div>
+              JSON Snippet Injector
+            </DialogTitle>
+            <DialogDescription>
+              Paste a JSON snippet to add a section, field, or document category to service configurations.
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-4 flex-1 overflow-y-auto py-4">
+            {/* Snippet Type */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Snippet Type</Label>
+              <Select value={snippetType} onValueChange={(v: any) => setSnippetType(v)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="section">Section (with fields)</SelectItem>
+                  <SelectItem value="field">Single Field</SelectItem>
+                  <SelectItem value="document_category">Document Category</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Apply To */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">Apply To</Label>
+              <RadioGroup value={applyTo} onValueChange={(v: any) => setApplyTo(v)} className="flex gap-4">
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="current" id="apply-current" />
+                  <Label htmlFor="apply-current" className="text-sm font-normal cursor-pointer">
+                    Current Service Only {selectedProductId ? "" : "(select a product first)"}
+                  </Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="all" id="apply-all" />
+                  <Label htmlFor="apply-all" className="text-sm font-normal cursor-pointer">
+                    All Services
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+
+            {/* JSON Input */}
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">JSON Snippet</Label>
+              <Textarea
+                value={snippetJSON}
+                onChange={(e) => {
+                  setSnippetJSON(e.target.value);
+                  setSnippetError(null);
+                }}
+                placeholder={snippetType === "section" ? `{
+  "id": "section_validation_requirements",
+  "sectionTitle": "Submission Requirements",
+  "fields": [
+    {
+      "id": "field_estimated_completion",
+      "fieldType": "date",
+      "label": "Estimated Completion Date",
+      "required": true,
+      "requiredAtStage": ["submitted"],
+      "renderInForm": false,
+      "helperText": "Required before submission"
+    }
+  ]
+}` : snippetType === "field" ? `{
+  "id": "field_new_field",
+  "fieldType": "text",
+  "label": "New Field",
+  "required": true,
+  "requiredAtStage": ["draft", "submitted"],
+  "renderInForm": true
+}` : `{
+  "id": "category_new",
+  "name": "New Category",
+  "documents": [
+    {
+      "id": "doc_1",
+      "name": "Document Name",
+      "isMandatory": true,
+      "acceptedFileTypes": ["pdf", "jpg", "png"]
+    }
+  ]
+}`}
+                className="font-mono text-xs min-h-[200px]"
+              />
+              {snippetError && (
+                <Alert variant="destructive" className="py-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertDescription className="text-xs">{snippetError}</AlertDescription>
+                </Alert>
+              )}
+            </div>
+
+            {/* Tips */}
+            <Alert className="bg-muted/50">
+              <AlertTitle className="text-xs font-medium">Tips</AlertTitle>
+              <AlertDescription className="text-xs text-muted-foreground">
+                <ul className="list-disc list-inside space-y-1 mt-1">
+                  <li>If the snippet ID already exists, it will be <strong>replaced</strong></li>
+                  <li>Use <code className="bg-muted px-1 rounded">renderInForm: false</code> for validation-only fields</li>
+                  <li>Use <code className="bg-muted px-1 rounded">requiredAtStage</code> to specify when fields are required</li>
+                </ul>
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          <DialogFooter className="border-t pt-4">
+            <Button variant="outline" onClick={() => setShowSnippetDialog(false)}>
+              Cancel
+            </Button>
+            <Button 
+              onClick={handleApplySnippet} 
+              disabled={snippetApplying || !snippetJSON.trim()}
+              className="gap-2"
+            >
+              {snippetApplying ? "Applying..." : applyTo === "all" ? "Apply to All Services" : "Apply to Current"}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
     </div>
   );
