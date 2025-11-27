@@ -50,7 +50,7 @@ export const ProcessSummarySidebar = ({
   selectedCustomerData,
   companyMode
 }: ProcessSummarySidebarProps) => {
-  const [internalCollapsed, setInternalCollapsed] = useState(false);
+  const [internalCollapsed, setInternalCollapsed] = useState(true);
   const isCollapsed = externalCollapsed ?? internalCollapsed;
   
   const handleToggle = () => {
