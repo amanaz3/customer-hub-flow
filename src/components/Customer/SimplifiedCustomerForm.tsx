@@ -665,21 +665,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         return;
       }
 
-      // Validate risk_level for bank account applications
-      const selectedProduct = products?.find(p => p.id === data.product_id);
-      const isBankAccount = selectedProduct?.service_category_id === 'bank_account' || 
-                           selectedProduct?.name?.toLowerCase().includes('bank account');
-      
-      if (isBankAccount && !data.risk_level) {
-        toast({
-          title: "Risk Level Required",
-          description: "Please select a risk level for bank account applications before submitting.",
-          variant: "destructive",
-        });
-        setIsSubmitting(false);
-        return;
-      }
-
       // Use existing customer ID or create new customer
       let finalCustomerId = customerId;
       
