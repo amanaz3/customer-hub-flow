@@ -990,7 +990,7 @@ const ServiceFormConfiguration = () => {
   // JSON Snippet Injector state
   const [showSnippetDialog, setShowSnippetDialog] = useState(false);
   const [snippetJSON, setSnippetJSON] = useState("");
-  const [snippetType, setSnippetType] = useState<"section" | "field" | "document_category">("section");
+  const [snippetType, setSnippetType] = useState<"section" | "field" | "document_category" | "validation_field">("section");
   const [applyTo, setApplyTo] = useState<"current" | "all">("current");
   const [snippetApplying, setSnippetApplying] = useState(false);
   const [snippetError, setSnippetError] = useState<string | null>(null);
@@ -1125,6 +1125,20 @@ const ServiceFormConfiguration = () => {
         );
       } else {
         updatedConfig.requiredDocuments.categories = [...updatedConfig.requiredDocuments.categories, snippet];
+      }
+    } else if (snippetType === "validation_field") {
+      // Add to top-level validationFields array (not inside any section)
+      if (!updatedConfig.validationFields) {
+        updatedConfig.validationFields = [];
+      }
+      const existingFieldIds = updatedConfig.validationFields.map((f: any) => f.id);
+      if (snippet.id && existingFieldIds.includes(snippet.id)) {
+        // Replace existing validation field
+        updatedConfig.validationFields = updatedConfig.validationFields.map((f: any) =>
+          f.id === snippet.id ? snippet : f
+        );
+      } else {
+        updatedConfig.validationFields = [...updatedConfig.validationFields, snippet];
       }
     }
 
@@ -2555,10 +2569,16 @@ const ServiceFormConfiguration = () => {
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="section">Section (with fields)</SelectItem>
-                  <SelectItem value="field">Single Field</SelectItem>
+                  <SelectItem value="field">Single Field (in section)</SelectItem>
+                  <SelectItem value="validation_field">Validation Field (standalone)</SelectItem>
                   <SelectItem value="document_category">Document Category</SelectItem>
                 </SelectContent>
               </Select>
+              {snippetType === "validation_field" && (
+                <p className="text-xs text-muted-foreground">
+                  Validation fields are stored outside sections — ideal for fields like <code className="bg-muted px-1 rounded text-[10px]">estimated_completion_time</code>, <code className="bg-muted px-1 rounded text-[10px]">risk_level</code> that don't render in forms but are validated at specific stages.
+                </p>
+              )}
             </div>
 
             {/* Target Section (only for field type) */}
@@ -2641,6 +2661,14 @@ const ServiceFormConfiguration = () => {
   "required": true,
   "requiredAtStage": ["draft", "submitted"],
   "renderInForm": true
+}` : snippetType === "validation_field" ? `{
+  "id": "estimated_completion_time",
+  "fieldType": "datetime-local",
+  "label": "Estimated Completion Time",
+  "required": false,
+  "requiredAtStage": ["submitted"],
+  "renderInForm": false,
+  "helperText": "Must be set before submission"
 }` : `{
   "id": "category_new",
   "name": "New Category",
