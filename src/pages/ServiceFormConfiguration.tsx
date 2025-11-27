@@ -934,6 +934,7 @@ const ServiceFormConfiguration = () => {
   const [selectedProductId, setSelectedProductId] = useState<string>("");
   const [formConfig, setFormConfig] = useState<FormConfig>({ 
     sections: [],
+    validationFields: [],
     requiredDocuments: { categories: [] }
   });
   const [loading, setLoading] = useState(false);
@@ -1232,11 +1233,13 @@ const ServiceFormConfiguration = () => {
       const config = data.form_config as any;
       setFormConfig({
         sections: config.sections || [],
+        validationFields: config.validationFields || [],
         requiredDocuments: config.requiredDocuments || { categories: [] }
       });
     } else {
       setFormConfig({ 
         sections: [],
+        validationFields: [],
         requiredDocuments: { categories: [] }
       });
     }
