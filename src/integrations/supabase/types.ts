@@ -303,6 +303,131 @@ export type Database = {
         }
         Relationships: []
       }
+      application_step_history: {
+        Row: {
+          application_id: string
+          changed_by: string
+          changed_by_role: Database["public"]["Enums"]["app_role"]
+          comment: string | null
+          created_at: string
+          id: string
+          new_status: string
+          previous_status: string | null
+          step_id: string
+        }
+        Insert: {
+          application_id: string
+          changed_by: string
+          changed_by_role: Database["public"]["Enums"]["app_role"]
+          comment?: string | null
+          created_at?: string
+          id?: string
+          new_status: string
+          previous_status?: string | null
+          step_id: string
+        }
+        Update: {
+          application_id?: string
+          changed_by?: string
+          changed_by_role?: Database["public"]["Enums"]["app_role"]
+          comment?: string | null
+          created_at?: string
+          id?: string
+          new_status?: string
+          previous_status?: string | null
+          step_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_step_history_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "account_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_step_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_step_history_step_id_fkey"
+            columns: ["step_id"]
+            isOneToOne: false
+            referencedRelation: "application_workflow_steps"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      application_workflow_steps: {
+        Row: {
+          application_id: string
+          assigned_to: string | null
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          status: string
+          step_key: string
+          step_name: string
+          step_order: number
+          updated_at: string
+        }
+        Insert: {
+          application_id: string
+          assigned_to?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          step_key: string
+          step_name: string
+          step_order: number
+          updated_at?: string
+        }
+        Update: {
+          application_id?: string
+          assigned_to?: string | null
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          status?: string
+          step_key?: string
+          step_name?: string
+          step_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "application_workflow_steps_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "account_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_workflow_steps_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "application_workflow_steps_completed_by_fkey"
+            columns: ["completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       arr_performance: {
         Row: {
           actual_new_arr: number
