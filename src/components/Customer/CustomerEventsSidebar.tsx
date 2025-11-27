@@ -426,7 +426,7 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                     <span className="text-xs text-muted-foreground">{getProductTitle()}</span>
                   )}
                   <span className="text-xs text-amber-600 dark:text-amber-400 mt-1 font-medium">
-                    Reference only - Documents collected in subsequent steps
+                    Reference only - Documents collected in subsequent stage
                   </span>
                 </div>
                 {productType && (
@@ -1236,12 +1236,12 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                {/* Accordion-based Document Categories - Only expandable section */}
                <div className="flex-1 overflow-y-auto p-4 min-h-0 space-y-3">
                  {/* Info Banner */}
-                 <div className="px-4 py-3 bg-gradient-to-r from-amber-500/10 to-amber-600/10 border-2 border-amber-500/30 rounded-xl flex items-start gap-3">
-                   <Calendar className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
-                   <p className="text-sm font-medium text-amber-700 dark:text-amber-300">
-                     Reference only - Documents collected in subsequent steps
-                   </p>
-                 </div>
+                  <div className="px-4 py-3 bg-gradient-to-r from-amber-500/10 to-amber-600/10 border-2 border-amber-500/30 rounded-xl flex items-start gap-3">
+                    <Calendar className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                    <p className="text-sm font-medium text-amber-700 dark:text-amber-300">
+                      Reference only - Documents collected in subsequent stage
+                    </p>
+                  </div>
                  
                  <Accordion type="single" collapsible defaultValue="item-0" className="space-y-3">
                    {documentCategories.map((category, index) => {
