@@ -1637,7 +1637,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         return (
                           <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
                             <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
-                              <div className="w-1 h-6 bg-primary rounded-full" />
+                              <div className="w-1 h-6 bg-primary/30 rounded-full" />
                               <h4 className="font-semibold text-foreground text-base">Service Details</h4>
                             </div>
                             <dl className="space-y-2 text-sm">
