@@ -20,16 +20,16 @@
     --primary-foreground: 0 0% 100%;
 
     /* Warm gold secondary - highlights */
-    --secondary: 40 75% 50%;
-    --secondary-foreground: 220 30% 15%;
+    --secondary: 40 30% 92%;
+    --secondary-foreground: 220 30% 25%;
 
     /* Warm beige muted */
     --muted: 40 20% 93%;
     --muted-foreground: 220 15% 45%;
 
-    /* Gold accent */
-    --accent: 40 85% 55%;
-    --accent-foreground: 220 30% 15%;
+    /* Subtle gold accent */
+    --accent: 40 25% 90%;
+    --accent-foreground: 220 30% 25%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 100%;
@@ -126,15 +126,15 @@
     --primary-foreground: 0 0% 100%;
 
     /* Muted gold secondary */
-    --secondary: 40 60% 45%;
-    --secondary-foreground: 220 25% 10%;
+    --secondary: 220 15% 25%;
+    --secondary-foreground: 40 15% 85%;
 
     --muted: 220 15% 18%;
     --muted-foreground: 40 10% 60%;
 
-    /* Gold accent */
-    --accent: 40 70% 50%;
-    --accent-foreground: 220 25% 10%;
+    /* Subtle accent for dark mode */
+    --accent: 220 15% 22%;
+    --accent-foreground: 40 15% 85%;
 
     --destructive: 0 65% 55%;
     --destructive-foreground: 0 0% 100%;
