@@ -223,6 +223,39 @@ export class ApplicationService {
   }
 
   /**
+   * Create a message from form notes if they exist in application data
+   */
+  static async createMessageFromFormNotes(
+    applicationId: string,
+    applicationData: any,
+    userId: string
+  ): Promise<void> {
+    // Check for notes in step3 (service details section)
+    const notesFields = ['section_0_notes', 'section_1_notes', 'section_2_notes', 'customer_notes', 'notes'];
+    let notesContent = '';
+
+    // Search through application data for notes fields
+    if (applicationData?.step3) {
+      for (const fieldKey of notesFields) {
+        if (applicationData.step3[fieldKey]) {
+          notesContent = applicationData.step3[fieldKey];
+          break;
+        }
+      }
+    }
+
+    // If notes exist, create a message entry
+    if (notesContent && notesContent.trim()) {
+      await this.addApplicationMessage(
+        applicationId,
+        `📝 Application Notes:\n\n${notesContent}`,
+        userId,
+        'user'
+      );
+    }
+  }
+
+  /**
    * Add an owner to an application
    */
   static async addApplicationOwner(
