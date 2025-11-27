@@ -1066,7 +1066,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         collapsible 
         className={cn(
           "transition-all duration-300 ease-in-out mx-auto",
-          isExpanded ? "w-full max-w-md" : "w-1/2 max-w-[200px]"
+          isExpanded ? "w-full max-w-md" : "w-fit min-w-[200px] max-w-full"
         )}
         value={step1AccordionOpen}
         onValueChange={setStep1AccordionOpen}
