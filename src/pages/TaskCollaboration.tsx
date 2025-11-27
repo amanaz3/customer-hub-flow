@@ -23,12 +23,13 @@ import {
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Textarea } from '@/components/ui/textarea';
 import { ResizablePanelGroup, ResizablePanel, ResizableHandle } from '@/components/ui/resizable';
-import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, FolderKanban, Flag, Clock, ArrowRight, ChevronRight, ChevronDown, Flame, Inbox, Calendar, LayoutGrid, Sparkles } from 'lucide-react';
+import { Users, Activity, MessageSquare, FileText, Plus, Search, ListTodo, FolderKanban, Flag, Clock, ArrowRight, ChevronRight, ChevronDown, Flame, Inbox, Calendar, LayoutGrid, Sparkles, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Skeleton } from '@/components/ui/skeleton';
 import { CreateTaskDialog } from '@/components/Team/CreateTaskDialog';
 import { CreateProductDialog } from '@/components/Team/CreateProductDialog';
 import { TaskCard } from '@/components/Team/TaskCard';
+import { Checkbox } from '@/components/ui/checkbox';
 import { TaskDetailDialog } from '@/components/Team/TaskDetailDialog';
 import { QuickAddBugDialog } from '@/components/Team/QuickAddBugDialog';
 import { QuickAddTaskFromWhatsApp } from '@/components/Team/QuickAddTaskFromWhatsApp';
@@ -173,6 +174,61 @@ const TaskCollaboration: React.FC = () => {
   const [quickAddWhatsAppOpen, setQuickAddWhatsAppOpen] = useState(false);
   const [aiAnalyzerOpen, setAiAnalyzerOpen] = useState(false);
   const [whatsappDialogOpen, setWhatsappDialogOpen] = useState(false);
+  const [selectedTaskIds, setSelectedTaskIds] = useState<string[]>([]);
+  const [analyzingExisting, setAnalyzingExisting] = useState(false);
+
+  const handleAnalyzeSelectedTasks = async () => {
+    if (selectedTaskIds.length === 0) {
+      toast.error('Please select tasks to analyze');
+      return;
+    }
+
+    setAnalyzingExisting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-tasks-ai', {
+        body: { existingTaskIds: selectedTaskIds }
+      });
+
+      if (error) throw error;
+
+      if (data?.success) {
+        toast.success(`Successfully analyzed and updated ${data.tasksUpdated} tasks with AI!`);
+        fetchTasks();
+        setSelectedTaskIds([]);
+      } else {
+        throw new Error(data?.error || 'Failed to analyze tasks');
+      }
+    } catch (error: any) {
+      console.error('Error analyzing tasks:', error);
+      
+      if (error.message?.includes('429') || error.message?.includes('rate limit')) {
+        toast.error('Rate limit exceeded. Please try again in a few moments.');
+      } else if (error.message?.includes('402') || error.message?.includes('payment')) {
+        toast.error('AI credits exhausted. Please add credits to your workspace.');
+      } else {
+        toast.error(error.message || 'Failed to analyze tasks');
+      }
+    } finally {
+      setAnalyzingExisting(false);
+    }
+  };
+
+  const toggleTaskSelection = (taskId: string) => {
+    setSelectedTaskIds(prev => 
+      prev.includes(taskId) 
+        ? prev.filter(id => id !== taskId)
+        : [...prev, taskId]
+    );
+  };
+
+  const selectAllVisibleTasks = () => {
+    const visibleTaskIds = filteredTasks.map(t => t.id);
+    setSelectedTaskIds(visibleTaskIds);
+  };
+
+  const clearSelection = () => {
+    setSelectedTaskIds([]);
+  };
   const [parentTaskIdForNewTask, setParentTaskIdForNewTask] = useState<string | undefined>(undefined);
   const [caseStatusFilter, setCaseStatusFilter] = useState<string>('active');
   const [caseSearchQuery, setCaseSearchQuery] = useState('');
@@ -1427,7 +1483,39 @@ const TaskCollaboration: React.FC = () => {
                     Track and manage team work
                   </CardDescription>
                 </div>
-            <div className="flex gap-2">
+            <div className="flex gap-2 items-center flex-wrap">
+              {selectedTaskIds.length > 0 && (
+                <>
+                  <Badge variant="secondary" className="gap-1">
+                    {selectedTaskIds.length} selected
+                  </Badge>
+                  <Button 
+                    onClick={handleAnalyzeSelectedTasks} 
+                    disabled={analyzingExisting}
+                    className="gap-2"
+                    variant="default"
+                  >
+                    {analyzingExisting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Analyzing...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4" />
+                        Analyze Selected with AI
+                      </>
+                    )}
+                  </Button>
+                  <Button 
+                    onClick={clearSelection}
+                    variant="ghost"
+                    size="sm"
+                  >
+                    Clear
+                  </Button>
+                </>
+              )}
               <Button onClick={() => setAiAnalyzerOpen(true)} variant="default" className="gap-2">
                 <Sparkles className="h-4 w-4" />
                 AI Task Analyzer
@@ -1534,7 +1622,20 @@ const TaskCollaboration: React.FC = () => {
                   onClick={() => setGroupByModule(!groupByModule)}
                   className="h-7 text-xs px-2"
                 >
-                  {groupByModule ? "Grouped" : "Flat"}
+                {groupByModule ? "Grouped" : "Flat"}
+                </Button>
+
+                <div className="h-4 w-px bg-border mx-1" />
+
+                {/* Selection Controls */}
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={selectAllVisibleTasks}
+                  className="h-7 text-xs px-2 text-muted-foreground"
+                  disabled={filteredTasks.length === 0}
+                >
+                  Select All ({filteredTasks.length})
                 </Button>
 
                 {/* Expand/Collapse for more filters */}
@@ -1787,26 +1888,34 @@ const TaskCollaboration: React.FC = () => {
                       </div>
                       <div className="space-y-2 pl-2">
                         {moduleTasks.map((task) => (
-                          <TaskCard
-                            key={task.id}
-                            task={task}
-                            attachments={taskAttachments[task.id] || []}
-                            subtasks={tasks}
-                            subtaskAttachments={taskAttachments}
-                            onClick={(taskId) => {
-                              setSelectedTaskId(taskId);
-                              setTaskDetailOpen(true);
-                            }}
-                            showActions
-                            onDelete={deleteTask}
-                            onAddSubtask={(parentId) => {
-                              setParentTaskIdForNewTask(parentId);
-                              setCreateTaskOpen(true);
-                            }}
-                            onImportanceChange={handleImportanceChange}
-                            onAIAssignImportance={handleAIAssignImportance}
-                            isAssigningImportance={aiAssigningTaskId === task.id}
-                          />
+                          <div key={task.id} className="flex items-start gap-2 group">
+                            <Checkbox
+                              checked={selectedTaskIds.includes(task.id)}
+                              onCheckedChange={() => toggleTaskSelection(task.id)}
+                              className="mt-4"
+                            />
+                            <div className="flex-1">
+                              <TaskCard
+                                task={task}
+                                attachments={taskAttachments[task.id] || []}
+                                subtasks={tasks}
+                                subtaskAttachments={taskAttachments}
+                                onClick={(taskId) => {
+                                  setSelectedTaskId(taskId);
+                                  setTaskDetailOpen(true);
+                                }}
+                                showActions
+                                onDelete={deleteTask}
+                                onAddSubtask={(parentId) => {
+                                  setParentTaskIdForNewTask(parentId);
+                                  setCreateTaskOpen(true);
+                                }}
+                                onImportanceChange={handleImportanceChange}
+                                onAIAssignImportance={handleAIAssignImportance}
+                                isAssigningImportance={aiAssigningTaskId === task.id}
+                              />
+                            </div>
+                          </div>
                         ))}
                       </div>
                     </div>
@@ -1814,26 +1923,34 @@ const TaskCollaboration: React.FC = () => {
                 ) : (
                   // Flat View
                   filteredTasks.map((task) => (
-                    <TaskCard
-                      key={task.id}
-                      task={task}
-                      attachments={taskAttachments[task.id] || []}
-                      subtasks={tasks}
-                      subtaskAttachments={taskAttachments}
-                      onClick={(taskId) => {
-                        setSelectedTaskId(taskId);
-                        setTaskDetailOpen(true);
-                      }}
-                      showActions
-                      onDelete={deleteTask}
-                      onAddSubtask={(parentId) => {
-                        setParentTaskIdForNewTask(parentId);
-                        setCreateTaskOpen(true);
-                      }}
-                      onImportanceChange={handleImportanceChange}
-                      onAIAssignImportance={handleAIAssignImportance}
-                      isAssigningImportance={aiAssigningTaskId === task.id}
-                    />
+                    <div key={task.id} className="flex items-start gap-2 group">
+                      <Checkbox
+                        checked={selectedTaskIds.includes(task.id)}
+                        onCheckedChange={() => toggleTaskSelection(task.id)}
+                        className="mt-4"
+                      />
+                      <div className="flex-1">
+                        <TaskCard
+                          task={task}
+                          attachments={taskAttachments[task.id] || []}
+                          subtasks={tasks}
+                          subtaskAttachments={taskAttachments}
+                          onClick={(taskId) => {
+                            setSelectedTaskId(taskId);
+                            setTaskDetailOpen(true);
+                          }}
+                          showActions
+                          onDelete={deleteTask}
+                          onAddSubtask={(parentId) => {
+                            setParentTaskIdForNewTask(parentId);
+                            setCreateTaskOpen(true);
+                          }}
+                          onImportanceChange={handleImportanceChange}
+                          onAIAssignImportance={handleAIAssignImportance}
+                          isAssigningImportance={aiAssigningTaskId === task.id}
+                        />
+                      </div>
+                    </div>
                   ))
                 )}
                 {filteredTasks.length === 0 && (
