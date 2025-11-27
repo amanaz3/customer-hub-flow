@@ -207,11 +207,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const { toast } = useToast();
   const { user } = useAuth();
 
-  // Auto-expand process sidebar from step 2 onwards, collapse when going back to step 1
+  // Keep process sidebar collapsed by default - user can manually expand if needed
   useEffect(() => {
-    if (currentStep >= 2) {
-      setProcessSidebarCollapsed(false);
-    } else if (currentStep === 1) {
+    if (currentStep === 1) {
       setProcessSidebarCollapsed(true);
     }
   }, [currentStep]);
