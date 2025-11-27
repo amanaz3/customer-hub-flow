@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Shield, BookOpen, UserCog, Building2 } from "lucide-react";
+import { Users, MessageSquare, Shield, BookOpen, UserCog, Building2, Flag } from "lucide-react";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -71,6 +71,16 @@ const Manage = () => {
               <div>
                 <p className="font-medium text-sm">Services</p>
                 <p className="text-xs text-muted-foreground">Manage services and products</p>
+              </div>
+            </div>
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => navigate('/settings?tab=features')}
+            >
+              <Flag className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">Feature Flags</p>
+                <p className="text-xs text-muted-foreground">Enable or disable workflow features</p>
               </div>
             </div>
           </CardContent>
