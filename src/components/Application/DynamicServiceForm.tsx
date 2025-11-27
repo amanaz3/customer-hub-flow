@@ -94,6 +94,8 @@ interface FormField {
   };
   // Service charge auto-populate flag
   isServiceChargeField?: boolean;
+  // If false, field is validation-only (not rendered in UI)
+  renderInForm?: boolean;
 }
 
 interface FormSection {
@@ -759,7 +761,10 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
               )}
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {section.fields.filter((field) => shouldShowField(field, sectionIndex)).map((field) => renderField(field, sectionIndex))}
+                {section.fields
+                  .filter((field) => field.renderInForm !== false) // Skip validation-only fields
+                  .filter((field) => shouldShowField(field, sectionIndex))
+                  .map((field) => renderField(field, sectionIndex))}
               </div>
 
               {sectionIndex < formConfig.sections.length - 1 && (
@@ -825,7 +830,10 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
               )}
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {section.fields.filter((field) => shouldShowField(field, sectionIndex)).map((field) => renderField(field, sectionIndex))}
+                {section.fields
+                  .filter((field) => field.renderInForm !== false) // Skip validation-only fields
+                  .filter((field) => shouldShowField(field, sectionIndex))
+                  .map((field) => renderField(field, sectionIndex))}
               </div>
 
               {sectionIndex < formConfig.sections.length - 1 && (
