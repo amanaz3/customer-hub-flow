@@ -19,7 +19,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Badge } from '@/components/ui/badge';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from '@/components/ui/sheet';
-import { cn } from '@/lib/utils';
+import { cn, truncateCustomerName } from '@/lib/utils';
 import { CustomerTypeSelector } from './CustomerTypeSelector';
 import { ExistingCustomerSelector } from './ExistingCustomerSelector';
 import { ProcessSummarySidebar } from './ProcessSummarySidebar';
@@ -1058,7 +1058,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             {step1AccordionOpen !== 'customer-info' && (
               <div className="flex items-center gap-2">
                 <User className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium truncate">{selectedCustomerData.name}</span>
+                <span className="text-sm font-medium">{truncateCustomerName(selectedCustomerData.name, 15)}</span>
               </div>
             )}
           </AccordionTrigger>
