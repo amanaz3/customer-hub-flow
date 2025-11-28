@@ -67,9 +67,12 @@ export const ExistingCustomerSelector = ({
 
   const handleSelect = (customerId: string) => {
     const customer = customers.find(c => c.id === customerId);
+    console.log('[ExistingCustomerSelector] handleSelect called:', { customerId, customer, currentValue: value });
     if (value === customerId) {
+      console.log('[ExistingCustomerSelector] Deselecting customer');
       onChange(null, null);
     } else {
+      console.log('[ExistingCustomerSelector] Selecting customer:', { customerId, customerData: customer });
       onChange(customerId, customer || null);
     }
     // Clear search after selection so list doesn't open on click

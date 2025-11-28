@@ -40,6 +40,11 @@ const CustomerNew = () => {
   // Derived mode from active tab
   const companyMode = activeTab === 'existing';
 
+  // Debug log for selectedCustomerId changes
+  React.useEffect(() => {
+    console.log('[CustomerNew] selectedCustomerId changed:', selectedCustomerId);
+  }, [selectedCustomerId]);
+
   // Track when product is selected and control sidebar visibility and state
   React.useEffect(() => {
     const movingForwardToStep2 = currentStep === 2 && previousStep === 1;
