@@ -161,7 +161,7 @@ const CustomerNew = () => {
           <div className="w-full max-w-4xl mx-auto">
             
             {/* Connected Tabs with Clear Boundary */}
-            <div className="flex rounded-t-lg overflow-hidden border border-b-0 border-border">
+            <div className="flex overflow-hidden border border-b-0 border-border">
               {/* New Customer Tab */}
               <button
                 onClick={() => handleTabChange('new')}
@@ -219,7 +219,7 @@ const CustomerNew = () => {
             </div>
 
             {/* Seamless Content Panel - connects to active tab */}
-            <div className="bg-gradient-to-br from-teal-50/50 to-card dark:from-teal-950/20 dark:to-card border border-border rounded-b-lg -mt-px">
+            <div className="bg-gradient-to-br from-teal-50/50 to-card dark:from-teal-950/20 dark:to-card border border-border -mt-px">
               <TabsContent value="new" className="mt-0 p-6 sm:p-8">
                 <SimplifiedCustomerForm
                   onSuccess={handleSuccess}
@@ -302,7 +302,7 @@ const CustomerNew = () => {
 
         {/* Mobile Notice for Required Documents */}
         <div className="lg:hidden mt-8">
-          <div className="bg-gradient-to-br from-primary/5 via-primary/3 to-transparent backdrop-blur-sm border border-primary/20 rounded-xl p-6 shadow-sm hover:shadow-md transition-all duration-300">
+          <div className="bg-gradient-to-br from-primary/5 via-primary/3 to-transparent backdrop-blur-sm border border-primary/20 p-6 shadow-sm hover:shadow-md transition-all duration-300">
             <div className="flex items-start gap-3">
               <span className="text-2xl">📋</span>
               <div>
