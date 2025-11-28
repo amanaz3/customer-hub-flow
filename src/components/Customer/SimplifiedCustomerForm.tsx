@@ -892,7 +892,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const canProgressToNextStep = async () => {
     // For existing customer mode, skip validation ONLY for step 1 (customer info)
     // Step 2 (service selection) and Step 3 (service details) must always be validated
-    if (companyMode && selectedCustomerId && currentStep === 1) {
+    console.log('[canProgressToNextStep] Check:', { companyMode, selectedCustomerId, selectedCustomerData, currentStep });
+    if (companyMode && (selectedCustomerId || selectedCustomerData) && currentStep === 1) {
+      console.log('[canProgressToNextStep] Skipping validation for existing customer');
       setValidationErrors([]);
       return true;
     }
