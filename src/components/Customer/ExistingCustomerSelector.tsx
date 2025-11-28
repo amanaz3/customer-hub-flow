@@ -122,7 +122,8 @@ export const ExistingCustomerSelector = ({
                   {filteredCustomers.map((customer) => (
                     <button
                       key={customer.id}
-                      onClick={() => {
+                      onMouseDown={(e) => {
+                        e.preventDefault(); // Prevent input blur
                         handleSelect(customer.id);
                         setOpen(false);
                       }}
