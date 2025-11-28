@@ -76,28 +76,23 @@ const formSchema = z.object({
   mobile: z.string()
     .trim()
     .min(1, "Mobile number is required")
-    .max(20, "Mobile number is too long")
-    .refine((val) => {
-      // Remove all spaces, hyphens, and parentheses
+    .transform((val) => {
+      // Sanitize: remove all spaces, hyphens, and parentheses
       const cleaned = val.replace(/[\s\-()]/g, '');
-      // Validate numeric only (after removing +971 prefix)
-      const withoutPrefix = cleaned.replace(/^\+?971/, '').replace(/^0/, '');
+      // Extract only the numeric part after +971, 971, or 0 prefix
+      const withoutPrefix = cleaned.replace(/^\+?971/, '').replace(/^0/, '').replace(/\D/g, '');
+      // Enforce exactly 9 digits by slicing
+      const sanitized = withoutPrefix.slice(0, 9);
+      // Return with standard +971 prefix
+      return '+971 ' + sanitized;
+    })
+    .refine((val) => {
+      // After transformation, validate the result
+      const cleaned = val.replace(/[\s\-()]/g, '');
+      const withoutPrefix = cleaned.replace(/^\+?971/, '');
       
-      // Check if contains only digits
-      if (!/^[0-9]+$/.test(withoutPrefix)) {
-        return false;
-      }
-      
-      // Validate exact length: must be exactly 9 digits after prefix
-      if (withoutPrefix.length !== 9) {
-        return false;
-      }
-      
-      // Must start with +971 or 971 or 0, followed by exactly 9 digits
-      return /^\+971[0-9]{9}$/.test(cleaned) || 
-             /^971[0-9]{9}$/.test(cleaned) || 
-             /^0[0-9]{9}$/.test(cleaned) ||
-             /^[0-9]{9}$/.test(cleaned);
+      // Must be exactly 9 digits
+      return /^[0-9]{9}$/.test(withoutPrefix);
     }, "Enter a valid UAE mobile number: numeric only, exactly 9 digits after +971"),
   customer_type: z.enum(['individual', 'company']).default('individual'),
   company: z.string().optional(),
