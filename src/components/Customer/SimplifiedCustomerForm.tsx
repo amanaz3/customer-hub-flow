@@ -1548,7 +1548,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                 <div key="step-4" className="animate-fade-in">
                   <CardHeader className="pb-4 px-3 sm:px-6 bg-gradient-to-r from-primary/5 via-primary/3 to-transparent border-b">
                     <CardTitle className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                      Review & SaveDraft
+                      Save
                     </CardTitle>
                     <CardDescription className="text-sm leading-relaxed mt-1">
                       Please review all information carefully before saving your draft.
