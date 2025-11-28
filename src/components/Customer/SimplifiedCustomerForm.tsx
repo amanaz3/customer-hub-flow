@@ -1546,71 +1546,89 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {/* Step 4: Confirmation & Preview */}
               {currentStep === 4 && (
                 <div key="step-4" className="animate-fade-in">
-                  <CardHeader className="pb-2 px-3 sm:px-4">
-                    <CardTitle className="text-base">Review & SaveDraft</CardTitle>
-                    <CardDescription className="text-xs leading-relaxed">
-                      Please review all information carefully before saving.
+                  <CardHeader className="pb-4 px-3 sm:px-6 bg-gradient-to-r from-primary/5 via-primary/3 to-transparent border-b">
+                    <CardTitle className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+                      Review & SaveDraft
+                    </CardTitle>
+                    <CardDescription className="text-sm leading-relaxed mt-1">
+                      Please review all information carefully before saving your draft.
                     </CardDescription>
                   </CardHeader>
-                  <CardContent className="px-3 sm:px-4 space-y-4">
+                  <CardContent className="px-3 sm:px-6 py-6 space-y-6">
                     {/* Customer Information Preview */}
-                    <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
-                      <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
-                        <div className="w-1 h-6 bg-primary rounded-full" />
-                        <h4 className="font-semibold text-foreground text-base">Customer Information</h4>
+                    <div className="group rounded-xl border border-border/50 bg-gradient-to-br from-primary/[0.03] via-background to-background hover:shadow-lg hover:border-primary/30 transition-all duration-300 overflow-hidden">
+                      <div className="bg-gradient-to-r from-primary/10 to-primary/5 px-5 py-4 border-b border-border/50">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                            </svg>
+                          </div>
+                          <h4 className="font-bold text-foreground text-lg">Customer Information</h4>
+                        </div>
                       </div>
-                      <dl className="space-y-2 text-sm">
-                        <div className="flex justify-between py-1">
-                          <dt className="text-muted-foreground">Name:</dt>
-                          <dd className="font-medium text-foreground">{form.watch('name')}</dd>
-                        </div>
-                        {form.watch('email') && (
-                          <div className="flex justify-between py-1">
-                            <dt className="text-muted-foreground">Email:</dt>
-                            <dd className="font-medium text-foreground">{form.watch('email')}</dd>
+                      <div className="p-5">
+                        <dl className="space-y-3">
+                          <div className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-muted/50 transition-colors">
+                            <dt className="text-sm text-muted-foreground font-medium">Name</dt>
+                            <dd className="font-semibold text-foreground text-sm">{form.watch('name')}</dd>
                           </div>
-                        )}
-                        {form.watch('mobile') && (
-                          <div className="flex justify-between py-1">
-                            <dt className="text-muted-foreground">Mobile:</dt>
-                            <dd className="font-medium text-foreground">{form.watch('mobile')}</dd>
+                          {form.watch('email') && (
+                            <div className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-muted/50 transition-colors">
+                              <dt className="text-sm text-muted-foreground font-medium">Email</dt>
+                              <dd className="font-semibold text-foreground text-sm">{form.watch('email')}</dd>
+                            </div>
+                          )}
+                          {form.watch('mobile') && (
+                            <div className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-muted/50 transition-colors">
+                              <dt className="text-sm text-muted-foreground font-medium">Mobile</dt>
+                              <dd className="font-semibold text-foreground text-sm">{form.watch('mobile')}</dd>
+                            </div>
+                          )}
+                          <div className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-muted/50 transition-colors">
+                            <dt className="text-sm text-muted-foreground font-medium">Customer Type</dt>
+                            <dd className="font-semibold text-foreground text-sm capitalize">{form.watch('customer_type') || 'Individual'}</dd>
                           </div>
-                        )}
-                        <div className="flex justify-between py-1">
-                          <dt className="text-muted-foreground">Customer Type:</dt>
-                          <dd className="font-medium text-foreground capitalize">{form.watch('customer_type') || 'Individual'}</dd>
-                        </div>
-                        {form.watch('customer_type') === 'company' && form.watch('company') && (
-                          <div className="flex justify-between py-1">
-                            <dt className="text-muted-foreground">Company:</dt>
-                            <dd className="font-medium text-foreground">{form.watch('company')}</dd>
+                          {form.watch('customer_type') === 'company' && form.watch('company') && (
+                            <div className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-muted/50 transition-colors">
+                              <dt className="text-sm text-muted-foreground font-medium">Company</dt>
+                              <dd className="font-semibold text-foreground text-sm">{form.watch('company')}</dd>
+                            </div>
+                          )}
+                          <div className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-muted/50 transition-colors">
+                            <dt className="text-sm text-muted-foreground font-medium">License Type</dt>
+                            <dd className="font-semibold text-foreground text-sm">{form.watch('license_type')}</dd>
                           </div>
-                        )}
-                        <div className="flex justify-between py-1">
-                          <dt className="text-muted-foreground">License Type:</dt>
-                          <dd className="font-medium text-foreground">{form.watch('license_type')}</dd>
-                        </div>
-                      </dl>
+                        </dl>
+                      </div>
                     </div>
 
                     {/* Service Information Preview */}
-                    <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
-                      <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
-                        <div className="w-1 h-6 bg-primary rounded-full" />
-                        <h4 className="font-semibold text-foreground text-base">Service Information</h4>
-                      </div>
-                      <dl className="space-y-2 text-sm">
-                        <div className="flex justify-between py-1">
-                          <dt className="text-muted-foreground">Service:</dt>
-                          <dd className="font-medium text-foreground">{selectedProductName}</dd>
-                        </div>
-                        {form.watch('lead_source') && (
-                          <div className="flex justify-between py-1">
-                            <dt className="text-muted-foreground">Lead Source:</dt>
-                            <dd className="font-medium text-foreground">{form.watch('lead_source')}</dd>
+                    <div className="group rounded-xl border border-border/50 bg-gradient-to-br from-primary/[0.03] via-background to-background hover:shadow-lg hover:border-primary/30 transition-all duration-300 overflow-hidden">
+                      <div className="bg-gradient-to-r from-primary/10 to-primary/5 px-5 py-4 border-b border-border/50">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                            <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
                           </div>
-                        )}
-                      </dl>
+                          <h4 className="font-bold text-foreground text-lg">Service Information</h4>
+                        </div>
+                      </div>
+                      <div className="p-5">
+                        <dl className="space-y-3">
+                          <div className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-muted/50 transition-colors">
+                            <dt className="text-sm text-muted-foreground font-medium">Service</dt>
+                            <dd className="font-semibold text-foreground text-sm">{selectedProductName}</dd>
+                          </div>
+                          {form.watch('lead_source') && (
+                            <div className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-muted/50 transition-colors">
+                              <dt className="text-sm text-muted-foreground font-medium">Lead Source</dt>
+                              <dd className="font-semibold text-foreground text-sm">{form.watch('lead_source')}</dd>
+                            </div>
+                          )}
+                        </dl>
+                      </div>
                     </div>
 
                     {/* Service Details Preview - From Step 3 Dynamic Form */}
@@ -1619,7 +1637,6 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                       const serviceDetailsFields = Object.entries(allFormValues)
                         .filter(([key, value]) => key.startsWith('section_') && value)
                         .map(([key, value]) => {
-                          // Use stored label map if available, otherwise parse the key
                           const label = fieldLabelMap[key] || (() => {
                             const parts = key.replace('section_', '').split('_');
                             const fieldName = parts.slice(1).join(' ');
@@ -1635,19 +1652,27 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
                       if (serviceDetailsFields.length > 0) {
                         return (
-                          <div className="rounded-lg border border-border bg-gradient-to-br from-primary/5 to-transparent p-4">
-                            <div className="flex items-center gap-2 mb-3 pb-2 border-b border-border">
-                              <div className="w-1 h-6 bg-primary/30 rounded-full" />
-                              <h4 className="font-semibold text-foreground text-base">Service Details</h4>
-                            </div>
-                            <dl className="space-y-2 text-sm">
-                              {serviceDetailsFields.map(({ label, value, key }) => (
-                                <div key={key} className="flex justify-between py-1 gap-4">
-                                  <dt className="text-muted-foreground">{label}:</dt>
-                                  <dd className="font-medium text-foreground text-right">{value}</dd>
+                          <div className="group rounded-xl border border-border/50 bg-gradient-to-br from-primary/[0.03] via-background to-background hover:shadow-lg hover:border-primary/30 transition-all duration-300 overflow-hidden">
+                            <div className="bg-gradient-to-r from-primary/10 to-primary/5 px-5 py-4 border-b border-border/50">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center group-hover:scale-110 transition-transform duration-300">
+                                  <svg className="w-5 h-5 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                  </svg>
                                 </div>
-                              ))}
-                            </dl>
+                                <h4 className="font-bold text-foreground text-lg">Service Details</h4>
+                              </div>
+                            </div>
+                            <div className="p-5">
+                              <dl className="space-y-3">
+                                {serviceDetailsFields.map(({ label, value, key }) => (
+                                  <div key={key} className="flex justify-between items-center py-2 px-3 rounded-lg hover:bg-muted/50 transition-colors gap-4">
+                                    <dt className="text-sm text-muted-foreground font-medium">{label}</dt>
+                                    <dd className="font-semibold text-foreground text-sm text-right">{value}</dd>
+                                  </div>
+                                ))}
+                              </dl>
+                            </div>
                           </div>
                         );
                       }
@@ -1655,24 +1680,31 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     })()}
 
                     {/* Additional Notes */}
-                    <FormField
-                      control={form.control}
-                      name="customer_notes"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel className="text-sm font-semibold">Additional Notes (Optional)</FormLabel>
-                          <FormControl>
-                            <Textarea 
-                              {...field}
-                              rows={4}
-                              placeholder="Add any additional information or special requirements..."
-                              className="resize-none"
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
+                    <div className="rounded-xl border border-border/50 bg-gradient-to-br from-primary/[0.02] to-background p-5">
+                      <FormField
+                        control={form.control}
+                        name="customer_notes"
+                        render={({ field }) => (
+                          <FormItem>
+                            <FormLabel className="text-sm font-bold text-foreground flex items-center gap-2">
+                              <svg className="w-4 h-4 text-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                              </svg>
+                              Additional Notes (Optional)
+                            </FormLabel>
+                            <FormControl>
+                              <Textarea 
+                                {...field}
+                                rows={4}
+                                placeholder="Add any additional information or special requirements..."
+                                className="resize-none mt-2 bg-background border-border/50 focus-visible:border-primary focus-visible:ring-primary/20"
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                    </div>
                   </CardContent>
                 </div>
               )}
