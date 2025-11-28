@@ -21,7 +21,7 @@ const stepConfig = [
   { title: 'Customer', desc: 'Select type' },
   { title: 'Service', desc: 'Choose service' },
   { title: 'Details', desc: 'Additional info' },
-  { title: 'Submit', desc: 'Review & send' }
+  { title: 'Save as Draft', desc: 'Review & save' }
 ];
 
 export const UnifiedProgressHeader = ({
@@ -96,7 +96,7 @@ export const UnifiedProgressHeader = ({
                   { step: 1, label: 'Customer' },
                   { step: 2, label: 'Service' },
                   { step: 3, label: 'Details' },
-                  { step: 4, label: 'Review' },
+                  { step: 4, label: 'Save as Draft' },
                 ].map(({ step, label }, index) => (
                   <button
                     key={step}

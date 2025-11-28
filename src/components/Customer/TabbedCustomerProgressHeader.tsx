@@ -42,7 +42,7 @@ export const TabbedCustomerProgressHeader = ({
             { step: 1, label: 'Customer' },
             { step: 2, label: 'Service' },
             { step: 3, label: 'Details' },
-            { step: 4, label: 'Review' },
+            { step: 4, label: 'Save as Draft' },
           ].map(({ step, label }, index) => (
             <button
               key={step}
