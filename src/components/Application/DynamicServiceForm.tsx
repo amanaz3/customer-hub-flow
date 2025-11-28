@@ -756,6 +756,9 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
               {serviceFee?.fee_type === 'percentage' && 
                section.title.toLowerCase().includes('payment') && (
                 <div className="col-span-full">
+                  <div className="mb-4 p-2 bg-blue-50 dark:bg-blue-950 rounded text-xs text-blue-600 dark:text-blue-400">
+                    Service Fee Type: {serviceFee.fee_type} | Section: {section.title}
+                  </div>
                   <PercentageServiceChargeUI 
                     serviceFee={serviceFee} 
                     register={register}
@@ -764,6 +767,19 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
                     errors={errors}
                     onFieldChange={onFieldChange}
                   />
+                </div>
+              )}
+              
+              {/* Debug: Show if service fee exists but conditions not met */}
+              {serviceFee && section.title.toLowerCase().includes('payment') && serviceFee.fee_type !== 'percentage' && (
+                <div className="col-span-full mb-4 p-3 bg-yellow-50 dark:bg-yellow-950 rounded text-xs text-yellow-700 dark:text-yellow-400">
+                  ℹ️ Service fee configured as '{serviceFee.fee_type}' (showing fixed charge instead of percentage)
+                </div>
+              )}
+              
+              {!serviceFee && section.title.toLowerCase().includes('payment') && (
+                <div className="col-span-full mb-4 p-3 bg-gray-50 dark:bg-gray-900 rounded text-xs text-gray-600 dark:text-gray-400">
+                  ℹ️ No service fee configured for this product in service_fees table
                 </div>
               )}
               
@@ -827,6 +843,9 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
               {serviceFee?.fee_type === 'percentage' && 
                section.title.toLowerCase().includes('payment') && (
                 <div className="col-span-full">
+                  <div className="mb-4 p-2 bg-blue-50 dark:bg-blue-950 rounded text-xs text-blue-600 dark:text-blue-400">
+                    Service Fee Type: {serviceFee.fee_type} | Section: {section.title}
+                  </div>
                   <PercentageServiceChargeUI 
                     serviceFee={serviceFee} 
                     register={register}
@@ -835,6 +854,19 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
                     errors={errors}
                     onFieldChange={onFieldChange}
                   />
+                </div>
+              )}
+              
+              {/* Debug: Show if service fee exists but conditions not met */}
+              {serviceFee && section.title.toLowerCase().includes('payment') && serviceFee.fee_type !== 'percentage' && (
+                <div className="col-span-full mb-4 p-3 bg-yellow-50 dark:bg-yellow-950 rounded text-xs text-yellow-700 dark:text-yellow-400">
+                  ℹ️ Service fee configured as '{serviceFee.fee_type}' (showing fixed charge instead of percentage)
+                </div>
+              )}
+              
+              {!serviceFee && section.title.toLowerCase().includes('payment') && (
+                <div className="col-span-full mb-4 p-3 bg-gray-50 dark:bg-gray-900 rounded text-xs text-gray-600 dark:text-gray-400">
+                  ℹ️ No service fee configured for this product in service_fees table
                 </div>
               )}
               
