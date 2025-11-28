@@ -268,10 +268,15 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
         .maybeSingle();
 
       if (!error && data) {
+        console.log('Service fee loaded for product:', { productId: prodId, feeType: data.fee_type, amount: data.service_charge });
         setServiceFee(data as ServiceFee);
+      } else {
+        console.log('No service fee configured for product:', prodId);
+        setServiceFee(null);
       }
     } catch (error) {
       console.error('Error fetching service fee:', error);
+      setServiceFee(null);
     }
   };
 
@@ -747,17 +752,19 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
                 )}
               </div>
               
-              {/* Inject percentage service charge UI at start of payment sections */}
+              {/* Inject percentage service charge UI at start of payment sections - APPLIES TO ALL SERVICES */}
               {serviceFee?.fee_type === 'percentage' && 
                section.title.toLowerCase().includes('payment') && (
-                <PercentageServiceChargeUI 
-                  serviceFee={serviceFee} 
-                  register={register}
-                  watch={watch}
-                  setValue={setValue}
-                  errors={errors}
-                  onFieldChange={onFieldChange}
-                />
+                <div className="col-span-full">
+                  <PercentageServiceChargeUI 
+                    serviceFee={serviceFee} 
+                    register={register}
+                    watch={watch}
+                    setValue={setValue}
+                    errors={errors}
+                    onFieldChange={onFieldChange}
+                  />
+                </div>
               )}
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -816,17 +823,19 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
                 )}
               </div>
               
-              {/* Inject percentage service charge UI at start of payment sections */}
+              {/* Inject percentage service charge UI at start of payment sections - APPLIES TO ALL SERVICES */}
               {serviceFee?.fee_type === 'percentage' && 
                section.title.toLowerCase().includes('payment') && (
-                <PercentageServiceChargeUI 
-                  serviceFee={serviceFee} 
-                  register={register}
-                  watch={watch}
-                  setValue={setValue}
-                  errors={errors}
-                  onFieldChange={onFieldChange}
-                />
+                <div className="col-span-full">
+                  <PercentageServiceChargeUI 
+                    serviceFee={serviceFee} 
+                    register={register}
+                    watch={watch}
+                    setValue={setValue}
+                    errors={errors}
+                    onFieldChange={onFieldChange}
+                  />
+                </div>
               )}
               
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
