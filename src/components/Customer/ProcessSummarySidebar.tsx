@@ -318,7 +318,7 @@ export const ProcessSummarySidebar = ({
               {currentStep === 1 && '💡 Enter customer contact details to continue'}
               {currentStep === 2 && '💡 Select a service type to proceed'}
               {currentStep === 3 && '💡 Complete all required fields'}
-              {currentStep === 4 && '💡 Review and submit your application'}
+              {currentStep === 4 && '💡 Review and save your application'}
             </p>
           </div>
         </div>
