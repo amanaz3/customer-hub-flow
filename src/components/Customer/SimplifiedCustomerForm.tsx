@@ -890,17 +890,22 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
   // Validate if current step has all mandatory fields valid
   const canProgressToNextStep = async () => {
-    // For existing customer mode, skip validation ONLY for step 1 (customer info)
-    // Step 2 (service selection) and Step 3 (service details) must always be validated
-    console.log('[canProgressToNextStep] Check:', { companyMode, selectedCustomerId, selectedCustomerData, currentStep });
-    if (companyMode && (selectedCustomerId || selectedCustomerData) && currentStep === 1) {
-      console.log('[canProgressToNextStep] Skipping validation for existing customer');
+    const collectedErrors: string[] = [];
+    
+    // For existing customer mode in step 1, only validate that a customer is selected
+    // Skip validation of new customer fields (name, email, mobile)
+    if (companyMode && currentStep === 1) {
+      console.log('[canProgressToNextStep] Existing customer mode - checking selection:', { selectedCustomerId, selectedCustomerData });
+      if (!selectedCustomerId && !selectedCustomerData) {
+        collectedErrors.push('Please select an existing customer from the search');
+        setValidationErrors(collectedErrors);
+        return false;
+      }
       setValidationErrors([]);
       return true;
     }
 
     const values = form.getValues();
-    const collectedErrors: string[] = [];
 
     if (currentStep === 1) {
       // Trigger validation for step 1 fields
