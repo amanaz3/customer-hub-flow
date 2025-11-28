@@ -1550,8 +1550,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                     <CardTitle className="text-xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
                       Save as Draft
                     </CardTitle>
-                    <CardDescription className="text-sm leading-relaxed mt-1">
-                      Please review all information carefully before saving your draft.
+                    <CardDescription className="mt-2 space-y-1">
+                      <p className="text-base font-semibold text-foreground">Review & Save as Draft</p>
+                      <p className="text-sm leading-relaxed text-muted-foreground">
+                        Please review all information carefully before saving your draft.
+                      </p>
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="px-3 sm:px-6 py-6 space-y-6">
