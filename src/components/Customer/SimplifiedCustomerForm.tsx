@@ -1224,11 +1224,18 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {currentStep === 1 && (
                 <div key="step-1" className="animate-fade-in">
                   {/* Show selected customer - Accordion */}
-                  {companyMode && selectedCustomerData && (
-                    <div className="px-3 sm:px-4 pb-1 mb-1">
-                      {renderCustomerAccordion()}
-                    </div>
-                  )}
+                  {(() => {
+                    console.log('[SimplifiedCustomerForm] Accordion render check:', { 
+                      companyMode, 
+                      selectedCustomerData, 
+                      shouldRender: companyMode && selectedCustomerData 
+                    });
+                    return companyMode && selectedCustomerData && (
+                      <div className="px-3 sm:px-4 pb-1 mb-1">
+                        {renderCustomerAccordion()}
+                      </div>
+                    );
+                  })()}
 
                   <div className="px-3 sm:px-4 pb-2 border-0">
                     <h3 className="text-lg text-foreground font-semibold mb-1 border-0">Customer Details</h3>
@@ -1244,8 +1251,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         userId={user.id}
                         value={selectedCustomerId || ''}
                         onChange={(customerId, customer) => {
+                          console.log('[SimplifiedCustomerForm] ExistingCustomerSelector onChange:', { customerId, customer, companyMode });
                           onCustomerSelect?.(customerId);
                           setSelectedCustomerData(customer);
+                          console.log('[SimplifiedCustomerForm] After setSelectedCustomerData:', customer);
                           // Ensure mode is set to existing when customer is selected
                           if (customerId && !companyMode) {
                             onModeChange?.(true);
