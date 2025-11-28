@@ -1547,9 +1547,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               {currentStep === 4 && (
                 <div key="step-4" className="animate-fade-in">
                   <CardHeader className="pb-2 px-3 sm:px-4">
-                    <CardTitle className="text-base">Review & Submit</CardTitle>
+                    <CardTitle className="text-base">Review & Save</CardTitle>
                     <CardDescription className="text-xs leading-relaxed">
-                      Please review all information carefully before submitting.
+                      Please review all information carefully before saving.
                     </CardDescription>
                   </CardHeader>
                   <CardContent className="px-3 sm:px-4 space-y-4">
