@@ -110,6 +110,13 @@ const Tracker = () => {
       icon: Layers,
       path: "/applications-by-services",
       color: "text-indigo-600"
+    },
+    {
+      title: "Customer Segments",
+      description: "Recurring revenue analysis and growth potential by customer segment",
+      icon: BarChart3,
+      path: "/customer-segments",
+      color: "text-emerald-600"
     }
   ];
 
