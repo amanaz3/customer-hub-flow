@@ -18,6 +18,11 @@ import {
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
+interface BusinessBreakdown {
+  licenseTypes: Record<string, number>;
+  jurisdictions: Record<string, number>;
+}
+
 interface CustomerSegment {
   name: string;
   count: number;
@@ -26,6 +31,7 @@ interface CustomerSegment {
   repeatRate: number;
   growthPotential: 'high' | 'medium' | 'low';
   description: string;
+  businessBreakdown: BusinessBreakdown;
 }
 
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
@@ -83,6 +89,8 @@ const CustomerSegments = () => {
           status,
           created_at,
           product_id,
+          license_type,
+          jurisdiction,
           products(name)
         `);
 
@@ -99,6 +107,8 @@ const CustomerSegments = () => {
         applicationCount: number;
         statuses: string[];
         productTypes: string[];
+        licenseType: string;
+        jurisdiction: string | null;
       }>();
 
       customers?.forEach(customer => {
@@ -106,9 +116,13 @@ const CustomerSegments = () => {
           totalRevenue: 0,
           applicationCount: 0,
           statuses: [],
-          productTypes: []
+          productTypes: [],
+          licenseType: customer.license_type || 'Unknown',
+          jurisdiction: customer.jurisdiction
         };
         existing.totalRevenue += Number(customer.amount) || 0;
+        existing.licenseType = customer.license_type || 'Unknown';
+        existing.jurisdiction = customer.jurisdiction;
         if (customer.products?.name) {
           existing.productTypes.push(customer.products.name);
         }
@@ -124,38 +138,49 @@ const CustomerSegments = () => {
         }
       });
 
-      // Define segments
-      const segments: CustomerSegment[] = [];
+      // Define segments with business breakdown
+      const createEmptyBreakdown = (): BusinessBreakdown => ({
+        licenseTypes: {},
+        jurisdictions: {}
+      });
 
-      // High-Value Repeat Customers
-      let highValueRepeat = { count: 0, totalRevenue: 0 };
-      // Growth Potential (single app, moderate revenue)
-      let growthPotential = { count: 0, totalRevenue: 0 };
-      // New Customers (recent, low apps)
-      let newCustomers = { count: 0, totalRevenue: 0 };
-      // At-Risk (no recent activity, rejected apps)
-      let atRisk = { count: 0, totalRevenue: 0 };
-      // Dormant (old customers, no recent apps)
-      let dormant = { count: 0, totalRevenue: 0 };
+      const addToBreakdown = (breakdown: BusinessBreakdown, licenseType: string, jurisdiction: string | null) => {
+        breakdown.licenseTypes[licenseType] = (breakdown.licenseTypes[licenseType] || 0) + 1;
+        const jur = jurisdiction || 'Not Specified';
+        breakdown.jurisdictions[jur] = (breakdown.jurisdictions[jur] || 0) + 1;
+      };
+
+      let highValueRepeat = { count: 0, totalRevenue: 0, breakdown: createEmptyBreakdown() };
+      let growthPotential = { count: 0, totalRevenue: 0, breakdown: createEmptyBreakdown() };
+      let newCustomers = { count: 0, totalRevenue: 0, breakdown: createEmptyBreakdown() };
+      let atRisk = { count: 0, totalRevenue: 0, breakdown: createEmptyBreakdown() };
+      let dormant = { count: 0, totalRevenue: 0, breakdown: createEmptyBreakdown() };
 
       customerMap.forEach((data, customerId) => {
         if (data.applicationCount >= 2 && data.totalRevenue > 10000) {
           highValueRepeat.count++;
           highValueRepeat.totalRevenue += data.totalRevenue;
+          addToBreakdown(highValueRepeat.breakdown, data.licenseType, data.jurisdiction);
         } else if (data.applicationCount === 1 && data.totalRevenue > 5000) {
           growthPotential.count++;
           growthPotential.totalRevenue += data.totalRevenue;
+          addToBreakdown(growthPotential.breakdown, data.licenseType, data.jurisdiction);
         } else if (data.applicationCount <= 1 && data.totalRevenue <= 5000) {
           newCustomers.count++;
           newCustomers.totalRevenue += data.totalRevenue;
+          addToBreakdown(newCustomers.breakdown, data.licenseType, data.jurisdiction);
         } else if (data.statuses.includes('rejected')) {
           atRisk.count++;
           atRisk.totalRevenue += data.totalRevenue;
+          addToBreakdown(atRisk.breakdown, data.licenseType, data.jurisdiction);
         } else {
           dormant.count++;
           dormant.totalRevenue += data.totalRevenue;
+          addToBreakdown(dormant.breakdown, data.licenseType, data.jurisdiction);
         }
       });
+
+      const segments: CustomerSegment[] = [];
 
       segments.push({
         name: 'High-Value Repeat',
@@ -164,7 +189,8 @@ const CustomerSegments = () => {
         avgRevenue: highValueRepeat.count > 0 ? highValueRepeat.totalRevenue / highValueRepeat.count : 0,
         repeatRate: 85,
         growthPotential: 'high',
-        description: 'Multiple applications, high revenue - prioritize retention'
+        description: 'Multiple applications, high revenue - prioritize retention',
+        businessBreakdown: highValueRepeat.breakdown
       });
 
       segments.push({
@@ -174,7 +200,8 @@ const CustomerSegments = () => {
         avgRevenue: growthPotential.count > 0 ? growthPotential.totalRevenue / growthPotential.count : 0,
         repeatRate: 40,
         growthPotential: 'high',
-        description: 'Single service, good revenue - upsell opportunity'
+        description: 'Single service, good revenue - upsell opportunity',
+        businessBreakdown: growthPotential.breakdown
       });
 
       segments.push({
@@ -184,7 +211,8 @@ const CustomerSegments = () => {
         avgRevenue: newCustomers.count > 0 ? newCustomers.totalRevenue / newCustomers.count : 0,
         repeatRate: 20,
         growthPotential: 'medium',
-        description: 'Recent signups - nurture and onboard'
+        description: 'Recent signups - nurture and onboard',
+        businessBreakdown: newCustomers.breakdown
       });
 
       segments.push({
@@ -194,7 +222,8 @@ const CustomerSegments = () => {
         avgRevenue: atRisk.count > 0 ? atRisk.totalRevenue / atRisk.count : 0,
         repeatRate: 10,
         growthPotential: 'low',
-        description: 'Rejected applications - needs attention'
+        description: 'Rejected applications - needs attention',
+        businessBreakdown: atRisk.breakdown
       });
 
       segments.push({
@@ -204,7 +233,8 @@ const CustomerSegments = () => {
         avgRevenue: dormant.count > 0 ? dormant.totalRevenue / dormant.count : 0,
         repeatRate: 5,
         growthPotential: 'low',
-        description: 'No recent activity - re-engagement needed'
+        description: 'No recent activity - re-engagement needed',
+        businessBreakdown: dormant.breakdown
       });
 
       return {
@@ -402,6 +432,41 @@ const CustomerSegments = () => {
                     <p className="text-xl font-bold">AED {segment.totalRevenue.toLocaleString()}</p>
                   </div>
                 </div>
+                
+                {/* Business Activity Breakdown */}
+                {segment.count > 0 && (
+                  <div className="space-y-3 pt-2 border-t">
+                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Business Activity</p>
+                    
+                    {/* License Types */}
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">License Type</p>
+                      <div className="flex flex-wrap gap-1">
+                        {Object.entries(segment.businessBreakdown.licenseTypes).map(([type, count]) => (
+                          <Badge key={type} variant="outline" className="text-xs">
+                            {type}: {count}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Jurisdictions */}
+                    <div className="space-y-1">
+                      <p className="text-xs text-muted-foreground">Jurisdiction</p>
+                      <div className="flex flex-wrap gap-1">
+                        {Object.entries(segment.businessBreakdown.jurisdictions)
+                          .sort((a, b) => b[1] - a[1])
+                          .slice(0, 5)
+                          .map(([jur, count]) => (
+                          <Badge key={jur} variant="secondary" className="text-xs">
+                            {jur}: {count}
+                          </Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+                
                 <div>
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-muted-foreground">Repeat Rate</span>
