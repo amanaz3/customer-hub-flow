@@ -187,37 +187,23 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const signOut = async () => {
     try {
-      const { data: { session: currentSession } } = await supabase.auth.getSession();
+      // Always attempt signOut - ignore errors since session may already be expired
+      await supabase.auth.signOut();
       
-      if (!currentSession) {
-        return { error: null };
-      }
-
-      const { error } = await supabase.auth.signOut();
+      FeatureAnalytics.trackUserAction('logout_success');
+      toast({
+        title: 'Signed Out',
+        description: 'You have been successfully signed out.',
+      });
       
-      if (!error) {
-        // Clear any cached session data and redirect to login
-        window.location.href = '/login';
-        FeatureAnalytics.trackUserAction('logout_success');
-        toast({
-          title: 'Signed Out',
-          description: 'You have been successfully signed out.',
-        });
-      } else {
-        ErrorTracker.captureError(error, { 
-          userId: user?.id, 
-          page: 'logout'
-        });
-      }
-      
-      return { error };
+      // Always redirect to login regardless of result
+      window.location.href = '/login';
+      return { error: null };
     } catch (error) {
       console.error('Sign out error:', error);
-      ErrorTracker.captureError(error as Error, { 
-        userId: user?.id, 
-        page: 'logout'
-      });
-      return { error };
+      // Still redirect even on error - user is effectively logged out
+      window.location.href = '/login';
+      return { error: null };
     }
   };
 
