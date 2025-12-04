@@ -822,7 +822,7 @@ export type Database = {
           preferred_bank_2?: string | null
           preferred_bank_3?: string | null
           product_id?: string | null
-          reference_number: number
+          reference_number?: number
           status?: Database["public"]["Enums"]["customer_status"]
           updated_at?: string | null
           user_id?: string | null
