@@ -19,6 +19,7 @@ const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'
 
 const ProductUsageAnalytics = () => {
   const [activeView, setActiveView] = useState('combo');
+  const [showAIInsights, setShowAIInsights] = useState(false);
 
   const { data: productUsage = [], isLoading } = useQuery({
     queryKey: ['product_usage_analytics'],
@@ -337,7 +338,6 @@ const ProductUsageAnalytics = () => {
     </Card>
   );
 
-  const [showAIInsights, setShowAIInsights] = useState(false);
 
   return (
     <div className="space-y-6">
