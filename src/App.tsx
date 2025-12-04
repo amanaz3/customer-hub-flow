@@ -60,6 +60,7 @@ import ApplicationsByServices from '@/pages/ApplicationsByServices';
 import ServiceFees from '@/pages/ServiceFees';
 import DevToolsNew from '@/pages/DevToolsNew';
 import AdminManage from '@/pages/AdminManage';
+import CustomerSegments from '@/pages/CustomerSegments';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -339,6 +340,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="360° AI View">
                           <AI360View />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/customer-segments" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Customer Segments">
+                          <CustomerSegments />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
