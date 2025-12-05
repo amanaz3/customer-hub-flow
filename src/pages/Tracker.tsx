@@ -117,6 +117,13 @@ const Tracker = () => {
       icon: BarChart3,
       path: "/customer-segments",
       color: "text-emerald-600"
+    },
+    {
+      title: "RFM Model",
+      description: "Industry-standard RFM (Recency, Frequency, Monetary) customer segmentation",
+      icon: Target,
+      path: "/rfm-analysis",
+      color: "text-amber-600"
     }
   ];
 
