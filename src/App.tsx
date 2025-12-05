@@ -62,6 +62,7 @@ import DevToolsNew from '@/pages/DevToolsNew';
 import AdminManage from '@/pages/AdminManage';
 import CustomerSegments from '@/pages/CustomerSegments';
 import RFMAnalysis from '@/pages/RFMAnalysis';
+import CustomerClassification from '@/pages/CustomerClassification';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -361,6 +362,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="RFM Analysis">
                           <RFMAnalysis />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/customer-classification" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Customer Classification">
+                          <CustomerClassification />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>

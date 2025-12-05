@@ -10,7 +10,8 @@ import {
   Database, 
   BarChart3, 
   Activity, 
-  Target 
+  Target,
+  Building2
 } from "lucide-react";
 
 const Tracker = () => {
@@ -124,6 +125,13 @@ const Tracker = () => {
       icon: Target,
       path: "/rfm-analysis",
       color: "text-amber-600"
+    },
+    {
+      title: "Customer Classification",
+      description: "Classify by industry, nationality, lead source with AI insights",
+      icon: Building2,
+      path: "/customer-classification",
+      color: "text-pink-600"
     }
   ];
 
