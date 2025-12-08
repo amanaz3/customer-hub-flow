@@ -128,3 +128,6 @@ verify_jwt = false
 
 [functions.analyze-tasks-ai]
 verify_jwt = true
+
+[functions.analyze-customer-classifications]
+verify_jwt = true

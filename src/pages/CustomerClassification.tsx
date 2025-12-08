@@ -6,13 +6,18 @@ import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { 
   PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
-  Legend, ResponsiveContainer, Treemap 
+  Legend, ResponsiveContainer, Treemap
 } from 'recharts';
 import { 
   Building2, Globe, TrendingUp, Users, Sparkles, Loader2, 
-  DollarSign, MapPin, Briefcase, ArrowLeft
+  DollarSign, MapPin, Briefcase, ArrowLeft, AlertTriangle, 
+  CheckCircle2, Target, Lightbulb, Clock, ChevronDown, ChevronUp,
+  Zap, TrendingDown, Shield, Star
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useToast } from '@/hooks/use-toast';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Progress } from '@/components/ui/progress';
 
 interface ClassificationData {
   name: string;
@@ -28,11 +33,54 @@ interface ClassificationGroup {
   jurisdiction: ClassificationData[];
 }
 
-interface AIInsight {
-  title: string;
-  description: string;
-  recommendation: string;
-  impact: 'high' | 'medium' | 'low';
+interface AIAnalysis {
+  summary: {
+    headline: string;
+    healthScore: number;
+    keyStrength: string;
+    keyRisk: string;
+  };
+  industryInsights: {
+    industry: string;
+    insight: string;
+    reason: string;
+    opportunity: string;
+    risk: string;
+    revenueImpact: 'high' | 'medium' | 'low';
+  }[];
+  nationalityInsights: {
+    nationality: string;
+    insight: string;
+    culturalConsideration: string;
+    growthPotential: 'high' | 'medium' | 'low';
+  }[];
+  channelAnalysis: {
+    channel: string;
+    effectiveness: 'excellent' | 'good' | 'average' | 'poor';
+    reason: string;
+    recommendation: string;
+  }[];
+  actionPlan: {
+    priority: number;
+    action: string;
+    expectedImpact: string;
+    timeline: string;
+    resources: string;
+  }[];
+  recommendations: {
+    title: string;
+    description: string;
+    rationale: string;
+    impact: 'high' | 'medium' | 'low';
+    effort: 'high' | 'medium' | 'low';
+    category: string;
+  }[];
+  revenueOptimization: {
+    growthSegments: string[];
+    optimizeSegments: string[];
+    reduceRiskSegments: string[];
+    potentialRevenueIncrease: string;
+  };
 }
 
 const COLORS = [
@@ -48,8 +96,30 @@ const COLORS = [
   '#ff7300',
 ];
 
+const INDUSTRY_KEYWORDS: Record<string, string[]> = {
+  'Real Estate': ['real estate', 'property', 'properties', 'realty', 'land', 'building', 'construction estate', 'brokerage'],
+  'Gold & Diamonds': ['gold', 'diamond', 'jewelry', 'jewellery', 'precious', 'gems', 'bullion', 'ornaments'],
+  'Trading': ['trading', 'import', 'export', 'general trading', 'wholesale', 'commodities', 'merchandise'],
+  'Technology': ['tech', 'software', 'it ', 'digital', 'computer', 'app', 'saas', 'ai', 'cyber', 'data'],
+  'Consulting': ['consult', 'advisory', 'management consult', 'business consult', 'strategy'],
+  'Construction': ['construction', 'contracting', 'building', 'civil', 'infrastructure', 'engineering'],
+  'Food & Beverage': ['food', 'restaurant', 'catering', 'beverage', 'cafe', 'hospitality', 'kitchen'],
+  'Healthcare': ['health', 'medical', 'pharma', 'clinic', 'hospital', 'dental', 'wellness'],
+  'Logistics': ['transport', 'logistics', 'shipping', 'freight', 'cargo', 'delivery', 'courier'],
+  'Financial Services': ['finance', 'investment', 'bank', 'insurance', 'capital', 'fund', 'asset'],
+  'Retail': ['retail', 'shop', 'store', 'ecommerce', 'supermarket', 'mall'],
+  'Manufacturing': ['manufactur', 'factory', 'production', 'industrial', 'assembly'],
+  'Tourism & Hospitality': ['tourism', 'travel', 'hotel', 'tour', 'airline', 'resort'],
+  'Media & Marketing': ['media', 'marketing', 'advertising', 'digital marketing', 'pr ', 'events', 'creative'],
+  'Education': ['education', 'training', 'school', 'academy', 'learning', 'institute', 'coaching'],
+  'Automotive': ['auto', 'car', 'vehicle', 'motor', 'garage', 'spare parts'],
+  'Oil & Gas': ['oil', 'gas', 'petroleum', 'energy', 'fuel'],
+  'Legal Services': ['legal', 'law', 'attorney', 'advocate', 'notary'],
+};
+
 const CustomerClassification = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(true);
   const [classifications, setClassifications] = useState<ClassificationGroup>({
     industry: [],
@@ -57,22 +127,66 @@ const CustomerClassification = () => {
     leadSource: [],
     jurisdiction: [],
   });
-  const [aiInsights, setAiInsights] = useState<AIInsight[]>([]);
+  const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
   const [analyzingAI, setAnalyzingAI] = useState(false);
   const [totalCustomers, setTotalCustomers] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
     fetchClassificationData();
   }, []);
 
+  const extractIndustry = (data: Record<string, any>, companyName?: string): string => {
+    // Try various fields that might contain industry info
+    const fieldsToCheck = [
+      data.business_activity_details,
+      data.proposed_activity,
+      data.step2?.business_activity_details,
+      data.step2?.proposed_activity,
+      data.step3?.business_activity_details,
+      data.step3?.proposed_activity,
+      data.business_activity,
+      data.activity_type,
+      data.company_activity,
+      companyName,
+    ];
+
+    const combinedText = fieldsToCheck.filter(Boolean).join(' ').toLowerCase();
+    
+    if (!combinedText) return 'Other';
+
+    // Check against industry keywords
+    for (const [industry, keywords] of Object.entries(INDUSTRY_KEYWORDS)) {
+      if (keywords.some(keyword => combinedText.includes(keyword))) {
+        return industry;
+      }
+    }
+    
+    return 'Other';
+  };
+
+  const extractNationality = (data: Record<string, any>): string => {
+    const nationality = 
+      data.nationality ||
+      data.step1?.nationality ||
+      data.shareholder_nationality ||
+      data.owner_nationality ||
+      data.applicant_nationality ||
+      data.shareholders?.[0]?.nationality;
+    
+    if (!nationality || nationality === 'Unknown' || nationality === '') {
+      return 'Not Specified';
+    }
+    return nationality;
+  };
+
   const fetchClassificationData = async () => {
     setLoading(true);
     try {
-      // Fetch customers with their applications
       const { data: customers, error: custError } = await supabase
         .from('customers')
-        .select('id, lead_source, license_type, jurisdiction, amount');
+        .select('id, lead_source, license_type, jurisdiction, amount, company');
 
       const { data: applications, error: appError } = await supabase
         .from('account_applications')
@@ -80,7 +194,6 @@ const CustomerClassification = () => {
 
       if (custError || appError) throw custError || appError;
 
-      // Process data
       const industryMap = new Map<string, { count: number; revenue: number }>();
       const nationalityMap = new Map<string, { count: number; revenue: number }>();
       const leadSourceMap = new Map<string, { count: number; revenue: number }>();
@@ -89,192 +202,137 @@ const CustomerClassification = () => {
       let total = customers?.length || 0;
       let revenue = 0;
 
-      // Process customers
+      // Create customer lookup map
+      const customerMap = new Map(customers?.map(c => [c.id, c]) || []);
+
+      // Process customers for lead source and jurisdiction
       customers?.forEach(customer => {
         const amt = Number(customer.amount) || 0;
         revenue += amt;
 
-        // Lead Source
         const leadSource = customer.lead_source || 'Unknown';
         const lsData = leadSourceMap.get(leadSource) || { count: 0, revenue: 0 };
         leadSourceMap.set(leadSource, { count: lsData.count + 1, revenue: lsData.revenue + amt });
 
-        // Jurisdiction
         const jurisdiction = customer.jurisdiction || customer.license_type || 'Unknown';
         const jData = jurisdictionMap.get(jurisdiction) || { count: 0, revenue: 0 };
         jurisdictionMap.set(jurisdiction, { count: jData.count + 1, revenue: jData.revenue + amt });
       });
 
       // Process applications for industry and nationality
+      const processedCustomers = new Set<string>();
+      
       applications?.forEach(app => {
         const data = app.application_data as Record<string, any> | null;
-        if (!data) return;
+        if (!data || !app.customer_id) return;
 
-        const customer = customers?.find(c => c.id === app.customer_id);
+        // Avoid double-counting
+        if (processedCustomers.has(app.customer_id)) return;
+        processedCustomers.add(app.customer_id);
+
+        const customer = customerMap.get(app.customer_id);
         const amt = Number(customer?.amount) || 0;
 
         // Industry/Business Activity
-        const industry = extractIndustry(data);
-        if (industry) {
-          const iData = industryMap.get(industry) || { count: 0, revenue: 0 };
-          industryMap.set(industry, { count: iData.count + 1, revenue: iData.revenue + amt });
-        }
+        const industry = extractIndustry(data, customer?.company);
+        const iData = industryMap.get(industry) || { count: 0, revenue: 0 };
+        industryMap.set(industry, { count: iData.count + 1, revenue: iData.revenue + amt });
 
         // Nationality
-        const nationality = data.nationality || data.step1?.nationality || 'Unknown';
-        if (nationality && nationality !== 'Unknown') {
-          const nData = nationalityMap.get(nationality) || { count: 0, revenue: 0 };
-          nationalityMap.set(nationality, { count: nData.count + 1, revenue: nData.revenue + amt });
-        }
+        const nationality = extractNationality(data);
+        const nData = nationalityMap.get(nationality) || { count: 0, revenue: 0 };
+        nationalityMap.set(nationality, { count: nData.count + 1, revenue: nData.revenue + amt });
       });
 
-      // Convert maps to arrays
-      const toArray = (map: Map<string, { count: number; revenue: number }>, total: number): ClassificationData[] => {
+      const toArray = (map: Map<string, { count: number; revenue: number }>): ClassificationData[] => {
+        const totalCount = Array.from(map.values()).reduce((a, b) => a + b.count, 0);
         return Array.from(map.entries())
           .map(([name, data]) => ({
             name,
             count: data.count,
             revenue: data.revenue,
-            percentage: total > 0 ? Math.round((data.count / total) * 100) : 0,
+            percentage: totalCount > 0 ? Math.round((data.count / totalCount) * 100) : 0,
           }))
-          .sort((a, b) => b.count - a.count)
-          .slice(0, 10);
+          .sort((a, b) => b.revenue - a.revenue)
+          .slice(0, 15);
       };
 
       setClassifications({
-        industry: toArray(industryMap, industryMap.size > 0 ? Array.from(industryMap.values()).reduce((a, b) => a + b.count, 0) : 1),
-        nationality: toArray(nationalityMap, nationalityMap.size > 0 ? Array.from(nationalityMap.values()).reduce((a, b) => a + b.count, 0) : 1),
-        leadSource: toArray(leadSourceMap, total),
-        jurisdiction: toArray(jurisdictionMap, total),
+        industry: toArray(industryMap),
+        nationality: toArray(nationalityMap),
+        leadSource: toArray(leadSourceMap),
+        jurisdiction: toArray(jurisdictionMap),
       });
 
       setTotalCustomers(total);
       setTotalRevenue(revenue);
     } catch (error) {
       console.error('Error fetching classification data:', error);
+      toast({
+        title: 'Error',
+        description: 'Failed to load classification data',
+        variant: 'destructive',
+      });
     } finally {
       setLoading(false);
     }
   };
 
-  const extractIndustry = (data: Record<string, any>): string => {
-    // Try various fields that might contain industry info
-    const activity = data.business_activity_details || 
-                    data.proposed_activity || 
-                    data.step2?.business_activity_details ||
-                    data.step2?.proposed_activity ||
-                    data.step3?.business_activity_details;
-
-    if (!activity) return 'Other';
-
-    const activityLower = activity.toLowerCase();
-    
-    // Classify into industry categories
-    if (activityLower.includes('real estate') || activityLower.includes('property')) return 'Real Estate';
-    if (activityLower.includes('trading') || activityLower.includes('import') || activityLower.includes('export')) return 'Trading';
-    if (activityLower.includes('gold') || activityLower.includes('diamond') || activityLower.includes('jewelry') || activityLower.includes('precious')) return 'Gold & Diamonds';
-    if (activityLower.includes('consult')) return 'Consulting';
-    if (activityLower.includes('tech') || activityLower.includes('software') || activityLower.includes('it ')) return 'Technology';
-    if (activityLower.includes('food') || activityLower.includes('restaurant') || activityLower.includes('catering')) return 'Food & Beverage';
-    if (activityLower.includes('construction') || activityLower.includes('contracting')) return 'Construction';
-    if (activityLower.includes('transport') || activityLower.includes('logistics')) return 'Logistics';
-    if (activityLower.includes('health') || activityLower.includes('medical') || activityLower.includes('pharma')) return 'Healthcare';
-    if (activityLower.includes('retail') || activityLower.includes('shop')) return 'Retail';
-    if (activityLower.includes('finance') || activityLower.includes('investment')) return 'Financial Services';
-    if (activityLower.includes('education') || activityLower.includes('training')) return 'Education';
-    if (activityLower.includes('media') || activityLower.includes('marketing') || activityLower.includes('advertising')) return 'Media & Marketing';
-    if (activityLower.includes('manufact')) return 'Manufacturing';
-    if (activityLower.includes('tourism') || activityLower.includes('travel') || activityLower.includes('hotel')) return 'Tourism & Hospitality';
-    
-    return 'Other';
-  };
-
   const runAIAnalysis = async () => {
     setAnalyzingAI(true);
     try {
-      // Generate AI insights based on the data
-      const insights: AIInsight[] = [];
+      const { data, error } = await supabase.functions.invoke('analyze-customer-classifications', {
+        body: {
+          classifications,
+          totalCustomers,
+          totalRevenue,
+        },
+      });
 
-      // Industry insights
-      if (classifications.industry.length > 0) {
-        const topIndustry = classifications.industry[0];
-        insights.push({
-          title: `${topIndustry.name} Dominates Your Portfolio`,
-          description: `${topIndustry.percentage}% of your customers are in ${topIndustry.name}, generating AED ${topIndustry.revenue.toLocaleString()} in revenue.`,
-          recommendation: `Consider developing specialized service packages for ${topIndustry.name} clients to increase retention and upsell opportunities.`,
-          impact: 'high',
-        });
-      }
+      if (error) throw error;
+      if (data.error) throw new Error(data.error);
 
-      // Lead source insights
-      if (classifications.leadSource.length > 0) {
-        const topSource = classifications.leadSource[0];
-        const avgRevPerSource = classifications.leadSource.map(s => s.revenue / s.count);
-        const highestAvgSource = classifications.leadSource.reduce((prev, curr) => 
-          (curr.revenue / curr.count) > (prev.revenue / prev.count) ? curr : prev
-        );
-        
-        insights.push({
-          title: `${highestAvgSource.name} Has Highest Customer Value`,
-          description: `Customers from ${highestAvgSource.name} have an average value of AED ${Math.round(highestAvgSource.revenue / highestAvgSource.count).toLocaleString()}, making it your most valuable acquisition channel.`,
-          recommendation: `Increase marketing budget allocation to ${highestAvgSource.name} channel for better ROI.`,
-          impact: 'high',
-        });
-      }
-
-      // Nationality insights
-      if (classifications.nationality.length > 0) {
-        const topNationalities = classifications.nationality.slice(0, 3);
-        insights.push({
-          title: 'Geographic Customer Concentration',
-          description: `Top nationalities: ${topNationalities.map(n => `${n.name} (${n.percentage}%)`).join(', ')}. This indicates market focus areas.`,
-          recommendation: 'Consider localized marketing campaigns and multilingual support for these demographics.',
-          impact: 'medium',
-        });
-      }
-
-      // Diversification insight
-      const industryConcentration = classifications.industry[0]?.percentage || 0;
-      if (industryConcentration > 40) {
-        insights.push({
-          title: 'Portfolio Concentration Risk',
-          description: `Over ${industryConcentration}% of revenue comes from a single industry. This creates dependency risk.`,
-          recommendation: 'Diversify customer acquisition across multiple industries to reduce sector-specific risks.',
-          impact: 'high',
-        });
-      }
-
-      // Revenue optimization
-      const lowRevenueSegments = classifications.industry.filter(i => i.count > 2 && (i.revenue / i.count) < (totalRevenue / totalCustomers * 0.5));
-      if (lowRevenueSegments.length > 0) {
-        insights.push({
-          title: 'Underperforming Segments Identified',
-          description: `${lowRevenueSegments.map(s => s.name).join(', ')} segments have below-average revenue per customer.`,
-          recommendation: 'Review pricing strategy or consider upselling premium services to these segments.',
-          impact: 'medium',
-        });
-      }
-
-      // Channel efficiency
-      const underutilizedChannels = classifications.leadSource.filter(s => s.count < totalCustomers * 0.1);
-      if (underutilizedChannels.length > 0) {
-        insights.push({
-          title: 'Underutilized Acquisition Channels',
-          description: `${underutilizedChannels.map(c => c.name).join(', ')} channels are underperforming in customer acquisition.`,
-          recommendation: 'Either optimize these channels with targeted campaigns or reallocate resources to high-performing channels.',
-          impact: 'low',
-        });
-      }
-
-      setAiInsights(insights);
+      setAiAnalysis(data.analysis);
+      toast({
+        title: 'Analysis Complete',
+        description: 'AI analysis has been generated successfully',
+      });
     } catch (error) {
       console.error('Error running AI analysis:', error);
+      toast({
+        title: 'Analysis Failed',
+        description: error instanceof Error ? error.message : 'Failed to run AI analysis',
+        variant: 'destructive',
+      });
     } finally {
       setAnalyzingAI(false);
     }
   };
 
   const formatCurrency = (value: number) => `AED ${value.toLocaleString()}`;
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const getImpactColor = (impact: string) => {
+    switch (impact) {
+      case 'high': return 'bg-red-500/10 text-red-600 border-red-500/20';
+      case 'medium': return 'bg-amber-500/10 text-amber-600 border-amber-500/20';
+      case 'low': return 'bg-emerald-500/10 text-emerald-600 border-emerald-500/20';
+      default: return 'bg-muted text-muted-foreground';
+    }
+  };
+
+  const getEffectivenessIcon = (effectiveness: string) => {
+    switch (effectiveness) {
+      case 'excellent': return <Star className="h-4 w-4 text-amber-500" />;
+      case 'good': return <CheckCircle2 className="h-4 w-4 text-emerald-500" />;
+      case 'average': return <TrendingUp className="h-4 w-4 text-blue-500" />;
+      case 'poor': return <TrendingDown className="h-4 w-4 text-red-500" />;
+      default: return null;
+    }
+  };
 
   const renderClassificationCard = (
     title: string,
@@ -340,6 +398,14 @@ const CustomerClassification = () => {
       </div>
     );
   }
+
+  const treemapData = classifications.industry
+    .filter(i => i.revenue > 0)
+    .map((item, idx) => ({
+      name: item.name,
+      size: item.revenue,
+      color: COLORS[idx % COLORS.length],
+    }));
 
   return (
     <div className="p-6 space-y-6">
@@ -426,7 +492,10 @@ const CustomerClassification = () => {
           <TabsTrigger value="industry">By Industry</TabsTrigger>
           <TabsTrigger value="nationality">By Nationality</TabsTrigger>
           <TabsTrigger value="channels">By Channel</TabsTrigger>
-          <TabsTrigger value="ai-insights">AI Insights</TabsTrigger>
+          <TabsTrigger value="ai-insights" className="gap-2">
+            <Sparkles className="h-3 w-3" />
+            AI Insights
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
@@ -439,11 +508,40 @@ const CustomerClassification = () => {
         </TabsContent>
 
         <TabsContent value="industry" className="space-y-4">
+          {/* Revenue Treemap */}
           <Card className="border-border/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Building2 className="h-5 w-5" />
-                Industry Revenue Distribution
+                Industry Revenue Map
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="h-80">
+                <ResponsiveContainer width="100%" height="100%">
+                  <Treemap
+                    data={treemapData}
+                    dataKey="size"
+                    aspectRatio={4 / 3}
+                    stroke="hsl(var(--border))"
+                    fill="hsl(var(--primary))"
+                  >
+                    <Tooltip 
+                      formatter={(value: number) => formatCurrency(value)}
+                      labelFormatter={(name) => `${name}`}
+                    />
+                  </Treemap>
+                </ResponsiveContainer>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Bar Chart */}
+          <Card className="border-border/50">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <TrendingUp className="h-5 w-5" />
+                Revenue by Industry
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -462,18 +560,30 @@ const CustomerClassification = () => {
             </CardContent>
           </Card>
           
+          {/* Industry Cards */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {classifications.industry.slice(0, 6).map((industry, idx) => (
+            {classifications.industry.slice(0, 9).map((industry, idx) => (
               <Card key={industry.name} className="border-border/50">
                 <CardContent className="pt-6">
                   <div className="flex items-center justify-between mb-4">
-                    <Badge style={{ backgroundColor: COLORS[idx % COLORS.length] }}>{industry.name}</Badge>
+                    <Badge style={{ backgroundColor: COLORS[idx % COLORS.length] }} className="text-white">
+                      {industry.name}
+                    </Badge>
                     <span className="text-2xl font-bold">{industry.count}</span>
                   </div>
-                  <div className="space-y-1 text-sm text-muted-foreground">
-                    <p>Revenue: {formatCurrency(industry.revenue)}</p>
-                    <p>Avg per customer: {formatCurrency(Math.round(industry.revenue / industry.count))}</p>
-                    <p>Portfolio share: {industry.percentage}%</p>
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Revenue</span>
+                      <span className="font-medium">{formatCurrency(industry.revenue)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Avg per customer</span>
+                      <span className="font-medium">{formatCurrency(Math.round(industry.revenue / industry.count))}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Portfolio share</span>
+                      <span className="font-medium">{industry.percentage}%</span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
@@ -495,10 +605,14 @@ const CustomerClassification = () => {
                   <BarChart data={classifications.nationality}>
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
-                    <YAxis />
-                    <Tooltip />
+                    <YAxis yAxisId="left" orientation="left" />
+                    <YAxis yAxisId="right" orientation="right" tickFormatter={(v) => `${(v/1000).toFixed(0)}K`} />
+                    <Tooltip formatter={(value: number, name: string) => 
+                      name === 'revenue' ? formatCurrency(value) : value
+                    } />
                     <Legend />
-                    <Bar dataKey="count" name="Customers" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                    <Bar yAxisId="left" dataKey="count" name="Customers" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                    <Bar yAxisId="right" dataKey="revenue" name="Revenue" fill="hsl(var(--chart-4))" radius={[4, 4, 0, 0]} />
                   </BarChart>
                 </ResponsiveContainer>
               </div>
@@ -506,7 +620,7 @@ const CustomerClassification = () => {
           </Card>
 
           <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-            {classifications.nationality.slice(0, 10).map((nat, idx) => (
+            {classifications.nationality.slice(0, 10).map((nat) => (
               <Card key={nat.name} className="border-border/50">
                 <CardContent className="pt-4 text-center">
                   <p className="text-3xl font-bold">{nat.count}</p>
@@ -580,14 +694,14 @@ const CustomerClassification = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="ai-insights" className="space-y-4">
-          {aiInsights.length === 0 ? (
+        <TabsContent value="ai-insights" className="space-y-6">
+          {!aiAnalysis ? (
             <Card className="border-border/50">
               <CardContent className="py-12 text-center">
                 <Sparkles className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
                 <h3 className="text-lg font-semibold mb-2">AI Analysis Not Run</h3>
                 <p className="text-muted-foreground mb-4">
-                  Click "Run AI Analysis" to generate insights about your customer classifications.
+                  Click "Run AI Analysis" to generate detailed insights with reasons, action plans, and recommendations.
                 </p>
                 <Button onClick={runAIAnalysis} disabled={analyzingAI}>
                   {analyzingAI ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Sparkles className="h-4 w-4 mr-2" />}
@@ -596,29 +710,303 @@ const CustomerClassification = () => {
               </CardContent>
             </Card>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {aiInsights.map((insight, idx) => (
-                <Card key={idx} className="border-border/50">
-                  <CardHeader className="pb-2">
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-base">{insight.title}</CardTitle>
-                      <Badge 
-                        variant={insight.impact === 'high' ? 'destructive' : insight.impact === 'medium' ? 'default' : 'secondary'}
-                      >
-                        {insight.impact} impact
-                      </Badge>
+            <>
+              {/* Summary Card */}
+              <Card className="border-primary/30 bg-primary/5">
+                <CardContent className="pt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                    <div className="md:col-span-2">
+                      <h3 className="text-lg font-semibold mb-2">{aiAnalysis.summary.headline}</h3>
+                      <div className="flex items-center gap-4 mt-4">
+                        <div className="flex items-center gap-2">
+                          <Target className="h-5 w-5 text-primary" />
+                          <span className="text-sm">Health Score</span>
+                        </div>
+                        <div className="flex-1">
+                          <Progress value={aiAnalysis.summary.healthScore} className="h-3" />
+                        </div>
+                        <span className="text-lg font-bold">{aiAnalysis.summary.healthScore}/100</span>
+                      </div>
                     </div>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <p className="text-sm text-muted-foreground">{insight.description}</p>
-                    <div className="p-3 bg-primary/5 rounded-lg border border-primary/20">
-                      <p className="text-sm font-medium text-primary">💡 Recommendation</p>
-                      <p className="text-sm mt-1">{insight.recommendation}</p>
+                    <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CheckCircle2 className="h-4 w-4 text-emerald-600" />
+                        <span className="text-sm font-medium text-emerald-600">Key Strength</span>
+                      </div>
+                      <p className="text-sm">{aiAnalysis.summary.keyStrength}</p>
                     </div>
-                  </CardContent>
+                    <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <AlertTriangle className="h-4 w-4 text-red-600" />
+                        <span className="text-sm font-medium text-red-600">Key Risk</span>
+                      </div>
+                      <p className="text-sm">{aiAnalysis.summary.keyRisk}</p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Industry Insights */}
+              <Collapsible open={expandedSections['industry'] !== false} onOpenChange={() => toggleSection('industry')}>
+                <Card className="border-border/50">
+                  <CollapsibleTrigger asChild>
+                    <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                      <CardTitle className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-5 w-5" />
+                          Industry Insights
+                          <Badge variant="secondary">{aiAnalysis.industryInsights.length}</Badge>
+                        </div>
+                        {expandedSections['industry'] === false ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
+                      </CardTitle>
+                    </CardHeader>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <CardContent className="space-y-4">
+                      {aiAnalysis.industryInsights.map((insight, idx) => (
+                        <div key={idx} className="p-4 rounded-lg border border-border/50 space-y-3">
+                          <div className="flex items-center justify-between">
+                            <Badge style={{ backgroundColor: COLORS[idx % COLORS.length] }} className="text-white">
+                              {insight.industry}
+                            </Badge>
+                            <Badge variant="outline" className={getImpactColor(insight.revenueImpact)}>
+                              {insight.revenueImpact} revenue impact
+                            </Badge>
+                          </div>
+                          <p className="font-medium">{insight.insight}</p>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                            <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                              <p className="font-medium text-blue-600 mb-1">Why</p>
+                              <p className="text-muted-foreground">{insight.reason}</p>
+                            </div>
+                            <div className="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/20">
+                              <p className="font-medium text-emerald-600 mb-1">Opportunity</p>
+                              <p className="text-muted-foreground">{insight.opportunity}</p>
+                            </div>
+                            <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                              <p className="font-medium text-amber-600 mb-1">Risk</p>
+                              <p className="text-muted-foreground">{insight.risk}</p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </CardContent>
+                  </CollapsibleContent>
                 </Card>
-              ))}
-            </div>
+              </Collapsible>
+
+              {/* Nationality Insights */}
+              <Collapsible open={expandedSections['nationality'] !== false} onOpenChange={() => toggleSection('nationality')}>
+                <Card className="border-border/50">
+                  <CollapsibleTrigger asChild>
+                    <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                      <CardTitle className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <Globe className="h-5 w-5" />
+                          Nationality Insights
+                          <Badge variant="secondary">{aiAnalysis.nationalityInsights.length}</Badge>
+                        </div>
+                        {expandedSections['nationality'] === false ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
+                      </CardTitle>
+                    </CardHeader>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <CardContent>
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {aiAnalysis.nationalityInsights.map((insight, idx) => (
+                          <div key={idx} className="p-4 rounded-lg border border-border/50 space-y-3">
+                            <div className="flex items-center justify-between">
+                              <span className="font-medium">{insight.nationality}</span>
+                              <Badge variant="outline" className={getImpactColor(insight.growthPotential)}>
+                                {insight.growthPotential} growth
+                              </Badge>
+                            </div>
+                            <p className="text-sm">{insight.insight}</p>
+                            <div className="p-3 rounded-lg bg-muted/50 text-sm">
+                              <p className="font-medium mb-1">Cultural Consideration</p>
+                              <p className="text-muted-foreground">{insight.culturalConsideration}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
+
+              {/* Channel Analysis */}
+              <Collapsible open={expandedSections['channels'] !== false} onOpenChange={() => toggleSection('channels')}>
+                <Card className="border-border/50">
+                  <CollapsibleTrigger asChild>
+                    <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                      <CardTitle className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <TrendingUp className="h-5 w-5" />
+                          Channel Analysis
+                          <Badge variant="secondary">{aiAnalysis.channelAnalysis.length}</Badge>
+                        </div>
+                        {expandedSections['channels'] === false ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
+                      </CardTitle>
+                    </CardHeader>
+                  </CollapsibleTrigger>
+                  <CollapsibleContent>
+                    <CardContent>
+                      <div className="space-y-4">
+                        {aiAnalysis.channelAnalysis.map((channel, idx) => (
+                          <div key={idx} className="p-4 rounded-lg border border-border/50">
+                            <div className="flex items-center justify-between mb-3">
+                              <div className="flex items-center gap-2">
+                                {getEffectivenessIcon(channel.effectiveness)}
+                                <span className="font-medium">{channel.channel}</span>
+                              </div>
+                              <Badge variant="outline">{channel.effectiveness}</Badge>
+                            </div>
+                            <p className="text-sm text-muted-foreground mb-3">{channel.reason}</p>
+                            <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
+                              <div className="flex items-center gap-2 mb-1">
+                                <Lightbulb className="h-4 w-4 text-primary" />
+                                <span className="text-sm font-medium text-primary">Recommendation</span>
+                              </div>
+                              <p className="text-sm">{channel.recommendation}</p>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
+
+              {/* Action Plan */}
+              <Card className="border-border/50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Target className="h-5 w-5" />
+                    Action Plan
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    {aiAnalysis.actionPlan.sort((a, b) => a.priority - b.priority).map((action, idx) => (
+                      <div key={idx} className="flex gap-4 p-4 rounded-lg border border-border/50">
+                        <div className="flex-shrink-0">
+                          <div className={`w-8 h-8 rounded-full flex items-center justify-center text-white font-bold ${
+                            action.priority === 1 ? 'bg-red-500' : 
+                            action.priority === 2 ? 'bg-amber-500' : 
+                            action.priority === 3 ? 'bg-blue-500' : 'bg-muted-foreground'
+                          }`}>
+                            {action.priority}
+                          </div>
+                        </div>
+                        <div className="flex-1 space-y-2">
+                          <p className="font-medium">{action.action}</p>
+                          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Zap className="h-4 w-4" />
+                              <span>{action.expectedImpact}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Clock className="h-4 w-4" />
+                              <span>{action.timeline}</span>
+                            </div>
+                            <div className="flex items-center gap-2 text-muted-foreground">
+                              <Users className="h-4 w-4" />
+                              <span>{action.resources}</span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Recommendations */}
+              <Card className="border-border/50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Lightbulb className="h-5 w-5" />
+                    Strategic Recommendations
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {aiAnalysis.recommendations.map((rec, idx) => (
+                      <div key={idx} className="p-4 rounded-lg border border-border/50 space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="font-medium">{rec.title}</span>
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className={getImpactColor(rec.impact)}>
+                              {rec.impact} impact
+                            </Badge>
+                            <Badge variant="secondary">{rec.category}</Badge>
+                          </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground">{rec.description}</p>
+                        <div className="p-3 rounded-lg bg-muted/50 text-sm">
+                          <p className="font-medium mb-1">Rationale</p>
+                          <p className="text-muted-foreground">{rec.rationale}</p>
+                        </div>
+                        <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                          <span>Effort: {rec.effort}</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Revenue Optimization */}
+              <Card className="border-border/50">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <DollarSign className="h-5 w-5" />
+                    Revenue Optimization Strategy
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <TrendingUp className="h-5 w-5 text-emerald-600" />
+                        <span className="font-medium text-emerald-600">Growth Segments</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {aiAnalysis.revenueOptimization.growthSegments.map((seg, idx) => (
+                          <Badge key={idx} variant="outline" className="bg-emerald-500/5">{seg}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Target className="h-5 w-5 text-blue-600" />
+                        <span className="font-medium text-blue-600">Optimize</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {aiAnalysis.revenueOptimization.optimizeSegments.map((seg, idx) => (
+                          <Badge key={idx} variant="outline" className="bg-blue-500/5">{seg}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                      <div className="flex items-center gap-2 mb-3">
+                        <Shield className="h-5 w-5 text-amber-600" />
+                        <span className="font-medium text-amber-600">Reduce Risk</span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {aiAnalysis.revenueOptimization.reduceRiskSegments.map((seg, idx) => (
+                          <Badge key={idx} variant="outline" className="bg-amber-500/5">{seg}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-primary/10 border border-primary/20 text-center">
+                    <p className="text-sm text-muted-foreground mb-1">Potential Revenue Increase</p>
+                    <p className="text-2xl font-bold text-primary">{aiAnalysis.revenueOptimization.potentialRevenueIncrease}</p>
+                  </div>
+                </CardContent>
+              </Card>
+            </>
           )}
         </TabsContent>
       </Tabs>
