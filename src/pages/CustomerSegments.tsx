@@ -44,6 +44,7 @@ interface IndustryData {
   count: number;
   revenue: number;
   percentage: number;
+  companies: Array<{ name: string; revenue: number }>;
 }
 
 const INDUSTRY_KEYWORDS: Record<string, string[]> = {
@@ -160,6 +161,7 @@ const CustomerSegments = () => {
     optimization: false,
     warnings: false
   });
+  const [expandedIndustries, setExpandedIndustries] = useState<Record<string, boolean>>({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -233,8 +235,8 @@ const CustomerSegments = () => {
         industry: string;
       }>();
 
-      // Global industry tracking
-      const globalIndustryMap = new Map<string, { count: number; revenue: number }>();
+      // Global industry tracking with company names
+      const globalIndustryMap = new Map<string, { count: number; revenue: number; companies: Array<{ name: string; revenue: number }> }>();
 
       customers?.forEach(customer => {
         const existing = customerMap.get(customer.id) || {
@@ -272,12 +274,14 @@ const CustomerSegments = () => {
             }
             processedCustomers.add(app.customer_id);
             
-            // Track global industry
+            // Track global industry with company names
             const ind = existing.industry;
-            const indData = globalIndustryMap.get(ind) || { count: 0, revenue: 0 };
+            const indData = globalIndustryMap.get(ind) || { count: 0, revenue: 0, companies: [] };
+            indData.companies.push({ name: customer?.company || customer?.name || 'Unknown', revenue: existing.totalRevenue });
             globalIndustryMap.set(ind, { 
               count: indData.count + 1, 
-              revenue: indData.revenue + existing.totalRevenue 
+              revenue: indData.revenue + existing.totalRevenue,
+              companies: indData.companies
             });
           }
           
@@ -393,7 +397,8 @@ const CustomerSegments = () => {
           name,
           count: data.count,
           revenue: data.revenue,
-          percentage: totalIndustryCount > 0 ? Math.round((data.count / totalIndustryCount) * 100) : 0
+          percentage: totalIndustryCount > 0 ? Math.round((data.count / totalIndustryCount) * 100) : 0,
+          companies: data.companies.sort((a, b) => b.revenue - a.revenue)
         }))
         .sort((a, b) => b.revenue - a.revenue)
         .slice(0, 15);
@@ -1022,30 +1027,60 @@ const CustomerSegments = () => {
               <Card>
                 <CardHeader>
                   <CardTitle>Industry Leaderboard</CardTitle>
-                  <CardDescription>Ranked by revenue with customer count</CardDescription>
+                  <CardDescription>Ranked by revenue - click to see companies</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-3">
+                  <div className="space-y-2">
                     {industryData.map((ind, idx) => {
                       const maxRevenue = industryData[0]?.revenue || 1;
                       const percentage = Math.round((ind.revenue / maxRevenue) * 100);
+                      const isExpanded = expandedIndustries[ind.name] || false;
                       return (
-                        <div key={ind.name} className="flex items-center gap-4">
-                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" 
-                            style={{ backgroundColor: COLORS[idx % COLORS.length] + '20', color: COLORS[idx % COLORS.length] }}>
-                            {idx + 1}
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center justify-between mb-1">
-                              <span className="font-medium text-sm">{ind.name}</span>
-                              <span className="text-sm text-muted-foreground">{ind.count} customers</span>
+                        <Collapsible 
+                          key={ind.name} 
+                          open={isExpanded} 
+                          onOpenChange={() => setExpandedIndustries(prev => ({ ...prev, [ind.name]: !prev[ind.name] }))}
+                        >
+                          <CollapsibleTrigger asChild>
+                            <div className="flex items-center gap-4 p-3 rounded-lg hover:bg-muted/50 cursor-pointer transition-colors">
+                              <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" 
+                                style={{ backgroundColor: COLORS[idx % COLORS.length] + '20', color: COLORS[idx % COLORS.length] }}>
+                                {idx + 1}
+                              </div>
+                              <div className="flex-1">
+                                <div className="flex items-center justify-between mb-1">
+                                  <div className="flex items-center gap-2">
+                                    <span className="font-medium text-sm">{ind.name}</span>
+                                    {isExpanded ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
+                                  </div>
+                                  <span className="text-sm text-muted-foreground">{ind.count} customers</span>
+                                </div>
+                                <div className="flex items-center gap-3">
+                                  <Progress value={percentage} className="h-2 flex-1" />
+                                  <span className="text-sm font-semibold w-24 text-right">AED {ind.revenue.toLocaleString()}</span>
+                                </div>
+                              </div>
                             </div>
-                            <div className="flex items-center gap-3">
-                              <Progress value={percentage} className="h-2 flex-1" />
-                              <span className="text-sm font-semibold w-24 text-right">AED {ind.revenue.toLocaleString()}</span>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent>
+                            <div className="ml-12 mt-2 mb-4 p-3 rounded-lg bg-muted/30 border">
+                              <p className="text-xs font-medium text-muted-foreground mb-2">Companies in {ind.name}</p>
+                              <div className="space-y-2 max-h-60 overflow-y-auto">
+                                {ind.companies.slice(0, 20).map((company, cIdx) => (
+                                  <div key={cIdx} className="flex items-center justify-between text-sm py-1 border-b border-border/50 last:border-0">
+                                    <span className="truncate flex-1 mr-2">{company.name}</span>
+                                    <span className="text-muted-foreground font-medium whitespace-nowrap">AED {company.revenue.toLocaleString()}</span>
+                                  </div>
+                                ))}
+                                {ind.companies.length > 20 && (
+                                  <p className="text-xs text-muted-foreground text-center pt-2">
+                                    +{ind.companies.length - 20} more companies
+                                  </p>
+                                )}
+                              </div>
                             </div>
-                          </div>
-                        </div>
+                          </CollapsibleContent>
+                        </Collapsible>
                       );
                     })}
                   </div>
