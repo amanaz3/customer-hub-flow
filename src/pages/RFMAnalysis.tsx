@@ -4,8 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import { ArrowLeft, Crown, Heart, Star, UserPlus, AlertTriangle, Moon, TrendingUp, Users, DollarSign, Clock } from "lucide-react";
+import { 
+  ArrowLeft, Crown, Heart, Star, UserPlus, AlertTriangle, Moon, TrendingUp, Users, DollarSign, Clock,
+  Sparkles, ChevronDown, ChevronUp, ArrowRight, Target, Zap, ShieldAlert, CheckCircle2, Loader2,
+  Activity, BarChart3
+} from "lucide-react";
 import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ScatterChart, Scatter, ZAxis } from "recharts";
 
 interface CustomerRFM {
@@ -13,13 +19,13 @@ interface CustomerRFM {
   name: string;
   company: string;
   email: string;
-  recency: number; // days since last activity
-  frequency: number; // number of applications
-  monetary: number; // total revenue
-  rScore: number; // 1-5
-  fScore: number; // 1-5
-  mScore: number; // 1-5
-  rfmScore: number; // combined
+  recency: number;
+  frequency: number;
+  monetary: number;
+  rScore: number;
+  fScore: number;
+  mScore: number;
+  rfmScore: number;
   segment: string;
 }
 
@@ -33,10 +39,71 @@ interface RFMSegment {
   action: string;
 }
 
+interface AIAnalysis {
+  summary: string;
+  rfmHealthScore: number;
+  segmentAnalysis: Array<{
+    segment: string;
+    status: string;
+    keyInsight: string;
+    movementTrend: string;
+    actionRequired: string;
+  }>;
+  migrationStrategies: Array<{
+    fromSegment: string;
+    toSegment: string;
+    strategy: string;
+    effort: string;
+    impact: string;
+  }>;
+  recencyInsights: {
+    status: string;
+    insight: string;
+    recommendation: string;
+  };
+  frequencyInsights: {
+    status: string;
+    insight: string;
+    recommendation: string;
+  };
+  monetaryInsights: {
+    status: string;
+    insight: string;
+    recommendation: string;
+  };
+  prioritizedActions: Array<{
+    priority: number;
+    action: string;
+    targetSegment: string;
+    expectedROI: string;
+    timeline: string;
+  }>;
+  churnRiskAnalysis: {
+    highRiskSegments: string[];
+    atRiskRevenue: string;
+    preventionStrategies: string[];
+  };
+  growthOpportunities: Array<{
+    opportunity: string;
+    targetSegment: string;
+    potentialImpact: string;
+  }>;
+}
+
 const RFMAnalysis = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [customers, setCustomers] = useState<CustomerRFM[]>([]);
   const [loading, setLoading] = useState(true);
+  const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    segments: true,
+    migration: false,
+    rfmDimensions: false,
+    actions: false,
+    churn: false,
+    growth: false
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -76,7 +143,6 @@ const RFMAnalysis = () => {
     try {
       setLoading(true);
       
-      // Fetch customers with their applications
       const { data: customersData, error: customersError } = await supabase
         .from('customers')
         .select(`
@@ -98,20 +164,15 @@ const RFMAnalysis = () => {
 
       const now = new Date();
       
-      // Calculate RFM scores for each customer
       const rfmCustomers: CustomerRFM[] = (customersData || []).map(customer => {
         const applications = customer.account_applications || [];
         
-        // Recency: days since last activity (application or update)
         const lastActivity = applications.length > 0 
           ? new Date(Math.max(...applications.map(a => new Date(a.created_at).getTime())))
           : new Date(customer.updated_at || customer.created_at);
         const recency = Math.floor((now.getTime() - lastActivity.getTime()) / (1000 * 60 * 60 * 24));
         
-        // Frequency: number of applications
         const frequency = applications.length;
-        
-        // Monetary: total amount
         const monetary = customer.amount || 0;
 
         return {
@@ -130,7 +191,6 @@ const RFMAnalysis = () => {
         };
       });
 
-      // Calculate quintiles for scoring (1-5)
       const recencies = rfmCustomers.map(c => c.recency).sort((a, b) => a - b);
       const frequencies = rfmCustomers.map(c => c.frequency).sort((a, b) => a - b);
       const monetaries = rfmCustomers.map(c => c.monetary).sort((a, b) => a - b);
@@ -140,10 +200,9 @@ const RFMAnalysis = () => {
         const index = sortedArray.findIndex(v => v >= value);
         const position = index === -1 ? sortedArray.length : index;
         const quintile = Math.ceil(((position + 1) / sortedArray.length) * 5);
-        return inverse ? 6 - quintile : quintile; // For recency, lower is better
+        return inverse ? 6 - quintile : quintile;
       };
 
-      // Assign scores and segments
       rfmCustomers.forEach(customer => {
         customer.rScore = getQuintile(customer.recency, recencies, true);
         customer.fScore = getQuintile(customer.frequency, frequencies);
@@ -162,19 +221,12 @@ const RFMAnalysis = () => {
   };
 
   const assignSegment = (r: number, f: number, m: number): string => {
-    // Champions: High R, F, M
     if (r >= 4 && f >= 4 && m >= 4) return 'Champions';
-    // Loyal: High F, decent R and M
     if (f >= 4 && r >= 3) return 'Loyal';
-    // Potential Loyalists: Recent, moderate F
     if (r >= 4 && f >= 2 && f <= 3) return 'Potential Loyalists';
-    // New Customers: Very recent, low F
     if (r >= 4 && f <= 2) return 'New Customers';
-    // At Risk: Was good, now declining
     if (r <= 2 && f >= 3) return 'At Risk';
-    // Hibernating: Low across all
     if (r <= 2 && f <= 2) return 'Hibernating';
-    // Need Attention: Medium across all
     return 'Need Attention';
   };
 
@@ -301,6 +353,78 @@ const RFMAnalysis = () => {
     };
   }, [customers, segments]);
 
+  const runAIAnalysis = async () => {
+    setIsAnalyzing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-rfm-segments', {
+        body: {
+          segments: segments.map(s => ({
+            name: s.name,
+            customers: s.customers,
+            description: s.description,
+            action: s.action
+          })),
+          stats,
+          customers: customers.slice(0, 100) // Limit for API
+        }
+      });
+
+      if (error) throw error;
+      setAiAnalysis(data);
+      toast.success('RFM AI analysis completed');
+    } catch (error) {
+      console.error('AI analysis error:', error);
+      toast.error('Failed to run AI analysis');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const getStatusBadge = (status: string) => {
+    switch (status) {
+      case 'thriving':
+        return <Badge className="bg-emerald-500/20 text-emerald-700"><CheckCircle2 className="h-3 w-3 mr-1" />Thriving</Badge>;
+      case 'stable':
+        return <Badge className="bg-blue-500/20 text-blue-700"><Activity className="h-3 w-3 mr-1" />Stable</Badge>;
+      case 'declining':
+        return <Badge className="bg-amber-500/20 text-amber-700"><TrendingUp className="h-3 w-3 mr-1 rotate-180" />Declining</Badge>;
+      case 'critical':
+        return <Badge className="bg-red-500/20 text-red-700"><ShieldAlert className="h-3 w-3 mr-1" />Critical</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
+
+  const getDimensionStatusBadge = (status: string) => {
+    switch (status) {
+      case 'healthy':
+        return <Badge className="bg-emerald-500/20 text-emerald-700">Healthy</Badge>;
+      case 'concerning':
+        return <Badge className="bg-amber-500/20 text-amber-700">Concerning</Badge>;
+      case 'critical':
+        return <Badge className="bg-red-500/20 text-red-700">Critical</Badge>;
+      default:
+        return <Badge variant="secondary">{status}</Badge>;
+    }
+  };
+
+  const getEffortBadge = (effort: string) => {
+    switch (effort) {
+      case 'low':
+        return <Badge className="bg-emerald-500/20 text-emerald-700">Low Effort</Badge>;
+      case 'medium':
+        return <Badge className="bg-amber-500/20 text-amber-700">Medium Effort</Badge>;
+      case 'high':
+        return <Badge className="bg-red-500/20 text-red-700">High Effort</Badge>;
+      default:
+        return <Badge variant="secondary">{effort}</Badge>;
+    }
+  };
+
   if (!isAdmin) return null;
 
   if (loading) {
@@ -315,16 +439,30 @@ const RFMAnalysis = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div className="flex items-center gap-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/tracker')}>
-          <ArrowLeft className="h-5 w-5" />
-        </Button>
-        <div>
-          <h1 className="text-3xl font-bold">RFM Analysis</h1>
-          <p className="text-muted-foreground">
-            Industry-standard customer segmentation based on Recency, Frequency, and Monetary value
-          </p>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <Button variant="ghost" size="icon" onClick={() => navigate('/tracker')}>
+            <ArrowLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">RFM Analysis</h1>
+            <p className="text-muted-foreground">
+              Industry-standard customer segmentation based on Recency, Frequency, and Monetary value
+            </p>
+          </div>
         </div>
+        <Button 
+          onClick={runAIAnalysis} 
+          disabled={isAnalyzing}
+          className="gap-2"
+        >
+          {isAnalyzing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4" />
+          )}
+          {isAnalyzing ? 'Analyzing...' : 'Run AI Analysis'}
+        </Button>
       </div>
 
       {/* Summary Stats */}
@@ -374,6 +512,237 @@ const RFMAnalysis = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* AI Analysis Section */}
+      {aiAnalysis && (
+        <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <Sparkles className="h-5 w-5 text-primary" />
+                AI-Powered RFM Analysis
+              </CardTitle>
+              {aiAnalysis.rfmHealthScore && (
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">Health Score:</span>
+                  <div className="flex items-center gap-2">
+                    <Progress value={aiAnalysis.rfmHealthScore} className="w-24 h-2" />
+                    <span className="font-bold text-primary">{aiAnalysis.rfmHealthScore}%</span>
+                  </div>
+                </div>
+              )}
+            </div>
+            <CardDescription>{aiAnalysis.summary}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Segment Analysis */}
+            <Collapsible open={expandedSections.segments} onOpenChange={() => toggleSection('segments')}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-4 h-auto">
+                  <div className="flex items-center gap-2">
+                    <BarChart3 className="h-4 w-4 text-blue-600" />
+                    <span className="font-semibold">Segment Analysis</span>
+                    <Badge variant="secondary">{aiAnalysis.segmentAnalysis?.length || 0}</Badge>
+                  </div>
+                  {expandedSections.segments ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-3 px-4 pb-4">
+                {aiAnalysis.segmentAnalysis?.map((seg, idx) => (
+                  <div key={idx} className="p-4 rounded-lg bg-muted/50 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{seg.segment}</span>
+                      <div className="flex gap-2">
+                        {getStatusBadge(seg.status)}
+                        <Badge variant="outline">{seg.movementTrend}</Badge>
+                      </div>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{seg.keyInsight}</p>
+                    <p className="text-sm text-primary"><strong>Action:</strong> {seg.actionRequired}</p>
+                  </div>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+
+            {/* Migration Strategies */}
+            <Collapsible open={expandedSections.migration} onOpenChange={() => toggleSection('migration')}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-4 h-auto">
+                  <div className="flex items-center gap-2">
+                    <ArrowRight className="h-4 w-4 text-emerald-600" />
+                    <span className="font-semibold">Migration Strategies</span>
+                    <Badge variant="secondary">{aiAnalysis.migrationStrategies?.length || 0}</Badge>
+                  </div>
+                  {expandedSections.migration ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-3 px-4 pb-4">
+                {aiAnalysis.migrationStrategies?.map((migration, idx) => (
+                  <div key={idx} className="p-4 rounded-lg bg-muted/50 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{migration.fromSegment}</Badge>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                      <Badge className="bg-emerald-500/20 text-emerald-700">{migration.toSegment}</Badge>
+                      {getEffortBadge(migration.effort)}
+                    </div>
+                    <p className="text-sm">{migration.strategy}</p>
+                    <p className="text-xs text-emerald-600 font-medium">Impact: {migration.impact}</p>
+                  </div>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+
+            {/* RFM Dimension Insights */}
+            <Collapsible open={expandedSections.rfmDimensions} onOpenChange={() => toggleSection('rfmDimensions')}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-4 h-auto">
+                  <div className="flex items-center gap-2">
+                    <Activity className="h-4 w-4 text-purple-600" />
+                    <span className="font-semibold">RFM Dimension Insights</span>
+                  </div>
+                  {expandedSections.rfmDimensions ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="px-4 pb-4">
+                <div className="grid md:grid-cols-3 gap-4">
+                  {aiAnalysis.recencyInsights && (
+                    <div className="p-4 rounded-lg bg-blue-500/10 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium text-blue-700">Recency</h4>
+                        {getDimensionStatusBadge(aiAnalysis.recencyInsights.status)}
+                      </div>
+                      <p className="text-sm">{aiAnalysis.recencyInsights.insight}</p>
+                      <p className="text-xs text-blue-600"><strong>Recommendation:</strong> {aiAnalysis.recencyInsights.recommendation}</p>
+                    </div>
+                  )}
+                  {aiAnalysis.frequencyInsights && (
+                    <div className="p-4 rounded-lg bg-emerald-500/10 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium text-emerald-700">Frequency</h4>
+                        {getDimensionStatusBadge(aiAnalysis.frequencyInsights.status)}
+                      </div>
+                      <p className="text-sm">{aiAnalysis.frequencyInsights.insight}</p>
+                      <p className="text-xs text-emerald-600"><strong>Recommendation:</strong> {aiAnalysis.frequencyInsights.recommendation}</p>
+                    </div>
+                  )}
+                  {aiAnalysis.monetaryInsights && (
+                    <div className="p-4 rounded-lg bg-amber-500/10 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <h4 className="font-medium text-amber-700">Monetary</h4>
+                        {getDimensionStatusBadge(aiAnalysis.monetaryInsights.status)}
+                      </div>
+                      <p className="text-sm">{aiAnalysis.monetaryInsights.insight}</p>
+                      <p className="text-xs text-amber-600"><strong>Recommendation:</strong> {aiAnalysis.monetaryInsights.recommendation}</p>
+                    </div>
+                  )}
+                </div>
+              </CollapsibleContent>
+            </Collapsible>
+
+            {/* Prioritized Actions */}
+            <Collapsible open={expandedSections.actions} onOpenChange={() => toggleSection('actions')}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-4 h-auto">
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-amber-600" />
+                    <span className="font-semibold">Prioritized Actions</span>
+                    <Badge variant="secondary">{aiAnalysis.prioritizedActions?.length || 0}</Badge>
+                  </div>
+                  {expandedSections.actions ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-3 px-4 pb-4">
+                {aiAnalysis.prioritizedActions?.sort((a, b) => a.priority - b.priority).map((action, idx) => (
+                  <div key={idx} className="p-4 rounded-lg bg-muted/50 flex items-start gap-4">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
+                      {action.priority}
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-medium">{action.action}</span>
+                        <Badge variant="outline" className="text-xs">{action.targetSegment}</Badge>
+                        <Badge className="bg-emerald-500/20 text-emerald-700 text-xs">ROI: {action.expectedROI}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> {action.timeline}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+
+            {/* Churn Risk */}
+            {aiAnalysis.churnRiskAnalysis && (
+              <Collapsible open={expandedSections.churn} onOpenChange={() => toggleSection('churn')}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" className="w-full justify-between p-4 h-auto bg-red-500/5">
+                    <div className="flex items-center gap-2">
+                      <ShieldAlert className="h-4 w-4 text-red-600" />
+                      <span className="font-semibold text-red-700">Churn Risk Analysis</span>
+                    </div>
+                    {expandedSections.churn ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="px-4 pb-4">
+                  <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-medium">At-Risk Revenue</span>
+                      <span className="text-lg font-bold text-red-700">{aiAnalysis.churnRiskAnalysis.atRiskRevenue}</span>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">High-Risk Segments</p>
+                      <div className="flex gap-1 flex-wrap">
+                        {aiAnalysis.churnRiskAnalysis.highRiskSegments?.map((seg, idx) => (
+                          <Badge key={idx} className="bg-red-500/20 text-red-700">{seg}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground mb-1">Prevention Strategies</p>
+                      <ul className="text-sm space-y-1">
+                        {aiAnalysis.churnRiskAnalysis.preventionStrategies?.map((strategy, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <CheckCircle2 className="h-3 w-3 mt-1 text-red-600" />
+                            {strategy}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+
+            {/* Growth Opportunities */}
+            {aiAnalysis.growthOpportunities && aiAnalysis.growthOpportunities.length > 0 && (
+              <Collapsible open={expandedSections.growth} onOpenChange={() => toggleSection('growth')}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" className="w-full justify-between p-4 h-auto bg-emerald-500/5">
+                    <div className="flex items-center gap-2">
+                      <TrendingUp className="h-4 w-4 text-emerald-600" />
+                      <span className="font-semibold text-emerald-700">Growth Opportunities</span>
+                      <Badge className="bg-emerald-500/20 text-emerald-700">{aiAnalysis.growthOpportunities.length}</Badge>
+                    </div>
+                    {expandedSections.growth ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-3 px-4 pb-4">
+                  {aiAnalysis.growthOpportunities.map((opp, idx) => (
+                    <div key={idx} className="p-4 rounded-lg bg-emerald-500/10 border border-emerald-500/20 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="font-medium">{opp.opportunity}</span>
+                        <Badge variant="outline">{opp.targetSegment}</Badge>
+                      </div>
+                      <p className="text-sm text-emerald-700 font-medium">Impact: {opp.potentialImpact}</p>
+                    </div>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Charts Row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

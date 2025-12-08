@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { toast } from "sonner";
 import { useQuery } from "@tanstack/react-query";
 import { 
@@ -14,7 +16,17 @@ import {
   Repeat,
   Star,
   AlertTriangle,
-  ArrowUpRight
+  ArrowUpRight,
+  Sparkles,
+  ChevronDown,
+  ChevronUp,
+  Target,
+  ArrowRight,
+  Zap,
+  ShieldAlert,
+  CheckCircle2,
+  Clock,
+  Loader2
 } from "lucide-react";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -34,11 +46,61 @@ interface CustomerSegment {
   businessBreakdown: BusinessBreakdown;
 }
 
+interface AIAnalysis {
+  summary: string;
+  segmentInsights: Array<{
+    segment: string;
+    health: string;
+    reason: string;
+    opportunity: string;
+    risk: string;
+  }>;
+  retentionStrategies: Array<{
+    segment: string;
+    strategy: string;
+    expectedImpact: string;
+    timeline: string;
+  }>;
+  upsellOpportunities: Array<{
+    fromSegment: string;
+    toSegment: string;
+    action: string;
+    potentialRevenue: string;
+  }>;
+  actionPlan: Array<{
+    priority: number;
+    action: string;
+    targetSegment: string;
+    expectedOutcome: string;
+  }>;
+  revenueOptimization: {
+    focusAreas: string[];
+    quickWins: string[];
+    longTermStrategies: string[];
+  };
+  warnings: Array<{
+    type: string;
+    message: string;
+    affectedSegments: string[];
+    urgency: string;
+  }>;
+}
+
 const COLORS = ['#10b981', '#3b82f6', '#f59e0b', '#ef4444', '#8b5cf6'];
 
 const CustomerSegments = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [aiAnalysis, setAiAnalysis] = useState<AIAnalysis | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    insights: true,
+    retention: false,
+    upsell: false,
+    actionPlan: false,
+    optimization: false,
+    warnings: false
+  });
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -78,7 +140,6 @@ const CustomerSegments = () => {
   const { data: segmentData, isLoading: segmentsLoading } = useQuery({
     queryKey: ['customer-segments-analytics'],
     queryFn: async () => {
-      // Fetch customers with their applications and revenue
       const { data: customers, error } = await supabase
         .from('customers')
         .select(`
@@ -96,12 +157,10 @@ const CustomerSegments = () => {
 
       if (error) throw error;
 
-      // Fetch applications per customer
       const { data: applications } = await supabase
         .from('account_applications')
         .select('customer_id, status, created_at');
 
-      // Calculate segments based on behavior
       const customerMap = new Map<string, {
         totalRevenue: number;
         applicationCount: number;
@@ -138,7 +197,6 @@ const CustomerSegments = () => {
         }
       });
 
-      // Define segments with business breakdown
       const createEmptyBreakdown = (): BusinessBreakdown => ({
         licenseTypes: {},
         jurisdictions: {}
@@ -156,7 +214,7 @@ const CustomerSegments = () => {
       let atRisk = { count: 0, totalRevenue: 0, breakdown: createEmptyBreakdown() };
       let dormant = { count: 0, totalRevenue: 0, breakdown: createEmptyBreakdown() };
 
-      customerMap.forEach((data, customerId) => {
+      customerMap.forEach((data) => {
         if (data.applicationCount >= 2 && data.totalRevenue > 10000) {
           highValueRepeat.count++;
           highValueRepeat.totalRevenue += data.totalRevenue;
@@ -246,6 +304,73 @@ const CustomerSegments = () => {
     enabled: isAdmin
   });
 
+  const runAIAnalysis = async () => {
+    if (!segmentData) return;
+    
+    setIsAnalyzing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('analyze-customer-segments', {
+        body: {
+          segments: segmentData.segments,
+          totalCustomers: segmentData.totalCustomers,
+          totalRevenue: segmentData.totalRevenue
+        }
+      });
+
+      if (error) throw error;
+      setAiAnalysis(data);
+      toast.success('AI analysis completed');
+    } catch (error) {
+      console.error('AI analysis error:', error);
+      toast.error('Failed to run AI analysis');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
+
+  const toggleSection = (section: string) => {
+    setExpandedSections(prev => ({ ...prev, [section]: !prev[section] }));
+  };
+
+  const getHealthBadge = (health: string) => {
+    switch (health) {
+      case 'healthy':
+        return <Badge className="bg-emerald-500/20 text-emerald-700 border-emerald-500/30"><CheckCircle2 className="h-3 w-3 mr-1" />Healthy</Badge>;
+      case 'attention':
+        return <Badge className="bg-amber-500/20 text-amber-700 border-amber-500/30"><AlertTriangle className="h-3 w-3 mr-1" />Attention</Badge>;
+      case 'critical':
+        return <Badge className="bg-red-500/20 text-red-700 border-red-500/30"><ShieldAlert className="h-3 w-3 mr-1" />Critical</Badge>;
+      default:
+        return <Badge variant="secondary">{health}</Badge>;
+    }
+  };
+
+  const getImpactBadge = (impact: string) => {
+    switch (impact) {
+      case 'high':
+        return <Badge className="bg-emerald-500/20 text-emerald-700">High Impact</Badge>;
+      case 'medium':
+        return <Badge className="bg-amber-500/20 text-amber-700">Medium Impact</Badge>;
+      case 'low':
+        return <Badge className="bg-slate-500/20 text-slate-700">Low Impact</Badge>;
+      default:
+        return <Badge variant="secondary">{impact}</Badge>;
+    }
+  };
+
+  const getUrgencyBadge = (urgency: string) => {
+    switch (urgency) {
+      case 'high':
+        return <Badge className="bg-red-500/20 text-red-700">Urgent</Badge>;
+      case 'medium':
+        return <Badge className="bg-amber-500/20 text-amber-700">Medium</Badge>;
+      case 'low':
+        return <Badge className="bg-slate-500/20 text-slate-700">Low</Badge>;
+      default:
+        return <Badge variant="secondary">{urgency}</Badge>;
+    }
+  };
+
   if (loading || segmentsLoading) {
     return <div className="p-8 text-center">Loading...</div>;
   }
@@ -279,11 +404,25 @@ const CustomerSegments = () => {
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Customer Segments</h1>
-        <p className="text-muted-foreground">
-          Recurring revenue analysis and growth potential by customer segment
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold">Customer Segments</h1>
+          <p className="text-muted-foreground">
+            Recurring revenue analysis and growth potential by customer segment
+          </p>
+        </div>
+        <Button 
+          onClick={runAIAnalysis} 
+          disabled={isAnalyzing}
+          className="gap-2"
+        >
+          {isAnalyzing ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Sparkles className="h-4 w-4" />
+          )}
+          {isAnalyzing ? 'Analyzing...' : 'Run AI Analysis'}
+        </Button>
       </div>
 
       {/* Summary Cards */}
@@ -346,6 +485,218 @@ const CustomerSegments = () => {
         </Card>
       </div>
 
+      {/* AI Analysis Section */}
+      {aiAnalysis && (
+        <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-primary" />
+              AI-Powered Segment Analysis
+            </CardTitle>
+            <CardDescription>{aiAnalysis.summary}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Segment Insights */}
+            <Collapsible open={expandedSections.insights} onOpenChange={() => toggleSection('insights')}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-4 h-auto">
+                  <div className="flex items-center gap-2">
+                    <Target className="h-4 w-4 text-blue-600" />
+                    <span className="font-semibold">Segment Health Insights</span>
+                    <Badge variant="secondary">{aiAnalysis.segmentInsights?.length || 0}</Badge>
+                  </div>
+                  {expandedSections.insights ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-3 px-4 pb-4">
+                {aiAnalysis.segmentInsights?.map((insight, idx) => (
+                  <div key={idx} className="p-4 rounded-lg bg-muted/50 space-y-2">
+                    <div className="flex items-center justify-between">
+                      <span className="font-medium">{insight.segment}</span>
+                      {getHealthBadge(insight.health)}
+                    </div>
+                    <p className="text-sm text-muted-foreground"><strong>Reason:</strong> {insight.reason}</p>
+                    <p className="text-sm text-emerald-700"><strong>Opportunity:</strong> {insight.opportunity}</p>
+                    {insight.risk && <p className="text-sm text-red-700"><strong>Risk:</strong> {insight.risk}</p>}
+                  </div>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+
+            {/* Retention Strategies */}
+            <Collapsible open={expandedSections.retention} onOpenChange={() => toggleSection('retention')}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-4 h-auto">
+                  <div className="flex items-center gap-2">
+                    <Star className="h-4 w-4 text-amber-600" />
+                    <span className="font-semibold">Retention Strategies</span>
+                    <Badge variant="secondary">{aiAnalysis.retentionStrategies?.length || 0}</Badge>
+                  </div>
+                  {expandedSections.retention ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-3 px-4 pb-4">
+                {aiAnalysis.retentionStrategies?.map((strategy, idx) => (
+                  <div key={idx} className="p-4 rounded-lg bg-muted/50 flex items-start justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline">{strategy.segment}</Badge>
+                        {getImpactBadge(strategy.expectedImpact)}
+                      </div>
+                      <p className="text-sm">{strategy.strategy}</p>
+                      <p className="text-xs text-muted-foreground flex items-center gap-1">
+                        <Clock className="h-3 w-3" /> {strategy.timeline}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+
+            {/* Upsell Opportunities */}
+            <Collapsible open={expandedSections.upsell} onOpenChange={() => toggleSection('upsell')}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-4 h-auto">
+                  <div className="flex items-center gap-2">
+                    <ArrowUpRight className="h-4 w-4 text-emerald-600" />
+                    <span className="font-semibold">Upsell Opportunities</span>
+                    <Badge variant="secondary">{aiAnalysis.upsellOpportunities?.length || 0}</Badge>
+                  </div>
+                  {expandedSections.upsell ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-3 px-4 pb-4">
+                {aiAnalysis.upsellOpportunities?.map((opp, idx) => (
+                  <div key={idx} className="p-4 rounded-lg bg-muted/50 space-y-2">
+                    <div className="flex items-center gap-2">
+                      <Badge variant="outline">{opp.fromSegment}</Badge>
+                      <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                      <Badge className="bg-emerald-500/20 text-emerald-700">{opp.toSegment}</Badge>
+                    </div>
+                    <p className="text-sm">{opp.action}</p>
+                    <p className="text-xs text-emerald-600 font-medium">Potential: {opp.potentialRevenue}</p>
+                  </div>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+
+            {/* Action Plan */}
+            <Collapsible open={expandedSections.actionPlan} onOpenChange={() => toggleSection('actionPlan')}>
+              <CollapsibleTrigger asChild>
+                <Button variant="ghost" className="w-full justify-between p-4 h-auto">
+                  <div className="flex items-center gap-2">
+                    <Zap className="h-4 w-4 text-purple-600" />
+                    <span className="font-semibold">Prioritized Action Plan</span>
+                    <Badge variant="secondary">{aiAnalysis.actionPlan?.length || 0}</Badge>
+                  </div>
+                  {expandedSections.actionPlan ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                </Button>
+              </CollapsibleTrigger>
+              <CollapsibleContent className="space-y-3 px-4 pb-4">
+                {aiAnalysis.actionPlan?.sort((a, b) => a.priority - b.priority).map((action, idx) => (
+                  <div key={idx} className="p-4 rounded-lg bg-muted/50 flex items-start gap-4">
+                    <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold text-sm">
+                      {action.priority}
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{action.action}</span>
+                        <Badge variant="outline" className="text-xs">{action.targetSegment}</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground">{action.expectedOutcome}</p>
+                    </div>
+                  </div>
+                ))}
+              </CollapsibleContent>
+            </Collapsible>
+
+            {/* Revenue Optimization */}
+            {aiAnalysis.revenueOptimization && (
+              <Collapsible open={expandedSections.optimization} onOpenChange={() => toggleSection('optimization')}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" className="w-full justify-between p-4 h-auto">
+                    <div className="flex items-center gap-2">
+                      <DollarSign className="h-4 w-4 text-emerald-600" />
+                      <span className="font-semibold">Revenue Optimization</span>
+                    </div>
+                    {expandedSections.optimization ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="px-4 pb-4">
+                  <div className="grid md:grid-cols-3 gap-4">
+                    <div className="p-4 rounded-lg bg-blue-500/10">
+                      <h4 className="font-medium text-blue-700 mb-2">Focus Areas</h4>
+                      <ul className="text-sm space-y-1">
+                        {aiAnalysis.revenueOptimization.focusAreas?.map((area, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <Target className="h-3 w-3 mt-1 text-blue-600" />
+                            {area}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="p-4 rounded-lg bg-emerald-500/10">
+                      <h4 className="font-medium text-emerald-700 mb-2">Quick Wins</h4>
+                      <ul className="text-sm space-y-1">
+                        {aiAnalysis.revenueOptimization.quickWins?.map((win, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <Zap className="h-3 w-3 mt-1 text-emerald-600" />
+                            {win}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div className="p-4 rounded-lg bg-purple-500/10">
+                      <h4 className="font-medium text-purple-700 mb-2">Long-Term Strategies</h4>
+                      <ul className="text-sm space-y-1">
+                        {aiAnalysis.revenueOptimization.longTermStrategies?.map((strategy, idx) => (
+                          <li key={idx} className="flex items-start gap-2">
+                            <TrendingUp className="h-3 w-3 mt-1 text-purple-600" />
+                            {strategy}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+
+            {/* Warnings */}
+            {aiAnalysis.warnings && aiAnalysis.warnings.length > 0 && (
+              <Collapsible open={expandedSections.warnings} onOpenChange={() => toggleSection('warnings')}>
+                <CollapsibleTrigger asChild>
+                  <Button variant="ghost" className="w-full justify-between p-4 h-auto bg-red-500/5">
+                    <div className="flex items-center gap-2">
+                      <ShieldAlert className="h-4 w-4 text-red-600" />
+                      <span className="font-semibold text-red-700">Warnings</span>
+                      <Badge className="bg-red-500/20 text-red-700">{aiAnalysis.warnings.length}</Badge>
+                    </div>
+                    {expandedSections.warnings ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent className="space-y-3 px-4 pb-4">
+                  {aiAnalysis.warnings.map((warning, idx) => (
+                    <div key={idx} className="p-4 rounded-lg bg-red-500/10 border border-red-500/20 space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Badge variant="outline" className="text-red-700">{warning.type}</Badge>
+                        {getUrgencyBadge(warning.urgency)}
+                      </div>
+                      <p className="text-sm">{warning.message}</p>
+                      <div className="flex gap-1 flex-wrap">
+                        {warning.affectedSegments?.map((seg, sIdx) => (
+                          <Badge key={sIdx} variant="secondary" className="text-xs">{seg}</Badge>
+                        ))}
+                      </div>
+                    </div>
+                  ))}
+                </CollapsibleContent>
+              </Collapsible>
+            )}
+          </CardContent>
+        </Card>
+      )}
+
       {/* Charts */}
       <div className="grid md:grid-cols-2 gap-6">
         <Card>
@@ -366,7 +717,7 @@ const CustomerSegments = () => {
                     dataKey="value"
                     label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
                   >
-                    {pieData.map((entry, index) => (
+                    {pieData.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -433,12 +784,10 @@ const CustomerSegments = () => {
                   </div>
                 </div>
                 
-                {/* Business Activity Breakdown */}
                 {segment.count > 0 && (
                   <div className="space-y-3 pt-2 border-t">
                     <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Business Activity</p>
                     
-                    {/* License Types */}
                     <div className="space-y-1">
                       <p className="text-xs text-muted-foreground">License Type</p>
                       <div className="flex flex-wrap gap-1">
@@ -450,7 +799,6 @@ const CustomerSegments = () => {
                       </div>
                     </div>
                     
-                    {/* Jurisdictions */}
                     <div className="space-y-1">
                       <p className="text-xs text-muted-foreground">Jurisdiction</p>
                       <div className="flex flex-wrap gap-1">
