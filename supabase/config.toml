@@ -131,3 +131,9 @@ verify_jwt = true
 
 [functions.analyze-customer-classifications]
 verify_jwt = true
+
+[functions.analyze-customer-segments]
+verify_jwt = true
+
+[functions.analyze-rfm-segments]
+verify_jwt = true
