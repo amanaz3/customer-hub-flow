@@ -26,14 +26,73 @@ import {
   ShieldAlert,
   CheckCircle2,
   Clock,
-  Loader2
+  Loader2,
+  Building2,
+  Briefcase
 } from "lucide-react";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Treemap } from 'recharts';
 
 interface BusinessBreakdown {
   licenseTypes: Record<string, number>;
   jurisdictions: Record<string, number>;
+  industries: Record<string, { count: number; revenue: number }>;
 }
+
+interface IndustryData {
+  name: string;
+  count: number;
+  revenue: number;
+  percentage: number;
+}
+
+const INDUSTRY_KEYWORDS: Record<string, string[]> = {
+  'Real Estate': ['real estate', 'property', 'properties', 'realty', 'land', 'building', 'construction estate', 'brokerage'],
+  'Gold & Diamonds': ['gold', 'diamond', 'jewelry', 'jewellery', 'precious', 'gems', 'bullion', 'ornaments'],
+  'Trading': ['trading', 'import', 'export', 'general trading', 'wholesale', 'commodities', 'merchandise'],
+  'Technology': ['tech', 'software', 'it ', 'digital', 'computer', 'app', 'saas', 'ai', 'cyber', 'data'],
+  'Consulting': ['consult', 'advisory', 'management consult', 'business consult', 'strategy'],
+  'Construction': ['construction', 'contracting', 'building', 'civil', 'infrastructure', 'engineering'],
+  'Food & Beverage': ['food', 'restaurant', 'catering', 'beverage', 'cafe', 'hospitality', 'kitchen'],
+  'Healthcare': ['health', 'medical', 'pharma', 'clinic', 'hospital', 'dental', 'wellness'],
+  'Logistics': ['transport', 'logistics', 'shipping', 'freight', 'cargo', 'delivery', 'courier'],
+  'Financial Services': ['finance', 'investment', 'bank', 'insurance', 'capital', 'fund', 'asset'],
+  'Retail': ['retail', 'shop', 'store', 'ecommerce', 'supermarket', 'mall'],
+  'Manufacturing': ['manufactur', 'factory', 'production', 'industrial', 'assembly'],
+  'Tourism & Hospitality': ['tourism', 'travel', 'hotel', 'tour', 'airline', 'resort'],
+  'Media & Marketing': ['media', 'marketing', 'advertising', 'digital marketing', 'pr ', 'events', 'creative'],
+  'Education': ['education', 'training', 'school', 'academy', 'learning', 'institute', 'coaching'],
+  'Automotive': ['auto', 'car', 'vehicle', 'motor', 'garage', 'spare parts'],
+  'Oil & Gas': ['oil', 'gas', 'petroleum', 'energy', 'fuel'],
+  'Legal Services': ['legal', 'law', 'attorney', 'advocate', 'notary'],
+};
+
+const extractIndustry = (data: Record<string, any>, companyName?: string): string => {
+  const fieldsToCheck = [
+    data.business_activity_details,
+    data.proposed_activity,
+    data.step2?.business_activity_details,
+    data.step2?.proposed_activity,
+    data.step3?.business_activity_details,
+    data.step3?.proposed_activity,
+    data.business_activity,
+    data.activity_type,
+    data.company_activity,
+    companyName,
+  ];
+
+  const combinedText = fieldsToCheck.filter(Boolean).join(' ').toLowerCase();
+  
+  if (!combinedText) return 'Other';
+
+  for (const [industry, keywords] of Object.entries(INDUSTRY_KEYWORDS)) {
+    if (keywords.some(keyword => combinedText.includes(keyword))) {
+      return industry;
+    }
+  }
+  
+  return 'Other';
+};
 
 interface CustomerSegment {
   name: string;
@@ -159,7 +218,10 @@ const CustomerSegments = () => {
 
       const { data: applications } = await supabase
         .from('account_applications')
-        .select('customer_id, status, created_at');
+        .select('customer_id, status, created_at, application_data');
+
+      // Create customer lookup
+      const customerLookup = new Map(customers?.map(c => [c.id, c]) || []);
 
       const customerMap = new Map<string, {
         totalRevenue: number;
@@ -168,7 +230,11 @@ const CustomerSegments = () => {
         productTypes: string[];
         licenseType: string;
         jurisdiction: string | null;
+        industry: string;
       }>();
+
+      // Global industry tracking
+      const globalIndustryMap = new Map<string, { count: number; revenue: number }>();
 
       customers?.forEach(customer => {
         const existing = customerMap.get(customer.id) || {
@@ -177,7 +243,8 @@ const CustomerSegments = () => {
           statuses: [],
           productTypes: [],
           licenseType: customer.license_type || 'Unknown',
-          jurisdiction: customer.jurisdiction
+          jurisdiction: customer.jurisdiction,
+          industry: 'Other'
         };
         existing.totalRevenue += Number(customer.amount) || 0;
         existing.licenseType = customer.license_type || 'Unknown';
@@ -188,24 +255,48 @@ const CustomerSegments = () => {
         customerMap.set(customer.id, existing);
       });
 
+      // Process applications for industry extraction
+      const processedCustomers = new Set<string>();
       applications?.forEach(app => {
         if (app.customer_id && customerMap.has(app.customer_id)) {
           const existing = customerMap.get(app.customer_id)!;
           existing.applicationCount++;
           existing.statuses.push(app.status);
+          
+          // Extract industry from application_data
+          if (!processedCustomers.has(app.customer_id)) {
+            const appData = app.application_data as Record<string, any> | null;
+            const customer = customerLookup.get(app.customer_id);
+            if (appData) {
+              existing.industry = extractIndustry(appData, customer?.company);
+            }
+            processedCustomers.add(app.customer_id);
+            
+            // Track global industry
+            const ind = existing.industry;
+            const indData = globalIndustryMap.get(ind) || { count: 0, revenue: 0 };
+            globalIndustryMap.set(ind, { 
+              count: indData.count + 1, 
+              revenue: indData.revenue + existing.totalRevenue 
+            });
+          }
+          
           customerMap.set(app.customer_id, existing);
         }
       });
 
       const createEmptyBreakdown = (): BusinessBreakdown => ({
         licenseTypes: {},
-        jurisdictions: {}
+        jurisdictions: {},
+        industries: {}
       });
 
-      const addToBreakdown = (breakdown: BusinessBreakdown, licenseType: string, jurisdiction: string | null) => {
+      const addToBreakdown = (breakdown: BusinessBreakdown, licenseType: string, jurisdiction: string | null, industry: string, revenue: number) => {
         breakdown.licenseTypes[licenseType] = (breakdown.licenseTypes[licenseType] || 0) + 1;
         const jur = jurisdiction || 'Not Specified';
         breakdown.jurisdictions[jur] = (breakdown.jurisdictions[jur] || 0) + 1;
+        const indData = breakdown.industries[industry] || { count: 0, revenue: 0 };
+        breakdown.industries[industry] = { count: indData.count + 1, revenue: indData.revenue + revenue };
       };
 
       let highValueRepeat = { count: 0, totalRevenue: 0, breakdown: createEmptyBreakdown() };
@@ -218,23 +309,23 @@ const CustomerSegments = () => {
         if (data.applicationCount >= 2 && data.totalRevenue > 10000) {
           highValueRepeat.count++;
           highValueRepeat.totalRevenue += data.totalRevenue;
-          addToBreakdown(highValueRepeat.breakdown, data.licenseType, data.jurisdiction);
+          addToBreakdown(highValueRepeat.breakdown, data.licenseType, data.jurisdiction, data.industry, data.totalRevenue);
         } else if (data.applicationCount === 1 && data.totalRevenue > 5000) {
           growthPotential.count++;
           growthPotential.totalRevenue += data.totalRevenue;
-          addToBreakdown(growthPotential.breakdown, data.licenseType, data.jurisdiction);
+          addToBreakdown(growthPotential.breakdown, data.licenseType, data.jurisdiction, data.industry, data.totalRevenue);
         } else if (data.applicationCount <= 1 && data.totalRevenue <= 5000) {
           newCustomers.count++;
           newCustomers.totalRevenue += data.totalRevenue;
-          addToBreakdown(newCustomers.breakdown, data.licenseType, data.jurisdiction);
+          addToBreakdown(newCustomers.breakdown, data.licenseType, data.jurisdiction, data.industry, data.totalRevenue);
         } else if (data.statuses.includes('rejected')) {
           atRisk.count++;
           atRisk.totalRevenue += data.totalRevenue;
-          addToBreakdown(atRisk.breakdown, data.licenseType, data.jurisdiction);
+          addToBreakdown(atRisk.breakdown, data.licenseType, data.jurisdiction, data.industry, data.totalRevenue);
         } else {
           dormant.count++;
           dormant.totalRevenue += data.totalRevenue;
-          addToBreakdown(dormant.breakdown, data.licenseType, data.jurisdiction);
+          addToBreakdown(dormant.breakdown, data.licenseType, data.jurisdiction, data.industry, data.totalRevenue);
         }
       });
 
@@ -295,8 +386,21 @@ const CustomerSegments = () => {
         businessBreakdown: dormant.breakdown
       });
 
+      // Convert global industry map to array for charts
+      const totalIndustryCount = Array.from(globalIndustryMap.values()).reduce((a, b) => a + b.count, 0);
+      const industryData: IndustryData[] = Array.from(globalIndustryMap.entries())
+        .map(([name, data]) => ({
+          name,
+          count: data.count,
+          revenue: data.revenue,
+          percentage: totalIndustryCount > 0 ? Math.round((data.count / totalIndustryCount) * 100) : 0
+        }))
+        .sort((a, b) => b.revenue - a.revenue)
+        .slice(0, 15);
+
       return {
         segments,
+        industryData,
         totalCustomers: customerMap.size,
         totalRevenue: Array.from(customerMap.values()).reduce((sum, c) => sum + c.totalRevenue, 0)
       };
@@ -380,6 +484,8 @@ const CustomerSegments = () => {
   }
 
   const segments = segmentData?.segments || [];
+  const industryData = segmentData?.industryData || [];
+  
   const chartData = segments.map(s => ({
     name: s.name,
     customers: s.count,
@@ -389,6 +495,25 @@ const CustomerSegments = () => {
   const pieData = segments.map(s => ({
     name: s.name,
     value: s.count
+  }));
+
+  // Industry chart data
+  const industryChartData = industryData.map(ind => ({
+    name: ind.name,
+    revenue: ind.revenue,
+    count: ind.count
+  }));
+
+  const industryPieData = industryData.map(ind => ({
+    name: ind.name,
+    value: ind.revenue
+  }));
+
+  // Treemap data for industry
+  const industryTreemapData = industryData.map((ind, idx) => ({
+    name: ind.name,
+    size: ind.revenue,
+    fill: COLORS[idx % COLORS.length]
   }));
 
   const getGrowthBadge = (potential: string) => {
@@ -697,142 +822,342 @@ const CustomerSegments = () => {
         </Card>
       )}
 
-      {/* Charts */}
-      <div className="grid md:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Customers by Segment</CardTitle>
-            <CardDescription>Distribution of customers across segments</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pieData}
-                    cx="50%"
-                    cy="50%"
-                    innerRadius={60}
-                    outerRadius={100}
-                    dataKey="value"
-                    label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                  >
-                    {pieData.map((_, index) => (
-                      <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                    ))}
-                  </Pie>
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
+      {/* Main Tabs */}
+      <Tabs defaultValue="segments" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="segments" className="gap-2">
+            <Users className="h-4 w-4" />
+            Segments
+          </TabsTrigger>
+          <TabsTrigger value="industry" className="gap-2">
+            <Building2 className="h-4 w-4" />
+            Industry Classification
+          </TabsTrigger>
+          <TabsTrigger value="details" className="gap-2">
+            <Briefcase className="h-4 w-4" />
+            Segment Details
+          </TabsTrigger>
+        </TabsList>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Revenue by Segment</CardTitle>
-            <CardDescription>Total revenue contribution per segment</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={chartData} layout="vertical" margin={{ left: 80 }}>
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis type="number" tickFormatter={(v) => `${(v/1000).toFixed(0)}K`} />
-                  <YAxis type="category" dataKey="name" width={75} />
-                  <Tooltip formatter={(value: number) => [`AED ${value.toLocaleString()}`, 'Revenue']} />
-                  <Bar dataKey="revenue" fill="#10b981" radius={[0, 4, 4, 0]} />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Segment Cards */}
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Segment Details</h2>
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {segments.map((segment, index) => (
-            <Card key={segment.name} className="hover:shadow-lg transition-shadow">
-              <CardHeader className="pb-2">
-                <div className="flex items-start justify-between">
-                  <div>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <div 
-                        className="w-3 h-3 rounded-full" 
-                        style={{ backgroundColor: COLORS[index % COLORS.length] }}
-                      />
-                      {segment.name}
-                    </CardTitle>
-                    <CardDescription className="text-xs mt-1">
-                      {segment.description}
-                    </CardDescription>
-                  </div>
-                  {getGrowthBadge(segment.growthPotential)}
-                </div>
+        {/* Segments Tab */}
+        <TabsContent value="segments" className="space-y-6 mt-6">
+          <div className="grid md:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Customers by Segment</CardTitle>
+                <CardDescription>Distribution of customers across segments</CardDescription>
               </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <p className="text-xs text-muted-foreground">Customers</p>
-                    <p className="text-xl font-bold">{segment.count}</p>
-                  </div>
-                  <div>
-                    <p className="text-xs text-muted-foreground">Total Revenue</p>
-                    <p className="text-xl font-bold">AED {segment.totalRevenue.toLocaleString()}</p>
-                  </div>
-                </div>
-                
-                {segment.count > 0 && (
-                  <div className="space-y-3 pt-2 border-t">
-                    <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Business Activity</p>
-                    
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">License Type</p>
-                      <div className="flex flex-wrap gap-1">
-                        {Object.entries(segment.businessBreakdown.licenseTypes).map(([type, count]) => (
-                          <Badge key={type} variant="outline" className="text-xs">
-                            {type}: {count}
-                          </Badge>
+              <CardContent>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <PieChart>
+                      <Pie
+                        data={pieData}
+                        cx="50%"
+                        cy="50%"
+                        innerRadius={60}
+                        outerRadius={100}
+                        dataKey="value"
+                        label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                      >
+                        {pieData.map((_, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                         ))}
-                      </div>
-                    </div>
-                    
-                    <div className="space-y-1">
-                      <p className="text-xs text-muted-foreground">Jurisdiction</p>
-                      <div className="flex flex-wrap gap-1">
-                        {Object.entries(segment.businessBreakdown.jurisdictions)
-                          .sort((a, b) => b[1] - a[1])
-                          .slice(0, 5)
-                          .map(([jur, count]) => (
-                          <Badge key={jur} variant="secondary" className="text-xs">
-                            {jur}: {count}
-                          </Badge>
-                        ))}
-                      </div>
-                    </div>
-                  </div>
-                )}
-                
-                <div>
-                  <div className="flex justify-between text-sm mb-1">
-                    <span className="text-muted-foreground">Repeat Rate</span>
-                    <span className="font-medium">{segment.repeatRate}%</span>
-                  </div>
-                  <Progress value={segment.repeatRate} className="h-2" />
-                </div>
-                <div className="flex items-center justify-between text-sm">
-                  <span className="text-muted-foreground">Avg Revenue</span>
-                  <span className="font-semibold text-emerald-600">
-                    AED {Math.round(segment.avgRevenue).toLocaleString()}
-                  </span>
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
                 </div>
               </CardContent>
             </Card>
-          ))}
-        </div>
-      </div>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Revenue by Segment</CardTitle>
+                <CardDescription>Total revenue contribution per segment</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="h-[300px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={chartData} layout="vertical" margin={{ left: 80 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" tickFormatter={(v) => `${(v/1000).toFixed(0)}K`} />
+                      <YAxis type="category" dataKey="name" width={75} />
+                      <Tooltip formatter={(value: number) => [`AED ${value.toLocaleString()}`, 'Revenue']} />
+                      <Bar dataKey="revenue" fill="#10b981" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+
+        {/* Industry Tab */}
+        <TabsContent value="industry" className="space-y-6 mt-6">
+          {industryData.length === 0 ? (
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-center text-muted-foreground">
+                  No industry data available. Industry is extracted from application details.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              {/* Industry Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 rounded-lg bg-primary/10">
+                        <Building2 className="h-5 w-5 text-primary" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Industries</p>
+                        <p className="text-2xl font-bold">{industryData.length}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 rounded-lg bg-emerald-500/10">
+                        <TrendingUp className="h-5 w-5 text-emerald-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Top Industry</p>
+                        <p className="text-lg font-bold truncate">{industryData[0]?.name || 'N/A'}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 rounded-lg bg-blue-500/10">
+                        <DollarSign className="h-5 w-5 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Top Industry Revenue</p>
+                        <p className="text-lg font-bold">AED {(industryData[0]?.revenue || 0).toLocaleString()}</p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card>
+                  <CardContent className="pt-6">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 rounded-lg bg-amber-500/10">
+                        <Users className="h-5 w-5 text-amber-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm text-muted-foreground">Avg Customers/Industry</p>
+                        <p className="text-2xl font-bold">
+                          {industryData.length > 0 
+                            ? Math.round(industryData.reduce((sum, i) => sum + i.count, 0) / industryData.length) 
+                            : 0}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Industry Charts */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Revenue by Industry</CardTitle>
+                    <CardDescription>Distribution of revenue across industries</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[350px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart data={industryChartData} layout="vertical" margin={{ left: 100 }}>
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis type="number" tickFormatter={(v) => `${(v/1000).toFixed(0)}K`} />
+                          <YAxis type="category" dataKey="name" width={95} tick={{ fontSize: 11 }} />
+                          <Tooltip formatter={(value: number) => [`AED ${value.toLocaleString()}`, 'Revenue']} />
+                          <Bar dataKey="revenue" radius={[0, 4, 4, 0]}>
+                            {industryChartData.map((_, index) => (
+                              <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Industry Distribution</CardTitle>
+                    <CardDescription>Revenue share by industry (Treemap)</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[350px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <Treemap
+                          data={industryTreemapData}
+                          dataKey="size"
+                          aspectRatio={4 / 3}
+                          stroke="#fff"
+                        >
+                          {industryTreemapData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                          ))}
+                          <Tooltip 
+                            formatter={(value: number) => [`AED ${value.toLocaleString()}`, 'Revenue']}
+                          />
+                        </Treemap>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Industry Leaderboard */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Industry Leaderboard</CardTitle>
+                  <CardDescription>Ranked by revenue with customer count</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    {industryData.map((ind, idx) => {
+                      const maxRevenue = industryData[0]?.revenue || 1;
+                      const percentage = Math.round((ind.revenue / maxRevenue) * 100);
+                      return (
+                        <div key={ind.name} className="flex items-center gap-4">
+                          <div className="w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold" 
+                            style={{ backgroundColor: COLORS[idx % COLORS.length] + '20', color: COLORS[idx % COLORS.length] }}>
+                            {idx + 1}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center justify-between mb-1">
+                              <span className="font-medium text-sm">{ind.name}</span>
+                              <span className="text-sm text-muted-foreground">{ind.count} customers</span>
+                            </div>
+                            <div className="flex items-center gap-3">
+                              <Progress value={percentage} className="h-2 flex-1" />
+                              <span className="text-sm font-semibold w-24 text-right">AED {ind.revenue.toLocaleString()}</span>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </TabsContent>
+
+        {/* Segment Details Tab */}
+        <TabsContent value="details" className="space-y-6 mt-6">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {segments.map((segment, index) => (
+              <Card key={segment.name} className="hover:shadow-lg transition-shadow">
+                <CardHeader className="pb-2">
+                  <div className="flex items-start justify-between">
+                    <div>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <div 
+                          className="w-3 h-3 rounded-full" 
+                          style={{ backgroundColor: COLORS[index % COLORS.length] }}
+                        />
+                        {segment.name}
+                      </CardTitle>
+                      <CardDescription className="text-xs mt-1">
+                        {segment.description}
+                      </CardDescription>
+                    </div>
+                    {getGrowthBadge(segment.growthPotential)}
+                  </div>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <p className="text-xs text-muted-foreground">Customers</p>
+                      <p className="text-xl font-bold">{segment.count}</p>
+                    </div>
+                    <div>
+                      <p className="text-xs text-muted-foreground">Total Revenue</p>
+                      <p className="text-xl font-bold">AED {segment.totalRevenue.toLocaleString()}</p>
+                    </div>
+                  </div>
+                  
+                  {segment.count > 0 && (
+                    <div className="space-y-3 pt-2 border-t">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wider">Business Activity</p>
+                      
+                      {/* Industry Breakdown */}
+                      {Object.keys(segment.businessBreakdown.industries).length > 0 && (
+                        <div className="space-y-1">
+                          <p className="text-xs text-muted-foreground flex items-center gap-1">
+                            <Building2 className="h-3 w-3" /> Industry
+                          </p>
+                          <div className="flex flex-wrap gap-1">
+                            {Object.entries(segment.businessBreakdown.industries)
+                              .sort((a, b) => b[1].revenue - a[1].revenue)
+                              .slice(0, 5)
+                              .map(([industry, data]) => (
+                              <Badge key={industry} variant="outline" className="text-xs">
+                                {industry}: {data.count} (AED {Math.round(data.revenue/1000)}K)
+                              </Badge>
+                            ))}
+                          </div>
+                        </div>
+                      )}
+                      
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">License Type</p>
+                        <div className="flex flex-wrap gap-1">
+                          {Object.entries(segment.businessBreakdown.licenseTypes).map(([type, count]) => (
+                            <Badge key={type} variant="outline" className="text-xs">
+                              {type}: {count}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-1">
+                        <p className="text-xs text-muted-foreground">Jurisdiction</p>
+                        <div className="flex flex-wrap gap-1">
+                          {Object.entries(segment.businessBreakdown.jurisdictions)
+                            .sort((a, b) => b[1] - a[1])
+                            .slice(0, 5)
+                            .map(([jur, count]) => (
+                            <Badge key={jur} variant="secondary" className="text-xs">
+                              {jur}: {count}
+                            </Badge>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <div>
+                    <div className="flex justify-between text-sm mb-1">
+                      <span className="text-muted-foreground">Repeat Rate</span>
+                      <span className="font-medium">{segment.repeatRate}%</span>
+                    </div>
+                    <Progress value={segment.repeatRate} className="h-2" />
+                  </div>
+                  <div className="flex items-center justify-between text-sm">
+                    <span className="text-muted-foreground">Avg Revenue</span>
+                    <span className="font-semibold text-emerald-600">
+                      AED {Math.round(segment.avgRevenue).toLocaleString()}
+                    </span>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
