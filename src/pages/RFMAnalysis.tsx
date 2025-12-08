@@ -6,13 +6,32 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
 import { 
   ArrowLeft, Crown, Heart, Star, UserPlus, AlertTriangle, Moon, TrendingUp, Users, DollarSign, Clock,
   Sparkles, ChevronDown, ChevronUp, ArrowRight, Target, Zap, ShieldAlert, CheckCircle2, Loader2,
-  Activity, BarChart3
+  Activity, BarChart3, Building2, Briefcase
 } from "lucide-react";
-import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ScatterChart, Scatter, ZAxis } from "recharts";
+import { PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, ScatterChart, Scatter, ZAxis, Treemap } from "recharts";
+
+// Industry keywords for classification
+const INDUSTRY_KEYWORDS: Record<string, string[]> = {
+  'Real Estate': ['real estate', 'property', 'properties', 'realty', 'housing', 'apartments', 'villa', 'land', 'construction', 'building'],
+  'Gold & Diamonds': ['gold', 'diamond', 'jewelry', 'jewellery', 'precious', 'gems', 'bullion'],
+  'Trading': ['trading', 'import', 'export', 'wholesale', 'retail', 'commerce', 'merchandise', 'goods'],
+  'Technology': ['technology', 'tech', 'software', 'it ', 'digital', 'computer', 'app', 'saas', 'cloud'],
+  'Healthcare': ['health', 'medical', 'hospital', 'clinic', 'pharma', 'healthcare', 'doctor', 'dental'],
+  'Consulting': ['consulting', 'consultancy', 'advisory', 'management consulting', 'business consulting'],
+  'Construction': ['construction', 'contracting', 'contractor', 'engineering', 'infrastructure'],
+  'Food & Beverage': ['food', 'restaurant', 'catering', 'beverage', 'cafe', 'hotel', 'hospitality'],
+  'Finance': ['finance', 'financial', 'investment', 'banking', 'insurance', 'fintech'],
+  'Manufacturing': ['manufacturing', 'factory', 'production', 'industrial'],
+  'Transportation': ['transport', 'logistics', 'shipping', 'freight', 'cargo', 'delivery'],
+  'Education': ['education', 'school', 'training', 'academy', 'learning', 'institute'],
+  'Media': ['media', 'advertising', 'marketing', 'creative', 'design', 'entertainment'],
+  'E-commerce': ['ecommerce', 'e-commerce', 'online store', 'marketplace', 'amazon', 'shopify']
+};
 
 interface CustomerRFM {
   id: string;
@@ -27,6 +46,14 @@ interface CustomerRFM {
   mScore: number;
   rfmScore: number;
   segment: string;
+  industry: string;
+}
+
+interface IndustryData {
+  name: string;
+  customers: number;
+  revenue: number;
+  segments: Record<string, { count: number; revenue: number }>;
 }
 
 interface RFMSegment {
@@ -37,6 +64,7 @@ interface RFMSegment {
   color: string;
   bgColor: string;
   action: string;
+  industryBreakdown: Record<string, { count: number; revenue: number }>;
 }
 
 interface AIAnalysis {
@@ -139,6 +167,25 @@ const RFMAnalysis = () => {
     }
   };
 
+  const extractIndustry = (appData: any, company: string): string => {
+    const searchText = [
+      company,
+      appData?.business_activity_details,
+      appData?.proposed_activity,
+      appData?.company_name,
+      appData?.license_type,
+      appData?.business_nature,
+      appData?.industry_type
+    ].filter(Boolean).join(' ').toLowerCase();
+
+    for (const [industry, keywords] of Object.entries(INDUSTRY_KEYWORDS)) {
+      if (keywords.some(keyword => searchText.includes(keyword))) {
+        return industry;
+      }
+    }
+    return 'Other';
+  };
+
   const fetchCustomerData = async () => {
     try {
       setLoading(true);
@@ -156,7 +203,8 @@ const RFMAnalysis = () => {
           account_applications (
             id,
             created_at,
-            status
+            status,
+            application_data
           )
         `);
 
@@ -175,6 +223,10 @@ const RFMAnalysis = () => {
         const frequency = applications.length;
         const monetary = customer.amount || 0;
 
+        // Extract industry from first application's data
+        const firstAppData = applications[0]?.application_data;
+        const industry = extractIndustry(firstAppData, customer.company);
+
         return {
           id: customer.id,
           name: customer.name,
@@ -187,7 +239,8 @@ const RFMAnalysis = () => {
           fScore: 0,
           mScore: 0,
           rfmScore: 0,
-          segment: ''
+          segment: '',
+          industry
         };
       });
 
@@ -239,7 +292,8 @@ const RFMAnalysis = () => {
         icon: Crown,
         color: 'text-amber-600',
         bgColor: 'bg-amber-100 dark:bg-amber-900/30',
-        action: 'Reward them. Can be early adopters. Will promote your brand.'
+        action: 'Reward them. Can be early adopters. Will promote your brand.',
+        industryBreakdown: {}
       },
       'Loyal': {
         name: 'Loyal',
@@ -248,7 +302,8 @@ const RFMAnalysis = () => {
         icon: Heart,
         color: 'text-red-600',
         bgColor: 'bg-red-100 dark:bg-red-900/30',
-        action: 'Upsell higher value products. Ask for reviews.'
+        action: 'Upsell higher value products. Ask for reviews.',
+        industryBreakdown: {}
       },
       'Potential Loyalists': {
         name: 'Potential Loyalists',
@@ -257,7 +312,8 @@ const RFMAnalysis = () => {
         icon: Star,
         color: 'text-blue-600',
         bgColor: 'bg-blue-100 dark:bg-blue-900/30',
-        action: 'Offer membership/loyalty programs. Recommend other products.'
+        action: 'Offer membership/loyalty programs. Recommend other products.',
+        industryBreakdown: {}
       },
       'New Customers': {
         name: 'New Customers',
@@ -266,7 +322,8 @@ const RFMAnalysis = () => {
         icon: UserPlus,
         color: 'text-green-600',
         bgColor: 'bg-green-100 dark:bg-green-900/30',
-        action: 'Provide onboarding support. Give early success.'
+        action: 'Provide onboarding support. Give early success.',
+        industryBreakdown: {}
       },
       'At Risk': {
         name: 'At Risk',
@@ -275,7 +332,8 @@ const RFMAnalysis = () => {
         icon: AlertTriangle,
         color: 'text-orange-600',
         bgColor: 'bg-orange-100 dark:bg-orange-900/30',
-        action: 'Send personalized emails. Offer renewals. Provide value.'
+        action: 'Send personalized emails. Offer renewals. Provide value.',
+        industryBreakdown: {}
       },
       'Hibernating': {
         name: 'Hibernating',
@@ -284,7 +342,8 @@ const RFMAnalysis = () => {
         icon: Moon,
         color: 'text-slate-600',
         bgColor: 'bg-slate-100 dark:bg-slate-900/30',
-        action: 'Offer special discounts. Recreate brand value.'
+        action: 'Offer special discounts. Recreate brand value.',
+        industryBreakdown: {}
       },
       'Need Attention': {
         name: 'Need Attention',
@@ -293,18 +352,57 @@ const RFMAnalysis = () => {
         icon: TrendingUp,
         color: 'text-purple-600',
         bgColor: 'bg-purple-100 dark:bg-purple-900/30',
-        action: 'Make limited time offers. Recommend based on past purchases.'
+        action: 'Make limited time offers. Recommend based on past purchases.',
+        industryBreakdown: {}
       }
     };
 
     customers.forEach(customer => {
       if (segmentMap[customer.segment]) {
         segmentMap[customer.segment].customers.push(customer);
+        // Track industry breakdown per segment
+        const industry = customer.industry;
+        if (!segmentMap[customer.segment].industryBreakdown[industry]) {
+          segmentMap[customer.segment].industryBreakdown[industry] = { count: 0, revenue: 0 };
+        }
+        segmentMap[customer.segment].industryBreakdown[industry].count++;
+        segmentMap[customer.segment].industryBreakdown[industry].revenue += customer.monetary;
       }
     });
 
     return Object.values(segmentMap).filter(s => s.customers.length > 0);
   }, [customers]);
+
+  // Industry data across all segments
+  const industryData: IndustryData[] = useMemo(() => {
+    const industries: Record<string, IndustryData> = {};
+    
+    customers.forEach(customer => {
+      const industry = customer.industry;
+      if (!industries[industry]) {
+        industries[industry] = { name: industry, customers: 0, revenue: 0, segments: {} };
+      }
+      industries[industry].customers++;
+      industries[industry].revenue += customer.monetary;
+      
+      // Track per-segment breakdown
+      if (!industries[industry].segments[customer.segment]) {
+        industries[industry].segments[customer.segment] = { count: 0, revenue: 0 };
+      }
+      industries[industry].segments[customer.segment].count++;
+      industries[industry].segments[customer.segment].revenue += customer.monetary;
+    });
+
+    return Object.values(industries).sort((a, b) => b.revenue - a.revenue);
+  }, [customers]);
+
+  const industryTreemapData = useMemo(() => {
+    return industryData.map(ind => ({
+      name: ind.name,
+      size: ind.revenue,
+      customers: ind.customers
+    }));
+  }, [industryData]);
 
   const pieData = useMemo(() => {
     return segments.map(seg => ({
@@ -744,75 +842,302 @@ const RFMAnalysis = () => {
         </Card>
       )}
 
-      {/* Charts Row */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Customer Distribution by Segment</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={pieData}
-                  cx="50%"
-                  cy="50%"
-                  labelLine={false}
-                  label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                  outerRadius={100}
-                  fill="#8884d8"
-                  dataKey="value"
-                >
-                  {pieData.map((_, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-              </PieChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
+      {/* Tabbed Content */}
+      <Tabs defaultValue="segments" className="space-y-6">
+        <TabsList>
+          <TabsTrigger value="segments" className="gap-2">
+            <Users className="h-4 w-4" />
+            RFM Segments
+          </TabsTrigger>
+          <TabsTrigger value="industry" className="gap-2">
+            <Building2 className="h-4 w-4" />
+            Industry Analysis
+          </TabsTrigger>
+        </TabsList>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Revenue by Segment</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ResponsiveContainer width="100%" height={300}>
-              <BarChart data={revenueBySegment}>
-                <CartesianGrid strokeDasharray="3 3" />
-                <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} fontSize={12} />
-                <YAxis />
-                <Tooltip formatter={(value: number) => `AED ${value.toLocaleString()}`} />
-                <Bar dataKey="revenue" fill="hsl(var(--primary))" />
-              </BarChart>
-            </ResponsiveContainer>
-          </CardContent>
-        </Card>
-      </div>
+        <TabsContent value="segments" className="space-y-6">
+          {/* Charts Row */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Customer Distribution by Segment</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <PieChart>
+                    <Pie
+                      data={pieData}
+                      cx="50%"
+                      cy="50%"
+                      labelLine={false}
+                      label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
+                      outerRadius={100}
+                      fill="#8884d8"
+                      dataKey="value"
+                    >
+                      {pieData.map((_, index) => (
+                        <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                      ))}
+                    </Pie>
+                    <Tooltip />
+                  </PieChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
 
-      {/* RFM Scatter Plot */}
-      <Card>
-        <CardHeader>
-          <CardTitle>RFM Distribution</CardTitle>
-          <CardDescription>Recency vs Frequency (bubble size = Monetary value)</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <ResponsiveContainer width="100%" height={400}>
-            <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-              <CartesianGrid />
-              <XAxis type="number" dataKey="x" name="Recency (days)" />
-              <YAxis type="number" dataKey="y" name="Frequency" />
-              <ZAxis type="number" dataKey="z" range={[50, 500]} name="Monetary" />
-              <Tooltip cursor={{ strokeDasharray: '3 3' }} formatter={(value: number, name: string) => {
-                if (name === 'Monetary') return `AED ${value.toLocaleString()}`;
-                return value;
-              }} />
-              <Scatter name="Customers" data={scatterData} fill="hsl(var(--primary))" />
-            </ScatterChart>
-          </ResponsiveContainer>
-        </CardContent>
-      </Card>
+            <Card>
+              <CardHeader>
+                <CardTitle>Revenue by Segment</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={300}>
+                  <BarChart data={revenueBySegment}>
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} fontSize={12} />
+                    <YAxis />
+                    <Tooltip formatter={(value: number) => `AED ${value.toLocaleString()}`} />
+                    <Bar dataKey="revenue" fill="hsl(var(--primary))" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* RFM Scatter Plot */}
+          <Card>
+            <CardHeader>
+              <CardTitle>RFM Distribution</CardTitle>
+              <CardDescription>Recency vs Frequency (bubble size = Monetary value)</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <ResponsiveContainer width="100%" height={400}>
+                <ScatterChart margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                  <CartesianGrid />
+                  <XAxis type="number" dataKey="x" name="Recency (days)" />
+                  <YAxis type="number" dataKey="y" name="Frequency" />
+                  <ZAxis type="number" dataKey="z" range={[50, 500]} name="Monetary" />
+                  <Tooltip cursor={{ strokeDasharray: '3 3' }} formatter={(value: number, name: string) => {
+                    if (name === 'Monetary') return `AED ${value.toLocaleString()}`;
+                    return value;
+                  }} />
+                  <Scatter name="Customers" data={scatterData} fill="hsl(var(--primary))" />
+                </ScatterChart>
+              </ResponsiveContainer>
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="industry" className="space-y-6">
+          {/* Industry Summary Stats */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <Building2 className="h-8 w-8 text-primary" />
+                  <div>
+                    <p className="text-2xl font-bold">{industryData.length}</p>
+                    <p className="text-sm text-muted-foreground">Industries Identified</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <Crown className="h-8 w-8 text-amber-600" />
+                  <div>
+                    <p className="text-2xl font-bold">{industryData[0]?.name || 'N/A'}</p>
+                    <p className="text-sm text-muted-foreground">Top Revenue Industry</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+            <Card>
+              <CardContent className="pt-6">
+                <div className="flex items-center gap-3">
+                  <DollarSign className="h-8 w-8 text-green-600" />
+                  <div>
+                    <p className="text-2xl font-bold">AED {(industryData[0]?.revenue || 0).toLocaleString()}</p>
+                    <p className="text-sm text-muted-foreground">Top Industry Revenue</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Industry Charts */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle>Revenue by Industry</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={350}>
+                  <BarChart data={industryData.slice(0, 10)} layout="vertical">
+                    <CartesianGrid strokeDasharray="3 3" />
+                    <XAxis type="number" />
+                    <YAxis dataKey="name" type="category" width={120} fontSize={11} />
+                    <Tooltip formatter={(value: number) => `AED ${value.toLocaleString()}`} />
+                    <Bar dataKey="revenue" fill="hsl(var(--primary))" />
+                  </BarChart>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle>Industry Revenue Distribution</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <ResponsiveContainer width="100%" height={350}>
+                  <Treemap
+                    data={industryTreemapData}
+                    dataKey="size"
+                    aspectRatio={4/3}
+                    stroke="#fff"
+                    fill="hsl(var(--primary))"
+                  >
+                    <Tooltip
+                      formatter={(value: number, name: string, props: any) => [
+                        `AED ${value.toLocaleString()}`,
+                        props.payload.name
+                      ]}
+                    />
+                  </Treemap>
+                </ResponsiveContainer>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Industry-Segment Matrix */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Briefcase className="h-5 w-5" />
+                Industry by RFM Segment
+              </CardTitle>
+              <CardDescription>Which industries are Champions, Loyal, At Risk, etc.</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                {industryData.slice(0, 8).map((industry) => {
+                  const maxRevenue = industryData[0]?.revenue || 1;
+                  const segmentEntries = Object.entries(industry.segments)
+                    .sort(([, a], [, b]) => b.revenue - a.revenue);
+                  
+                  return (
+                    <div key={industry.name} className="p-4 rounded-lg bg-muted/50 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <Building2 className="h-5 w-5 text-primary" />
+                          <div>
+                            <h4 className="font-semibold">{industry.name}</h4>
+                            <p className="text-sm text-muted-foreground">
+                              {industry.customers} customers • AED {industry.revenue.toLocaleString()}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="w-32">
+                          <Progress value={(industry.revenue / maxRevenue) * 100} className="h-2" />
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-wrap gap-2">
+                        {segmentEntries.map(([segmentName, data]) => {
+                          const segment = segments.find(s => s.name === segmentName);
+                          return (
+                            <Badge 
+                              key={segmentName} 
+                              className={`${segment?.bgColor || 'bg-muted'} ${segment?.color || 'text-foreground'} gap-1`}
+                            >
+                              {segmentName}: {data.count} (AED {data.revenue.toLocaleString()})
+                            </Badge>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Champions & Loyal by Industry */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Crown className="h-5 w-5 text-amber-600" />
+                  Champions by Industry
+                </CardTitle>
+                <CardDescription>Your best customers in each industry</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {industryData
+                    .filter(ind => ind.segments['Champions'])
+                    .sort((a, b) => (b.segments['Champions']?.revenue || 0) - (a.segments['Champions']?.revenue || 0))
+                    .slice(0, 6)
+                    .map((industry) => {
+                      const champData = industry.segments['Champions'];
+                      return (
+                        <div key={industry.name} className="flex items-center justify-between p-3 rounded-lg bg-amber-500/10">
+                          <div className="flex items-center gap-2">
+                            <Crown className="h-4 w-4 text-amber-600" />
+                            <span className="font-medium">{industry.name}</span>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-semibold text-amber-700">{champData.count} champions</p>
+                            <p className="text-xs text-muted-foreground">AED {champData.revenue.toLocaleString()}</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  {industryData.filter(ind => ind.segments['Champions']).length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">No Champions identified yet</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5 text-orange-600" />
+                  At Risk by Industry
+                </CardTitle>
+                <CardDescription>Industries with customers at risk of churning</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {industryData
+                    .filter(ind => ind.segments['At Risk'])
+                    .sort((a, b) => (b.segments['At Risk']?.revenue || 0) - (a.segments['At Risk']?.revenue || 0))
+                    .slice(0, 6)
+                    .map((industry) => {
+                      const riskData = industry.segments['At Risk'];
+                      return (
+                        <div key={industry.name} className="flex items-center justify-between p-3 rounded-lg bg-orange-500/10">
+                          <div className="flex items-center gap-2">
+                            <AlertTriangle className="h-4 w-4 text-orange-600" />
+                            <span className="font-medium">{industry.name}</span>
+                          </div>
+                          <div className="text-right">
+                            <p className="text-sm font-semibold text-orange-700">{riskData.count} at risk</p>
+                            <p className="text-xs text-muted-foreground">AED {riskData.revenue.toLocaleString()} at stake</p>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  {industryData.filter(ind => ind.segments['At Risk']).length === 0 && (
+                    <p className="text-sm text-muted-foreground text-center py-4">No At Risk customers identified</p>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </TabsContent>
+      </Tabs>
 
       {/* Segment Cards */}
       <div>
@@ -824,6 +1149,10 @@ const RFMAnalysis = () => {
             const avgMonetary = segment.customers.length > 0 
               ? Math.round(totalRevenue / segment.customers.length) 
               : 0;
+            
+            const topIndustries = Object.entries(segment.industryBreakdown)
+              .sort(([, a], [, b]) => b.revenue - a.revenue)
+              .slice(0, 3);
 
             return (
               <Card key={segment.name} className="hover:shadow-lg transition-shadow">
@@ -851,6 +1180,23 @@ const RFMAnalysis = () => {
                       <p className="font-semibold">AED {avgMonetary.toLocaleString()}</p>
                     </div>
                   </div>
+
+                  {/* Industry Breakdown */}
+                  {topIndustries.length > 0 && (
+                    <div className="pt-3 border-t">
+                      <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                        <Building2 className="h-3 w-3" /> Top Industries
+                      </p>
+                      <div className="space-y-1">
+                        {topIndustries.map(([industry, data]) => (
+                          <div key={industry} className="flex justify-between text-sm">
+                            <span className="truncate max-w-[140px]">{industry}</span>
+                            <span className="text-muted-foreground">{data.count} • AED {data.revenue.toLocaleString()}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
 
                   <div className="pt-2 border-t">
                     <p className="text-xs text-muted-foreground font-medium mb-1">Recommended Action:</p>
