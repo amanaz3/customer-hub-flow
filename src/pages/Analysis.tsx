@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Target } from "lucide-react";
+import { Target, Layers } from "lucide-react";
 
 const Analysis = () => {
   const navigate = useNavigate();
@@ -12,6 +12,13 @@ const Analysis = () => {
       icon: Target,
       path: "/rfm-analysis",
       color: "text-amber-600"
+    },
+    {
+      title: "By Services",
+      description: "View applications organized by service type",
+      icon: Layers,
+      path: "/applications-by-services",
+      color: "text-indigo-600"
     }
   ];
 
