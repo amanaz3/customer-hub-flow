@@ -34,6 +34,7 @@ interface CustomerPreview {
   email: string;
   company: string;
   created_at: string;
+  applicationCount?: number;
 }
 
 const MAX_BULK_SELECT = 10;
@@ -85,11 +86,34 @@ export function PermanentDeleteSection() {
 
       if (error) throw error;
 
-      setCustomers(data || []);
-      
       if (!data || data.length === 0) {
         toast({ title: "No customers found", description: "No customers match your search criteria" });
+        setCustomers([]);
+        return;
       }
+
+      // Fetch application counts for each customer
+      const customerIds = data.map(c => c.id);
+      const { data: appCounts } = await supabase
+        .from('account_applications')
+        .select('customer_id')
+        .in('customer_id', customerIds);
+
+      // Count applications per customer
+      const appCountMap: Record<string, number> = {};
+      appCounts?.forEach(app => {
+        if (app.customer_id) {
+          appCountMap[app.customer_id] = (appCountMap[app.customer_id] || 0) + 1;
+        }
+      });
+
+      // Merge counts into customer data
+      const customersWithCounts = data.map(c => ({
+        ...c,
+        applicationCount: appCountMap[c.id] || 0,
+      }));
+
+      setCustomers(customersWithCounts);
     } catch (error: any) {
       console.error('Error searching customers:', error);
       toast({ title: "Search failed", description: error.message, variant: "destructive" });
@@ -352,9 +376,17 @@ export function PermanentDeleteSection() {
                                 <p className="text-sm text-muted-foreground">{customer.email}</p>
                                 <p className="text-sm text-muted-foreground">{customer.company}</p>
                               </div>
-                              <Badge variant="outline" className="text-xs">
-                                {new Date(customer.created_at).toLocaleDateString()}
-                              </Badge>
+                              <div className="flex flex-col items-end gap-1">
+                                <Badge variant="outline" className="text-xs">
+                                  {new Date(customer.created_at).toLocaleDateString()}
+                                </Badge>
+                                {customer.applicationCount && customer.applicationCount > 0 ? (
+                                  <Badge variant="destructive" className="text-xs flex items-center gap-1">
+                                    <AlertTriangle className="h-3 w-3" />
+                                    {customer.applicationCount} app{customer.applicationCount > 1 ? 's' : ''}
+                                  </Badge>
+                                ) : null}
+                              </div>
                             </div>
                           </div>
                         </div>
