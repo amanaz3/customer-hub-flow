@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, Trash2, AlertTriangle, Search, ShieldAlert } from 'lucide-react';
 import {
   AlertDialog,
@@ -35,6 +36,8 @@ interface CustomerPreview {
   created_at: string;
 }
 
+const MAX_BULK_SELECT = 5;
+
 export function PermanentDeleteSection() {
   const { isAdmin } = useAuth();
   const { toast } = useToast();
@@ -42,7 +45,7 @@ export function PermanentDeleteSection() {
   const [searchTerm, setSearchTerm] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [customers, setCustomers] = useState<CustomerPreview[]>([]);
-  const [selectedCustomer, setSelectedCustomer] = useState<CustomerPreview | null>(null);
+  const [selectedCustomers, setSelectedCustomers] = useState<CustomerPreview[]>([]);
   const [cascadePreview, setCascadePreview] = useState<CascadePreview[]>([]);
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -70,7 +73,7 @@ export function PermanentDeleteSection() {
 
     setIsSearching(true);
     setCustomers([]);
-    setSelectedCustomer(null);
+    setSelectedCustomers([]);
     setCascadePreview([]);
 
     try {
@@ -95,17 +98,42 @@ export function PermanentDeleteSection() {
     }
   };
 
-  const loadCascadePreview = async (customer: CustomerPreview) => {
-    setSelectedCustomer(customer);
+  const toggleCustomerSelection = (customer: CustomerPreview) => {
+    setSelectedCustomers(prev => {
+      const isSelected = prev.some(c => c.id === customer.id);
+      if (isSelected) {
+        return prev.filter(c => c.id !== customer.id);
+      } else {
+        if (prev.length >= MAX_BULK_SELECT) {
+          toast({ 
+            title: "Selection limit reached", 
+            description: `You can only select up to ${MAX_BULK_SELECT} customers at a time`,
+            variant: "destructive" 
+          });
+          return prev;
+        }
+        return [...prev, customer];
+      }
+    });
+  };
+
+  const loadCascadePreview = async () => {
+    if (selectedCustomers.length === 0) {
+      toast({ title: "No selection", description: "Please select at least one customer", variant: "destructive" });
+      return;
+    }
+
     setIsLoadingPreview(true);
     setCascadePreview([]);
 
     try {
-      // Get all applications for this customer
+      const customerIds = selectedCustomers.map(c => c.id);
+      
+      // Get all applications for selected customers
       const { data: applications } = await supabase
         .from('account_applications')
         .select('id')
-        .eq('customer_id', customer.id);
+        .in('customer_id', customerIds);
 
       const applicationIds = applications?.map(a => a.id) || [];
       
@@ -145,14 +173,14 @@ export function PermanentDeleteSection() {
         preview.push({ table: 'account_applications', count: applicationIds.length });
       }
 
-      // Count customer-level child records
+      // Count customer-level child records for all selected customers
       const customerCounts = await Promise.all([
-        supabase.from('documents').select('id', { count: 'exact', head: true }).eq('customer_id', customer.id),
-        supabase.from('comments').select('id', { count: 'exact', head: true }).eq('customer_id', customer.id),
-        supabase.from('status_changes').select('id', { count: 'exact', head: true }).eq('customer_id', customer.id),
-        supabase.from('customer_services').select('id', { count: 'exact', head: true }).eq('customer_id', customer.id),
-        supabase.from('deals').select('id', { count: 'exact', head: true }).eq('customer_id', customer.id),
-        supabase.from('notifications').select('id', { count: 'exact', head: true }).eq('customer_id', customer.id),
+        supabase.from('documents').select('id', { count: 'exact', head: true }).in('customer_id', customerIds),
+        supabase.from('comments').select('id', { count: 'exact', head: true }).in('customer_id', customerIds),
+        supabase.from('status_changes').select('id', { count: 'exact', head: true }).in('customer_id', customerIds),
+        supabase.from('customer_services').select('id', { count: 'exact', head: true }).in('customer_id', customerIds),
+        supabase.from('deals').select('id', { count: 'exact', head: true }).in('customer_id', customerIds),
+        supabase.from('notifications').select('id', { count: 'exact', head: true }).in('customer_id', customerIds),
       ]);
 
       const customerTables = ['documents', 'comments', 'status_changes', 'customer_services', 'deals', 'notifications'];
@@ -163,7 +191,7 @@ export function PermanentDeleteSection() {
         }
       });
 
-      preview.push({ table: 'customers', count: 1 });
+      preview.push({ table: 'customers', count: selectedCustomers.length });
       setCascadePreview(preview);
 
     } catch (error: any) {
@@ -175,17 +203,19 @@ export function PermanentDeleteSection() {
   };
 
   const executeDelete = async () => {
-    if (!selectedCustomer) return;
+    if (selectedCustomers.length === 0) return;
 
     setIsDeleting(true);
     setShowConfirmDialog(false);
 
     try {
+      const customerIds = selectedCustomers.map(c => c.id);
+      
       // Get all application IDs first
       const { data: applications } = await supabase
         .from('account_applications')
         .select('id')
-        .eq('customer_id', selectedCustomer.id);
+        .in('customer_id', customerIds);
 
       const applicationIds = applications?.map(a => a.id) || [];
 
@@ -205,29 +235,29 @@ export function PermanentDeleteSection() {
       }
 
       // Delete customer children
-      await supabase.from('documents').delete().eq('customer_id', selectedCustomer.id);
-      await supabase.from('comments').delete().eq('customer_id', selectedCustomer.id);
-      await supabase.from('status_changes').delete().eq('customer_id', selectedCustomer.id);
-      await supabase.from('customer_services').delete().eq('customer_id', selectedCustomer.id);
-      await supabase.from('deals').delete().eq('customer_id', selectedCustomer.id);
-      await supabase.from('notifications').delete().eq('customer_id', selectedCustomer.id);
+      await supabase.from('documents').delete().in('customer_id', customerIds);
+      await supabase.from('comments').delete().in('customer_id', customerIds);
+      await supabase.from('status_changes').delete().in('customer_id', customerIds);
+      await supabase.from('customer_services').delete().in('customer_id', customerIds);
+      await supabase.from('deals').delete().in('customer_id', customerIds);
+      await supabase.from('notifications').delete().in('customer_id', customerIds);
 
-      // Finally delete the customer
-      const { error } = await supabase.from('customers').delete().eq('id', selectedCustomer.id);
+      // Finally delete the customers
+      const { error } = await supabase.from('customers').delete().in('id', customerIds);
       if (error) throw error;
 
       toast({
         title: "Permanently Deleted",
-        description: `Customer "${selectedCustomer.name}" and all related data have been permanently deleted.`,
+        description: `${selectedCustomers.length} customer(s) and all related data have been permanently deleted.`,
       });
 
       // Reset state
-      setCustomers(customers.filter(c => c.id !== selectedCustomer.id));
-      setSelectedCustomer(null);
+      setCustomers(customers.filter(c => !customerIds.includes(c.id)));
+      setSelectedCustomers([]);
       setCascadePreview([]);
 
     } catch (error: any) {
-      console.error('Error deleting customer:', error);
+      console.error('Error deleting customers:', error);
       toast({
         title: "Delete failed",
         description: error.message,
@@ -247,7 +277,7 @@ export function PermanentDeleteSection() {
         <AlertTitle>Danger Zone - Permanent Delete</AlertTitle>
         <AlertDescription>
           This action permanently deletes customer data and ALL related records. This cannot be undone.
-          Use this only for junk/test data that should not be archived.
+          Use this only for junk/test data that should not be archived. Maximum {MAX_BULK_SELECT} customers at a time.
         </AlertDescription>
       </Alert>
 
@@ -256,10 +286,10 @@ export function PermanentDeleteSection() {
         <CardHeader>
           <CardTitle className="text-lg flex items-center gap-2">
             <Search className="h-4 w-4" />
-            Search Customer to Delete
+            Search Customers to Delete
           </CardTitle>
           <CardDescription>
-            Search by name, email, or company name
+            Search by name, email, or company name. Select up to {MAX_BULK_SELECT} customers.
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -281,40 +311,80 @@ export function PermanentDeleteSection() {
           {/* Search Results */}
           {customers.length > 0 && (
             <div className="mt-4 space-y-2">
-              <Label className="text-sm font-medium">Select a customer:</Label>
-              <ScrollArea className="h-[200px] border rounded-md">
+              <div className="flex items-center justify-between">
+                <Label className="text-sm font-medium">
+                  Select customers ({selectedCustomers.length}/{MAX_BULK_SELECT}):
+                </Label>
+                {selectedCustomers.length > 0 && (
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => setSelectedCustomers([])}
+                  >
+                    Clear Selection
+                  </Button>
+                )}
+              </div>
+              <ScrollArea className="h-[250px] border rounded-md">
                 <div className="p-2 space-y-1">
-                  {customers.map((customer) => (
-                    <div
-                      key={customer.id}
-                      onClick={() => loadCascadePreview(customer)}
-                      className={`p-3 rounded-md cursor-pointer transition-colors ${
-                        selectedCustomer?.id === customer.id
-                          ? 'bg-destructive/20 border border-destructive/50'
-                          : 'hover:bg-muted'
-                      }`}
-                    >
-                      <div className="flex justify-between items-start">
-                        <div>
-                          <p className="font-medium">{customer.name}</p>
-                          <p className="text-sm text-muted-foreground">{customer.email}</p>
-                          <p className="text-sm text-muted-foreground">{customer.company}</p>
+                  {customers.map((customer) => {
+                    const isSelected = selectedCustomers.some(c => c.id === customer.id);
+                    return (
+                      <div
+                        key={customer.id}
+                        onClick={() => toggleCustomerSelection(customer)}
+                        className={`p-3 rounded-md cursor-pointer transition-colors ${
+                          isSelected
+                            ? 'bg-destructive/20 border border-destructive/50'
+                            : 'hover:bg-muted'
+                        }`}
+                      >
+                        <div className="flex items-start gap-3">
+                          <Checkbox
+                            checked={isSelected}
+                            onCheckedChange={() => toggleCustomerSelection(customer)}
+                            className="mt-1"
+                          />
+                          <div className="flex-1">
+                            <div className="flex justify-between items-start">
+                              <div>
+                                <p className="font-medium">{customer.name}</p>
+                                <p className="text-sm text-muted-foreground">{customer.email}</p>
+                                <p className="text-sm text-muted-foreground">{customer.company}</p>
+                              </div>
+                              <Badge variant="outline" className="text-xs">
+                                {new Date(customer.created_at).toLocaleDateString()}
+                              </Badge>
+                            </div>
+                          </div>
                         </div>
-                        <Badge variant="outline" className="text-xs">
-                          {new Date(customer.created_at).toLocaleDateString()}
-                        </Badge>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </ScrollArea>
+              
+              {selectedCustomers.length > 0 && (
+                <Button 
+                  onClick={loadCascadePreview} 
+                  disabled={isLoadingPreview}
+                  className="w-full mt-2"
+                >
+                  {isLoadingPreview ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Search className="h-4 w-4 mr-2" />
+                  )}
+                  Preview Deletion ({selectedCustomers.length} selected)
+                </Button>
+              )}
             </div>
           )}
         </CardContent>
       </Card>
 
       {/* Cascade Preview */}
-      {selectedCustomer && (
+      {cascadePreview.length > 0 && (
         <Card className="border-destructive/50">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2 text-destructive">
@@ -322,45 +392,42 @@ export function PermanentDeleteSection() {
               Deletion Preview
             </CardTitle>
             <CardDescription>
-              The following records will be permanently deleted for customer: <strong>{selectedCustomer.name}</strong>
+              The following records will be permanently deleted for {selectedCustomers.length} customer(s):
+              <span className="block mt-1 font-medium">
+                {selectedCustomers.map(c => c.name).join(', ')}
+              </span>
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {isLoadingPreview ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-              </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                  {cascadePreview.map((item) => (
-                    <div key={item.table} className="flex items-center justify-between p-2 bg-destructive/10 rounded-md">
-                      <span className="text-sm font-mono">{item.table}</span>
-                      <Badge variant="destructive">{item.count}</Badge>
-                    </div>
-                  ))}
-                </div>
-
-                <div className="flex items-center justify-between pt-4 border-t">
-                  <div className="text-sm">
-                    <span className="text-muted-foreground">Total records to delete:</span>
-                    <Badge variant="destructive" className="ml-2">{totalRecords}</Badge>
+            <div className="space-y-4">
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                {cascadePreview.map((item) => (
+                  <div key={item.table} className="flex items-center justify-between p-2 bg-destructive/10 rounded-md">
+                    <span className="text-sm font-mono">{item.table}</span>
+                    <Badge variant="destructive">{item.count}</Badge>
                   </div>
-                  <Button
-                    variant="destructive"
-                    onClick={() => setShowSecurePasswordDialog(true)}
-                    disabled={isDeleting || cascadePreview.length === 0}
-                  >
-                    {isDeleting ? (
-                      <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                    ) : (
-                      <Trash2 className="h-4 w-4 mr-2" />
-                    )}
-                    Permanently Delete
-                  </Button>
-                </div>
+                ))}
               </div>
-            )}
+
+              <div className="flex items-center justify-between pt-4 border-t">
+                <div className="text-sm">
+                  <span className="text-muted-foreground">Total records to delete:</span>
+                  <Badge variant="destructive" className="ml-2">{totalRecords}</Badge>
+                </div>
+                <Button
+                  variant="destructive"
+                  onClick={() => setShowSecurePasswordDialog(true)}
+                  disabled={isDeleting || cascadePreview.length === 0}
+                >
+                  {isDeleting ? (
+                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                  ) : (
+                    <Trash2 className="h-4 w-4 mr-2" />
+                  )}
+                  Permanently Delete {selectedCustomers.length} Customer(s)
+                </Button>
+              </div>
+            </div>
           </CardContent>
         </Card>
       )}
@@ -382,7 +449,7 @@ export function PermanentDeleteSection() {
             </AlertDialogTitle>
             <AlertDialogDescription className="space-y-2">
               <p>You are about to permanently delete:</p>
-              <p className="font-semibold">Customer: {selectedCustomer?.name}</p>
+              <p className="font-semibold">{selectedCustomers.length} Customer(s): {selectedCustomers.map(c => c.name).join(', ')}</p>
               <p className="text-destructive font-medium">
                 {totalRecords} records across {cascadePreview.length} tables
               </p>
