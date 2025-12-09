@@ -6,8 +6,8 @@ import { toast } from "sonner";
 import { 
   BarChart3, 
   Target,
-  Building2,
-  Settings2
+  Settings2,
+  Activity
 } from "lucide-react";
 
 const Tracker = () => {
@@ -52,18 +52,25 @@ const Tracker = () => {
 
   const trackerCards = [
     {
+      title: "360° AI View",
+      description: "Comprehensive AI insights across all tracking dimensions",
+      icon: Activity,
+      path: "/360-degree",
+      color: "text-primary"
+    },
+    {
       title: "Ops",
-      description: "Application tracking, team operations, pipeline monitoring, and AI insights",
+      description: "Application tracking, team operations, pipeline monitoring",
       icon: Settings2,
       path: "/ops",
-      color: "text-primary"
+      color: "text-blue-600"
     },
     {
       title: "Strategic",
       description: "Customer segments, classification, and growth intelligence",
       icon: Target,
       path: "/strategic",
-      color: "text-blue-600"
+      color: "text-emerald-600"
     },
     {
       title: "Analysis",

@@ -1,11 +1,18 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Target, Layers } from "lucide-react";
+import { Target, Layers, Activity } from "lucide-react";
 
 const Analysis = () => {
   const navigate = useNavigate();
 
   const analysisCards = [
+    {
+      title: "360° AI View",
+      description: "Comprehensive AI insights across all analytics dimensions",
+      icon: Activity,
+      path: "/360-degree",
+      color: "text-primary"
+    },
     {
       title: "RFM Model",
       description: "Industry-standard RFM (Recency, Frequency, Monetary) customer segmentation",

@@ -2,13 +2,21 @@ import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { 
   BarChart3, 
-  Building2
+  Building2,
+  Activity
 } from "lucide-react";
 
 const Strategic = () => {
   const navigate = useNavigate();
 
   const strategicCards = [
+    {
+      title: "360° AI View",
+      description: "Comprehensive AI insights across all strategic dimensions",
+      icon: Activity,
+      path: "/360-degree",
+      color: "text-primary"
+    },
     {
       title: "Customer Segments",
       description: "Recurring revenue analysis and growth potential by customer segment",
