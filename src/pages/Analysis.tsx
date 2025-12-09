@@ -1,41 +1,31 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { 
-  BarChart3, 
-  Building2
-} from "lucide-react";
+import { Target } from "lucide-react";
 
-const Strategic = () => {
+const Analysis = () => {
   const navigate = useNavigate();
 
-  const strategicCards = [
+  const analysisCards = [
     {
-      title: "Customer Segments",
-      description: "Recurring revenue analysis and growth potential by customer segment",
-      icon: BarChart3,
-      path: "/customer-segments",
-      color: "text-emerald-600"
-    },
-    {
-      title: "Customer Classification",
-      description: "Classify by industry, nationality, lead source with AI insights",
-      icon: Building2,
-      path: "/customer-classification",
-      color: "text-pink-600"
+      title: "RFM Model",
+      description: "Industry-standard RFM (Recency, Frequency, Monetary) customer segmentation",
+      icon: Target,
+      path: "/rfm-analysis",
+      color: "text-amber-600"
     }
   ];
 
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Strategic</h1>
+        <h1 className="text-3xl font-bold">Analysis</h1>
         <p className="text-muted-foreground">
-          Strategic insights, customer intelligence, and growth analytics
+          Advanced analytics and customer behavior models
         </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {strategicCards.map((card) => {
+        {analysisCards.map((card) => {
           const Icon = card.icon;
           return (
             <Card
@@ -64,4 +54,4 @@ const Strategic = () => {
   );
 };
 
-export default Strategic;
+export default Analysis;
