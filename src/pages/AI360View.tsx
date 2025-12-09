@@ -54,11 +54,41 @@ interface MonitorInsights {
   trends: string[];
 }
 
+interface StrategicInsights {
+  customer_health: {
+    total_customers: number;
+    high_value_count: number;
+    at_risk_count: number;
+    growth_potential_count: number;
+  };
+  key_insights: string[];
+  strategic_recommendations: Array<{
+    priority: string;
+    action: string;
+    expected_impact: string;
+    category: string;
+  }>;
+  industry_analysis: Array<{
+    industry: string;
+    revenue: number;
+    customer_count: number;
+    growth_trend: string;
+    recommendation: string;
+  }>;
+  action_plans: Array<{
+    title: string;
+    steps: string[];
+    timeline: string;
+    owner: string;
+  }>;
+}
+
 const AI360View = () => {
   const [analyzing, setAnalyzing] = useState(false);
   const [teamTargetInsights, setTeamTargetInsights] = useState<TeamTargetInsights | null>(null);
   const [pipelineInsights, setPipelineInsights] = useState<PipelineInsights | null>(null);
   const [monitorInsights, setMonitorInsights] = useState<MonitorInsights | null>(null);
+  const [strategicInsights, setStrategicInsights] = useState<StrategicInsights | null>(null);
 
   // Fetch team target data
   const { data: teamTargetData } = useQuery({
@@ -84,8 +114,21 @@ const AI360View = () => {
     },
   });
 
+  // Fetch customers data for strategic analysis
+  const { data: customersData } = useQuery({
+    queryKey: ['customers-360'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('customers')
+        .select('*')
+        .order('created_at', { ascending: false });
+      if (error) throw error;
+      return data;
+    },
+  });
+
   const analyzeAll = async () => {
-    if (!teamTargetData && !applicationsData) {
+    if (!teamTargetData && !applicationsData && !customersData) {
       toast.error("No data available to analyze");
       return;
     }
@@ -94,7 +137,8 @@ const AI360View = () => {
     const results = await Promise.allSettled([
       analyzeTeamTargets(),
       analyzePipeline(),
-      analyzeMonitor()
+      analyzeMonitor(),
+      analyzeStrategic()
     ]);
 
     // Check results and show appropriate messages
@@ -168,6 +212,112 @@ const AI360View = () => {
     }
   };
 
+  const analyzeStrategic = async () => {
+    if (!customersData || customersData.length === 0) return;
+
+    try {
+      // Calculate customer metrics locally
+      const totalCustomers = customersData.length;
+      const highValueCustomers = customersData.filter(c => c.amount >= 50000).length;
+      const atRiskCustomers = customersData.filter(c => c.status === 'Rejected' || c.status === 'rejected').length;
+      const growthPotential = customersData.filter(c => (c.status === 'Complete' || c.status === 'completed') && c.amount < 50000).length;
+
+      // Industry extraction
+      const industryMap = new Map<string, { revenue: number; count: number }>();
+      customersData.forEach(customer => {
+        const industry = customer.license_type || 'Other';
+        const existing = industryMap.get(industry) || { revenue: 0, count: 0 };
+        industryMap.set(industry, {
+          revenue: existing.revenue + (customer.amount || 0),
+          count: existing.count + 1
+        });
+      });
+
+      const industryAnalysis = Array.from(industryMap.entries())
+        .map(([industry, data]) => ({
+          industry,
+          revenue: data.revenue,
+          customer_count: data.count,
+          growth_trend: data.revenue > 100000 ? 'Growing' : 'Stable',
+          recommendation: data.count > 5 ? 'Focus on retention' : 'Expand customer base'
+        }))
+        .sort((a, b) => b.revenue - a.revenue)
+        .slice(0, 5);
+
+      // Generate insights
+      const insights: StrategicInsights = {
+        customer_health: {
+          total_customers: totalCustomers,
+          high_value_count: highValueCustomers,
+          at_risk_count: atRiskCustomers,
+          growth_potential_count: growthPotential
+        },
+        key_insights: [
+          `${highValueCustomers} high-value customers contributing to majority of revenue`,
+          `${atRiskCustomers} customers identified as at-risk requiring immediate attention`,
+          `${growthPotential} customers show growth potential with targeted upselling`,
+          `Top industry: ${industryAnalysis[0]?.industry || 'N/A'} with AED ${(industryAnalysis[0]?.revenue || 0).toLocaleString()} revenue`
+        ],
+        strategic_recommendations: [
+          {
+            priority: 'high',
+            action: 'Implement retention program for at-risk customers',
+            expected_impact: `Prevent potential loss of ${atRiskCustomers} customers`,
+            category: 'Retention'
+          },
+          {
+            priority: 'high',
+            action: 'Launch upsell campaign for growth-potential segment',
+            expected_impact: `Potential 20-30% revenue increase from ${growthPotential} customers`,
+            category: 'Growth'
+          },
+          {
+            priority: 'medium',
+            action: 'Develop VIP program for high-value customers',
+            expected_impact: 'Increase customer lifetime value and referrals',
+            category: 'Retention'
+          },
+          {
+            priority: 'medium',
+            action: 'Expand presence in top-performing industries',
+            expected_impact: 'Capitalize on proven market segments',
+            category: 'Expansion'
+          }
+        ],
+        industry_analysis: industryAnalysis,
+        action_plans: [
+          {
+            title: 'Customer Retention Initiative',
+            steps: [
+              'Identify top 20 at-risk customers',
+              'Schedule personal outreach calls',
+              'Offer loyalty incentives or service upgrades',
+              'Track engagement and conversion'
+            ],
+            timeline: '2 weeks',
+            owner: 'Account Management'
+          },
+          {
+            title: 'Revenue Growth Campaign',
+            steps: [
+              'Segment customers by service usage',
+              'Identify cross-sell opportunities',
+              'Create personalized proposals',
+              'Execute targeted outreach'
+            ],
+            timeline: '4 weeks',
+            owner: 'Sales Team'
+          }
+        ]
+      };
+
+      setStrategicInsights(insights);
+    } catch (error: any) {
+      console.error("Error analyzing strategic data:", error);
+      throw error;
+    }
+  };
+
   const getPriorityBadge = (priority: string) => {
     switch (priority?.toLowerCase()) {
       case "high":
@@ -181,7 +331,7 @@ const AI360View = () => {
     }
   };
 
-  const hasAnyInsights = teamTargetInsights || pipelineInsights || monitorInsights;
+  const hasAnyInsights = teamTargetInsights || pipelineInsights || monitorInsights || strategicInsights;
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -201,7 +351,7 @@ const AI360View = () => {
         </div>
         <Button 
           onClick={analyzeAll} 
-          disabled={analyzing || (!teamTargetData && !applicationsData)}
+          disabled={analyzing || (!teamTargetData && !applicationsData && !customersData)}
           size="lg"
           className="gap-2"
         >
@@ -223,23 +373,56 @@ const AI360View = () => {
         <Alert>
           <Sparkles className="h-4 w-4" />
           <AlertDescription>
-            Click "Generate 360° Analysis" to get comprehensive AI-powered insights across team targets, 
-            application pipeline, and real-time monitoring.
+          Click "Generate 360° Analysis" to get comprehensive AI-powered insights across team targets, 
+            application pipeline, real-time monitoring, and strategic customer intelligence.
           </AlertDescription>
         </Alert>
       )}
 
       {hasAnyInsights && (
         <Tabs defaultValue="overview" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="overview">Overview</TabsTrigger>
+            <TabsTrigger value="strategic">Strategic</TabsTrigger>
             <TabsTrigger value="targets">Team Targets</TabsTrigger>
             <TabsTrigger value="pipeline">Pipeline</TabsTrigger>
             <TabsTrigger value="monitor">Monitor</TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview" className="space-y-4">
-            <div className="grid gap-4 md:grid-cols-3">
+            <div className="grid gap-4 md:grid-cols-4">
+              {/* Strategic Health Card */}
+              <Card>
+                <CardHeader className="pb-3">
+                  <CardTitle className="text-sm font-medium flex items-center gap-2">
+                    <Users className="h-4 w-4 text-emerald-600" />
+                    Customer Health
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-2">
+                    {strategicInsights ? (
+                      <>
+                        <div className="text-2xl font-bold">
+                          {strategicInsights.customer_health?.total_customers || 0}
+                        </div>
+                        <p className="text-xs text-muted-foreground">Total customers</p>
+                        <div className="flex gap-2 mt-2 flex-wrap">
+                          <Badge variant="outline" className="text-xs text-green-600">
+                            {strategicInsights.customer_health?.high_value_count || 0} high-value
+                          </Badge>
+                          <Badge variant="outline" className="text-xs text-orange-600">
+                            {strategicInsights.customer_health?.at_risk_count || 0} at-risk
+                          </Badge>
+                        </div>
+                      </>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">No data yet</p>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader className="pb-3">
                   <CardTitle className="text-sm font-medium flex items-center gap-2">
@@ -360,6 +543,134 @@ const AI360View = () => {
                   </ScrollArea>
                 </CardContent>
               </Card>
+            )}
+          </TabsContent>
+
+          <TabsContent value="strategic" className="space-y-4">
+            {strategicInsights ? (
+              <>
+                {/* Key Strategic Insights */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Sparkles className="h-5 w-5 text-emerald-600" />
+                      Strategic Insights
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <ul className="space-y-2">
+                      {strategicInsights.key_insights?.map((insight, idx) => (
+                        <li key={idx} className="flex gap-2">
+                          <CheckCircle2 className="h-5 w-5 text-green-600 shrink-0 mt-0.5" />
+                          <span>{insight}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </CardContent>
+                </Card>
+
+                {/* Strategic Recommendations */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Target className="h-5 w-5 text-blue-600" />
+                      Strategic Recommendations
+                    </CardTitle>
+                    <CardDescription>Priority actions to drive growth and retention</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <ScrollArea className="h-[300px]">
+                      <div className="space-y-3">
+                        {strategicInsights.strategic_recommendations?.map((rec, idx) => (
+                          <Card key={idx}>
+                            <CardContent className="pt-4">
+                              <div className="flex items-start justify-between gap-4 mb-2">
+                                <div className="flex-1">
+                                  <div className="flex items-center gap-2 mb-1">
+                                    <Badge variant="outline" className="text-xs">{rec.category}</Badge>
+                                    {getPriorityBadge(rec.priority)}
+                                  </div>
+                                  <p className="font-medium">{rec.action}</p>
+                                </div>
+                              </div>
+                              <p className="text-sm text-muted-foreground">
+                                Expected Impact: {rec.expected_impact}
+                              </p>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </ScrollArea>
+                  </CardContent>
+                </Card>
+
+                {/* Industry Analysis */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <TrendingUp className="h-5 w-5 text-purple-600" />
+                      Industry Analysis
+                    </CardTitle>
+                    <CardDescription>Revenue and customer breakdown by industry</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      {strategicInsights.industry_analysis?.map((industry, idx) => (
+                        <div key={idx} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                          <div>
+                            <p className="font-medium">{industry.industry}</p>
+                            <p className="text-sm text-muted-foreground">
+                              {industry.customer_count} customers • {industry.growth_trend}
+                            </p>
+                          </div>
+                          <div className="text-right">
+                            <p className="font-bold">AED {industry.revenue.toLocaleString()}</p>
+                            <p className="text-xs text-muted-foreground">{industry.recommendation}</p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {/* Action Plans */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <CheckCircle2 className="h-5 w-5 text-green-600" />
+                      Action Plans
+                    </CardTitle>
+                    <CardDescription>Step-by-step plans to execute recommendations</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="grid gap-4 md:grid-cols-2">
+                      {strategicInsights.action_plans?.map((plan, idx) => (
+                        <Card key={idx}>
+                          <CardHeader>
+                            <CardTitle className="text-base">{plan.title}</CardTitle>
+                            <CardDescription>
+                              Timeline: {plan.timeline} • Owner: {plan.owner}
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent>
+                            <ol className="list-decimal list-inside space-y-1 text-sm">
+                              {plan.steps.map((step, stepIdx) => (
+                                <li key={stepIdx}>{step}</li>
+                              ))}
+                            </ol>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+              </>
+            ) : (
+              <Alert>
+                <AlertDescription>
+                  No strategic insights available. Click "Generate 360° Analysis" to analyze.
+                </AlertDescription>
+              </Alert>
             )}
           </TabsContent>
 
