@@ -62,31 +62,10 @@ const Tracker = () => {
     },
     {
       title: "Strategic",
-      description: "Strategic insights, growth opportunities, and business planning intelligence",
+      description: "Customer segments, classification, RFM analysis, and growth intelligence",
       icon: Target,
       path: "/strategic",
       color: "text-blue-600"
-    },
-    {
-      title: "Customer Segments",
-      description: "Recurring revenue analysis and growth potential by customer segment",
-      icon: BarChart3,
-      path: "/customer-segments",
-      color: "text-emerald-600"
-    },
-    {
-      title: "RFM Model",
-      description: "Industry-standard RFM (Recency, Frequency, Monetary) customer segmentation",
-      icon: Target,
-      path: "/rfm-analysis",
-      color: "text-amber-600"
-    },
-    {
-      title: "Customer Classification",
-      description: "Classify by industry, nationality, lead source with AI insights",
-      icon: Building2,
-      path: "/customer-classification",
-      color: "text-pink-600"
     }
   ];
 

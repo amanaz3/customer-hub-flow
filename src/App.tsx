@@ -54,6 +54,7 @@ import ApplicationsByTeam from '@/pages/ApplicationsByTeam';
 import LegacyApplicationsView from '@/pages/LegacyApplicationsView';
 import Tracker from '@/pages/Tracker';
 import Ops from '@/pages/Ops';
+import Strategic from '@/pages/Strategic';
 import AI360View from '@/pages/AI360View';
 import Cycles from '@/pages/Cycles';
 import DevManagement from '@/pages/DevManagement';
@@ -353,6 +354,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Operations">
                           <Ops />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/strategic" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Strategic">
+                          <Strategic />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
