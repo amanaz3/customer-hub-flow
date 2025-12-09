@@ -313,7 +313,7 @@ export function PermanentDeleteSection() {
             <div className="mt-4 space-y-2">
               <div className="flex items-center justify-between">
                 <Label className="text-sm font-medium">
-                  Select customers ({selectedCustomers.length}/{MAX_BULK_SELECT}):
+                  Found {customers.length} customers • Selected {selectedCustomers.length}/{MAX_BULK_SELECT}:
                 </Label>
                 {selectedCustomers.length > 0 && (
                   <Button 
