@@ -164,6 +164,7 @@ interface SimplifiedCustomerFormProps {
     showCancelDialog: () => void;
   }) => void;
   hideCustomerTypeSelector?: boolean;
+  resumeApplicationId?: string;
 }
 
 const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
@@ -182,6 +183,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   onCustomerIdChange,
   onDocumentsChange,
   hideCustomerTypeSelector = false,
+  resumeApplicationId,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -245,6 +247,122 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       tax_year_period: '',
     },
   });
+
+  // Resume application from predraft - load existing data and navigate to correct step
+  useEffect(() => {
+    if (!resumeApplicationId) return;
+    
+    const loadResumeApplication = async () => {
+      try {
+        console.log('[SimplifiedCustomerForm] Loading resume application:', resumeApplicationId);
+        
+        const { data: app, error } = await supabase
+          .from('account_applications')
+          .select(`
+            *,
+            customer:customers(*)
+          `)
+          .eq('id', resumeApplicationId)
+          .maybeSingle();
+        
+        if (error) throw error;
+        if (!app) {
+          toast({
+            title: "Application Not Found",
+            description: "Could not find the application to resume.",
+            variant: "destructive",
+          });
+          return;
+        }
+        
+        const appData = app.application_data as any || {};
+        
+        // Set application and customer IDs
+        setApplicationId(app.id);
+        if (app.customer_id) {
+          setCustomerId(app.customer_id);
+          onCustomerIdChange?.(app.customer_id);
+        }
+        
+        // Populate form with saved data from step1
+        if (appData.step1) {
+          const step1 = appData.step1;
+          form.setValue('name', step1.name || '');
+          form.setValue('email', step1.email || '');
+          form.setValue('mobile', step1.mobile || '+971 ');
+          form.setValue('customer_type', step1.customer_type || 'company');
+          form.setValue('company', step1.company || '');
+          form.setValue('lead_source', step1.lead_source || 'Referral');
+          
+          // Notify parent about customer data
+          onEmailChange?.(step1.email || '');
+          onNameChange?.(step1.name || '');
+          onMobileChange?.(step1.mobile || '');
+          onCompanyChange?.(step1.company || '');
+        }
+        
+        // Populate form with saved data from step2
+        if (appData.step2) {
+          const step2 = appData.step2;
+          if (step2.product_id) {
+            form.setValue('product_id', step2.product_id);
+            // Fetch product name separately
+            const { data: product } = await supabase
+              .from('products')
+              .select('name')
+              .eq('id', step2.product_id)
+              .maybeSingle();
+            
+            if (product) {
+              setSelectedProductName(product.name);
+              onProductChange?.(product.name);
+              fetchDocumentsForProduct(step2.product_id);
+            }
+          }
+          if (step2.license_type) {
+            form.setValue('license_type', step2.license_type);
+          }
+        }
+        
+        // Determine which steps are completed and calculate next step
+        const completedSet = new Set<number>();
+        let nextStep = 1;
+        
+        if (appData.step1?.completed) {
+          completedSet.add(1);
+          nextStep = 2;
+        }
+        if (appData.step2?.completed) {
+          completedSet.add(2);
+          nextStep = 3;
+        }
+        if (appData.step3?.completed) {
+          completedSet.add(3);
+          nextStep = 4;
+        }
+        
+        setCompletedSteps(completedSet);
+        setCurrentStep(nextStep);
+        onStepChange?.(nextStep);
+        
+        toast({
+          title: "Application Resumed",
+          description: `Continuing from Step ${nextStep}`,
+        });
+        
+        console.log('[SimplifiedCustomerForm] Resumed at step:', nextStep, 'completed steps:', [...completedSet]);
+      } catch (error) {
+        console.error('[SimplifiedCustomerForm] Error loading resume application:', error);
+        toast({
+          title: "Error",
+          description: "Failed to load application data.",
+          variant: "destructive",
+        });
+      }
+    };
+    
+    loadResumeApplication();
+  }, [resumeApplicationId, form, toast, onCustomerIdChange, onEmailChange, onNameChange, onMobileChange, onCompanyChange, onProductChange, onStepChange]);
 
   const { data: products } = useQuery({
     queryKey: ['products'],

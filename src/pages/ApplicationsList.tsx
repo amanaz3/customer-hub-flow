@@ -770,7 +770,8 @@ const ApplicationsList = () => {
                         className="hover:bg-muted/50 cursor-pointer transition-colors border-b"
                         onClick={(e) => {
                           if (!(e.target as HTMLElement).closest('.checkbox-cell')) {
-                            navigate(`/applications/${app.id}`);
+                            // Navigate to resume the application form at the right step
+                            navigate(`/applications/new/${app.id}`);
                           }
                         }}
                       >
@@ -837,7 +838,8 @@ const ApplicationsList = () => {
                             className="h-8 px-3 text-xs font-semibold border-2 hover:bg-primary hover:text-primary-foreground"
                             onClick={(e) => {
                               e.stopPropagation();
-                              navigate(`/applications/${app.id}`);
+                              // Navigate to resume the application form at the right step
+                              navigate(`/applications/new/${app.id}`);
                             }}
                           >
                             Continue
