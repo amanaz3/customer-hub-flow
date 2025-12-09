@@ -566,6 +566,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             customer_type: values.customer_type,
             company: values.company,
             lead_source: values.lead_source,
+            existing_customer_mode: companyMode, // Track if using existing customer
             completed: true,
             completed_at: new Date().toISOString(),
           }

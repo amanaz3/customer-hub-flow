@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { useCustomer } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
@@ -6,6 +6,7 @@ import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm
 import { CustomerEventsSidebar } from '@/components/Customer/CustomerEventsSidebar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Users, Circle, CircleDot } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 
 const CustomerNew = () => {
   const { refreshData } = useCustomer();
@@ -15,6 +16,7 @@ const CustomerNew = () => {
   
   // Primary tab state - this is now the main navigation
   const [activeTab, setActiveTab] = useState<'new' | 'existing'>('new');
+  const [isLoadingResume, setIsLoadingResume] = useState<boolean>(!!applicationId);
   
   // Track form state for sidebar
   const [selectedProduct, setSelectedProduct] = useState<string | null>(null);
@@ -41,8 +43,52 @@ const CustomerNew = () => {
   // Derived mode from active tab
   const companyMode = activeTab === 'existing';
 
+  // When resuming an application, detect if it was created with existing customer
+  useEffect(() => {
+    if (!applicationId) {
+      setIsLoadingResume(false);
+      return;
+    }
+    
+    const detectResumeMode = async () => {
+      try {
+        const { data: app, error } = await supabase
+          .from('account_applications')
+          .select('application_data, customer_id')
+          .eq('id', applicationId)
+          .maybeSingle();
+        
+        if (error || !app) {
+          console.error('[CustomerNew] Error loading resume application:', error);
+          setIsLoadingResume(false);
+          return;
+        }
+        
+        const appData = app.application_data as any || {};
+        
+        // Check if this was created with an existing customer
+        // If step1 has existing_customer_mode flag or customer was pre-selected
+        const isExistingCustomerMode = appData.step1?.existing_customer_mode === true;
+        
+        if (isExistingCustomerMode && app.customer_id) {
+          setActiveTab('existing');
+          setSelectedCustomerId(app.customer_id);
+        } else {
+          setActiveTab('new');
+        }
+        
+        setIsLoadingResume(false);
+      } catch (err) {
+        console.error('[CustomerNew] Error detecting resume mode:', err);
+        setIsLoadingResume(false);
+      }
+    };
+    
+    detectResumeMode();
+  }, [applicationId]);
+
   // Debug log for selectedCustomerId changes
-  React.useEffect(() => {
+  useEffect(() => {
     console.log('[CustomerNew] selectedCustomerId changed:', selectedCustomerId);
   }, [selectedCustomerId]);
 
@@ -159,6 +205,18 @@ const CustomerNew = () => {
     return null;
   };
 
+  // Show loading state while detecting resume mode
+  if (isLoadingResume) {
+    return (
+      <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-8 bg-muted/30">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p className="text-muted-foreground">Loading application...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full min-h-[calc(100vh-8rem)] flex items-center justify-center py-8 bg-muted/30">
       <div className="w-full max-w-[95%] lg:max-w-[90%] xl:max-w-[85%] 2xl:max-w-[80%] px-4 sm:px-6">
@@ -166,7 +224,8 @@ const CustomerNew = () => {
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <div className="w-full max-w-4xl mx-auto">
             
-            {/* Connected Tabs with Clear Boundary */}
+            {/* Connected Tabs with Clear Boundary - hide when resuming */}
+            {!applicationId && (
             <div className="flex overflow-hidden border border-b-0 border-border">
               {/* New Customer Tab */}
               <button
@@ -223,9 +282,10 @@ const CustomerNew = () => {
                 )}
               </button>
             </div>
+            )}
 
             {/* Seamless Content Panel - connects to active tab */}
-            <div className="bg-gradient-to-br from-teal-50/50 to-card dark:from-teal-950/20 dark:to-card border border-border -mt-px">
+            <div className={`bg-gradient-to-br from-teal-50/50 to-card dark:from-teal-950/20 dark:to-card border border-border ${!applicationId ? '-mt-px' : ''}`}>
               <TabsContent value="new" className="mt-0 p-6 sm:p-8">
                 <SimplifiedCustomerForm
                   onSuccess={handleSuccess}
@@ -264,6 +324,7 @@ const CustomerNew = () => {
                   onCancel={() => navigate('/customers')}
                   onDocumentsChange={setServiceDocuments}
                   hideCustomerTypeSelector={true}
+                  resumeApplicationId={applicationId}
                 />
               </TabsContent>
             </div>
