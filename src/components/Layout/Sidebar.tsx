@@ -156,11 +156,13 @@ const Sidebar: React.FC = () => {
     
     // Special handling for applications
     if (path === '/applications/new') {
-      return location.pathname === '/applications/new';
+      // Match both /applications/new and /applications/new/:applicationId (for resume)
+      return location.pathname === '/applications/new' || location.pathname.startsWith('/applications/new/');
     }
     if (path === '/applications') {
+      // Match /applications and /applications/:id but NOT /applications/new or /applications/new/:id
       return location.pathname === '/applications' || 
-             (location.pathname.startsWith('/applications/') && location.pathname !== '/applications/new');
+             (location.pathname.startsWith('/applications/') && !location.pathname.startsWith('/applications/new'));
     }
     
     // Special handling for customers
