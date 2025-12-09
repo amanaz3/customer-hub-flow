@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useCustomer } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
 import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
@@ -11,6 +11,7 @@ const CustomerNew = () => {
   const { refreshData } = useCustomer();
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { applicationId } = useParams<{ applicationId?: string }>();
   
   // Primary tab state - this is now the main navigation
   const [activeTab, setActiveTab] = useState<'new' | 'existing'>('new');
@@ -242,6 +243,7 @@ const CustomerNew = () => {
                   onCancel={() => navigate('/customers')}
                   onDocumentsChange={setServiceDocuments}
                   hideCustomerTypeSelector={true}
+                  resumeApplicationId={applicationId}
                 />
               </TabsContent>
 

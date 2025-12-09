@@ -280,6 +280,16 @@ function App() {
                     </ProtectedRoute>
                   } />
                   
+                  <Route path="/applications/new/:applicationId" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Resume Application">
+                          <LazyCustomerNew />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
                   <Route path="/applications/:id" element={
                     <ProtectedRoute>
                       <MainLayout>
