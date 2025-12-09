@@ -10,7 +10,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Loader2, Trash2, AlertTriangle, Search, ShieldAlert } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Loader2, Trash2, AlertTriangle, Search, ShieldAlert, Users, FileText } from 'lucide-react';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -37,21 +38,44 @@ interface CustomerPreview {
   applicationCount?: number;
 }
 
+interface ApplicationPreview {
+  id: string;
+  reference_number: number;
+  application_type: string | null;
+  status: string;
+  created_at: string;
+  customer_name?: string;
+}
+
 const MAX_BULK_SELECT = 10;
 
 export function PermanentDeleteSection() {
   const { isAdmin } = useAuth();
   const { toast } = useToast();
   
-  const [searchTerm, setSearchTerm] = useState('');
-  const [isSearching, setIsSearching] = useState(false);
+  const [activeTab, setActiveTab] = useState<'customers' | 'applications'>('customers');
+  
+  // Customer state
+  const [customerSearchTerm, setCustomerSearchTerm] = useState('');
+  const [isSearchingCustomers, setIsSearchingCustomers] = useState(false);
   const [customers, setCustomers] = useState<CustomerPreview[]>([]);
   const [selectedCustomers, setSelectedCustomers] = useState<CustomerPreview[]>([]);
-  const [cascadePreview, setCascadePreview] = useState<CascadePreview[]>([]);
-  const [isLoadingPreview, setIsLoadingPreview] = useState(false);
-  const [isDeleting, setIsDeleting] = useState(false);
-  const [showConfirmDialog, setShowConfirmDialog] = useState(false);
-  const [showSecurePasswordDialog, setShowSecurePasswordDialog] = useState(false);
+  const [customerCascadePreview, setCustomerCascadePreview] = useState<CascadePreview[]>([]);
+  const [isLoadingCustomerPreview, setIsLoadingCustomerPreview] = useState(false);
+  const [isDeletingCustomers, setIsDeletingCustomers] = useState(false);
+  const [showCustomerConfirmDialog, setShowCustomerConfirmDialog] = useState(false);
+  const [showCustomerPasswordDialog, setShowCustomerPasswordDialog] = useState(false);
+
+  // Application state
+  const [appSearchTerm, setAppSearchTerm] = useState('');
+  const [isSearchingApps, setIsSearchingApps] = useState(false);
+  const [applications, setApplications] = useState<ApplicationPreview[]>([]);
+  const [selectedApps, setSelectedApps] = useState<ApplicationPreview[]>([]);
+  const [appCascadePreview, setAppCascadePreview] = useState<CascadePreview[]>([]);
+  const [isLoadingAppPreview, setIsLoadingAppPreview] = useState(false);
+  const [isDeletingApps, setIsDeletingApps] = useState(false);
+  const [showAppConfirmDialog, setShowAppConfirmDialog] = useState(false);
+  const [showAppPasswordDialog, setShowAppPasswordDialog] = useState(false);
 
   // Only render for admins
   if (!isAdmin) {
@@ -66,22 +90,23 @@ export function PermanentDeleteSection() {
     );
   }
 
+  // ============ Customer Functions ============
   const searchCustomers = async () => {
-    if (!searchTerm.trim()) {
+    if (!customerSearchTerm.trim()) {
       toast({ title: "Enter search term", description: "Please enter a name, email, or company to search", variant: "destructive" });
       return;
     }
 
-    setIsSearching(true);
+    setIsSearchingCustomers(true);
     setCustomers([]);
     setSelectedCustomers([]);
-    setCascadePreview([]);
+    setCustomerCascadePreview([]);
 
     try {
       const { data, error } = await supabase
         .from('customers')
         .select('id, name, email, company, created_at')
-        .or(`name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%,company.ilike.%${searchTerm}%`)
+        .or(`name.ilike.%${customerSearchTerm}%,email.ilike.%${customerSearchTerm}%,company.ilike.%${customerSearchTerm}%`)
         .limit(20);
 
       if (error) throw error;
@@ -99,7 +124,6 @@ export function PermanentDeleteSection() {
         .select('customer_id')
         .in('customer_id', customerIds);
 
-      // Count applications per customer
       const appCountMap: Record<string, number> = {};
       appCounts?.forEach(app => {
         if (app.customer_id) {
@@ -107,7 +131,6 @@ export function PermanentDeleteSection() {
         }
       });
 
-      // Merge counts into customer data
       const customersWithCounts = data.map(c => ({
         ...c,
         applicationCount: appCountMap[c.id] || 0,
@@ -118,7 +141,7 @@ export function PermanentDeleteSection() {
       console.error('Error searching customers:', error);
       toast({ title: "Search failed", description: error.message, variant: "destructive" });
     } finally {
-      setIsSearching(false);
+      setIsSearchingCustomers(false);
     }
   };
 
@@ -141,29 +164,27 @@ export function PermanentDeleteSection() {
     });
   };
 
-  const loadCascadePreview = async () => {
+  const loadCustomerCascadePreview = async () => {
     if (selectedCustomers.length === 0) {
       toast({ title: "No selection", description: "Please select at least one customer", variant: "destructive" });
       return;
     }
 
-    setIsLoadingPreview(true);
-    setCascadePreview([]);
+    setIsLoadingCustomerPreview(true);
+    setCustomerCascadePreview([]);
 
     try {
       const customerIds = selectedCustomers.map(c => c.id);
       
-      // Get all applications for selected customers
-      const { data: applications } = await supabase
+      const { data: apps } = await supabase
         .from('account_applications')
         .select('id')
         .in('customer_id', customerIds);
 
-      const applicationIds = applications?.map(a => a.id) || [];
+      const applicationIds = apps?.map(a => a.id) || [];
       
       const preview: CascadePreview[] = [];
 
-      // Count application-level child records
       if (applicationIds.length > 0) {
         const counts = await Promise.all([
           supabase.from('application_status_changes').select('id', { count: 'exact', head: true }).in('application_id', applicationIds),
@@ -197,7 +218,6 @@ export function PermanentDeleteSection() {
         preview.push({ table: 'account_applications', count: applicationIds.length });
       }
 
-      // Count customer-level child records for all selected customers
       const customerCounts = await Promise.all([
         supabase.from('documents').select('id', { count: 'exact', head: true }).in('customer_id', customerIds),
         supabase.from('comments').select('id', { count: 'exact', head: true }).in('customer_id', customerIds),
@@ -216,34 +236,32 @@ export function PermanentDeleteSection() {
       });
 
       preview.push({ table: 'customers', count: selectedCustomers.length });
-      setCascadePreview(preview);
+      setCustomerCascadePreview(preview);
 
     } catch (error: any) {
       console.error('Error loading cascade preview:', error);
       toast({ title: "Preview failed", description: error.message, variant: "destructive" });
     } finally {
-      setIsLoadingPreview(false);
+      setIsLoadingCustomerPreview(false);
     }
   };
 
-  const executeDelete = async () => {
+  const executeCustomerDelete = async () => {
     if (selectedCustomers.length === 0) return;
 
-    setIsDeleting(true);
-    setShowConfirmDialog(false);
+    setIsDeletingCustomers(true);
+    setShowCustomerConfirmDialog(false);
 
     try {
       const customerIds = selectedCustomers.map(c => c.id);
       
-      // Get all application IDs first
-      const { data: applications } = await supabase
+      const { data: apps } = await supabase
         .from('account_applications')
         .select('id')
         .in('customer_id', customerIds);
 
-      const applicationIds = applications?.map(a => a.id) || [];
+      const applicationIds = apps?.map(a => a.id) || [];
 
-      // Delete in cascade order - application children first
       if (applicationIds.length > 0) {
         await supabase.from('application_status_changes').delete().in('application_id', applicationIds);
         await supabase.from('application_step_history').delete().in('application_id', applicationIds);
@@ -253,12 +271,9 @@ export function PermanentDeleteSection() {
         await supabase.from('application_messages').delete().in('application_id', applicationIds);
         await supabase.from('application_owners').delete().in('application_id', applicationIds);
         await supabase.from('completion_date_history').delete().in('application_id', applicationIds);
-        
-        // Delete applications
         await supabase.from('account_applications').delete().in('id', applicationIds);
       }
 
-      // Delete customer children
       await supabase.from('documents').delete().in('customer_id', customerIds);
       await supabase.from('comments').delete().in('customer_id', customerIds);
       await supabase.from('status_changes').delete().in('customer_id', customerIds);
@@ -266,7 +281,6 @@ export function PermanentDeleteSection() {
       await supabase.from('deals').delete().in('customer_id', customerIds);
       await supabase.from('notifications').delete().in('customer_id', customerIds);
 
-      // Finally delete the customers
       const { error } = await supabase.from('customers').delete().in('id', customerIds);
       if (error) throw error;
 
@@ -275,10 +289,9 @@ export function PermanentDeleteSection() {
         description: `${selectedCustomers.length} customer(s) and all related data have been permanently deleted.`,
       });
 
-      // Reset state
       setCustomers(customers.filter(c => !customerIds.includes(c.id)));
       setSelectedCustomers([]);
-      setCascadePreview([]);
+      setCustomerCascadePreview([]);
 
     } catch (error: any) {
       console.error('Error deleting customers:', error);
@@ -288,11 +301,187 @@ export function PermanentDeleteSection() {
         variant: "destructive",
       });
     } finally {
-      setIsDeleting(false);
+      setIsDeletingCustomers(false);
     }
   };
 
-  const totalRecords = cascadePreview.reduce((sum, item) => sum + item.count, 0);
+  // ============ Application Functions ============
+  const searchApplications = async () => {
+    if (!appSearchTerm.trim()) {
+      toast({ title: "Enter search term", description: "Please enter a reference number, type, or status to search", variant: "destructive" });
+      return;
+    }
+
+    setIsSearchingApps(true);
+    setApplications([]);
+    setSelectedApps([]);
+    setAppCascadePreview([]);
+
+    try {
+      // Try to parse as reference number first
+      const refNum = parseInt(appSearchTerm);
+      let query = supabase
+        .from('account_applications')
+        .select(`
+          id, 
+          reference_number, 
+          application_type, 
+          status, 
+          created_at,
+          customers!inner(name)
+        `)
+        .limit(20);
+
+      if (!isNaN(refNum)) {
+        query = query.eq('reference_number', refNum);
+      } else {
+        query = query.or(`application_type.ilike.%${appSearchTerm}%,status.ilike.%${appSearchTerm}%`);
+      }
+
+      const { data, error } = await query;
+
+      if (error) throw error;
+
+      if (!data || data.length === 0) {
+        toast({ title: "No applications found", description: "No applications match your search criteria" });
+        setApplications([]);
+        return;
+      }
+
+      const appsWithCustomer = data.map(app => ({
+        id: app.id,
+        reference_number: app.reference_number,
+        application_type: app.application_type,
+        status: app.status,
+        created_at: app.created_at,
+        customer_name: (app.customers as any)?.name || 'Unknown',
+      }));
+
+      setApplications(appsWithCustomer);
+    } catch (error: any) {
+      console.error('Error searching applications:', error);
+      toast({ title: "Search failed", description: error.message, variant: "destructive" });
+    } finally {
+      setIsSearchingApps(false);
+    }
+  };
+
+  const toggleAppSelection = (app: ApplicationPreview) => {
+    setSelectedApps(prev => {
+      const isSelected = prev.some(a => a.id === app.id);
+      if (isSelected) {
+        return prev.filter(a => a.id !== app.id);
+      } else {
+        if (prev.length >= MAX_BULK_SELECT) {
+          toast({ 
+            title: "Selection limit reached", 
+            description: `You can only select up to ${MAX_BULK_SELECT} applications at a time`,
+            variant: "destructive" 
+          });
+          return prev;
+        }
+        return [...prev, app];
+      }
+    });
+  };
+
+  const loadAppCascadePreview = async () => {
+    if (selectedApps.length === 0) {
+      toast({ title: "No selection", description: "Please select at least one application", variant: "destructive" });
+      return;
+    }
+
+    setIsLoadingAppPreview(true);
+    setAppCascadePreview([]);
+
+    try {
+      const applicationIds = selectedApps.map(a => a.id);
+      const preview: CascadePreview[] = [];
+
+      const counts = await Promise.all([
+        supabase.from('application_status_changes').select('id', { count: 'exact', head: true }).in('application_id', applicationIds),
+        supabase.from('application_step_history').select('id', { count: 'exact', head: true }).in('application_id', applicationIds),
+        supabase.from('application_assessment_history').select('id', { count: 'exact', head: true }).in('application_id', applicationIds),
+        supabase.from('application_workflow_steps').select('id', { count: 'exact', head: true }).in('application_id', applicationIds),
+        supabase.from('application_documents').select('id', { count: 'exact', head: true }).in('application_id', applicationIds),
+        supabase.from('application_messages').select('id', { count: 'exact', head: true }).in('application_id', applicationIds),
+        supabase.from('application_owners').select('id', { count: 'exact', head: true }).in('application_id', applicationIds),
+        supabase.from('completion_date_history').select('id', { count: 'exact', head: true }).in('application_id', applicationIds),
+      ]);
+
+      const tables = [
+        'application_status_changes',
+        'application_step_history', 
+        'application_assessment_history',
+        'application_workflow_steps',
+        'application_documents',
+        'application_messages',
+        'application_owners',
+        'completion_date_history',
+      ];
+
+      counts.forEach((result, idx) => {
+        const count = result.count || 0;
+        if (count > 0) {
+          preview.push({ table: tables[idx], count });
+        }
+      });
+
+      preview.push({ table: 'account_applications', count: selectedApps.length });
+      setAppCascadePreview(preview);
+
+    } catch (error: any) {
+      console.error('Error loading app cascade preview:', error);
+      toast({ title: "Preview failed", description: error.message, variant: "destructive" });
+    } finally {
+      setIsLoadingAppPreview(false);
+    }
+  };
+
+  const executeAppDelete = async () => {
+    if (selectedApps.length === 0) return;
+
+    setIsDeletingApps(true);
+    setShowAppConfirmDialog(false);
+
+    try {
+      const applicationIds = selectedApps.map(a => a.id);
+
+      await supabase.from('application_status_changes').delete().in('application_id', applicationIds);
+      await supabase.from('application_step_history').delete().in('application_id', applicationIds);
+      await supabase.from('application_assessment_history').delete().in('application_id', applicationIds);
+      await supabase.from('application_workflow_steps').delete().in('application_id', applicationIds);
+      await supabase.from('application_documents').delete().in('application_id', applicationIds);
+      await supabase.from('application_messages').delete().in('application_id', applicationIds);
+      await supabase.from('application_owners').delete().in('application_id', applicationIds);
+      await supabase.from('completion_date_history').delete().in('application_id', applicationIds);
+
+      const { error } = await supabase.from('account_applications').delete().in('id', applicationIds);
+      if (error) throw error;
+
+      toast({
+        title: "Permanently Deleted",
+        description: `${selectedApps.length} application(s) and all related data have been permanently deleted.`,
+      });
+
+      setApplications(applications.filter(a => !applicationIds.includes(a.id)));
+      setSelectedApps([]);
+      setAppCascadePreview([]);
+
+    } catch (error: any) {
+      console.error('Error deleting applications:', error);
+      toast({
+        title: "Delete failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeletingApps(false);
+    }
+  };
+
+  const customerTotalRecords = customerCascadePreview.reduce((sum, item) => sum + item.count, 0);
+  const appTotalRecords = appCascadePreview.reduce((sum, item) => sum + item.count, 0);
 
   return (
     <div className="space-y-6">
@@ -300,179 +489,348 @@ export function PermanentDeleteSection() {
         <AlertTriangle className="h-4 w-4" />
         <AlertTitle>Danger Zone - Permanent Delete</AlertTitle>
         <AlertDescription>
-          This action permanently deletes customer data and ALL related records. This cannot be undone.
-          Use this only for junk/test data that should not be archived. Maximum {MAX_BULK_SELECT} customers at a time.
+          This action permanently deletes data and ALL related records. This cannot be undone.
+          Use this only for junk/test data that should not be archived. Maximum {MAX_BULK_SELECT} items at a time.
         </AlertDescription>
       </Alert>
 
-      {/* Search Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
-            <Search className="h-4 w-4" />
-            Search Customers to Delete
-          </CardTitle>
-          <CardDescription>
-            Search by name, email, or company name. Select up to {MAX_BULK_SELECT} customers.
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-2">
-            <div className="flex-1">
-              <Input
-                placeholder="Enter name, email, or company..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                onKeyDown={(e) => e.key === 'Enter' && searchCustomers()}
-              />
-            </div>
-            <Button onClick={searchCustomers} disabled={isSearching}>
-              {isSearching ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
-              <span className="ml-2">Search</span>
-            </Button>
-          </div>
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'customers' | 'applications')}>
+        <TabsList className="grid w-full grid-cols-2">
+          <TabsTrigger value="customers" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Customers
+          </TabsTrigger>
+          <TabsTrigger value="applications" className="flex items-center gap-2">
+            <FileText className="h-4 w-4" />
+            Applications
+          </TabsTrigger>
+        </TabsList>
 
-          {/* Search Results */}
-          {customers.length > 0 && (
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center justify-between">
-                <Label className="text-sm font-medium">
-                  Found {customers.length} customers • Selected {selectedCustomers.length}/{MAX_BULK_SELECT}:
-                </Label>
-                {selectedCustomers.length > 0 && (
-                  <Button 
-                    variant="outline" 
-                    size="sm"
-                    onClick={() => setSelectedCustomers([])}
-                  >
-                    Clear Selection
-                  </Button>
-                )}
+        {/* Customers Tab */}
+        <TabsContent value="customers" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Search className="h-4 w-4" />
+                Search Customers to Delete
+              </CardTitle>
+              <CardDescription>
+                Search by name, email, or company name. Select up to {MAX_BULK_SELECT} customers.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Input
+                    placeholder="Enter name, email, or company..."
+                    value={customerSearchTerm}
+                    onChange={(e) => setCustomerSearchTerm(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && searchCustomers()}
+                  />
+                </div>
+                <Button onClick={searchCustomers} disabled={isSearchingCustomers}>
+                  {isSearchingCustomers ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                  <span className="ml-2">Search</span>
+                </Button>
               </div>
-              <ScrollArea className="h-[250px] border rounded-md">
-                <div className="p-2 space-y-1">
-                  {customers.map((customer) => {
-                    const isSelected = selectedCustomers.some(c => c.id === customer.id);
-                    return (
-                      <div
-                        key={customer.id}
-                        onClick={() => toggleCustomerSelection(customer)}
-                        className={`p-3 rounded-md cursor-pointer transition-colors ${
-                          isSelected
-                            ? 'bg-destructive/20 border border-destructive/50'
-                            : 'hover:bg-muted'
-                        }`}
+
+              {customers.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">
+                      Found {customers.length} customers • Selected {selectedCustomers.length}/{MAX_BULK_SELECT}:
+                    </Label>
+                    {selectedCustomers.length > 0 && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setSelectedCustomers([])}
                       >
-                        <div className="flex items-start gap-3">
-                          <Checkbox
-                            checked={isSelected}
-                            onCheckedChange={() => toggleCustomerSelection(customer)}
-                            className="mt-1"
-                          />
-                          <div className="flex-1">
-                            <div className="flex justify-between items-start">
-                              <div>
-                                <p className="font-medium">{customer.name}</p>
-                                <p className="text-sm text-muted-foreground">{customer.email}</p>
-                                <p className="text-sm text-muted-foreground">{customer.company}</p>
-                              </div>
-                              <div className="flex flex-col items-end gap-1">
-                                <Badge variant="outline" className="text-xs">
-                                  {new Date(customer.created_at).toLocaleDateString()}
-                                </Badge>
-                                {customer.applicationCount && customer.applicationCount > 0 ? (
-                                  <Badge variant="destructive" className="text-xs flex items-center gap-1">
-                                    <AlertTriangle className="h-3 w-3" />
-                                    {customer.applicationCount} app{customer.applicationCount > 1 ? 's' : ''}
-                                  </Badge>
-                                ) : null}
+                        Clear Selection
+                      </Button>
+                    )}
+                  </div>
+                  <ScrollArea className="h-[250px] border rounded-md">
+                    <div className="p-2 space-y-1">
+                      {customers.map((customer) => {
+                        const isSelected = selectedCustomers.some(c => c.id === customer.id);
+                        return (
+                          <div
+                            key={customer.id}
+                            onClick={() => toggleCustomerSelection(customer)}
+                            className={`p-3 rounded-md cursor-pointer transition-colors ${
+                              isSelected
+                                ? 'bg-destructive/20 border border-destructive/50'
+                                : 'hover:bg-muted'
+                            }`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <Checkbox
+                                checked={isSelected}
+                                onCheckedChange={() => toggleCustomerSelection(customer)}
+                                className="mt-1"
+                              />
+                              <div className="flex-1">
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <p className="font-medium">{customer.name}</p>
+                                    <p className="text-sm text-muted-foreground">{customer.email}</p>
+                                    <p className="text-sm text-muted-foreground">{customer.company}</p>
+                                  </div>
+                                  <div className="flex flex-col items-end gap-1">
+                                    <Badge variant="outline" className="text-xs">
+                                      {new Date(customer.created_at).toLocaleDateString()}
+                                    </Badge>
+                                    {customer.applicationCount && customer.applicationCount > 0 ? (
+                                      <Badge variant="destructive" className="text-xs flex items-center gap-1">
+                                        <AlertTriangle className="h-3 w-3" />
+                                        {customer.applicationCount} app{customer.applicationCount > 1 ? 's' : ''}
+                                      </Badge>
+                                    ) : null}
+                                  </div>
+                                </div>
                               </div>
                             </div>
                           </div>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </ScrollArea>
-              
-              {selectedCustomers.length > 0 && (
-                <Button 
-                  onClick={loadCascadePreview} 
-                  disabled={isLoadingPreview}
-                  className="w-full mt-2"
-                >
-                  {isLoadingPreview ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : (
-                    <Search className="h-4 w-4 mr-2" />
+                        );
+                      })}
+                    </div>
+                  </ScrollArea>
+                  
+                  {selectedCustomers.length > 0 && (
+                    <Button 
+                      onClick={loadCustomerCascadePreview} 
+                      disabled={isLoadingCustomerPreview}
+                      className="w-full mt-2"
+                    >
+                      {isLoadingCustomerPreview ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Search className="h-4 w-4 mr-2" />
+                      )}
+                      Preview Deletion ({selectedCustomers.length} selected)
+                    </Button>
                   )}
-                  Preview Deletion ({selectedCustomers.length} selected)
-                </Button>
+                </div>
               )}
-            </div>
-          )}
-        </CardContent>
-      </Card>
+            </CardContent>
+          </Card>
 
-      {/* Cascade Preview */}
-      {cascadePreview.length > 0 && (
-        <Card className="border-destructive/50">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2 text-destructive">
-              <Trash2 className="h-4 w-4" />
-              Deletion Preview
-            </CardTitle>
-            <CardDescription>
-              The following records will be permanently deleted for {selectedCustomers.length} customer(s):
-              <span className="block mt-1 font-medium">
-                {selectedCustomers.map(c => c.name).join(', ')}
-              </span>
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
-                {cascadePreview.map((item) => (
-                  <div key={item.table} className="flex items-center justify-between p-2 bg-destructive/10 rounded-md">
-                    <span className="text-sm font-mono">{item.table}</span>
-                    <Badge variant="destructive">{item.count}</Badge>
+          {customerCascadePreview.length > 0 && (
+            <Card className="border-destructive/50">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2 text-destructive">
+                  <Trash2 className="h-4 w-4" />
+                  Deletion Preview
+                </CardTitle>
+                <CardDescription>
+                  The following records will be permanently deleted for {selectedCustomers.length} customer(s):
+                  <span className="block mt-1 font-medium">
+                    {selectedCustomers.map(c => c.name).join(', ')}
+                  </span>
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {customerCascadePreview.map((item) => (
+                      <div key={item.table} className="flex items-center justify-between p-2 bg-destructive/10 rounded-md">
+                        <span className="text-sm font-mono">{item.table}</span>
+                        <Badge variant="destructive">{item.count}</Badge>
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
 
-              <div className="flex items-center justify-between pt-4 border-t">
-                <div className="text-sm">
-                  <span className="text-muted-foreground">Total records to delete:</span>
-                  <Badge variant="destructive" className="ml-2">{totalRecords}</Badge>
+                  <div className="flex items-center justify-between pt-4 border-t">
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Total records to delete:</span>
+                      <Badge variant="destructive" className="ml-2">{customerTotalRecords}</Badge>
+                    </div>
+                    <Button
+                      variant="destructive"
+                      onClick={() => setShowCustomerPasswordDialog(true)}
+                      disabled={isDeletingCustomers || customerCascadePreview.length === 0}
+                    >
+                      {isDeletingCustomers ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Trash2 className="h-4 w-4 mr-2" />
+                      )}
+                      Permanently Delete {selectedCustomers.length} Customer(s)
+                    </Button>
+                  </div>
                 </div>
-                <Button
-                  variant="destructive"
-                  onClick={() => setShowSecurePasswordDialog(true)}
-                  disabled={isDeleting || cascadePreview.length === 0}
-                >
-                  {isDeleting ? (
-                    <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                  ) : (
-                    <Trash2 className="h-4 w-4 mr-2" />
-                  )}
-                  Permanently Delete {selectedCustomers.length} Customer(s)
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        {/* Applications Tab */}
+        <TabsContent value="applications" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle className="text-lg flex items-center gap-2">
+                <Search className="h-4 w-4" />
+                Search Applications to Delete
+              </CardTitle>
+              <CardDescription>
+                Search by reference number, type, or status. Select up to {MAX_BULK_SELECT} applications.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <Input
+                    placeholder="Enter reference number, type, or status..."
+                    value={appSearchTerm}
+                    onChange={(e) => setAppSearchTerm(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && searchApplications()}
+                  />
+                </div>
+                <Button onClick={searchApplications} disabled={isSearchingApps}>
+                  {isSearchingApps ? <Loader2 className="h-4 w-4 animate-spin" /> : <Search className="h-4 w-4" />}
+                  <span className="ml-2">Search</span>
                 </Button>
               </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
 
-      {/* Secure Password Dialog - First Gate */}
+              {applications.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-sm font-medium">
+                      Found {applications.length} applications • Selected {selectedApps.length}/{MAX_BULK_SELECT}:
+                    </Label>
+                    {selectedApps.length > 0 && (
+                      <Button 
+                        variant="outline" 
+                        size="sm"
+                        onClick={() => setSelectedApps([])}
+                      >
+                        Clear Selection
+                      </Button>
+                    )}
+                  </div>
+                  <ScrollArea className="h-[250px] border rounded-md">
+                    <div className="p-2 space-y-1">
+                      {applications.map((app) => {
+                        const isSelected = selectedApps.some(a => a.id === app.id);
+                        return (
+                          <div
+                            key={app.id}
+                            onClick={() => toggleAppSelection(app)}
+                            className={`p-3 rounded-md cursor-pointer transition-colors ${
+                              isSelected
+                                ? 'bg-destructive/20 border border-destructive/50'
+                                : 'hover:bg-muted'
+                            }`}
+                          >
+                            <div className="flex items-start gap-3">
+                              <Checkbox
+                                checked={isSelected}
+                                onCheckedChange={() => toggleAppSelection(app)}
+                                className="mt-1"
+                              />
+                              <div className="flex-1">
+                                <div className="flex justify-between items-start">
+                                  <div>
+                                    <p className="font-medium">REF-{app.reference_number}</p>
+                                    <p className="text-sm text-muted-foreground">{app.application_type || 'Unknown type'}</p>
+                                    <p className="text-sm text-muted-foreground">Customer: {app.customer_name}</p>
+                                  </div>
+                                  <div className="flex flex-col items-end gap-1">
+                                    <Badge variant="outline" className="text-xs">
+                                      {new Date(app.created_at).toLocaleDateString()}
+                                    </Badge>
+                                    <Badge variant="secondary" className="text-xs capitalize">
+                                      {app.status}
+                                    </Badge>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </ScrollArea>
+                  
+                  {selectedApps.length > 0 && (
+                    <Button 
+                      onClick={loadAppCascadePreview} 
+                      disabled={isLoadingAppPreview}
+                      className="w-full mt-2"
+                    >
+                      {isLoadingAppPreview ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Search className="h-4 w-4 mr-2" />
+                      )}
+                      Preview Deletion ({selectedApps.length} selected)
+                    </Button>
+                  )}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {appCascadePreview.length > 0 && (
+            <Card className="border-destructive/50">
+              <CardHeader>
+                <CardTitle className="text-lg flex items-center gap-2 text-destructive">
+                  <Trash2 className="h-4 w-4" />
+                  Deletion Preview
+                </CardTitle>
+                <CardDescription>
+                  The following records will be permanently deleted for {selectedApps.length} application(s):
+                  <span className="block mt-1 font-medium">
+                    {selectedApps.map(a => `REF-${a.reference_number}`).join(', ')}
+                  </span>
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
+                    {appCascadePreview.map((item) => (
+                      <div key={item.table} className="flex items-center justify-between p-2 bg-destructive/10 rounded-md">
+                        <span className="text-sm font-mono">{item.table}</span>
+                        <Badge variant="destructive">{item.count}</Badge>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="flex items-center justify-between pt-4 border-t">
+                    <div className="text-sm">
+                      <span className="text-muted-foreground">Total records to delete:</span>
+                      <Badge variant="destructive" className="ml-2">{appTotalRecords}</Badge>
+                    </div>
+                    <Button
+                      variant="destructive"
+                      onClick={() => setShowAppPasswordDialog(true)}
+                      disabled={isDeletingApps || appCascadePreview.length === 0}
+                    >
+                      {isDeletingApps ? (
+                        <Loader2 className="h-4 w-4 animate-spin mr-2" />
+                      ) : (
+                        <Trash2 className="h-4 w-4 mr-2" />
+                      )}
+                      Permanently Delete {selectedApps.length} Application(s)
+                    </Button>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+      </Tabs>
+
+      {/* Customer Secure Password Dialog */}
       <SecureDeleteVerificationDialog
-        open={showSecurePasswordDialog}
-        onOpenChange={setShowSecurePasswordDialog}
-        onVerified={() => setShowConfirmDialog(true)}
+        open={showCustomerPasswordDialog}
+        onOpenChange={setShowCustomerPasswordDialog}
+        onVerified={() => setShowCustomerConfirmDialog(true)}
       />
 
-      {/* Confirmation Dialog - Second Gate */}
-      <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
+      {/* Customer Confirmation Dialog */}
+      <AlertDialog open={showCustomerConfirmDialog} onOpenChange={setShowCustomerConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
             <AlertDialogTitle className="text-destructive flex items-center gap-2">
@@ -483,7 +841,7 @@ export function PermanentDeleteSection() {
               <p>You are about to permanently delete:</p>
               <p className="font-semibold">{selectedCustomers.length} Customer(s): {selectedCustomers.map(c => c.name).join(', ')}</p>
               <p className="text-destructive font-medium">
-                {totalRecords} records across {cascadePreview.length} tables
+                {customerTotalRecords} records across {customerCascadePreview.length} tables
               </p>
               <p className="text-destructive font-bold">
                 This action cannot be undone!
@@ -493,7 +851,45 @@ export function PermanentDeleteSection() {
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={executeDelete}
+              onClick={executeCustomerDelete}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Yes, Permanently Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Application Secure Password Dialog */}
+      <SecureDeleteVerificationDialog
+        open={showAppPasswordDialog}
+        onOpenChange={setShowAppPasswordDialog}
+        onVerified={() => setShowAppConfirmDialog(true)}
+      />
+
+      {/* Application Confirmation Dialog */}
+      <AlertDialog open={showAppConfirmDialog} onOpenChange={setShowAppConfirmDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-destructive flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5" />
+              Confirm Permanent Deletion
+            </AlertDialogTitle>
+            <AlertDialogDescription className="space-y-2">
+              <p>You are about to permanently delete:</p>
+              <p className="font-semibold">{selectedApps.length} Application(s): {selectedApps.map(a => `REF-${a.reference_number}`).join(', ')}</p>
+              <p className="text-destructive font-medium">
+                {appTotalRecords} records across {appCascadePreview.length} tables
+              </p>
+              <p className="text-destructive font-bold">
+                This action cannot be undone!
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={executeAppDelete}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
               Yes, Permanently Delete
