@@ -224,8 +224,7 @@ const CustomerNew = () => {
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <div className="w-full max-w-4xl mx-auto">
             
-            {/* Connected Tabs with Clear Boundary - hide when resuming */}
-            {!applicationId && (
+            {/* Connected Tabs with Clear Boundary */}
             <div className="flex overflow-hidden border border-b-0 border-border">
               {/* New Customer Tab */}
               <button
@@ -282,10 +281,9 @@ const CustomerNew = () => {
                 )}
               </button>
             </div>
-            )}
 
             {/* Seamless Content Panel - connects to active tab */}
-            <div className={`bg-gradient-to-br from-teal-50/50 to-card dark:from-teal-950/20 dark:to-card border border-border ${!applicationId ? '-mt-px' : ''}`}>
+            <div className="bg-gradient-to-br from-teal-50/50 to-card dark:from-teal-950/20 dark:to-card border border-border -mt-px">
               <TabsContent value="new" className="mt-0 p-6 sm:p-8">
                 <SimplifiedCustomerForm
                   onSuccess={handleSuccess}
