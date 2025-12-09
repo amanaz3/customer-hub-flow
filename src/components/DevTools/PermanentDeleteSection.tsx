@@ -20,6 +20,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
+import { SecureDeleteVerificationDialog } from '@/components/Admin/SecureDeleteVerificationDialog';
 
 interface CascadePreview {
   table: string;
@@ -46,6 +47,7 @@ export function PermanentDeleteSection() {
   const [isLoadingPreview, setIsLoadingPreview] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+  const [showSecurePasswordDialog, setShowSecurePasswordDialog] = useState(false);
 
   // Only render for admins
   if (!isAdmin) {
@@ -346,7 +348,7 @@ export function PermanentDeleteSection() {
                   </div>
                   <Button
                     variant="destructive"
-                    onClick={() => setShowConfirmDialog(true)}
+                    onClick={() => setShowSecurePasswordDialog(true)}
                     disabled={isDeleting || cascadePreview.length === 0}
                   >
                     {isDeleting ? (
@@ -363,7 +365,14 @@ export function PermanentDeleteSection() {
         </Card>
       )}
 
-      {/* Confirmation Dialog */}
+      {/* Secure Password Dialog - First Gate */}
+      <SecureDeleteVerificationDialog
+        open={showSecurePasswordDialog}
+        onOpenChange={setShowSecurePasswordDialog}
+        onVerified={() => setShowConfirmDialog(true)}
+      />
+
+      {/* Confirmation Dialog - Second Gate */}
       <AlertDialog open={showConfirmDialog} onOpenChange={setShowConfirmDialog}>
         <AlertDialogContent>
           <AlertDialogHeader>
