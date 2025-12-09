@@ -53,6 +53,7 @@ import ApplicationsByStage from '@/pages/ApplicationsByStage';
 import ApplicationsByTeam from '@/pages/ApplicationsByTeam';
 import LegacyApplicationsView from '@/pages/LegacyApplicationsView';
 import Tracker from '@/pages/Tracker';
+import Ops from '@/pages/Ops';
 import AI360View from '@/pages/AI360View';
 import Cycles from '@/pages/Cycles';
 import DevManagement from '@/pages/DevManagement';
@@ -342,6 +343,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="360° AI View">
                           <AI360View />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/ops" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Operations">
+                          <Ops />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
