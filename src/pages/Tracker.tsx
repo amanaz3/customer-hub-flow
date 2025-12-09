@@ -61,6 +61,13 @@ const Tracker = () => {
       featured: true
     },
     {
+      title: "Stats",
+      description: "Key metrics, performance analytics, and business intelligence dashboards",
+      icon: BarChart3,
+      path: "/stats",
+      color: "text-blue-600"
+    },
+    {
       title: "Customer Segments",
       description: "Recurring revenue analysis and growth potential by customer segment",
       icon: BarChart3,
