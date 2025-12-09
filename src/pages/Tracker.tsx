@@ -67,7 +67,7 @@ const Tracker = () => {
       color: "text-blue-600"
     },
     {
-      title: "Strategic",
+      title: "Strats",
       description: "Customer segments, classification, and growth intelligence",
       icon: Target,
       path: "/strategic",

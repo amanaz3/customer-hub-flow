@@ -37,7 +37,7 @@ const Strategic = () => {
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div>
-        <h1 className="text-3xl font-bold">Strategic</h1>
+        <h1 className="text-3xl font-bold">Strats</h1>
         <p className="text-muted-foreground">
           Strategic insights, customer intelligence, and growth analytics
         </p>
