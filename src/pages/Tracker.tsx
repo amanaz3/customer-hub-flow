@@ -54,7 +54,15 @@ const Tracker = () => {
     return null;
   }
 
-  const statsCards = [
+  const trackerCards = [
+    {
+      title: "360° AI View",
+      description: "Comprehensive AI insights across all tracking dimensions",
+      icon: Activity,
+      path: "/360-degree",
+      color: "text-gradient-to-r from-primary to-purple-600",
+      featured: true
+    },
     {
       title: "By Stage",
       description: "View applications organized by their current stage",
@@ -70,30 +78,6 @@ const Tracker = () => {
       color: "text-green-600"
     },
     {
-      title: "By Services",
-      description: "View applications organized by service type",
-      icon: Layers,
-      path: "/applications-by-services",
-      color: "text-indigo-600"
-    },
-    {
-      title: "Team Targets",
-      description: "Track and manage team targets and goals",
-      icon: Target,
-      path: "/team-targets",
-      color: "text-teal-600"
-    }
-  ];
-
-  const opsCards = [
-    {
-      title: "Application Monitor",
-      description: "Real-time monitoring of application status and alerts",
-      icon: Activity,
-      path: "/application-monitor",
-      color: "text-red-600"
-    },
-    {
       title: "By Legacy",
       description: "View legacy applications with missing completion data",
       icon: Database,
@@ -106,17 +90,27 @@ const Tracker = () => {
       icon: BarChart3,
       path: "/application-pipeline",
       color: "text-purple-600"
-    }
-  ];
-
-  const analysisCards = [
+    },
     {
-      title: "360° AI View",
-      description: "Comprehensive AI insights across all tracking dimensions",
+      title: "Application Monitor",
+      description: "Real-time monitoring of application status and alerts",
       icon: Activity,
-      path: "/360-degree",
-      color: "text-primary",
-      featured: true
+      path: "/application-monitor",
+      color: "text-red-600"
+    },
+    {
+      title: "Team Targets",
+      description: "Track and manage team targets and goals",
+      icon: Target,
+      path: "/team-targets",
+      color: "text-teal-600"
+    },
+    {
+      title: "By Services",
+      description: "View applications organized by service type",
+      icon: Layers,
+      path: "/applications-by-services",
+      color: "text-indigo-600"
     },
     {
       title: "Customer Segments",
@@ -141,38 +135,6 @@ const Tracker = () => {
     }
   ];
 
-  const renderCard = (card: any) => {
-    const Icon = card.icon;
-    return (
-      <Card
-        key={card.path}
-        className={`cursor-pointer hover:shadow-lg transition-all hover:border-primary/50 ${
-          card.featured ? 'border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-purple-500/5' : ''
-        }`}
-        onClick={() => navigate(card.path)}
-      >
-        <CardHeader className="pb-2">
-          <div className="flex items-center gap-3">
-            <div className={`p-2.5 rounded-lg ${card.featured ? 'bg-gradient-to-br from-primary/20 to-purple-500/20' : 'bg-muted'} ${card.color}`}>
-              <Icon className="h-5 w-5" />
-            </div>
-            <div className="flex-1">
-              <CardTitle className="text-lg flex items-center gap-2">
-                {card.title}
-                {card.featured && <Badge variant="secondary" className="text-xs">AI</Badge>}
-              </CardTitle>
-            </div>
-          </div>
-        </CardHeader>
-        <CardContent className="pt-0">
-          <CardDescription className="text-sm">
-            {card.description}
-          </CardDescription>
-        </CardContent>
-      </Card>
-    );
-  };
-
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div>
@@ -182,48 +144,38 @@ const Tracker = () => {
         </p>
       </div>
 
-      <div className="space-y-8">
-        {/* Stats Section */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-blue-500/10">
-              <BarChart3 className="h-5 w-5 text-blue-600" />
-            </div>
-            <h2 className="text-xl font-semibold">Stats</h2>
-            <Badge variant="outline" className="ml-2">{statsCards.length}</Badge>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {statsCards.map(renderCard)}
-          </div>
-        </div>
-
-        {/* Ops Section */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-orange-500/10">
-              <Activity className="h-5 w-5 text-orange-600" />
-            </div>
-            <h2 className="text-xl font-semibold">Ops</h2>
-            <Badge variant="outline" className="ml-2">{opsCards.length}</Badge>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {opsCards.map(renderCard)}
-          </div>
-        </div>
-
-        {/* Analysis Section */}
-        <div className="space-y-4">
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-lg bg-purple-500/10">
-              <Target className="h-5 w-5 text-purple-600" />
-            </div>
-            <h2 className="text-xl font-semibold">Analysis</h2>
-            <Badge variant="outline" className="ml-2">{analysisCards.length}</Badge>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-            {analysisCards.map(renderCard)}
-          </div>
-        </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {trackerCards.map((card) => {
+          const Icon = card.icon;
+          return (
+            <Card
+              key={card.path}
+              className={`cursor-pointer hover:shadow-lg transition-all hover:border-primary/50 ${
+                card.featured ? 'col-span-full border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-purple-500/5' : ''
+              }`}
+              onClick={() => navigate(card.path)}
+            >
+              <CardHeader>
+                <div className="flex items-center gap-3">
+                  <div className={`p-3 rounded-lg ${card.featured ? 'bg-gradient-to-br from-primary/20 to-purple-500/20' : 'bg-muted'} ${card.color}`}>
+                    <Icon className="h-6 w-6" />
+                  </div>
+                  <div className="flex-1">
+                    <CardTitle className="text-xl flex items-center gap-2">
+                      {card.title}
+                      {card.featured && <Badge variant="secondary" className="text-xs">New</Badge>}
+                    </CardTitle>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <CardDescription className="text-sm">
+                  {card.description}
+                </CardDescription>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
     </div>
   );
