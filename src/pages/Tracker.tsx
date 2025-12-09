@@ -2,7 +2,6 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { 
   BarChart3, 
@@ -57,8 +56,7 @@ const Tracker = () => {
       description: "Application tracking, team operations, pipeline monitoring, and AI insights",
       icon: Settings2,
       path: "/ops",
-      color: "text-primary",
-      featured: true
+      color: "text-primary"
     },
     {
       title: "Strategic",
@@ -85,28 +83,21 @@ const Tracker = () => {
         </p>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {trackerCards.map((card) => {
           const Icon = card.icon;
           return (
             <Card
               key={card.path}
-              className={`cursor-pointer hover:shadow-lg transition-all hover:border-primary/50 ${
-                card.featured ? 'col-span-full border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-purple-500/5' : ''
-              }`}
+              className="cursor-pointer hover:shadow-lg transition-all hover:border-primary/50 animate-fade-in"
               onClick={() => navigate(card.path)}
             >
               <CardHeader>
                 <div className="flex items-center gap-3">
-                  <div className={`p-3 rounded-lg ${card.featured ? 'bg-gradient-to-br from-primary/20 to-purple-500/20' : 'bg-muted'} ${card.color}`}>
+                  <div className={`p-3 rounded-lg bg-muted ${card.color}`}>
                     <Icon className="h-6 w-6" />
                   </div>
-                  <div className="flex-1">
-                    <CardTitle className="text-xl flex items-center gap-2">
-                      {card.title}
-                      {card.featured && <Badge variant="secondary" className="text-xs">New</Badge>}
-                    </CardTitle>
-                  </div>
+                  <CardTitle className="text-xl">{card.title}</CardTitle>
                 </div>
               </CardHeader>
               <CardContent>
