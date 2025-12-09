@@ -36,7 +36,7 @@ interface CustomerPreview {
   created_at: string;
 }
 
-const MAX_BULK_SELECT = 5;
+const MAX_BULK_SELECT = 10;
 
 export function PermanentDeleteSection() {
   const { isAdmin } = useAuth();
