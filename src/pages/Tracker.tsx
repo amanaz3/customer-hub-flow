@@ -62,10 +62,17 @@ const Tracker = () => {
     },
     {
       title: "Strategic",
-      description: "Customer segments, classification, RFM analysis, and growth intelligence",
+      description: "Customer segments, classification, and growth intelligence",
       icon: Target,
       path: "/strategic",
       color: "text-blue-600"
+    },
+    {
+      title: "Analysis",
+      description: "RFM model, customer behavior analytics, and segmentation insights",
+      icon: BarChart3,
+      path: "/analysis",
+      color: "text-amber-600"
     }
   ];
 
