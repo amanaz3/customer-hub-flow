@@ -3,15 +3,19 @@ import { useNavigate } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
 import { 
+  Layers, 
+  UserCheck, 
+  Database, 
   BarChart3, 
+  Activity, 
   Target,
-  Building2,
-  Settings2
+  ArrowLeft
 } from "lucide-react";
 
-const Tracker = () => {
+const Ops = () => {
   const [isAdmin, setIsAdmin] = useState(false);
   const navigate = useNavigate();
 
@@ -51,49 +55,86 @@ const Tracker = () => {
     return null;
   }
 
-  const trackerCards = [
+  const opsCards = [
     {
-      title: "Ops",
-      description: "Application tracking, team operations, pipeline monitoring, and AI insights",
-      icon: Settings2,
-      path: "/ops",
+      title: "360° AI View",
+      description: "Comprehensive AI insights across all tracking dimensions",
+      icon: Activity,
+      path: "/360-degree",
       color: "text-primary",
       featured: true
     },
     {
-      title: "Customer Segments",
-      description: "Recurring revenue analysis and growth potential by customer segment",
+      title: "By Stage",
+      description: "View applications organized by their current stage",
+      icon: Layers,
+      path: "/applications-by-stage",
+      color: "text-blue-600"
+    },
+    {
+      title: "By Team",
+      description: "View applications organized by team members with funnel and heat map",
+      icon: UserCheck,
+      path: "/applications-by-team",
+      color: "text-green-600"
+    },
+    {
+      title: "By Legacy",
+      description: "View legacy applications with missing completion data",
+      icon: Database,
+      path: "/legacy-applications",
+      color: "text-orange-600"
+    },
+    {
+      title: "Application Pipeline",
+      description: "Visual pipeline with AI recommendations and performance analytics",
       icon: BarChart3,
-      path: "/customer-segments",
-      color: "text-emerald-600"
+      path: "/application-pipeline",
+      color: "text-purple-600"
     },
     {
-      title: "RFM Model",
-      description: "Industry-standard RFM (Recency, Frequency, Monetary) customer segmentation",
+      title: "Application Monitor",
+      description: "Real-time monitoring of application status and alerts",
+      icon: Activity,
+      path: "/application-monitor",
+      color: "text-red-600"
+    },
+    {
+      title: "Team Targets",
+      description: "Track and manage team targets and goals",
       icon: Target,
-      path: "/rfm-analysis",
-      color: "text-amber-600"
+      path: "/team-targets",
+      color: "text-teal-600"
     },
     {
-      title: "Customer Classification",
-      description: "Classify by industry, nationality, lead source with AI insights",
-      icon: Building2,
-      path: "/customer-classification",
-      color: "text-pink-600"
+      title: "By Services",
+      description: "View applications organized by service type",
+      icon: Layers,
+      path: "/applications-by-services",
+      color: "text-indigo-600"
     }
   ];
 
   return (
     <div className="container mx-auto p-6 space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold">Tracker</h1>
-        <p className="text-muted-foreground">
-          Comprehensive application tracking and monitoring dashboard
-        </p>
+      <div className="flex items-center gap-4">
+        <Button 
+          variant="ghost" 
+          size="icon"
+          onClick={() => navigate('/tracker')}
+        >
+          <ArrowLeft className="h-5 w-5" />
+        </Button>
+        <div>
+          <h1 className="text-3xl font-bold">Operations</h1>
+          <p className="text-muted-foreground">
+            Application tracking and team operations management
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        {trackerCards.map((card) => {
+        {opsCards.map((card) => {
           const Icon = card.icon;
           return (
             <Card
@@ -111,7 +152,7 @@ const Tracker = () => {
                   <div className="flex-1">
                     <CardTitle className="text-xl flex items-center gap-2">
                       {card.title}
-                      {card.featured && <Badge variant="secondary" className="text-xs">New</Badge>}
+                      {card.featured && <Badge variant="secondary" className="text-xs">AI</Badge>}
                     </CardTitle>
                   </div>
                 </div>
@@ -129,4 +170,4 @@ const Tracker = () => {
   );
 };
 
-export default Tracker;
+export default Ops;
