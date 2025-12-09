@@ -1,13 +1,16 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Database, ArrowLeft, RefreshCw } from "lucide-react";
+import { Database, ArrowLeft, RefreshCw, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
 import { DatabaseViewerSection } from "@/components/DevTools/DatabaseViewerSection";
 import { DataMigrationSection } from "@/components/DevTools/DataMigrationSection";
+import { PermanentDeleteSection } from "@/components/DevTools/PermanentDeleteSection";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { useAuth } from "@/contexts/SecureAuthContext";
 
 export default function DevToolsDatabase() {
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   return (
     <div className="container mx-auto p-6 max-w-7xl">
@@ -39,6 +42,12 @@ export default function DevToolsDatabase() {
             <RefreshCw className="w-4 h-4" />
             Data Migration
           </TabsTrigger>
+          {isAdmin && (
+            <TabsTrigger value="delete" className="flex items-center gap-2 text-destructive">
+              <Trash2 className="w-4 h-4" />
+              Permanent Delete
+            </TabsTrigger>
+          )}
         </TabsList>
 
         <TabsContent value="viewer">
@@ -68,6 +77,25 @@ export default function DevToolsDatabase() {
             </CardContent>
           </Card>
         </TabsContent>
+
+        {isAdmin && (
+          <TabsContent value="delete">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-destructive flex items-center gap-2">
+                  <Trash2 className="w-5 h-5" />
+                  Permanent Delete - Junk Data Removal
+                </CardTitle>
+                <CardDescription>
+                  Permanently delete test/junk customer data with full cascade deletion. Admin only.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <PermanentDeleteSection />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );
