@@ -61,10 +61,10 @@ const Tracker = () => {
       featured: true
     },
     {
-      title: "Stats",
-      description: "Key metrics, performance analytics, and business intelligence dashboards",
-      icon: BarChart3,
-      path: "/stats",
+      title: "Strategic",
+      description: "Strategic insights, growth opportunities, and business planning intelligence",
+      icon: Target,
+      path: "/strategic",
       color: "text-blue-600"
     },
     {
