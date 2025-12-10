@@ -11,6 +11,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { 
   Plus, 
@@ -23,8 +24,21 @@ import {
   HelpCircle,
   Heart,
   Play,
-  GripVertical
+  GripVertical,
+  GitBranch,
+  FileText
 } from 'lucide-react';
+
+interface ScriptNode {
+  id: string;
+  stage_id: string;
+  parent_id: string | null;
+  node_type: 'root' | 'branch' | 'leaf';
+  script_text: string;
+  trigger_condition: string | null;
+  order_index: number;
+  metadata: Record<string, any>;
+}
 
 interface Playbook {
   id: string;
@@ -87,6 +101,89 @@ interface EmotionalResponse {
   suggested_phrases: string[];
 }
 
+// Script Node Editor Component for Decision Tree
+interface ScriptNodeEditorProps {
+  node: ScriptNode;
+  allNodes: ScriptNode[];
+  stageId: string;
+  onUpdate: (stageId: string, nodeId: string, updates: Partial<ScriptNode>) => void;
+  onSave: (node: ScriptNode) => void;
+  onDelete: (stageId: string, nodeId: string) => void;
+  onAddChild: (stageId: string, parentId: string) => void;
+  level: number;
+}
+
+const ScriptNodeEditor: React.FC<ScriptNodeEditorProps> = ({
+  node,
+  allNodes,
+  stageId,
+  onUpdate,
+  onSave,
+  onDelete,
+  onAddChild,
+  level
+}) => {
+  const childNodes = allNodes.filter(n => n.parent_id === node.id);
+  const isRoot = !node.parent_id;
+  
+  return (
+    <div className={`${level > 0 ? 'ml-6 border-l-2 border-primary/20 pl-3' : ''}`}>
+      <div className="bg-background border rounded-md p-3 space-y-2">
+        <div className="flex items-start gap-2">
+          <Badge variant="outline" className="text-xs shrink-0">
+            {isRoot ? 'Root' : node.node_type === 'leaf' ? 'Leaf' : 'Branch'}
+          </Badge>
+          <div className="flex-1 space-y-2">
+            {!isRoot && (
+              <Input
+                placeholder="Trigger condition (e.g., 'customer says interested')"
+                value={node.trigger_condition || ''}
+                onChange={(e) => onUpdate(stageId, node.id, { trigger_condition: e.target.value })}
+                className="text-xs h-7"
+              />
+            )}
+            <Textarea
+              placeholder="What to say at this point..."
+              value={node.script_text}
+              onChange={(e) => onUpdate(stageId, node.id, { script_text: e.target.value })}
+              className="min-h-[60px] text-sm"
+            />
+          </div>
+          <div className="flex flex-col gap-1">
+            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onSave(node)}>
+              <Save className="h-3 w-3" />
+            </Button>
+            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onAddChild(stageId, node.id)}>
+              <Plus className="h-3 w-3" />
+            </Button>
+            <Button size="icon" variant="ghost" className="h-7 w-7" onClick={() => onDelete(stageId, node.id)}>
+              <Trash2 className="h-3 w-3 text-destructive" />
+            </Button>
+          </div>
+        </div>
+      </div>
+      
+      {childNodes.length > 0 && (
+        <div className="mt-2 space-y-2">
+          {childNodes.map(child => (
+            <ScriptNodeEditor
+              key={child.id}
+              node={child}
+              allNodes={allNodes}
+              stageId={stageId}
+              onUpdate={onUpdate}
+              onSave={onSave}
+              onDelete={onDelete}
+              onAddChild={onAddChild}
+              level={level + 1}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
 const PlaybookEditor = () => {
   const { isAdmin } = useAuth();
   const { toast } = useToast();
@@ -100,6 +197,8 @@ const PlaybookEditor = () => {
   const [products, setProducts] = useState<{ id: string; name: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [scriptNodes, setScriptNodes] = useState<Record<string, ScriptNode[]>>({});
+  const [stageScriptModes, setStageScriptModes] = useState<Record<string, 'simple' | 'tree'>>({});
   const [newPlaybook, setNewPlaybook] = useState({
     name: '',
     description: '',
@@ -144,16 +243,109 @@ const PlaybookEditor = () => {
       supabase.from('emotional_responses').select('*').eq('playbook_id', playbookId),
     ]);
 
-    setStages(stagesRes.data || []);
+    const stagesData = stagesRes.data || [];
+    setStages(stagesData);
     setObjections(objectionsRes.data || []);
     setPricing(pricingRes.data || []);
     setQuestions(questionsRes.data || []);
     setEmotions(emotionsRes.data || []);
+
+    // Fetch script nodes for all stages
+    if (stagesData.length > 0) {
+      const stageIds = stagesData.map(s => s.id);
+      const { data: nodesData } = await supabase
+        .from('script_nodes')
+        .select('*')
+        .in('stage_id', stageIds)
+        .order('order_index');
+      
+      // Group nodes by stage_id
+      const nodesByStage: Record<string, ScriptNode[]> = {};
+      const modes: Record<string, 'simple' | 'tree'> = {};
+      
+      stagesData.forEach(stage => {
+        const stageNodes = (nodesData || []).filter(n => n.stage_id === stage.id) as ScriptNode[];
+        nodesByStage[stage.id] = stageNodes;
+        // If stage has script nodes, default to tree mode; otherwise simple
+        modes[stage.id] = stageNodes.length > 0 ? 'tree' : 'simple';
+      });
+      
+      setScriptNodes(nodesByStage);
+      setStageScriptModes(modes);
+    }
   };
 
   const handleSelectPlaybook = async (playbook: Playbook) => {
     setSelectedPlaybook(playbook);
+    setScriptNodes({});
+    setStageScriptModes({});
     await fetchPlaybookDetails(playbook.id);
+  };
+
+  const toggleScriptMode = (stageId: string) => {
+    setStageScriptModes(prev => ({
+      ...prev,
+      [stageId]: prev[stageId] === 'simple' ? 'tree' : 'simple'
+    }));
+  };
+
+  const handleAddScriptNode = async (stageId: string, parentId: string | null = null) => {
+    const stageNodes = scriptNodes[stageId] || [];
+    const siblingNodes = stageNodes.filter(n => n.parent_id === parentId);
+    
+    const newNode = {
+      stage_id: stageId,
+      parent_id: parentId,
+      node_type: parentId ? 'branch' : 'root',
+      script_text: '',
+      trigger_condition: parentId ? '' : null,
+      order_index: siblingNodes.length,
+      metadata: {}
+    };
+
+    const { data, error } = await supabase.from('script_nodes').insert(newNode).select().single();
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to add node', variant: 'destructive' });
+      return;
+    }
+    
+    setScriptNodes(prev => ({
+      ...prev,
+      [stageId]: [...(prev[stageId] || []), data as ScriptNode]
+    }));
+  };
+
+  const handleSaveScriptNode = async (node: ScriptNode) => {
+    const { error } = await supabase.from('script_nodes').update({
+      script_text: node.script_text,
+      trigger_condition: node.trigger_condition,
+      node_type: node.node_type,
+      order_index: node.order_index,
+      metadata: node.metadata
+    }).eq('id', node.id);
+    
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to save node', variant: 'destructive' });
+    } else {
+      toast({ title: 'Saved', description: 'Node updated' });
+    }
+  };
+
+  const handleDeleteScriptNode = async (stageId: string, nodeId: string) => {
+    await supabase.from('script_nodes').delete().eq('id', nodeId);
+    setScriptNodes(prev => ({
+      ...prev,
+      [stageId]: (prev[stageId] || []).filter(n => n.id !== nodeId)
+    }));
+  };
+
+  const updateScriptNode = (stageId: string, nodeId: string, updates: Partial<ScriptNode>) => {
+    setScriptNodes(prev => ({
+      ...prev,
+      [stageId]: (prev[stageId] || []).map(n => 
+        n.id === nodeId ? { ...n, ...updates } : n
+      )
+    }));
   };
 
   const handleCreatePlaybook = async () => {
@@ -555,20 +747,73 @@ const PlaybookEditor = () => {
                               />
                             </div>
 
-                            {/* Script / Talking Points */}
-                            <div className="pl-10 space-y-2">
-                              <Label className="text-xs">Script / Talking Points</Label>
-                              <Textarea
-                                className="min-h-[100px] text-sm"
-                                value={stage.script || ''}
-                                onChange={(e) => {
-                                  const updated = stages.map(s => 
-                                    s.id === stage.id ? { ...s, script: e.target.value } : s
-                                  );
-                                  setStages(updated);
-                                }}
-                                placeholder="Enter the script or talking points for this stage..."
-                              />
+                            {/* Script Mode Toggle & Editor */}
+                            <div className="pl-10 space-y-3">
+                              <div className="flex items-center justify-between">
+                                <Label className="text-xs">Script / Talking Points</Label>
+                                <div className="flex items-center gap-2 text-xs">
+                                  <FileText className={`h-3.5 w-3.5 ${stageScriptModes[stage.id] === 'simple' ? 'text-primary' : 'text-muted-foreground'}`} />
+                                  <span className="text-muted-foreground">Simple</span>
+                                  <Switch
+                                    checked={stageScriptModes[stage.id] === 'tree'}
+                                    onCheckedChange={() => toggleScriptMode(stage.id)}
+                                  />
+                                  <span className="text-muted-foreground">Tree</span>
+                                  <GitBranch className={`h-3.5 w-3.5 ${stageScriptModes[stage.id] === 'tree' ? 'text-primary' : 'text-muted-foreground'}`} />
+                                </div>
+                              </div>
+
+                              {stageScriptModes[stage.id] === 'simple' ? (
+                                <Textarea
+                                  className="min-h-[100px] text-sm"
+                                  value={stage.script || ''}
+                                  onChange={(e) => {
+                                    const updated = stages.map(s => 
+                                      s.id === stage.id ? { ...s, script: e.target.value } : s
+                                    );
+                                    setStages(updated);
+                                  }}
+                                  placeholder="Enter the script or talking points for this stage..."
+                                />
+                              ) : (
+                                <div className="border rounded-lg p-3 bg-muted/30 space-y-3">
+                                  <div className="flex items-center justify-between">
+                                    <span className="text-xs text-muted-foreground font-medium">Decision Tree Nodes</span>
+                                    <Button 
+                                      size="sm" 
+                                      variant="outline"
+                                      onClick={() => handleAddScriptNode(stage.id, null)}
+                                    >
+                                      <Plus className="h-3 w-3 mr-1" />
+                                      Add Root Node
+                                    </Button>
+                                  </div>
+                                  
+                                  {(scriptNodes[stage.id] || []).length === 0 ? (
+                                    <div className="text-center py-4 text-muted-foreground text-sm">
+                                      No nodes yet. Add a root node to start the decision tree.
+                                    </div>
+                                  ) : (
+                                    <div className="space-y-2">
+                                      {(scriptNodes[stage.id] || [])
+                                        .filter(n => !n.parent_id)
+                                        .map(rootNode => (
+                                          <ScriptNodeEditor
+                                            key={rootNode.id}
+                                            node={rootNode}
+                                            allNodes={scriptNodes[stage.id] || []}
+                                            stageId={stage.id}
+                                            onUpdate={updateScriptNode}
+                                            onSave={handleSaveScriptNode}
+                                            onDelete={handleDeleteScriptNode}
+                                            onAddChild={handleAddScriptNode}
+                                            level={0}
+                                          />
+                                        ))}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
                             </div>
 
                             {/* Key Objectives & Success Criteria */}
