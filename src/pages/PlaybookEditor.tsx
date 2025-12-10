@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import DecisionTreeVisualizer from '@/components/Playbook/DecisionTreeVisualizer';
 import { 
   Plus, 
@@ -27,7 +28,13 @@ import {
   Play,
   GripVertical,
   GitBranch,
-  FileText
+  FileText,
+  ChevronDown,
+  Lightbulb,
+  Users,
+  Target,
+  Clock,
+  Brain
 } from 'lucide-react';
 
 interface ScriptNode {
@@ -495,6 +502,125 @@ const PlaybookEditor = () => {
           </h1>
           <p className="text-muted-foreground mt-1">Configure sales and support playbooks, stages, objection handlers, and more</p>
         </div>
+      </div>
+
+      {/* Playbook Guide Section */}
+      <Collapsible>
+        <Card className="border-primary/20 bg-primary/5">
+          <CollapsibleTrigger className="w-full">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5 text-primary" />
+                  <CardTitle className="text-lg">Playbook Guide & Best Practices</CardTitle>
+                </div>
+                <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </div>
+            </CardHeader>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent className="pt-0 space-y-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {/* Why 5 Stages */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-primary font-semibold">
+                    <Target className="h-4 w-4" />
+                    Why 5 Stages?
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    The 5-stage structure (Opening → Discovery → Pitch → Negotiation → Closing) mirrors the natural customer journey. 
+                    Each stage has a clear purpose: build rapport, understand needs, present solutions, handle concerns, and secure commitment. 
+                    This structure prevents overwhelming customers and ensures no critical step is skipped.
+                  </p>
+                </div>
+
+                {/* Stage Skipping */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-primary font-semibold">
+                    <Play className="h-4 w-4" />
+                    When Customer Skips Stages
+                  </div>
+                  <p className="text-sm text-muted-foreground">
+                    If a customer jumps ahead (e.g., asks for pricing during discovery), acknowledge their urgency, provide a brief answer, 
+                    then guide back: "Great question! Before I give you exact pricing, let me understand your needs better so I can recommend 
+                    the best option." Use transition phrases to naturally return to the skipped stage.
+                  </p>
+                </div>
+
+                {/* Pain/Need Assessment */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-primary font-semibold">
+                    <Heart className="h-4 w-4" />
+                    Assessing Pain & Need
+                  </div>
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <p><strong>Listen for:</strong> Frustration words, urgency indicators, specific problems mentioned.</p>
+                    <p><strong>Ask:</strong> "What prompted you to look into this now?" "What happens if this isn't resolved?"</p>
+                    <p><strong>Quantify:</strong> Time/money lost, compliance risks, missed opportunities.</p>
+                  </div>
+                </div>
+
+                {/* Urgency Assessment */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2 text-primary font-semibold">
+                    <Clock className="h-4 w-4" />
+                    Real Need vs Window Shopping
+                  </div>
+                  <div className="text-sm text-muted-foreground space-y-1">
+                    <p><strong>Real Need:</strong> Specific timeline, budget discussed, decision-maker on call, asks detailed questions, mentions competitor quotes.</p>
+                    <p><strong>Window Shopping:</strong> Vague timeline ("someday"), avoids budget talk, "just gathering info", no follow-up questions.</p>
+                    <p><strong>Tip:</strong> Ask "If we find the right solution today, what's your timeline for getting started?"</p>
+                  </div>
+                </div>
+
+                {/* Personality Types */}
+                <div className="space-y-2 md:col-span-2">
+                  <div className="flex items-center gap-2 text-primary font-semibold">
+                    <Brain className="h-4 w-4" />
+                    Personality Types from Transcript
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
+                    <div className="p-3 rounded-lg bg-background/50 border">
+                      <p className="font-medium text-foreground">Analytical</p>
+                      <p className="text-muted-foreground text-xs">Asks for data, comparisons, ROI. Speak with facts, provide documentation, avoid pressure.</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-background/50 border">
+                      <p className="font-medium text-foreground">Driver</p>
+                      <p className="text-muted-foreground text-xs">Results-focused, brief, decisive. Get to the point quickly, focus on outcomes and efficiency.</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-background/50 border">
+                      <p className="font-medium text-foreground">Expressive</p>
+                      <p className="text-muted-foreground text-xs">Enthusiastic, story-driven, relationship-focused. Build rapport, share success stories, show passion.</p>
+                    </div>
+                    <div className="p-3 rounded-lg bg-background/50 border">
+                      <p className="font-medium text-foreground">Amiable</p>
+                      <p className="text-muted-foreground text-xs">Seeks consensus, risk-averse, patient. Provide reassurance, testimonials, low-pressure approach.</p>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Detection Tips */}
+                <div className="space-y-2 md:col-span-2">
+                  <div className="flex items-center gap-2 text-primary font-semibold">
+                    <Users className="h-4 w-4" />
+                    Quick Detection Tips
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    <ul className="list-disc list-inside space-y-1">
+                      <li><strong>Analytical:</strong> "Can you send me the specifications?" "What's the exact process?"</li>
+                      <li><strong>Driver:</strong> "What's the bottom line?" "How fast can this be done?"</li>
+                      <li><strong>Expressive:</strong> "I'm so excited about this!" Shares personal stories, asks about your experience.</li>
+                      <li><strong>Amiable:</strong> "I need to discuss with my team" "What do other clients say?"</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
+
+      <div className="flex items-center justify-end">
         
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
