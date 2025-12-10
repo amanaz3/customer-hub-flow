@@ -328,14 +328,14 @@ export function PermanentDeleteSection() {
           application_type, 
           status, 
           created_at,
-          customers!inner(name)
+          customers(name)
         `)
         .limit(20);
 
       if (!isNaN(refNum)) {
         query = query.eq('reference_number', refNum);
       } else {
-        query = query.or(`application_type.ilike.%${appSearchTerm}%,status.ilike.%${appSearchTerm}%`);
+        query = query.or(`application_type.ilike.%${appSearchTerm}%,status.eq.${appSearchTerm}`);
       }
 
       const { data, error } = await query;
