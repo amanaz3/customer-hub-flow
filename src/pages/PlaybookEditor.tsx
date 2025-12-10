@@ -493,14 +493,26 @@ const PlaybookEditor = () => {
   }
 
   return (
-    <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold flex items-center gap-2">
-            <BookOpen className="h-6 w-6 text-primary" />
-            Sales and Support Playbook Editor
-          </h1>
-          <p className="text-muted-foreground mt-1">Configure sales and support playbooks, stages, objection handlers, and more</p>
+    <div className="p-6 space-y-6 bg-gradient-to-br from-background via-background to-muted/20 min-h-screen">
+      {/* Header */}
+      <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 p-6">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
+        <div className="relative flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <div className="p-3 rounded-xl bg-primary/10 border border-primary/20">
+              <BookOpen className="h-7 w-7 text-primary" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Sales & Support Playbook Editor</h1>
+              <p className="text-muted-foreground mt-0.5">Configure playbooks, stages, objection handlers, and call flow strategies</p>
+            </div>
+          </div>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="bg-green-500/10 text-green-700 border-green-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse" />
+              Editor Active
+            </Badge>
+          </div>
         </div>
       </div>
 
@@ -1242,45 +1254,83 @@ const PlaybookEditor = () => {
       </div>
 
       <div className="grid grid-cols-12 gap-6">
-        {/* Playbook List */}
+        {/* Playbook List - Sidebar */}
         <div className="col-span-3">
-          <Card>
-            <CardHeader className="pb-3">
-              <CardTitle className="text-sm">Playbooks</CardTitle>
+          <Card className="border-border/50 shadow-sm overflow-hidden">
+            <CardHeader className="pb-3 bg-muted/30 border-b">
+              <div className="flex items-center justify-between">
+                <CardTitle className="text-sm font-semibold flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-primary" />
+                  Playbooks
+                </CardTitle>
+                <Badge variant="secondary" className="text-xs">
+                  {playbooks.length}
+                </Badge>
+              </div>
             </CardHeader>
             <CardContent className="p-0">
-              <ScrollArea className="h-[calc(100vh-280px)]">
-                <div className="space-y-1 p-2">
+              <ScrollArea className="h-[calc(100vh-320px)]">
+                <div className="p-2 space-y-1.5">
                   {loading ? (
-                    <div className="p-4 text-center text-muted-foreground text-sm">Loading...</div>
+                    <div className="p-6 text-center">
+                      <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2" />
+                      <p className="text-muted-foreground text-sm">Loading playbooks...</p>
+                    </div>
                   ) : playbooks.length === 0 ? (
-                    <div className="p-4 text-center">
-                      <BookOpen className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
-                      <p className="text-sm text-muted-foreground">No playbooks yet</p>
-                      <p className="text-xs text-muted-foreground mt-1">Click "New Playbook" to create one</p>
+                    <div className="p-6 text-center">
+                      <div className="w-12 h-12 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-3">
+                        <BookOpen className="h-6 w-6 text-muted-foreground/50" />
+                      </div>
+                      <p className="text-sm font-medium text-muted-foreground">No playbooks yet</p>
+                      <p className="text-xs text-muted-foreground mt-1">Create your first playbook to get started</p>
                     </div>
                   ) : (
-                    playbooks.map(playbook => (
-                      <div
-                        key={playbook.id}
-                        className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                          selectedPlaybook?.id === playbook.id 
-                            ? 'bg-primary/10 border border-primary/30' 
-                            : 'hover:bg-muted/50'
-                        }`}
-                        onClick={() => handleSelectPlaybook(playbook)}
-                      >
-                        <div className="font-medium text-sm">{playbook.name}</div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="outline" className="text-xs">
-                            {playbook.call_type}
-                          </Badge>
-                          {playbook.is_active && (
-                            <Badge className="text-xs bg-green-500/20 text-green-700">Active</Badge>
-                          )}
+                    playbooks.map(playbook => {
+                      const isSelected = selectedPlaybook?.id === playbook.id;
+                      const callTypeIcon = playbook.call_type === 'outbound' ? (
+                        <MessageSquare className="h-3.5 w-3.5" />
+                      ) : playbook.call_type === 'inbound' ? (
+                        <Heart className="h-3.5 w-3.5" />
+                      ) : (
+                        <Play className="h-3.5 w-3.5" />
+                      );
+                      const callTypeColor = playbook.call_type === 'outbound' 
+                        ? 'bg-blue-500/10 text-blue-700 border-blue-500/30'
+                        : playbook.call_type === 'inbound'
+                        ? 'bg-purple-500/10 text-purple-700 border-purple-500/30'
+                        : 'bg-amber-500/10 text-amber-700 border-amber-500/30';
+                      
+                      return (
+                        <div
+                          key={playbook.id}
+                          className={`group p-3 rounded-lg cursor-pointer transition-all duration-200 border ${
+                            isSelected 
+                              ? 'bg-primary/10 border-primary/30 shadow-sm ring-1 ring-primary/20' 
+                              : 'border-transparent hover:bg-muted/50 hover:border-border/50'
+                          }`}
+                          onClick={() => handleSelectPlaybook(playbook)}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className={`p-1.5 rounded-md ${isSelected ? 'bg-primary/20' : 'bg-muted/50 group-hover:bg-muted'} transition-colors`}>
+                              {callTypeIcon}
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="font-medium text-sm truncate">{playbook.name}</div>
+                              <div className="flex items-center gap-1.5 mt-1.5">
+                                <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${callTypeColor}`}>
+                                  {playbook.call_type === 'outbound' ? 'Outbound' : playbook.call_type === 'inbound' ? 'Inbound' : 'Follow-up'}
+                                </Badge>
+                                {playbook.is_active && (
+                                  <Badge className="text-[10px] px-1.5 py-0 bg-green-500/20 text-green-700 border-green-500/30">
+                                    Active
+                                  </Badge>
+                                )}
+                              </div>
+                            </div>
+                          </div>
                         </div>
-                      </div>
-                    ))
+                      );
+                    })
                   )}
                 </div>
               </ScrollArea>
@@ -1288,61 +1338,112 @@ const PlaybookEditor = () => {
           </Card>
         </div>
 
-        {/* Playbook Editor */}
+        {/* Playbook Editor - Main Content */}
         <div className="col-span-9">
           {selectedPlaybook ? (
-            <Card>
-              <CardHeader>
+            <Card className="border-border/50 shadow-sm overflow-hidden">
+              <CardHeader className="bg-gradient-to-r from-muted/30 to-transparent border-b pb-4">
                 <div className="flex items-center justify-between">
-                  <div>
-                    <CardTitle>{selectedPlaybook.name}</CardTitle>
-                    <CardDescription>{selectedPlaybook.description}</CardDescription>
+                  <div className="flex items-center gap-4">
+                    <div className={`p-2.5 rounded-lg ${
+                      selectedPlaybook.call_type === 'outbound' 
+                        ? 'bg-blue-500/10 border border-blue-500/20' 
+                        : selectedPlaybook.call_type === 'inbound'
+                        ? 'bg-purple-500/10 border border-purple-500/20'
+                        : 'bg-amber-500/10 border border-amber-500/20'
+                    }`}>
+                      {selectedPlaybook.call_type === 'outbound' ? (
+                        <MessageSquare className="h-5 w-5 text-blue-600" />
+                      ) : selectedPlaybook.call_type === 'inbound' ? (
+                        <Heart className="h-5 w-5 text-purple-600" />
+                      ) : (
+                        <Play className="h-5 w-5 text-amber-600" />
+                      )}
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">{selectedPlaybook.name}</CardTitle>
+                      <CardDescription className="mt-0.5">{selectedPlaybook.description || 'No description provided'}</CardDescription>
+                    </div>
                   </div>
-                  <Badge variant="outline">{selectedPlaybook.call_type}</Badge>
+                  <div className="flex items-center gap-2">
+                    <Badge variant="outline" className={`${
+                      selectedPlaybook.call_type === 'outbound' 
+                        ? 'bg-blue-500/10 text-blue-700 border-blue-500/30' 
+                        : selectedPlaybook.call_type === 'inbound'
+                        ? 'bg-purple-500/10 text-purple-700 border-purple-500/30'
+                        : 'bg-amber-500/10 text-amber-700 border-amber-500/30'
+                    }`}>
+                      {selectedPlaybook.call_type === 'outbound' ? 'Outbound Sales' : selectedPlaybook.call_type === 'inbound' ? 'Inbound Support' : 'Follow-up'}
+                    </Badge>
+                    {selectedPlaybook.is_active && (
+                      <Badge className="bg-green-500/10 text-green-700 border-green-500/30">
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse" />
+                        Active
+                      </Badge>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
-              <CardContent>
-                <Tabs defaultValue="stages" className="space-y-4">
-                  <TabsList className="grid grid-cols-5 w-full">
-                    <TabsTrigger value="stages" className="flex items-center gap-2">
+              <CardContent className="p-6">
+                <Tabs defaultValue="stages" className="space-y-5">
+                  <TabsList className="grid grid-cols-5 w-full p-1 bg-muted/50 rounded-lg">
+                    <TabsTrigger value="stages" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md transition-all">
                       <Play className="h-4 w-4" />
-                      Stages
+                      <span>Stages</span>
+                      <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{stages.length}</Badge>
                     </TabsTrigger>
-                    <TabsTrigger value="questions" className="flex items-center gap-2">
+                    <TabsTrigger value="questions" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md transition-all">
                       <HelpCircle className="h-4 w-4" />
-                      Questions
+                      <span>Questions</span>
+                      <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{questions.length}</Badge>
                     </TabsTrigger>
-                    <TabsTrigger value="pricing" className="flex items-center gap-2">
+                    <TabsTrigger value="pricing" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md transition-all">
                       <DollarSign className="h-4 w-4" />
-                      Pricing
+                      <span>Pricing</span>
+                      <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{pricing.length}</Badge>
                     </TabsTrigger>
-                    <TabsTrigger value="objections" className="flex items-center gap-2">
+                    <TabsTrigger value="objections" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md transition-all">
                       <AlertTriangle className="h-4 w-4" />
-                      Objections
+                      <span>Objections</span>
+                      <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{objections.length}</Badge>
                     </TabsTrigger>
-                    <TabsTrigger value="emotions" className="flex items-center gap-2">
+                    <TabsTrigger value="emotions" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md transition-all">
                       <Heart className="h-4 w-4" />
-                      Emotions
+                      <span>Emotions</span>
+                      <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{emotions.length}</Badge>
                     </TabsTrigger>
                   </TabsList>
 
                   {/* Stages Tab */}
                   <TabsContent value="stages" className="space-y-4">
                     <div className="flex justify-between items-center">
-                      <h3 className="font-semibold">Call Flow Stages</h3>
-                      <Button size="sm" onClick={handleAddStage}>
-                        <Plus className="h-4 w-4 mr-1" />
+                      <div>
+                        <h3 className="font-semibold">Call Flow Stages</h3>
+                        <p className="text-xs text-muted-foreground mt-0.5">Define the structure and flow of your calls</p>
+                      </div>
+                      <Button size="sm" onClick={handleAddStage} className="shadow-sm">
+                        <Plus className="h-4 w-4 mr-1.5" />
                         Add Stage
                       </Button>
                     </div>
                     <div className="space-y-3">
-                      {stages.map((stage, index) => (
-                        <Card key={stage.id} className="p-4">
+                      {stages.map((stage, index) => {
+                        const stageTypeColors: Record<string, string> = {
+                          opening: 'border-l-blue-500 bg-blue-500/5',
+                          discovery: 'border-l-purple-500 bg-purple-500/5',
+                          pitch: 'border-l-amber-500 bg-amber-500/5',
+                          objection_handling: 'border-l-red-500 bg-red-500/5',
+                          negotiation: 'border-l-orange-500 bg-orange-500/5',
+                          closing: 'border-l-green-500 bg-green-500/5',
+                          follow_up: 'border-l-cyan-500 bg-cyan-500/5',
+                        };
+                        return (
+                        <Card key={stage.id} className={`p-4 border-l-4 ${stageTypeColors[stage.stage_type] || 'border-l-muted'} hover:shadow-md transition-shadow`}>
                           <div className="space-y-4">
                             <div className="flex items-start gap-4">
-                              <div className="flex items-center gap-2 text-muted-foreground">
-                                <GripVertical className="h-4 w-4" />
-                                <span className="font-mono text-sm">{stage.stage_order}</span>
+                              <div className="flex items-center gap-2 text-muted-foreground bg-muted/50 rounded-md px-2 py-1">
+                                <GripVertical className="h-4 w-4 cursor-grab" />
+                                <span className="font-mono text-sm font-medium">{stage.stage_order}</span>
                               </div>
                               <div className="flex-1 grid grid-cols-3 gap-4">
                                 <div className="space-y-2">
@@ -1500,7 +1601,8 @@ const PlaybookEditor = () => {
                             </div>
                           </div>
                         </Card>
-                      ))}
+                        );
+                      })}
                     </div>
                   </TabsContent>
 
@@ -1747,10 +1849,19 @@ const PlaybookEditor = () => {
               </CardContent>
             </Card>
           ) : (
-            <Card className="h-[calc(100vh-220px)] flex items-center justify-center">
-              <div className="text-center text-muted-foreground">
-                <BookOpen className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>Select a playbook to edit or create a new one</p>
+            <Card className="h-[calc(100vh-320px)] flex items-center justify-center border-dashed border-2 border-muted-foreground/20 bg-gradient-to-br from-muted/20 to-transparent">
+              <div className="text-center max-w-md px-6">
+                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4 rotate-3">
+                  <BookOpen className="h-8 w-8 text-primary" />
+                </div>
+                <h3 className="font-semibold text-lg mb-2">No Playbook Selected</h3>
+                <p className="text-muted-foreground text-sm mb-6">
+                  Select a playbook from the sidebar to start editing, or create a new one to define your sales and support call strategies.
+                </p>
+                <Button onClick={() => setIsCreateDialogOpen(true)} className="shadow-sm">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Create New Playbook
+                </Button>
               </div>
             </Card>
           )}
