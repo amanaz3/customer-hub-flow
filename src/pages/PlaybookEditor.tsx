@@ -491,9 +491,9 @@ const PlaybookEditor = () => {
         <div>
           <h1 className="text-2xl font-bold flex items-center gap-2">
             <BookOpen className="h-6 w-6 text-primary" />
-            Sales Playbook Editor
+            Sales and Support Playbook Editor
           </h1>
-          <p className="text-muted-foreground mt-1">Configure sales playbooks, stages, objection handlers, and more</p>
+          <p className="text-muted-foreground mt-1">Configure sales and support playbooks, stages, objection handlers, and more</p>
         </div>
         
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
