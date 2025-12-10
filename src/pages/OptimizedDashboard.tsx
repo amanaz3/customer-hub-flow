@@ -407,20 +407,6 @@ const OptimizedDashboard = () => {
                 <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
               ) : (
                 <div className="space-y-6">
-          <DashboardFilters
-            searchTerm={searchTerm}
-            setSearchTerm={setSearchTerm}
-            statusFilter={statusFilter}
-            setStatusFilter={setStatusFilter}
-            selectedMonths={selectedMonths}
-            availableMonths={availableMonths}
-            onMonthToggle={toggleMonth}
-            onClearAllMonths={clearAllMonths}
-            onClearAllFilters={clearAllFilters}
-            onRefresh={handleDataRefresh}
-            isLoading={isLoading}
-            activeWidget={activeWidget}
-          />
                   
                   <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
                     <CardHeader className="pb-4 border-b border-border/50">
