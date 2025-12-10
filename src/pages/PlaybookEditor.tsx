@@ -521,7 +521,7 @@ const PlaybookEditor = () => {
           <CollapsibleContent>
             <CardContent className="pt-0">
               <Tabs defaultValue="stages" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 mb-4">
+                <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 mb-4">
                   <TabsTrigger value="stages" className="text-xs">
                     <Target className="h-3 w-3 mr-1" />
                     Stages
@@ -545,6 +545,10 @@ const PlaybookEditor = () => {
                   <TabsTrigger value="preparation" className="text-xs">
                     <FileText className="h-3 w-3 mr-1" />
                     Prep
+                  </TabsTrigger>
+                  <TabsTrigger value="faqs" className="text-xs">
+                    <HelpCircle className="h-3 w-3 mr-1" />
+                    FAQs
                   </TabsTrigger>
                 </TabsList>
 
@@ -920,6 +924,142 @@ const PlaybookEditor = () => {
                       </div>
                     </div>
                   </div>
+                </TabsContent>
+
+                {/* FAQs Tab */}
+                <TabsContent value="faqs" className="space-y-4">
+                  <Tabs defaultValue="outbound" className="w-full">
+                    <TabsList className="grid w-full grid-cols-4 mb-3">
+                      <TabsTrigger value="outbound" className="text-xs">Outbound Sales</TabsTrigger>
+                      <TabsTrigger value="inbound" className="text-xs">Inbound Sales</TabsTrigger>
+                      <TabsTrigger value="followup" className="text-xs">Follow-up</TabsTrigger>
+                      <TabsTrigger value="support" className="text-xs">Post-Sale Support</TabsTrigger>
+                    </TabsList>
+
+                    {/* Outbound Sales FAQs */}
+                    <TabsContent value="outbound" className="space-y-2">
+                      <div className="space-y-2 text-xs">
+                        <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                          <p className="font-medium text-foreground">"Why are you calling me?"</p>
+                          <p className="text-muted-foreground mt-1">"I noticed [company/situation] and thought our [service] could help. Do you have 2 minutes so I can explain how we've helped similar businesses?"</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                          <p className="font-medium text-foreground">"How did you get my number?"</p>
+                          <p className="text-muted-foreground mt-1">"Your business is listed in [source/directory]. We reach out to companies that might benefit from our services. If now isn't a good time, when would be better?"</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                          <p className="font-medium text-foreground">"I'm not interested"</p>
+                          <p className="text-muted-foreground mt-1">"I understand. Just curious - is it the timing, or is [service type] not something you're looking at right now? Sometimes it helps to know for future reference."</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                          <p className="font-medium text-foreground">"Send me an email instead"</p>
+                          <p className="text-muted-foreground mt-1">"Absolutely! What's the best email? Also, what specific information would be most useful for you - pricing, case studies, or our process overview?"</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                          <p className="font-medium text-foreground">"What makes you different from competitors?"</p>
+                          <p className="text-muted-foreground mt-1">"Great question! We specialize in [unique value]. Our clients typically see [specific benefit]. What's most important to you when choosing a provider?"</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                          <p className="font-medium text-foreground">"How much does it cost?"</p>
+                          <p className="text-muted-foreground mt-1">"It depends on your specific needs. Our packages typically range from [range]. To give you an accurate quote, can I ask a few quick questions about what you're looking for?"</p>
+                        </div>
+                      </div>
+                    </TabsContent>
+
+                    {/* Inbound Sales FAQs */}
+                    <TabsContent value="inbound" className="space-y-2">
+                      <div className="space-y-2 text-xs">
+                        <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/20">
+                          <p className="font-medium text-foreground">"I saw your ad/website. What exactly do you do?"</p>
+                          <p className="text-muted-foreground mt-1">"Thanks for reaching out! We help [target audience] with [core service]. What caught your attention about us? That'll help me explain the most relevant parts."</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/20">
+                          <p className="font-medium text-foreground">"Can you give me a quick price?"</p>
+                          <p className="text-muted-foreground mt-1">"Of course! To give you an accurate quote, I need to understand your situation. Are you looking at [option A] or [option B]? What's your timeline?"</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/20">
+                          <p className="font-medium text-foreground">"How long does the process take?"</p>
+                          <p className="text-muted-foreground mt-1">"Typically [timeframe], but it can vary based on [factors]. When are you hoping to have this completed? We can work backward from your deadline."</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/20">
+                          <p className="font-medium text-foreground">"What documents do I need?"</p>
+                          <p className="text-muted-foreground mt-1">"Good question! The basic requirements are [list]. Don't worry - I'll send you a complete checklist after our call. Do you have most of these ready?"</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/20">
+                          <p className="font-medium text-foreground">"Can I trust your company?"</p>
+                          <p className="text-muted-foreground mt-1">"Absolutely valid concern! We've been operating since [year], served [X] clients, and are [licensed/certified]. Would you like references from similar businesses?"</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-green-500/5 border border-green-500/20">
+                          <p className="font-medium text-foreground">"I'm comparing multiple providers"</p>
+                          <p className="text-muted-foreground mt-1">"Smart approach! What criteria are most important to you? I'd love to help you understand where we might be the best fit - or not - so you can make the right decision."</p>
+                        </div>
+                      </div>
+                    </TabsContent>
+
+                    {/* Follow-up Sales FAQs */}
+                    <TabsContent value="followup" className="space-y-2">
+                      <div className="space-y-2 text-xs">
+                        <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                          <p className="font-medium text-foreground">"I haven't had time to review the proposal"</p>
+                          <p className="text-muted-foreground mt-1">"No problem at all! Would it help if I walked you through the key points in 5 minutes? Or if you prefer, I can highlight the 3 most important things via email."</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                          <p className="font-medium text-foreground">"I need to discuss with my partner/team"</p>
+                          <p className="text-muted-foreground mt-1">"Of course! When do you think you'll be able to connect with them? Would it help if I joined a call to answer any questions they might have?"</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                          <p className="font-medium text-foreground">"The price is higher than I expected"</p>
+                          <p className="text-muted-foreground mt-1">"I understand. What range were you expecting? Let's see if there's a package that works better, or I can explain what's included that might justify the investment."</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                          <p className="font-medium text-foreground">"I'm waiting for [event/budget/approval]"</p>
+                          <p className="text-muted-foreground mt-1">"Got it! When do you expect that to happen? I'll make a note to follow up then. In the meantime, is there anything I can prepare to help speed things along?"</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                          <p className="font-medium text-foreground">"We decided to go with another provider"</p>
+                          <p className="text-muted-foreground mt-1">"I appreciate you letting me know. May I ask what made them a better fit? This helps us improve. If things don't work out, please keep us in mind."</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                          <p className="font-medium text-foreground">"Can you match their price?"</p>
+                          <p className="text-muted-foreground mt-1">"Let me understand what you're comparing. Sometimes pricing differences reflect different service levels. What exactly is included in their offer?"</p>
+                        </div>
+                      </div>
+                    </TabsContent>
+
+                    {/* Post-Sale Support FAQs */}
+                    <TabsContent value="support" className="space-y-2">
+                      <div className="space-y-2 text-xs">
+                        <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                          <p className="font-medium text-foreground">"Where's my order/service status?"</p>
+                          <p className="text-muted-foreground mt-1">"Let me check that for you right now. Can I have your reference number or the email you used? I'll give you a complete status update."</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                          <p className="font-medium text-foreground">"This isn't what I expected/ordered"</p>
+                          <p className="text-muted-foreground mt-1">"I'm sorry to hear that. Let me understand exactly what happened. Can you describe what you received vs. what you expected? I'll make this right."</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                          <p className="font-medium text-foreground">"I want a refund"</p>
+                          <p className="text-muted-foreground mt-1">"I understand your frustration. Before we process that, may I ask what went wrong? Sometimes we can resolve the issue - but if you still want a refund, I'll help you with that."</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                          <p className="font-medium text-foreground">"Why is this taking so long?"</p>
+                          <p className="text-muted-foreground mt-1">"I completely understand your concern. Let me check the exact status and explain what's happening. [After checking] The delay is due to [reason]. Here's what we're doing to expedite it."</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                          <p className="font-medium text-foreground">"I need to make changes to my order"</p>
+                          <p className="text-muted-foreground mt-1">"Of course! What changes do you need? Let me check if we can accommodate that at this stage. If there are any additional costs or timeline impacts, I'll let you know upfront."</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                          <p className="font-medium text-foreground">"I have a complaint about your service"</p>
+                          <p className="text-muted-foreground mt-1">"I'm really sorry you've had a negative experience. Your feedback is important. Please tell me exactly what happened - I want to understand and make sure we address this properly."</p>
+                        </div>
+                        <div className="p-3 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                          <p className="font-medium text-foreground">"Can I get a discount on my next order?"</p>
+                          <p className="text-muted-foreground mt-1">"I appreciate your loyalty! Let me see what we can offer. We have [loyalty program/current promotions]. Based on your history, I can offer you [specific offer]."</p>
+                        </div>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </TabsContent>
               </Tabs>
             </CardContent>
