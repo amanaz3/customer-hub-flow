@@ -68,6 +68,7 @@ import RFMAnalysis from '@/pages/RFMAnalysis';
 import CustomerClassification from '@/pages/CustomerClassification';
 import Legacy from '@/pages/Legacy';
 import LegacyDashboard from '@/pages/LegacyDashboard';
+import LiveAssistant from '@/pages/LiveAssistant';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -437,6 +438,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Legacy Dashboard">
                           <LegacyDashboard />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/live-assistant" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Live Assistant">
+                          <LiveAssistant />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
