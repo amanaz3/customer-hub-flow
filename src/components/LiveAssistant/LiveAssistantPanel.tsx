@@ -12,6 +12,7 @@ import {
   Save,
   Clock
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
 
 interface TranscriptLine {
   id: string;
@@ -23,16 +24,18 @@ interface TranscriptLine {
 interface LiveAssistantPanelProps {
   onReplySelected?: (text: string) => void;
   onSaveToCRM?: () => void;
+  fullWidth?: boolean;
 }
 
 const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({ 
   onReplySelected,
-  onSaveToCRM 
+  onSaveToCRM,
+  fullWidth = false
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   
   // Placeholder data - will be replaced with real data
-  const [transcript, setTranscript] = useState<TranscriptLine[]>([
+  const [transcript] = useState<TranscriptLine[]>([
     { id: '1', timestamp: '10:32:15', speaker: 'customer', text: 'Hi, I need help with my account application.' },
     { id: '2', timestamp: '10:32:22', speaker: 'agent', text: 'Of course! I\'d be happy to help. Could you provide your reference number?' },
     { id: '3', timestamp: '10:32:35', speaker: 'customer', text: 'Yes, it\'s CUST-2025-00145.' },
@@ -72,19 +75,29 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
   };
 
   return (
-    <div className="w-[350px] flex-shrink-0 bg-card border-l border-border flex flex-col h-full overflow-hidden">
-      <div className="p-4 border-b border-border">
-        <h2 className="text-lg font-semibold flex items-center gap-2">
+    <div className={cn(
+      "bg-card flex flex-col h-full overflow-hidden",
+      fullWidth ? "w-full" : "w-[350px] flex-shrink-0 border-l border-border"
+    )}>
+      {/* Header */}
+      <div className="p-4 border-b border-border bg-primary/5">
+        <h2 className="text-xl font-bold flex items-center gap-2">
           <MessageSquare className="h-5 w-5 text-primary" />
-          Live Assistant
+          Live Call Assistant
         </h2>
-        <p className="text-xs text-muted-foreground mt-1">AI-powered call support</p>
+        <p className="text-sm text-muted-foreground mt-1">Real-time AI-powered support</p>
       </div>
 
-      <ScrollArea className="flex-1 p-4">
-        <div className="space-y-4">
+      <ScrollArea className="flex-1">
+        <div className={cn(
+          "p-4",
+          fullWidth ? "grid grid-cols-2 gap-4" : "space-y-4"
+        )}>
           {/* Live Transcript Section */}
-          <Card className="border-0 shadow-sm bg-muted/30">
+          <Card className={cn(
+            "border-0 shadow-sm bg-muted/30",
+            fullWidth && "col-span-1 row-span-2"
+          )}>
             <CardHeader className="pb-2 pt-3 px-3">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <MessageSquare className="h-4 w-4 text-primary" />
@@ -94,121 +107,143 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
             <CardContent className="px-3 pb-3">
               <div 
                 ref={scrollRef}
-                className="h-[150px] overflow-y-auto space-y-2 pr-2"
+                className={cn(
+                  "overflow-y-auto space-y-2 pr-2",
+                  fullWidth ? "h-[450px]" : "h-[150px]"
+                )}
               >
                 {transcript.map((line) => (
                   <div 
                     key={line.id} 
-                    className={`text-xs p-2 rounded-lg ${
+                    className={cn(
+                      "text-sm p-3 rounded-lg",
                       line.speaker === 'agent' 
                         ? 'bg-primary/10 ml-2' 
                         : 'bg-secondary/50 mr-2'
-                    }`}
+                    )}
                   >
-                    <div className="flex items-center gap-1 text-muted-foreground mb-1">
+                    <div className="flex items-center gap-2 text-muted-foreground mb-1">
                       <Clock className="h-3 w-3" />
-                      <span className="font-mono">{line.timestamp}</span>
-                      <span className="capitalize font-medium">
+                      <span className="font-mono text-xs">{line.timestamp}</span>
+                      <span className="capitalize font-semibold text-xs">
                         {line.speaker === 'agent' ? 'You' : 'Customer'}
                       </span>
                     </div>
                     <p className="text-foreground">{line.text}</p>
                   </div>
                 ))}
+                {/* Live indicator */}
+                <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                  Listening...
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Suggested Replies Section */}
-          <Card className="border-0 shadow-sm bg-muted/30">
-            <CardHeader className="pb-2 pt-3 px-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <Lightbulb className="h-4 w-4 text-amber-500" />
-                Suggested Replies
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 pb-3 space-y-2">
-              {suggestedReplies.map((reply, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  size="sm"
-                  className="w-full h-auto py-2 px-3 text-left justify-start text-xs whitespace-normal hover:bg-primary/10 hover:border-primary/50 transition-all"
-                  onClick={() => handleReplyClick(reply)}
-                >
-                  {reply}
-                </Button>
-              ))}
-            </CardContent>
-          </Card>
-
-          {/* Next Suggested Questions Section */}
-          <Card className="border-0 shadow-sm bg-muted/30">
-            <CardHeader className="pb-2 pt-3 px-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <HelpCircle className="h-4 w-4 text-blue-500" />
-                Next Suggested Questions
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 pb-3">
-              <ul className="space-y-2">
-                {suggestedQuestions.map((question, index) => (
-                  <li 
+          {/* Right Column Container for full width */}
+          <div className={cn(fullWidth ? "space-y-4" : "contents")}>
+            {/* Suggested Replies Section */}
+            <Card className="border-0 shadow-sm bg-muted/30">
+              <CardHeader className="pb-2 pt-3 px-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4 text-amber-500" />
+                  Suggested Replies
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-3 pb-3 space-y-2">
+                {suggestedReplies.map((reply, index) => (
+                  <Button
                     key={index}
-                    className="text-xs p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-foreground cursor-pointer hover:bg-blue-500/20 transition-colors"
-                  >
-                    {question}
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-
-          {/* Objections & Compliance Alerts Section */}
-          <Card className="border-0 shadow-sm bg-muted/30">
-            <CardHeader className="pb-2 pt-3 px-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-red-500" />
-                Objections & Alerts
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 pb-3">
-              <div className="flex flex-wrap gap-2">
-                {alerts.map((alert) => (
-                  <Badge 
-                    key={alert.id}
                     variant="outline"
-                    className={`text-xs ${alert.color}`}
+                    size="sm"
+                    className={cn(
+                      "w-full h-auto py-2 px-3 text-left justify-start whitespace-normal hover:bg-primary/10 hover:border-primary/50 transition-all",
+                      fullWidth ? "text-sm" : "text-xs"
+                    )}
+                    onClick={() => handleReplyClick(reply)}
                   >
-                    {alert.label}
-                  </Badge>
+                    {reply}
+                  </Button>
                 ))}
-              </div>
-            </CardContent>
-          </Card>
+              </CardContent>
+            </Card>
 
-          {/* Call Summary Section */}
-          <Card className="border-0 shadow-sm bg-muted/30">
-            <CardHeader className="pb-2 pt-3 px-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <FileText className="h-4 w-4 text-green-500" />
-                Call Summary
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 pb-3 space-y-3">
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                {callSummary}
-              </p>
-              <Button 
-                size="sm" 
-                className="w-full"
-                onClick={onSaveToCRM}
-              >
-                <Save className="h-4 w-4 mr-2" />
-                Save to CRM
-              </Button>
-            </CardContent>
-          </Card>
+            {/* Next Suggested Questions Section */}
+            <Card className="border-0 shadow-sm bg-muted/30">
+              <CardHeader className="pb-2 pt-3 px-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <HelpCircle className="h-4 w-4 text-blue-500" />
+                  Next Suggested Questions
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-3 pb-3">
+                <ul className="space-y-2">
+                  {suggestedQuestions.map((question, index) => (
+                    <li 
+                      key={index}
+                      className={cn(
+                        "p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-foreground cursor-pointer hover:bg-blue-500/20 transition-colors",
+                        fullWidth ? "text-sm" : "text-xs"
+                      )}
+                      onClick={() => handleReplyClick(question)}
+                    >
+                      {question}
+                    </li>
+                  ))}
+                </ul>
+              </CardContent>
+            </Card>
+
+            {/* Objections & Compliance Alerts Section */}
+            <Card className="border-0 shadow-sm bg-muted/30">
+              <CardHeader className="pb-2 pt-3 px-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4 text-red-500" />
+                  Objections & Alerts
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-3 pb-3">
+                <div className="flex flex-wrap gap-2">
+                  {alerts.map((alert) => (
+                    <Badge 
+                      key={alert.id}
+                      variant="outline"
+                      className={cn("border", alert.color, fullWidth ? "text-sm py-1 px-3" : "text-xs")}
+                    >
+                      {alert.label}
+                    </Badge>
+                  ))}
+                </div>
+              </CardContent>
+            </Card>
+
+            {/* Call Summary Section */}
+            <Card className="border-0 shadow-sm bg-muted/30">
+              <CardHeader className="pb-2 pt-3 px-3">
+                <CardTitle className="text-sm font-medium flex items-center gap-2">
+                  <FileText className="h-4 w-4 text-green-500" />
+                  Call Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="px-3 pb-3 space-y-3">
+                <p className={cn(
+                  "text-muted-foreground leading-relaxed bg-muted/50 rounded-lg p-3",
+                  fullWidth ? "text-sm" : "text-xs"
+                )}>
+                  {callSummary}
+                </p>
+                <Button 
+                  size={fullWidth ? "default" : "sm"}
+                  className="w-full"
+                  onClick={onSaveToCRM}
+                >
+                  <Save className="h-4 w-4 mr-2" />
+                  Save to CRM
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </ScrollArea>
     </div>
