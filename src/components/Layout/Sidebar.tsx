@@ -17,7 +17,6 @@ import {
   TrendingUp,
   Menu,
   X,
-  Activity,
   Package,
   Database,
   BarChart3,
@@ -79,12 +78,6 @@ const Sidebar: React.FC = () => {
       path: '/applications',
       icon: <FileText className="h-5 w-5" />,
       roles: ['admin', 'user'],
-    },
-    {
-      name: 'Tracker',
-      path: '/tracker',
-      icon: <Activity className="h-5 w-5" />,
-      roles: ['admin'],
     },
     {
       name: 'New Application',
