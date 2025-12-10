@@ -74,7 +74,7 @@ const DashboardHeader: React.FC<DashboardHeaderProps> = ({
             size="lg"
           >
             <Plus className="mr-2 h-5 w-5" />
-            New Customer
+            New Application
           </Button>
         </div>
       </div>
