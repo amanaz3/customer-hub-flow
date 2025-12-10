@@ -91,9 +91,7 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
   const [stages, setStages] = useState<PlaybookStage[]>([]);
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
   const [showObjectives, setShowObjectives] = useState(false);
-  const [callType, setCallType] = useState<'outbound' | 'inbound'>('outbound');
-  const [activePlaybookId, setActivePlaybookId] = useState<string | null>(null);
-  const [playbookName, setPlaybookName] = useState<string>('');
+  
   const {
     isLoading,
     suggestions,
@@ -101,60 +99,29 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
     analyzeCall
   } = useSalesAssistant({ customerId });
 
-  // Auto-select playbook based on call type and product
+  // Fetch playbook stages for stage indicator
   useEffect(() => {
-    const fetchPlaybook = async () => {
-      // Map call type to playbook call_type
-      const playbookCallType = callType === 'inbound' ? 'inbound_support' : 'outbound_sales';
-      
-      // Try to find playbook matching call type (and product if provided)
-      let query = supabase
-        .from('sales_playbooks')
-        .select('id, name')
-        .eq('is_active', true)
-        .eq('call_type', playbookCallType);
-      
-      // If we have a playbookId prop, use it directly
-      if (playbookId) {
-        const { data } = await supabase
-          .from('sales_playbooks')
-          .select('id, name')
-          .eq('id', playbookId)
-          .single();
-        if (data) {
-          setActivePlaybookId(data.id);
-          setPlaybookName(data.name);
-          return;
-        }
-      }
-      
-      const { data } = await query.limit(1);
-      if (data && data.length > 0) {
-        setActivePlaybookId(data[0].id);
-        setPlaybookName(data[0].name);
-      }
-    };
-    fetchPlaybook();
-  }, [callType, playbookId]);
-
-  // Fetch stages when playbook changes
-  useEffect(() => {
-    if (!activePlaybookId) return;
-
     const fetchStages = async () => {
+      // Get first active playbook if no playbookId provided
+      const { data: playbooks } = await supabase
+        .from('sales_playbooks')
+        .select('id')
+        .eq('is_active', true)
+        .limit(1);
+      
+      const pbId = playbookId || playbooks?.[0]?.id;
+      if (!pbId) return;
+
       const { data } = await supabase
         .from('playbook_stages')
         .select('id, stage_name, stage_order, key_objectives')
-        .eq('playbook_id', activePlaybookId)
+        .eq('playbook_id', pbId)
         .order('stage_order');
       
-      if (data) {
-        setStages(data);
-        setCurrentStageIndex(0);
-      }
+      if (data) setStages(data);
     };
     fetchStages();
-  }, [activePlaybookId]);
+  }, [playbookId]);
 
   // Auto-scroll transcript
   useEffect(() => {
@@ -228,35 +195,6 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
               </Button>
             )}
           </div>
-        </div>
-
-        {/* Call Type Toggle */}
-        <div className="flex items-center gap-2 mt-2">
-          <div className="flex bg-muted rounded-lg p-0.5 text-[10px]">
-            <button
-              onClick={() => setCallType('outbound')}
-              className={cn(
-                "px-2 py-1 rounded-md transition-all",
-                callType === 'outbound' ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Outbound
-            </button>
-            <button
-              onClick={() => setCallType('inbound')}
-              className={cn(
-                "px-2 py-1 rounded-md transition-all",
-                callType === 'inbound' ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground"
-              )}
-            >
-              Inbound
-            </button>
-          </div>
-          {playbookName && (
-            <span className="text-[10px] text-muted-foreground">
-              → {playbookName}
-            </span>
-          )}
         </div>
 
         {/* Stage Progress Indicator */}
