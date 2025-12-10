@@ -224,66 +224,68 @@ const CustomerNew = () => {
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <div className="w-full max-w-4xl mx-auto">
             
-            {/* Connected Tabs with Clear Boundary */}
-            <div className="flex overflow-hidden border border-b-0 border-border">
-              {/* New Customer Tab */}
-              <button
-                onClick={() => handleTabChange('new')}
-                className={`flex-1 relative h-12 transition-all duration-200 group ${
-                  activeTab === 'new' 
-                    ? 'bg-card shadow-sm' 
-                    : 'bg-muted/60 hover:bg-muted/70 hover:-translate-y-0.5 cursor-pointer'
-                }`}
-              >
-                <div className="flex items-center justify-center gap-2">
-                  {activeTab === 'new' ? (
-                    <CircleDot className="h-4 w-4 text-primary" />
-                  ) : (
-                    <Circle className="h-4 w-4 text-muted-foreground/60 group-hover:text-foreground" />
+            {/* Connected Tabs with Clear Boundary - Hidden when resuming predraft application */}
+            {!applicationId && (
+              <div className="flex overflow-hidden border border-b-0 border-border">
+                {/* New Customer Tab */}
+                <button
+                  onClick={() => handleTabChange('new')}
+                  className={`flex-1 relative h-12 transition-all duration-200 group ${
+                    activeTab === 'new' 
+                      ? 'bg-card shadow-sm' 
+                      : 'bg-muted/60 hover:bg-muted/70 hover:-translate-y-0.5 cursor-pointer'
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    {activeTab === 'new' ? (
+                      <CircleDot className="h-4 w-4 text-primary" />
+                    ) : (
+                      <Circle className="h-4 w-4 text-muted-foreground/60 group-hover:text-foreground" />
+                    )}
+                    <UserPlus className={`h-4 w-4 transition-colors ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-foreground'}`} />
+                    <span className={`font-medium text-sm transition-all ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground/60 group-hover:text-foreground'}`}>
+                      New Customer
+                    </span>
+                  </div>
+                  {/* Active indicator bar */}
+                  {activeTab === 'new' && (
+                    <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />
                   )}
-                  <UserPlus className={`h-4 w-4 transition-colors ${activeTab === 'new' ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-foreground'}`} />
-                  <span className={`font-medium text-sm transition-all ${activeTab === 'new' ? 'text-foreground' : 'text-muted-foreground/60 group-hover:text-foreground'}`}>
-                    New Customer
-                  </span>
-                </div>
-                {/* Active indicator bar */}
-                {activeTab === 'new' && (
-                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />
-                )}
-              </button>
-              
-              {/* Vertical Boundary */}
-              <div className="w-px bg-border" />
-              
-              {/* Existing Customer Tab */}
-              <button
-                onClick={() => handleTabChange('existing')}
-                className={`flex-1 relative h-12 transition-all duration-200 group ${
-                  activeTab === 'existing' 
-                    ? 'bg-card shadow-sm' 
-                    : 'bg-muted/60 hover:bg-muted/70 hover:-translate-y-0.5 cursor-pointer'
-                }`}
-              >
-                <div className="flex items-center justify-center gap-2">
-                  {activeTab === 'existing' ? (
-                    <CircleDot className="h-4 w-4 text-primary" />
-                  ) : (
-                    <Circle className="h-4 w-4 text-muted-foreground/60 group-hover:text-foreground" />
+                </button>
+                
+                {/* Vertical Boundary */}
+                <div className="w-px bg-border" />
+                
+                {/* Existing Customer Tab */}
+                <button
+                  onClick={() => handleTabChange('existing')}
+                  className={`flex-1 relative h-12 transition-all duration-200 group ${
+                    activeTab === 'existing' 
+                      ? 'bg-card shadow-sm' 
+                      : 'bg-muted/60 hover:bg-muted/70 hover:-translate-y-0.5 cursor-pointer'
+                  }`}
+                >
+                  <div className="flex items-center justify-center gap-2">
+                    {activeTab === 'existing' ? (
+                      <CircleDot className="h-4 w-4 text-primary" />
+                    ) : (
+                      <Circle className="h-4 w-4 text-muted-foreground/60 group-hover:text-foreground" />
+                    )}
+                    <Users className={`h-4 w-4 transition-colors ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-foreground'}`} />
+                    <span className={`font-medium text-sm transition-all ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground/60 group-hover:text-foreground'}`}>
+                      Existing Customer
+                    </span>
+                  </div>
+                  {/* Active indicator bar */}
+                  {activeTab === 'existing' && (
+                    <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />
                   )}
-                  <Users className={`h-4 w-4 transition-colors ${activeTab === 'existing' ? 'text-primary' : 'text-muted-foreground/60 group-hover:text-foreground'}`} />
-                  <span className={`font-medium text-sm transition-all ${activeTab === 'existing' ? 'text-foreground' : 'text-muted-foreground/60 group-hover:text-foreground'}`}>
-                    Existing Customer
-                  </span>
-                </div>
-                {/* Active indicator bar */}
-                {activeTab === 'existing' && (
-                  <div className="absolute top-0 left-0 right-0 h-0.5 bg-primary" />
-                )}
-              </button>
-            </div>
+                </button>
+              </div>
+            )}
 
             {/* Seamless Content Panel - connects to active tab */}
-            <div className="bg-gradient-to-br from-teal-50/50 to-card dark:from-teal-950/20 dark:to-card border border-border -mt-px">
+            <div className={`bg-gradient-to-br from-teal-50/50 to-card dark:from-teal-950/20 dark:to-card border border-border ${!applicationId ? '-mt-px' : ''}`}>
               <TabsContent value="new" className="mt-0 p-6 sm:p-8">
                 <SimplifiedCustomerForm
                   onSuccess={handleSuccess}
