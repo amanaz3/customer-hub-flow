@@ -233,87 +233,90 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
 
         {/* Live Call Tab */}
         <TabsContent value="call" className="flex-1 m-0 overflow-hidden">
-          <ScrollArea className="h-full">
-            <div className="p-3 space-y-3">
-              {/* Transcript */}
-              <Card className="border border-border/50 shadow-none">
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <MessageSquare className="h-4 w-4 text-primary" />
-                    <span className="text-xs font-medium">Transcript</span>
-                  </div>
+          <div className="h-full flex flex-col">
+            {/* Alerts (if any) */}
+            {displayAlerts.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 px-3 pt-2 pb-1 border-b border-border/30">
+                {displayAlerts.map((alert) => (
+                  <Badge 
+                    key={alert.id}
+                    variant="outline"
+                    className={cn("text-[10px] border", alert.color)}
+                  >
+                    <AlertTriangle className="h-2.5 w-2.5 mr-1" />
+                    {alert.label}
+                  </Badge>
+                ))}
+              </div>
+            )}
+
+            {/* Side by Side Layout */}
+            <div className="flex-1 flex gap-2 p-2 overflow-hidden">
+              {/* Left: Transcript */}
+              <div className="flex-1 flex flex-col min-w-0">
+                <div className="flex items-center gap-2 mb-1.5 px-1">
+                  <MessageSquare className="h-3.5 w-3.5 text-primary" />
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase">Transcript</span>
+                </div>
+                <ScrollArea className="flex-1 border border-border/40 rounded-lg bg-muted/20">
                   <div 
                     ref={scrollRef}
-                    className="h-[180px] overflow-y-auto space-y-2 pr-1"
+                    className="p-2 space-y-1.5"
                   >
                     {transcript.map((line) => (
                       <div 
                         key={line.id} 
                         className={cn(
-                          "text-xs p-2 rounded-lg",
+                          "text-[11px] p-1.5 rounded-md",
                           line.speaker === 'agent' 
-                            ? 'bg-primary/10 ml-4' 
-                            : 'bg-muted mr-4'
+                            ? 'bg-primary/10 ml-3' 
+                            : 'bg-background mr-3 border border-border/30'
                         )}
                       >
-                        <div className="flex items-center gap-1.5 text-muted-foreground mb-0.5">
-                          <Clock className="h-2.5 w-2.5" />
-                          <span className="font-mono text-[10px]">{line.timestamp}</span>
-                          <span className="font-semibold text-[10px]">
+                        <div className="flex items-center gap-1 text-muted-foreground mb-0.5">
+                          <Clock className="h-2 w-2" />
+                          <span className="font-mono text-[9px]">{line.timestamp}</span>
+                          <span className="font-semibold text-[9px]">
                             {line.speaker === 'agent' ? 'You' : 'Customer'}
                           </span>
                         </div>
-                        <p className="text-foreground leading-relaxed">{line.text}</p>
+                        <p className="text-foreground leading-snug">{line.text}</p>
                       </div>
                     ))}
                   </div>
-                </CardContent>
-              </Card>
+                </ScrollArea>
+              </div>
 
-              {/* Alerts (if any) */}
-              {displayAlerts.length > 0 && (
-                <div className="flex flex-wrap gap-1.5">
-                  {displayAlerts.map((alert) => (
-                    <Badge 
-                      key={alert.id}
-                      variant="outline"
-                      className={cn("text-[10px] border", alert.color)}
-                    >
-                      <AlertTriangle className="h-2.5 w-2.5 mr-1" />
-                      {alert.label}
-                    </Badge>
-                  ))}
+              {/* Right: AI Suggestions */}
+              <div className="flex-1 flex flex-col min-w-0">
+                <div className="flex items-center gap-2 mb-1.5 px-1">
+                  <Lightbulb className="h-3.5 w-3.5 text-amber-500" />
+                  <span className="text-[10px] font-semibold text-muted-foreground uppercase">AI Suggestions</span>
+                  {isLoading && useAI && <Loader2 className="h-3 w-3 animate-spin ml-auto" />}
                 </div>
-              )}
-
-              {/* Suggestions */}
-              <Card className="border border-border/50 shadow-none">
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Lightbulb className="h-4 w-4 text-amber-500" />
-                    <span className="text-xs font-medium">Suggested Responses</span>
-                    {isLoading && useAI && <Loader2 className="h-3 w-3 animate-spin ml-auto" />}
-                  </div>
-                  <div className="space-y-1.5">
-                    {displaySuggestions.slice(0, 3).map((reply: string, index: number) => (
-                      <button
-                        key={index}
-                        className="w-full text-left text-xs p-2 rounded-lg border border-border/50 hover:bg-primary/5 hover:border-primary/30 transition-all"
-                        onClick={() => handleReplyClick(reply)}
-                      >
-                        {reply}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  {/* Quick Questions */}
-                  <div className="mt-3 pt-3 border-t border-border/50">
-                    <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Ask Next</span>
-                    <div className="mt-1.5 space-y-1">
+                <ScrollArea className="flex-1 border border-border/40 rounded-lg bg-muted/20">
+                  <div className="p-2 space-y-2">
+                    {/* Suggested Responses */}
+                    <div className="space-y-1">
+                      <span className="text-[9px] text-muted-foreground uppercase tracking-wide px-1">Responses</span>
+                      {displaySuggestions.slice(0, 3).map((reply: string, index: number) => (
+                        <button
+                          key={index}
+                          className="w-full text-left text-[11px] p-1.5 rounded-md border border-border/40 bg-background hover:bg-primary/5 hover:border-primary/30 transition-all"
+                          onClick={() => handleReplyClick(reply)}
+                        >
+                          {reply}
+                        </button>
+                      ))}
+                    </div>
+                    
+                    {/* Quick Questions */}
+                    <div className="pt-2 border-t border-border/30 space-y-1">
+                      <span className="text-[9px] text-muted-foreground uppercase tracking-wide px-1">Ask Next</span>
                       {displayQuestions.slice(0, 2).map((q: string, i: number) => (
                         <button
                           key={i}
-                          className="w-full text-left text-[11px] p-1.5 rounded bg-blue-500/5 text-blue-700 dark:text-blue-400 hover:bg-blue-500/10 transition-all"
+                          className="w-full text-left text-[10px] p-1.5 rounded-md bg-blue-500/10 text-blue-700 dark:text-blue-400 hover:bg-blue-500/15 transition-all"
                           onClick={() => handleReplyClick(q)}
                         >
                           → {q}
@@ -321,10 +324,10 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
                       ))}
                     </div>
                   </div>
-                </CardContent>
-              </Card>
+                </ScrollArea>
+              </div>
             </div>
-          </ScrollArea>
+          </div>
         </TabsContent>
 
         {/* Playbook Tab */}
