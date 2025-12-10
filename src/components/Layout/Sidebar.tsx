@@ -124,7 +124,7 @@ const Sidebar: React.FC = () => {
       name: 'Sandbox',
       path: '/legacy',
       icon: <Clock className="h-5 w-5" />,
-      roles: ['admin', 'user'],
+      roles: ['admin'],
     },
     {
       name: 'DevTools',
