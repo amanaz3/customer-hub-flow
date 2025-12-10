@@ -979,16 +979,94 @@ const PlaybookEditor = () => {
 
                   {/* Pricing Tab */}
                   <TabsContent value="pricing" className="space-y-4">
-                    <h3 className="font-semibold">Pricing Strategies by Segment</h3>
-                    <p className="text-sm text-muted-foreground">Configure pricing rules and discount ranges for different customer segments.</p>
-                    {/* Pricing UI would go here */}
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="font-semibold">Pricing Strategies by Segment</h3>
+                        <p className="text-sm text-muted-foreground">Configure pricing rules and discount ranges for different customer segments.</p>
+                      </div>
+                    </div>
+                    {pricing.length === 0 ? (
+                      <Card className="p-8 text-center text-muted-foreground">
+                        <DollarSign className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p>No pricing strategies configured for this playbook.</p>
+                      </Card>
+                    ) : (
+                      <div className="space-y-3">
+                        {pricing.map((p) => (
+                          <Card key={p.id} className="p-4">
+                            <div className="space-y-4">
+                              <div className="flex items-center justify-between">
+                                <Badge variant="outline" className="capitalize">{p.customer_segment?.replace('_', ' ')}</Badge>
+                                <Badge variant={p.urgency_level === 'high' ? 'destructive' : p.urgency_level === 'medium' ? 'default' : 'secondary'}>
+                                  {p.urgency_level} urgency
+                                </Badge>
+                              </div>
+                              <div className="grid grid-cols-3 gap-4 text-sm">
+                                <div>
+                                  <Label className="text-xs text-muted-foreground">Discount Range</Label>
+                                  <p className="font-medium">{p.discount_range_min}% - {p.discount_range_max}%</p>
+                                </div>
+                                <div>
+                                  <Label className="text-xs text-muted-foreground">Negotiation Floor</Label>
+                                  <p className="font-medium">{p.negotiation_floor}%</p>
+                                </div>
+                              </div>
+                              <div>
+                                <Label className="text-xs text-muted-foreground">Pricing Script</Label>
+                                <p className="text-sm mt-1 bg-muted/50 p-2 rounded">{p.pricing_script}</p>
+                              </div>
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
                   </TabsContent>
 
                   {/* Emotions Tab */}
                   <TabsContent value="emotions" className="space-y-4">
-                    <h3 className="font-semibold">Emotional Response Strategies</h3>
-                    <p className="text-sm text-muted-foreground">Define how to respond when customers display different emotions.</p>
-                    {/* Emotions UI would go here */}
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <h3 className="font-semibold">Emotional Response Strategies</h3>
+                        <p className="text-sm text-muted-foreground">Define how to respond when customers display different emotions.</p>
+                      </div>
+                    </div>
+                    {emotions.length === 0 ? (
+                      <Card className="p-8 text-center text-muted-foreground">
+                        <Heart className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                        <p>No emotional response strategies configured for this playbook.</p>
+                      </Card>
+                    ) : (
+                      <div className="space-y-3">
+                        {emotions.map((e) => (
+                          <Card key={e.id} className="p-4">
+                            <div className="space-y-4">
+                              <div className="flex items-center gap-2">
+                                <Badge variant="outline" className="capitalize">{e.emotion_detected}</Badge>
+                                {e.tone_adjustment && (
+                                  <span className="text-xs text-muted-foreground">• Tone: {e.tone_adjustment}</span>
+                                )}
+                              </div>
+                              <div>
+                                <Label className="text-xs text-muted-foreground">Response Strategy</Label>
+                                <p className="text-sm mt-1">{e.response_strategy}</p>
+                              </div>
+                              {e.suggested_phrases && e.suggested_phrases.length > 0 && (
+                                <div>
+                                  <Label className="text-xs text-muted-foreground">Suggested Phrases</Label>
+                                  <div className="flex flex-wrap gap-2 mt-1">
+                                    {e.suggested_phrases.map((phrase, idx) => (
+                                      <Badge key={idx} variant="secondary" className="text-xs font-normal">
+                                        "{phrase}"
+                                      </Badge>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </div>
+                          </Card>
+                        ))}
+                      </div>
+                    )}
                   </TabsContent>
                 </Tabs>
               </CardContent>
