@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, BookOpen, GitBranch, FileText, ChevronRight } from 'lucide-react';
+import { Loader2, BookOpen, GitBranch, FileText, ChevronRight, Phone, PhoneIncoming, PhoneForwarded, Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 
@@ -34,17 +34,36 @@ interface ScriptNode {
   trigger_condition: string | null;
 }
 
+interface CustomerContext {
+  isNewLead?: boolean;
+  hasActiveApplications?: boolean;
+  hasPreviousCalls?: boolean;
+  productId?: string;
+}
+
 interface PlaybookStageSelectorProps {
   selectedPlaybookId?: string;
   onPlaybookChange?: (playbookId: string) => void;
   onStageChange?: (stageId: string) => void;
+  onCallTypeChange?: (callType: string) => void;
+  customerContext?: CustomerContext;
   compact?: boolean;
 }
+
+type CallType = 'outbound' | 'inbound' | 'follow_up';
+
+const CALL_TYPES: { value: CallType; label: string; icon: React.ElementType; description: string }[] = [
+  { value: 'outbound', label: 'Outbound Sales', icon: Phone, description: 'New prospect or sales call' },
+  { value: 'inbound', label: 'Inbound Support', icon: PhoneIncoming, description: 'Customer support call' },
+  { value: 'follow_up', label: 'Follow-up', icon: PhoneForwarded, description: 'Continuing previous conversation' },
+];
 
 const PlaybookStageSelector: React.FC<PlaybookStageSelectorProps> = ({
   selectedPlaybookId,
   onPlaybookChange,
   onStageChange,
+  onCallTypeChange,
+  customerContext,
   compact = false
 }) => {
   const [playbooks, setPlaybooks] = useState<Playbook[]>([]);
@@ -52,7 +71,29 @@ const PlaybookStageSelector: React.FC<PlaybookStageSelectorProps> = ({
   const [scriptNodes, setScriptNodes] = useState<ScriptNode[]>([]);
   const [activePlaybook, setActivePlaybook] = useState<string>(selectedPlaybookId || '');
   const [activeStage, setActiveStage] = useState<string>('');
+  const [selectedCallType, setSelectedCallType] = useState<CallType>('outbound');
   const [loading, setLoading] = useState(true);
+  const [recommendedPlaybookId, setRecommendedPlaybookId] = useState<string | null>(null);
+  const [recommendedCallType, setRecommendedCallType] = useState<CallType | null>(null);
+
+  // Auto-detect recommended call type based on customer context
+  useEffect(() => {
+    if (!customerContext) return;
+    
+    let detected: CallType = 'outbound';
+    
+    if (customerContext.hasPreviousCalls) {
+      detected = 'follow_up';
+    } else if (customerContext.hasActiveApplications && !customerContext.isNewLead) {
+      detected = 'inbound';
+    } else if (customerContext.isNewLead) {
+      detected = 'outbound';
+    }
+    
+    setRecommendedCallType(detected);
+    setSelectedCallType(detected);
+    onCallTypeChange?.(detected);
+  }, [customerContext]);
 
   // Fetch playbooks
   useEffect(() => {
@@ -65,14 +106,43 @@ const PlaybookStageSelector: React.FC<PlaybookStageSelectorProps> = ({
       
       if (!error && data) {
         setPlaybooks(data);
-        if (!activePlaybook && data.length > 0) {
-          setActivePlaybook(data[0].id);
-        }
       }
       setLoading(false);
     };
     fetchPlaybooks();
   }, []);
+
+  // Filter playbooks by selected call type
+  const filteredPlaybooks = useMemo(() => {
+    return playbooks.filter(pb => pb.call_type === selectedCallType);
+  }, [playbooks, selectedCallType]);
+
+  // Auto-select recommended playbook when call type changes
+  useEffect(() => {
+    if (filteredPlaybooks.length === 0) {
+      setActivePlaybook('');
+      setRecommendedPlaybookId(null);
+      return;
+    }
+
+    // Find best matching playbook
+    let recommended = filteredPlaybooks[0];
+    
+    // If customer has a product, prefer playbook matching that product
+    if (customerContext?.productId) {
+      const productMatch = filteredPlaybooks.find(pb => pb.product_id === customerContext.productId);
+      if (productMatch) {
+        recommended = productMatch;
+      }
+    }
+    
+    setRecommendedPlaybookId(recommended.id);
+    
+    // Only auto-select if no playbook is currently selected or selected one isn't in filtered list
+    if (!activePlaybook || !filteredPlaybooks.find(pb => pb.id === activePlaybook)) {
+      setActivePlaybook(recommended.id);
+    }
+  }, [filteredPlaybooks, customerContext?.productId]);
 
   // Fetch stages when playbook changes
   useEffect(() => {
@@ -115,6 +185,11 @@ const PlaybookStageSelector: React.FC<PlaybookStageSelectorProps> = ({
     onStageChange?.(activeStage);
   }, [activeStage]);
 
+  const handleCallTypeChange = (value: CallType) => {
+    setSelectedCallType(value);
+    onCallTypeChange?.(value);
+  };
+
   const currentStage = stages.find(s => s.id === activeStage);
   const hasDecisionTree = scriptNodes.length > 0;
 
@@ -134,7 +209,7 @@ const PlaybookStageSelector: React.FC<PlaybookStageSelectorProps> = ({
 
     return (
       <div key={node.id} className={cn("relative", depth > 0 && "ml-4 pl-3 border-l-2 border-border/50")}>
-      <div className={cn(
+        <div className={cn(
           "p-2 rounded-lg mb-2 text-sm",
           isRoot && "bg-primary/10 border border-primary/20",
           isQuestion && "bg-blue-500/10 border border-blue-500/20",
@@ -179,24 +254,78 @@ const PlaybookStageSelector: React.FC<PlaybookStageSelectorProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="px-3 pb-3 space-y-3">
+        {/* Call Type Selector */}
+        <div className="space-y-1.5">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+            Call Type
+          </p>
+          <div className="grid grid-cols-3 gap-1.5">
+            {CALL_TYPES.map(({ value, label, icon: Icon }) => {
+              const isSelected = selectedCallType === value;
+              const isRecommended = recommendedCallType === value;
+              
+              return (
+                <button
+                  key={value}
+                  onClick={() => handleCallTypeChange(value)}
+                  className={cn(
+                    "relative flex flex-col items-center gap-1 p-2 rounded-lg border text-xs transition-all",
+                    isSelected 
+                      ? "bg-primary text-primary-foreground border-primary" 
+                      : "bg-background hover:bg-muted border-border"
+                  )}
+                >
+                  {isRecommended && !isSelected && (
+                    <Badge 
+                      className="absolute -top-1.5 -right-1.5 h-4 px-1 text-[8px] bg-amber-500 text-amber-950"
+                    >
+                      <Sparkles className="h-2 w-2 mr-0.5" />
+                      Rec
+                    </Badge>
+                  )}
+                  <Icon className="h-4 w-4" />
+                  <span className="text-[10px] font-medium text-center leading-tight">{label}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
         {/* Playbook Selector */}
-        <Select value={activePlaybook} onValueChange={setActivePlaybook}>
-          <SelectTrigger className="h-8 text-xs">
-            <SelectValue placeholder="Select playbook" />
-          </SelectTrigger>
-          <SelectContent>
-            {playbooks.map(pb => (
-              <SelectItem key={pb.id} value={pb.id} className="text-xs">
-                <div className="flex items-center gap-2">
-                  <span>{pb.name}</span>
-                  <Badge variant="secondary" className="text-[10px] px-1">
-                    {pb.call_type}
-                  </Badge>
-                </div>
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="space-y-1.5">
+          <p className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wide">
+            Playbook
+          </p>
+          {filteredPlaybooks.length === 0 ? (
+            <p className="text-xs text-muted-foreground italic py-2">
+              No playbooks for this call type.
+            </p>
+          ) : (
+            <Select value={activePlaybook} onValueChange={setActivePlaybook}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Select playbook" />
+              </SelectTrigger>
+              <SelectContent>
+                {filteredPlaybooks.map(pb => {
+                  const isRecommended = pb.id === recommendedPlaybookId;
+                  return (
+                    <SelectItem key={pb.id} value={pb.id} className="text-xs">
+                      <div className="flex items-center gap-2">
+                        <span>{pb.name}</span>
+                        {isRecommended && (
+                          <Badge variant="secondary" className="text-[9px] px-1 bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400">
+                            <Sparkles className="h-2 w-2 mr-0.5" />
+                            Recommended
+                          </Badge>
+                        )}
+                      </div>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
+          )}
+        </div>
 
         {/* Stage Tabs */}
         {stages.length > 0 && (
@@ -271,7 +400,7 @@ const PlaybookStageSelector: React.FC<PlaybookStageSelectorProps> = ({
                     </p>
                   </div>
                   
-                  <ScrollArea className={cn(compact ? "h-[150px]" : "h-[200px]")}>
+                  <ScrollArea className={cn(compact ? "h-[120px]" : "h-[160px]")}>
                     {hasDecisionTree ? (
                       <div className="space-y-2 pr-2">
                         {buildTree(scriptNodes, null).map(node => renderNode(node))}
