@@ -514,107 +514,169 @@ const PlaybookEditor = () => {
                   <Lightbulb className="h-5 w-5 text-primary" />
                   <CardTitle className="text-lg">Playbook Guide & Best Practices</CardTitle>
                 </div>
-                <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
               </div>
             </CardHeader>
           </CollapsibleTrigger>
           <CollapsibleContent>
-            <CardContent className="pt-0 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Why 5 Stages */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-primary font-semibold">
-                    <Target className="h-4 w-4" />
-                    Why 5 Stages?
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    The 5-stage structure (Opening → Discovery → Pitch → Negotiation → Closing) mirrors the natural customer journey. 
-                    Each stage has a clear purpose: build rapport, understand needs, present solutions, handle concerns, and secure commitment. 
-                    This structure prevents overwhelming customers and ensures no critical step is skipped.
-                  </p>
-                </div>
+            <CardContent className="pt-0">
+              <Tabs defaultValue="stages" className="w-full">
+                <TabsList className="grid w-full grid-cols-3 mb-4">
+                  <TabsTrigger value="stages" className="text-xs sm:text-sm">
+                    <Target className="h-3 w-3 mr-1" />
+                    Stages
+                  </TabsTrigger>
+                  <TabsTrigger value="assessment" className="text-xs sm:text-sm">
+                    <Heart className="h-3 w-3 mr-1" />
+                    Assessment
+                  </TabsTrigger>
+                  <TabsTrigger value="personality" className="text-xs sm:text-sm">
+                    <Brain className="h-3 w-3 mr-1" />
+                    Personality
+                  </TabsTrigger>
+                </TabsList>
 
-                {/* Stage Skipping */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-primary font-semibold">
-                    <Play className="h-4 w-4" />
-                    When Customer Skips Stages
-                  </div>
-                  <p className="text-sm text-muted-foreground">
-                    If a customer jumps ahead (e.g., asks for pricing during discovery), acknowledge their urgency, provide a brief answer, 
-                    then guide back: "Great question! Before I give you exact pricing, let me understand your needs better so I can recommend 
-                    the best option." Use transition phrases to naturally return to the skipped stage.
-                  </p>
-                </div>
-
-                {/* Pain/Need Assessment */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-primary font-semibold">
-                    <Heart className="h-4 w-4" />
-                    Assessing Pain & Need
-                  </div>
-                  <div className="text-sm text-muted-foreground space-y-1">
-                    <p><strong>Listen for:</strong> Frustration words, urgency indicators, specific problems mentioned.</p>
-                    <p><strong>Ask:</strong> "What prompted you to look into this now?" "What happens if this isn't resolved?"</p>
-                    <p><strong>Quantify:</strong> Time/money lost, compliance risks, missed opportunities.</p>
-                  </div>
-                </div>
-
-                {/* Urgency Assessment */}
-                <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-primary font-semibold">
-                    <Clock className="h-4 w-4" />
-                    Real Need vs Window Shopping
-                  </div>
-                  <div className="text-sm text-muted-foreground space-y-1">
-                    <p><strong>Real Need:</strong> Specific timeline, budget discussed, decision-maker on call, asks detailed questions, mentions competitor quotes.</p>
-                    <p><strong>Window Shopping:</strong> Vague timeline ("someday"), avoids budget talk, "just gathering info", no follow-up questions.</p>
-                    <p><strong>Tip:</strong> Ask "If we find the right solution today, what's your timeline for getting started?"</p>
-                  </div>
-                </div>
-
-                {/* Personality Types */}
-                <div className="space-y-2 md:col-span-2">
-                  <div className="flex items-center gap-2 text-primary font-semibold">
-                    <Brain className="h-4 w-4" />
-                    Personality Types from Transcript
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 text-sm">
-                    <div className="p-3 rounded-lg bg-background/50 border">
-                      <p className="font-medium text-foreground">Analytical</p>
-                      <p className="text-muted-foreground text-xs">Asks for data, comparisons, ROI. Speak with facts, provide documentation, avoid pressure.</p>
+                {/* Stages Tab */}
+                <TabsContent value="stages" className="space-y-4">
+                  <div className="grid gap-4">
+                    <div className="p-4 rounded-lg bg-background/50 border">
+                      <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-full bg-primary/20 text-primary text-xs flex items-center justify-center">1</span>
+                        Why 5 Stages?
+                      </h4>
+                      <div className="text-sm text-muted-foreground space-y-2">
+                        <p>The 5-stage structure mirrors the natural customer journey:</p>
+                        <div className="flex flex-wrap gap-2 mt-2">
+                          <Badge variant="outline">Opening → Build Rapport</Badge>
+                          <Badge variant="outline">Discovery → Understand Needs</Badge>
+                          <Badge variant="outline">Pitch → Present Solutions</Badge>
+                          <Badge variant="outline">Negotiation → Handle Concerns</Badge>
+                          <Badge variant="outline">Closing → Secure Commitment</Badge>
+                        </div>
+                      </div>
                     </div>
-                    <div className="p-3 rounded-lg bg-background/50 border">
-                      <p className="font-medium text-foreground">Driver</p>
-                      <p className="text-muted-foreground text-xs">Results-focused, brief, decisive. Get to the point quickly, focus on outcomes and efficiency.</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-background/50 border">
-                      <p className="font-medium text-foreground">Expressive</p>
-                      <p className="text-muted-foreground text-xs">Enthusiastic, story-driven, relationship-focused. Build rapport, share success stories, show passion.</p>
-                    </div>
-                    <div className="p-3 rounded-lg bg-background/50 border">
-                      <p className="font-medium text-foreground">Amiable</p>
-                      <p className="text-muted-foreground text-xs">Seeks consensus, risk-averse, patient. Provide reassurance, testimonials, low-pressure approach.</p>
+
+                    <div className="p-4 rounded-lg bg-background/50 border">
+                      <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                        <span className="w-6 h-6 rounded-full bg-primary/20 text-primary text-xs flex items-center justify-center">2</span>
+                        When Customer Skips Stages
+                      </h4>
+                      <div className="text-sm text-muted-foreground space-y-2">
+                        <p><strong>Scenario:</strong> Customer asks for pricing during discovery.</p>
+                        <p><strong>Response:</strong> Acknowledge → Brief Answer → Guide Back</p>
+                        <div className="p-3 bg-muted/50 rounded-md italic mt-2">
+                          "Great question! Before I give you exact pricing, let me understand your needs better so I can recommend the best option."
+                        </div>
+                      </div>
                     </div>
                   </div>
-                </div>
+                </TabsContent>
 
-                {/* Detection Tips */}
-                <div className="space-y-2 md:col-span-2">
-                  <div className="flex items-center gap-2 text-primary font-semibold">
-                    <Users className="h-4 w-4" />
-                    Quick Detection Tips
+                {/* Assessment Tab */}
+                <TabsContent value="assessment" className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-4">
+                    <div className="p-4 rounded-lg bg-background/50 border">
+                      <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <Heart className="h-4 w-4 text-primary" />
+                        Assessing Pain & Need
+                      </h4>
+                      <div className="text-sm space-y-3">
+                        <div>
+                          <p className="font-medium text-foreground">Listen for:</p>
+                          <p className="text-muted-foreground">Frustration words, urgency indicators, specific problems</p>
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">Ask:</p>
+                          <ul className="text-muted-foreground list-disc list-inside">
+                            <li>"What prompted you to look into this now?"</li>
+                            <li>"What happens if this isn't resolved?"</li>
+                          </ul>
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">Quantify:</p>
+                          <p className="text-muted-foreground">Time/money lost, compliance risks, missed opportunities</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-background/50 border">
+                      <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <Clock className="h-4 w-4 text-primary" />
+                        Real Need vs Window Shopping
+                      </h4>
+                      <div className="text-sm space-y-3">
+                        <div className="flex gap-2">
+                          <Badge className="bg-green-500/20 text-green-700 border-green-500/30">Real Need</Badge>
+                        </div>
+                        <p className="text-muted-foreground text-xs">Specific timeline, budget discussed, decision-maker on call, detailed questions, competitor quotes</p>
+                        
+                        <div className="flex gap-2">
+                          <Badge className="bg-amber-500/20 text-amber-700 border-amber-500/30">Window Shopping</Badge>
+                        </div>
+                        <p className="text-muted-foreground text-xs">Vague timeline, avoids budget talk, "just gathering info", no follow-up questions</p>
+                        
+                        <div className="p-2 bg-muted/50 rounded-md mt-2">
+                          <p className="text-xs font-medium">Power Question:</p>
+                          <p className="text-xs italic text-muted-foreground">"If we find the right solution today, what's your timeline for getting started?"</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    <ul className="list-disc list-inside space-y-1">
-                      <li><strong>Analytical:</strong> "Can you send me the specifications?" "What's the exact process?"</li>
-                      <li><strong>Driver:</strong> "What's the bottom line?" "How fast can this be done?"</li>
-                      <li><strong>Expressive:</strong> "I'm so excited about this!" Shares personal stories, asks about your experience.</li>
-                      <li><strong>Amiable:</strong> "I need to discuss with my team" "What do other clients say?"</li>
-                    </ul>
+                </TabsContent>
+
+                {/* Personality Tab */}
+                <TabsContent value="personality" className="space-y-4">
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <div className="p-4 rounded-lg border bg-blue-500/5 border-blue-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-600 text-sm font-bold flex items-center justify-center">A</span>
+                        <h4 className="font-semibold text-foreground">Analytical</h4>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-2">Data-driven, detail-oriented, methodical</p>
+                      <div className="text-xs space-y-1">
+                        <p><strong>Signs:</strong> "Can you send specs?" "What's the exact process?"</p>
+                        <p><strong>Approach:</strong> Facts, documentation, no pressure</p>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg border bg-red-500/5 border-red-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="w-8 h-8 rounded-full bg-red-500/20 text-red-600 text-sm font-bold flex items-center justify-center">D</span>
+                        <h4 className="font-semibold text-foreground">Driver</h4>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-2">Results-focused, brief, decisive</p>
+                      <div className="text-xs space-y-1">
+                        <p><strong>Signs:</strong> "What's the bottom line?" "How fast?"</p>
+                        <p><strong>Approach:</strong> Get to point, focus on outcomes</p>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg border bg-yellow-500/5 border-yellow-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="w-8 h-8 rounded-full bg-yellow-500/20 text-yellow-600 text-sm font-bold flex items-center justify-center">E</span>
+                        <h4 className="font-semibold text-foreground">Expressive</h4>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-2">Enthusiastic, story-driven, relationship-focused</p>
+                      <div className="text-xs space-y-1">
+                        <p><strong>Signs:</strong> "I'm so excited!" Shares personal stories</p>
+                        <p><strong>Approach:</strong> Build rapport, share success stories</p>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg border bg-green-500/5 border-green-500/20">
+                      <div className="flex items-center gap-2 mb-2">
+                        <span className="w-8 h-8 rounded-full bg-green-500/20 text-green-600 text-sm font-bold flex items-center justify-center">A</span>
+                        <h4 className="font-semibold text-foreground">Amiable</h4>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-2">Seeks consensus, risk-averse, patient</p>
+                      <div className="text-xs space-y-1">
+                        <p><strong>Signs:</strong> "Need to discuss with team" "What do others say?"</p>
+                        <p><strong>Approach:</strong> Reassurance, testimonials, low-pressure</p>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
+                </TabsContent>
+              </Tabs>
             </CardContent>
           </CollapsibleContent>
         </Card>
