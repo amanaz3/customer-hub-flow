@@ -332,14 +332,14 @@ const PlaybookEditor = () => {
               <div className="space-y-2">
                 <Label>Service/Product</Label>
                 <Select 
-                  value={newPlaybook.product_id}
-                  onValueChange={(v) => setNewPlaybook({ ...newPlaybook, product_id: v })}
+                  value={newPlaybook.product_id || "none"}
+                  onValueChange={(v) => setNewPlaybook({ ...newPlaybook, product_id: v === "none" ? "" : v })}
                 >
                   <SelectTrigger>
                     <SelectValue placeholder="Select a service" />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="">None (Generic)</SelectItem>
+                    <SelectItem value="none">None (Generic)</SelectItem>
                     {products.map(p => (
                       <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                     ))}
