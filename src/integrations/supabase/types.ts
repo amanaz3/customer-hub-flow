@@ -984,6 +984,54 @@ export type Database = {
           },
         ]
       }
+      discovery_questions: {
+        Row: {
+          created_at: string
+          follow_up_based_on: Json | null
+          id: string
+          playbook_id: string
+          priority: number | null
+          question_purpose: string | null
+          question_text: string
+          stage_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          follow_up_based_on?: Json | null
+          id?: string
+          playbook_id: string
+          priority?: number | null
+          question_purpose?: string | null
+          question_text: string
+          stage_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          follow_up_based_on?: Json | null
+          id?: string
+          playbook_id?: string
+          priority?: number | null
+          question_purpose?: string | null
+          question_text?: string
+          stage_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "discovery_questions_playbook_id_fkey"
+            columns: ["playbook_id"]
+            isOneToOne: false
+            referencedRelation: "sales_playbooks"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "discovery_questions_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "playbook_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       documents: {
         Row: {
           category: Database["public"]["Enums"]["document_category"]
@@ -1081,6 +1129,47 @@ export type Database = {
           verified_at?: string | null
         }
         Relationships: []
+      }
+      emotional_responses: {
+        Row: {
+          avoid_actions: string[] | null
+          created_at: string
+          emotion_detected: string
+          id: string
+          playbook_id: string
+          response_strategy: string
+          suggested_phrases: string[] | null
+          tone_adjustment: string | null
+        }
+        Insert: {
+          avoid_actions?: string[] | null
+          created_at?: string
+          emotion_detected: string
+          id?: string
+          playbook_id: string
+          response_strategy: string
+          suggested_phrases?: string[] | null
+          tone_adjustment?: string | null
+        }
+        Update: {
+          avoid_actions?: string[] | null
+          created_at?: string
+          emotion_detected?: string
+          id?: string
+          playbook_id?: string
+          response_strategy?: string
+          suggested_phrases?: string[] | null
+          tone_adjustment?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "emotional_responses_playbook_id_fkey"
+            columns: ["playbook_id"]
+            isOneToOne: false
+            referencedRelation: "sales_playbooks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       feature_flags: {
         Row: {
@@ -1506,6 +1595,50 @@ export type Database = {
           },
         ]
       }
+      objection_handlers: {
+        Row: {
+          created_at: string
+          escalation_threshold: number | null
+          follow_up_question: string | null
+          id: string
+          objection_trigger: string
+          objection_type: string
+          playbook_id: string
+          response_script: string
+          severity: string | null
+        }
+        Insert: {
+          created_at?: string
+          escalation_threshold?: number | null
+          follow_up_question?: string | null
+          id?: string
+          objection_trigger: string
+          objection_type: string
+          playbook_id: string
+          response_script: string
+          severity?: string | null
+        }
+        Update: {
+          created_at?: string
+          escalation_threshold?: number | null
+          follow_up_question?: string | null
+          id?: string
+          objection_trigger?: string
+          objection_type?: string
+          playbook_id?: string
+          response_script?: string
+          severity?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "objection_handlers_playbook_id_fkey"
+            columns: ["playbook_id"]
+            isOneToOne: false
+            referencedRelation: "sales_playbooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       partner_signup_requests: {
         Row: {
           business_description: string | null
@@ -1559,6 +1692,103 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      playbook_stages: {
+        Row: {
+          created_at: string
+          duration_seconds: number | null
+          id: string
+          key_objectives: string[] | null
+          next_stage_conditions: Json | null
+          playbook_id: string
+          stage_name: string
+          stage_order: number
+          stage_type: string
+          success_criteria: string[] | null
+        }
+        Insert: {
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          key_objectives?: string[] | null
+          next_stage_conditions?: Json | null
+          playbook_id: string
+          stage_name: string
+          stage_order: number
+          stage_type: string
+          success_criteria?: string[] | null
+        }
+        Update: {
+          created_at?: string
+          duration_seconds?: number | null
+          id?: string
+          key_objectives?: string[] | null
+          next_stage_conditions?: Json | null
+          playbook_id?: string
+          stage_name?: string
+          stage_order?: number
+          stage_type?: string
+          success_criteria?: string[] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "playbook_stages_playbook_id_fkey"
+            columns: ["playbook_id"]
+            isOneToOne: false
+            referencedRelation: "sales_playbooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      pricing_strategies: {
+        Row: {
+          bundle_suggestions: string[] | null
+          created_at: string
+          customer_segment: string
+          discount_range_max: number | null
+          discount_range_min: number | null
+          id: string
+          negotiation_floor: number | null
+          playbook_id: string
+          pricing_script: string | null
+          upsell_products: string[] | null
+          urgency_level: string | null
+        }
+        Insert: {
+          bundle_suggestions?: string[] | null
+          created_at?: string
+          customer_segment: string
+          discount_range_max?: number | null
+          discount_range_min?: number | null
+          id?: string
+          negotiation_floor?: number | null
+          playbook_id: string
+          pricing_script?: string | null
+          upsell_products?: string[] | null
+          urgency_level?: string | null
+        }
+        Update: {
+          bundle_suggestions?: string[] | null
+          created_at?: string
+          customer_segment?: string
+          discount_range_max?: number | null
+          discount_range_min?: number | null
+          id?: string
+          negotiation_floor?: number | null
+          playbook_id?: string
+          pricing_script?: string | null
+          upsell_products?: string[] | null
+          urgency_level?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pricing_strategies_playbook_id_fkey"
+            columns: ["playbook_id"]
+            isOneToOne: false
+            referencedRelation: "sales_playbooks"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {
@@ -1686,6 +1916,133 @@ export type Database = {
             columns: ["owner_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_call_sessions: {
+        Row: {
+          agent_id: string
+          ai_suggestions_used: number | null
+          call_notes: string | null
+          call_type: string
+          created_at: string
+          current_stage_id: string | null
+          customer_emotion: string | null
+          customer_id: string | null
+          ended_at: string | null
+          id: string
+          objections_raised: Json | null
+          outcome: string | null
+          playbook_id: string | null
+          pricing_offered: number | null
+          started_at: string
+        }
+        Insert: {
+          agent_id: string
+          ai_suggestions_used?: number | null
+          call_notes?: string | null
+          call_type: string
+          created_at?: string
+          current_stage_id?: string | null
+          customer_emotion?: string | null
+          customer_id?: string | null
+          ended_at?: string | null
+          id?: string
+          objections_raised?: Json | null
+          outcome?: string | null
+          playbook_id?: string | null
+          pricing_offered?: number | null
+          started_at?: string
+        }
+        Update: {
+          agent_id?: string
+          ai_suggestions_used?: number | null
+          call_notes?: string | null
+          call_type?: string
+          created_at?: string
+          current_stage_id?: string | null
+          customer_emotion?: string | null
+          customer_id?: string | null
+          ended_at?: string | null
+          id?: string
+          objections_raised?: Json | null
+          outcome?: string | null
+          playbook_id?: string | null
+          pricing_offered?: number | null
+          started_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_call_sessions_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_call_sessions_current_stage_id_fkey"
+            columns: ["current_stage_id"]
+            isOneToOne: false
+            referencedRelation: "playbook_stages"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_call_sessions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "sales_call_sessions_playbook_id_fkey"
+            columns: ["playbook_id"]
+            isOneToOne: false
+            referencedRelation: "sales_playbooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sales_playbooks: {
+        Row: {
+          call_type: string
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          product_id: string | null
+          target_segments: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          call_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          product_id?: string | null
+          target_segments?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          call_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          product_id?: string | null
+          target_segments?: string[] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "sales_playbooks_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
             referencedColumns: ["id"]
           },
         ]
@@ -1901,6 +2258,50 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      stage_scripts: {
+        Row: {
+          avoid_phrases: string[] | null
+          created_at: string
+          customer_segment: string | null
+          id: string
+          key_phrases: string[] | null
+          script_content: string
+          script_type: string
+          stage_id: string
+          tone: string | null
+        }
+        Insert: {
+          avoid_phrases?: string[] | null
+          created_at?: string
+          customer_segment?: string | null
+          id?: string
+          key_phrases?: string[] | null
+          script_content: string
+          script_type: string
+          stage_id: string
+          tone?: string | null
+        }
+        Update: {
+          avoid_phrases?: string[] | null
+          created_at?: string
+          customer_segment?: string | null
+          id?: string
+          key_phrases?: string[] | null
+          script_content?: string
+          script_type?: string
+          stage_id?: string
+          tone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "stage_scripts_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "playbook_stages"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       status_changes: {
         Row: {
