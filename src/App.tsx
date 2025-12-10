@@ -67,6 +67,7 @@ import CustomerSegments from '@/pages/CustomerSegments';
 import RFMAnalysis from '@/pages/RFMAnalysis';
 import CustomerClassification from '@/pages/CustomerClassification';
 import Legacy from '@/pages/Legacy';
+import LegacyDashboard from '@/pages/LegacyDashboard';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -426,6 +427,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Legacy">
                           <Legacy />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/legacy/dashboard" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Legacy Dashboard">
+                          <LegacyDashboard />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
