@@ -591,26 +591,16 @@ const PlaybookEditor = () => {
                             <div className="grid grid-cols-3 gap-4">
                               <div className="space-y-2">
                                 <Label className="text-xs">Type</Label>
-                                <Select
-                                  value={obj.objection_type}
-                                  onValueChange={(v) => {
+                                <Input
+                                  value={obj.objection_type || ''}
+                                  onChange={(e) => {
                                     const updated = objections.map(o => 
-                                      o.id === obj.id ? { ...o, objection_type: v } : o
+                                      o.id === obj.id ? { ...o, objection_type: e.target.value } : o
                                     );
                                     setObjections(updated);
                                   }}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="pricing">Pricing</SelectItem>
-                                    <SelectItem value="timing">Timing</SelectItem>
-                                    <SelectItem value="competitor">Competitor</SelectItem>
-                                    <SelectItem value="trust">Trust</SelectItem>
-                                    <SelectItem value="need">Need</SelectItem>
-                                  </SelectContent>
-                                </Select>
+                                  placeholder="e.g., Price, Timing, Competitor"
+                                />
                               </div>
                               <div className="space-y-2">
                                 <Label className="text-xs">Trigger Phrase</Label>
@@ -707,26 +697,16 @@ const PlaybookEditor = () => {
                               </div>
                               <div className="space-y-2">
                                 <Label className="text-xs">Purpose</Label>
-                                <Select
-                                  value={q.question_purpose}
-                                  onValueChange={(v) => {
+                                <Input
+                                  value={q.question_purpose || ''}
+                                  onChange={(e) => {
                                     const updated = questions.map(qu => 
-                                      qu.id === q.id ? { ...qu, question_purpose: v } : qu
+                                      qu.id === q.id ? { ...qu, question_purpose: e.target.value } : qu
                                     );
                                     setQuestions(updated);
                                   }}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="budget">Budget</SelectItem>
-                                    <SelectItem value="timeline">Timeline</SelectItem>
-                                    <SelectItem value="decision_maker">Decision Maker</SelectItem>
-                                    <SelectItem value="pain_point">Pain Point</SelectItem>
-                                    <SelectItem value="competitor">Competitor</SelectItem>
-                                  </SelectContent>
-                                </Select>
+                                  placeholder="e.g., Identify pain points"
+                                />
                               </div>
                             </div>
                             <div className="flex gap-2">
