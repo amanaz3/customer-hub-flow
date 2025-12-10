@@ -1,21 +1,23 @@
 import React, { useRef, useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   MessageSquare, 
   Lightbulb, 
-  HelpCircle, 
   AlertTriangle, 
   FileText,
   Save,
   Clock,
   Loader2,
   Sparkles,
-  Settings
+  Settings,
+  BookOpen,
+  Phone
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSalesAssistant } from '@/hooks/useSalesAssistant';
@@ -55,14 +57,12 @@ const mockSuggestedReplies = [
 
 const mockSuggestedQuestions = [
   "Would you like to know the estimated completion time?",
-  "Do you have any questions about the required documents?",
-  "Should I explain our service fees?"
+  "Do you have any questions about the required documents?"
 ];
 
 const mockAlerts = [
   { id: '1', type: 'objection', label: 'Pricing Objection', color: 'bg-amber-500/20 text-amber-700 border-amber-500/30' },
   { id: '2', type: 'compliance', label: 'ID Verification Pending', color: 'bg-blue-500/20 text-blue-700 border-blue-500/30' },
-  { id: '3', type: 'alert', label: 'Compliance Alert', color: 'bg-red-500/20 text-red-700 border-red-500/30' },
 ];
 
 const mockCallSummary = "Customer inquired about their bank account application (CUST-2025-00145). Discussed required documents including Emirates ID and proof of address. Customer expressed concern about processing time. Recommended expedited processing option.";
@@ -82,13 +82,12 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
   const [callSummary, setCallSummary] = useState<string | null>(null);
   const [activePlaybookId, setActivePlaybookId] = useState<string | undefined>(playbookId);
   const [activeStageId, setActiveStageId] = useState<string | undefined>();
+  const [activeTab, setActiveTab] = useState('call');
   
   const {
     isLoading,
     suggestions,
     getSuggestions,
-    handleObjection,
-    getPricing,
     analyzeCall
   } = useSalesAssistant({ customerId });
 
@@ -116,6 +115,7 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
     const result = await analyzeCall(transcriptTexts);
     if (result?.summary) {
       setCallSummary(result.summary);
+      setActiveTab('summary');
     }
   };
 
@@ -155,226 +155,224 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
   return (
     <div className={cn(
       "bg-card flex flex-col h-full overflow-hidden",
-      fullWidth ? "w-full" : "w-[350px] flex-shrink-0 border-l border-border"
+      fullWidth ? "w-full" : "w-[380px] flex-shrink-0 border-l border-border"
     )}>
-      {/* Header */}
-      <div className="p-4 border-b border-border bg-primary/5">
+      {/* Compact Header */}
+      <div className="p-3 border-b border-border bg-primary/5">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-primary" />
-            Live Call Assistant
-          </h2>
-          {isAdmin && (
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => navigate('/playbook-editor')}
-              title="Configure Playbooks"
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
-          )}
-        </div>
-        <div className="flex items-center justify-between mt-2">
-          <p className="text-sm text-muted-foreground">
-            {useAI ? 'AI-powered support' : 'Demo mode'}
-          </p>
           <div className="flex items-center gap-2">
-            <Label htmlFor="ai-mode" className="text-xs text-muted-foreground">
-              {useAI ? <Sparkles className="h-3 w-3 text-primary" /> : 'Mock'}
-            </Label>
-            <Switch
-              id="ai-mode"
-              checked={useAI}
-              onCheckedChange={setUseAI}
-              className="scale-75"
-            />
-            <Label htmlFor="ai-mode" className="text-xs text-muted-foreground">AI</Label>
+            <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+            <h2 className="text-base font-semibold">Live Assistant</h2>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5 bg-muted/50 rounded-full px-2 py-1">
+              <span className="text-[10px] text-muted-foreground">
+                {useAI ? 'AI' : 'Demo'}
+              </span>
+              <Switch
+                id="ai-mode"
+                checked={useAI}
+                onCheckedChange={setUseAI}
+                className="scale-[0.6]"
+              />
+            </div>
+            {isAdmin && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-7 w-7"
+                onClick={() => navigate('/playbook-editor')}
+                title="Configure Playbooks"
+              >
+                <Settings className="h-3.5 w-3.5" />
+              </Button>
+            )}
           </div>
         </div>
       </div>
 
-      <ScrollArea className="flex-1">
-        <div className={cn(
-          "p-4",
-          fullWidth ? "grid grid-cols-2 gap-4" : "space-y-4"
-        )}>
-          {/* Live Transcript Section */}
-          <Card className={cn(
-            "border-0 shadow-sm bg-muted/30",
-            fullWidth && "col-span-1 row-span-2"
-          )}>
-            <CardHeader className="pb-2 pt-3 px-3">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <MessageSquare className="h-4 w-4 text-primary" />
-                Live Transcript
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="px-3 pb-3">
-              <div 
-                ref={scrollRef}
-                className={cn(
-                  "overflow-y-auto space-y-2 pr-2",
-                  fullWidth ? "h-[450px]" : "h-[150px]"
-                )}
-              >
-                {transcript.map((line) => (
-                  <div 
-                    key={line.id} 
-                    className={cn(
-                      "text-sm p-3 rounded-lg",
-                      line.speaker === 'agent' 
-                        ? 'bg-primary/10 ml-2' 
-                        : 'bg-secondary/50 mr-2'
-                    )}
-                  >
-                    <div className="flex items-center gap-2 text-muted-foreground mb-1">
-                      <Clock className="h-3 w-3" />
-                      <span className="font-mono text-xs">{line.timestamp}</span>
-                      <span className="capitalize font-semibold text-xs">
-                        {line.speaker === 'agent' ? 'You' : 'Customer'}
-                      </span>
-                    </div>
-                    <p className="text-foreground">{line.text}</p>
+      {/* Main Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 flex flex-col overflow-hidden">
+        <TabsList className="w-full justify-start h-10 bg-muted/30 border-b border-border rounded-none px-2 gap-1 shrink-0">
+          <TabsTrigger 
+            value="call" 
+            className="text-xs gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
+            <Phone className="h-3.5 w-3.5" />
+            Live Call
+          </TabsTrigger>
+          <TabsTrigger 
+            value="playbook" 
+            className="text-xs gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
+            <BookOpen className="h-3.5 w-3.5" />
+            Playbook
+          </TabsTrigger>
+          <TabsTrigger 
+            value="summary" 
+            className="text-xs gap-1.5 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+          >
+            <FileText className="h-3.5 w-3.5" />
+            Summary
+          </TabsTrigger>
+        </TabsList>
+
+        {/* Live Call Tab */}
+        <TabsContent value="call" className="flex-1 m-0 overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="p-3 space-y-3">
+              {/* Transcript */}
+              <Card className="border border-border/50 shadow-none">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <MessageSquare className="h-4 w-4 text-primary" />
+                    <span className="text-xs font-medium">Transcript</span>
                   </div>
-                ))}
-                {/* Live indicator */}
-                <div className="flex items-center gap-2 text-xs text-muted-foreground pt-2">
-                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
-                  Listening...
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Right Column Container for full width */}
-          <div className={cn(fullWidth ? "space-y-4" : "contents")}>
-            {/* Playbook Guide Section */}
-            <PlaybookStageSelector
-              selectedPlaybookId={activePlaybookId}
-              onPlaybookChange={setActivePlaybookId}
-              onStageChange={setActiveStageId}
-              compact={!fullWidth}
-            />
-
-            {/* Suggested Replies Section */}
-            <Card className="border-0 shadow-sm bg-muted/30">
-              <CardHeader className="pb-2 pt-3 px-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <Lightbulb className="h-4 w-4 text-amber-500" />
-                  Suggested Replies
-                  {isLoading && useAI && <Loader2 className="h-3 w-3 animate-spin" />}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-3 pb-3 space-y-2">
-                {displaySuggestions.map((reply: string, index: number) => (
-                  <Button
-                    key={index}
-                    variant="outline"
-                    size="sm"
-                    className={cn(
-                      "w-full h-auto py-2 px-3 text-left justify-start whitespace-normal hover:bg-primary/10 hover:border-primary/50 transition-all",
-                      fullWidth ? "text-sm" : "text-xs"
-                    )}
-                    onClick={() => handleReplyClick(reply)}
+                  <div 
+                    ref={scrollRef}
+                    className="h-[180px] overflow-y-auto space-y-2 pr-1"
                   >
-                    {reply}
-                  </Button>
-                ))}
-              </CardContent>
-            </Card>
+                    {transcript.map((line) => (
+                      <div 
+                        key={line.id} 
+                        className={cn(
+                          "text-xs p-2 rounded-lg",
+                          line.speaker === 'agent' 
+                            ? 'bg-primary/10 ml-4' 
+                            : 'bg-muted mr-4'
+                        )}
+                      >
+                        <div className="flex items-center gap-1.5 text-muted-foreground mb-0.5">
+                          <Clock className="h-2.5 w-2.5" />
+                          <span className="font-mono text-[10px]">{line.timestamp}</span>
+                          <span className="font-semibold text-[10px]">
+                            {line.speaker === 'agent' ? 'You' : 'Customer'}
+                          </span>
+                        </div>
+                        <p className="text-foreground leading-relaxed">{line.text}</p>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
 
-            {/* Next Suggested Questions Section */}
-            <Card className="border-0 shadow-sm bg-muted/30">
-              <CardHeader className="pb-2 pt-3 px-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <HelpCircle className="h-4 w-4 text-blue-500" />
-                  Next Suggested Questions
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-3 pb-3">
-                <ul className="space-y-2">
-                  {displayQuestions.map((question: string, index: number) => (
-                    <li 
-                      key={index}
-                      className={cn(
-                        "p-2 rounded-lg bg-blue-500/10 border border-blue-500/20 text-foreground cursor-pointer hover:bg-blue-500/20 transition-colors",
-                        fullWidth ? "text-sm" : "text-xs"
-                      )}
-                      onClick={() => handleReplyClick(question)}
-                    >
-                      {question}
-                    </li>
-                  ))}
-                </ul>
-              </CardContent>
-            </Card>
-
-            {/* Objections & Compliance Alerts Section */}
-            <Card className="border-0 shadow-sm bg-muted/30">
-              <CardHeader className="pb-2 pt-3 px-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4 text-red-500" />
-                  Objections & Alerts
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-3 pb-3">
-                <div className="flex flex-wrap gap-2">
+              {/* Alerts (if any) */}
+              {displayAlerts.length > 0 && (
+                <div className="flex flex-wrap gap-1.5">
                   {displayAlerts.map((alert) => (
                     <Badge 
                       key={alert.id}
                       variant="outline"
-                      className={cn("border", alert.color, fullWidth ? "text-sm py-1 px-3" : "text-xs")}
+                      className={cn("text-[10px] border", alert.color)}
                     >
+                      <AlertTriangle className="h-2.5 w-2.5 mr-1" />
                       {alert.label}
                     </Badge>
                   ))}
                 </div>
-              </CardContent>
-            </Card>
+              )}
 
-            {/* Call Summary Section */}
-            <Card className="border-0 shadow-sm bg-muted/30">
-              <CardHeader className="pb-2 pt-3 px-3">
-                <CardTitle className="text-sm font-medium flex items-center gap-2">
-                  <FileText className="h-4 w-4 text-green-500" />
-                  Call Summary
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="px-3 pb-3 space-y-3">
-                <p className={cn(
-                  "text-muted-foreground leading-relaxed bg-muted/50 rounded-lg p-3",
-                  fullWidth ? "text-sm" : "text-xs"
-                )}>
-                  {displaySummary}
-                </p>
-                <div className="flex gap-2">
-                  {useAI && (
-                    <Button 
-                      variant="outline"
-                      size={fullWidth ? "default" : "sm"}
-                      className="flex-1"
-                      onClick={handleAnalyzeCall}
-                      disabled={isLoading}
-                    >
-                      {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Sparkles className="h-4 w-4 mr-2" />}
-                      Analyze
-                    </Button>
-                  )}
+              {/* Suggestions */}
+              <Card className="border border-border/50 shadow-none">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Lightbulb className="h-4 w-4 text-amber-500" />
+                    <span className="text-xs font-medium">Suggested Responses</span>
+                    {isLoading && useAI && <Loader2 className="h-3 w-3 animate-spin ml-auto" />}
+                  </div>
+                  <div className="space-y-1.5">
+                    {displaySuggestions.slice(0, 3).map((reply: string, index: number) => (
+                      <button
+                        key={index}
+                        className="w-full text-left text-xs p-2 rounded-lg border border-border/50 hover:bg-primary/5 hover:border-primary/30 transition-all"
+                        onClick={() => handleReplyClick(reply)}
+                      >
+                        {reply}
+                      </button>
+                    ))}
+                  </div>
+                  
+                  {/* Quick Questions */}
+                  <div className="mt-3 pt-3 border-t border-border/50">
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wide">Ask Next</span>
+                    <div className="mt-1.5 space-y-1">
+                      {displayQuestions.slice(0, 2).map((q: string, i: number) => (
+                        <button
+                          key={i}
+                          className="w-full text-left text-[11px] p-1.5 rounded bg-blue-500/5 text-blue-700 dark:text-blue-400 hover:bg-blue-500/10 transition-all"
+                          onClick={() => handleReplyClick(q)}
+                        >
+                          → {q}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        {/* Playbook Tab */}
+        <TabsContent value="playbook" className="flex-1 m-0 overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="p-3">
+              <PlaybookStageSelector
+                selectedPlaybookId={activePlaybookId}
+                onPlaybookChange={setActivePlaybookId}
+                onStageChange={setActiveStageId}
+                compact={false}
+              />
+            </div>
+          </ScrollArea>
+        </TabsContent>
+
+        {/* Summary Tab */}
+        <TabsContent value="summary" className="flex-1 m-0 overflow-hidden">
+          <ScrollArea className="h-full">
+            <div className="p-3 space-y-3">
+              <Card className="border border-border/50 shadow-none">
+                <CardContent className="p-3">
+                  <div className="flex items-center gap-2 mb-3">
+                    <FileText className="h-4 w-4 text-green-500" />
+                    <span className="text-xs font-medium">Call Summary</span>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed bg-muted/30 rounded-lg p-3">
+                    {displaySummary}
+                  </p>
+                </CardContent>
+              </Card>
+
+              <div className="flex gap-2">
+                {useAI && (
                   <Button 
-                    size={fullWidth ? "default" : "sm"}
-                    className="flex-1"
-                    onClick={onSaveToCRM}
+                    variant="outline"
+                    size="sm"
+                    className="flex-1 text-xs"
+                    onClick={handleAnalyzeCall}
+                    disabled={isLoading}
                   >
-                    <Save className="h-4 w-4 mr-2" />
-                    Save to CRM
+                    {isLoading ? (
+                      <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                    ) : (
+                      <Sparkles className="h-3.5 w-3.5 mr-1.5" />
+                    )}
+                    Analyze Call
                   </Button>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </ScrollArea>
+                )}
+                <Button 
+                  size="sm"
+                  className="flex-1 text-xs"
+                  onClick={onSaveToCRM}
+                >
+                  <Save className="h-3.5 w-3.5 mr-1.5" />
+                  Save to CRM
+                </Button>
+              </div>
+            </div>
+          </ScrollArea>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
