@@ -45,6 +45,8 @@ interface PlaybookStage {
   duration_seconds: number;
   key_objectives: string[];
   success_criteria: string[];
+  script: string | null;
+  opening_lines: string[] | null;
 }
 
 interface ObjectionHandler {
@@ -536,6 +538,22 @@ const PlaybookEditor = () => {
                               </div>
                             </div>
                             
+                            {/* Script / Talking Points */}
+                            <div className="pl-10 space-y-2">
+                              <Label className="text-xs">Script / Talking Points</Label>
+                              <Textarea
+                                className="min-h-[100px] text-sm"
+                                value={stage.script || ''}
+                                onChange={(e) => {
+                                  const updated = stages.map(s => 
+                                    s.id === stage.id ? { ...s, script: e.target.value } : s
+                                  );
+                                  setStages(updated);
+                                }}
+                                placeholder="Enter the script or talking points for this stage..."
+                              />
+                            </div>
+
                             {/* Key Objectives & Success Criteria */}
                             <div className="grid grid-cols-2 gap-4 pl-10">
                               <div className="space-y-2">

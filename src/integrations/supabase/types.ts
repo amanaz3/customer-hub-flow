@@ -1700,7 +1700,9 @@ export type Database = {
           id: string
           key_objectives: string[] | null
           next_stage_conditions: Json | null
+          opening_lines: string[] | null
           playbook_id: string
+          script: string | null
           stage_name: string
           stage_order: number
           stage_type: string
@@ -1712,7 +1714,9 @@ export type Database = {
           id?: string
           key_objectives?: string[] | null
           next_stage_conditions?: Json | null
+          opening_lines?: string[] | null
           playbook_id: string
+          script?: string | null
           stage_name: string
           stage_order: number
           stage_type: string
@@ -1724,7 +1728,9 @@ export type Database = {
           id?: string
           key_objectives?: string[] | null
           next_stage_conditions?: Json | null
+          opening_lines?: string[] | null
           playbook_id?: string
+          script?: string | null
           stage_name?: string
           stage_order?: number
           stage_type?: string
