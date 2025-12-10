@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { LayoutDashboard, ChevronRight, Activity } from 'lucide-react';
+import { LayoutDashboard, ChevronRight, Activity, ListChecks } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -38,6 +38,29 @@ const Legacy = () => {
           <CardContent>
             <p className="text-sm text-muted-foreground">
               Track applications by stage, team, pipeline, and monitor progress
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Track Tasks Card */}
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
+          onClick={() => navigate('/team')}
+        >
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-primary/10">
+                  <ListChecks className="h-5 w-5 text-primary" />
+                </div>
+                <span>Track Tasks</span>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              Manage and track team tasks, cycles, and projects
             </p>
           </CardContent>
         </Card>

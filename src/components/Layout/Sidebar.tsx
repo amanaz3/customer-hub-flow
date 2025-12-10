@@ -29,7 +29,6 @@ import {
   UsersRound,
   Wrench,
   Layout,
-  ListChecks,
   Layers,
   UserCheck,
   Clock,
@@ -113,12 +112,6 @@ const Sidebar: React.FC = () => {
       name: 'Target Management',
       path: '/targets',
       icon: <Target className="h-5 w-5" />,
-      roles: ['admin'],
-    },
-    {
-      name: 'Track Tasks',
-      path: '/team',
-      icon: <ListChecks className="h-5 w-5" />,
       roles: ['admin'],
     },
     {
