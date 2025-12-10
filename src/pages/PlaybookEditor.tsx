@@ -1206,10 +1206,6 @@ const PlaybookEditor = () => {
                       <Play className="h-4 w-4" />
                       Stages
                     </TabsTrigger>
-                    <TabsTrigger value="objections" className="flex items-center gap-2">
-                      <AlertTriangle className="h-4 w-4" />
-                      Objections
-                    </TabsTrigger>
                     <TabsTrigger value="questions" className="flex items-center gap-2">
                       <HelpCircle className="h-4 w-4" />
                       Questions
@@ -1217,6 +1213,10 @@ const PlaybookEditor = () => {
                     <TabsTrigger value="pricing" className="flex items-center gap-2">
                       <DollarSign className="h-4 w-4" />
                       Pricing
+                    </TabsTrigger>
+                    <TabsTrigger value="objections" className="flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4" />
+                      Objections
                     </TabsTrigger>
                     <TabsTrigger value="emotions" className="flex items-center gap-2">
                       <Heart className="h-4 w-4" />
