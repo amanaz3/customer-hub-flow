@@ -538,6 +538,23 @@ const PlaybookEditor = () => {
                               </div>
                             </div>
                             
+                            {/* Opening Lines */}
+                            <div className="pl-10 space-y-2">
+                              <Label className="text-xs">Opening Lines (one per line)</Label>
+                              <Textarea
+                                className="min-h-[60px] text-sm"
+                                value={Array.isArray(stage.opening_lines) ? stage.opening_lines.join('\n') : ''}
+                                onChange={(e) => {
+                                  const lines = e.target.value.split('\n').filter(line => line.trim());
+                                  const updated = stages.map(s => 
+                                    s.id === stage.id ? { ...s, opening_lines: lines } : s
+                                  );
+                                  setStages(updated);
+                                }}
+                                placeholder="Enter suggested opening phrases for this stage..."
+                              />
+                            </div>
+
                             {/* Script / Talking Points */}
                             <div className="pl-10 space-y-2">
                               <Label className="text-xs">Script / Talking Points</Label>
