@@ -9,6 +9,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { formatCustomerReferenceWithPrefix } from '@/utils/referenceNumberFormatter';
+import LiveAssistantPanel from '@/components/LiveAssistant/LiveAssistantPanel';
 
 interface CustomerWithStats {
   id: string;
@@ -108,111 +109,134 @@ const LiveAssistant = () => {
     [customers]
   );
 
+  const handleReplySelected = (text: string) => {
+    toast({
+      title: "Reply Selected",
+      description: text,
+    });
+  };
+
+  const handleSaveToCRM = () => {
+    toast({
+      title: "Saved to CRM",
+      description: "Call summary has been saved successfully.",
+    });
+  };
+
   if (loading) {
     return <div className="p-8 text-center">Loading customers...</div>;
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-        <div>
-          <h1 className="text-3xl font-bold">
-            {isAdmin ? 'All Customers' : 'My Customers'}
-          </h1>
-          <p className="text-muted-foreground">
-            {isAdmin 
-              ? 'Manage all customer companies' 
-              : 'View and manage your customers'
-            }
-          </p>
+    <div className="flex h-[calc(100vh-4rem)]">
+      {/* Main Content - Customer List */}
+      <div className="flex-1 overflow-auto p-6 space-y-6">
+        <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+          <div>
+            <h1 className="text-3xl font-bold">
+              {isAdmin ? 'All Customers' : 'My Customers'}
+            </h1>
+            <p className="text-muted-foreground">
+              {isAdmin 
+                ? 'Manage all customer companies' 
+                : 'View and manage your customers'
+              }
+            </p>
+          </div>
         </div>
-      </div>
 
-      <Input
-        placeholder="Search by company, name, or email..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="md:max-w-sm"
-      />
+        <Input
+          placeholder="Search by company, name, or email..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="md:max-w-sm"
+        />
 
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Building2 className="h-5 w-5" />
-            Customers ({filteredCustomers.length})
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Reference</TableHead>
-                <TableHead>Company</TableHead>
-                <TableHead>Contact Person</TableHead>
-                <TableHead>Email</TableHead>
-                <TableHead>Phone</TableHead>
-                <TableHead># Applications</TableHead>
-                <TableHead>Last Activity</TableHead>
-                <TableHead>Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredCustomers.length === 0 ? (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Building2 className="h-5 w-5" />
+              Customers ({filteredCustomers.length})
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <Table>
+              <TableHeader>
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                    No customers found
-                  </TableCell>
+                  <TableHead>Reference</TableHead>
+                  <TableHead>Company</TableHead>
+                  <TableHead>Contact Person</TableHead>
+                  <TableHead>Email</TableHead>
+                  <TableHead>Phone</TableHead>
+                  <TableHead># Applications</TableHead>
+                  <TableHead>Last Activity</TableHead>
+                  <TableHead>Actions</TableHead>
                 </TableRow>
-              ) : (
-                filteredCustomers.map((customer) => (
-                  <TableRow key={customer.id}>
-                    <TableCell className="font-mono font-bold text-sm text-primary">
-                      {formatCustomerReferenceWithPrefix(customer.reference_number, maxReferenceNumber, customer.created_at)}
-                    </TableCell>
-                    <TableCell className="font-medium">
-                      <div className="flex items-center gap-2">
-                        <Building2 className="h-4 w-4 text-muted-foreground" />
-                        {customer.company}
-                      </div>
-                    </TableCell>
-                    <TableCell>{customer.name}</TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Mail className="h-3 w-3 text-muted-foreground" />
-                        {customer.email}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <Phone className="h-3 w-3 text-muted-foreground" />
-                        {customer.mobile}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex items-center gap-2">
-                        <FileText className="h-4 w-4 text-muted-foreground" />
-                        {customer.application_count}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {new Date(customer.last_activity).toLocaleDateString()}
-                    </TableCell>
-                    <TableCell>
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => navigate(`/customers/${customer.id}`)}
-                      >
-                        View Details
-                      </Button>
+              </TableHeader>
+              <TableBody>
+                {filteredCustomers.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
+                      No customers found
                     </TableCell>
                   </TableRow>
-                ))
-              )}
-            </TableBody>
-          </Table>
-        </CardContent>
-      </Card>
+                ) : (
+                  filteredCustomers.map((customer) => (
+                    <TableRow key={customer.id}>
+                      <TableCell className="font-mono font-bold text-sm text-primary">
+                        {formatCustomerReferenceWithPrefix(customer.reference_number, maxReferenceNumber, customer.created_at)}
+                      </TableCell>
+                      <TableCell className="font-medium">
+                        <div className="flex items-center gap-2">
+                          <Building2 className="h-4 w-4 text-muted-foreground" />
+                          {customer.company}
+                        </div>
+                      </TableCell>
+                      <TableCell>{customer.name}</TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Mail className="h-3 w-3 text-muted-foreground" />
+                          {customer.email}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <Phone className="h-3 w-3 text-muted-foreground" />
+                          {customer.mobile}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <FileText className="h-4 w-4 text-muted-foreground" />
+                          {customer.application_count}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {new Date(customer.last_activity).toLocaleDateString()}
+                      </TableCell>
+                      <TableCell>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => navigate(`/customers/${customer.id}`)}
+                        >
+                          View Details
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Right Panel - Live Assistant */}
+      <LiveAssistantPanel 
+        onReplySelected={handleReplySelected}
+        onSaveToCRM={handleSaveToCRM}
+      />
     </div>
   );
 };
