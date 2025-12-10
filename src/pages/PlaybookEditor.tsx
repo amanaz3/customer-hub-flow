@@ -13,6 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import DecisionTreeVisualizer from '@/components/Playbook/DecisionTreeVisualizer';
 import { 
   Plus, 
   Save, 
@@ -776,42 +777,15 @@ const PlaybookEditor = () => {
                                   placeholder="Enter the script or talking points for this stage..."
                                 />
                               ) : (
-                                <div className="border rounded-lg p-3 bg-muted/30 space-y-3">
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-xs text-muted-foreground font-medium">Decision Tree Nodes</span>
-                                    <Button 
-                                      size="sm" 
-                                      variant="outline"
-                                      onClick={() => handleAddScriptNode(stage.id, null)}
-                                    >
-                                      <Plus className="h-3 w-3 mr-1" />
-                                      Add Root Node
-                                    </Button>
-                                  </div>
-                                  
-                                  {(scriptNodes[stage.id] || []).length === 0 ? (
-                                    <div className="text-center py-4 text-muted-foreground text-sm">
-                                      No nodes yet. Add a root node to start the decision tree.
-                                    </div>
-                                  ) : (
-                                    <div className="space-y-2">
-                                      {(scriptNodes[stage.id] || [])
-                                        .filter(n => !n.parent_id)
-                                        .map(rootNode => (
-                                          <ScriptNodeEditor
-                                            key={rootNode.id}
-                                            node={rootNode}
-                                            allNodes={scriptNodes[stage.id] || []}
-                                            stageId={stage.id}
-                                            onUpdate={updateScriptNode}
-                                            onSave={handleSaveScriptNode}
-                                            onDelete={handleDeleteScriptNode}
-                                            onAddChild={handleAddScriptNode}
-                                            level={0}
-                                          />
-                                        ))}
-                                    </div>
-                                  )}
+                                <div className="border rounded-lg p-4 bg-muted/20">
+                                  <DecisionTreeVisualizer
+                                    nodes={scriptNodes[stage.id] || []}
+                                    stageId={stage.id}
+                                    onUpdate={updateScriptNode}
+                                    onSave={handleSaveScriptNode}
+                                    onDelete={handleDeleteScriptNode}
+                                    onAddChild={handleAddScriptNode}
+                                  />
                                 </div>
                               )}
                             </div>
