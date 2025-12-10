@@ -1,0 +1,483 @@
+
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import DashboardStats from '@/components/Dashboard/DashboardStats';
+import DashboardFilters from '@/components/Dashboard/DashboardFilters';
+import EmptyDashboardState from '@/components/Dashboard/EmptyDashboardState';
+import DashboardHeader from '@/components/Dashboard/DashboardHeader';
+import { MonthComparisonWidget } from '@/components/Dashboard/MonthComparisonWidget';
+import { TrendChart } from '@/components/Dashboard/TrendChart';
+import { ForecastWidget } from '@/components/Dashboard/ForecastWidget';
+import { InsightsBanner } from '@/components/Dashboard/InsightsBanner';
+import { useOptimizedCustomerData } from '@/hooks/useOptimizedCustomerData';
+import { useDashboardFilters } from '@/hooks/useDashboardFilters';
+import { useMonthComparison } from '@/hooks/useMonthComparison';
+import { useMonthlyTargets } from '@/hooks/useMonthlyTargets';
+import { useForecast } from '@/hooks/useForecast';
+import { useAuth } from '@/contexts/SecureAuthContext';
+import { supabase } from '@/lib/supabase';
+import { Calendar, X, CheckCircle, Clock, DollarSign, Users, ArrowLeft } from 'lucide-react';
+import { format } from 'date-fns';
+import { useNavigate } from 'react-router-dom';
+import { cn } from '@/lib/utils';
+import { LazyLoadingBoundary } from '@/components/Performance/LazyLoadingBoundary';
+
+const EnhancedCustomerTable = React.lazy(() => import('@/components/Customer/EnhancedCustomerTable'));
+
+const LegacyDashboard = () => {
+  const { user, isAdmin } = useAuth();
+  const navigate = useNavigate();
+  
+  const [activeWidget, setActiveWidget] = useState<'applications' | 'completed' | 'pending' | 'revenue'>('applications');
+  const [revenueSelectedMonths, setRevenueSelectedMonths] = useState<string[]>([]);
+  
+  const revenueFilterOptions = useMemo(() => {
+    if (isAdmin) {
+      return revenueSelectedMonths.length > 0 
+        ? { revenueMonthKeys: revenueSelectedMonths }
+        : undefined;
+    } else {
+      return { revenueCurrentMonthOnly: true };
+    }
+  }, [isAdmin, revenueSelectedMonths]);
+  
+  const { 
+    customers, 
+    dashboardStats, 
+    refreshData, 
+    isLoading
+  } = useOptimizedCustomerData(50, activeWidget, revenueFilterOptions);
+  
+  const {
+    searchTerm,
+    setSearchTerm,
+    statusFilter,
+    setStatusFilter,
+    selectedMonths,
+    availableMonths,
+    filteredCustomers,
+    toggleMonth,
+    clearAllMonths,
+    clearAllFilters
+  } = useDashboardFilters(customers, activeWidget, revenueSelectedMonths, isAdmin);
+  
+  const currentDate = new Date();
+  const currentMonth = currentDate.getMonth() + 1;
+  const currentYear = currentDate.getFullYear();
+  
+  const { comparison, trend, isLoading: isComparisonLoading } = useMonthComparison(
+    isAdmin ? null : user?.id || null,
+    currentMonth,
+    currentYear
+  );
+  
+  const { target, performance } = useMonthlyTargets(
+    user?.id,
+    currentMonth,
+    currentYear
+  );
+  
+  const forecast = useForecast(
+    performance?.actual_applications || 0,
+    performance?.actual_completed || 0,
+    Number(performance?.actual_revenue || 0),
+    target?.target_applications || 0,
+    target?.target_completed || 0,
+    target?.target_revenue || 0
+  );
+  
+  const handleWidgetChange = (widget: 'applications' | 'completed' | 'pending' | 'revenue') => {
+    setActiveWidget(widget);
+    clearAllFilters();
+    setRevenueSelectedMonths([]);
+  };
+  
+  const availableRevenueMonths = useMemo(() => {
+    const revenueCustomers = customers.filter(c => c.status === 'Complete' || c.status === 'Paid');
+    const months = new Set<string>();
+    
+    revenueCustomers.forEach(customer => {
+      const dateField = customer.updated_at || customer.created_at;
+      if (dateField) {
+        const date = new Date(dateField);
+        const monthKey = `${date.getUTCFullYear()}-${date.getUTCMonth()}`;
+        months.add(monthKey);
+      }
+    });
+    
+    return Array.from(months).sort().map(monthKey => {
+      const [year, month] = monthKey.split('-').map(Number);
+      const date = new Date(year, month);
+      return {
+        key: monthKey,
+        label: format(date, "MMMM yyyy")
+      };
+    });
+  }, [customers]);
+  
+  const toggleRevenueMonth = (monthKey: string) => {
+    setRevenueSelectedMonths(prev => 
+      prev.includes(monthKey) 
+        ? prev.filter(m => m !== monthKey)
+        : [...prev, monthKey]
+    );
+  };
+
+  useEffect(() => {
+    refreshData();
+  }, []);
+
+  useEffect(() => {
+    const channel = supabase
+      .channel('legacy-dashboard-changes')
+      .on('postgres_changes', 
+        { event: '*', schema: 'public', table: 'customers' },
+        () => {
+          refreshData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [refreshData]);
+
+  const stats = dashboardStats;
+
+  const getWidgetContent = () => {
+    switch (activeWidget) {
+      case 'applications':
+        return {
+          title: 'My Applications',
+          description: `Showing ${filteredCustomers.length} applications of all statuses`,
+          icon: Users
+        };
+      case 'completed':
+        const currentMonthLabel = format(new Date(), 'MMMM yyyy');
+        return {
+          title: "This Month's Completed Applications",
+          description: `Showing ${filteredCustomers.length} completed/paid applications from ${currentMonthLabel}`,
+          icon: CheckCircle
+        };
+      case 'pending':
+        return {
+          title: 'Submitted Applications',
+          description: `Showing ${filteredCustomers.length} submitted applications in progress`,
+          icon: Clock
+        };
+      case 'revenue':
+        return {
+          title: 'My Revenue',
+          description: `Showing ${filteredCustomers.length} revenue-generating applications`,
+          icon: DollarSign
+        };
+      default:
+        return {
+          title: 'Applications',
+          description: 'Select a widget to view details',
+          icon: Users
+        };
+    }
+  };
+
+  const widgetContent = getWidgetContent();
+  const handleDataRefresh = () => {
+    refreshData();
+  };
+
+  const handleCreateCustomer = () => {
+    navigate('/customers/new');
+  };
+
+  return (
+    <div className={cn(
+      "space-y-4 xs:space-y-5 sm:space-y-6 lg:space-y-8",
+      "pb-4 xs:pb-6 sm:pb-8",
+      "max-w-full overflow-hidden"
+    )}>
+      {/* Back Button */}
+      <Button 
+        variant="ghost" 
+        onClick={() => navigate('/legacy')}
+        className="flex items-center gap-2"
+      >
+        <ArrowLeft className="h-4 w-4" />
+        Back to Legacy
+      </Button>
+
+      {/* Enhanced Header */}
+      <DashboardHeader
+        userName={user?.profile?.name}
+        userEmail={user?.email}
+        onCreateCustomer={handleCreateCustomer}
+      />
+
+      {/* Admin Dashboard */}
+      {isAdmin ? (
+        <div className="space-y-6">
+          <DashboardStats 
+            stats={stats} 
+            selectedMonths={[]}
+            revenueYear={new Date().getFullYear()}
+            onWidgetClick={handleWidgetChange}
+            activeWidget={activeWidget}
+            userId={user?.id}
+          />
+
+          {(forecast || comparison) && (
+            <InsightsBanner forecast={forecast || undefined} comparison={comparison || undefined} />
+          )}
+
+          {comparison && !isComparisonLoading && (
+            <MonthComparisonWidget comparison={comparison} />
+          )}
+
+          {trend && trend.length > 0 && !isComparisonLoading && (
+            <TrendChart data={trend} />
+          )}
+
+          {forecast && (
+            <ForecastWidget forecast={forecast} />
+          )}
+
+          {activeWidget === 'revenue' && (
+            <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
+              <CardHeader className="pb-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <Calendar className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                      <CardTitle className="text-lg">Revenue Filter</CardTitle>
+                      <p className="text-sm text-muted-foreground">
+                        Filter revenue by selecting months with completed/paid applications
+                      </p>
+                    </div>
+                  </div>
+                  {revenueSelectedMonths.length > 0 && (
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => setRevenueSelectedMonths([])}
+                      className="flex items-center gap-2"
+                    >
+                      <X className="h-4 w-4" />
+                      Clear
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {availableRevenueMonths.length > 0 ? (
+                  <div className="space-y-3">
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          variant="outline"
+                          className={cn(
+                            "w-full justify-start",
+                            revenueSelectedMonths.length === 0 && "text-muted-foreground"
+                          )}
+                        >
+                          <Calendar className="h-4 w-4 mr-2" />
+                          {revenueSelectedMonths.length > 0 
+                            ? `${revenueSelectedMonths.length} month${revenueSelectedMonths.length > 1 ? 's' : ''} selected`
+                            : "Filter by months"}
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent className="w-80 p-4" align="start">
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <div className="text-sm font-medium">Select months:</div>
+                            {revenueSelectedMonths.length > 0 && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => setRevenueSelectedMonths([])}
+                              >
+                                Clear all
+                              </Button>
+                            )}
+                          </div>
+                          <div className="max-h-48 overflow-y-auto space-y-2">
+                            {availableRevenueMonths.map((month) => (
+                              <div key={month.key} className="flex items-center space-x-2">
+                                <Checkbox
+                                  id={month.key}
+                                  checked={revenueSelectedMonths.includes(month.key)}
+                                  onCheckedChange={() => toggleRevenueMonth(month.key)}
+                                />
+                                <label
+                                  htmlFor={month.key}
+                                  className="text-sm font-normal leading-none cursor-pointer flex-1"
+                                >
+                                  {month.label}
+                                </label>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
+                    
+                    {revenueSelectedMonths.length > 0 && (
+                      <div className="flex flex-wrap gap-2 pt-2">
+                        {revenueSelectedMonths.map(monthKey => {
+                          const month = availableRevenueMonths.find(m => m.key === monthKey);
+                          return month ? (
+                            <Badge 
+                              key={monthKey} 
+                              variant="secondary" 
+                              className="flex items-center gap-1 px-3 py-1"
+                            >
+                              {month.label}
+                              <button
+                                onClick={() => toggleRevenueMonth(monthKey)}
+                                className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
+                              >
+                                <X className="h-3 w-3" />
+                              </button>
+                            </Badge>
+                          ) : null;
+                        })}
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <div className="text-center py-6 text-muted-foreground">
+                    <Calendar className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm">No completed or paid applications found</p>
+                    <p className="text-xs">Complete some applications to see revenue filtering options</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
+          {customers.length === 0 ? (
+            <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
+          ) : (
+            <div className="space-y-6">
+              <DashboardFilters
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                selectedMonths={selectedMonths}
+                availableMonths={availableMonths}
+                onMonthToggle={toggleMonth}
+                onClearAllMonths={clearAllMonths}
+                onClearAllFilters={clearAllFilters}
+                onRefresh={handleDataRefresh}
+                isLoading={isLoading}
+                activeWidget={activeWidget}
+              />
+              
+              <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
+                <CardHeader className="pb-4 border-b border-border/50">
+                  <CardTitle className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <widgetContent.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-xl font-semibold">{widgetContent.title}</span>
+                      <p className="text-sm text-muted-foreground font-normal mt-1">
+                        {widgetContent.description}
+                      </p>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <LazyLoadingBoundary>
+                    <EnhancedCustomerTable 
+                      customers={filteredCustomers} 
+                      onDataChange={handleDataRefresh}
+                    />
+                  </LazyLoadingBoundary>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
+      ) : (
+        <div className="space-y-6">
+          <DashboardStats 
+            stats={stats} 
+            onWidgetClick={handleWidgetChange}
+            activeWidget={activeWidget}
+            userId={user?.id}
+          />
+
+          {(forecast || comparison) && (
+            <InsightsBanner forecast={forecast || undefined} comparison={comparison || undefined} />
+          )}
+
+          {comparison && !isComparisonLoading && (
+            <MonthComparisonWidget comparison={comparison} />
+          )}
+
+          {trend && trend.length > 0 && !isComparisonLoading && (
+            <TrendChart data={trend} />
+          )}
+
+          {forecast && (
+            <ForecastWidget forecast={forecast} />
+          )}
+
+          {customers.length === 0 ? (
+            <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
+          ) : (
+            <div className="space-y-6">
+              <DashboardFilters
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                selectedMonths={selectedMonths}
+                availableMonths={availableMonths}
+                onMonthToggle={toggleMonth}
+                onClearAllMonths={clearAllMonths}
+                onClearAllFilters={clearAllFilters}
+                onRefresh={handleDataRefresh}
+                isLoading={isLoading}
+                activeWidget={activeWidget}
+              />
+              
+              <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
+                <CardHeader className="pb-4 border-b border-border/50">
+                  <CardTitle className="flex items-center gap-3">
+                    <div className="p-2 rounded-lg bg-primary/10">
+                      <widgetContent.icon className="h-5 w-5 text-primary" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="text-xl font-semibold">{widgetContent.title}</span>
+                      <p className="text-sm text-muted-foreground font-normal mt-1">
+                        {widgetContent.description}
+                      </p>
+                    </div>
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="p-0">
+                  <LazyLoadingBoundary>
+                    <EnhancedCustomerTable 
+                      customers={filteredCustomers} 
+                      onDataChange={handleDataRefresh}
+                    />
+                  </LazyLoadingBoundary>
+                </CardContent>
+              </Card>
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default LegacyDashboard;
