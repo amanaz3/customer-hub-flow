@@ -32,12 +32,20 @@ interface TranscriptLine {
   text: string;
 }
 
+interface CustomerContext {
+  isNewLead?: boolean;
+  hasActiveApplications?: boolean;
+  hasPreviousCalls?: boolean;
+  productId?: string;
+}
+
 interface LiveAssistantPanelProps {
   onReplySelected?: (text: string) => void;
   onSaveToCRM?: () => void;
   fullWidth?: boolean;
   customerId?: string;
   playbookId?: string;
+  customerContext?: CustomerContext;
 }
 
 // Mock data for demo mode
@@ -72,7 +80,8 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
   onSaveToCRM,
   fullWidth = false,
   customerId,
-  playbookId
+  playbookId,
+  customerContext
 }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
@@ -83,13 +92,18 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
   const [activePlaybookId, setActivePlaybookId] = useState<string | undefined>(playbookId);
   const [activeStageId, setActiveStageId] = useState<string | undefined>();
   const [activeTab, setActiveTab] = useState('call');
+  const [callType, setCallType] = useState<'inbound' | 'outbound' | 'follow_up'>('outbound');
   
   const {
     isLoading,
     suggestions,
     getSuggestions,
     analyzeCall
-  } = useSalesAssistant({ customerId });
+  } = useSalesAssistant({ 
+    customerId, 
+    productId: customerContext?.productId,
+    callType 
+  });
 
   // Auto-scroll to bottom when new transcript lines arrive
   useEffect(() => {
@@ -321,6 +335,8 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
                 selectedPlaybookId={activePlaybookId}
                 onPlaybookChange={setActivePlaybookId}
                 onStageChange={setActiveStageId}
+                onCallTypeChange={(type) => setCallType(type as 'inbound' | 'outbound' | 'follow_up')}
+                customerContext={customerContext}
                 compact={false}
               />
             </div>
