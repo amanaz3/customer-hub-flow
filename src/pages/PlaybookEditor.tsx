@@ -521,51 +521,78 @@ const PlaybookEditor = () => {
           <CollapsibleContent>
             <CardContent className="pt-0">
               <Tabs defaultValue="stages" className="w-full">
-                <TabsList className="grid w-full grid-cols-3 mb-4">
-                  <TabsTrigger value="stages" className="text-xs sm:text-sm">
+                <TabsList className="grid w-full grid-cols-3 lg:grid-cols-6 mb-4">
+                  <TabsTrigger value="stages" className="text-xs">
                     <Target className="h-3 w-3 mr-1" />
                     Stages
                   </TabsTrigger>
-                  <TabsTrigger value="assessment" className="text-xs sm:text-sm">
+                  <TabsTrigger value="assessment" className="text-xs">
                     <Heart className="h-3 w-3 mr-1" />
                     Assessment
                   </TabsTrigger>
-                  <TabsTrigger value="personality" className="text-xs sm:text-sm">
+                  <TabsTrigger value="personality" className="text-xs">
                     <Brain className="h-3 w-3 mr-1" />
                     Personality
+                  </TabsTrigger>
+                  <TabsTrigger value="objections" className="text-xs">
+                    <AlertTriangle className="h-3 w-3 mr-1" />
+                    Objections
+                  </TabsTrigger>
+                  <TabsTrigger value="closing" className="text-xs">
+                    <DollarSign className="h-3 w-3 mr-1" />
+                    Closing
+                  </TabsTrigger>
+                  <TabsTrigger value="preparation" className="text-xs">
+                    <FileText className="h-3 w-3 mr-1" />
+                    Prep
                   </TabsTrigger>
                 </TabsList>
 
                 {/* Stages Tab */}
                 <TabsContent value="stages" className="space-y-4">
-                  <div className="grid gap-4">
-                    <div className="p-4 rounded-lg bg-background/50 border">
-                      <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-full bg-primary/20 text-primary text-xs flex items-center justify-center">1</span>
-                        Why 5 Stages?
-                      </h4>
-                      <div className="text-sm text-muted-foreground space-y-2">
-                        <p>The 5-stage structure mirrors the natural customer journey:</p>
-                        <div className="flex flex-wrap gap-2 mt-2">
-                          <Badge variant="outline">Opening → Build Rapport</Badge>
-                          <Badge variant="outline">Discovery → Understand Needs</Badge>
-                          <Badge variant="outline">Pitch → Present Solutions</Badge>
-                          <Badge variant="outline">Negotiation → Handle Concerns</Badge>
-                          <Badge variant="outline">Closing → Secure Commitment</Badge>
+                  <div className="grid gap-3">
+                    <div className="p-3 rounded-lg bg-background/50 border">
+                      <h4 className="font-semibold text-foreground mb-2 text-sm">The 5-Stage Sales Framework</h4>
+                      <div className="grid sm:grid-cols-5 gap-2 text-xs">
+                        <div className="p-2 rounded bg-blue-500/10 border border-blue-500/20">
+                          <p className="font-medium text-blue-600">1. Opening</p>
+                          <p className="text-muted-foreground">Build rapport, set agenda, establish trust</p>
+                        </div>
+                        <div className="p-2 rounded bg-purple-500/10 border border-purple-500/20">
+                          <p className="font-medium text-purple-600">2. Discovery</p>
+                          <p className="text-muted-foreground">Understand needs, pain points, goals</p>
+                        </div>
+                        <div className="p-2 rounded bg-amber-500/10 border border-amber-500/20">
+                          <p className="font-medium text-amber-600">3. Pitch</p>
+                          <p className="text-muted-foreground">Present solutions, demonstrate value</p>
+                        </div>
+                        <div className="p-2 rounded bg-orange-500/10 border border-orange-500/20">
+                          <p className="font-medium text-orange-600">4. Negotiation</p>
+                          <p className="text-muted-foreground">Handle concerns, discuss terms</p>
+                        </div>
+                        <div className="p-2 rounded bg-green-500/10 border border-green-500/20">
+                          <p className="font-medium text-green-600">5. Closing</p>
+                          <p className="text-muted-foreground">Secure commitment, next steps</p>
                         </div>
                       </div>
                     </div>
-
-                    <div className="p-4 rounded-lg bg-background/50 border">
-                      <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-full bg-primary/20 text-primary text-xs flex items-center justify-center">2</span>
-                        When Customer Skips Stages
-                      </h4>
-                      <div className="text-sm text-muted-foreground space-y-2">
-                        <p><strong>Scenario:</strong> Customer asks for pricing during discovery.</p>
-                        <p><strong>Response:</strong> Acknowledge → Brief Answer → Guide Back</p>
-                        <div className="p-3 bg-muted/50 rounded-md italic mt-2">
-                          "Great question! Before I give you exact pricing, let me understand your needs better so I can recommend the best option."
+                    
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <div className="p-3 rounded-lg bg-background/50 border">
+                        <h4 className="font-semibold text-foreground mb-2 text-sm">When Customer Skips Stages</h4>
+                        <div className="text-xs text-muted-foreground space-y-2">
+                          <p><strong>Acknowledge → Brief Answer → Guide Back</strong></p>
+                          <div className="p-2 bg-muted/50 rounded italic">
+                            "Great question about pricing! Let me give you a quick range, then I'd love to understand your specific needs to give you an accurate quote."
+                          </div>
+                        </div>
+                      </div>
+                      <div className="p-3 rounded-lg bg-background/50 border">
+                        <h4 className="font-semibold text-foreground mb-2 text-sm">Stage Transition Phrases</h4>
+                        <div className="text-xs text-muted-foreground space-y-1">
+                          <p>• "Now that I understand your needs, let me show you..."</p>
+                          <p>• "Based on what you've shared, I recommend..."</p>
+                          <p>• "Does this sound like what you're looking for?"</p>
                         </div>
                       </div>
                     </div>
@@ -574,50 +601,72 @@ const PlaybookEditor = () => {
 
                 {/* Assessment Tab */}
                 <TabsContent value="assessment" className="space-y-4">
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div className="p-4 rounded-lg bg-background/50 border">
-                      <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <div className="p-3 rounded-lg bg-background/50 border">
+                      <h4 className="font-semibold text-foreground mb-2 text-sm flex items-center gap-2">
                         <Heart className="h-4 w-4 text-primary" />
-                        Assessing Pain & Need
+                        Pain & Need Discovery
                       </h4>
-                      <div className="text-sm space-y-3">
+                      <div className="text-xs space-y-2">
                         <div>
-                          <p className="font-medium text-foreground">Listen for:</p>
-                          <p className="text-muted-foreground">Frustration words, urgency indicators, specific problems</p>
-                        </div>
-                        <div>
-                          <p className="font-medium text-foreground">Ask:</p>
-                          <ul className="text-muted-foreground list-disc list-inside">
+                          <p className="font-medium text-foreground">Power Questions:</p>
+                          <ul className="text-muted-foreground list-disc list-inside space-y-1 mt-1">
                             <li>"What prompted you to look into this now?"</li>
                             <li>"What happens if this isn't resolved?"</li>
+                            <li>"How is this affecting your business/life?"</li>
+                            <li>"What have you tried before?"</li>
                           </ul>
                         </div>
                         <div>
-                          <p className="font-medium text-foreground">Quantify:</p>
-                          <p className="text-muted-foreground">Time/money lost, compliance risks, missed opportunities</p>
+                          <p className="font-medium text-foreground">Listen for:</p>
+                          <p className="text-muted-foreground">Frustration words, deadlines, compliance mentions, competitor references</p>
                         </div>
                       </div>
                     </div>
 
-                    <div className="p-4 rounded-lg bg-background/50 border">
-                      <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                    <div className="p-3 rounded-lg bg-background/50 border">
+                      <h4 className="font-semibold text-foreground mb-2 text-sm flex items-center gap-2">
                         <Clock className="h-4 w-4 text-primary" />
-                        Real Need vs Window Shopping
+                        Urgency Detection
                       </h4>
-                      <div className="text-sm space-y-3">
-                        <div className="flex gap-2">
-                          <Badge className="bg-green-500/20 text-green-700 border-green-500/30">Real Need</Badge>
+                      <div className="text-xs space-y-2">
+                        <div className="flex items-center gap-2">
+                          <Badge className="bg-green-500/20 text-green-700 text-xs">Hot Lead</Badge>
+                          <span className="text-muted-foreground">Timeline set, budget ready, decision-maker</span>
                         </div>
-                        <p className="text-muted-foreground text-xs">Specific timeline, budget discussed, decision-maker on call, detailed questions, competitor quotes</p>
-                        
-                        <div className="flex gap-2">
-                          <Badge className="bg-amber-500/20 text-amber-700 border-amber-500/30">Window Shopping</Badge>
+                        <div className="flex items-center gap-2">
+                          <Badge className="bg-amber-500/20 text-amber-700 text-xs">Warm Lead</Badge>
+                          <span className="text-muted-foreground">Interested but no timeline, needs nurturing</span>
                         </div>
-                        <p className="text-muted-foreground text-xs">Vague timeline, avoids budget talk, "just gathering info", no follow-up questions</p>
-                        
-                        <div className="p-2 bg-muted/50 rounded-md mt-2">
-                          <p className="text-xs font-medium">Power Question:</p>
-                          <p className="text-xs italic text-muted-foreground">"If we find the right solution today, what's your timeline for getting started?"</p>
+                        <div className="flex items-center gap-2">
+                          <Badge className="bg-gray-500/20 text-gray-700 text-xs">Cold Lead</Badge>
+                          <span className="text-muted-foreground">"Just browsing", no urgency, vague answers</span>
+                        </div>
+                        <div className="p-2 bg-muted/50 rounded mt-2">
+                          <p className="font-medium">Qualifier:</p>
+                          <p className="italic text-muted-foreground">"If we find the right solution, what's your timeline?"</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-background/50 border md:col-span-2">
+                      <h4 className="font-semibold text-foreground mb-2 text-sm">BANT Qualification Framework</h4>
+                      <div className="grid grid-cols-4 gap-2 text-xs">
+                        <div className="p-2 rounded bg-primary/10">
+                          <p className="font-medium text-primary">Budget</p>
+                          <p className="text-muted-foreground">"What's your budget range?"</p>
+                        </div>
+                        <div className="p-2 rounded bg-primary/10">
+                          <p className="font-medium text-primary">Authority</p>
+                          <p className="text-muted-foreground">"Who else is involved in this decision?"</p>
+                        </div>
+                        <div className="p-2 rounded bg-primary/10">
+                          <p className="font-medium text-primary">Need</p>
+                          <p className="text-muted-foreground">"What problem are you solving?"</p>
+                        </div>
+                        <div className="p-2 rounded bg-primary/10">
+                          <p className="font-medium text-primary">Timeline</p>
+                          <p className="text-muted-foreground">"When do you need this done?"</p>
                         </div>
                       </div>
                     </div>
@@ -627,51 +676,247 @@ const PlaybookEditor = () => {
                 {/* Personality Tab */}
                 <TabsContent value="personality" className="space-y-4">
                   <div className="grid sm:grid-cols-2 gap-3">
-                    <div className="p-4 rounded-lg border bg-blue-500/5 border-blue-500/20">
+                    <div className="p-3 rounded-lg border bg-blue-500/5 border-blue-500/20">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="w-8 h-8 rounded-full bg-blue-500/20 text-blue-600 text-sm font-bold flex items-center justify-center">A</span>
-                        <h4 className="font-semibold text-foreground">Analytical</h4>
+                        <span className="w-7 h-7 rounded-full bg-blue-500/20 text-blue-600 text-xs font-bold flex items-center justify-center">A</span>
+                        <h4 className="font-semibold text-foreground text-sm">Analytical</h4>
                       </div>
                       <p className="text-xs text-muted-foreground mb-2">Data-driven, detail-oriented, methodical</p>
                       <div className="text-xs space-y-1">
                         <p><strong>Signs:</strong> "Can you send specs?" "What's the exact process?"</p>
-                        <p><strong>Approach:</strong> Facts, documentation, no pressure</p>
+                        <p><strong>Approach:</strong> Facts, documentation, ROI data, no pressure</p>
+                        <p><strong>Avoid:</strong> Rushing, emotional appeals, vague answers</p>
                       </div>
                     </div>
 
-                    <div className="p-4 rounded-lg border bg-red-500/5 border-red-500/20">
+                    <div className="p-3 rounded-lg border bg-red-500/5 border-red-500/20">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="w-8 h-8 rounded-full bg-red-500/20 text-red-600 text-sm font-bold flex items-center justify-center">D</span>
-                        <h4 className="font-semibold text-foreground">Driver</h4>
+                        <span className="w-7 h-7 rounded-full bg-red-500/20 text-red-600 text-xs font-bold flex items-center justify-center">D</span>
+                        <h4 className="font-semibold text-foreground text-sm">Driver</h4>
                       </div>
                       <p className="text-xs text-muted-foreground mb-2">Results-focused, brief, decisive</p>
                       <div className="text-xs space-y-1">
                         <p><strong>Signs:</strong> "What's the bottom line?" "How fast?"</p>
-                        <p><strong>Approach:</strong> Get to point, focus on outcomes</p>
+                        <p><strong>Approach:</strong> Get to point, focus on outcomes, be direct</p>
+                        <p><strong>Avoid:</strong> Small talk, lengthy explanations, indecision</p>
                       </div>
                     </div>
 
-                    <div className="p-4 rounded-lg border bg-yellow-500/5 border-yellow-500/20">
+                    <div className="p-3 rounded-lg border bg-yellow-500/5 border-yellow-500/20">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="w-8 h-8 rounded-full bg-yellow-500/20 text-yellow-600 text-sm font-bold flex items-center justify-center">E</span>
-                        <h4 className="font-semibold text-foreground">Expressive</h4>
+                        <span className="w-7 h-7 rounded-full bg-yellow-500/20 text-yellow-600 text-xs font-bold flex items-center justify-center">E</span>
+                        <h4 className="font-semibold text-foreground text-sm">Expressive</h4>
                       </div>
                       <p className="text-xs text-muted-foreground mb-2">Enthusiastic, story-driven, relationship-focused</p>
                       <div className="text-xs space-y-1">
                         <p><strong>Signs:</strong> "I'm so excited!" Shares personal stories</p>
-                        <p><strong>Approach:</strong> Build rapport, share success stories</p>
+                        <p><strong>Approach:</strong> Build rapport, share success stories, show enthusiasm</p>
+                        <p><strong>Avoid:</strong> Being too formal, ignoring their ideas, rushing</p>
                       </div>
                     </div>
 
-                    <div className="p-4 rounded-lg border bg-green-500/5 border-green-500/20">
+                    <div className="p-3 rounded-lg border bg-green-500/5 border-green-500/20">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="w-8 h-8 rounded-full bg-green-500/20 text-green-600 text-sm font-bold flex items-center justify-center">A</span>
-                        <h4 className="font-semibold text-foreground">Amiable</h4>
+                        <span className="w-7 h-7 rounded-full bg-green-500/20 text-green-600 text-xs font-bold flex items-center justify-center">A</span>
+                        <h4 className="font-semibold text-foreground text-sm">Amiable</h4>
                       </div>
                       <p className="text-xs text-muted-foreground mb-2">Seeks consensus, risk-averse, patient</p>
                       <div className="text-xs space-y-1">
                         <p><strong>Signs:</strong> "Need to discuss with team" "What do others say?"</p>
-                        <p><strong>Approach:</strong> Reassurance, testimonials, low-pressure</p>
+                        <p><strong>Approach:</strong> Reassurance, testimonials, low-pressure, patience</p>
+                        <p><strong>Avoid:</strong> Aggressive closing, creating urgency, confrontation</p>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Objections Tab */}
+                <TabsContent value="objections" className="space-y-4">
+                  <div className="grid gap-3">
+                    <div className="p-3 rounded-lg bg-background/50 border">
+                      <h4 className="font-semibold text-foreground mb-2 text-sm">LAER Objection Handling Framework</h4>
+                      <div className="grid grid-cols-4 gap-2 text-xs">
+                        <div className="p-2 rounded bg-primary/10 text-center">
+                          <p className="font-bold text-primary">L</p>
+                          <p className="font-medium">Listen</p>
+                          <p className="text-muted-foreground">Hear them out fully</p>
+                        </div>
+                        <div className="p-2 rounded bg-primary/10 text-center">
+                          <p className="font-bold text-primary">A</p>
+                          <p className="font-medium">Acknowledge</p>
+                          <p className="text-muted-foreground">"I understand..."</p>
+                        </div>
+                        <div className="p-2 rounded bg-primary/10 text-center">
+                          <p className="font-bold text-primary">E</p>
+                          <p className="font-medium">Explore</p>
+                          <p className="text-muted-foreground">Ask clarifying questions</p>
+                        </div>
+                        <div className="p-2 rounded bg-primary/10 text-center">
+                          <p className="font-bold text-primary">R</p>
+                          <p className="font-medium">Respond</p>
+                          <p className="text-muted-foreground">Address the concern</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid md:grid-cols-2 gap-3">
+                      <div className="p-3 rounded-lg bg-background/50 border">
+                        <h4 className="font-semibold text-foreground mb-2 text-sm text-amber-600">Price Objections</h4>
+                        <div className="text-xs space-y-2">
+                          <div className="p-2 bg-muted/50 rounded">
+                            <p className="font-medium">"It's too expensive"</p>
+                            <p className="text-muted-foreground italic">"I understand budget is important. Can you help me understand what you're comparing this to? Let's look at the value you're getting..."</p>
+                          </div>
+                          <div className="p-2 bg-muted/50 rounded">
+                            <p className="font-medium">"I need to think about it"</p>
+                            <p className="text-muted-foreground italic">"Of course! What specific aspects would you like to consider? I want to make sure you have all the information you need."</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="p-3 rounded-lg bg-background/50 border">
+                        <h4 className="font-semibold text-foreground mb-2 text-sm text-blue-600">Trust Objections</h4>
+                        <div className="text-xs space-y-2">
+                          <div className="p-2 bg-muted/50 rounded">
+                            <p className="font-medium">"I need to check with others"</p>
+                            <p className="text-muted-foreground italic">"Absolutely! Who else should be involved? Would it help if I joined a call with your team to answer questions directly?"</p>
+                          </div>
+                          <div className="p-2 bg-muted/50 rounded">
+                            <p className="font-medium">"We're happy with current provider"</p>
+                            <p className="text-muted-foreground italic">"That's great you have something working! Out of curiosity, what made you take this call today?"</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Closing Tab */}
+                <TabsContent value="closing" className="space-y-4">
+                  <div className="grid gap-3">
+                    <div className="p-3 rounded-lg bg-background/50 border">
+                      <h4 className="font-semibold text-foreground mb-2 text-sm">Closing Techniques</h4>
+                      <div className="grid md:grid-cols-3 gap-2 text-xs">
+                        <div className="p-2 rounded bg-green-500/10 border border-green-500/20">
+                          <p className="font-medium text-green-600">Assumptive Close</p>
+                          <p className="text-muted-foreground">"When would you like to get started?"</p>
+                          <p className="text-muted-foreground mt-1 italic">Best for: Warm leads showing buying signals</p>
+                        </div>
+                        <div className="p-2 rounded bg-blue-500/10 border border-blue-500/20">
+                          <p className="font-medium text-blue-600">Alternative Close</p>
+                          <p className="text-muted-foreground">"Would you prefer Package A or B?"</p>
+                          <p className="text-muted-foreground mt-1 italic">Best for: Indecisive customers</p>
+                        </div>
+                        <div className="p-2 rounded bg-purple-500/10 border border-purple-500/20">
+                          <p className="font-medium text-purple-600">Summary Close</p>
+                          <p className="text-muted-foreground">"So we've agreed on X, Y, Z. Shall we proceed?"</p>
+                          <p className="text-muted-foreground mt-1 italic">Best for: Complex sales, multiple features</p>
+                        </div>
+                        <div className="p-2 rounded bg-amber-500/10 border border-amber-500/20">
+                          <p className="font-medium text-amber-600">Urgency Close</p>
+                          <p className="text-muted-foreground">"This offer is valid until Friday..."</p>
+                          <p className="text-muted-foreground mt-1 italic">Best for: Hot leads, time-sensitive offers</p>
+                        </div>
+                        <div className="p-2 rounded bg-pink-500/10 border border-pink-500/20">
+                          <p className="font-medium text-pink-600">Trial Close</p>
+                          <p className="text-muted-foreground">"How does this sound so far?"</p>
+                          <p className="text-muted-foreground mt-1 italic">Best for: Testing readiness, mid-pitch</p>
+                        </div>
+                        <div className="p-2 rounded bg-cyan-500/10 border border-cyan-500/20">
+                          <p className="font-medium text-cyan-600">Direct Ask</p>
+                          <p className="text-muted-foreground">"Are you ready to move forward?"</p>
+                          <p className="text-muted-foreground mt-1 italic">Best for: Direct personalities, clear signals</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-background/50 border">
+                      <h4 className="font-semibold text-foreground mb-2 text-sm">Buying Signals to Watch For</h4>
+                      <div className="flex flex-wrap gap-2 text-xs">
+                        <Badge variant="outline" className="bg-green-500/10">Asks about pricing details</Badge>
+                        <Badge variant="outline" className="bg-green-500/10">Discusses implementation timeline</Badge>
+                        <Badge variant="outline" className="bg-green-500/10">Asks "What happens next?"</Badge>
+                        <Badge variant="outline" className="bg-green-500/10">Mentions other decision-makers approvingly</Badge>
+                        <Badge variant="outline" className="bg-green-500/10">Compares options seriously</Badge>
+                        <Badge variant="outline" className="bg-green-500/10">Asks about payment terms</Badge>
+                        <Badge variant="outline" className="bg-green-500/10">Requests references</Badge>
+                        <Badge variant="outline" className="bg-green-500/10">Nodding, leaning in, taking notes</Badge>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* Preparation Tab */}
+                <TabsContent value="preparation" className="space-y-4">
+                  <div className="grid md:grid-cols-2 gap-3">
+                    <div className="p-3 rounded-lg bg-background/50 border">
+                      <h4 className="font-semibold text-foreground mb-2 text-sm">Pre-Call Checklist</h4>
+                      <div className="text-xs space-y-1">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded border flex items-center justify-center text-primary">✓</div>
+                          <span className="text-muted-foreground">Review customer history & previous interactions</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded border flex items-center justify-center text-primary">✓</div>
+                          <span className="text-muted-foreground">Check company website/LinkedIn for context</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded border flex items-center justify-center text-primary">✓</div>
+                          <span className="text-muted-foreground">Prepare relevant case studies/testimonials</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded border flex items-center justify-center text-primary">✓</div>
+                          <span className="text-muted-foreground">Have pricing/packages ready</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded border flex items-center justify-center text-primary">✓</div>
+                          <span className="text-muted-foreground">Prepare discovery questions</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded border flex items-center justify-center text-primary">✓</div>
+                          <span className="text-muted-foreground">Test audio/video if virtual call</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-background/50 border">
+                      <h4 className="font-semibold text-foreground mb-2 text-sm">Post-Call Actions</h4>
+                      <div className="text-xs space-y-1">
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded border flex items-center justify-center text-primary">✓</div>
+                          <span className="text-muted-foreground">Update CRM with call notes immediately</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded border flex items-center justify-center text-primary">✓</div>
+                          <span className="text-muted-foreground">Send follow-up email within 24 hours</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded border flex items-center justify-center text-primary">✓</div>
+                          <span className="text-muted-foreground">Schedule next action/follow-up</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded border flex items-center justify-center text-primary">✓</div>
+                          <span className="text-muted-foreground">Send promised materials/documents</span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <div className="w-4 h-4 rounded border flex items-center justify-center text-primary">✓</div>
+                          <span className="text-muted-foreground">Log deal stage if applicable</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-3 rounded-lg bg-background/50 border md:col-span-2">
+                      <h4 className="font-semibold text-foreground mb-2 text-sm">Follow-Up Email Template</h4>
+                      <div className="text-xs p-3 bg-muted/50 rounded font-mono text-muted-foreground">
+                        <p>Hi [Name],</p>
+                        <p className="mt-2">Thank you for your time today discussing [topic]. As promised, here's [what you discussed].</p>
+                        <p className="mt-2">Key points we covered:</p>
+                        <p>• [Point 1]</p>
+                        <p>• [Point 2]</p>
+                        <p>• [Point 3]</p>
+                        <p className="mt-2">Next steps: [Clear action item with date]</p>
+                        <p className="mt-2">Please let me know if you have any questions.</p>
+                        <p className="mt-2">Best regards,<br/>[Your name]</p>
                       </div>
                     </div>
                   </div>
