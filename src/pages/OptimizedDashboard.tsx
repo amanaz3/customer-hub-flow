@@ -1,12 +1,11 @@
 
-import React, { useState, useEffect, useMemo, Suspense } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import DashboardStats from '@/components/Dashboard/DashboardStats';
-import DashboardFilters from '@/components/Dashboard/DashboardFilters';
 import EmptyDashboardState from '@/components/Dashboard/EmptyDashboardState';
 import DashboardHeader from '@/components/Dashboard/DashboardHeader';
 import { MonthComparisonWidget } from '@/components/Dashboard/MonthComparisonWidget';
@@ -14,27 +13,19 @@ import { TrendChart } from '@/components/Dashboard/TrendChart';
 import { ForecastWidget } from '@/components/Dashboard/ForecastWidget';
 import { InsightsBanner } from '@/components/Dashboard/InsightsBanner';
 import { useOptimizedCustomerData } from '@/hooks/useOptimizedCustomerData';
-import { useDashboardFilters } from '@/hooks/useDashboardFilters';
 import { useMonthComparison } from '@/hooks/useMonthComparison';
 import { useMonthlyTargets } from '@/hooks/useMonthlyTargets';
 import { useForecast } from '@/hooks/useForecast';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { supabase } from '@/lib/supabase';
-import { Calendar, X, CheckCircle, Clock, DollarSign, Users } from 'lucide-react';
+import { Calendar, X } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
-import { useIsMobile } from '@/hooks/use-mobile';
 import { cn } from '@/lib/utils';
-import { LazyLoadingBoundary } from '@/components/Performance/LazyLoadingBoundary';
-
-// Lazy load heavy components
-const ResponsiveCustomerTable = React.lazy(() => import('@/components/Customer/ResponsiveCustomerTable'));
-const EnhancedCustomerTable = React.lazy(() => import('@/components/Customer/EnhancedCustomerTable'));
 
 const OptimizedDashboard = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   
   // Widget selection state - default to applications
   const [activeWidget, setActiveWidget] = useState<'applications' | 'completed' | 'pending' | 'revenue'>('applications');
@@ -67,20 +58,10 @@ const OptimizedDashboard = () => {
     hasPreviousPage
   } = useOptimizedCustomerData(50, activeWidget, revenueFilterOptions);
   
-  // Initialize dashboard filters
-  const {
-    searchTerm,
-    setSearchTerm,
-    statusFilter,
-    setStatusFilter,
-    selectedMonths,
-    availableMonths,
-    filteredCustomers,
-    toggleMonth,
-    clearAllMonths,
-    clearAllFilters,
-    hasActiveFilters
-  } = useDashboardFilters(customers, activeWidget, revenueSelectedMonths, isAdmin);
+  // Clear filters when widget changes
+  const clearAllFilters = () => {
+    setRevenueSelectedMonths([]);
+  };
   
   // Month-over-month comparison data
   const currentDate = new Date();
@@ -179,47 +160,6 @@ const OptimizedDashboard = () => {
   const stats = dashboardStats;
 
 
-  // Get dynamic content based on active widget
-  const getWidgetContent = () => {
-    switch (activeWidget) {
-      case 'applications':
-        return {
-          title: isAdmin ? 'All Applications' : 'My Applications',
-          description: `Showing ${filteredCustomers.length} ${isAdmin ? 'total applications' : 'applications'} of all statuses`,
-          icon: Users
-        };
-      case 'completed':
-        const currentMonth = format(new Date(), 'MMMM yyyy');
-        return {
-          title: "This Month's Completed Applications",
-          description: `Showing ${filteredCustomers.length} completed/paid applications from ${currentMonth}`,
-          icon: CheckCircle
-        };
-      case 'pending':
-        return {
-          title: 'Submitted Applications',
-          description: `Showing ${filteredCustomers.length} submitted applications in progress`,
-          icon: Clock
-        };
-      case 'revenue':
-        const revenueDesc = isAdmin && revenueSelectedMonths.length > 0 
-          ? `Showing ${filteredCustomers.length} revenue applications from ${revenueSelectedMonths.length} selected month(s)` 
-          : `Showing ${filteredCustomers.length} revenue-generating applications with advanced filtering available`;
-        return {
-          title: isAdmin ? 'Total Revenue (Advanced)' : 'My Revenue',
-          description: revenueDesc,
-          icon: DollarSign
-        };
-      default:
-        return {
-          title: 'Applications',
-          description: 'Select a widget to view details',
-          icon: Users
-        };
-    }
-  };
-
-  const widgetContent = getWidgetContent();
 
   const handleDataRefresh = () => {
     refreshData();
@@ -403,36 +343,9 @@ const OptimizedDashboard = () => {
                 </Card>
               )}
 
-              {customers.length === 0 ? (
+              {customers.length === 0 && (
                 <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
-              ) : (
-                <div className="space-y-6">
-                  
-                  <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
-                    <CardHeader className="pb-4 border-b border-border/50">
-                      <CardTitle className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <widgetContent.icon className="h-5 w-5 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-xl font-semibold">{widgetContent.title}</span>
-                          <p className="text-sm text-muted-foreground font-normal mt-1">
-                            {widgetContent.description}
-                          </p>
-                        </div>
-                      </CardTitle>
-                    </CardHeader>
-                     <CardContent className="p-0">
-                       <LazyLoadingBoundary>
-                         <EnhancedCustomerTable 
-                           customers={filteredCustomers} 
-                           onDataChange={handleDataRefresh}
-                         />
-                       </LazyLoadingBoundary>
-                     </CardContent>
-                  </Card>
-                 </div>
-               )}
+              )}
           </div>
         ) : (
           /* Regular User Dashboard */
@@ -465,49 +378,8 @@ const OptimizedDashboard = () => {
                 <ForecastWidget forecast={forecast} />
               )}
 
-              {customers.length === 0 ? (
+              {customers.length === 0 && (
                 <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
-              ) : (
-                <div className="space-y-6">
-                   <DashboardFilters
-                     searchTerm={searchTerm}
-                     setSearchTerm={setSearchTerm}
-                     statusFilter={statusFilter}
-                     setStatusFilter={setStatusFilter}
-                     selectedMonths={selectedMonths}
-                     availableMonths={availableMonths}
-                     onMonthToggle={toggleMonth}
-                     onClearAllMonths={clearAllMonths}
-                     onClearAllFilters={clearAllFilters}
-                     onRefresh={handleDataRefresh}
-                     isLoading={isLoading}
-                     activeWidget={activeWidget}
-                   />
-                  
-                  <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
-                    <CardHeader className="pb-4 border-b border-border/50">
-                      <CardTitle className="flex items-center gap-3">
-                        <div className="p-2 rounded-lg bg-primary/10">
-                          <widgetContent.icon className="h-5 w-5 text-primary" />
-                        </div>
-                        <div className="flex-1">
-                          <span className="text-xl font-semibold">{widgetContent.title}</span>
-                          <p className="text-sm text-muted-foreground font-normal mt-1">
-                            {widgetContent.description}
-                          </p>
-                        </div>
-                      </CardTitle>
-                    </CardHeader>
-                     <CardContent className="p-0">
-                       <LazyLoadingBoundary>
-                         <EnhancedCustomerTable 
-                           customers={filteredCustomers} 
-                           onDataChange={handleDataRefresh}
-                         />
-                       </LazyLoadingBoundary>
-                     </CardContent>
-                  </Card>
-                </div>
               )}
           </div>
         )}
