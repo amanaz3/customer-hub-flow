@@ -21,6 +21,7 @@ import { cn } from '@/lib/utils';
 import { useSalesAssistant } from '@/hooks/useSalesAssistant';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/SecureAuthContext';
+import PlaybookStageSelector from './PlaybookStageSelector';
 
 interface TranscriptLine {
   id: string;
@@ -79,6 +80,8 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
   const [useAI, setUseAI] = useState(false);
   const [transcript, setTranscript] = useState<TranscriptLine[]>(mockTranscript);
   const [callSummary, setCallSummary] = useState<string | null>(null);
+  const [activePlaybookId, setActivePlaybookId] = useState<string | undefined>(playbookId);
+  const [activeStageId, setActiveStageId] = useState<string | undefined>();
   
   const {
     isLoading,
@@ -246,6 +249,14 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
 
           {/* Right Column Container for full width */}
           <div className={cn(fullWidth ? "space-y-4" : "contents")}>
+            {/* Playbook Guide Section */}
+            <PlaybookStageSelector
+              selectedPlaybookId={activePlaybookId}
+              onPlaybookChange={setActivePlaybookId}
+              onStageChange={setActiveStageId}
+              compact={!fullWidth}
+            />
+
             {/* Suggested Replies Section */}
             <Card className="border-0 shadow-sm bg-muted/30">
               <CardHeader className="pb-2 pt-3 px-3">
