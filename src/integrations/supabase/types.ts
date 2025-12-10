@@ -2053,6 +2053,60 @@ export type Database = {
           },
         ]
       }
+      script_nodes: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          node_type: string
+          order_index: number
+          parent_id: string | null
+          script_text: string
+          stage_id: string
+          trigger_condition: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          node_type?: string
+          order_index?: number
+          parent_id?: string | null
+          script_text: string
+          stage_id: string
+          trigger_condition?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          node_type?: string
+          order_index?: number
+          parent_id?: string | null
+          script_text?: string
+          stage_id?: string
+          trigger_condition?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "script_nodes_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "script_nodes"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "script_nodes_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "playbook_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       security_audit_log: {
         Row: {
           created_at: string | null
