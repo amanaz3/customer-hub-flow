@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { useToast } from '@/hooks/use-toast';
@@ -12,6 +12,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Loader2, Trash2, AlertTriangle, Search, ShieldAlert, Users, FileText } from 'lucide-react';
+import { formatApplicationReferenceWithPrefix } from '@/utils/referenceNumberFormatter';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -76,6 +77,23 @@ export function PermanentDeleteSection() {
   const [isDeletingApps, setIsDeletingApps] = useState(false);
   const [showAppConfirmDialog, setShowAppConfirmDialog] = useState(false);
   const [showAppPasswordDialog, setShowAppPasswordDialog] = useState(false);
+  const [maxAppReference, setMaxAppReference] = useState(99999);
+
+  // Fetch max reference on mount
+  useEffect(() => {
+    const fetchMaxReference = async () => {
+      const { data } = await supabase
+        .from('account_applications')
+        .select('reference_number')
+        .order('reference_number', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (data?.reference_number) {
+        setMaxAppReference(data.reference_number);
+      }
+    };
+    fetchMaxReference();
+  }, []);
 
   // Only render for admins
   if (!isAdmin) {
@@ -732,7 +750,7 @@ export function PermanentDeleteSection() {
                               <div className="flex-1">
                                 <div className="flex justify-between items-start">
                                   <div>
-                                    <p className="font-medium">REF-{app.reference_number}</p>
+                                    <p className="font-medium">{formatApplicationReferenceWithPrefix(app.reference_number, maxAppReference, app.created_at, app.application_type)}</p>
                                     <p className="text-sm text-muted-foreground">{app.application_type || 'Unknown type'}</p>
                                     <p className="text-sm text-muted-foreground">Customer: {app.customer_name}</p>
                                   </div>
@@ -782,7 +800,7 @@ export function PermanentDeleteSection() {
                 <CardDescription>
                   The following records will be permanently deleted for {selectedApps.length} application(s):
                   <span className="block mt-1 font-medium">
-                    {selectedApps.map(a => `REF-${a.reference_number}`).join(', ')}
+                    {selectedApps.map(a => formatApplicationReferenceWithPrefix(a.reference_number, maxAppReference, a.created_at, a.application_type)).join(', ')}
                   </span>
                 </CardDescription>
               </CardHeader>
