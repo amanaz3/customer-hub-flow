@@ -521,7 +521,7 @@ const PlaybookEditor = () => {
           <CollapsibleContent>
             <CardContent className="pt-0">
               <Tabs defaultValue="stages" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 lg:grid-cols-7 mb-4">
+                <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-4">
                   <TabsTrigger value="stages" className="text-xs">
                     <Target className="h-3 w-3 mr-1" />
                     Stages
@@ -549,6 +549,10 @@ const PlaybookEditor = () => {
                   <TabsTrigger value="faqs" className="text-xs">
                     <HelpCircle className="h-3 w-3 mr-1" />
                     FAQs
+                  </TabsTrigger>
+                  <TabsTrigger value="notes" className="text-xs">
+                    <Lightbulb className="h-3 w-3 mr-1" />
+                    Notes
                   </TabsTrigger>
                 </TabsList>
 
@@ -1060,6 +1064,104 @@ const PlaybookEditor = () => {
                       </div>
                     </TabsContent>
                   </Tabs>
+                </TabsContent>
+
+                {/* Notes Tab - Discussion Insights */}
+                <TabsContent value="notes" className="space-y-4">
+                  <div className="grid gap-4">
+                    {/* Playbook Tab Order Logic */}
+                    <div className="p-4 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                      <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <Lightbulb className="h-4 w-4 text-blue-500" />
+                        Playbook Tab Order Logic
+                      </h4>
+                      <p className="text-sm text-muted-foreground mb-3">
+                        The playbook editor tabs follow the natural call flow sequence:
+                      </p>
+                      <div className="grid gap-2 text-sm">
+                        <div className="flex items-start gap-3 p-2 rounded bg-background/50">
+                          <Badge className="bg-blue-500/20 text-blue-700">1</Badge>
+                          <div>
+                            <p className="font-medium">Stages</p>
+                            <p className="text-muted-foreground text-xs">Define the overall call structure first (Opening → Discovery → Pitch → Negotiation → Closing)</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-2 rounded bg-background/50">
+                          <Badge className="bg-purple-500/20 text-purple-700">2</Badge>
+                          <div>
+                            <p className="font-medium">Questions</p>
+                            <p className="text-muted-foreground text-xs">Discovery questions used early in the call to understand customer needs</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-2 rounded bg-background/50">
+                          <Badge className="bg-amber-500/20 text-amber-700">3</Badge>
+                          <div>
+                            <p className="font-medium">Pricing</p>
+                            <p className="text-muted-foreground text-xs">Negotiation strategies discussed during the pricing/negotiation phase</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-2 rounded bg-background/50">
+                          <Badge className="bg-orange-500/20 text-orange-700">4</Badge>
+                          <div>
+                            <p className="font-medium">Objections</p>
+                            <p className="text-muted-foreground text-xs">Objections typically arise during pricing/negotiation - not after closing</p>
+                          </div>
+                        </div>
+                        <div className="flex items-start gap-3 p-2 rounded bg-background/50">
+                          <Badge className="bg-pink-500/20 text-pink-700">5</Badge>
+                          <div>
+                            <p className="font-medium">Emotions</p>
+                            <p className="text-muted-foreground text-xs">Emotional responses can occur throughout the entire call and need handling</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Why This Order Matters */}
+                    <div className="p-4 rounded-lg bg-green-500/5 border border-green-500/20">
+                      <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <Target className="h-4 w-4 text-green-500" />
+                        Why This Order Matters
+                      </h4>
+                      <div className="space-y-2 text-sm text-muted-foreground">
+                        <p>• <strong>Questions before Objections:</strong> You ask discovery questions early in the call, objections come later during negotiation</p>
+                        <p>• <strong>Pricing before Objections:</strong> Pricing discussion triggers most objections - "too expensive", "need to think about it"</p>
+                        <p>• <strong>Objections after Pricing:</strong> Objections don't arise after closing - if you're at closing, objections have been handled</p>
+                        <p>• <strong>Emotions throughout:</strong> Emotional responses (frustration, excitement, hesitation) can occur at any stage</p>
+                      </div>
+                    </div>
+
+                    {/* Building vs Using a Playbook */}
+                    <div className="p-4 rounded-lg bg-purple-500/5 border border-purple-500/20">
+                      <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <BookOpen className="h-4 w-4 text-purple-500" />
+                        Building vs Using a Playbook
+                      </h4>
+                      <div className="grid md:grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="font-medium text-foreground mb-2">When Building (Editor View)</p>
+                          <p className="text-muted-foreground">Define stages first, then add supporting elements (questions, pricing strategies, objection handlers) that apply to those stages.</p>
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground mb-2">When Using (Live Call)</p>
+                          <p className="text-muted-foreground">Follow the stage flow, use discovery questions during opening/discovery, handle objections during negotiation, and apply emotional intelligence throughout.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Key Insight */}
+                    <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                      <h4 className="font-semibold text-foreground mb-2 flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-amber-500" />
+                        Key Insight
+                      </h4>
+                      <p className="text-sm text-muted-foreground">
+                        <strong>Objections don't come after closing.</strong> If a customer has objections after you've reached the closing stage, 
+                        it means you didn't fully address their concerns during negotiation. The goal is to handle all objections 
+                        BEFORE asking for commitment, not after.
+                      </p>
+                    </div>
+                  </div>
                 </TabsContent>
               </Tabs>
             </CardContent>
