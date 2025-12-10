@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Shield, BookOpen, UserCog, Building2, Flag, DollarSign, Settings2 } from "lucide-react";
+import { Users, MessageSquare, Shield, BookOpen, UserCog, Building2, Flag, DollarSign, Settings2, Box } from "lucide-react";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -26,6 +26,16 @@ const Manage = () => {
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => navigate('/users')}
+            >
+              <UserCog className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">User Management</p>
+                <p className="text-xs text-muted-foreground">Manage users, roles and permissions</p>
+              </div>
+            </div>
             <div 
               className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
               onClick={() => navigate('/messages')}
@@ -63,6 +73,16 @@ const Manage = () => {
             </div>
           </CardHeader>
           <CardContent className="space-y-3">
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => navigate('/products')}
+            >
+              <Box className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">Product Management</p>
+                <p className="text-xs text-muted-foreground">Manage products and categories</p>
+              </div>
+            </div>
             <div 
               className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
               onClick={() => navigate('/customer-services')}
