@@ -39,11 +39,18 @@ interface ApplicationWithCustomer {
     company: string;
     email: string;
     mobile: string;
+    user_id: string | null;
   };
   product?: {
     id: string;
     name: string;
   };
+}
+
+interface UserProfile {
+  id: string;
+  name: string;
+  email: string;
 }
 
 const ApplicationsList = () => {
@@ -54,6 +61,8 @@ const ApplicationsList = () => {
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [submittedByFilter, setSubmittedByFilter] = useState<string>('all');
+  const [userProfiles, setUserProfiles] = useState<UserProfile[]>([]);
   const [activeTab, setActiveTab] = useState('applications');
   
   // Calculate max reference number for auto-scaling formatter
@@ -79,7 +88,25 @@ const ApplicationsList = () => {
 
   useEffect(() => {
     fetchApplications();
+    if (isAdmin) {
+      fetchUserProfiles();
+    }
   }, [user?.id, isAdmin]);
+
+  const fetchUserProfiles = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('id, name, email')
+        .eq('is_active', true)
+        .order('name');
+      
+      if (error) throw error;
+      setUserProfiles(data || []);
+    } catch (error) {
+      console.error('Error fetching user profiles:', error);
+    }
+  };
 
   const fetchApplications = async () => {
     try {
@@ -94,7 +121,8 @@ const ApplicationsList = () => {
             name,
             company,
             email,
-            mobile
+            mobile,
+            user_id
           )
         `)
         .order('created_at', { ascending: false });
@@ -172,7 +200,7 @@ const ApplicationsList = () => {
     return applications.filter(app => app.status === 'draft');
   }, [applications]);
 
-  // Filter active applications with search and status
+  // Filter active applications with search, status, and submitted by
   const filteredActiveApplications = useMemo(() => {
     return activeApplications.filter(app => {
       let matchesSearch = searchTerm === '';
@@ -190,9 +218,10 @@ const ApplicationsList = () => {
       }
       
       const matchesStatus = statusFilter === 'all' || app.status === statusFilter;
-      return matchesSearch && matchesStatus;
+      const matchesSubmittedBy = submittedByFilter === 'all' || app.customer?.user_id === submittedByFilter;
+      return matchesSearch && matchesStatus && matchesSubmittedBy;
     });
-  }, [activeApplications, searchTerm, statusFilter]);
+  }, [activeApplications, searchTerm, statusFilter, submittedByFilter]);
 
   // Filter rejected applications with search only
   const filteredRejectedApplications = useMemo(() => {
@@ -398,6 +427,21 @@ const ApplicationsList = () => {
                 <SelectItem value="completed">Completed</SelectItem>
               </SelectContent>
             </Select>
+            {isAdmin && (
+              <Select value={submittedByFilter} onValueChange={setSubmittedByFilter}>
+                <SelectTrigger className="sm:w-[200px]">
+                  <SelectValue placeholder="Submitted by" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Users</SelectItem>
+                  {userProfiles.map((profile) => (
+                    <SelectItem key={profile.id} value={profile.id}>
+                      {profile.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            )}
           </div>
 
           {/* Compact Applications Table with Scroll */}
