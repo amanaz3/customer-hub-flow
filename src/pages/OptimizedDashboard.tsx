@@ -1,11 +1,12 @@
 
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, Suspense } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import DashboardStats from '@/components/Dashboard/DashboardStats';
+import DashboardFilters from '@/components/Dashboard/DashboardFilters';
 import EmptyDashboardState from '@/components/Dashboard/EmptyDashboardState';
 import DashboardHeader from '@/components/Dashboard/DashboardHeader';
 import { MonthComparisonWidget } from '@/components/Dashboard/MonthComparisonWidget';
@@ -13,15 +14,20 @@ import { TrendChart } from '@/components/Dashboard/TrendChart';
 import { ForecastWidget } from '@/components/Dashboard/ForecastWidget';
 import { InsightsBanner } from '@/components/Dashboard/InsightsBanner';
 import { useOptimizedCustomerData } from '@/hooks/useOptimizedCustomerData';
+import { useDashboardFilters } from '@/hooks/useDashboardFilters';
 import { useMonthComparison } from '@/hooks/useMonthComparison';
 import { useMonthlyTargets } from '@/hooks/useMonthlyTargets';
 import { useForecast } from '@/hooks/useForecast';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { supabase } from '@/lib/supabase';
-import { Calendar, X } from 'lucide-react';
+import { Calendar, X, CheckCircle, Clock, DollarSign, Users } from 'lucide-react';
 import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { LazyLoadingBoundary } from '@/components/Performance/LazyLoadingBoundary';
+
+// Lazy load heavy components
+const EnhancedCustomerTable = React.lazy(() => import('@/components/Customer/EnhancedCustomerTable'));
 
 const OptimizedDashboard = () => {
   const { user, isAdmin } = useAuth();
@@ -58,10 +64,20 @@ const OptimizedDashboard = () => {
     hasPreviousPage
   } = useOptimizedCustomerData(50, activeWidget, revenueFilterOptions);
   
-  // Clear filters when widget changes
-  const clearAllFilters = () => {
-    setRevenueSelectedMonths([]);
-  };
+  // Initialize dashboard filters (for regular users only)
+  const {
+    searchTerm,
+    setSearchTerm,
+    statusFilter,
+    setStatusFilter,
+    selectedMonths,
+    availableMonths,
+    filteredCustomers,
+    toggleMonth,
+    clearAllMonths,
+    clearAllFilters,
+    hasActiveFilters
+  } = useDashboardFilters(customers, activeWidget, revenueSelectedMonths, isAdmin);
   
   // Month-over-month comparison data
   const currentDate = new Date();
@@ -159,8 +175,44 @@ const OptimizedDashboard = () => {
   // Use pre-calculated dashboard stats for better performance
   const stats = dashboardStats;
 
+  // Get dynamic content based on active widget (for regular users)
+  const getWidgetContent = () => {
+    switch (activeWidget) {
+      case 'applications':
+        return {
+          title: 'My Applications',
+          description: `Showing ${filteredCustomers.length} applications of all statuses`,
+          icon: Users
+        };
+      case 'completed':
+        const currentMonthLabel = format(new Date(), 'MMMM yyyy');
+        return {
+          title: "This Month's Completed Applications",
+          description: `Showing ${filteredCustomers.length} completed/paid applications from ${currentMonthLabel}`,
+          icon: CheckCircle
+        };
+      case 'pending':
+        return {
+          title: 'Submitted Applications',
+          description: `Showing ${filteredCustomers.length} submitted applications in progress`,
+          icon: Clock
+        };
+      case 'revenue':
+        return {
+          title: 'My Revenue',
+          description: `Showing ${filteredCustomers.length} revenue-generating applications`,
+          icon: DollarSign
+        };
+      default:
+        return {
+          title: 'Applications',
+          description: 'Select a widget to view details',
+          icon: Users
+        };
+    }
+  };
 
-
+  const widgetContent = getWidgetContent();
   const handleDataRefresh = () => {
     refreshData();
   };
@@ -343,8 +395,49 @@ const OptimizedDashboard = () => {
                 </Card>
               )}
 
-              {customers.length === 0 && (
+              {customers.length === 0 ? (
                 <EmptyDashboardState onCreateCustomer={handleCreateCustomer} />
+              ) : (
+                <div className="space-y-6">
+                  <DashboardFilters
+                    searchTerm={searchTerm}
+                    setSearchTerm={setSearchTerm}
+                    statusFilter={statusFilter}
+                    setStatusFilter={setStatusFilter}
+                    selectedMonths={selectedMonths}
+                    availableMonths={availableMonths}
+                    onMonthToggle={toggleMonth}
+                    onClearAllMonths={clearAllMonths}
+                    onClearAllFilters={clearAllFilters}
+                    onRefresh={handleDataRefresh}
+                    isLoading={isLoading}
+                    activeWidget={activeWidget}
+                  />
+                  
+                  <Card className="shadow-sm border-0 bg-gradient-to-br from-card to-card/50">
+                    <CardHeader className="pb-4 border-b border-border/50">
+                      <CardTitle className="flex items-center gap-3">
+                        <div className="p-2 rounded-lg bg-primary/10">
+                          <widgetContent.icon className="h-5 w-5 text-primary" />
+                        </div>
+                        <div className="flex-1">
+                          <span className="text-xl font-semibold">{widgetContent.title}</span>
+                          <p className="text-sm text-muted-foreground font-normal mt-1">
+                            {widgetContent.description}
+                          </p>
+                        </div>
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="p-0">
+                      <LazyLoadingBoundary>
+                        <EnhancedCustomerTable 
+                          customers={filteredCustomers} 
+                          onDataChange={handleDataRefresh}
+                        />
+                      </LazyLoadingBoundary>
+                    </CardContent>
+                  </Card>
+                </div>
               )}
           </div>
         ) : (
