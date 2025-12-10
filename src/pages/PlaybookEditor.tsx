@@ -381,27 +381,37 @@ const PlaybookEditor = () => {
             <CardContent className="p-0">
               <ScrollArea className="h-[calc(100vh-280px)]">
                 <div className="space-y-1 p-2">
-                  {playbooks.map(playbook => (
-                    <div
-                      key={playbook.id}
-                      className={`p-3 rounded-lg cursor-pointer transition-colors ${
-                        selectedPlaybook?.id === playbook.id 
-                          ? 'bg-primary/10 border border-primary/30' 
-                          : 'hover:bg-muted/50'
-                      }`}
-                      onClick={() => handleSelectPlaybook(playbook)}
-                    >
-                      <div className="font-medium text-sm">{playbook.name}</div>
-                      <div className="flex items-center gap-2 mt-1">
-                        <Badge variant="outline" className="text-xs">
-                          {playbook.call_type}
-                        </Badge>
-                        {playbook.is_active && (
-                          <Badge className="text-xs bg-green-500/20 text-green-700">Active</Badge>
-                        )}
-                      </div>
+                  {loading ? (
+                    <div className="p-4 text-center text-muted-foreground text-sm">Loading...</div>
+                  ) : playbooks.length === 0 ? (
+                    <div className="p-4 text-center">
+                      <BookOpen className="h-8 w-8 mx-auto text-muted-foreground/50 mb-2" />
+                      <p className="text-sm text-muted-foreground">No playbooks yet</p>
+                      <p className="text-xs text-muted-foreground mt-1">Click "New Playbook" to create one</p>
                     </div>
-                  ))}
+                  ) : (
+                    playbooks.map(playbook => (
+                      <div
+                        key={playbook.id}
+                        className={`p-3 rounded-lg cursor-pointer transition-colors ${
+                          selectedPlaybook?.id === playbook.id 
+                            ? 'bg-primary/10 border border-primary/30' 
+                            : 'hover:bg-muted/50'
+                        }`}
+                        onClick={() => handleSelectPlaybook(playbook)}
+                      >
+                        <div className="font-medium text-sm">{playbook.name}</div>
+                        <div className="flex items-center gap-2 mt-1">
+                          <Badge variant="outline" className="text-xs">
+                            {playbook.call_type}
+                          </Badge>
+                          {playbook.is_active && (
+                            <Badge className="text-xs bg-green-500/20 text-green-700">Active</Badge>
+                          )}
+                        </div>
+                      </div>
+                    ))
+                  )}
                 </div>
               </ScrollArea>
             </CardContent>
