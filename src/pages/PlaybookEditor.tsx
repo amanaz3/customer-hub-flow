@@ -468,70 +468,106 @@ const PlaybookEditor = () => {
                     <div className="space-y-3">
                       {stages.map((stage, index) => (
                         <Card key={stage.id} className="p-4">
-                          <div className="flex items-start gap-4">
-                            <div className="flex items-center gap-2 text-muted-foreground">
-                              <GripVertical className="h-4 w-4" />
-                              <span className="font-mono text-sm">{stage.stage_order}</span>
+                          <div className="space-y-4">
+                            <div className="flex items-start gap-4">
+                              <div className="flex items-center gap-2 text-muted-foreground">
+                                <GripVertical className="h-4 w-4" />
+                                <span className="font-mono text-sm">{stage.stage_order}</span>
+                              </div>
+                              <div className="flex-1 grid grid-cols-3 gap-4">
+                                <div className="space-y-2">
+                                  <Label className="text-xs">Stage Name</Label>
+                                  <Input
+                                    value={stage.stage_name}
+                                    onChange={(e) => {
+                                      const updated = stages.map(s => 
+                                        s.id === stage.id ? { ...s, stage_name: e.target.value } : s
+                                      );
+                                      setStages(updated);
+                                    }}
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label className="text-xs">Type</Label>
+                                  <Select
+                                    value={stage.stage_type}
+                                    onValueChange={(v) => {
+                                      const updated = stages.map(s => 
+                                        s.id === stage.id ? { ...s, stage_type: v } : s
+                                      );
+                                      setStages(updated);
+                                    }}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="opening">Opening</SelectItem>
+                                      <SelectItem value="discovery">Discovery</SelectItem>
+                                      <SelectItem value="pitch">Pitch</SelectItem>
+                                      <SelectItem value="objection_handling">Objection Handling</SelectItem>
+                                      <SelectItem value="negotiation">Negotiation</SelectItem>
+                                      <SelectItem value="closing">Closing</SelectItem>
+                                      <SelectItem value="follow_up">Follow Up</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <div className="space-y-2">
+                                  <Label className="text-xs">Duration (sec)</Label>
+                                  <Input
+                                    type="number"
+                                    value={stage.duration_seconds}
+                                    onChange={(e) => {
+                                      const updated = stages.map(s => 
+                                        s.id === stage.id ? { ...s, duration_seconds: parseInt(e.target.value) || 60 } : s
+                                      );
+                                      setStages(updated);
+                                    }}
+                                  />
+                                </div>
+                              </div>
+                              <div className="flex gap-2">
+                                <Button size="icon" variant="ghost" onClick={() => handleSaveStage(stage)}>
+                                  <Save className="h-4 w-4" />
+                                </Button>
+                                <Button size="icon" variant="ghost" onClick={() => handleDeleteStage(stage.id)}>
+                                  <Trash2 className="h-4 w-4 text-destructive" />
+                                </Button>
+                              </div>
                             </div>
-                            <div className="flex-1 grid grid-cols-3 gap-4">
+                            
+                            {/* Key Objectives & Success Criteria */}
+                            <div className="grid grid-cols-2 gap-4 pl-10">
                               <div className="space-y-2">
-                                <Label className="text-xs">Stage Name</Label>
-                                <Input
-                                  value={stage.stage_name}
+                                <Label className="text-xs">Key Objectives (one per line)</Label>
+                                <Textarea
+                                  className="min-h-[80px] text-sm"
+                                  value={Array.isArray(stage.key_objectives) ? stage.key_objectives.join('\n') : ''}
                                   onChange={(e) => {
+                                    const objectives = e.target.value.split('\n').filter(line => line.trim());
                                     const updated = stages.map(s => 
-                                      s.id === stage.id ? { ...s, stage_name: e.target.value } : s
+                                      s.id === stage.id ? { ...s, key_objectives: objectives } : s
                                     );
                                     setStages(updated);
                                   }}
+                                  placeholder="Enter objectives, one per line..."
                                 />
                               </div>
                               <div className="space-y-2">
-                                <Label className="text-xs">Type</Label>
-                                <Select
-                                  value={stage.stage_type}
-                                  onValueChange={(v) => {
-                                    const updated = stages.map(s => 
-                                      s.id === stage.id ? { ...s, stage_type: v } : s
-                                    );
-                                    setStages(updated);
-                                  }}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="opening">Opening</SelectItem>
-                                    <SelectItem value="discovery">Discovery</SelectItem>
-                                    <SelectItem value="pitch">Pitch</SelectItem>
-                                    <SelectItem value="objection_handling">Objection Handling</SelectItem>
-                                    <SelectItem value="negotiation">Negotiation</SelectItem>
-                                    <SelectItem value="closing">Closing</SelectItem>
-                                    <SelectItem value="follow_up">Follow Up</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-xs">Duration (sec)</Label>
-                                <Input
-                                  type="number"
-                                  value={stage.duration_seconds}
+                                <Label className="text-xs">Success Criteria (one per line)</Label>
+                                <Textarea
+                                  className="min-h-[80px] text-sm"
+                                  value={Array.isArray(stage.success_criteria) ? stage.success_criteria.join('\n') : ''}
                                   onChange={(e) => {
+                                    const criteria = e.target.value.split('\n').filter(line => line.trim());
                                     const updated = stages.map(s => 
-                                      s.id === stage.id ? { ...s, duration_seconds: parseInt(e.target.value) || 60 } : s
+                                      s.id === stage.id ? { ...s, success_criteria: criteria } : s
                                     );
                                     setStages(updated);
                                   }}
+                                  placeholder="Enter success criteria, one per line..."
                                 />
                               </div>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button size="icon" variant="ghost" onClick={() => handleSaveStage(stage)}>
-                                <Save className="h-4 w-4" />
-                              </Button>
-                              <Button size="icon" variant="ghost" onClick={() => handleDeleteStage(stage.id)}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
                             </div>
                           </div>
                         </Card>
