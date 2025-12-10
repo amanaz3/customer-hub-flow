@@ -69,6 +69,7 @@ import CustomerClassification from '@/pages/CustomerClassification';
 import Legacy from '@/pages/Legacy';
 import LegacyDashboard from '@/pages/LegacyDashboard';
 import LiveAssistant from '@/pages/LiveAssistant';
+import PlaybookEditor from '@/pages/PlaybookEditor';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -653,6 +654,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Task Settings">
                           <TaskSettings />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/playbook-editor" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Playbook Editor">
+                          <PlaybookEditor />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>

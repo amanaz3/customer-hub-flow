@@ -137,3 +137,6 @@ verify_jwt = true
 
 [functions.analyze-rfm-segments]
 verify_jwt = true
+
+[functions.sales-assistant]
+verify_jwt = true
