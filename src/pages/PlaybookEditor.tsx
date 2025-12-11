@@ -30,6 +30,7 @@ import {
   GitBranch,
   FileText,
   ChevronDown,
+  ChevronUp,
   Lightbulb,
   Users,
   Target,
@@ -211,6 +212,7 @@ const PlaybookEditor = () => {
   const [stageScriptModes, setStageScriptModes] = useState<Record<string, 'simple' | 'tree'>>({});
   const [searchTerm, setSearchTerm] = useState('');
   const [callTypeFilter, setCallTypeFilter] = useState<'all' | 'outbound' | 'inbound' | 'follow_up'>('all');
+  const [isPlaybookListCollapsed, setIsPlaybookListCollapsed] = useState(false);
   const [newPlaybook, setNewPlaybook] = useState({
     name: '',
     description: '',
@@ -1285,10 +1287,19 @@ const PlaybookEditor = () => {
                   </Button>
                 ))}
               </div>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsPlaybookListCollapsed(!isPlaybookListCollapsed)}
+                className="h-7 w-7 p-0"
+              >
+                {isPlaybookListCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+              </Button>
             </div>
           </div>
         </CardHeader>
-        <CardContent className="p-3">
+        {!isPlaybookListCollapsed && (
+          <CardContent className="p-3">
           {loading ? (
             <div className="p-6 text-center">
               <div className="animate-spin h-6 w-6 border-2 border-primary border-t-transparent rounded-full mx-auto mb-2" />
@@ -1354,6 +1365,7 @@ const PlaybookEditor = () => {
             </div>
           )}
         </CardContent>
+        )}
       </Card>
 
       {/* Playbook Editor - Main Content */}
