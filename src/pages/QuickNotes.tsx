@@ -422,6 +422,124 @@ const QuickNotes = () => {
                   <li>• Not admitting when you don't know something</li>
                 </ul>
               </div>
+
+              <div className="p-4 rounded-lg bg-gradient-to-br from-amber-500/10 to-orange-500/10 border">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-amber-500" />
+                  The Trust-Before-Pitch Rule
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4 font-medium">Golden Rule: Never pitch until they trust you. No trust = No sale, no matter how good your offer is.</p>
+                
+                <div className="grid md:grid-cols-3 gap-4">
+                  <div className="p-3 rounded bg-red-500/10 border-l-4 border-red-500/50">
+                    <p className="font-medium text-sm text-red-600 mb-2">🚫 What Destroys Trust</p>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>• Pitching too early</li>
+                      <li>• Not listening, just waiting to talk</li>
+                      <li>• Overpromising</li>
+                      <li>• Being vague about process/pricing</li>
+                      <li>• Pressuring for quick decisions</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-green-500/10 border-l-4 border-green-500/50">
+                    <p className="font-medium text-sm text-green-600 mb-2">✅ What Builds Trust</p>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>• Active listening (paraphrasing back)</li>
+                      <li>• Asking thoughtful questions</li>
+                      <li>• Being honest about limitations</li>
+                      <li>• Sharing relevant examples</li>
+                      <li>• Giving before asking</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-blue-500/10 border-l-4 border-blue-500/50">
+                    <p className="font-medium text-sm text-blue-600 mb-2">🎯 Trust Signals to Watch</p>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>• They share personal details</li>
+                      <li>• They ask "How?" questions</li>
+                      <li>• They mention concerns openly</li>
+                      <li>• Conversation becomes two-way</li>
+                      <li>• They agree to next steps</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-purple-500" />
+                  Trust-Building Techniques
+                </h3>
+                
+                <div className="space-y-4">
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-purple-600 mb-2">1. The Mirror Technique</p>
+                    <p className="text-xs text-muted-foreground mb-2">Repeat their last 1-3 words as a question. Shows you're listening.</p>
+                    <div className="p-2 rounded bg-muted/50 text-xs">
+                      <p><span className="font-medium">Client:</span> "I'm worried about the timeline."</p>
+                      <p><span className="font-medium text-purple-600">You:</span> "The timeline?"</p>
+                      <p><span className="font-medium">Client:</span> "Yes, we need this done by March because..." <span className="italic text-green-600">[Opens up more]</span></p>
+                    </div>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-purple-600 mb-2">2. The Label Technique</p>
+                    <p className="text-xs text-muted-foreground mb-2">Name their emotion. "It sounds like..." / "It seems like..."</p>
+                    <div className="p-2 rounded bg-muted/50 text-xs">
+                      <p><span className="font-medium text-purple-600">You:</span> "It sounds like you've had frustrating experiences with this before..."</p>
+                      <p><span className="font-medium">Client:</span> "Yes! We tried twice and it failed both times." <span className="italic text-green-600">[Validates them, builds connection]</span></p>
+                    </div>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-purple-600 mb-2">3. The Vulnerability Technique</p>
+                    <p className="text-xs text-muted-foreground mb-2">Share a small limitation or honest admission. Makes you human.</p>
+                    <div className="p-2 rounded bg-muted/50 text-xs">
+                      <p><span className="font-medium text-purple-600">You:</span> "I'll be honest - if you need this in 2 days, we're not the right fit. Our minimum is 5 days because we don't cut corners."</p>
+                      <p className="italic text-green-600">[Honesty = Trust]</p>
+                    </div>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-purple-600 mb-2">4. The Give-First Technique</p>
+                    <p className="text-xs text-muted-foreground mb-2">Offer value before asking for anything. Creates reciprocity.</p>
+                    <div className="p-2 rounded bg-muted/50 text-xs">
+                      <p><span className="font-medium text-purple-600">You:</span> "Before we go further, let me share a quick tip that might help regardless of whether you work with us..."</p>
+                      <p className="italic text-green-600">[Generosity = Trust]</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-gradient-to-br from-teal-500/10 to-cyan-500/10 border">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5 text-teal-500" />
+                  Evoking Interest - Make Them WANT To Buy
+                </h3>
+                
+                <div className="grid md:grid-cols-2 gap-3">
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-teal-600 mb-2">Paint The "After" Picture</p>
+                    <p className="text-xs italic text-foreground">"Imagine 3 weeks from now - your account is open, your first transaction goes through smoothly, and you can finally [their goal]. How would that feel?"</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-teal-600 mb-2">Highlight The Cost Of Inaction</p>
+                    <p className="text-xs italic text-foreground">"Every month you wait is a month of [lost opportunity/risk/frustration]. What's that costing you right now?"</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-teal-600 mb-2">Use Social Proof Stories</p>
+                    <p className="text-xs italic text-foreground">"We just helped a company just like yours - they were hesitant too, but within 3 weeks they had [outcome]. Would you like to hear how?"</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-teal-600 mb-2">Create Scarcity (Genuine)</p>
+                    <p className="text-xs italic text-foreground">"Our specialist for [their need] only takes on 4 new clients per month. I want to make sure I can hold a spot if you decide to move forward."</p>
+                  </div>
+                </div>
+              </div>
             </TabsContent>
 
             {/* STAGES TAB */}
