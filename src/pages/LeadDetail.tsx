@@ -55,6 +55,7 @@ import {
 } from '@/types/lead';
 import { format, formatDistanceToNow } from 'date-fns';
 import { LeadFollowupTimeline } from '@/components/Lead/LeadFollowupTimeline';
+import { LeadConversionDialog, ConversionOptions } from '@/components/Lead/LeadConversionDialog';
 
 const activityIcons: Record<string, React.ReactNode> = {
   call: <Phone className="h-4 w-4" />,
@@ -80,6 +81,8 @@ export default function LeadDetail() {
   const [activityType, setActivityType] = useState('call');
   const [activityDescription, setActivityDescription] = useState('');
   const [loggingActivity, setLoggingActivity] = useState(false);
+  const [showConversionDialog, setShowConversionDialog] = useState(false);
+  const [converting, setConverting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -167,10 +170,13 @@ export default function LeadDetail() {
     if (success) navigate('/leads');
   };
 
-  const handleConvert = async () => {
-    if (!lead) return;
-    const customer = await convertToCustomer(lead);
+  const handleConvert = async (leadToConvert: Lead, options: ConversionOptions) => {
+    if (!leadToConvert) return;
+    setConverting(true);
+    const customer = await convertToCustomer(leadToConvert, options);
+    setConverting(false);
     if (customer) {
+      setShowConversionDialog(false);
       navigate(`/customers/${customer.id}`);
     }
   };
@@ -226,7 +232,7 @@ export default function LeadDetail() {
           </div>
           <div className="flex items-center gap-2">
             {!isConverted && (
-              <Button onClick={handleConvert} variant="outline" className="text-green-600">
+              <Button onClick={() => setShowConversionDialog(true)} variant="outline" className="text-green-600">
                 <UserCheck className="h-4 w-4 mr-2" />
                 Convert to Customer
               </Button>
@@ -565,6 +571,14 @@ export default function LeadDetail() {
             </Card>
           </div>
       </div>
+
+      <LeadConversionDialog
+        open={showConversionDialog}
+        onOpenChange={setShowConversionDialog}
+        lead={lead}
+        onConvert={handleConvert}
+        isLoading={converting}
+      />
     </div>
   );
 }

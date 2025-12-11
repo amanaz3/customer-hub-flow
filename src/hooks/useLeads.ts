@@ -132,7 +132,17 @@ export const useLeads = () => {
     }
   };
 
-  const convertToCustomer = async (lead: Lead, servicesPurchased?: string[]) => {
+  const convertToCustomer = async (lead: Lead, options?: {
+    grantPortalAccess?: boolean;
+    portalAccessMethod?: 'send_invitation' | 'auto_create' | 'manual_flag';
+    sendDocumentChecklist?: boolean;
+    documentChecklistNotes?: string;
+    scheduleOnboardingCall?: boolean;
+    onboardingCallDate?: Date;
+    onboardingCallNotes?: string;
+    servicesPurchased?: string[];
+    conversionNotes?: string;
+  }) => {
     try {
       // 1. Create customer from lead with all relevant info transferred
       const { data: customer, error: customerError } = await supabase
@@ -148,7 +158,9 @@ export const useLeads = () => {
           amount: lead.estimated_value || 0,
           status: 'Draft',
           product_id: lead.product_interest_id,
-          customer_notes: lead.notes ? `Converted from Lead #${lead.reference_number}. Original notes: ${lead.notes}` : `Converted from Lead #${lead.reference_number}`,
+          customer_notes: lead.notes 
+            ? `Converted from Lead #${lead.reference_number}. Original notes: ${lead.notes}${options?.conversionNotes ? `\n\nConversion notes: ${options.conversionNotes}` : ''}`
+            : `Converted from Lead #${lead.reference_number}${options?.conversionNotes ? `\n\nConversion notes: ${options.conversionNotes}` : ''}`,
         }])
         .select()
         .single();
@@ -173,11 +185,38 @@ export const useLeads = () => {
         .insert([{
           lead_id: lead.id,
           activity_type: 'note',
-          description: `Lead converted to Customer. Customer ID: ${customer.id}, Reference: ${customer.reference_number}`,
+          description: `Lead converted to Customer. Customer ID: ${customer.id}, Reference: ${customer.reference_number}${options?.servicesPurchased?.length ? `. Services: ${options.servicesPurchased.join(', ')}` : ''}`,
           created_by: lead.assigned_to,
         }]);
 
-      // 4. Create onboarding workflow notification for sales assistant
+      // 4. Build onboarding checklist based on options
+      const checklistItems: string[] = [];
+      
+      if (options?.grantPortalAccess) {
+        const accessMethod = options.portalAccessMethod === 'send_invitation' 
+          ? 'Send invitation email' 
+          : options.portalAccessMethod === 'auto_create' 
+            ? 'Auto-create account & send credentials'
+            : 'Manual flag (no email)';
+        checklistItems.push(`☐ Grant portal access (${accessMethod})`);
+      }
+      
+      if (options?.sendDocumentChecklist) {
+        checklistItems.push(`☐ Send document checklist${options.documentChecklistNotes ? ` - ${options.documentChecklistNotes}` : ''}`);
+      }
+      
+      if (options?.scheduleOnboardingCall) {
+        const callDate = options.onboardingCallDate 
+          ? ` - Scheduled: ${options.onboardingCallDate.toLocaleDateString()}`
+          : '';
+        checklistItems.push(`☐ Schedule onboarding call${callDate}${options.onboardingCallNotes ? ` (${options.onboardingCallNotes})` : ''}`);
+      }
+
+      if (options?.servicesPurchased?.length) {
+        checklistItems.push(`\n📦 Services Purchased:\n${options.servicesPurchased.map(s => `  • ${s}`).join('\n')}`);
+      }
+
+      // 5. Create onboarding workflow notifications for sales assistant
       if (lead.assigned_to) {
         // Notify sales assistant of successful conversion
         await supabase
@@ -186,38 +225,66 @@ export const useLeads = () => {
             user_id: lead.assigned_to,
             type: 'success',
             title: '🎉 Lead Converted Successfully',
-            message: `${lead.name} (${lead.company || 'No Company'}) has been converted to a customer. Next steps: Grant portal access, send document checklist, schedule onboarding call.`,
+            message: `${lead.name} (${lead.company || 'No Company'}) has been converted to a customer.${options?.servicesPurchased?.length ? ` Services: ${options.servicesPurchased.join(', ')}` : ''}`,
             customer_id: customer.id,
             action_url: `/customers/${customer.id}`,
           }]);
 
-        // Create onboarding task notification
-        await supabase
-          .from('notifications')
-          .insert([{
-            user_id: lead.assigned_to,
-            type: 'info',
-            title: '📋 Onboarding Tasks Required',
-            message: `Customer ${lead.name} needs onboarding: 1) Grant portal access 2) Send document checklist 3) Schedule onboarding call`,
-            customer_id: customer.id,
-            action_url: `/customers/${customer.id}`,
-          }]);
+        // Create specific task notifications based on options
+        if (options?.grantPortalAccess) {
+          await supabase
+            .from('notifications')
+            .insert([{
+              user_id: lead.assigned_to,
+              type: 'info',
+              title: '🔐 Portal Access Required',
+              message: `Grant portal access for ${lead.name} (${options.portalAccessMethod === 'send_invitation' ? 'Send invitation email' : options.portalAccessMethod === 'auto_create' ? 'Auto-create account' : 'Manual setup'})`,
+              customer_id: customer.id,
+              action_url: `/customers/${customer.id}`,
+            }]);
+        }
+
+        if (options?.sendDocumentChecklist) {
+          await supabase
+            .from('notifications')
+            .insert([{
+              user_id: lead.assigned_to,
+              type: 'info',
+              title: '📄 Send Document Checklist',
+              message: `Send document checklist to ${lead.name}${options.documentChecklistNotes ? `: ${options.documentChecklistNotes}` : ''}`,
+              customer_id: customer.id,
+              action_url: `/customers/${customer.id}`,
+            }]);
+        }
+
+        if (options?.scheduleOnboardingCall) {
+          await supabase
+            .from('notifications')
+            .insert([{
+              user_id: lead.assigned_to,
+              type: 'info',
+              title: '📞 Schedule Onboarding Call',
+              message: `Schedule onboarding call with ${lead.name}${options.onboardingCallDate ? ` for ${options.onboardingCallDate.toLocaleDateString()}` : ''}${options.onboardingCallNotes ? ` - ${options.onboardingCallNotes}` : ''}`,
+              customer_id: customer.id,
+              action_url: `/customers/${customer.id}`,
+            }]);
+        }
       }
 
-      // 5. Add initial comment on customer for onboarding tracking
-      if (lead.assigned_to) {
+      // 6. Add initial comment on customer for onboarding tracking
+      if (lead.assigned_to && checklistItems.length > 0) {
         await supabase
           .from('comments')
           .insert([{
             customer_id: customer.id,
-            comment: `📌 ONBOARDING CHECKLIST:\n□ Grant portal access\n□ Send document checklist\n□ Schedule onboarding call\n\nConverted from Lead #${lead.reference_number}`,
+            comment: `📌 ONBOARDING CHECKLIST:\n${checklistItems.join('\n')}\n\nConverted from Lead #${lead.reference_number}`,
             created_by: lead.assigned_to,
           }]);
       }
 
       toast({
         title: 'Lead Converted Successfully! 🎉',
-        description: 'Customer created. Onboarding notifications sent to sales assistant.',
+        description: 'Customer created. Onboarding notifications sent.',
       });
 
       await fetchLeads();
