@@ -526,52 +526,54 @@ const PlaybookEditor = () => {
   }
 
   return (
-    <div className="p-6 space-y-6 bg-gradient-to-br from-background via-background to-muted/20 min-h-screen">
-      {/* Header */}
-      <div className="relative overflow-hidden rounded-xl bg-gradient-to-r from-primary/10 via-primary/5 to-transparent border border-primary/20 p-6">
-        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2" />
-        <div className="relative flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="p-3 rounded-xl bg-primary/10 border border-primary/20">
-              <BookOpen className="h-7 w-7 text-primary" />
+    <div className="p-6 space-y-4 bg-gradient-to-br from-background via-background to-muted/20 min-h-screen">
+      {/* Header - Slim & Stylish */}
+      <div className="relative overflow-hidden rounded-lg bg-gradient-to-r from-primary/5 via-transparent to-purple-500/5 border border-primary/10 px-4 py-3">
+        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-2xl -translate-y-1/2 translate-x-1/2" />
+        <div className="relative flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-gradient-to-br from-primary/15 to-purple-500/10 border border-primary/20">
+              <BookOpen className="h-5 w-5 text-primary" />
             </div>
             <div>
-              <h1 className="text-2xl font-bold tracking-tight">Sales & Support Playbook Editor</h1>
-              <p className="text-muted-foreground mt-0.5">Configure playbooks, stages, objection handlers, and call flow strategies</p>
+              <h1 className="text-lg font-semibold tracking-tight flex items-center gap-2">
+                Sales & Support Playbook Editor
+                <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/20 text-[10px] px-1.5 py-0 h-5">
+                  <span className="w-1 h-1 rounded-full bg-green-500 mr-1 animate-pulse" />
+                  Active
+                </Badge>
+              </h1>
+              <p className="text-xs text-muted-foreground">Configure playbooks, stages & call flow strategies</p>
             </div>
           </div>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5">
             <Button 
-              variant="outline" 
+              variant="ghost" 
               size="sm" 
-              className="gap-2"
+              className="h-8 px-3 text-xs gap-1.5"
               onClick={() => navigate('/quick-notes')}
             >
-              <Brain className="h-4 w-4" />
-              Quick Notes
+              <Brain className="h-3.5 w-3.5" />
+              Notes
             </Button>
             <Button 
-              variant="outline" 
+              variant="ghost" 
               size="sm" 
-              className="gap-2"
+              className="h-8 px-3 text-xs gap-1.5"
               onClick={() => navigate('/quick-reference')}
             >
-              <Lightbulb className="h-4 w-4" />
+              <Lightbulb className="h-3.5 w-3.5" />
               Quick Ref
             </Button>
             <Button 
               variant="ghost" 
               size="sm" 
-              className="gap-2"
+              className="h-8 px-3 text-xs gap-1.5"
               onClick={() => navigate('/sales-guide')}
             >
-              <BookOpen className="h-4 w-4" />
+              <BookOpen className="h-3.5 w-3.5" />
               Training
             </Button>
-            <Badge variant="outline" className="bg-green-500/10 text-green-700 border-green-500/30">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse" />
-              Editor Active
-            </Badge>
           </div>
         </div>
       </div>
