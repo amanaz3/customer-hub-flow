@@ -36,7 +36,9 @@ import {
 import { useLeads } from '@/hooks/useLeads';
 import { CreateLeadDialog } from '@/components/Lead/CreateLeadDialog';
 import { DailyLeadCheckBanner } from '@/components/Lead/DailyLeadCheckBanner';
+import { LeadReminderScheduleDialog } from '@/components/Lead/LeadReminderScheduleDialog';
 import { LEAD_SCORE_COLORS, LEAD_STATUS_COLORS, type LeadScore, type LeadStatus } from '@/types/lead';
+import { useAuth } from '@/contexts/SecureAuthContext';
 import { format, formatDistanceToNow } from 'date-fns';
 
 const scoreIcons: Record<LeadScore, React.ReactNode> = {
@@ -48,6 +50,8 @@ const scoreIcons: Record<LeadScore, React.ReactNode> = {
 export default function Leads() {
   const navigate = useNavigate();
   const { leads, loading } = useLeads();
+  const { user } = useAuth();
+  const isAdmin = user?.profile?.role === 'admin';
   const [search, setSearch] = useState('');
   const [scoreFilter, setScoreFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -100,10 +104,13 @@ export default function Leads() {
               Capture, track, and convert all prospects efficiently
             </p>
           </div>
-          <Button onClick={() => setShowCreateDialog(true)}>
-            <Plus className="h-4 w-4 mr-2" />
-            Add Lead
-          </Button>
+          <div className="flex items-center gap-2">
+            {isAdmin && <LeadReminderScheduleDialog />}
+            <Button onClick={() => setShowCreateDialog(true)}>
+              <Plus className="h-4 w-4 mr-2" />
+              Add Lead
+            </Button>
+          </div>
         </div>
 
         {/* Stats Cards */}
