@@ -544,41 +544,90 @@ const QuickNotes = () => {
 
             {/* STAGES TAB */}
             <TabsContent value="stages" className="space-y-4">
-              <div className="p-4 rounded-lg bg-background/50 border">
-                <h4 className="font-semibold mb-3 flex items-center gap-2">
-                  <Target className="h-4 w-4 text-primary" />
-                  5-Stage Sales Framework
-                </h4>
+              <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-blue-500/10 border">
+                <h3 className="font-semibold mb-4 flex items-center gap-2 text-lg">
+                  <Target className="h-5 w-5 text-primary" />
+                  The 5-Stage Call Framework
+                </h3>
+                
                 <div className="space-y-3">
                   {[
-                    { stage: "1. Opening", time: "30-60 sec", goal: "Capture attention, establish relevance", tips: "Personalized hook, state purpose clearly, ask permission to continue" },
-                    { stage: "2. Discovery", time: "5-10 min", goal: "Understand needs, pain, budget, timeline", tips: "Open questions, active listening, SPIN technique" },
-                    { stage: "3. Presentation", time: "3-5 min", goal: "Match solution to discovered needs", tips: "Focus on benefits not features, use their language" },
-                    { stage: "4. Objection Handling", time: "2-5 min", goal: "Address concerns, build confidence", tips: "LAER framework, never argue, empathize first" },
-                    { stage: "5. Closing", time: "2-3 min", goal: "Secure commitment, next steps", tips: "Assumptive close, summary close, clear call-to-action" }
+                    { 
+                      num: "1", 
+                      stage: "Opening", 
+                      time: "30-60 sec", 
+                      goal: "Hook attention, establish rapport, earn the right to continue",
+                      color: "from-blue-500 to-blue-600"
+                    },
+                    { 
+                      num: "2", 
+                      stage: "Discovery", 
+                      time: "5-10 min", 
+                      goal: "Understand needs, pains, goals, budget, timeline",
+                      color: "from-green-500 to-green-600"
+                    },
+                    { 
+                      num: "3", 
+                      stage: "Demonstration", 
+                      time: "5-15 min", 
+                      goal: "Present solution mapped to their specific needs",
+                      color: "from-purple-500 to-purple-600"
+                    },
+                    { 
+                      num: "4", 
+                      stage: "Negotiation", 
+                      time: "5-10 min", 
+                      goal: "Handle objections, discuss pricing, terms",
+                      color: "from-orange-500 to-orange-600"
+                    },
+                    { 
+                      num: "5", 
+                      stage: "Closing", 
+                      time: "2-5 min", 
+                      goal: "Ask for commitment, define next steps",
+                      color: "from-red-500 to-red-600"
+                    }
                   ].map((item, i) => (
-                    <div key={i} className="p-3 rounded bg-muted/50 border-l-4 border-primary/50">
-                      <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-sm">{item.stage}</span>
-                        <Badge variant="outline" className="text-xs">{item.time}</Badge>
+                    <div key={i} className="flex items-start gap-3 p-3 rounded-lg bg-background/80 border">
+                      <div className={`flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br ${item.color} flex items-center justify-center text-white font-bold text-sm`}>
+                        {item.num}
                       </div>
-                      <p className="text-xs text-muted-foreground mb-1"><strong>Goal:</strong> {item.goal}</p>
-                      <p className="text-xs text-muted-foreground"><strong>Tips:</strong> {item.tips}</p>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <span className="font-semibold">{item.stage}</span>
+                          <Badge variant="outline" className="text-xs">Time: {item.time}</Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          <span className="font-medium text-foreground">Goal:</span> {item.goal}
+                        </p>
+                      </div>
                     </div>
                   ))}
                 </div>
               </div>
+
               <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                <h4 className="font-semibold mb-2 text-amber-600 flex items-center gap-2">
-                  <AlertTriangle className="h-4 w-4" />
-                  When Client Skips Stages
-                </h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• <strong>Jumps to price:</strong> "Great question! To give you an accurate quote, can I ask a few quick questions first?"</li>
-                  <li>• <strong>Wants to buy immediately:</strong> Confirm needs briefly, then proceed to close</li>
-                  <li>• <strong>Asks technical questions:</strong> Answer briefly, then return to discovery</li>
-                  <li>• <strong>Says they're in a hurry:</strong> "I respect your time. What's the ONE thing you need to know?"</li>
-                </ul>
+                <h3 className="font-semibold mb-3 text-amber-600 flex items-center gap-2">
+                  <AlertTriangle className="h-5 w-5" />
+                  When Clients Skip Stages
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">Clients often jump ahead - don't follow them blindly!</p>
+                
+                <div className="space-y-3">
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-amber-600 mb-2">Client jumps to price → Bring them back to discovery</p>
+                    <div className="p-2 rounded bg-muted/50 text-xs">
+                      <p className="italic">"Great question! To give you an accurate answer, I need to understand [X] first. Can you tell me about...?"</p>
+                    </div>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-amber-600 mb-2">Client wants to close immediately → Ensure they understand value</p>
+                    <div className="p-2 rounded bg-muted/50 text-xs">
+                      <p className="italic">"I love your enthusiasm! Before we finalize, let me make sure you have all the information you need about [key benefit]..."</p>
+                    </div>
+                  </div>
+                </div>
               </div>
             </TabsContent>
 
