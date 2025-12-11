@@ -70,6 +70,7 @@ import Legacy from '@/pages/Legacy';
 import LegacyDashboard from '@/pages/LegacyDashboard';
 import LiveAssistant from '@/pages/LiveAssistant';
 import PlaybookEditor from '@/pages/PlaybookEditor';
+import SalesGuide from '@/pages/SalesGuide';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
