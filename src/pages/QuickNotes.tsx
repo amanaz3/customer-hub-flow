@@ -1325,7 +1325,23 @@ const QuickNotes = () => {
                       <p className="text-xs text-muted-foreground">A: {item.a}</p>
                     </div>
                   ))}
+                  
+                  <div className="mt-4 p-3 rounded bg-blue-500/10 border border-blue-500/20">
+                    <p className="font-semibold text-sm text-blue-600 mb-2">Q: "Why are you calling me?"</p>
+                    <p className="text-xs text-muted-foreground italic">"Great question! I help business owners in [industry] with [specific problem]. I noticed [something about their company] and thought there might be an opportunity to help. Do you have 2 minutes?"</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-blue-500/10 border border-blue-500/20">
+                    <p className="font-semibold text-sm text-blue-600 mb-2">Q: "How did you get my number?"</p>
+                    <p className="text-xs text-muted-foreground italic">"Your company came up in my research for businesses in [industry]. I reached out because [specific reason]. If this isn't the right time, I'm happy to schedule a better moment."</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-blue-500/10 border border-blue-500/20">
+                    <p className="font-semibold text-sm text-blue-600 mb-2">Q: "We already have a provider"</p>
+                    <p className="text-xs text-muted-foreground italic">"That's great! Many of our clients had providers before switching. Out of curiosity, what made you take this call today? Is there anything your current provider isn't addressing?"</p>
+                  </div>
                 </TabsContent>
+                
                 <TabsContent value="inbound" className="mt-3 space-y-2">
                   {[
                     { q: "Price immediately?", a: "\"Pricing depends on needs. Quick questions first?\"" },
@@ -1337,7 +1353,18 @@ const QuickNotes = () => {
                       <p className="text-xs text-muted-foreground">A: {item.a}</p>
                     </div>
                   ))}
+                  
+                  <div className="mt-4 p-3 rounded bg-green-500/10 border border-green-500/20">
+                    <p className="font-semibold text-sm text-green-600 mb-2">Q: "How much does it cost?"</p>
+                    <p className="text-xs text-muted-foreground italic">"Our pricing depends on your specific needs. To give you an accurate quote, can I ask a few quick questions about what you're looking for? This will help me recommend the best option for your situation."</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-green-500/10 border border-green-500/20">
+                    <p className="font-semibold text-sm text-green-600 mb-2">Q: "How long does it take?"</p>
+                    <p className="text-xs text-muted-foreground italic">"Timeline varies based on complexity. Most clients complete within [range]. To give you a realistic estimate, let me understand your specific requirements - when are you hoping to have this done by?"</p>
+                  </div>
                 </TabsContent>
+                
                 <TabsContent value="followup" className="mt-3 space-y-2">
                   {[
                     { q: "No email response?", a: "Try voice message or LinkedIn." },
@@ -1349,7 +1376,18 @@ const QuickNotes = () => {
                       <p className="text-xs text-muted-foreground">A: {item.a}</p>
                     </div>
                   ))}
+                  
+                  <div className="mt-4 p-3 rounded bg-amber-500/10 border border-amber-500/20">
+                    <p className="font-semibold text-sm text-amber-600 mb-2">Q: "I haven't had time to review"</p>
+                    <p className="text-xs text-muted-foreground italic">"No problem at all! I know you're busy. Would you prefer I send a quick summary of the key points? Or would a brief 5-minute call be more helpful to answer any initial questions?"</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-amber-500/10 border border-amber-500/20">
+                    <p className="font-semibold text-sm text-amber-600 mb-2">Q: "We decided to go with someone else"</p>
+                    <p className="text-xs text-muted-foreground italic">"I appreciate you letting me know. May I ask what made you choose them? I'd value your feedback to improve. And if anything changes in the future, please don't hesitate to reach out."</p>
+                  </div>
                 </TabsContent>
+                
                 <TabsContent value="postsale" className="mt-3 space-y-2">
                   {[
                     { q: "When to ask for referrals?", a: "After successful delivery. 'Who else might benefit?'" },
@@ -1361,6 +1399,16 @@ const QuickNotes = () => {
                       <p className="text-xs text-muted-foreground">A: {item.a}</p>
                     </div>
                   ))}
+                  
+                  <div className="mt-4 p-3 rounded bg-purple-500/10 border border-purple-500/20">
+                    <p className="font-semibold text-sm text-purple-600 mb-2">Q: "There's a problem with my order"</p>
+                    <p className="text-xs text-muted-foreground italic">"I'm sorry to hear that. Let me look into this immediately. Can you describe exactly what happened? I want to make sure we resolve this completely and prevent it from happening again."</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-purple-500/10 border border-purple-500/20">
+                    <p className="font-semibold text-sm text-purple-600 mb-2">Q: "Can I get a refund?"</p>
+                    <p className="text-xs text-muted-foreground italic">"I understand your concern. Before we discuss refund options, I'd like to understand what went wrong. Is there something specific we can address? Sometimes there's a quick fix we can provide."</p>
+                  </div>
                 </TabsContent>
               </Tabs>
             </TabsContent>
