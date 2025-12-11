@@ -544,10 +544,48 @@ const QuickNotes = () => {
 
             {/* STAGES TAB */}
             <TabsContent value="stages" className="space-y-4">
+              <div className="p-4 rounded-lg bg-background/50 border">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Target className="h-4 w-4 text-primary" />
+                  5-Stage Sales Framework
+                </h4>
+                <div className="space-y-3">
+                  {[
+                    { stage: "1. Opening", time: "30-60 sec", goal: "Capture attention, establish relevance", tips: "Personalized hook, state purpose clearly, ask permission to continue" },
+                    { stage: "2. Discovery", time: "5-10 min", goal: "Understand needs, pain, budget, timeline", tips: "Open questions, active listening, SPIN technique" },
+                    { stage: "3. Presentation", time: "3-5 min", goal: "Match solution to discovered needs", tips: "Focus on benefits not features, use their language" },
+                    { stage: "4. Objection Handling", time: "2-5 min", goal: "Address concerns, build confidence", tips: "LAER framework, never argue, empathize first" },
+                    { stage: "5. Closing", time: "2-3 min", goal: "Secure commitment, next steps", tips: "Assumptive close, summary close, clear call-to-action" }
+                  ].map((item, i) => (
+                    <div key={i} className="p-3 rounded bg-muted/50 border-l-4 border-primary/50">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-medium text-sm">{item.stage}</span>
+                        <Badge variant="outline" className="text-xs">{item.time}</Badge>
+                      </div>
+                      <p className="text-xs text-muted-foreground mb-1"><strong>Goal:</strong> {item.goal}</p>
+                      <p className="text-xs text-muted-foreground"><strong>Tips:</strong> {item.tips}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <h4 className="font-semibold mb-2 text-amber-600 flex items-center gap-2">
+                  <AlertTriangle className="h-4 w-4" />
+                  When Client Skips Stages
+                </h4>
+                <ul className="text-sm text-muted-foreground space-y-1">
+                  <li>• <strong>Jumps to price:</strong> "Great question! To give you an accurate quote, can I ask a few quick questions first?"</li>
+                  <li>• <strong>Wants to buy immediately:</strong> Confirm needs briefly, then proceed to close</li>
+                  <li>• <strong>Asks technical questions:</strong> Answer briefly, then return to discovery</li>
+                  <li>• <strong>Says they're in a hurry:</strong> "I respect your time. What's the ONE thing you need to know?"</li>
+                </ul>
+              </div>
+
               <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-blue-500/10 border">
                 <h3 className="font-semibold mb-4 flex items-center gap-2">
                   <Target className="h-5 w-5 text-primary" />
-                  The 5-Stage Call Framework
+                  The 5-Stage Call Framework (Visual)
                 </h3>
                 
                 <div className="space-y-3">
@@ -635,10 +673,51 @@ const QuickNotes = () => {
 
             {/* ASSESS TAB */}
             <TabsContent value="assess" className="space-y-4">
+              <div className="p-4 rounded-lg bg-background/50 border">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Target className="h-4 w-4 text-green-500" />
+                  BANT Framework
+                </h4>
+                <div className="grid grid-cols-1 gap-3">
+                  {[
+                    { letter: "B", title: "Budget", question: "What budget have you allocated for this?", tip: "If unknown, ask about similar past investments" },
+                    { letter: "A", title: "Authority", question: "Who else is involved in this decision?", tip: "Map all stakeholders early" },
+                    { letter: "N", title: "Need", question: "What problem are you trying to solve?", tip: "Dig into the pain - what happens if they don't solve it?" },
+                    { letter: "T", title: "Timeline", question: "When do you need this by?", tip: "Understand urgency drivers" }
+                  ].map((item, i) => (
+                    <div key={i} className="p-3 rounded bg-muted/50">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="w-6 h-6 rounded-full bg-green-500 text-white text-xs flex items-center justify-center font-bold">{item.letter}</span>
+                        <span className="font-medium text-sm">{item.title}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground italic mb-1">"{item.question}"</p>
+                      <p className="text-xs text-muted-foreground">{item.tip}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              <div className="p-4 rounded-lg bg-background/50 border">
+                <h4 className="font-semibold mb-3">Pain Assessment Questions</h4>
+                <div className="space-y-2">
+                  {[
+                    "What's the biggest challenge you're facing with [area]?",
+                    "How long has this been a problem?",
+                    "What have you tried so far to solve it?",
+                    "What happens if you don't fix this in the next 6 months?",
+                    "On a scale of 1-10, how urgent is solving this?"
+                  ].map((q, i) => (
+                    <div key={i} className="p-2 rounded bg-muted/30 text-sm text-muted-foreground">
+                      {i + 1}. {q}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
               <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-emerald-500/10 border">
                 <h3 className="font-semibold mb-4 flex items-center gap-2">
                   <Target className="h-5 w-5 text-green-500" />
-                  BANT Framework
+                  BANT Framework (Visual)
                 </h3>
                 
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
