@@ -37,6 +37,7 @@ import { useLeads } from '@/hooks/useLeads';
 import { CreateLeadDialog } from '@/components/Lead/CreateLeadDialog';
 import { DailyLeadCheckBanner } from '@/components/Lead/DailyLeadCheckBanner';
 import { LeadReminderScheduleDialog } from '@/components/Lead/LeadReminderScheduleDialog';
+import { FollowupSequenceConfig } from '@/components/Lead/FollowupSequenceConfig';
 import { LEAD_SCORE_COLORS, LEAD_STATUS_COLORS, type LeadScore, type LeadStatus } from '@/types/lead';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -104,7 +105,12 @@ export default function Leads() {
             </p>
           </div>
           <div className="flex items-center gap-2">
-            {isAdmin && <LeadReminderScheduleDialog />}
+            {isAdmin && (
+              <>
+                <FollowupSequenceConfig />
+                <LeadReminderScheduleDialog />
+              </>
+            )}
             <Button onClick={() => setShowCreateDialog(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Add Lead

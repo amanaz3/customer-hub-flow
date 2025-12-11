@@ -54,6 +54,7 @@ import {
   type LeadStatus,
 } from '@/types/lead';
 import { format, formatDistanceToNow } from 'date-fns';
+import { LeadFollowupTimeline } from '@/components/Lead/LeadFollowupTimeline';
 
 const activityIcons: Record<string, React.ReactNode> = {
   call: <Phone className="h-4 w-4" />,
@@ -363,6 +364,21 @@ export default function LeadDetail() {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Follow-up Sequence Timeline */}
+            <LeadFollowupTimeline
+              leadId={id!}
+              leadCreatedAt={lead.created_at}
+              activities={activities}
+              onLogActivity={async (type, description) => {
+                const success = await addActivity({
+                  activity_type: type,
+                  description,
+                  created_by: user?.id,
+                });
+                return success;
+              }}
+            />
 
             {/* Log Activity */}
             <Card>

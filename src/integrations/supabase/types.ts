@@ -1485,6 +1485,42 @@ export type Database = {
           },
         ]
       }
+      lead_followup_sequence: {
+        Row: {
+          action_description: string | null
+          action_title: string
+          action_type: string
+          auto_mark_cold: boolean | null
+          created_at: string
+          day_offset: number
+          id: string
+          is_enabled: boolean | null
+          updated_at: string
+        }
+        Insert: {
+          action_description?: string | null
+          action_title: string
+          action_type: string
+          auto_mark_cold?: boolean | null
+          created_at?: string
+          day_offset: number
+          id?: string
+          is_enabled?: boolean | null
+          updated_at?: string
+        }
+        Update: {
+          action_description?: string | null
+          action_title?: string
+          action_type?: string
+          auto_mark_cold?: boolean | null
+          created_at?: string
+          day_offset?: number
+          id?: string
+          is_enabled?: boolean | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       lead_reminder_schedule: {
         Row: {
           created_at: string
