@@ -32,7 +32,9 @@ import {
   Building2,
   Calendar,
   ArrowUpRight,
+  FlaskConical,
 } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { useLeads } from '@/hooks/useLeads';
 import { CreateLeadDialog } from '@/components/Lead/CreateLeadDialog';
 import { DailyLeadCheckBanner } from '@/components/Lead/DailyLeadCheckBanner';
@@ -51,7 +53,7 @@ const scoreIcons: Record<LeadScore, React.ReactNode> = {
 
 export default function Leads() {
   const navigate = useNavigate();
-  const { leads, loading } = useLeads();
+  const { leads, loading, showDummyData, toggleDummyData } = useLeads();
   const { isAdmin } = useAuth();
   const [search, setSearch] = useState('');
   const [scoreFilter, setScoreFilter] = useState<string>('all');
@@ -108,6 +110,16 @@ export default function Leads() {
           <div className="flex items-center gap-2">
             {isAdmin && (
               <>
+                {/* Demo Data Toggle */}
+                <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md border">
+                  <FlaskConical className="h-4 w-4 text-amber-500" />
+                  <span className="text-xs text-muted-foreground">Demo</span>
+                  <Switch
+                    checked={showDummyData}
+                    onCheckedChange={toggleDummyData}
+                    className="scale-75"
+                  />
+                </div>
                 <LeadSettingsDialog />
                 <FollowupSequenceConfig />
                 <LeadReminderScheduleDialog />

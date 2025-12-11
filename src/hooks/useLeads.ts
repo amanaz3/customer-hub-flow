@@ -3,9 +3,154 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import type { Lead, LeadActivity, LeadScore, LeadStatus } from '@/types/lead';
 
+// Dummy leads for demo/testing
+const dummyLeads: Lead[] = [
+  {
+    id: 'dummy-1',
+    reference_number: 1001,
+    name: 'Ahmed Al Maktoum',
+    email: 'ahmed@realestate-dubai.ae',
+    mobile: '+971501234567',
+    company: 'Dubai Properties LLC',
+    source: 'Website',
+    score: 'hot',
+    status: 'qualified',
+    estimated_value: 150000,
+    notes: 'Interested in company formation + bank account opening',
+    next_follow_up: new Date(Date.now() + 86400000).toISOString(),
+    last_contacted_at: new Date(Date.now() - 86400000).toISOString(),
+    created_at: new Date(Date.now() - 172800000).toISOString(),
+    updated_at: new Date().toISOString(),
+    assigned_to: 'user-1',
+    product_interest_id: 'prod-1',
+    converted_customer_id: null,
+    converted_at: null,
+    assigned_user: { id: 'user-1', name: 'Sarah Johnson', email: 'sarah@company.com' },
+    product_interest: { id: 'prod-1', name: 'Company Formation' },
+  },
+  {
+    id: 'dummy-2',
+    reference_number: 1002,
+    name: 'Maria Santos',
+    email: 'maria@goldtrading.com',
+    mobile: '+971507654321',
+    company: 'Santos Gold Trading',
+    source: 'Referral',
+    score: 'hot',
+    status: 'proposal',
+    estimated_value: 85000,
+    notes: 'Urgent - needs bank account for gold trading license',
+    next_follow_up: new Date(Date.now() + 3600000).toISOString(),
+    last_contacted_at: new Date(Date.now() - 7200000).toISOString(),
+    created_at: new Date(Date.now() - 259200000).toISOString(),
+    updated_at: new Date().toISOString(),
+    assigned_to: 'user-2',
+    product_interest_id: 'prod-2',
+    converted_customer_id: null,
+    converted_at: null,
+    assigned_user: { id: 'user-2', name: 'Omar Hassan', email: 'omar@company.com' },
+    product_interest: { id: 'prod-2', name: 'Bank Account Opening' },
+  },
+  {
+    id: 'dummy-3',
+    reference_number: 1003,
+    name: 'James Wilson',
+    email: 'james@techstartup.io',
+    mobile: '+971509876543',
+    company: 'TechStart Innovation',
+    source: 'LinkedIn',
+    score: 'warm',
+    status: 'contacted',
+    estimated_value: 45000,
+    notes: 'Exploring options for UAE expansion',
+    next_follow_up: new Date(Date.now() + 259200000).toISOString(),
+    last_contacted_at: new Date(Date.now() - 432000000).toISOString(),
+    created_at: new Date(Date.now() - 604800000).toISOString(),
+    updated_at: new Date().toISOString(),
+    assigned_to: 'user-1',
+    product_interest_id: 'prod-3',
+    converted_customer_id: null,
+    converted_at: null,
+    assigned_user: { id: 'user-1', name: 'Sarah Johnson', email: 'sarah@company.com' },
+    product_interest: { id: 'prod-3', name: 'Home Finance' },
+  },
+  {
+    id: 'dummy-4',
+    reference_number: 1004,
+    name: 'Fatima Al Rashid',
+    email: 'fatima@consulting.ae',
+    mobile: '+971502345678',
+    company: 'Al Rashid Consulting',
+    source: 'Exhibition',
+    score: 'warm',
+    status: 'new',
+    estimated_value: 25000,
+    notes: 'Met at GITEX, interested in corporate services',
+    next_follow_up: new Date(Date.now() + 172800000).toISOString(),
+    last_contacted_at: null,
+    created_at: new Date(Date.now() - 86400000).toISOString(),
+    updated_at: new Date().toISOString(),
+    assigned_to: null,
+    product_interest_id: 'prod-4',
+    converted_customer_id: null,
+    converted_at: null,
+    assigned_user: null,
+    product_interest: { id: 'prod-4', name: 'Corporate Tax' },
+  },
+  {
+    id: 'dummy-5',
+    reference_number: 1005,
+    name: 'Chen Wei',
+    email: 'chen@importexport.cn',
+    mobile: '+971508765432',
+    company: 'Dragon Trade FZE',
+    source: 'Website',
+    score: 'cold',
+    status: 'contacted',
+    estimated_value: 12000,
+    notes: 'Initial inquiry, not responsive to follow-ups',
+    next_follow_up: new Date(Date.now() + 604800000).toISOString(),
+    last_contacted_at: new Date(Date.now() - 1209600000).toISOString(),
+    created_at: new Date(Date.now() - 2592000000).toISOString(),
+    updated_at: new Date().toISOString(),
+    assigned_to: 'user-2',
+    product_interest_id: 'prod-1',
+    converted_customer_id: null,
+    converted_at: null,
+    assigned_user: { id: 'user-2', name: 'Omar Hassan', email: 'omar@company.com' },
+    product_interest: { id: 'prod-1', name: 'Company Formation' },
+  },
+  {
+    id: 'dummy-6',
+    reference_number: 1006,
+    name: 'Priya Sharma',
+    email: 'priya@healthcare.in',
+    mobile: '+971506543210',
+    company: 'MedCare Solutions',
+    source: 'Referral',
+    score: 'cold',
+    status: 'lost',
+    estimated_value: 8000,
+    notes: 'Decided to go with competitor',
+    next_follow_up: null,
+    last_contacted_at: null,
+    created_at: new Date(Date.now() - 5184000000).toISOString(),
+    updated_at: new Date().toISOString(),
+    assigned_to: 'user-1',
+    product_interest_id: null,
+    converted_customer_id: null,
+    converted_at: null,
+    assigned_user: { id: 'user-1', name: 'Sarah Johnson', email: 'sarah@company.com' },
+    product_interest: null,
+  },
+];
+
 export const useLeads = () => {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(true);
+  const [showDummyData, setShowDummyData] = useState(() => {
+    return localStorage.getItem('leads_show_dummy') === 'true';
+  });
   const { toast } = useToast();
 
   const fetchLeads = useCallback(async () => {
@@ -21,7 +166,15 @@ export const useLeads = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setLeads((data || []) as unknown as Lead[]);
+      
+      const realLeads = (data || []) as unknown as Lead[];
+      
+      // Combine with dummy data if toggled on
+      if (showDummyData) {
+        setLeads([...dummyLeads, ...realLeads]);
+      } else {
+        setLeads(realLeads);
+      }
     } catch (error: any) {
       console.error('Error fetching leads:', error);
       toast({
@@ -32,7 +185,12 @@ export const useLeads = () => {
     } finally {
       setLoading(false);
     }
-  }, [toast]);
+  }, [toast, showDummyData]);
+
+  const toggleDummyData = useCallback((enabled: boolean) => {
+    setShowDummyData(enabled);
+    localStorage.setItem('leads_show_dummy', String(enabled));
+  }, []);
 
   useEffect(() => {
     fetchLeads();
@@ -303,6 +461,8 @@ export const useLeads = () => {
   return {
     leads,
     loading,
+    showDummyData,
+    toggleDummyData,
     fetchLeads,
     createLead,
     updateLead,
