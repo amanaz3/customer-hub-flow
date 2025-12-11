@@ -1485,6 +1485,42 @@ export type Database = {
           },
         ]
       }
+      lead_reminder_schedule: {
+        Row: {
+          created_at: string
+          cron_job_id: number | null
+          id: string
+          is_enabled: boolean
+          last_run_at: string | null
+          next_run_at: string | null
+          schedule_time: string
+          timezone: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          cron_job_id?: number | null
+          id?: string
+          is_enabled?: boolean
+          last_run_at?: string | null
+          next_run_at?: string | null
+          schedule_time?: string
+          timezone?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          cron_job_id?: number | null
+          id?: string
+          is_enabled?: boolean
+          last_run_at?: string | null
+          next_run_at?: string | null
+          schedule_time?: string
+          timezone?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       leads: {
         Row: {
           assigned_to: string | null
