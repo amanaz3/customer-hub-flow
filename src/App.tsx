@@ -73,6 +73,8 @@ import PlaybookEditor from '@/pages/PlaybookEditor';
 import SalesGuide from '@/pages/SalesGuide';
 import QuickReference from '@/pages/QuickReference';
 import QuickNotes from '@/pages/QuickNotes';
+import Leads from '@/pages/Leads';
+import LeadDetail from '@/pages/LeadDetail';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -697,6 +699,26 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Sales Guide">
                           <SalesGuide />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/leads" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Leads">
+                          <Leads />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/leads/:id" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Lead Detail">
+                          <LeadDetail />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>

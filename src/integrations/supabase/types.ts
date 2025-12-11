@@ -1443,6 +1443,136 @@ export type Database = {
           },
         ]
       }
+      lead_activities: {
+        Row: {
+          activity_type: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          lead_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          lead_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          lead_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_activities_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_activities_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      leads: {
+        Row: {
+          assigned_to: string | null
+          company: string | null
+          converted_at: string | null
+          converted_customer_id: string | null
+          created_at: string
+          email: string | null
+          estimated_value: number | null
+          id: string
+          last_contacted_at: string | null
+          mobile: string | null
+          name: string
+          next_follow_up: string | null
+          notes: string | null
+          product_interest_id: string | null
+          reference_number: number
+          score: Database["public"]["Enums"]["lead_score"] | null
+          source: string | null
+          status: Database["public"]["Enums"]["lead_status"] | null
+          updated_at: string
+        }
+        Insert: {
+          assigned_to?: string | null
+          company?: string | null
+          converted_at?: string | null
+          converted_customer_id?: string | null
+          created_at?: string
+          email?: string | null
+          estimated_value?: number | null
+          id?: string
+          last_contacted_at?: string | null
+          mobile?: string | null
+          name: string
+          next_follow_up?: string | null
+          notes?: string | null
+          product_interest_id?: string | null
+          reference_number?: number
+          score?: Database["public"]["Enums"]["lead_score"] | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["lead_status"] | null
+          updated_at?: string
+        }
+        Update: {
+          assigned_to?: string | null
+          company?: string | null
+          converted_at?: string | null
+          converted_customer_id?: string | null
+          created_at?: string
+          email?: string | null
+          estimated_value?: number | null
+          id?: string
+          last_contacted_at?: string | null
+          mobile?: string | null
+          name?: string
+          next_follow_up?: string | null
+          notes?: string | null
+          product_interest_id?: string | null
+          reference_number?: number
+          score?: Database["public"]["Enums"]["lead_score"] | null
+          source?: string | null
+          status?: Database["public"]["Enums"]["lead_status"] | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "leads_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_converted_customer_id_fkey"
+            columns: ["converted_customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_product_interest_id_fkey"
+            columns: ["product_interest_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       logs: {
         Row: {
           component: string | null
@@ -3082,7 +3212,16 @@ export type Database = {
         | "passport_docs"
         | "emirates_id_docs"
         | "bank_statement_docs"
+      lead_score: "hot" | "warm" | "cold"
       lead_source: "Website" | "Referral" | "Social Media" | "Other"
+      lead_status:
+        | "new"
+        | "contacted"
+        | "qualified"
+        | "proposal"
+        | "negotiation"
+        | "converted"
+        | "lost"
       license_type: "Mainland" | "Freezone" | "Offshore"
       project_status:
         | "planning"
@@ -3284,7 +3423,17 @@ export const Constants = {
         "emirates_id_docs",
         "bank_statement_docs",
       ],
+      lead_score: ["hot", "warm", "cold"],
       lead_source: ["Website", "Referral", "Social Media", "Other"],
+      lead_status: [
+        "new",
+        "contacted",
+        "qualified",
+        "proposal",
+        "negotiation",
+        "converted",
+        "lost",
+      ],
       license_type: ["Mainland", "Freezone", "Offshore"],
       project_status: [
         "planning",
