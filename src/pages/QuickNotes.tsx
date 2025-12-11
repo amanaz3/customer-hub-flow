@@ -1239,9 +1239,73 @@ const QuickNotes = () => {
                   ))}
                 </div>
               </div>
-            </TabsContent>
 
-            {/* FAQS TAB */}
+              <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-emerald-500/10 border">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-green-500" />
+                  Pre-Call Checklist (Detailed)
+                </h4>
+                <div className="space-y-2">
+                  {[
+                    "Review customer history & previous interactions",
+                    "Check company website/LinkedIn for context",
+                    "Prepare relevant case studies/testimonials",
+                    "Have pricing/packages ready",
+                    "Prepare discovery questions",
+                    "Test audio/video if virtual call"
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4 text-blue-500" />
+                  Post-Call Actions
+                </h4>
+                <div className="space-y-2">
+                  {[
+                    "Update CRM with call notes immediately",
+                    "Send follow-up email within 24 hours",
+                    "Schedule next action/follow-up",
+                    "Send promised materials/documents",
+                    "Log deal stage if applicable"
+                  ].map((item, i) => (
+                    <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <CheckCircle2 className="h-4 w-4 text-blue-500 shrink-0" />
+                      {item}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-background/50 border">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <BookOpen className="h-4 w-4 text-purple-500" />
+                  Follow-Up Email Template
+                </h4>
+                <div className="p-4 rounded bg-muted/30 text-sm space-y-3 font-mono">
+                  <p>Hi [Name],</p>
+                  <p>Thank you for your time today discussing [topic]. As promised, here's [what you discussed].</p>
+                  <div>
+                    <p className="font-semibold">Key points we covered:</p>
+                    <p>• [Point 1]</p>
+                    <p>• [Point 2]</p>
+                    <p>• [Point 3]</p>
+                  </div>
+                  <p><span className="font-semibold">Next steps:</span> [Clear action item with date]</p>
+                  <p>Please let me know if you have any questions.</p>
+                  <div>
+                    <p>Best regards,</p>
+                    <p>[Your name]</p>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
             <TabsContent value="faqs" className="space-y-4">
               <Tabs defaultValue="outbound" className="w-full">
                 <TabsList className="h-auto p-1 bg-muted/30 w-full">
