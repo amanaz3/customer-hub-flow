@@ -132,9 +132,9 @@ export const useLeads = () => {
     }
   };
 
-  const convertToCustomer = async (lead: Lead) => {
+  const convertToCustomer = async (lead: Lead, servicesPurchased?: string[]) => {
     try {
-      // Create customer from lead
+      // 1. Create customer from lead with all relevant info transferred
       const { data: customer, error: customerError } = await supabase
         .from('customers')
         .insert([{
@@ -147,13 +147,15 @@ export const useLeads = () => {
           license_type: 'Mainland',
           amount: lead.estimated_value || 0,
           status: 'Draft',
+          product_id: lead.product_interest_id,
+          customer_notes: lead.notes ? `Converted from Lead #${lead.reference_number}. Original notes: ${lead.notes}` : `Converted from Lead #${lead.reference_number}`,
         }])
         .select()
         .single();
 
       if (customerError) throw customerError;
 
-      // Update lead as converted
+      // 2. Update lead status to converted
       const { error: leadError } = await supabase
         .from('leads')
         .update({
@@ -165,9 +167,57 @@ export const useLeads = () => {
 
       if (leadError) throw leadError;
 
+      // 3. Log conversion activity on the lead
+      await supabase
+        .from('lead_activities')
+        .insert([{
+          lead_id: lead.id,
+          activity_type: 'note',
+          description: `Lead converted to Customer. Customer ID: ${customer.id}, Reference: ${customer.reference_number}`,
+          created_by: lead.assigned_to,
+        }]);
+
+      // 4. Create onboarding workflow notification for sales assistant
+      if (lead.assigned_to) {
+        // Notify sales assistant of successful conversion
+        await supabase
+          .from('notifications')
+          .insert([{
+            user_id: lead.assigned_to,
+            type: 'success',
+            title: '🎉 Lead Converted Successfully',
+            message: `${lead.name} (${lead.company || 'No Company'}) has been converted to a customer. Next steps: Grant portal access, send document checklist, schedule onboarding call.`,
+            customer_id: customer.id,
+            action_url: `/customers/${customer.id}`,
+          }]);
+
+        // Create onboarding task notification
+        await supabase
+          .from('notifications')
+          .insert([{
+            user_id: lead.assigned_to,
+            type: 'info',
+            title: '📋 Onboarding Tasks Required',
+            message: `Customer ${lead.name} needs onboarding: 1) Grant portal access 2) Send document checklist 3) Schedule onboarding call`,
+            customer_id: customer.id,
+            action_url: `/customers/${customer.id}`,
+          }]);
+      }
+
+      // 5. Add initial comment on customer for onboarding tracking
+      if (lead.assigned_to) {
+        await supabase
+          .from('comments')
+          .insert([{
+            customer_id: customer.id,
+            comment: `📌 ONBOARDING CHECKLIST:\n□ Grant portal access\n□ Send document checklist\n□ Schedule onboarding call\n\nConverted from Lead #${lead.reference_number}`,
+            created_by: lead.assigned_to,
+          }]);
+      }
+
       toast({
-        title: 'Success',
-        description: 'Lead converted to customer successfully',
+        title: 'Lead Converted Successfully! 🎉',
+        description: 'Customer created. Onboarding notifications sent to sales assistant.',
       });
 
       await fetchLeads();
