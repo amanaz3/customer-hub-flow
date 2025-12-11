@@ -690,35 +690,63 @@ const QuickNotes = () => {
 
             {/* PERSONALITY TAB */}
             <TabsContent value="personality" className="space-y-4">
-              <div className="p-4 rounded-lg bg-background/50 border">
-                <h4 className="font-semibold mb-3 flex items-center gap-2">
-                  <Users className="h-4 w-4 text-purple-500" />
-                  DISC Personality Types
-                </h4>
-                <div className="space-y-3">
-                  <div className="p-3 rounded bg-red-500/10 border border-red-500/20">
-                    <p className="font-semibold text-red-600 mb-1">D - Dominant</p>
-                    <p className="text-xs text-muted-foreground mb-2">Fast-paced, results-oriented, direct</p>
-                    <p className="text-xs"><strong>Signs:</strong> Interrupts, wants bottom line, impatient</p>
-                    <p className="text-xs"><strong>Approach:</strong> Be direct, focus on results, skip small talk</p>
+              <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Users className="h-5 w-5 text-purple-500" />
+                  Personality Types (ADEA Framework)
+                </h3>
+                
+                <div className="grid md:grid-cols-2 gap-3">
+                  <div className="p-4 rounded bg-blue-500/10 border border-blue-500/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold">A</div>
+                      <p className="font-semibold text-blue-600">Analytical</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-3">Data-driven, detail-oriented, methodical</p>
+                    <div className="space-y-1 text-xs">
+                      <p><strong className="text-blue-600">Signs:</strong> "Can you send specs?" "What's the exact process?"</p>
+                      <p><strong className="text-green-600">Approach:</strong> Facts, documentation, ROI data, no pressure</p>
+                      <p><strong className="text-red-600">Avoid:</strong> Rushing, emotional appeals, vague answers</p>
+                    </div>
                   </div>
-                  <div className="p-3 rounded bg-yellow-500/10 border border-yellow-500/20">
-                    <p className="font-semibold text-yellow-600 mb-1">I - Influencer</p>
-                    <p className="text-xs text-muted-foreground mb-2">Enthusiastic, optimistic, collaborative</p>
-                    <p className="text-xs"><strong>Signs:</strong> Talks a lot, personal stories, expressive</p>
-                    <p className="text-xs"><strong>Approach:</strong> Be friendly, share stories, show enthusiasm</p>
+                  
+                  <div className="p-4 rounded bg-red-500/10 border border-red-500/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-full bg-red-500 text-white flex items-center justify-center font-bold">D</div>
+                      <p className="font-semibold text-red-600">Driver</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-3">Results-focused, brief, decisive</p>
+                    <div className="space-y-1 text-xs">
+                      <p><strong className="text-blue-600">Signs:</strong> "What's the bottom line?" "How fast?"</p>
+                      <p><strong className="text-green-600">Approach:</strong> Get to point, focus on outcomes, be direct</p>
+                      <p><strong className="text-red-600">Avoid:</strong> Small talk, lengthy explanations, indecision</p>
+                    </div>
                   </div>
-                  <div className="p-3 rounded bg-green-500/10 border border-green-500/20">
-                    <p className="font-semibold text-green-600 mb-1">S - Steady</p>
-                    <p className="text-xs text-muted-foreground mb-2">Patient, reliable, team-oriented</p>
-                    <p className="text-xs"><strong>Signs:</strong> Asks about process, mentions team, cautious</p>
-                    <p className="text-xs"><strong>Approach:</strong> Be patient, provide assurance, no pressure</p>
+                  
+                  <div className="p-4 rounded bg-yellow-500/10 border border-yellow-500/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-full bg-yellow-500 text-white flex items-center justify-center font-bold">E</div>
+                      <p className="font-semibold text-yellow-600">Expressive</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-3">Enthusiastic, story-driven, relationship-focused</p>
+                    <div className="space-y-1 text-xs">
+                      <p><strong className="text-blue-600">Signs:</strong> "I'm so excited!" Shares personal stories</p>
+                      <p><strong className="text-green-600">Approach:</strong> Build rapport, share success stories, show enthusiasm</p>
+                      <p><strong className="text-red-600">Avoid:</strong> Being too formal, ignoring their ideas, rushing</p>
+                    </div>
                   </div>
-                  <div className="p-3 rounded bg-blue-500/10 border border-blue-500/20">
-                    <p className="font-semibold text-blue-600 mb-1">C - Conscientious</p>
-                    <p className="text-xs text-muted-foreground mb-2">Analytical, detail-oriented, accurate</p>
-                    <p className="text-xs"><strong>Signs:</strong> Many questions, wants data, methodical</p>
-                    <p className="text-xs"><strong>Approach:</strong> Provide details, facts, proof, be precise</p>
+                  
+                  <div className="p-4 rounded bg-green-500/10 border border-green-500/20">
+                    <div className="flex items-center gap-2 mb-2">
+                      <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold">A</div>
+                      <p className="font-semibold text-green-600">Amiable</p>
+                    </div>
+                    <p className="text-xs text-muted-foreground mb-3">Seeks consensus, risk-averse, patient</p>
+                    <div className="space-y-1 text-xs">
+                      <p><strong className="text-blue-600">Signs:</strong> "Need to discuss with team" "What do others say?"</p>
+                      <p><strong className="text-green-600">Approach:</strong> Reassurance, testimonials, low-pressure, patience</p>
+                      <p><strong className="text-red-600">Avoid:</strong> Aggressive closing, creating urgency, confrontation</p>
+                    </div>
                   </div>
                 </div>
               </div>
