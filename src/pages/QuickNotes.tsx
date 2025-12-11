@@ -49,35 +49,77 @@ const QuickNotes = () => {
           <ScrollArea className="h-[calc(100vh-280px)]">
             {/* MINDSET TAB */}
             <TabsContent value="mindset" className="space-y-4">
-              <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-blue-500/10 border">
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <Brain className="h-5 w-5 text-purple-500" />
-                  The Sales Mindset
-                </h3>
-                <div className="grid gap-3">
-                  {[
-                    { title: "Service, Not Selling", desc: "You're helping people solve problems, not pushing products. Shift from 'How can I sell?' to 'How can I help?'" },
-                    { title: "Rejection is Redirection", desc: "Every 'no' brings you closer to 'yes'. Top performers embrace rejection as data, not defeat." },
-                    { title: "Curiosity Over Pitch", desc: "Be genuinely curious about the client's world. Questions build rapport; monologues break it." },
-                    { title: "Confidence Without Arrogance", desc: "Know your value. Believe in your solution. But always remain humble and coachable." },
-                    { title: "Long Game Thinking", desc: "Build relationships, not transactions. Today's 'no' can become next quarter's biggest deal." }
-                  ].map((item, i) => (
-                    <div key={i} className="p-3 rounded bg-background/80 border-l-4 border-purple-500/50">
-                      <p className="font-medium text-sm">{item.title}</p>
-                      <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
+              <Tabs defaultValue="sales" className="w-full">
+                <TabsList className="mb-4">
+                  <TabsTrigger value="sales" className="text-xs">Sales Mindset</TabsTrigger>
+                  <TabsTrigger value="customer" className="text-xs">Customer Mindset</TabsTrigger>
+                </TabsList>
+                
+                <TabsContent value="sales" className="space-y-4">
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-blue-500/10 border">
+                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                      <Brain className="h-5 w-5 text-purple-500" />
+                      The Sales Mindset
+                    </h3>
+                    <div className="grid gap-3">
+                      {[
+                        { title: "Service, Not Selling", desc: "You're helping people solve problems, not pushing products. Shift from 'How can I sell?' to 'How can I help?'" },
+                        { title: "Rejection is Redirection", desc: "Every 'no' brings you closer to 'yes'. Top performers embrace rejection as data, not defeat." },
+                        { title: "Curiosity Over Pitch", desc: "Be genuinely curious about the client's world. Questions build rapport; monologues break it." },
+                        { title: "Confidence Without Arrogance", desc: "Know your value. Believe in your solution. But always remain humble and coachable." },
+                        { title: "Long Game Thinking", desc: "Build relationships, not transactions. Today's 'no' can become next quarter's biggest deal." }
+                      ].map((item, i) => (
+                        <div key={i} className="p-3 rounded bg-background/80 border-l-4 border-purple-500/50">
+                          <p className="font-medium text-sm">{item.title}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-              <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                <h4 className="font-semibold mb-2 text-amber-600">Daily Affirmations</h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• "I am here to help, not to sell"</li>
-                  <li>• "Every call is an opportunity to learn"</li>
-                  <li>• "I provide real value to my clients"</li>
-                  <li>• "Rejection makes me stronger"</li>
-                </ul>
-              </div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                    <h4 className="font-semibold mb-2 text-amber-600">Daily Affirmations</h4>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      <li>• "I am here to help, not to sell"</li>
+                      <li>• "Every call is an opportunity to learn"</li>
+                      <li>• "I provide real value to my clients"</li>
+                      <li>• "Rejection makes me stronger"</li>
+                    </ul>
+                  </div>
+                </TabsContent>
+                
+                <TabsContent value="customer" className="space-y-4">
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-teal-500/10 border">
+                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                      <Heart className="h-5 w-5 text-green-500" />
+                      The Customer Mindset
+                    </h3>
+                    <div className="grid gap-3">
+                      {[
+                        { title: "They're Skeptical", desc: "Customers have been burned before. Assume doubt until you've earned trust through actions, not words." },
+                        { title: "They're Busy", desc: "Your call is an interruption. Respect their time by being concise, relevant, and value-focused." },
+                        { title: "They Want to Feel Heard", desc: "Customers buy from people who understand them. Listen 2x more than you speak." },
+                        { title: "They Fear Making Mistakes", desc: "The pain of a bad decision often outweighs the potential gain. Reduce their perceived risk." },
+                        { title: "They Compare Options", desc: "You're rarely the only option. Know your competition and clearly articulate your unique value." }
+                      ].map((item, i) => (
+                        <div key={i} className="p-3 rounded bg-background/80 border-l-4 border-green-500/50">
+                          <p className="font-medium text-sm">{item.title}</p>
+                          <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                    <h4 className="font-semibold mb-2 text-blue-600">What Customers Really Want</h4>
+                    <ul className="text-sm text-muted-foreground space-y-1">
+                      <li>• To feel understood, not sold to</li>
+                      <li>• Solutions tailored to their specific situation</li>
+                      <li>• Honesty about what you can and can't do</li>
+                      <li>• A trusted advisor, not a pushy salesperson</li>
+                      <li>• Confidence that they're making the right choice</li>
+                    </ul>
+                  </div>
+                </TabsContent>
+              </Tabs>
             </TabsContent>
 
             {/* OPENING TAB */}
