@@ -535,7 +535,7 @@ const PlaybookEditor = () => {
                   Guide
                 </Button>
               </SheetTrigger>
-              <SheetContent side="right" className="w-[500px] sm:w-[600px] overflow-y-auto">
+              <SheetContent side="right" className="w-[600px] sm:w-[700px] lg:w-[800px] overflow-y-auto">
                 <SheetHeader className="pb-4">
                   <SheetTitle className="flex items-center gap-2">
                     <Lightbulb className="h-5 w-5 text-primary" />
