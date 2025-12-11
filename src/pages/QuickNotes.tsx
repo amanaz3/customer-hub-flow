@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Brain, Target, Users, Lightbulb, AlertTriangle, BookOpen, CheckCircle2, Trophy, Heart, Shield, Zap, Handshake, DollarSign } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Brain, Target, Users, Lightbulb, AlertTriangle, BookOpen, CheckCircle2, Trophy, Heart, Shield, Zap, Handshake, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -117,6 +117,128 @@ const QuickNotes = () => {
                       <li>• A trusted advisor, not a pushy salesperson</li>
                       <li>• Confidence that they're making the right choice</li>
                     </ul>
+                  </div>
+
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-amber-500/10 to-orange-500/10 border">
+                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                      <Brain className="h-5 w-5 text-amber-500" />
+                      What's Going On In The Client's Mind
+                    </h3>
+                    <p className="text-sm text-muted-foreground mb-4">Understanding client psychology is 80% of sales success. Every client has these thoughts running:</p>
+                    
+                    <div className="grid gap-4">
+                      <div className="p-3 rounded bg-background/80 border-l-4 border-red-500/50">
+                        <p className="font-medium text-sm flex items-center gap-2">🛡️ Defense Thoughts (First 30 seconds)</p>
+                        <ul className="text-xs text-muted-foreground mt-2 space-y-1">
+                          <li>• "Is this person going to waste my time?"</li>
+                          <li>• "Are they trying to sell me something I don't need?"</li>
+                          <li>• "Can I trust this person/company?"</li>
+                          <li>• "How do I get out of this quickly if needed?"</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="p-3 rounded bg-background/80 border-l-4 border-yellow-500/50">
+                        <p className="font-medium text-sm flex items-center gap-2">🤔 Evaluation Thoughts (During Call)</p>
+                        <ul className="text-xs text-muted-foreground mt-2 space-y-1">
+                          <li>• "Does this person understand MY situation?"</li>
+                          <li>• "Is this worth my money and time?"</li>
+                          <li>• "What will happen if this goes wrong?"</li>
+                          <li>• "What will others think of my decision?"</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="p-3 rounded bg-background/80 border-l-4 border-green-500/50">
+                        <p className="font-medium text-sm flex items-center gap-2">✅ Buying Thoughts (When Ready)</p>
+                        <ul className="text-xs text-muted-foreground mt-2 space-y-1">
+                          <li>• "This person gets me and my needs"</li>
+                          <li>• "I feel safe making this decision"</li>
+                          <li>• "The value clearly exceeds the cost"</li>
+                          <li>• "I can justify this to myself and others"</li>
+                        </ul>
+                      </div>
+                      
+                      <div className="p-3 rounded bg-background/80 border-l-4 border-purple-500/50">
+                        <p className="font-medium text-sm flex items-center gap-2">🔄 Hidden Concerns (Never Said)</p>
+                        <ul className="text-xs text-muted-foreground mt-2 space-y-1">
+                          <li>• "What if I look stupid for asking questions?"</li>
+                          <li>• "I don't want to seem like I can't afford it"</li>
+                          <li>• "My partner/boss might disagree"</li>
+                          <li>• "I've been burned before by salespeople"</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border">
+                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                      <Users className="h-5 w-5 text-blue-500" />
+                      Client Response Patterns & How to Branch
+                    </h3>
+                    
+                    <div className="grid gap-3">
+                      {[
+                        { emoji: "😊", type: "Engaged Response", signal: '"That sounds interesting..." / Asking questions', action: "Build momentum, move to discovery" },
+                        { emoji: "🤨", type: "Skeptical Response", signal: '"I\'ve heard this before..." / Short answers', action: "Slow down, ask about past experiences" },
+                        { emoji: "🙄", type: "Dismissive Response", signal: '"Just send info..." / "Not interested"', action: "Pattern interrupt, ask curious question" },
+                        { emoji: "📊", type: "Analytical Response", signal: '"What\'s the process?" / Asking for details', action: "Provide data, specifics, don't rush" },
+                        { emoji: "😰", type: "Anxious Response", signal: '"I\'m not sure..." / Hesitant tone', action: "Reassure, share testimonials, no pressure" },
+                        { emoji: "⏰", type: "Rushing Response", signal: '"Make it quick..." / Checking time', action: "Respect time, hit key points only, schedule follow-up" }
+                      ].map((item, i) => (
+                        <div key={i} className="p-3 rounded bg-background/80 border">
+                          <p className="font-medium text-sm">{item.emoji} {item.type}</p>
+                          <p className="text-xs text-muted-foreground italic mt-1">{item.signal}</p>
+                          <p className="text-xs text-green-600 mt-1">→ Action: {item.action}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="p-4 rounded-lg bg-gradient-to-br from-orange-500/10 to-red-500/10 border">
+                    <h3 className="font-semibold mb-3 flex items-center gap-2">
+                      <ArrowRight className="h-5 w-5 text-orange-500" />
+                      When Client Jumps Stages - Guide Them Back
+                    </h3>
+                    
+                    <div className="space-y-4">
+                      <div className="p-3 rounded bg-background/80 border">
+                        <p className="font-medium text-sm mb-2">Client: "How much does it cost?" (Jumping to pricing before discovery)</p>
+                        <div className="space-y-2">
+                          <div className="p-2 rounded bg-red-500/10 border-l-2 border-red-500">
+                            <p className="text-xs"><span className="font-semibold text-red-600">❌ Wrong:</span> "It's AED 5,000"</p>
+                            <p className="text-xs text-muted-foreground italic">Loses control, no context for value</p>
+                          </div>
+                          <div className="p-2 rounded bg-green-500/10 border-l-2 border-green-500">
+                            <p className="text-xs"><span className="font-semibold text-green-600">✅ Right:</span> "Great question! It ranges from X to Y depending on your specific needs. To give you an accurate quote, can I ask a few quick questions about your situation?"</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="p-3 rounded bg-background/80 border">
+                        <p className="font-medium text-sm mb-2">Client: "Just tell me if you can do it" (Jumping to closing)</p>
+                        <div className="space-y-2">
+                          <div className="p-2 rounded bg-red-500/10 border-l-2 border-red-500">
+                            <p className="text-xs"><span className="font-semibold text-red-600">❌ Wrong:</span> "Yes, we can!"</p>
+                            <p className="text-xs text-muted-foreground italic">Misses opportunity to understand</p>
+                          </div>
+                          <div className="p-2 rounded bg-green-500/10 border-l-2 border-green-500">
+                            <p className="text-xs"><span className="font-semibold text-green-600">✅ Right:</span> "Absolutely we can help! But I want to make sure we do it right. What's the specific outcome you're hoping for? That way I can confirm we're the perfect fit."</p>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="p-3 rounded bg-background/80 border">
+                        <p className="font-medium text-sm mb-2">Client: "My friend said you're expensive" (Starting with objection)</p>
+                        <div className="space-y-2">
+                          <div className="p-2 rounded bg-red-500/10 border-l-2 border-red-500">
+                            <p className="text-xs"><span className="font-semibold text-red-600">❌ Wrong:</span> "We're actually very competitive..."</p>
+                            <p className="text-xs text-muted-foreground italic">Defensive</p>
+                          </div>
+                          <div className="p-2 rounded bg-green-500/10 border-l-2 border-green-500">
+                            <p className="text-xs"><span className="font-semibold text-green-600">✅ Right:</span> "I appreciate you being upfront! What did your friend's situation involve? Our pricing varies based on complexity - let's see if your needs are similar or different."</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </TabsContent>
               </Tabs>
