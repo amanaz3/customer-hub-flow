@@ -38,6 +38,7 @@ import { CreateLeadDialog } from '@/components/Lead/CreateLeadDialog';
 import { DailyLeadCheckBanner } from '@/components/Lead/DailyLeadCheckBanner';
 import { LeadReminderScheduleDialog } from '@/components/Lead/LeadReminderScheduleDialog';
 import { LeadSettingsDialog } from '@/components/Lead/LeadSettingsDialog';
+import { FollowupSequenceConfig } from '@/components/Lead/FollowupSequenceConfig';
 import { LEAD_SCORE_COLORS, LEAD_STATUS_COLORS, type LeadScore, type LeadStatus } from '@/types/lead';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -108,6 +109,7 @@ export default function Leads() {
             {isAdmin && (
               <>
                 <LeadSettingsDialog />
+                <FollowupSequenceConfig />
                 <LeadReminderScheduleDialog />
               </>
             )}
