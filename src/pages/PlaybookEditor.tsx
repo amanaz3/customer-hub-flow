@@ -199,6 +199,7 @@ const ScriptNodeEditor: React.FC<ScriptNodeEditorProps> = ({
 const PlaybookEditor = () => {
   const { isAdmin } = useAuth();
   const { toast } = useToast();
+  const navigate = useNavigate();
   const [playbooks, setPlaybooks] = useState<Playbook[]>([]);
   const [selectedPlaybook, setSelectedPlaybook] = useState<Playbook | null>(null);
   const [stages, setStages] = useState<PlaybookStage[]>([]);
