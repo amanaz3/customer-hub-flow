@@ -551,17 +551,432 @@ const PlaybookEditor = () => {
                     Playbook Guide & Best Practices
                   </SheetTitle>
                 </SheetHeader>
-                <Tabs defaultValue="stages" className="w-full">
+              <Tabs defaultValue="mindset" className="w-full">
                   <TabsList className="flex flex-wrap gap-1 h-auto mb-4">
+                    <TabsTrigger value="mindset" className="text-xs px-2 py-1">🧠 Mindset</TabsTrigger>
+                    <TabsTrigger value="opening" className="text-xs px-2 py-1">🚀 Opening</TabsTrigger>
+                    <TabsTrigger value="trust" className="text-xs px-2 py-1">🤝 Trust</TabsTrigger>
                     <TabsTrigger value="stages" className="text-xs px-2 py-1">Stages</TabsTrigger>
                     <TabsTrigger value="assessment" className="text-xs px-2 py-1">Assess</TabsTrigger>
                     <TabsTrigger value="personality" className="text-xs px-2 py-1">Personality</TabsTrigger>
                     <TabsTrigger value="objections" className="text-xs px-2 py-1">Objections</TabsTrigger>
                     <TabsTrigger value="closing" className="text-xs px-2 py-1">Closing</TabsTrigger>
+                    <TabsTrigger value="reluctance" className="text-xs px-2 py-1">💰 Reluctance</TabsTrigger>
                     <TabsTrigger value="preparation" className="text-xs px-2 py-1">Prep</TabsTrigger>
                     <TabsTrigger value="faqs" className="text-xs px-2 py-1">FAQs</TabsTrigger>
                     <TabsTrigger value="notes" className="text-xs px-2 py-1">Notes</TabsTrigger>
                   </TabsList>
+
+                {/* CLIENT MINDSET TAB - What's going on in client's mind */}
+                <TabsContent value="mindset" className="space-y-4">
+                  <div className="grid gap-3">
+                    <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-blue-500/10 border border-purple-500/20">
+                      <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <Brain className="h-4 w-4 text-purple-500" />
+                        What's Going On In The Client's Mind
+                      </h4>
+                      <p className="text-xs text-muted-foreground mb-3">Understanding client psychology is 80% of sales success. Every client has these thoughts running:</p>
+                      <div className="grid md:grid-cols-2 gap-3 text-xs">
+                        <div className="p-3 rounded bg-background/50 border">
+                          <p className="font-medium text-red-500 mb-2">🛡️ Defense Thoughts (First 30 seconds)</p>
+                          <ul className="space-y-1 text-muted-foreground">
+                            <li>• "Is this person going to waste my time?"</li>
+                            <li>• "Are they trying to sell me something I don't need?"</li>
+                            <li>• "Can I trust this person/company?"</li>
+                            <li>• "How do I get out of this quickly if needed?"</li>
+                          </ul>
+                        </div>
+                        <div className="p-3 rounded bg-background/50 border">
+                          <p className="font-medium text-amber-500 mb-2">🤔 Evaluation Thoughts (During Call)</p>
+                          <ul className="space-y-1 text-muted-foreground">
+                            <li>• "Does this person understand MY situation?"</li>
+                            <li>• "Is this worth my money and time?"</li>
+                            <li>• "What will happen if this goes wrong?"</li>
+                            <li>• "What will others think of my decision?"</li>
+                          </ul>
+                        </div>
+                        <div className="p-3 rounded bg-background/50 border">
+                          <p className="font-medium text-green-500 mb-2">✅ Buying Thoughts (When Ready)</p>
+                          <ul className="space-y-1 text-muted-foreground">
+                            <li>• "This person gets me and my needs"</li>
+                            <li>• "I feel safe making this decision"</li>
+                            <li>• "The value clearly exceeds the cost"</li>
+                            <li>• "I can justify this to myself and others"</li>
+                          </ul>
+                        </div>
+                        <div className="p-3 rounded bg-background/50 border">
+                          <p className="font-medium text-blue-500 mb-2">🔄 Hidden Concerns (Never Said)</p>
+                          <ul className="space-y-1 text-muted-foreground">
+                            <li>• "What if I look stupid for asking questions?"</li>
+                            <li>• "I don't want to seem like I can't afford it"</li>
+                            <li>• "My partner/boss might disagree"</li>
+                            <li>• "I've been burned before by salespeople"</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-background/50 border">
+                      <h4 className="font-semibold text-foreground mb-3 text-sm">Client Response Patterns & How to Branch</h4>
+                      <div className="space-y-3 text-xs">
+                        <div className="grid md:grid-cols-3 gap-2">
+                          <div className="p-2 rounded bg-green-500/10 border border-green-500/20">
+                            <p className="font-medium text-green-600">😊 Engaged Response</p>
+                            <p className="text-muted-foreground italic">"That sounds interesting..." / Asking questions</p>
+                            <p className="text-foreground mt-2"><strong>→ Action:</strong> Build momentum, move to discovery</p>
+                          </div>
+                          <div className="p-2 rounded bg-amber-500/10 border border-amber-500/20">
+                            <p className="font-medium text-amber-600">🤨 Skeptical Response</p>
+                            <p className="text-muted-foreground italic">"I've heard this before..." / Short answers</p>
+                            <p className="text-foreground mt-2"><strong>→ Action:</strong> Slow down, ask about past experiences</p>
+                          </div>
+                          <div className="p-2 rounded bg-red-500/10 border border-red-500/20">
+                            <p className="font-medium text-red-600">🙄 Dismissive Response</p>
+                            <p className="text-muted-foreground italic">"Just send info..." / "Not interested"</p>
+                            <p className="text-foreground mt-2"><strong>→ Action:</strong> Pattern interrupt, ask curious question</p>
+                          </div>
+                        </div>
+                        <div className="grid md:grid-cols-3 gap-2">
+                          <div className="p-2 rounded bg-blue-500/10 border border-blue-500/20">
+                            <p className="font-medium text-blue-600">📊 Analytical Response</p>
+                            <p className="text-muted-foreground italic">"What's the process?" / Asking for details</p>
+                            <p className="text-foreground mt-2"><strong>→ Action:</strong> Provide data, specifics, don't rush</p>
+                          </div>
+                          <div className="p-2 rounded bg-purple-500/10 border border-purple-500/20">
+                            <p className="font-medium text-purple-600">😰 Anxious Response</p>
+                            <p className="text-muted-foreground italic">"I'm not sure..." / Hesitant tone</p>
+                            <p className="text-foreground mt-2"><strong>→ Action:</strong> Reassure, share testimonials, no pressure</p>
+                          </div>
+                          <div className="p-2 rounded bg-cyan-500/10 border border-cyan-500/20">
+                            <p className="font-medium text-cyan-600">⏰ Rushing Response</p>
+                            <p className="text-muted-foreground italic">"Make it quick..." / Checking time</p>
+                            <p className="text-foreground mt-2"><strong>→ Action:</strong> Respect time, hit key points only, schedule follow-up</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                      <h4 className="font-semibold text-foreground mb-3 text-sm flex items-center gap-2">
+                        <AlertTriangle className="h-4 w-4 text-amber-500" />
+                        When Client Jumps Stages - Guide Them Back
+                      </h4>
+                      <div className="space-y-2 text-xs">
+                        <div className="p-3 rounded bg-background/50">
+                          <p className="font-medium text-foreground">Client: "How much does it cost?" (Jumping to pricing before discovery)</p>
+                          <div className="mt-2 space-y-1 text-muted-foreground">
+                            <p>❌ <span className="line-through">Wrong: "It's AED 5,000"</span> (Loses control, no context for value)</p>
+                            <p>✅ <strong>Right:</strong> "Great question! It ranges from X to Y depending on your specific needs. To give you an accurate quote, can I ask a few quick questions about your situation?"</p>
+                          </div>
+                        </div>
+                        <div className="p-3 rounded bg-background/50">
+                          <p className="font-medium text-foreground">Client: "Just tell me if you can do it" (Jumping to closing)</p>
+                          <div className="mt-2 space-y-1 text-muted-foreground">
+                            <p>❌ <span className="line-through">Wrong: "Yes, we can!"</span> (Misses opportunity to understand)</p>
+                            <p>✅ <strong>Right:</strong> "Absolutely we can help! But I want to make sure we do it right. What's the specific outcome you're hoping for? That way I can confirm we're the perfect fit."</p>
+                          </div>
+                        </div>
+                        <div className="p-3 rounded bg-background/50">
+                          <p className="font-medium text-foreground">Client: "My friend said you're expensive" (Starting with objection)</p>
+                          <div className="mt-2 space-y-1 text-muted-foreground">
+                            <p>❌ <span className="line-through">Wrong: "We're actually very competitive..."</span> (Defensive)</p>
+                            <p>✅ <strong>Right:</strong> "I appreciate you being upfront! What did your friend's situation involve? Our pricing varies based on complexity - let's see if your needs are similar or different."</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* OPENING TAB - How to open, hook, earn attention */}
+                <TabsContent value="opening" className="space-y-4">
+                  <div className="grid gap-3">
+                    <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-cyan-500/10 border border-blue-500/20">
+                      <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <Target className="h-4 w-4 text-blue-500" />
+                        The First 30 Seconds - Make or Break
+                      </h4>
+                      <p className="text-xs text-muted-foreground mb-3">You have 30 seconds to answer the client's unspoken question: "Why should I keep listening?"</p>
+                      <div className="grid md:grid-cols-2 gap-3 text-xs">
+                        <div className="p-3 rounded bg-background/50 border">
+                          <p className="font-medium text-red-500 mb-2">❌ Bad Openings (What Most Do)</p>
+                          <ul className="space-y-1 text-muted-foreground">
+                            <li>• "Hi, I'm calling from XYZ company..."</li>
+                            <li>• "Do you have a moment to talk about..."</li>
+                            <li>• "I wanted to introduce our services..."</li>
+                            <li>• "Is this a good time?" (Easy out)</li>
+                          </ul>
+                          <p className="text-red-500 mt-2 italic">Why bad: Client-focus is zero. It's all about YOU.</p>
+                        </div>
+                        <div className="p-3 rounded bg-background/50 border">
+                          <p className="font-medium text-green-500 mb-2">✅ Great Openings (What Works)</p>
+                          <ul className="space-y-1 text-muted-foreground">
+                            <li>• "I noticed [specific thing about them]..."</li>
+                            <li>• "Quick question - [relevant curiosity hook]?"</li>
+                            <li>• "[Mutual connection] mentioned you might..."</li>
+                            <li>• "I help [their type] with [their problem]..."</li>
+                          </ul>
+                          <p className="text-green-500 mt-2 italic">Why good: Shows you did homework. It's about THEM.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-background/50 border">
+                      <h4 className="font-semibold text-foreground mb-3 text-sm">🎣 Hook Techniques - Earn The Right To Continue</h4>
+                      <div className="grid md:grid-cols-2 gap-3 text-xs">
+                        <div className="p-3 rounded bg-purple-500/10 border border-purple-500/20">
+                          <p className="font-medium text-purple-600 mb-2">The Curiosity Hook</p>
+                          <p className="text-muted-foreground italic">"I have a quick question that might save you [time/money/hassle]..."</p>
+                          <p className="text-foreground mt-2">🎯 Creates intrigue without commitment</p>
+                        </div>
+                        <div className="p-3 rounded bg-blue-500/10 border border-blue-500/20">
+                          <p className="font-medium text-blue-600 mb-2">The Relevance Hook</p>
+                          <p className="text-muted-foreground italic">"I noticed you're expanding to [area] - we just helped [similar company] with that..."</p>
+                          <p className="text-foreground mt-2">🎯 Shows you understand their world</p>
+                        </div>
+                        <div className="p-3 rounded bg-green-500/10 border border-green-500/20">
+                          <p className="font-medium text-green-600 mb-2">The Social Proof Hook</p>
+                          <p className="text-muted-foreground italic">"[Known name/competitor] in your industry just completed [outcome] with us..."</p>
+                          <p className="text-foreground mt-2">🎯 Leverages fear of missing out</p>
+                        </div>
+                        <div className="p-3 rounded bg-amber-500/10 border border-amber-500/20">
+                          <p className="font-medium text-amber-600 mb-2">The Problem Hook</p>
+                          <p className="text-muted-foreground italic">"Most [their type] I talk to are struggling with [common pain]..."</p>
+                          <p className="text-foreground mt-2">🎯 Resonates if they have the problem</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-green-500/5 border border-green-500/20">
+                      <h4 className="font-semibold text-foreground mb-3 text-sm">Opening Scripts By Call Type</h4>
+                      <div className="space-y-3 text-xs">
+                        <div className="p-3 rounded bg-background/50">
+                          <Badge variant="outline" className="mb-2 bg-blue-500/10 text-blue-600">Outbound Cold Call</Badge>
+                          <p className="text-muted-foreground italic">"Hi [Name], this is [You] from AMANA. I'll be brief - I help business owners in [industry] open bank accounts in half the usual time. Is that something worth 2 minutes of your time?"</p>
+                          <p className="text-foreground mt-2">💡 <strong>Key:</strong> Respect their time, give value proposition immediately</p>
+                        </div>
+                        <div className="p-3 rounded bg-background/50">
+                          <Badge variant="outline" className="mb-2 bg-green-500/10 text-green-600">Inbound Inquiry</Badge>
+                          <p className="text-muted-foreground italic">"Thanks for reaching out! Before I dive in, I'd love to understand what caught your attention about us - what are you hoping to achieve?"</p>
+                          <p className="text-foreground mt-2">💡 <strong>Key:</strong> Warmth first, then understand their motivation</p>
+                        </div>
+                        <div className="p-3 rounded bg-background/50">
+                          <Badge variant="outline" className="mb-2 bg-purple-500/10 text-purple-600">Follow-up Call</Badge>
+                          <p className="text-muted-foreground italic">"Hi [Name], it's [You] from AMANA. We spoke [timeframe] ago about [topic]. I wanted to check in - has anything changed since then? Any new questions I can help with?"</p>
+                          <p className="text-foreground mt-2">💡 <strong>Key:</strong> Remind context, show you remember them</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                      <h4 className="font-semibold text-foreground mb-2 text-sm">Voice & Tone - How To Speak</h4>
+                      <div className="grid md:grid-cols-4 gap-2 text-xs">
+                        <div className="p-2 rounded bg-background/50 text-center">
+                          <p className="font-medium text-foreground">🎵 Pace</p>
+                          <p className="text-muted-foreground">Match their speed. Slow = authority. Fast = excitement.</p>
+                        </div>
+                        <div className="p-2 rounded bg-background/50 text-center">
+                          <p className="font-medium text-foreground">📊 Tone</p>
+                          <p className="text-muted-foreground">Confident but not pushy. Curious not interrogating.</p>
+                        </div>
+                        <div className="p-2 rounded bg-background/50 text-center">
+                          <p className="font-medium text-foreground">⏸️ Pauses</p>
+                          <p className="text-muted-foreground">After key points. Let them think. Don't fill silence.</p>
+                        </div>
+                        <div className="p-2 rounded bg-background/50 text-center">
+                          <p className="font-medium text-foreground">😊 Energy</p>
+                          <p className="text-muted-foreground">Smile while talking - they can hear it. Be warm.</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* TRUST TAB - How to earn trust before demonstrating */}
+                <TabsContent value="trust" className="space-y-4">
+                  <div className="grid gap-3">
+                    <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-emerald-500/10 border border-green-500/20">
+                      <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <Users className="h-4 w-4 text-green-500" />
+                        The Trust-Before-Pitch Rule
+                      </h4>
+                      <p className="text-xs text-muted-foreground mb-3">
+                        <strong>Golden Rule:</strong> Never pitch until they trust you. No trust = No sale, no matter how good your offer is.
+                      </p>
+                      <div className="grid md:grid-cols-3 gap-3 text-xs">
+                        <div className="p-3 rounded bg-background/50 border">
+                          <p className="font-medium text-red-500 mb-2">🚫 What Destroys Trust</p>
+                          <ul className="space-y-1 text-muted-foreground">
+                            <li>• Pitching too early</li>
+                            <li>• Not listening, just waiting to talk</li>
+                            <li>• Overpromising</li>
+                            <li>• Being vague about process/pricing</li>
+                            <li>• Pressuring for quick decisions</li>
+                          </ul>
+                        </div>
+                        <div className="p-3 rounded bg-background/50 border">
+                          <p className="font-medium text-green-500 mb-2">✅ What Builds Trust</p>
+                          <ul className="space-y-1 text-muted-foreground">
+                            <li>• Active listening (paraphrasing back)</li>
+                            <li>• Asking thoughtful questions</li>
+                            <li>• Being honest about limitations</li>
+                            <li>• Sharing relevant examples</li>
+                            <li>• Giving before asking</li>
+                          </ul>
+                        </div>
+                        <div className="p-3 rounded bg-background/50 border">
+                          <p className="font-medium text-blue-500 mb-2">🎯 Trust Signals to Watch</p>
+                          <ul className="space-y-1 text-muted-foreground">
+                            <li>• They share personal details</li>
+                            <li>• They ask "How?" questions</li>
+                            <li>• They mention concerns openly</li>
+                            <li>• Conversation becomes two-way</li>
+                            <li>• They agree to next steps</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-background/50 border">
+                      <h4 className="font-semibold text-foreground mb-3 text-sm">Trust-Building Techniques</h4>
+                      <div className="space-y-3 text-xs">
+                        <div className="p-3 rounded bg-purple-500/10 border border-purple-500/20">
+                          <p className="font-medium text-purple-600 mb-2">1. The Mirror Technique</p>
+                          <p className="text-muted-foreground">Repeat their last 1-3 words as a question. Shows you're listening.</p>
+                          <p className="bg-background/50 p-2 rounded mt-2 italic">Client: "I'm worried about the timeline."<br/>You: "The timeline?"<br/>Client: "Yes, we need this done by March because..." [Opens up more]</p>
+                        </div>
+                        <div className="p-3 rounded bg-blue-500/10 border border-blue-500/20">
+                          <p className="font-medium text-blue-600 mb-2">2. The Label Technique</p>
+                          <p className="text-muted-foreground">Name their emotion. "It sounds like..." / "It seems like..."</p>
+                          <p className="bg-background/50 p-2 rounded mt-2 italic">"It sounds like you've had frustrating experiences with this before..."<br/>Client: "Yes! We tried twice and it failed both times." [Validates them, builds connection]</p>
+                        </div>
+                        <div className="p-3 rounded bg-green-500/10 border border-green-500/20">
+                          <p className="font-medium text-green-600 mb-2">3. The Vulnerability Technique</p>
+                          <p className="text-muted-foreground">Share a small limitation or honest admission. Makes you human.</p>
+                          <p className="bg-background/50 p-2 rounded mt-2 italic">"I'll be honest - if you need this in 2 days, we're not the right fit. Our minimum is 5 days because we don't cut corners."<br/>[Honesty = Trust]</p>
+                        </div>
+                        <div className="p-3 rounded bg-amber-500/10 border border-amber-500/20">
+                          <p className="font-medium text-amber-600 mb-2">4. The Give-First Technique</p>
+                          <p className="text-muted-foreground">Offer value before asking for anything. Creates reciprocity.</p>
+                          <p className="bg-background/50 p-2 rounded mt-2 italic">"Before we go further, let me share a quick tip that might help regardless of whether you work with us..."<br/>[Generosity = Trust]</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-amber-500/5 border border-amber-500/20">
+                      <h4 className="font-semibold text-foreground mb-3 text-sm flex items-center gap-2">
+                        <Lightbulb className="h-4 w-4 text-amber-500" />
+                        Evoking Interest - Make Them WANT To Buy
+                      </h4>
+                      <div className="grid md:grid-cols-2 gap-3 text-xs">
+                        <div className="p-3 rounded bg-background/50">
+                          <p className="font-medium text-foreground mb-2">Paint The "After" Picture</p>
+                          <p className="text-muted-foreground italic">"Imagine 3 weeks from now - your account is open, your first transaction goes through smoothly, and you can finally [their goal]. How would that feel?"</p>
+                        </div>
+                        <div className="p-3 rounded bg-background/50">
+                          <p className="font-medium text-foreground mb-2">Highlight The Cost Of Inaction</p>
+                          <p className="text-muted-foreground italic">"Every month you wait is a month of [lost opportunity/risk/frustration]. What's that costing you right now?"</p>
+                        </div>
+                        <div className="p-3 rounded bg-background/50">
+                          <p className="font-medium text-foreground mb-2">Use Social Proof Stories</p>
+                          <p className="text-muted-foreground italic">"We just helped a company just like yours - they were hesitant too, but within 3 weeks they had [outcome]. Would you like to hear how?"</p>
+                        </div>
+                        <div className="p-3 rounded bg-background/50">
+                          <p className="font-medium text-foreground mb-2">Create Scarcity (Genuine)</p>
+                          <p className="text-muted-foreground italic">"Our specialist for [their need] only takes on 4 new clients per month. I want to make sure I can hold a spot if you decide to move forward."</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
+
+                {/* RELUCTANCE TAB - Handling undecided customers, offers, discounts */}
+                <TabsContent value="reluctance" className="space-y-4">
+                  <div className="grid gap-3">
+                    <div className="p-4 rounded-lg bg-gradient-to-br from-amber-500/10 to-orange-500/10 border border-amber-500/20">
+                      <h4 className="font-semibold text-foreground mb-3 flex items-center gap-2">
+                        <DollarSign className="h-4 w-4 text-amber-500" />
+                        When The Client Is Still Undecided
+                      </h4>
+                      <p className="text-xs text-muted-foreground mb-3">Reluctance usually means one of three things: They don't see enough value, they have hidden concerns, or the timing isn't right.</p>
+                      <div className="grid md:grid-cols-3 gap-3 text-xs">
+                        <div className="p-3 rounded bg-background/50 border">
+                          <p className="font-medium text-purple-500 mb-2">🔍 Diagnose First</p>
+                          <p className="text-muted-foreground italic">"I sense some hesitation - and that's completely normal. Can you help me understand what's holding you back? Is it the timing, the investment, or something else?"</p>
+                        </div>
+                        <div className="p-3 rounded bg-background/50 border">
+                          <p className="font-medium text-blue-500 mb-2">🎯 Isolate The Objection</p>
+                          <p className="text-muted-foreground italic">"If we could address [concern], would you be ready to move forward today? I want to make sure I'm focused on what matters most to you."</p>
+                        </div>
+                        <div className="p-3 rounded bg-background/50 border">
+                          <p className="font-medium text-green-500 mb-2">✅ Confirm Alignment</p>
+                          <p className="text-muted-foreground italic">"Just to make sure we're aligned - you DO want [outcome], right? It's just [specific concern] that's making you pause?"</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-background/50 border">
+                      <h4 className="font-semibold text-foreground mb-3 text-sm">💰 Strategic Discounting & Offers</h4>
+                      <div className="grid md:grid-cols-2 gap-3 text-xs">
+                        <div className="p-3 rounded bg-red-500/10 border border-red-500/20">
+                          <p className="font-medium text-red-600 mb-2">❌ When NOT To Discount</p>
+                          <ul className="space-y-1 text-muted-foreground">
+                            <li>• Client hasn't expressed price as concern</li>
+                            <li>• You haven't established full value yet</li>
+                            <li>• They're shopping around (creates weakness)</li>
+                            <li>• First mention of price</li>
+                          </ul>
+                        </div>
+                        <div className="p-3 rounded bg-green-500/10 border border-green-500/20">
+                          <p className="font-medium text-green-600 mb-2">✅ When Discounting Works</p>
+                          <ul className="space-y-1 text-muted-foreground">
+                            <li>• Clear budget constraint (verified)</li>
+                            <li>• Long-term relationship potential</li>
+                            <li>• In exchange for something (commitment, referral)</li>
+                            <li>• Time-limited genuine offer</li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-green-500/5 border border-green-500/20">
+                      <h4 className="font-semibold text-foreground mb-3 text-sm">Inducement Techniques (When Appropriate)</h4>
+                      <div className="space-y-3 text-xs">
+                        <div className="p-3 rounded bg-background/50">
+                          <p className="font-medium text-foreground mb-2">The "Today Only" Incentive</p>
+                          <p className="text-muted-foreground italic">"I'm authorized to offer 10% off, but only if we can lock in the agreement today. After that, I can't hold this rate."</p>
+                          <p className="text-amber-600 mt-2">⚠️ Only use if genuinely true. Never fake urgency.</p>
+                        </div>
+                        <div className="p-3 rounded bg-background/50">
+                          <p className="font-medium text-foreground mb-2">The Value-Add Alternative</p>
+                          <p className="text-muted-foreground italic">"I can't lower the price, but I CAN include [bonus service/faster delivery/extra support] at no additional cost. Would that help?"</p>
+                          <p className="text-green-600 mt-2">✅ Better than discounting - adds value vs. reducing yours</p>
+                        </div>
+                        <div className="p-3 rounded bg-background/50">
+                          <p className="font-medium text-foreground mb-2">The Payment Flexibility</p>
+                          <p className="text-muted-foreground italic">"What if we split this into two payments? The total stays the same, but it makes the cashflow easier."</p>
+                          <p className="text-blue-600 mt-2">💡 Solves cashflow concern without reducing price</p>
+                        </div>
+                        <div className="p-3 rounded bg-background/50">
+                          <p className="font-medium text-foreground mb-2">The Risk Reversal</p>
+                          <p className="text-muted-foreground italic">"Tell you what - if we don't [achieve X outcome] within [timeframe], I'll [refund/redo/credit]. Fair enough?"</p>
+                          <p className="text-purple-600 mt-2">🎯 Removes risk from their side. Shows confidence.</p>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="p-4 rounded-lg bg-blue-500/5 border border-blue-500/20">
+                      <h4 className="font-semibold text-foreground mb-3 text-sm">Last Resort: The Graceful Exit</h4>
+                      <div className="text-xs space-y-2">
+                        <p className="text-muted-foreground">Sometimes the answer is no - and that's okay. Leave the door open professionally.</p>
+                        <div className="p-3 rounded bg-background/50">
+                          <p className="text-muted-foreground italic">"I understand now might not be the right time. I'd rather you make the decision that's right for you than feel pressured. Can I check in with you in [timeframe]? Things might be different then."</p>
+                        </div>
+                        <p className="text-green-600">✅ <strong>Why this works:</strong> No burnt bridges. They respect you more. They often come back when ready. Referrals can still happen.</p>
+                      </div>
+                    </div>
+                  </div>
+                </TabsContent>
 
                 {/* Stages Tab */}
                 <TabsContent value="stages" className="space-y-4">
