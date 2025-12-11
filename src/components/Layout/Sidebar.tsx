@@ -32,7 +32,8 @@ import {
   Layers,
   UserCheck,
   Clock,
-  Code
+  Code,
+  UserRoundSearch
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -94,6 +95,12 @@ const Sidebar: React.FC = () => {
       name: 'Rejected',
       path: '/rejected',
       icon: <XCircle className="h-5 w-5" />,
+      roles: ['admin', 'user'],
+    },
+    {
+      name: 'Leads',
+      path: '/leads',
+      icon: <UserRoundSearch className="h-5 w-5" />,
       roles: ['admin', 'user'],
     },
     {
