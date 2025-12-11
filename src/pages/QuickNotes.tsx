@@ -690,10 +690,43 @@ const QuickNotes = () => {
 
             {/* PERSONALITY TAB */}
             <TabsContent value="personality" className="space-y-4">
+              <div className="p-4 rounded-lg bg-background/50 border">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Users className="h-4 w-4 text-purple-500" />
+                  DISC Personality Types
+                </h4>
+                <div className="space-y-3">
+                  <div className="p-3 rounded bg-red-500/10 border border-red-500/20">
+                    <p className="font-semibold text-red-600 mb-1">D - Dominant</p>
+                    <p className="text-xs text-muted-foreground mb-2">Fast-paced, results-oriented, direct</p>
+                    <p className="text-xs"><strong>Signs:</strong> Interrupts, wants bottom line, impatient</p>
+                    <p className="text-xs"><strong>Approach:</strong> Be direct, focus on results, skip small talk</p>
+                  </div>
+                  <div className="p-3 rounded bg-yellow-500/10 border border-yellow-500/20">
+                    <p className="font-semibold text-yellow-600 mb-1">I - Influencer</p>
+                    <p className="text-xs text-muted-foreground mb-2">Enthusiastic, optimistic, collaborative</p>
+                    <p className="text-xs"><strong>Signs:</strong> Talks a lot, personal stories, expressive</p>
+                    <p className="text-xs"><strong>Approach:</strong> Be friendly, share stories, show enthusiasm</p>
+                  </div>
+                  <div className="p-3 rounded bg-green-500/10 border border-green-500/20">
+                    <p className="font-semibold text-green-600 mb-1">S - Steady</p>
+                    <p className="text-xs text-muted-foreground mb-2">Patient, reliable, team-oriented</p>
+                    <p className="text-xs"><strong>Signs:</strong> Asks about process, mentions team, cautious</p>
+                    <p className="text-xs"><strong>Approach:</strong> Be patient, provide assurance, no pressure</p>
+                  </div>
+                  <div className="p-3 rounded bg-blue-500/10 border border-blue-500/20">
+                    <p className="font-semibold text-blue-600 mb-1">C - Conscientious</p>
+                    <p className="text-xs text-muted-foreground mb-2">Analytical, detail-oriented, accurate</p>
+                    <p className="text-xs"><strong>Signs:</strong> Many questions, wants data, methodical</p>
+                    <p className="text-xs"><strong>Approach:</strong> Provide details, facts, proof, be precise</p>
+                  </div>
+                </div>
+              </div>
+
               <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border">
                 <h3 className="font-semibold mb-4 flex items-center gap-2">
                   <Users className="h-5 w-5 text-purple-500" />
-                  Personality Types (ADEA Framework)
+                  ADEA Framework
                 </h3>
                 
                 <div className="grid md:grid-cols-2 gap-3">
