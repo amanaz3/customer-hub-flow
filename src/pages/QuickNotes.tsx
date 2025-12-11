@@ -1095,9 +1095,108 @@ const QuickNotes = () => {
                   ))}
                 </div>
               </div>
-            </TabsContent>
 
-            {/* PREP TAB */}
+              <div className="p-4 rounded-lg bg-gradient-to-br from-amber-500/10 to-orange-500/10 border">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <Brain className="h-5 w-5 text-amber-500" />
+                  When The Client Is Still Undecided
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">Reluctance usually means one of three things: They don't see enough value, they have hidden concerns, or the timing isn't right.</p>
+                
+                <div className="space-y-3">
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-amber-600 mb-2">🔍 Diagnose First</p>
+                    <p className="text-sm text-muted-foreground italic">"I sense some hesitation - and that's completely normal. Can you help me understand what's holding you back? Is it the timing, the investment, or something else?"</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-amber-600 mb-2">🎯 Isolate The Objection</p>
+                    <p className="text-sm text-muted-foreground italic">"If we could address [concern], would you be ready to move forward today? I want to make sure I'm focused on what matters most to you."</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-amber-600 mb-2">✅ Confirm Alignment</p>
+                    <p className="text-sm text-muted-foreground italic">"Just to make sure we're aligned - you DO want [outcome], right? It's just [specific concern] that's making you pause?"</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-background/50 border">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <DollarSign className="h-4 w-4 text-green-500" />
+                  💰 Strategic Discounting & Offers
+                </h4>
+                
+                <div className="grid md:grid-cols-2 gap-4 mb-4">
+                  <div className="p-3 rounded bg-red-500/10 border border-red-500/20">
+                    <p className="font-semibold text-red-600 text-sm mb-2">❌ When NOT To Discount</p>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>• Client hasn't expressed price as concern</li>
+                      <li>• You haven't established full value yet</li>
+                      <li>• They're shopping around (creates weakness)</li>
+                      <li>• First mention of price</li>
+                    </ul>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-green-500/10 border border-green-500/20">
+                    <p className="font-semibold text-green-600 text-sm mb-2">✅ When TO Discount</p>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>• Price is confirmed as the ONLY barrier</li>
+                      <li>• Client is ready but needs justification</li>
+                      <li>• Long-term relationship potential</li>
+                      <li>• End of month/quarter targets</li>
+                    </ul>
+                  </div>
+                </div>
+                
+                <p className="font-semibold text-sm mb-3">Discount Delivery Scripts</p>
+                <div className="space-y-3">
+                  <div className="p-3 rounded bg-muted/50 border-l-4 border-purple-500/50">
+                    <p className="font-medium text-sm text-purple-600">The "Special Case" Discount</p>
+                    <p className="text-xs text-muted-foreground italic mt-1">"I don't usually do this, but given [specific reason about them], let me see if I can get you a special rate. Would [X% off] make this work for you today?"</p>
+                    <p className="text-xs text-primary mt-2">💡 Makes them feel valued, not like everyone gets this</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-muted/50 border-l-4 border-teal-500/50">
+                    <p className="font-medium text-sm text-teal-600">The "Add Value" Approach</p>
+                    <p className="text-xs text-muted-foreground italic mt-1">"Instead of reducing the price, what if I add [bonus service/feature] at no extra cost? That way you get more value for the same investment."</p>
+                    <p className="text-xs text-primary mt-2">💡 Maintains price integrity while increasing perceived value</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-muted/50 border-l-4 border-blue-500/50">
+                    <p className="font-medium text-sm text-blue-600">The "Payment Terms" Alternative</p>
+                    <p className="text-xs text-muted-foreground italic mt-1">"If the total is the concern, would spreading it over [X payments] make it more manageable? The total stays the same, but it's easier on cash flow."</p>
+                    <p className="text-xs text-primary mt-2">💡 Addresses affordability without discounting</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-muted/50 border-l-4 border-amber-500/50">
+                    <p className="font-medium text-sm text-amber-600">The "Deadline" Close</p>
+                    <p className="text-xs text-muted-foreground italic mt-1">"I can hold this rate until [date/time], but after that I can't guarantee it. If you confirm by then, we lock it in."</p>
+                    <p className="text-xs text-primary mt-2">💡 Creates urgency without pressure</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                <h4 className="font-semibold mb-3 text-blue-600 flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4" />
+                  Handling "I Need To Think About It"
+                </h4>
+                <p className="text-xs text-muted-foreground mb-3 italic">Translation: "I'm not convinced yet" or "I have concerns I haven't shared"</p>
+                
+                <div className="space-y-2">
+                  <div className="p-2 rounded bg-background/80 border text-sm">
+                    <span className="text-green-600 font-medium">✅ Response 1:</span> <span className="text-muted-foreground italic">"Of course! Just so I can prepare the right information - what specifically would you want to think through?"</span>
+                  </div>
+                  <div className="p-2 rounded bg-background/80 border text-sm">
+                    <span className="text-green-600 font-medium">✅ Response 2:</span> <span className="text-muted-foreground italic">"Absolutely fair. Usually when people say that, it's about [price/timing/fit]. Which is it for you?"</span>
+                  </div>
+                  <div className="p-2 rounded bg-background/80 border text-sm">
+                    <span className="text-green-600 font-medium">✅ Response 3:</span> <span className="text-muted-foreground italic">"I respect that. If you were to decide today, what would your gut tell you - yes or no?"</span>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
             <TabsContent value="prep" className="space-y-4">
               <div className="p-4 rounded-lg bg-background/50 border">
                 <h4 className="font-semibold mb-3 flex items-center gap-2">
