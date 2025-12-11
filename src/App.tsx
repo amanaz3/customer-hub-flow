@@ -72,6 +72,7 @@ import LiveAssistant from '@/pages/LiveAssistant';
 import PlaybookEditor from '@/pages/PlaybookEditor';
 import SalesGuide from '@/pages/SalesGuide';
 import QuickReference from '@/pages/QuickReference';
+import QuickNotes from '@/pages/QuickNotes';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -676,6 +677,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Quick Reference">
                           <QuickReference />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/quick-notes" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Quick Notes">
+                          <QuickNotes />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
