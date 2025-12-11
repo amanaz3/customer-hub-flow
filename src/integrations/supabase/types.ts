@@ -630,6 +630,72 @@ export type Database = {
           },
         ]
       }
+      call_stage_history: {
+        Row: {
+          call_session_id: string | null
+          created_at: string
+          duration_seconds: number | null
+          entered_at: string
+          exited_at: string | null
+          id: string
+          jump_direction: string | null
+          notes: string | null
+          skipped_stages: string[] | null
+          stage_id: string | null
+          stage_name: string
+          stage_order: number | null
+          triggered_by: string
+          was_jump: boolean
+        }
+        Insert: {
+          call_session_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          entered_at?: string
+          exited_at?: string | null
+          id?: string
+          jump_direction?: string | null
+          notes?: string | null
+          skipped_stages?: string[] | null
+          stage_id?: string | null
+          stage_name: string
+          stage_order?: number | null
+          triggered_by?: string
+          was_jump?: boolean
+        }
+        Update: {
+          call_session_id?: string | null
+          created_at?: string
+          duration_seconds?: number | null
+          entered_at?: string
+          exited_at?: string | null
+          id?: string
+          jump_direction?: string | null
+          notes?: string | null
+          skipped_stages?: string[] | null
+          stage_id?: string | null
+          stage_name?: string
+          stage_order?: number | null
+          triggered_by?: string
+          was_jump?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_stage_history_call_session_id_fkey"
+            columns: ["call_session_id"]
+            isOneToOne: false
+            referencedRelation: "sales_call_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_stage_history_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "playbook_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       call_transcripts: {
         Row: {
           agent_id: string | null
