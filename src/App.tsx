@@ -670,6 +670,16 @@ function App() {
                     </ProtectedRoute>
                   } />
                   
+                  <Route path="/sales-guide" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Sales Guide">
+                          <SalesGuide />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
                   <Route path="*" element={
                     <PageErrorBoundary pageName="Not Found">
                       <LazyNotFound />
