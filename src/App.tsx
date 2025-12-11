@@ -71,6 +71,7 @@ import LegacyDashboard from '@/pages/LegacyDashboard';
 import LiveAssistant from '@/pages/LiveAssistant';
 import PlaybookEditor from '@/pages/PlaybookEditor';
 import SalesGuide from '@/pages/SalesGuide';
+import QuickReference from '@/pages/QuickReference';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -665,6 +666,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Playbook Editor">
                           <PlaybookEditor />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/quick-reference" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Quick Reference">
+                          <QuickReference />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
