@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, Brain, Target, Users, Lightbulb, AlertTriangle, BookOpen, CheckCircle2, Trophy, Heart, Shield, Zap, Handshake, DollarSign } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Brain, Target, Users, Lightbulb, AlertTriangle, BookOpen, CheckCircle2, Trophy, Heart, Shield, Zap, Handshake, DollarSign, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -635,41 +635,53 @@ const QuickNotes = () => {
 
             {/* ASSESS TAB */}
             <TabsContent value="assess" className="space-y-4">
-              <div className="p-4 rounded-lg bg-background/50 border">
-                <h4 className="font-semibold mb-3 flex items-center gap-2">
-                  <Target className="h-4 w-4 text-green-500" />
+              <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-emerald-500/10 border">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Target className="h-5 w-5 text-green-500" />
                   BANT Framework
-                </h4>
-                <div className="grid grid-cols-1 gap-3">
-                  {[
-                    { letter: "B", title: "Budget", question: "What budget have you allocated for this?", tip: "If unknown, ask about similar past investments" },
-                    { letter: "A", title: "Authority", question: "Who else is involved in this decision?", tip: "Map all stakeholders early" },
-                    { letter: "N", title: "Need", question: "What problem are you trying to solve?", tip: "Dig into the pain - what happens if they don't solve it?" },
-                    { letter: "T", title: "Timeline", question: "When do you need this by?", tip: "Understand urgency drivers" }
-                  ].map((item, i) => (
-                    <div key={i} className="p-3 rounded bg-muted/50">
-                      <div className="flex items-center gap-2 mb-1">
-                        <span className="w-6 h-6 rounded-full bg-green-500 text-white text-xs flex items-center justify-center font-bold">{item.letter}</span>
-                        <span className="font-medium text-sm">{item.title}</span>
-                      </div>
-                      <p className="text-xs text-muted-foreground italic mb-1">"{item.question}"</p>
-                      <p className="text-xs text-muted-foreground">{item.tip}</p>
-                    </div>
-                  ))}
+                </h3>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="p-3 rounded bg-background/80 border text-center">
+                    <div className="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-lg mx-auto mb-2">B</div>
+                    <p className="font-semibold text-green-600 mb-1">Budget</p>
+                    <p className="text-xs text-muted-foreground">Can they afford it?</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border text-center">
+                    <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg mx-auto mb-2">A</div>
+                    <p className="font-semibold text-blue-600 mb-1">Authority</p>
+                    <p className="text-xs text-muted-foreground">Can they decide?</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border text-center">
+                    <div className="w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center font-bold text-lg mx-auto mb-2">N</div>
+                    <p className="font-semibold text-purple-600 mb-1">Need</p>
+                    <p className="text-xs text-muted-foreground">Do they need it?</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border text-center">
+                    <div className="w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-lg mx-auto mb-2">T</div>
+                    <p className="font-semibold text-amber-600 mb-1">Timeline</p>
+                    <p className="text-xs text-muted-foreground">When do they need it?</p>
+                  </div>
                 </div>
               </div>
+
               <div className="p-4 rounded-lg bg-background/50 border">
-                <h4 className="font-semibold mb-3">Pain Assessment Questions</h4>
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <MessageSquare className="h-4 w-4 text-purple-500" />
+                  Pain/Need Identification Questions
+                </h4>
                 <div className="space-y-2">
                   {[
-                    "What's the biggest challenge you're facing with [area]?",
-                    "How long has this been a problem?",
-                    "What have you tried so far to solve it?",
-                    "What happens if you don't fix this in the next 6 months?",
-                    "On a scale of 1-10, how urgent is solving this?"
+                    "What's your biggest challenge with [area] right now?",
+                    "What happens if this problem isn't solved in the next 3 months?",
+                    "What have you tried before? What worked/didn't work?",
+                    "If you could wave a magic wand, what would the ideal outcome look like?"
                   ].map((q, i) => (
-                    <div key={i} className="p-2 rounded bg-muted/30 text-sm text-muted-foreground">
-                      {i + 1}. {q}
+                    <div key={i} className="p-3 rounded bg-muted/30 text-sm text-muted-foreground italic border-l-2 border-purple-500/50">
+                      "{q}"
                     </div>
                   ))}
                 </div>
