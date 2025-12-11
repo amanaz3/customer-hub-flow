@@ -13,7 +13,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import DecisionTreeVisualizer from '@/components/Playbook/DecisionTreeVisualizer';
 import { 
   Plus, 
@@ -528,65 +528,27 @@ const PlaybookEditor = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant="outline" className="bg-green-500/10 text-green-700 border-green-500/30">
-              <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse" />
-              Editor Active
-            </Badge>
-          </div>
-        </div>
-      </div>
-
-      {/* Playbook Guide Section */}
-      <Collapsible>
-        <Card className="border-primary/20 bg-primary/5">
-          <CollapsibleTrigger className="w-full">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Lightbulb className="h-5 w-5 text-primary" />
-                  <CardTitle className="text-lg">Playbook Guide & Best Practices</CardTitle>
-                </div>
-                <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
-              </div>
-            </CardHeader>
-          </CollapsibleTrigger>
-          <CollapsibleContent>
-            <CardContent className="pt-0">
-              <Tabs defaultValue="stages" className="w-full">
-                <TabsList className="grid w-full grid-cols-4 lg:grid-cols-8 mb-4">
-                  <TabsTrigger value="stages" className="text-xs">
-                    <Target className="h-3 w-3 mr-1" />
-                    Stages
-                  </TabsTrigger>
-                  <TabsTrigger value="assessment" className="text-xs">
-                    <Heart className="h-3 w-3 mr-1" />
-                    Assessment
-                  </TabsTrigger>
-                  <TabsTrigger value="personality" className="text-xs">
-                    <Brain className="h-3 w-3 mr-1" />
-                    Personality
-                  </TabsTrigger>
-                  <TabsTrigger value="objections" className="text-xs">
-                    <AlertTriangle className="h-3 w-3 mr-1" />
-                    Objections
-                  </TabsTrigger>
-                  <TabsTrigger value="closing" className="text-xs">
-                    <DollarSign className="h-3 w-3 mr-1" />
-                    Closing
-                  </TabsTrigger>
-                  <TabsTrigger value="preparation" className="text-xs">
-                    <FileText className="h-3 w-3 mr-1" />
-                    Prep
-                  </TabsTrigger>
-                  <TabsTrigger value="faqs" className="text-xs">
-                    <HelpCircle className="h-3 w-3 mr-1" />
-                    FAQs
-                  </TabsTrigger>
-                  <TabsTrigger value="notes" className="text-xs">
-                    <Lightbulb className="h-3 w-3 mr-1" />
-                    Notes
-                  </TabsTrigger>
-                </TabsList>
+            <Sheet>
+              <SheetTrigger asChild>
+                <Button variant="outline" size="sm" className="gap-2">
+                  <Lightbulb className="h-4 w-4" />
+                  Guide
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[500px] sm:w-[600px] overflow-y-auto">
+                <SheetHeader className="pb-4">
+                  <SheetTitle className="flex items-center gap-2">
+                    <Lightbulb className="h-5 w-5 text-primary" />
+                    Playbook Guide & Best Practices
+                  </SheetTitle>
+                </SheetHeader>
+                <Tabs defaultValue="stages" className="w-full">
+                  <TabsList className="grid w-full grid-cols-4 mb-4">
+                    <TabsTrigger value="stages" className="text-xs">Stages</TabsTrigger>
+                    <TabsTrigger value="assessment" className="text-xs">Assess</TabsTrigger>
+                    <TabsTrigger value="objections" className="text-xs">Object</TabsTrigger>
+                    <TabsTrigger value="faqs" className="text-xs">FAQs</TabsTrigger>
+                  </TabsList>
 
                 {/* Stages Tab */}
                 <TabsContent value="stages" className="space-y-4">
@@ -1196,10 +1158,15 @@ const PlaybookEditor = () => {
                   </div>
                 </TabsContent>
               </Tabs>
-            </CardContent>
-          </CollapsibleContent>
-        </Card>
-      </Collapsible>
+              </SheetContent>
+            </Sheet>
+            <Badge variant="outline" className="bg-green-500/10 text-green-700 border-green-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse" />
+              Editor Active
+            </Badge>
+          </div>
+        </div>
+      </div>
 
       <div className="flex items-center justify-end">
         
