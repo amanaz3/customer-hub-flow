@@ -30,6 +30,7 @@ import { cn } from '@/lib/utils';
 import { useSalesAssistant } from '@/hooks/useSalesAssistant';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/SecureAuthContext';
+import { supabase } from '@/integrations/supabase/client';
 import PlaybookStageSelector from './PlaybookStageSelector';
 
 interface TranscriptLine {
@@ -115,6 +116,7 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
   const [transcript, setTranscript] = useState<TranscriptLine[]>(mockTranscript);
   const [callSummary, setCallSummary] = useState<string | null>(null);
   const [activePlaybookId, setActivePlaybookId] = useState<string | undefined>(playbookId);
+  const [activePlaybookName, setActivePlaybookName] = useState<string | null>(null);
   const [activeStageId, setActiveStageId] = useState<string | undefined>();
   const [activeTab, setActiveTab] = useState('call');
   const [selectedCallType, setSelectedCallType] = useState<CallTypeKey>('outbound_sales');
@@ -138,6 +140,28 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
 
   const currentStages = CALL_STAGES[selectedCallType];
   const progressPercent = ((currentStageIndex + 1) / currentStages.length) * 100;
+
+  // Fetch playbook name when activePlaybookId changes
+  useEffect(() => {
+    const fetchPlaybookName = async () => {
+      if (!activePlaybookId) {
+        setActivePlaybookName(null);
+        return;
+      }
+      
+      const { data } = await supabase
+        .from('sales_playbooks')
+        .select('name')
+        .eq('id', activePlaybookId)
+        .single();
+      
+      if (data) {
+        setActivePlaybookName(data.name);
+      }
+    };
+    
+    fetchPlaybookName();
+  }, [activePlaybookId]);
 
   // Auto-scroll to bottom when new transcript lines arrive
   useEffect(() => {
@@ -243,6 +267,17 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
 
       {/* Call Type & Stage Progress */}
       <div className="px-3 py-2 border-b border-border/50 bg-muted/20 space-y-2">
+        {/* Active Playbook Indicator */}
+        {activePlaybookName && (
+          <div className="flex items-center gap-1.5 text-[10px]">
+            <BookOpen className="h-3 w-3 text-primary" />
+            <span className="text-muted-foreground">Playbook:</span>
+            <Badge variant="secondary" className="h-4 px-1.5 text-[9px] font-medium">
+              {activePlaybookName}
+            </Badge>
+          </div>
+        )}
+        
         {/* Call Type Selection */}
         <div className="flex gap-1">
           {CALL_TYPES.map((type) => {
