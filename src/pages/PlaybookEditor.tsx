@@ -215,6 +215,8 @@ const PlaybookEditor = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [callTypeFilter, setCallTypeFilter] = useState<'all' | 'outbound' | 'inbound' | 'follow_up'>('all');
   const [isPlaybookListCollapsed, setIsPlaybookListCollapsed] = useState(false);
+  const [showAllPlaybooks, setShowAllPlaybooks] = useState(false);
+  const MAX_VISIBLE_PLAYBOOKS = 6;
   const [newPlaybook, setNewPlaybook] = useState({
     name: '',
     description: '',
@@ -650,12 +652,12 @@ const PlaybookEditor = () => {
             <div className="flex items-center gap-2">
               {/* Search */}
               <div className="relative">
-                <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
-                  placeholder="Search..."
+                  placeholder="Search playbooks..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="h-8 pl-8 text-xs w-40"
+                  className="h-9 pl-9 text-sm w-64"
                 />
               </div>
               {/* Call Type Filter Tabs */}
@@ -698,52 +700,83 @@ const PlaybookEditor = () => {
               </p>
             </div>
           ) : (
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
-              {Object.entries(groupedPlaybooks).sort(([a], [b]) => a === 'General' ? 1 : b === 'General' ? -1 : a.localeCompare(b)).flatMap(([productName, pbs]) => 
-                pbs.map(playbook => {
-                  const isSelected = selectedPlaybook?.id === playbook.id;
-                  const callTypeIcon = playbook.call_type === 'outbound' ? (
-                    <MessageSquare className="h-3.5 w-3.5" />
-                  ) : playbook.call_type === 'inbound' ? (
-                    <Heart className="h-3.5 w-3.5" />
-                  ) : (
-                    <Play className="h-3.5 w-3.5" />
-                  );
-                  const callTypeColor = playbook.call_type === 'outbound' 
-                    ? 'bg-blue-500/10 text-blue-700 border-blue-500/30'
-                    : playbook.call_type === 'inbound'
-                    ? 'bg-purple-500/10 text-purple-700 border-purple-500/30'
-                    : 'bg-amber-500/10 text-amber-700 border-amber-500/30';
-                  
-                  return (
-                    <div
-                      key={playbook.id}
-                      className={`group p-3 rounded-lg cursor-pointer transition-all duration-200 border ${
-                        isSelected 
-                          ? 'bg-primary/10 border-primary/30 shadow-sm ring-1 ring-primary/20' 
-                          : 'border-border/50 hover:bg-muted/50 hover:border-border'
-                      }`}
-                      onClick={() => handleSelectPlaybook(playbook)}
-                    >
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className={`p-1.5 rounded-md ${isSelected ? 'bg-primary/20' : 'bg-muted/50 group-hover:bg-muted'} transition-colors`}>
-                          {callTypeIcon}
-                        </div>
-                        <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${callTypeColor}`}>
-                          {playbook.call_type === 'outbound' ? 'Out' : playbook.call_type === 'inbound' ? 'In' : 'F/U'}
-                        </Badge>
-                        {playbook.is_active && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
-                        )}
-                      </div>
-                      <div className="font-medium text-sm truncate">{playbook.name}</div>
-                      <div className="text-[10px] text-muted-foreground truncate mt-0.5">
-                        {productName}
-                      </div>
+            <div className="space-y-3">
+              {(() => {
+                const allPlaybookItems = Object.entries(groupedPlaybooks)
+                  .sort(([a], [b]) => a === 'General' ? 1 : b === 'General' ? -1 : a.localeCompare(b))
+                  .flatMap(([productName, pbs]) => pbs.map(pb => ({ ...pb, productName })));
+                
+                const visibleItems = showAllPlaybooks || searchTerm 
+                  ? allPlaybookItems 
+                  : allPlaybookItems.slice(0, MAX_VISIBLE_PLAYBOOKS);
+                const hiddenCount = allPlaybookItems.length - MAX_VISIBLE_PLAYBOOKS;
+
+                return (
+                  <>
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+                      {visibleItems.map(playbook => {
+                        const isSelected = selectedPlaybook?.id === playbook.id;
+                        const callTypeIcon = playbook.call_type === 'outbound' ? (
+                          <MessageSquare className="h-3.5 w-3.5" />
+                        ) : playbook.call_type === 'inbound' ? (
+                          <Heart className="h-3.5 w-3.5" />
+                        ) : (
+                          <Play className="h-3.5 w-3.5" />
+                        );
+                        const callTypeColor = playbook.call_type === 'outbound' 
+                          ? 'bg-blue-500/10 text-blue-700 border-blue-500/30'
+                          : playbook.call_type === 'inbound'
+                          ? 'bg-purple-500/10 text-purple-700 border-purple-500/30'
+                          : 'bg-amber-500/10 text-amber-700 border-amber-500/30';
+                        
+                        return (
+                          <div
+                            key={playbook.id}
+                            className={`group p-3 rounded-lg cursor-pointer transition-all duration-200 border ${
+                              isSelected 
+                                ? 'bg-primary/10 border-primary/30 shadow-sm ring-1 ring-primary/20' 
+                                : 'border-border/50 hover:bg-muted/50 hover:border-border'
+                            }`}
+                            onClick={() => handleSelectPlaybook(playbook)}
+                          >
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className={`p-1.5 rounded-md ${isSelected ? 'bg-primary/20' : 'bg-muted/50 group-hover:bg-muted'} transition-colors`}>
+                                {callTypeIcon}
+                              </div>
+                              <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${callTypeColor}`}>
+                                {playbook.call_type === 'outbound' ? 'Out' : playbook.call_type === 'inbound' ? 'In' : 'F/U'}
+                              </Badge>
+                              {playbook.is_active && (
+                                <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                              )}
+                            </div>
+                            <div className="font-medium text-sm truncate">{playbook.name}</div>
+                            <div className="text-[10px] text-muted-foreground truncate mt-0.5">
+                              {playbook.productName}
+                            </div>
+                          </div>
+                        );
+                      })}
                     </div>
-                  );
-                })
-              )}
+                    {!searchTerm && hiddenCount > 0 && (
+                      <div className="flex justify-center">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => setShowAllPlaybooks(!showAllPlaybooks)}
+                          className="text-xs text-muted-foreground hover:text-foreground"
+                        >
+                          {showAllPlaybooks ? (
+                            <>Show Less</>
+                          ) : (
+                            <>...{hiddenCount} more playbook{hiddenCount > 1 ? 's' : ''}</>
+                          )}
+                        </Button>
+                      </div>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           )}
         </CardContent>
