@@ -168,13 +168,7 @@ export const useLeads = () => {
       if (error) throw error;
       
       const realLeads = (data || []) as unknown as Lead[];
-      
-      // Combine with dummy data if toggled on
-      if (showDummyData) {
-        setLeads([...dummyLeads, ...realLeads]);
-      } else {
-        setLeads(realLeads);
-      }
+      return realLeads;
     } catch (error: any) {
       console.error('Error fetching leads:', error);
       toast({
@@ -182,19 +176,29 @@ export const useLeads = () => {
         description: 'Failed to fetch leads',
         variant: 'destructive',
       });
+      return [];
     } finally {
       setLoading(false);
     }
-  }, [toast, showDummyData]);
+  }, [toast]);
 
   const toggleDummyData = useCallback((enabled: boolean) => {
     setShowDummyData(enabled);
     localStorage.setItem('leads_show_dummy', String(enabled));
   }, []);
 
+  // Effect to fetch leads and combine with dummy data
   useEffect(() => {
-    fetchLeads();
-  }, [fetchLeads]);
+    const loadLeads = async () => {
+      const realLeads = await fetchLeads();
+      if (showDummyData) {
+        setLeads([...dummyLeads, ...realLeads]);
+      } else {
+        setLeads(realLeads);
+      }
+    };
+    loadLeads();
+  }, [fetchLeads, showDummyData]);
 
   const createLead = async (leadData: {
     name: string;
