@@ -91,32 +91,112 @@ const QuickNotes = () => {
                   <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-teal-500/10 border">
                     <h3 className="font-semibold mb-3 flex items-center gap-2">
                       <Heart className="h-5 w-5 text-green-500" />
-                      The Customer Mindset
+                      What's Going On In The Client's Mind
                     </h3>
+                    <p className="text-sm text-muted-foreground mb-4">Understanding client psychology is 80% of sales success. Every client has these thoughts running:</p>
+                    
+                    <div className="grid gap-4">
+                      {/* Defense Thoughts */}
+                      <div className="p-3 rounded bg-background/80 border-l-4 border-red-500/50">
+                        <p className="font-medium text-sm flex items-center gap-2">🛡️ Defense Thoughts <Badge variant="outline" className="text-xs">First 30 seconds</Badge></p>
+                        <ul className="text-xs text-muted-foreground mt-2 space-y-1">
+                          <li>• "Is this person going to waste my time?"</li>
+                          <li>• "Are they trying to sell me something I don't need?"</li>
+                          <li>• "Can I trust this person/company?"</li>
+                          <li>• "How do I get out of this quickly if needed?"</li>
+                        </ul>
+                      </div>
+                      
+                      {/* Evaluation Thoughts */}
+                      <div className="p-3 rounded bg-background/80 border-l-4 border-amber-500/50">
+                        <p className="font-medium text-sm flex items-center gap-2">🤔 Evaluation Thoughts <Badge variant="outline" className="text-xs">During Call</Badge></p>
+                        <ul className="text-xs text-muted-foreground mt-2 space-y-1">
+                          <li>• "Does this person understand MY situation?"</li>
+                          <li>• "Is this worth my money and time?"</li>
+                          <li>• "What will happen if this goes wrong?"</li>
+                          <li>• "What will others think of my decision?"</li>
+                        </ul>
+                      </div>
+                      
+                      {/* Buying Thoughts */}
+                      <div className="p-3 rounded bg-background/80 border-l-4 border-green-500/50">
+                        <p className="font-medium text-sm flex items-center gap-2">✅ Buying Thoughts <Badge variant="outline" className="text-xs">When Ready</Badge></p>
+                        <ul className="text-xs text-muted-foreground mt-2 space-y-1">
+                          <li>• "This person gets me and my needs"</li>
+                          <li>• "I feel safe making this decision"</li>
+                          <li>• "The value clearly exceeds the cost"</li>
+                          <li>• "I can justify this to myself and others"</li>
+                        </ul>
+                      </div>
+                      
+                      {/* Hidden Concerns */}
+                      <div className="p-3 rounded bg-background/80 border-l-4 border-purple-500/50">
+                        <p className="font-medium text-sm flex items-center gap-2">🔄 Hidden Concerns <Badge variant="outline" className="text-xs">Never Said</Badge></p>
+                        <ul className="text-xs text-muted-foreground mt-2 space-y-1">
+                          <li>• "What if I look stupid for asking questions?"</li>
+                          <li>• "I don't want to seem like I can't afford it"</li>
+                          <li>• "My partner/boss might disagree"</li>
+                          <li>• "I've been burned before by salespeople"</li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Client Response Patterns */}
+                  <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                    <h4 className="font-semibold mb-3 text-blue-600">Client Response Patterns & How to Branch</h4>
                     <div className="grid gap-3">
                       {[
-                        { title: "They're Skeptical", desc: "Customers have been burned before. Assume doubt until you've earned trust through actions, not words." },
-                        { title: "They're Busy", desc: "Your call is an interruption. Respect their time by being concise, relevant, and value-focused." },
-                        { title: "They Want to Feel Heard", desc: "Customers buy from people who understand them. Listen 2x more than you speak." },
-                        { title: "They Fear Making Mistakes", desc: "The pain of a bad decision often outweighs the potential gain. Reduce their perceived risk." },
-                        { title: "They Compare Options", desc: "You're rarely the only option. Know your competition and clearly articulate your unique value." }
+                        { emoji: "😊", type: "Engaged Response", signal: '"That sounds interesting..." / Asking questions', action: "Build momentum, move to discovery" },
+                        { emoji: "🤨", type: "Skeptical Response", signal: '"I\'ve heard this before..." / Short answers', action: "Slow down, ask about past experiences" },
+                        { emoji: "🙄", type: "Dismissive Response", signal: '"Just send info..." / "Not interested"', action: "Pattern interrupt, ask curious question" },
+                        { emoji: "📊", type: "Analytical Response", signal: '"What\'s the process?" / Asking for details', action: "Provide data, specifics, don't rush" },
+                        { emoji: "😰", type: "Anxious Response", signal: '"I\'m not sure..." / Hesitant tone', action: "Reassure, share testimonials, no pressure" },
+                        { emoji: "⏰", type: "Rushing Response", signal: '"Make it quick..." / Checking time', action: "Respect time, hit key points only, schedule follow-up" }
                       ].map((item, i) => (
-                        <div key={i} className="p-3 rounded bg-background/80 border-l-4 border-green-500/50">
-                          <p className="font-medium text-sm">{item.title}</p>
-                          <p className="text-xs text-muted-foreground mt-1">{item.desc}</p>
+                        <div key={i} className="p-2 rounded bg-background/60 text-sm">
+                          <div className="flex items-center gap-2 font-medium">
+                            <span>{item.emoji}</span>
+                            <span>{item.type}</span>
+                          </div>
+                          <p className="text-xs text-muted-foreground italic mt-1">{item.signal}</p>
+                          <p className="text-xs text-green-600 mt-1">→ Action: {item.action}</p>
                         </div>
                       ))}
                     </div>
                   </div>
-                  <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                    <h4 className="font-semibold mb-2 text-blue-600">What Customers Really Want</h4>
-                    <ul className="text-sm text-muted-foreground space-y-1">
-                      <li>• To feel understood, not sold to</li>
-                      <li>• Solutions tailored to their specific situation</li>
-                      <li>• Honesty about what you can and can't do</li>
-                      <li>• A trusted advisor, not a pushy salesperson</li>
-                      <li>• Confidence that they're making the right choice</li>
-                    </ul>
+                  
+                  {/* When Client Jumps Stages */}
+                  <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                    <h4 className="font-semibold mb-3 text-amber-600 flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4" />
+                      When Client Jumps Stages - Guide Them Back
+                    </h4>
+                    <div className="space-y-4">
+                      <div className="p-3 rounded bg-background/60">
+                        <p className="text-sm font-medium mb-2">Client: "How much does it cost?" <span className="text-muted-foreground">(Jumping to pricing before discovery)</span></p>
+                        <div className="space-y-2 text-xs">
+                          <p className="text-red-500">❌ Wrong: "It's AED 5,000" <span className="text-muted-foreground">(Loses control, no context for value)</span></p>
+                          <p className="text-green-500">✅ Right: "Great question! It ranges from X to Y depending on your specific needs. To give you an accurate quote, can I ask a few quick questions about your situation?"</p>
+                        </div>
+                      </div>
+                      
+                      <div className="p-3 rounded bg-background/60">
+                        <p className="text-sm font-medium mb-2">Client: "Just tell me if you can do it" <span className="text-muted-foreground">(Jumping to closing)</span></p>
+                        <div className="space-y-2 text-xs">
+                          <p className="text-red-500">❌ Wrong: "Yes, we can!" <span className="text-muted-foreground">(Misses opportunity to understand)</span></p>
+                          <p className="text-green-500">✅ Right: "Absolutely we can help! But I want to make sure we do it right. What's the specific outcome you're hoping for? That way I can confirm we're the perfect fit."</p>
+                        </div>
+                      </div>
+                      
+                      <div className="p-3 rounded bg-background/60">
+                        <p className="text-sm font-medium mb-2">Client: "My friend said you're expensive" <span className="text-muted-foreground">(Starting with objection)</span></p>
+                        <div className="space-y-2 text-xs">
+                          <p className="text-red-500">❌ Wrong: "We're actually very competitive..." <span className="text-muted-foreground">(Defensive)</span></p>
+                          <p className="text-green-500">✅ Right: "I appreciate you being upfront! What did your friend's situation involve? Our pricing varies based on complexity - let's see if your needs are similar or different."</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </TabsContent>
               </Tabs>
