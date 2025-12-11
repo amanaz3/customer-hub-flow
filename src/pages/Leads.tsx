@@ -50,8 +50,7 @@ const scoreIcons: Record<LeadScore, React.ReactNode> = {
 export default function Leads() {
   const navigate = useNavigate();
   const { leads, loading } = useLeads();
-  const { user } = useAuth();
-  const isAdmin = user?.profile?.role === 'admin';
+  const { isAdmin } = useAuth();
   const [search, setSearch] = useState('');
   const [scoreFilter, setScoreFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
