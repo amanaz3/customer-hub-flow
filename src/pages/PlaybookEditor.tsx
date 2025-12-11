@@ -1260,9 +1260,17 @@ const PlaybookEditor = () => {
             <CardTitle className="text-sm font-semibold flex items-center gap-2">
               <BookOpen className="h-4 w-4 text-primary" />
               Playbooks
-              <Badge variant="secondary" className="text-xs ml-2">
+              <Badge variant="secondary" className="text-xs">
                 {playbooks.length}
               </Badge>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setIsPlaybookListCollapsed(!isPlaybookListCollapsed)}
+                className="h-6 w-6 p-0"
+              >
+                {isPlaybookListCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
+              </Button>
             </CardTitle>
             <div className="flex items-center gap-2">
               {/* Search */}
@@ -1294,14 +1302,6 @@ const PlaybookEditor = () => {
                   </Button>
                 ))}
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => setIsPlaybookListCollapsed(!isPlaybookListCollapsed)}
-                className="h-7 w-7 p-0"
-              >
-                {isPlaybookListCollapsed ? <ChevronDown className="h-4 w-4" /> : <ChevronUp className="h-4 w-4" />}
-              </Button>
             </div>
           </div>
         </CardHeader>
