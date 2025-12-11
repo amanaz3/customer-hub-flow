@@ -84,8 +84,157 @@ export default function LeadDetail() {
   const [showConversionDialog, setShowConversionDialog] = useState(false);
   const [converting, setConverting] = useState(false);
 
+  // Dummy leads data for demo mode
+  const dummyLeads: Lead[] = [
+    {
+      id: 'dummy-1',
+      reference_number: 99901,
+      name: 'Ahmed Al Mansouri',
+      email: 'ahmed.mansouri@example.com',
+      mobile: '+971501234567',
+      company: 'Gulf Trading LLC',
+      source: 'Referral',
+      status: 'new',
+      score: 'hot',
+      notes: 'Interested in company formation for import/export business',
+      estimated_value: 75000,
+      next_follow_up: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+      created_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+      updated_at: new Date().toISOString(),
+      product_interest_id: null,
+      assigned_to: null,
+      last_contacted_at: null,
+      converted_customer_id: null,
+      converted_at: null,
+    },
+    {
+      id: 'dummy-2',
+      reference_number: 99902,
+      name: 'Sarah Johnson',
+      email: 'sarah.j@techstartup.io',
+      mobile: '+971551234567',
+      company: 'TechStartup DMCC',
+      source: 'Website',
+      status: 'contacted',
+      score: 'warm',
+      notes: 'Looking for home finance options for villa purchase',
+      estimated_value: 45000,
+      next_follow_up: new Date(Date.now() + 86400000 * 2).toISOString().split('T')[0],
+      created_at: new Date(Date.now() - 86400000 * 5).toISOString(),
+      updated_at: new Date().toISOString(),
+      product_interest_id: null,
+      assigned_to: null,
+      last_contacted_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+      converted_customer_id: null,
+      converted_at: null,
+    },
+    {
+      id: 'dummy-3',
+      reference_number: 99903,
+      name: 'Mohammed Rashid',
+      email: 'mrashid@goldgroup.ae',
+      mobile: '+971521234567',
+      company: 'Gold Group Holdings',
+      source: 'LinkedIn',
+      status: 'qualified',
+      score: 'hot',
+      notes: 'Multiple bank account requirements for group companies',
+      estimated_value: 120000,
+      next_follow_up: new Date(Date.now() + 86400000).toISOString().split('T')[0],
+      created_at: new Date(Date.now() - 86400000 * 3).toISOString(),
+      updated_at: new Date().toISOString(),
+      product_interest_id: null,
+      assigned_to: null,
+      last_contacted_at: new Date(Date.now() - 86400000).toISOString(),
+      converted_customer_id: null,
+      converted_at: null,
+    },
+    {
+      id: 'dummy-4',
+      reference_number: 99904,
+      name: 'Lisa Chen',
+      email: 'lisa.chen@asiainvest.com',
+      mobile: '+971561234567',
+      company: 'Asia Investment Partners',
+      source: 'Cold Call',
+      status: 'proposal',
+      score: 'warm',
+      notes: 'Needs corporate tax registration and VAT services',
+      estimated_value: 35000,
+      next_follow_up: new Date(Date.now() + 86400000 * 3).toISOString().split('T')[0],
+      created_at: new Date(Date.now() - 86400000 * 7).toISOString(),
+      updated_at: new Date().toISOString(),
+      product_interest_id: null,
+      assigned_to: null,
+      last_contacted_at: new Date(Date.now() - 86400000 * 2).toISOString(),
+      converted_customer_id: null,
+      converted_at: null,
+    },
+    {
+      id: 'dummy-5',
+      reference_number: 99905,
+      name: 'Omar Khalil',
+      email: 'omar@constructpro.ae',
+      mobile: '+971541234567',
+      company: 'ConstructPro LLC',
+      source: 'Event',
+      status: 'new',
+      score: 'cold',
+      notes: 'Met at Dubai Business Forum, initial interest in accounting services',
+      estimated_value: 8000,
+      next_follow_up: new Date(Date.now() + 86400000 * 5).toISOString().split('T')[0],
+      created_at: new Date(Date.now() - 86400000).toISOString(),
+      updated_at: new Date().toISOString(),
+      product_interest_id: null,
+      assigned_to: null,
+      last_contacted_at: null,
+      converted_customer_id: null,
+      converted_at: null,
+    },
+    {
+      id: 'dummy-6',
+      reference_number: 99906,
+      name: 'Fatima Al Zaabi',
+      email: 'fatima@luxuryproperties.ae',
+      mobile: '+971581234567',
+      company: 'Luxury Properties FZE',
+      source: 'Partner',
+      status: 'negotiation',
+      score: 'hot',
+      notes: 'Ready to proceed with full corporate services package',
+      estimated_value: 95000,
+      next_follow_up: new Date().toISOString().split('T')[0],
+      created_at: new Date(Date.now() - 86400000 * 10).toISOString(),
+      updated_at: new Date().toISOString(),
+      product_interest_id: null,
+      assigned_to: null,
+      last_contacted_at: new Date(Date.now() - 86400000).toISOString(),
+      converted_customer_id: null,
+      converted_at: null,
+    },
+  ];
+
+  const isDummyLead = id?.startsWith('dummy-');
+
   useEffect(() => {
     if (!id) return;
+
+    // Handle dummy leads
+    if (isDummyLead) {
+      const dummyLead = dummyLeads.find(l => l.id === id);
+      if (dummyLead) {
+        setLead(dummyLead);
+        setLoading(false);
+      } else {
+        toast({
+          title: 'Error',
+          description: 'Lead not found',
+          variant: 'destructive',
+        });
+        navigate('/leads');
+      }
+      return;
+    }
 
     const fetchLead = async () => {
       setLoading(true);
@@ -115,19 +264,21 @@ export default function LeadDetail() {
 
     fetchLead();
 
-    // Fetch products and users
-    supabase
-      .from('products')
-      .select('id, name')
-      .eq('is_active', true)
-      .then(({ data }) => setProducts(data || []));
+    // Fetch products and users (only for real leads)
+    if (!isDummyLead) {
+      supabase
+        .from('products')
+        .select('id, name')
+        .eq('is_active', true)
+        .then(({ data }) => setProducts(data || []));
 
-    supabase
-      .from('profiles')
-      .select('id, name')
-      .eq('is_active', true)
-      .then(({ data }) => setUsers(data || []));
-  }, [id, navigate, toast]);
+      supabase
+        .from('profiles')
+        .select('id, name')
+        .eq('is_active', true)
+        .then(({ data }) => setUsers(data || []));
+    }
+  }, [id, navigate, toast, isDummyLead]);
 
   const handleSave = async () => {
     if (!lead || !id) return;
