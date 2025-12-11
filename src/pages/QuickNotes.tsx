@@ -544,41 +544,92 @@ const QuickNotes = () => {
 
             {/* STAGES TAB */}
             <TabsContent value="stages" className="space-y-4">
-              <div className="p-4 rounded-lg bg-background/50 border">
-                <h4 className="font-semibold mb-3 flex items-center gap-2">
-                  <Target className="h-4 w-4 text-primary" />
-                  5-Stage Sales Framework
-                </h4>
+              <div className="p-4 rounded-lg bg-gradient-to-br from-primary/10 to-blue-500/10 border">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Target className="h-5 w-5 text-primary" />
+                  The 5-Stage Call Framework
+                </h3>
+                
                 <div className="space-y-3">
-                  {[
-                    { stage: "1. Opening", time: "30-60 sec", goal: "Capture attention, establish relevance", tips: "Personalized hook, state purpose clearly, ask permission to continue" },
-                    { stage: "2. Discovery", time: "5-10 min", goal: "Understand needs, pain, budget, timeline", tips: "Open questions, active listening, SPIN technique" },
-                    { stage: "3. Presentation", time: "3-5 min", goal: "Match solution to discovered needs", tips: "Focus on benefits not features, use their language" },
-                    { stage: "4. Objection Handling", time: "2-5 min", goal: "Address concerns, build confidence", tips: "LAER framework, never argue, empathize first" },
-                    { stage: "5. Closing", time: "2-3 min", goal: "Secure commitment, next steps", tips: "Assumptive close, summary close, clear call-to-action" }
-                  ].map((item, i) => (
-                    <div key={i} className="p-3 rounded bg-muted/50 border-l-4 border-primary/50">
+                  <div className="flex items-start gap-3 p-3 rounded bg-background/80 border-l-4 border-blue-500">
+                    <div className="w-8 h-8 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm shrink-0">1</div>
+                    <div className="flex-1">
                       <div className="flex items-center justify-between mb-1">
-                        <span className="font-medium text-sm">{item.stage}</span>
-                        <Badge variant="outline" className="text-xs">{item.time}</Badge>
+                        <span className="font-semibold text-blue-600">Opening</span>
+                        <Badge variant="outline" className="text-xs">30-60 sec</Badge>
                       </div>
-                      <p className="text-xs text-muted-foreground mb-1"><strong>Goal:</strong> {item.goal}</p>
-                      <p className="text-xs text-muted-foreground"><strong>Tips:</strong> {item.tips}</p>
+                      <p className="text-sm text-muted-foreground"><strong>Goal:</strong> Hook attention, establish rapport, earn the right to continue</p>
                     </div>
-                  ))}
+                  </div>
+                  
+                  <div className="flex items-start gap-3 p-3 rounded bg-background/80 border-l-4 border-green-500">
+                    <div className="w-8 h-8 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-sm shrink-0">2</div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-semibold text-green-600">Discovery</span>
+                        <Badge variant="outline" className="text-xs">5-10 min</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground"><strong>Goal:</strong> Understand needs, pains, goals, budget, timeline</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 p-3 rounded bg-background/80 border-l-4 border-purple-500">
+                    <div className="w-8 h-8 rounded-full bg-purple-500 text-white flex items-center justify-center font-bold text-sm shrink-0">3</div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-semibold text-purple-600">Demonstration</span>
+                        <Badge variant="outline" className="text-xs">5-15 min</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground"><strong>Goal:</strong> Present solution mapped to their specific needs</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 p-3 rounded bg-background/80 border-l-4 border-amber-500">
+                    <div className="w-8 h-8 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-sm shrink-0">4</div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-semibold text-amber-600">Negotiation</span>
+                        <Badge variant="outline" className="text-xs">5-10 min</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground"><strong>Goal:</strong> Handle objections, discuss pricing, terms</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 p-3 rounded bg-background/80 border-l-4 border-teal-500">
+                    <div className="w-8 h-8 rounded-full bg-teal-500 text-white flex items-center justify-center font-bold text-sm shrink-0">5</div>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="font-semibold text-teal-600">Closing</span>
+                        <Badge variant="outline" className="text-xs">2-5 min</Badge>
+                      </div>
+                      <p className="text-sm text-muted-foreground"><strong>Goal:</strong> Ask for commitment, define next steps</p>
+                    </div>
+                  </div>
                 </div>
               </div>
+
               <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                <h4 className="font-semibold mb-2 text-amber-600 flex items-center gap-2">
+                <h4 className="font-semibold mb-3 text-amber-600 flex items-center gap-2">
                   <AlertTriangle className="h-4 w-4" />
-                  When Client Skips Stages
+                  When Clients Skip Stages
                 </h4>
-                <ul className="text-sm text-muted-foreground space-y-1">
-                  <li>• <strong>Jumps to price:</strong> "Great question! To give you an accurate quote, can I ask a few quick questions first?"</li>
-                  <li>• <strong>Wants to buy immediately:</strong> Confirm needs briefly, then proceed to close</li>
-                  <li>• <strong>Asks technical questions:</strong> Answer briefly, then return to discovery</li>
-                  <li>• <strong>Says they're in a hurry:</strong> "I respect your time. What's the ONE thing you need to know?"</li>
-                </ul>
+                <p className="text-sm text-muted-foreground mb-3">Clients often jump ahead - don't follow them blindly!</p>
+                
+                <div className="space-y-3">
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-amber-600 mb-2">Client jumps to price → Bring them back to discovery</p>
+                    <div className="p-2 rounded bg-muted/50 text-sm italic">
+                      "Great question! To give you an accurate answer, I need to understand [X] first. Can you tell me about...?"
+                    </div>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-amber-600 mb-2">Client wants to close immediately → Ensure they understand value</p>
+                    <div className="p-2 rounded bg-muted/50 text-sm italic">
+                      "I love your enthusiasm! Before we finalize, let me make sure you have all the information you need about [key benefit]..."
+                    </div>
+                  </div>
+                </div>
               </div>
             </TabsContent>
 
