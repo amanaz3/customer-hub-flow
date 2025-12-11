@@ -41,10 +41,12 @@ export interface ConversionOptions {
   
   // Document Checklist
   sendDocumentChecklist: boolean;
+  documentChecklistMethod: 'email' | 'portal_link' | 'manual_task';
   documentChecklistNotes: string;
   
   // Onboarding Call
   scheduleOnboardingCall: boolean;
+  onboardingCallMethod: 'calendar_integration' | 'notification_only';
   onboardingCallDate: Date | undefined;
   onboardingCallNotes: string;
   
@@ -59,8 +61,10 @@ const defaultOptions: ConversionOptions = {
   grantPortalAccess: true,
   portalAccessMethod: 'send_invitation',
   sendDocumentChecklist: true,
+  documentChecklistMethod: 'email',
   documentChecklistNotes: '',
   scheduleOnboardingCall: true,
+  onboardingCallMethod: 'calendar_integration',
   onboardingCallDate: undefined,
   onboardingCallNotes: '',
   servicesPurchased: [],
@@ -195,12 +199,36 @@ export function LeadConversionDialog({
             </div>
             
             {options.sendDocumentChecklist && (
-              <div className="ml-6">
+              <div className="ml-6 space-y-3">
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground">Delivery Method</Label>
+                  <Select 
+                    value={options.documentChecklistMethod} 
+                    onValueChange={(value: 'email' | 'portal_link' | 'manual_task') => 
+                      setOptions(prev => ({ ...prev, documentChecklistMethod: value }))
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="email">
+                        📧 Send via Email
+                      </SelectItem>
+                      <SelectItem value="portal_link">
+                        🔗 Portal Link (customer views in portal)
+                      </SelectItem>
+                      <SelectItem value="manual_task">
+                        📋 Manual Task (create follow-up task)
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <Textarea
                   placeholder="Additional notes for document checklist (optional)..."
                   value={options.documentChecklistNotes}
                   onChange={(e) => setOptions(prev => ({ ...prev, documentChecklistNotes: e.target.value }))}
-                  className="h-20"
+                  className="h-16"
                 />
               </div>
             )}
@@ -222,6 +250,27 @@ export function LeadConversionDialog({
             
             {options.scheduleOnboardingCall && (
               <div className="ml-6 space-y-3">
+                <div className="space-y-2">
+                  <Label className="text-sm text-muted-foreground">Scheduling Method</Label>
+                  <Select 
+                    value={options.onboardingCallMethod} 
+                    onValueChange={(value: 'calendar_integration' | 'notification_only') => 
+                      setOptions(prev => ({ ...prev, onboardingCallMethod: value }))
+                    }
+                  >
+                    <SelectTrigger className="w-full">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="calendar_integration">
+                        📅 Calendar Integration (sync with Google/Outlook)
+                      </SelectItem>
+                      <SelectItem value="notification_only">
+                        🔔 Notification Only (reminder without calendar sync)
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
                 <div className="flex items-center gap-2">
                   <Popover>
                     <PopoverTrigger asChild>
