@@ -6,6 +6,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Progress } from '@/components/ui/progress';
 import { 
   MessageSquare, 
   Lightbulb, 
@@ -17,7 +18,13 @@ import {
   Sparkles,
   Settings,
   BookOpen,
-  Phone
+  Phone,
+  PhoneIncoming,
+  PhoneOutgoing,
+  Headphones,
+  UserCheck,
+  ChevronRight,
+  Check
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSalesAssistant } from '@/hooks/useSalesAssistant';
@@ -47,6 +54,24 @@ interface LiveAssistantPanelProps {
   playbookId?: string;
   customerContext?: CustomerContext;
 }
+
+// Call type definitions
+type CallTypeKey = 'inbound_sales' | 'outbound_sales' | 'inbound_support' | 'outbound_followup';
+
+const CALL_TYPES: { key: CallTypeKey; label: string; icon: React.ElementType; color: string }[] = [
+  { key: 'inbound_sales', label: 'Inbound Sales', icon: PhoneIncoming, color: 'text-green-600 bg-green-500/10 border-green-500/30' },
+  { key: 'outbound_sales', label: 'Outbound Sales', icon: PhoneOutgoing, color: 'text-blue-600 bg-blue-500/10 border-blue-500/30' },
+  { key: 'inbound_support', label: 'Customer Support', icon: Headphones, color: 'text-purple-600 bg-purple-500/10 border-purple-500/30' },
+  { key: 'outbound_followup', label: 'Follow-up', icon: UserCheck, color: 'text-amber-600 bg-amber-500/10 border-amber-500/30' },
+];
+
+// Stage definitions per call type
+const CALL_STAGES: Record<CallTypeKey, string[]> = {
+  inbound_sales: ['Greeting', 'Discovery', 'Qualification', 'Proposal', 'Closing'],
+  outbound_sales: ['Intro', 'Discovery', 'Demo', 'Negotiation', 'Closing'],
+  inbound_support: ['Greeting', 'Issue ID', 'Resolution', 'Confirm', 'Follow-up'],
+  outbound_followup: ['Reconnect', 'Status Check', 'Address Concerns', 'Next Steps', 'Close'],
+};
 
 // Mock data for demo mode
 const mockTranscript: TranscriptLine[] = [
@@ -92,7 +117,13 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
   const [activePlaybookId, setActivePlaybookId] = useState<string | undefined>(playbookId);
   const [activeStageId, setActiveStageId] = useState<string | undefined>();
   const [activeTab, setActiveTab] = useState('call');
-  const [callType, setCallType] = useState<'inbound' | 'outbound' | 'follow_up'>('outbound');
+  const [selectedCallType, setSelectedCallType] = useState<CallTypeKey>('outbound_sales');
+  const [currentStageIndex, setCurrentStageIndex] = useState(1); // 0-indexed, start at second stage for demo
+  
+  // Map to legacy call type for useSalesAssistant
+  const callType = selectedCallType.includes('outbound') 
+    ? (selectedCallType === 'outbound_followup' ? 'follow_up' : 'outbound') 
+    : 'inbound';
   
   const {
     isLoading,
@@ -104,6 +135,9 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
     productId: customerContext?.productId,
     callType 
   });
+
+  const currentStages = CALL_STAGES[selectedCallType];
+  const progressPercent = ((currentStageIndex + 1) / currentStages.length) * 100;
 
   // Auto-scroll to bottom when new transcript lines arrive
   useEffect(() => {
@@ -166,6 +200,8 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
     ? callSummary
     : mockCallSummary;
 
+  const selectedCallTypeConfig = CALL_TYPES.find(t => t.key === selectedCallType)!;
+
   return (
     <div className={cn(
       "bg-card flex flex-col h-full overflow-hidden",
@@ -201,6 +237,94 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
                 <Settings className="h-3.5 w-3.5" />
               </Button>
             )}
+          </div>
+        </div>
+      </div>
+
+      {/* Call Type & Stage Progress */}
+      <div className="px-3 py-2 border-b border-border/50 bg-muted/20 space-y-2">
+        {/* Call Type Selection */}
+        <div className="flex gap-1">
+          {CALL_TYPES.map((type) => {
+            const Icon = type.icon;
+            const isSelected = selectedCallType === type.key;
+            return (
+              <button
+                key={type.key}
+                onClick={() => {
+                  setSelectedCallType(type.key);
+                  setCurrentStageIndex(0);
+                }}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-1 py-1.5 px-1 rounded-md text-[10px] font-medium transition-all border",
+                  isSelected 
+                    ? type.color 
+                    : "bg-background/50 text-muted-foreground border-transparent hover:bg-muted/50"
+                )}
+              >
+                <Icon className="h-3 w-3" />
+                <span className="hidden sm:inline truncate">{type.label.split(' ')[0]}</span>
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Stage Workflow */}
+        <div className="space-y-1.5">
+          {/* Progress Bar */}
+          <div className="flex items-center gap-2">
+            <Progress value={progressPercent} className="h-1.5 flex-1" />
+            <span className="text-[10px] text-muted-foreground font-medium">
+              {currentStageIndex + 1}/{currentStages.length}
+            </span>
+          </div>
+
+          {/* Stage Steps */}
+          <div className="flex items-center justify-between">
+            {currentStages.map((stage, idx) => {
+              const isCompleted = idx < currentStageIndex;
+              const isCurrent = idx === currentStageIndex;
+              const isPending = idx > currentStageIndex;
+              
+              return (
+                <React.Fragment key={stage}>
+                  <button
+                    onClick={() => setCurrentStageIndex(idx)}
+                    className={cn(
+                      "flex flex-col items-center gap-0.5 group transition-all",
+                      isCurrent && "scale-105"
+                    )}
+                  >
+                    <div
+                      className={cn(
+                        "w-5 h-5 rounded-full flex items-center justify-center text-[9px] font-bold transition-all border",
+                        isCompleted && "bg-green-500 text-white border-green-500",
+                        isCurrent && "bg-primary text-primary-foreground border-primary ring-2 ring-primary/30",
+                        isPending && "bg-muted text-muted-foreground border-border"
+                      )}
+                    >
+                      {isCompleted ? <Check className="h-2.5 w-2.5" /> : idx + 1}
+                    </div>
+                    <span
+                      className={cn(
+                        "text-[8px] font-medium truncate max-w-[45px]",
+                        isCurrent ? "text-primary" : "text-muted-foreground"
+                      )}
+                    >
+                      {stage}
+                    </span>
+                  </button>
+                  {idx < currentStages.length - 1 && (
+                    <ChevronRight 
+                      className={cn(
+                        "h-3 w-3 flex-shrink-0 -mx-0.5",
+                        idx < currentStageIndex ? "text-green-500" : "text-muted-foreground/40"
+                      )} 
+                    />
+                  )}
+                </React.Fragment>
+              );
+            })}
           </div>
         </div>
       </div>
@@ -338,7 +462,12 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
                 selectedPlaybookId={activePlaybookId}
                 onPlaybookChange={setActivePlaybookId}
                 onStageChange={setActiveStageId}
-                onCallTypeChange={(type) => setCallType(type as 'inbound' | 'outbound' | 'follow_up')}
+                onCallTypeChange={(type) => {
+                  // Map legacy call types to new call type keys
+                  if (type === 'outbound') setSelectedCallType('outbound_sales');
+                  else if (type === 'inbound') setSelectedCallType('inbound_sales');
+                  else if (type === 'follow_up') setSelectedCallType('outbound_followup');
+                }}
                 customerContext={customerContext}
                 compact={false}
               />
