@@ -237,6 +237,13 @@ const PlaybookEditor = () => {
     return acc;
   }, {} as Record<string, Playbook[]>);
 
+  // Auto-expand when searching and results exist
+  useEffect(() => {
+    if (searchTerm && filteredPlaybooks.length > 0) {
+      setIsPlaybookListCollapsed(false);
+    }
+  }, [searchTerm, filteredPlaybooks.length]);
+
   useEffect(() => {
     fetchPlaybooks();
     fetchProducts();
