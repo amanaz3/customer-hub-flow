@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { useLeads } from '@/hooks/useLeads';
 import { CreateLeadDialog } from '@/components/Lead/CreateLeadDialog';
+import { DailyLeadCheckBanner } from '@/components/Lead/DailyLeadCheckBanner';
 import { LEAD_SCORE_COLORS, LEAD_STATUS_COLORS, type LeadScore, type LeadStatus } from '@/types/lead';
 import { format, formatDistanceToNow } from 'date-fns';
 
@@ -81,6 +82,13 @@ export default function Leads() {
   return (
     <>
       <div className="space-y-6 py-6">
+        {/* Daily Lead Check Banner */}
+        <DailyLeadCheckBanner 
+          hotCount={stats.hot} 
+          warmCount={stats.warm} 
+          coldCount={stats.cold} 
+        />
+
         {/* Header */}
         <div className="flex items-center justify-between">
           <div>
