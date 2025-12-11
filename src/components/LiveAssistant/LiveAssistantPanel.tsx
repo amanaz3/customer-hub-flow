@@ -117,10 +117,11 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
   const [callSummary, setCallSummary] = useState<string | null>(null);
   const [activePlaybookId, setActivePlaybookId] = useState<string | undefined>(playbookId);
   const [activePlaybookName, setActivePlaybookName] = useState<string | null>(null);
+  const [playbookStages, setPlaybookStages] = useState<{ id: string; name: string; order: number }[]>([]);
   const [activeStageId, setActiveStageId] = useState<string | undefined>();
   const [activeTab, setActiveTab] = useState('call');
   const [selectedCallType, setSelectedCallType] = useState<CallTypeKey>('outbound_sales');
-  const [currentStageIndex, setCurrentStageIndex] = useState(1); // 0-indexed, start at second stage for demo
+  const [currentStageIndex, setCurrentStageIndex] = useState(0);
   
   // Map to legacy call type for useSalesAssistant
   const callType = selectedCallType.includes('outbound') 
@@ -138,30 +139,66 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
     callType 
   });
 
-  const currentStages = CALL_STAGES[selectedCallType];
-  const progressPercent = ((currentStageIndex + 1) / currentStages.length) * 100;
+  // Use playbook stages if available, otherwise fall back to default stages
+  const hasPlaybookStages = playbookStages.length > 0;
+  const currentStages = hasPlaybookStages 
+    ? playbookStages.map(s => s.name)
+    : CALL_STAGES[selectedCallType];
+  const progressPercent = currentStages.length > 0 
+    ? ((currentStageIndex + 1) / currentStages.length) * 100 
+    : 0;
 
-  // Fetch playbook name when activePlaybookId changes
+  // Fetch playbook name and stages when activePlaybookId changes
   useEffect(() => {
-    const fetchPlaybookName = async () => {
+    const fetchPlaybookData = async () => {
       if (!activePlaybookId) {
         setActivePlaybookName(null);
+        setPlaybookStages([]);
         return;
       }
       
-      const { data } = await supabase
+      // Fetch playbook name
+      const { data: playbook } = await supabase
         .from('sales_playbooks')
         .select('name')
         .eq('id', activePlaybookId)
         .single();
       
-      if (data) {
-        setActivePlaybookName(data.name);
+      if (playbook) {
+        setActivePlaybookName(playbook.name);
+      }
+      
+      // Fetch playbook stages
+      const { data: stages } = await supabase
+        .from('playbook_stages')
+        .select('id, stage_name, stage_order')
+        .eq('playbook_id', activePlaybookId)
+        .order('stage_order', { ascending: true });
+      
+      if (stages && stages.length > 0) {
+        setPlaybookStages(stages.map(s => ({ 
+          id: s.id, 
+          name: s.stage_name, 
+          order: s.stage_order 
+        })));
+        setCurrentStageIndex(0);
+      } else {
+        setPlaybookStages([]);
       }
     };
     
-    fetchPlaybookName();
+    fetchPlaybookData();
   }, [activePlaybookId]);
+
+  // Update stage index when activeStageId changes
+  useEffect(() => {
+    if (activeStageId && playbookStages.length > 0) {
+      const idx = playbookStages.findIndex(s => s.id === activeStageId);
+      if (idx !== -1) {
+        setCurrentStageIndex(idx);
+      }
+    }
+  }, [activeStageId, playbookStages]);
 
   // Auto-scroll to bottom when new transcript lines arrive
   useEffect(() => {
@@ -322,9 +359,15 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
               const isPending = idx > currentStageIndex;
               
               return (
-                <React.Fragment key={stage}>
+                <React.Fragment key={`${stage}-${idx}`}>
                   <button
-                    onClick={() => setCurrentStageIndex(idx)}
+                    onClick={() => {
+                      setCurrentStageIndex(idx);
+                      // Update activeStageId if using playbook stages
+                      if (hasPlaybookStages && playbookStages[idx]) {
+                        setActiveStageId(playbookStages[idx].id);
+                      }
+                    }}
                     className={cn(
                       "flex flex-col items-center gap-0.5 group transition-all",
                       isCurrent && "scale-105"
