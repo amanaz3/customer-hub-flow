@@ -8,11 +8,11 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Switch } from '@/components/ui/switch';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { useToast } from '@/hooks/use-toast';
 import DecisionTreeVisualizer from '@/components/Playbook/DecisionTreeVisualizer';
 import { 
@@ -32,13 +32,11 @@ import {
   ChevronDown,
   ChevronUp,
   Lightbulb,
-  Users,
-  Target,
-  Clock,
   Brain,
-  Search,
-  Package
+  Search
 } from 'lucide-react';
+import { cn } from '@/lib/utils';
+import { useSalesAssistant } from '@/hooks/useSalesAssistant';
 
 interface ScriptNode {
   id: string;
@@ -98,6 +96,7 @@ interface PricingStrategy {
 interface DiscoveryQuestion {
   id: string;
   playbook_id: string;
+  stage_id?: string | null;
   question_text: string;
   question_purpose: string;
   priority: number;
@@ -215,6 +214,7 @@ const PlaybookEditor = () => {
   const [callTypeFilter, setCallTypeFilter] = useState<'all' | 'outbound' | 'inbound' | 'follow_up'>('all');
   const [isPlaybookListCollapsed, setIsPlaybookListCollapsed] = useState(false);
   const [showAllPlaybooks, setShowAllPlaybooks] = useState(false);
+  const [expandedStages, setExpandedStages] = useState<string[]>([]);
   
   const MAX_VISIBLE_PLAYBOOKS = 6;
   const [newPlaybook, setNewPlaybook] = useState({
@@ -307,7 +307,6 @@ const PlaybookEditor = () => {
       stagesData.forEach(stage => {
         const stageNodes = (nodesData || []).filter(n => n.stage_id === stage.id) as ScriptNode[];
         nodesByStage[stage.id] = stageNodes;
-        // If stage has script nodes, default to tree mode; otherwise simple
         modes[stage.id] = stageNodes.length > 0 ? 'tree' : 'simple';
       });
       
@@ -320,6 +319,7 @@ const PlaybookEditor = () => {
     setSelectedPlaybook(playbook);
     setScriptNodes({});
     setStageScriptModes({});
+    setExpandedStages([]);
     await fetchPlaybookDetails(playbook.id);
   };
 
@@ -456,11 +456,12 @@ const PlaybookEditor = () => {
     setObjections([...objections, data]);
   };
 
-  const handleAddQuestion = async () => {
+  const handleAddQuestion = async (stageId?: string) => {
     if (!selectedPlaybook) return;
     
     const newQuestion = {
       playbook_id: selectedPlaybook.id,
+      stage_id: stageId || null,
       question_text: '',
       question_purpose: 'pain_point',
       priority: questions.length + 1,
@@ -472,6 +473,46 @@ const PlaybookEditor = () => {
       return;
     }
     setQuestions([...questions, data]);
+  };
+
+  const handleAddEmotion = async () => {
+    if (!selectedPlaybook) return;
+    
+    const newEmotion = {
+      playbook_id: selectedPlaybook.id,
+      emotion_detected: 'frustrated',
+      response_strategy: '',
+      tone_adjustment: 'empathetic',
+      suggested_phrases: [],
+    };
+
+    const { data, error } = await supabase.from('emotional_responses').insert(newEmotion).select().single();
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to add emotion', variant: 'destructive' });
+      return;
+    }
+    setEmotions([...emotions, data]);
+  };
+
+  const handleAddPricing = async () => {
+    if (!selectedPlaybook) return;
+    
+    const newPricing = {
+      playbook_id: selectedPlaybook.id,
+      customer_segment: 'standard',
+      urgency_level: 'normal',
+      discount_range_min: 0,
+      discount_range_max: 10,
+      pricing_script: '',
+      negotiation_floor: 0,
+    };
+
+    const { data, error } = await supabase.from('pricing_strategies').insert(newPricing).select().single();
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to add pricing', variant: 'destructive' });
+      return;
+    }
+    setPricing([...pricing, data]);
   };
 
   const handleSaveStage = async (stage: PlaybookStage) => {
@@ -501,6 +542,36 @@ const PlaybookEditor = () => {
     }
   };
 
+  const handleSaveEmotion = async (emotion: EmotionalResponse) => {
+    const { error } = await supabase.from('emotional_responses').update({
+      emotion_detected: emotion.emotion_detected,
+      response_strategy: emotion.response_strategy,
+      tone_adjustment: emotion.tone_adjustment,
+      suggested_phrases: emotion.suggested_phrases,
+    }).eq('id', emotion.id);
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to save emotion', variant: 'destructive' });
+    } else {
+      toast({ title: 'Saved', description: 'Emotion response updated' });
+    }
+  };
+
+  const handleSavePricing = async (pricingItem: PricingStrategy) => {
+    const { error } = await supabase.from('pricing_strategies').update({
+      customer_segment: pricingItem.customer_segment,
+      urgency_level: pricingItem.urgency_level,
+      discount_range_min: pricingItem.discount_range_min,
+      discount_range_max: pricingItem.discount_range_max,
+      pricing_script: pricingItem.pricing_script,
+      negotiation_floor: pricingItem.negotiation_floor,
+    }).eq('id', pricingItem.id);
+    if (error) {
+      toast({ title: 'Error', description: 'Failed to save pricing', variant: 'destructive' });
+    } else {
+      toast({ title: 'Saved', description: 'Pricing strategy updated' });
+    }
+  };
+
   const handleDeleteStage = async (id: string) => {
     await supabase.from('playbook_stages').delete().eq('id', id);
     setStages(stages.filter(s => s.id !== id));
@@ -516,6 +587,20 @@ const PlaybookEditor = () => {
     setQuestions(questions.filter(q => q.id !== id));
   };
 
+  const handleDeleteEmotion = async (id: string) => {
+    await supabase.from('emotional_responses').delete().eq('id', id);
+    setEmotions(emotions.filter(e => e.id !== id));
+  };
+
+  const handleDeletePricing = async (id: string) => {
+    await supabase.from('pricing_strategies').delete().eq('id', id);
+    setPricing(pricing.filter(p => p.id !== id));
+  };
+
+  // Get questions for a specific stage
+  const getStageQuestions = (stageId: string) => questions.filter(q => q.stage_id === stageId);
+  const getGlobalQuestions = () => questions.filter(q => !q.stage_id);
+
   if (!isAdmin) {
     return (
       <div className="p-8 text-center">
@@ -524,6 +609,16 @@ const PlaybookEditor = () => {
       </div>
     );
   }
+
+  const stageTypeColors: Record<string, string> = {
+    opening: 'border-l-blue-500 bg-blue-500/5',
+    discovery: 'border-l-purple-500 bg-purple-500/5',
+    pitch: 'border-l-amber-500 bg-amber-500/5',
+    objection_handling: 'border-l-red-500 bg-red-500/5',
+    negotiation: 'border-l-orange-500 bg-orange-500/5',
+    closing: 'border-l-green-500 bg-green-500/5',
+    follow_up: 'border-l-cyan-500 bg-cyan-500/5',
+  };
 
   return (
     <div className="p-6 space-y-4 bg-gradient-to-br from-background via-background to-muted/20 min-h-screen">
@@ -579,7 +674,6 @@ const PlaybookEditor = () => {
       </div>
 
       <div className="flex items-center justify-end">
-        
         <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
           <DialogTrigger asChild>
             <Button>
@@ -805,532 +899,684 @@ const PlaybookEditor = () => {
 
       {/* Playbook Editor - Main Content */}
       <div>
-          {selectedPlaybook ? (
-            <Card className="border-border/50 shadow-sm overflow-hidden">
-              <CardHeader className="bg-gradient-to-r from-muted/30 to-transparent border-b pb-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className={`p-2.5 rounded-lg ${
-                      selectedPlaybook.call_type === 'outbound' 
-                        ? 'bg-blue-500/10 border border-blue-500/20' 
-                        : selectedPlaybook.call_type === 'inbound'
-                        ? 'bg-purple-500/10 border border-purple-500/20'
-                        : 'bg-amber-500/10 border border-amber-500/20'
-                    }`}>
-                      {selectedPlaybook.call_type === 'outbound' ? (
-                        <MessageSquare className="h-5 w-5 text-blue-600" />
-                      ) : selectedPlaybook.call_type === 'inbound' ? (
-                        <Heart className="h-5 w-5 text-purple-600" />
-                      ) : (
-                        <Play className="h-5 w-5 text-amber-600" />
-                      )}
-                    </div>
-                    <div>
-                      <CardTitle className="text-lg">{selectedPlaybook.name}</CardTitle>
-                      <CardDescription className="mt-0.5">{selectedPlaybook.description || 'No description provided'}</CardDescription>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Badge variant="outline" className={`${
-                      selectedPlaybook.call_type === 'outbound' 
-                        ? 'bg-blue-500/10 text-blue-700 border-blue-500/30' 
-                        : selectedPlaybook.call_type === 'inbound'
-                        ? 'bg-purple-500/10 text-purple-700 border-purple-500/30'
-                        : 'bg-amber-500/10 text-amber-700 border-amber-500/30'
-                    }`}>
-                      {selectedPlaybook.call_type === 'outbound' ? 'Outbound Sales' : selectedPlaybook.call_type === 'inbound' ? 'Inbound Support' : 'Follow-up'}
-                    </Badge>
-                    {selectedPlaybook.is_active && (
-                      <Badge className="bg-green-500/10 text-green-700 border-green-500/30">
-                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse" />
-                        Active
-                      </Badge>
+        {selectedPlaybook ? (
+          <Card className="border-border/50 shadow-sm overflow-hidden">
+            <CardHeader className="bg-gradient-to-r from-muted/30 to-transparent border-b pb-4">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-4">
+                  <div className={`p-2.5 rounded-lg ${
+                    selectedPlaybook.call_type === 'outbound' 
+                      ? 'bg-blue-500/10 border border-blue-500/20' 
+                      : selectedPlaybook.call_type === 'inbound'
+                      ? 'bg-purple-500/10 border border-purple-500/20'
+                      : 'bg-amber-500/10 border border-amber-500/20'
+                  }`}>
+                    {selectedPlaybook.call_type === 'outbound' ? (
+                      <MessageSquare className="h-5 w-5 text-blue-600" />
+                    ) : selectedPlaybook.call_type === 'inbound' ? (
+                      <Heart className="h-5 w-5 text-purple-600" />
+                    ) : (
+                      <Play className="h-5 w-5 text-amber-600" />
                     )}
                   </div>
+                  <div>
+                    <CardTitle className="text-lg">{selectedPlaybook.name}</CardTitle>
+                    <CardDescription className="mt-0.5">{selectedPlaybook.description || 'No description provided'}</CardDescription>
+                  </div>
                 </div>
-              </CardHeader>
-              <CardContent className="p-6">
-                <Tabs defaultValue="stages" className="space-y-5">
-                  <TabsList className="grid grid-cols-5 w-full p-1 bg-muted/50 rounded-lg">
-                    <TabsTrigger value="stages" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md transition-all">
-                      <Play className="h-4 w-4" />
-                      <span>Stages</span>
-                      <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{stages.length}</Badge>
-                    </TabsTrigger>
-                    <TabsTrigger value="questions" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md transition-all">
-                      <HelpCircle className="h-4 w-4" />
-                      <span>Questions</span>
-                      <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{questions.length}</Badge>
-                    </TabsTrigger>
-                    <TabsTrigger value="pricing" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md transition-all">
-                      <DollarSign className="h-4 w-4" />
-                      <span>Pricing</span>
-                      <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{pricing.length}</Badge>
-                    </TabsTrigger>
-                    <TabsTrigger value="objections" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md transition-all">
-                      <AlertTriangle className="h-4 w-4" />
-                      <span>Objections</span>
-                      <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{objections.length}</Badge>
-                    </TabsTrigger>
-                    <TabsTrigger value="emotions" className="flex items-center gap-2 data-[state=active]:bg-background data-[state=active]:shadow-sm rounded-md transition-all">
-                      <Heart className="h-4 w-4" />
-                      <span>Emotions</span>
-                      <Badge variant="secondary" className="ml-1 text-[10px] px-1.5 py-0">{emotions.length}</Badge>
-                    </TabsTrigger>
-                  </TabsList>
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className={`${
+                    selectedPlaybook.call_type === 'outbound' 
+                      ? 'bg-blue-500/10 text-blue-700 border-blue-500/30' 
+                      : selectedPlaybook.call_type === 'inbound'
+                      ? 'bg-purple-500/10 text-purple-700 border-purple-500/30'
+                      : 'bg-amber-500/10 text-amber-700 border-amber-500/30'
+                  }`}>
+                    {selectedPlaybook.call_type === 'outbound' ? 'Outbound Sales' : selectedPlaybook.call_type === 'inbound' ? 'Inbound Support' : 'Follow-up'}
+                  </Badge>
+                  {selectedPlaybook.is_active && (
+                    <Badge className="bg-green-500/10 text-green-700 border-green-500/30">
+                      <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse" />
+                      Active
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="p-6">
+              {/* Summary Stats */}
+              <div className="grid grid-cols-5 gap-3 mb-6">
+                <div className="bg-muted/30 rounded-lg p-3 text-center">
+                  <Play className="h-4 w-4 mx-auto mb-1 text-primary" />
+                  <div className="text-lg font-semibold">{stages.length}</div>
+                  <div className="text-[10px] text-muted-foreground">Stages</div>
+                </div>
+                <div className="bg-muted/30 rounded-lg p-3 text-center">
+                  <HelpCircle className="h-4 w-4 mx-auto mb-1 text-blue-500" />
+                  <div className="text-lg font-semibold">{questions.length}</div>
+                  <div className="text-[10px] text-muted-foreground">Questions</div>
+                </div>
+                <div className="bg-muted/30 rounded-lg p-3 text-center">
+                  <AlertTriangle className="h-4 w-4 mx-auto mb-1 text-orange-500" />
+                  <div className="text-lg font-semibold">{objections.length}</div>
+                  <div className="text-[10px] text-muted-foreground">Objections</div>
+                </div>
+                <div className="bg-muted/30 rounded-lg p-3 text-center">
+                  <Heart className="h-4 w-4 mx-auto mb-1 text-pink-500" />
+                  <div className="text-lg font-semibold">{emotions.length}</div>
+                  <div className="text-[10px] text-muted-foreground">Emotions</div>
+                </div>
+                <div className="bg-muted/30 rounded-lg p-3 text-center">
+                  <DollarSign className="h-4 w-4 mx-auto mb-1 text-green-500" />
+                  <div className="text-lg font-semibold">{pricing.length}</div>
+                  <div className="text-[10px] text-muted-foreground">Pricing</div>
+                </div>
+              </div>
 
-                  {/* Stages Tab */}
-                  <TabsContent value="stages" className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-semibold">Call Flow Stages</h3>
-                        <p className="text-xs text-muted-foreground mt-0.5">Define the structure and flow of your calls</p>
-                      </div>
-                      <Button size="sm" onClick={handleAddStage} className="shadow-sm">
-                        <Plus className="h-4 w-4 mr-1.5" />
-                        Add Stage
-                      </Button>
-                    </div>
-                    <div className="space-y-3">
-                      {stages.map((stage, index) => {
-                        const stageTypeColors: Record<string, string> = {
-                          opening: 'border-l-blue-500 bg-blue-500/5',
-                          discovery: 'border-l-purple-500 bg-purple-500/5',
-                          pitch: 'border-l-amber-500 bg-amber-500/5',
-                          objection_handling: 'border-l-red-500 bg-red-500/5',
-                          negotiation: 'border-l-orange-500 bg-orange-500/5',
-                          closing: 'border-l-green-500 bg-green-500/5',
-                          follow_up: 'border-l-cyan-500 bg-cyan-500/5',
-                        };
-                        return (
-                        <Card key={stage.id} className={`p-4 border-l-4 ${stageTypeColors[stage.stage_type] || 'border-l-muted'} hover:shadow-md transition-shadow`}>
-                          <div className="space-y-4">
-                            <div className="flex items-start gap-4">
-                              <div className="flex items-center gap-2 text-muted-foreground bg-muted/50 rounded-md px-2 py-1">
-                                <GripVertical className="h-4 w-4 cursor-grab" />
-                                <span className="font-mono text-sm font-medium">{stage.stage_order}</span>
+              {/* Stages Section */}
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="font-semibold">Call Flow Stages</h3>
+                    <p className="text-xs text-muted-foreground mt-0.5">Each stage contains its questions, objections, emotions & pricing</p>
+                  </div>
+                  <Button size="sm" onClick={handleAddStage} className="shadow-sm">
+                    <Plus className="h-4 w-4 mr-1.5" />
+                    Add Stage
+                  </Button>
+                </div>
+
+                <div className="space-y-3">
+                  {stages.map((stage, index) => {
+                    const stageQuestions = getStageQuestions(stage.id);
+                    
+                    return (
+                      <Card key={stage.id} className={`border-l-4 ${stageTypeColors[stage.stage_type] || 'border-l-muted'} hover:shadow-md transition-shadow`}>
+                        <Accordion type="single" collapsible value={expandedStages.includes(stage.id) ? stage.id : undefined} onValueChange={(v) => {
+                          if (v) {
+                            setExpandedStages(prev => [...prev, v]);
+                          } else {
+                            setExpandedStages(prev => prev.filter(id => id !== stage.id));
+                          }
+                        }}>
+                          <AccordionItem value={stage.id} className="border-0">
+                            <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                              <div className="flex items-center gap-4 flex-1">
+                                <div className="flex items-center gap-2 text-muted-foreground bg-muted/50 rounded-md px-2 py-1">
+                                  <GripVertical className="h-4 w-4 cursor-grab" />
+                                  <span className="font-mono text-sm font-medium">{stage.stage_order}</span>
+                                </div>
+                                <div className="flex-1 text-left">
+                                  <div className="font-medium">{stage.stage_name}</div>
+                                  <div className="text-xs text-muted-foreground flex items-center gap-2">
+                                    <Badge variant="outline" className="text-[10px]">{stage.stage_type}</Badge>
+                                    <span>{stage.duration_seconds}s</span>
+                                    {stageQuestions.length > 0 && (
+                                      <span className="text-blue-600">{stageQuestions.length} Q</span>
+                                    )}
+                                  </div>
+                                </div>
                               </div>
-                              <div className="flex-1 grid grid-cols-3 gap-4">
+                            </AccordionTrigger>
+                            <AccordionContent className="px-4 pb-4">
+                              <div className="space-y-4">
+                                {/* Stage Basic Info */}
+                                <div className="grid grid-cols-3 gap-4">
+                                  <div className="space-y-2">
+                                    <Label className="text-xs">Stage Name</Label>
+                                    <Input
+                                      value={stage.stage_name}
+                                      onChange={(e) => {
+                                        const updated = stages.map(s => 
+                                          s.id === stage.id ? { ...s, stage_name: e.target.value } : s
+                                        );
+                                        setStages(updated);
+                                      }}
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label className="text-xs">Type</Label>
+                                    <Select
+                                      value={stage.stage_type}
+                                      onValueChange={(v) => {
+                                        const updated = stages.map(s => 
+                                          s.id === stage.id ? { ...s, stage_type: v } : s
+                                        );
+                                        setStages(updated);
+                                      }}
+                                    >
+                                      <SelectTrigger>
+                                        <SelectValue />
+                                      </SelectTrigger>
+                                      <SelectContent>
+                                        <SelectItem value="opening">Opening</SelectItem>
+                                        <SelectItem value="discovery">Discovery</SelectItem>
+                                        <SelectItem value="pitch">Pitch</SelectItem>
+                                        <SelectItem value="objection_handling">Objection Handling</SelectItem>
+                                        <SelectItem value="negotiation">Negotiation</SelectItem>
+                                        <SelectItem value="closing">Closing</SelectItem>
+                                        <SelectItem value="follow_up">Follow Up</SelectItem>
+                                      </SelectContent>
+                                    </Select>
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label className="text-xs">Duration (sec)</Label>
+                                    <Input
+                                      type="number"
+                                      value={stage.duration_seconds}
+                                      onChange={(e) => {
+                                        const updated = stages.map(s => 
+                                          s.id === stage.id ? { ...s, duration_seconds: parseInt(e.target.value) || 60 } : s
+                                        );
+                                        setStages(updated);
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Opening Lines */}
                                 <div className="space-y-2">
-                                  <Label className="text-xs">Stage Name</Label>
-                                  <Input
-                                    value={stage.stage_name}
+                                  <Label className="text-xs">Opening Lines (one per line)</Label>
+                                  <Textarea
+                                    className="min-h-[60px] text-sm"
+                                    value={Array.isArray(stage.opening_lines) ? stage.opening_lines.join('\n') : ''}
                                     onChange={(e) => {
+                                      const lines = e.target.value.split('\n').filter(line => line.trim());
                                       const updated = stages.map(s => 
-                                        s.id === stage.id ? { ...s, stage_name: e.target.value } : s
+                                        s.id === stage.id ? { ...s, opening_lines: lines } : s
                                       );
                                       setStages(updated);
                                     }}
+                                    placeholder="Enter suggested opening phrases for this stage..."
                                   />
                                 </div>
-                                <div className="space-y-2">
-                                  <Label className="text-xs">Type</Label>
-                                  <Select
-                                    value={stage.stage_type}
-                                    onValueChange={(v) => {
-                                      const updated = stages.map(s => 
-                                        s.id === stage.id ? { ...s, stage_type: v } : s
+
+                                {/* Script Mode Toggle & Editor */}
+                                <div className="space-y-3">
+                                  <div className="flex items-center justify-between">
+                                    <Label className="text-xs">Script / Talking Points</Label>
+                                    <div className="flex items-center gap-2 text-xs">
+                                      <FileText className={`h-3.5 w-3.5 ${stageScriptModes[stage.id] === 'simple' ? 'text-primary' : 'text-muted-foreground'}`} />
+                                      <span className="text-muted-foreground">Simple</span>
+                                      <Switch
+                                        checked={stageScriptModes[stage.id] === 'tree'}
+                                        onCheckedChange={() => toggleScriptMode(stage.id)}
+                                      />
+                                      <span className="text-muted-foreground">Tree</span>
+                                      <GitBranch className={`h-3.5 w-3.5 ${stageScriptModes[stage.id] === 'tree' ? 'text-primary' : 'text-muted-foreground'}`} />
+                                    </div>
+                                  </div>
+
+                                  {stageScriptModes[stage.id] === 'simple' ? (
+                                    <Textarea
+                                      className="min-h-[100px] text-sm"
+                                      value={stage.script || ''}
+                                      onChange={(e) => {
+                                        const updated = stages.map(s => 
+                                          s.id === stage.id ? { ...s, script: e.target.value } : s
+                                        );
+                                        setStages(updated);
+                                      }}
+                                      placeholder="Enter the script or talking points for this stage..."
+                                    />
+                                  ) : (
+                                    <div className="border rounded-lg p-4 bg-muted/20">
+                                      <DecisionTreeVisualizer
+                                        nodes={scriptNodes[stage.id] || []}
+                                        stageId={stage.id}
+                                        onUpdate={updateScriptNode}
+                                        onSave={handleSaveScriptNode}
+                                        onDelete={handleDeleteScriptNode}
+                                        onAddChild={handleAddScriptNode}
+                                      />
+                                    </div>
+                                  )}
+                                </div>
+
+                                {/* Key Objectives & Success Criteria */}
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label className="text-xs">Key Objectives (one per line)</Label>
+                                    <Textarea
+                                      className="min-h-[80px] text-sm"
+                                      value={Array.isArray(stage.key_objectives) ? stage.key_objectives.join('\n') : ''}
+                                      onChange={(e) => {
+                                        const objectives = e.target.value.split('\n').filter(line => line.trim());
+                                        const updated = stages.map(s => 
+                                          s.id === stage.id ? { ...s, key_objectives: objectives } : s
+                                        );
+                                        setStages(updated);
+                                      }}
+                                      placeholder="Enter objectives, one per line..."
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label className="text-xs">Success Criteria (one per line)</Label>
+                                    <Textarea
+                                      className="min-h-[80px] text-sm"
+                                      value={Array.isArray(stage.success_criteria) ? stage.success_criteria.join('\n') : ''}
+                                      onChange={(e) => {
+                                        const criteria = e.target.value.split('\n').filter(line => line.trim());
+                                        const updated = stages.map(s => 
+                                          s.id === stage.id ? { ...s, success_criteria: criteria } : s
+                                        );
+                                        setStages(updated);
+                                      }}
+                                      placeholder="Enter success criteria, one per line..."
+                                    />
+                                  </div>
+                                </div>
+
+                                {/* Nested Accordions for Stage-Level Items */}
+                                <Accordion type="multiple" className="space-y-2">
+                                  {/* Stage Questions */}
+                                  <AccordionItem value="questions" className="border rounded-lg bg-blue-500/5">
+                                    <AccordionTrigger className="px-3 py-2 hover:no-underline">
+                                      <div className="flex items-center gap-2">
+                                        <HelpCircle className="h-4 w-4 text-blue-500" />
+                                        <span className="text-sm font-medium">Discovery Questions</span>
+                                        <Badge variant="secondary" className="text-[10px]">{stageQuestions.length}</Badge>
+                                      </div>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="px-3 pb-3">
+                                      <div className="space-y-2">
+                                        {stageQuestions.map(q => (
+                                          <div key={q.id} className="flex gap-2 items-start bg-background rounded p-2 border">
+                                            <Input
+                                              className="flex-1 text-sm"
+                                              value={q.question_text}
+                                              onChange={(e) => {
+                                                const updated = questions.map(qu => 
+                                                  qu.id === q.id ? { ...qu, question_text: e.target.value } : qu
+                                                );
+                                                setQuestions(updated);
+                                              }}
+                                              placeholder="Enter question..."
+                                            />
+                                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleSaveQuestion(q)}>
+                                              <Save className="h-3 w-3" />
+                                            </Button>
+                                            <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleDeleteQuestion(q.id)}>
+                                              <Trash2 className="h-3 w-3 text-destructive" />
+                                            </Button>
+                                          </div>
+                                        ))}
+                                        <Button size="sm" variant="outline" className="w-full" onClick={() => handleAddQuestion(stage.id)}>
+                                          <Plus className="h-3 w-3 mr-1" />
+                                          Add Question
+                                        </Button>
+                                      </div>
+                                    </AccordionContent>
+                                  </AccordionItem>
+                                </Accordion>
+
+                                {/* Stage Actions */}
+                                <div className="flex justify-end gap-2 pt-2 border-t">
+                                  <Button size="sm" variant="outline" onClick={() => handleSaveStage(stage)}>
+                                    <Save className="h-4 w-4 mr-1" />
+                                    Save Stage
+                                  </Button>
+                                  <Button size="sm" variant="ghost" onClick={() => handleDeleteStage(stage.id)}>
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </AccordionContent>
+                          </AccordionItem>
+                        </Accordion>
+                      </Card>
+                    );
+                  })}
+                </div>
+
+                {/* Playbook-Level Resources */}
+                <div className="mt-8 pt-6 border-t">
+                  <h3 className="font-semibold mb-4 flex items-center gap-2">
+                    <BookOpen className="h-4 w-4" />
+                    Playbook-Level Resources
+                    <span className="text-xs text-muted-foreground font-normal">(Apply to all stages)</span>
+                  </h3>
+                  
+                  <Accordion type="multiple" className="space-y-2">
+                    {/* Global Questions */}
+                    <AccordionItem value="global-questions" className="border rounded-lg bg-blue-500/5">
+                      <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                        <div className="flex items-center gap-2">
+                          <HelpCircle className="h-4 w-4 text-blue-500" />
+                          <span className="font-medium">Global Questions</span>
+                          <Badge variant="secondary" className="text-xs">{getGlobalQuestions().length}</Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-4 pb-4">
+                        <div className="space-y-2">
+                          {getGlobalQuestions().map(q => (
+                            <div key={q.id} className="flex gap-2 items-start bg-background rounded p-2 border">
+                              <Input
+                                className="flex-1 text-sm"
+                                value={q.question_text}
+                                onChange={(e) => {
+                                  const updated = questions.map(qu => 
+                                    qu.id === q.id ? { ...qu, question_text: e.target.value } : qu
+                                  );
+                                  setQuestions(updated);
+                                }}
+                                placeholder="Enter question..."
+                              />
+                              <Select
+                                value={q.question_purpose}
+                                onValueChange={(v) => {
+                                  const updated = questions.map(qu => 
+                                    qu.id === q.id ? { ...qu, question_purpose: v } : qu
+                                  );
+                                  setQuestions(updated);
+                                }}
+                              >
+                                <SelectTrigger className="w-32">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="pain_point">Pain Point</SelectItem>
+                                  <SelectItem value="need">Need</SelectItem>
+                                  <SelectItem value="budget">Budget</SelectItem>
+                                  <SelectItem value="timeline">Timeline</SelectItem>
+                                  <SelectItem value="authority">Authority</SelectItem>
+                                </SelectContent>
+                              </Select>
+                              <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleSaveQuestion(q)}>
+                                <Save className="h-3 w-3" />
+                              </Button>
+                              <Button size="icon" variant="ghost" className="h-8 w-8" onClick={() => handleDeleteQuestion(q.id)}>
+                                <Trash2 className="h-3 w-3 text-destructive" />
+                              </Button>
+                            </div>
+                          ))}
+                          <Button size="sm" variant="outline" className="w-full" onClick={() => handleAddQuestion()}>
+                            <Plus className="h-3 w-3 mr-1" />
+                            Add Global Question
+                          </Button>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    {/* Objections */}
+                    <AccordionItem value="objections" className="border rounded-lg bg-orange-500/5">
+                      <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                        <div className="flex items-center gap-2">
+                          <AlertTriangle className="h-4 w-4 text-orange-500" />
+                          <span className="font-medium">Objection Handlers</span>
+                          <Badge variant="secondary" className="text-xs">{objections.length}</Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-4 pb-4">
+                        <div className="space-y-3">
+                          {objections.map(obj => (
+                            <Card key={obj.id} className="p-3">
+                              <div className="space-y-3">
+                                <div className="grid grid-cols-3 gap-3">
+                                  <Input
+                                    value={obj.objection_type || ''}
+                                    onChange={(e) => {
+                                      const updated = objections.map(o => 
+                                        o.id === obj.id ? { ...o, objection_type: e.target.value } : o
                                       );
-                                      setStages(updated);
+                                      setObjections(updated);
+                                    }}
+                                    placeholder="Type (e.g., Price)"
+                                  />
+                                  <Input
+                                    value={obj.objection_trigger}
+                                    onChange={(e) => {
+                                      const updated = objections.map(o => 
+                                        o.id === obj.id ? { ...o, objection_trigger: e.target.value } : o
+                                      );
+                                      setObjections(updated);
+                                    }}
+                                    placeholder="Trigger phrase"
+                                  />
+                                  <Select
+                                    value={obj.severity}
+                                    onValueChange={(v) => {
+                                      const updated = objections.map(o => 
+                                        o.id === obj.id ? { ...o, severity: v } : o
+                                      );
+                                      setObjections(updated);
                                     }}
                                   >
                                     <SelectTrigger>
                                       <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
-                                      <SelectItem value="opening">Opening</SelectItem>
-                                      <SelectItem value="discovery">Discovery</SelectItem>
-                                      <SelectItem value="pitch">Pitch</SelectItem>
-                                      <SelectItem value="objection_handling">Objection Handling</SelectItem>
-                                      <SelectItem value="negotiation">Negotiation</SelectItem>
-                                      <SelectItem value="closing">Closing</SelectItem>
-                                      <SelectItem value="follow_up">Follow Up</SelectItem>
+                                      <SelectItem value="low">Low</SelectItem>
+                                      <SelectItem value="medium">Medium</SelectItem>
+                                      <SelectItem value="high">High</SelectItem>
+                                      <SelectItem value="critical">Critical</SelectItem>
                                     </SelectContent>
                                   </Select>
                                 </div>
-                                <div className="space-y-2">
-                                  <Label className="text-xs">Duration (sec)</Label>
+                                <Textarea
+                                  value={obj.response_script}
+                                  onChange={(e) => {
+                                    const updated = objections.map(o => 
+                                      o.id === obj.id ? { ...o, response_script: e.target.value } : o
+                                    );
+                                    setObjections(updated);
+                                  }}
+                                  placeholder="Response script..."
+                                  rows={2}
+                                />
+                                <div className="flex justify-end gap-2">
+                                  <Button size="sm" variant="outline" onClick={() => handleSaveObjection(obj)}>
+                                    <Save className="h-3 w-3 mr-1" />
+                                    Save
+                                  </Button>
+                                  <Button size="sm" variant="ghost" onClick={() => handleDeleteObjection(obj.id)}>
+                                    <Trash2 className="h-3 w-3 text-destructive" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </Card>
+                          ))}
+                          <Button size="sm" variant="outline" className="w-full" onClick={handleAddObjection}>
+                            <Plus className="h-3 w-3 mr-1" />
+                            Add Objection Handler
+                          </Button>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    {/* Emotions */}
+                    <AccordionItem value="emotions" className="border rounded-lg bg-pink-500/5">
+                      <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                        <div className="flex items-center gap-2">
+                          <Heart className="h-4 w-4 text-pink-500" />
+                          <span className="font-medium">Emotional Responses</span>
+                          <Badge variant="secondary" className="text-xs">{emotions.length}</Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-4 pb-4">
+                        <div className="space-y-3">
+                          {emotions.map(emo => (
+                            <Card key={emo.id} className="p-3">
+                              <div className="space-y-3">
+                                <div className="grid grid-cols-2 gap-3">
+                                  <Select
+                                    value={emo.emotion_detected}
+                                    onValueChange={(v) => {
+                                      const updated = emotions.map(e => 
+                                        e.id === emo.id ? { ...e, emotion_detected: v } : e
+                                      );
+                                      setEmotions(updated);
+                                    }}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Emotion" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="frustrated">Frustrated</SelectItem>
+                                      <SelectItem value="confused">Confused</SelectItem>
+                                      <SelectItem value="interested">Interested</SelectItem>
+                                      <SelectItem value="skeptical">Skeptical</SelectItem>
+                                      <SelectItem value="angry">Angry</SelectItem>
+                                      <SelectItem value="excited">Excited</SelectItem>
+                                      <SelectItem value="hesitant">Hesitant</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                  <Select
+                                    value={emo.tone_adjustment}
+                                    onValueChange={(v) => {
+                                      const updated = emotions.map(e => 
+                                        e.id === emo.id ? { ...e, tone_adjustment: v } : e
+                                      );
+                                      setEmotions(updated);
+                                    }}
+                                  >
+                                    <SelectTrigger>
+                                      <SelectValue placeholder="Tone" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                      <SelectItem value="empathetic">Empathetic</SelectItem>
+                                      <SelectItem value="reassuring">Reassuring</SelectItem>
+                                      <SelectItem value="professional">Professional</SelectItem>
+                                      <SelectItem value="enthusiastic">Enthusiastic</SelectItem>
+                                      <SelectItem value="calm">Calm</SelectItem>
+                                    </SelectContent>
+                                  </Select>
+                                </div>
+                                <Textarea
+                                  value={emo.response_strategy}
+                                  onChange={(e) => {
+                                    const updated = emotions.map(em => 
+                                      em.id === emo.id ? { ...em, response_strategy: e.target.value } : em
+                                    );
+                                    setEmotions(updated);
+                                  }}
+                                  placeholder="Response strategy..."
+                                  rows={2}
+                                />
+                                <div className="flex justify-end gap-2">
+                                  <Button size="sm" variant="outline" onClick={() => handleSaveEmotion(emo)}>
+                                    <Save className="h-3 w-3 mr-1" />
+                                    Save
+                                  </Button>
+                                  <Button size="sm" variant="ghost" onClick={() => handleDeleteEmotion(emo.id)}>
+                                    <Trash2 className="h-3 w-3 text-destructive" />
+                                  </Button>
+                                </div>
+                              </div>
+                            </Card>
+                          ))}
+                          <Button size="sm" variant="outline" className="w-full" onClick={handleAddEmotion}>
+                            <Plus className="h-3 w-3 mr-1" />
+                            Add Emotional Response
+                          </Button>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+
+                    {/* Pricing */}
+                    <AccordionItem value="pricing" className="border rounded-lg bg-green-500/5">
+                      <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                        <div className="flex items-center gap-2">
+                          <DollarSign className="h-4 w-4 text-green-500" />
+                          <span className="font-medium">Pricing Strategies</span>
+                          <Badge variant="secondary" className="text-xs">{pricing.length}</Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent className="px-4 pb-4">
+                        <div className="space-y-3">
+                          {pricing.map(p => (
+                            <Card key={p.id} className="p-3">
+                              <div className="space-y-3">
+                                <div className="grid grid-cols-4 gap-3">
+                                  <Input
+                                    value={p.customer_segment}
+                                    onChange={(e) => {
+                                      const updated = pricing.map(pr => 
+                                        pr.id === p.id ? { ...pr, customer_segment: e.target.value } : pr
+                                      );
+                                      setPricing(updated);
+                                    }}
+                                    placeholder="Segment"
+                                  />
                                   <Input
                                     type="number"
-                                    value={stage.duration_seconds}
+                                    value={p.discount_range_min}
                                     onChange={(e) => {
-                                      const updated = stages.map(s => 
-                                        s.id === stage.id ? { ...s, duration_seconds: parseInt(e.target.value) || 60 } : s
+                                      const updated = pricing.map(pr => 
+                                        pr.id === p.id ? { ...pr, discount_range_min: parseFloat(e.target.value) || 0 } : pr
                                       );
-                                      setStages(updated);
+                                      setPricing(updated);
                                     }}
+                                    placeholder="Min %"
+                                  />
+                                  <Input
+                                    type="number"
+                                    value={p.discount_range_max}
+                                    onChange={(e) => {
+                                      const updated = pricing.map(pr => 
+                                        pr.id === p.id ? { ...pr, discount_range_max: parseFloat(e.target.value) || 0 } : pr
+                                      );
+                                      setPricing(updated);
+                                    }}
+                                    placeholder="Max %"
+                                  />
+                                  <Input
+                                    type="number"
+                                    value={p.negotiation_floor}
+                                    onChange={(e) => {
+                                      const updated = pricing.map(pr => 
+                                        pr.id === p.id ? { ...pr, negotiation_floor: parseFloat(e.target.value) || 0 } : pr
+                                      );
+                                      setPricing(updated);
+                                    }}
+                                    placeholder="Floor"
                                   />
                                 </div>
-                              </div>
-                              <div className="flex gap-2">
-                                <Button size="icon" variant="ghost" onClick={() => handleSaveStage(stage)}>
-                                  <Save className="h-4 w-4" />
-                                </Button>
-                                <Button size="icon" variant="ghost" onClick={() => handleDeleteStage(stage.id)}>
-                                  <Trash2 className="h-4 w-4 text-destructive" />
-                                </Button>
-                              </div>
-                            </div>
-                            
-                            {/* Opening Lines */}
-                            <div className="pl-10 space-y-2">
-                              <Label className="text-xs">Opening Lines (one per line)</Label>
-                              <Textarea
-                                className="min-h-[60px] text-sm"
-                                value={Array.isArray(stage.opening_lines) ? stage.opening_lines.join('\n') : ''}
-                                onChange={(e) => {
-                                  const lines = e.target.value.split('\n').filter(line => line.trim());
-                                  const updated = stages.map(s => 
-                                    s.id === stage.id ? { ...s, opening_lines: lines } : s
-                                  );
-                                  setStages(updated);
-                                }}
-                                placeholder="Enter suggested opening phrases for this stage..."
-                              />
-                            </div>
-
-                            {/* Script Mode Toggle & Editor */}
-                            <div className="pl-10 space-y-3">
-                              <div className="flex items-center justify-between">
-                                <Label className="text-xs">Script / Talking Points</Label>
-                                <div className="flex items-center gap-2 text-xs">
-                                  <FileText className={`h-3.5 w-3.5 ${stageScriptModes[stage.id] === 'simple' ? 'text-primary' : 'text-muted-foreground'}`} />
-                                  <span className="text-muted-foreground">Simple</span>
-                                  <Switch
-                                    checked={stageScriptModes[stage.id] === 'tree'}
-                                    onCheckedChange={() => toggleScriptMode(stage.id)}
-                                  />
-                                  <span className="text-muted-foreground">Tree</span>
-                                  <GitBranch className={`h-3.5 w-3.5 ${stageScriptModes[stage.id] === 'tree' ? 'text-primary' : 'text-muted-foreground'}`} />
-                                </div>
-                              </div>
-
-                              {stageScriptModes[stage.id] === 'simple' ? (
                                 <Textarea
-                                  className="min-h-[100px] text-sm"
-                                  value={stage.script || ''}
+                                  value={p.pricing_script}
                                   onChange={(e) => {
-                                    const updated = stages.map(s => 
-                                      s.id === stage.id ? { ...s, script: e.target.value } : s
+                                    const updated = pricing.map(pr => 
+                                      pr.id === p.id ? { ...pr, pricing_script: e.target.value } : pr
                                     );
-                                    setStages(updated);
+                                    setPricing(updated);
                                   }}
-                                  placeholder="Enter the script or talking points for this stage..."
+                                  placeholder="Pricing script..."
+                                  rows={2}
                                 />
-                              ) : (
-                                <div className="border rounded-lg p-4 bg-muted/20">
-                                  <DecisionTreeVisualizer
-                                    nodes={scriptNodes[stage.id] || []}
-                                    stageId={stage.id}
-                                    onUpdate={updateScriptNode}
-                                    onSave={handleSaveScriptNode}
-                                    onDelete={handleDeleteScriptNode}
-                                    onAddChild={handleAddScriptNode}
-                                  />
-                                </div>
-                              )}
-                            </div>
-
-                            {/* Key Objectives & Success Criteria */}
-                            <div className="grid grid-cols-2 gap-4 pl-10">
-                              <div className="space-y-2">
-                                <Label className="text-xs">Key Objectives (one per line)</Label>
-                                <Textarea
-                                  className="min-h-[80px] text-sm"
-                                  value={Array.isArray(stage.key_objectives) ? stage.key_objectives.join('\n') : ''}
-                                  onChange={(e) => {
-                                    const objectives = e.target.value.split('\n').filter(line => line.trim());
-                                    const updated = stages.map(s => 
-                                      s.id === stage.id ? { ...s, key_objectives: objectives } : s
-                                    );
-                                    setStages(updated);
-                                  }}
-                                  placeholder="Enter objectives, one per line..."
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-xs">Success Criteria (one per line)</Label>
-                                <Textarea
-                                  className="min-h-[80px] text-sm"
-                                  value={Array.isArray(stage.success_criteria) ? stage.success_criteria.join('\n') : ''}
-                                  onChange={(e) => {
-                                    const criteria = e.target.value.split('\n').filter(line => line.trim());
-                                    const updated = stages.map(s => 
-                                      s.id === stage.id ? { ...s, success_criteria: criteria } : s
-                                    );
-                                    setStages(updated);
-                                  }}
-                                  placeholder="Enter success criteria, one per line..."
-                                />
-                              </div>
-                            </div>
-                          </div>
-                        </Card>
-                        );
-                      })}
-                    </div>
-                  </TabsContent>
-
-                  {/* Objections Tab */}
-                  <TabsContent value="objections" className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h3 className="font-semibold">Objection Handlers</h3>
-                      <Button size="sm" onClick={handleAddObjection}>
-                        <Plus className="h-4 w-4 mr-1" />
-                        Add Handler
-                      </Button>
-                    </div>
-                    <div className="space-y-3">
-                      {objections.map((obj) => (
-                        <Card key={obj.id} className="p-4">
-                          <div className="space-y-4">
-                            <div className="grid grid-cols-3 gap-4">
-                              <div className="space-y-2">
-                                <Label className="text-xs">Type</Label>
-                                <Input
-                                  value={obj.objection_type || ''}
-                                  onChange={(e) => {
-                                    const updated = objections.map(o => 
-                                      o.id === obj.id ? { ...o, objection_type: e.target.value } : o
-                                    );
-                                    setObjections(updated);
-                                  }}
-                                  placeholder="e.g., Price, Timing, Competitor"
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-xs">Trigger Phrase</Label>
-                                <Input
-                                  value={obj.objection_trigger}
-                                  onChange={(e) => {
-                                    const updated = objections.map(o => 
-                                      o.id === obj.id ? { ...o, objection_trigger: e.target.value } : o
-                                    );
-                                    setObjections(updated);
-                                  }}
-                                  placeholder="e.g., 'too expensive'"
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-xs">Severity</Label>
-                                <Select
-                                  value={obj.severity}
-                                  onValueChange={(v) => {
-                                    const updated = objections.map(o => 
-                                      o.id === obj.id ? { ...o, severity: v } : o
-                                    );
-                                    setObjections(updated);
-                                  }}
-                                >
-                                  <SelectTrigger>
-                                    <SelectValue />
-                                  </SelectTrigger>
-                                  <SelectContent>
-                                    <SelectItem value="low">Low</SelectItem>
-                                    <SelectItem value="medium">Medium</SelectItem>
-                                    <SelectItem value="high">High</SelectItem>
-                                    <SelectItem value="critical">Critical</SelectItem>
-                                  </SelectContent>
-                                </Select>
-                              </div>
-                            </div>
-                            <div className="space-y-2">
-                              <Label className="text-xs">Response Script</Label>
-                              <Textarea
-                                value={obj.response_script}
-                                onChange={(e) => {
-                                  const updated = objections.map(o => 
-                                    o.id === obj.id ? { ...o, response_script: e.target.value } : o
-                                  );
-                                  setObjections(updated);
-                                }}
-                                placeholder="How to respond to this objection..."
-                                rows={3}
-                              />
-                            </div>
-                            <div className="flex justify-end gap-2">
-                              <Button size="sm" variant="outline" onClick={() => handleSaveObjection(obj)}>
-                                <Save className="h-4 w-4 mr-1" />
-                                Save
-                              </Button>
-                              <Button size="sm" variant="ghost" onClick={() => handleDeleteObjection(obj.id)}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </div>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
-                  </TabsContent>
-
-                  {/* Questions Tab */}
-                  <TabsContent value="questions" className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <h3 className="font-semibold">Discovery Questions</h3>
-                      <Button size="sm" onClick={handleAddQuestion}>
-                        <Plus className="h-4 w-4 mr-1" />
-                        Add Question
-                      </Button>
-                    </div>
-                    <div className="space-y-3">
-                      {questions.map((q) => (
-                        <Card key={q.id} className="p-4">
-                          <div className="flex items-start gap-4">
-                            <span className="font-mono text-sm text-muted-foreground">{q.priority}</span>
-                            <div className="flex-1 grid grid-cols-3 gap-4">
-                              <div className="col-span-2 space-y-2">
-                                <Label className="text-xs">Question</Label>
-                                <Input
-                                  value={q.question_text}
-                                  onChange={(e) => {
-                                    const updated = questions.map(qu => 
-                                      qu.id === q.id ? { ...qu, question_text: e.target.value } : qu
-                                    );
-                                    setQuestions(updated);
-                                  }}
-                                  placeholder="Enter the discovery question..."
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <Label className="text-xs">Purpose</Label>
-                                <Input
-                                  value={q.question_purpose || ''}
-                                  onChange={(e) => {
-                                    const updated = questions.map(qu => 
-                                      qu.id === q.id ? { ...qu, question_purpose: e.target.value } : qu
-                                    );
-                                    setQuestions(updated);
-                                  }}
-                                  placeholder="e.g., Identify pain points"
-                                />
-                              </div>
-                            </div>
-                            <div className="flex gap-2">
-                              <Button size="icon" variant="ghost" onClick={() => handleSaveQuestion(q)}>
-                                <Save className="h-4 w-4" />
-                              </Button>
-                              <Button size="icon" variant="ghost" onClick={() => handleDeleteQuestion(q.id)}>
-                                <Trash2 className="h-4 w-4 text-destructive" />
-                              </Button>
-                            </div>
-                          </div>
-                        </Card>
-                      ))}
-                    </div>
-                  </TabsContent>
-
-                  {/* Pricing Tab */}
-                  <TabsContent value="pricing" className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-semibold">Pricing Strategies by Segment</h3>
-                        <p className="text-sm text-muted-foreground">Configure pricing rules and discount ranges for different customer segments.</p>
-                      </div>
-                    </div>
-                    {pricing.length === 0 ? (
-                      <Card className="p-8 text-center text-muted-foreground">
-                        <DollarSign className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p>No pricing strategies configured for this playbook.</p>
-                      </Card>
-                    ) : (
-                      <div className="space-y-3">
-                        {pricing.map((p) => (
-                          <Card key={p.id} className="p-4">
-                            <div className="space-y-4">
-                              <div className="flex items-center justify-between">
-                                <Badge variant="outline" className="capitalize">{p.customer_segment?.replace('_', ' ')}</Badge>
-                                <Badge variant={p.urgency_level === 'high' ? 'destructive' : p.urgency_level === 'medium' ? 'default' : 'secondary'}>
-                                  {p.urgency_level} urgency
-                                </Badge>
-                              </div>
-                              <div className="grid grid-cols-3 gap-4 text-sm">
-                                <div>
-                                  <Label className="text-xs text-muted-foreground">Discount Range</Label>
-                                  <p className="font-medium">{p.discount_range_min}% - {p.discount_range_max}%</p>
-                                </div>
-                                <div>
-                                  <Label className="text-xs text-muted-foreground">Negotiation Floor</Label>
-                                  <p className="font-medium">{p.negotiation_floor}%</p>
+                                <div className="flex justify-end gap-2">
+                                  <Button size="sm" variant="outline" onClick={() => handleSavePricing(p)}>
+                                    <Save className="h-3 w-3 mr-1" />
+                                    Save
+                                  </Button>
+                                  <Button size="sm" variant="ghost" onClick={() => handleDeletePricing(p.id)}>
+                                    <Trash2 className="h-3 w-3 text-destructive" />
+                                  </Button>
                                 </div>
                               </div>
-                              <div>
-                                <Label className="text-xs text-muted-foreground">Pricing Script</Label>
-                                <p className="text-sm mt-1 bg-muted/50 p-2 rounded">{p.pricing_script}</p>
-                              </div>
-                            </div>
-                          </Card>
-                        ))}
-                      </div>
-                    )}
-                  </TabsContent>
-
-                  {/* Emotions Tab */}
-                  <TabsContent value="emotions" className="space-y-4">
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <h3 className="font-semibold">Emotional Response Strategies</h3>
-                        <p className="text-sm text-muted-foreground">Define how to respond when customers display different emotions.</p>
-                      </div>
-                    </div>
-                    {emotions.length === 0 ? (
-                      <Card className="p-8 text-center text-muted-foreground">
-                        <Heart className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                        <p>No emotional response strategies configured for this playbook.</p>
-                      </Card>
-                    ) : (
-                      <div className="space-y-3">
-                        {emotions.map((e) => (
-                          <Card key={e.id} className="p-4">
-                            <div className="space-y-4">
-                              <div className="flex items-center gap-2">
-                                <Badge variant="outline" className="capitalize">{e.emotion_detected}</Badge>
-                                {e.tone_adjustment && (
-                                  <span className="text-xs text-muted-foreground">• Tone: {e.tone_adjustment}</span>
-                                )}
-                              </div>
-                              <div>
-                                <Label className="text-xs text-muted-foreground">Response Strategy</Label>
-                                <p className="text-sm mt-1">{e.response_strategy}</p>
-                              </div>
-                              {e.suggested_phrases && e.suggested_phrases.length > 0 && (
-                                <div>
-                                  <Label className="text-xs text-muted-foreground">Suggested Phrases</Label>
-                                  <div className="flex flex-wrap gap-2 mt-1">
-                                    {e.suggested_phrases.map((phrase, idx) => (
-                                      <Badge key={idx} variant="secondary" className="text-xs font-normal">
-                                        "{phrase}"
-                                      </Badge>
-                                    ))}
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          </Card>
-                        ))}
-                      </div>
-                    )}
-                  </TabsContent>
-                </Tabs>
-              </CardContent>
-            </Card>
-          ) : (
-            <Card className="h-[calc(100vh-320px)] flex items-center justify-center border-dashed border-2 border-muted-foreground/20 bg-gradient-to-br from-muted/20 to-transparent">
-              <div className="text-center max-w-md px-6">
-                <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-4 rotate-3">
-                  <BookOpen className="h-8 w-8 text-primary" />
+                            </Card>
+                          ))}
+                          <Button size="sm" variant="outline" className="w-full" onClick={handleAddPricing}>
+                            <Plus className="h-3 w-3 mr-1" />
+                            Add Pricing Strategy
+                          </Button>
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  </Accordion>
                 </div>
-                <h3 className="font-semibold text-lg mb-2">No Playbook Selected</h3>
-                <p className="text-muted-foreground text-sm mb-6">
-                  Select a playbook from the sidebar to start editing, or create a new one to define your sales and support call strategies.
-                </p>
-                <Button onClick={() => setIsCreateDialogOpen(true)} className="shadow-sm">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Create New Playbook
-                </Button>
               </div>
-            </Card>
-          )}
-        </div>
+            </CardContent>
+          </Card>
+        ) : (
+          <Card className="border-dashed border-2 p-12 text-center">
+            <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mx-auto mb-4">
+              <BookOpen className="h-8 w-8 text-muted-foreground/50" />
+            </div>
+            <h3 className="text-lg font-semibold text-muted-foreground">Select a Playbook</h3>
+            <p className="text-sm text-muted-foreground mt-2">Choose a playbook from above to view and edit its configuration</p>
+          </Card>
+        )}
+      </div>
     </div>
   );
 };
