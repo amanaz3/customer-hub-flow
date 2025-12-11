@@ -16,6 +16,7 @@ import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import DecisionTreeVisualizer from '@/components/Playbook/DecisionTreeVisualizer';
+import QuickReferencePanel from '@/components/Playbook/QuickReferencePanel';
 import { 
   Plus, 
   Save, 
@@ -216,6 +217,7 @@ const PlaybookEditor = () => {
   const [callTypeFilter, setCallTypeFilter] = useState<'all' | 'outbound' | 'inbound' | 'follow_up'>('all');
   const [isPlaybookListCollapsed, setIsPlaybookListCollapsed] = useState(false);
   const [showAllPlaybooks, setShowAllPlaybooks] = useState(false);
+  const [isQuickRefOpen, setIsQuickRefOpen] = useState(false);
   const MAX_VISIBLE_PLAYBOOKS = 6;
   const [newPlaybook, setNewPlaybook] = useState({
     name: '',
@@ -541,14 +543,37 @@ const PlaybookEditor = () => {
             </div>
           </div>
           <div className="flex items-center gap-2">
+            <Sheet open={isQuickRefOpen} onOpenChange={setIsQuickRefOpen}>
+              <SheetTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  className="gap-2"
+                >
+                  <Lightbulb className="h-4 w-4" />
+                  Quick Ref
+                </Button>
+              </SheetTrigger>
+              <SheetContent side="right" className="w-[420px] sm:w-[480px]">
+                <SheetHeader>
+                  <SheetTitle className="flex items-center gap-2">
+                    <BookOpen className="h-5 w-5 text-primary" />
+                    Quick Reference
+                  </SheetTitle>
+                </SheetHeader>
+                <div className="mt-4">
+                  <QuickReferencePanel />
+                </div>
+              </SheetContent>
+            </Sheet>
             <Button 
-              variant="outline" 
+              variant="ghost" 
               size="sm" 
               className="gap-2"
               onClick={() => navigate('/sales-guide')}
             >
-              <Lightbulb className="h-4 w-4" />
-              Guide
+              <BookOpen className="h-4 w-4" />
+              Training
             </Button>
             <Badge variant="outline" className="bg-green-500/10 text-green-700 border-green-500/30">
               <span className="w-1.5 h-1.5 rounded-full bg-green-500 mr-1.5 animate-pulse" />
