@@ -630,6 +630,86 @@ export type Database = {
           },
         ]
       }
+      call_transcripts: {
+        Row: {
+          agent_id: string | null
+          ai_summary: string | null
+          call_session_id: string | null
+          call_type: string | null
+          created_at: string
+          customer_id: string | null
+          duration_seconds: number | null
+          id: string
+          outcome: string | null
+          playbook_id: string | null
+          sentiment_analysis: Json | null
+          transcript_lines: Json | null
+          transcript_text: string
+          updated_at: string
+        }
+        Insert: {
+          agent_id?: string | null
+          ai_summary?: string | null
+          call_session_id?: string | null
+          call_type?: string | null
+          created_at?: string
+          customer_id?: string | null
+          duration_seconds?: number | null
+          id?: string
+          outcome?: string | null
+          playbook_id?: string | null
+          sentiment_analysis?: Json | null
+          transcript_lines?: Json | null
+          transcript_text: string
+          updated_at?: string
+        }
+        Update: {
+          agent_id?: string | null
+          ai_summary?: string | null
+          call_session_id?: string | null
+          call_type?: string | null
+          created_at?: string
+          customer_id?: string | null
+          duration_seconds?: number | null
+          id?: string
+          outcome?: string | null
+          playbook_id?: string | null
+          sentiment_analysis?: Json | null
+          transcript_lines?: Json | null
+          transcript_text?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "call_transcripts_agent_id_fkey"
+            columns: ["agent_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_transcripts_call_session_id_fkey"
+            columns: ["call_session_id"]
+            isOneToOne: false
+            referencedRelation: "sales_call_sessions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_transcripts_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "call_transcripts_playbook_id_fkey"
+            columns: ["playbook_id"]
+            isOneToOne: false
+            referencedRelation: "sales_playbooks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       comments: {
         Row: {
           comment: string
