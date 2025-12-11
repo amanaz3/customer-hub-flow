@@ -543,11 +543,15 @@ const PlaybookEditor = () => {
                   </SheetTitle>
                 </SheetHeader>
                 <Tabs defaultValue="stages" className="w-full">
-                  <TabsList className="grid w-full grid-cols-4 mb-4">
-                    <TabsTrigger value="stages" className="text-xs">Stages</TabsTrigger>
-                    <TabsTrigger value="assessment" className="text-xs">Assess</TabsTrigger>
-                    <TabsTrigger value="objections" className="text-xs">Object</TabsTrigger>
-                    <TabsTrigger value="faqs" className="text-xs">FAQs</TabsTrigger>
+                  <TabsList className="flex flex-wrap gap-1 h-auto mb-4">
+                    <TabsTrigger value="stages" className="text-xs px-2 py-1">Stages</TabsTrigger>
+                    <TabsTrigger value="assessment" className="text-xs px-2 py-1">Assess</TabsTrigger>
+                    <TabsTrigger value="personality" className="text-xs px-2 py-1">Personality</TabsTrigger>
+                    <TabsTrigger value="objections" className="text-xs px-2 py-1">Objections</TabsTrigger>
+                    <TabsTrigger value="closing" className="text-xs px-2 py-1">Closing</TabsTrigger>
+                    <TabsTrigger value="preparation" className="text-xs px-2 py-1">Prep</TabsTrigger>
+                    <TabsTrigger value="faqs" className="text-xs px-2 py-1">FAQs</TabsTrigger>
+                    <TabsTrigger value="notes" className="text-xs px-2 py-1">Notes</TabsTrigger>
                   </TabsList>
 
                 {/* Stages Tab */}
