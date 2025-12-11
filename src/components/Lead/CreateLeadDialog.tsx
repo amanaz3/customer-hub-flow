@@ -83,21 +83,38 @@ export function CreateLeadDialog({ open, onOpenChange }: CreateLeadDialogProps) 
     }
   }, [open, user?.id]);
 
+  // Auto-score based on estimated value
+  const calculateAutoScore = (value: number | null): 'hot' | 'warm' | 'cold' => {
+    if (!value) return 'cold';
+    if (value >= 50000) return 'hot';
+    if (value >= 10000) return 'warm';
+    return 'cold';
+  };
+
+  // Update score when estimated value changes
+  const handleEstimatedValueChange = (value: string) => {
+    const numValue = value ? parseFloat(value) : null;
+    const autoScore = calculateAutoScore(numValue);
+    setFormData({ ...formData, estimated_value: value, score: autoScore });
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
+    const estimatedValue = formData.estimated_value ? parseFloat(formData.estimated_value) : null;
+    
     const leadData = {
       name: formData.name,
       email: formData.email || null,
       mobile: formData.mobile || null,
       company: formData.company || null,
       source: formData.source || null,
-      score: formData.score,
+      score: calculateAutoScore(estimatedValue), // Always recalculate on submit
       notes: formData.notes || null,
       product_interest_id: formData.product_interest_id || null,
       assigned_to: formData.assigned_to || null,
-      estimated_value: formData.estimated_value ? parseFloat(formData.estimated_value) : null,
+      estimated_value: estimatedValue,
       next_follow_up: formData.next_follow_up || null,
     };
 
@@ -253,10 +270,11 @@ export function CreateLeadDialog({ open, onOpenChange }: CreateLeadDialogProps) 
                 id="estimated_value"
                 type="number"
                 value={formData.estimated_value}
-                onChange={(e) =>
-                  setFormData({ ...formData, estimated_value: e.target.value })
-                }
+                onChange={(e) => handleEstimatedValueChange(e.target.value)}
               />
+              <p className="text-xs text-muted-foreground mt-1">
+                Auto-scores: ≥50K = Hot, ≥10K = Warm, &lt;10K = Cold
+              </p>
             </div>
 
             <div>

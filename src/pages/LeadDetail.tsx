@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import MainLayout from '@/components/Layout/MainLayout';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -200,19 +199,16 @@ export default function LeadDetail() {
 
   if (loading || !lead) {
     return (
-      <MainLayout>
-        <div className="flex items-center justify-center h-64">
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </MainLayout>
+      <div className="flex items-center justify-center h-64">
+        <p className="text-muted-foreground">Loading...</p>
+      </div>
     );
   }
 
   const isConverted = lead.status === 'converted';
 
   return (
-    <MainLayout>
-      <div className="space-y-6">
+    <div className="space-y-6 py-6">
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
@@ -552,8 +548,7 @@ export default function LeadDetail() {
               </CardContent>
             </Card>
           </div>
-        </div>
       </div>
-    </MainLayout>
+    </div>
   );
 }
