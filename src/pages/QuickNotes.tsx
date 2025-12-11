@@ -281,6 +281,113 @@ const QuickNotes = () => {
                   <li>• Starting with your company pitch (Nobody cares yet)</li>
                 </ul>
               </div>
+
+              <div className="p-4 rounded-lg bg-gradient-to-br from-amber-500/10 to-orange-500/10 border">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <Target className="h-5 w-5 text-amber-500" />
+                  The First 30 Seconds - Make or Break
+                </h3>
+                <p className="text-sm text-muted-foreground mb-4">You have 30 seconds to answer the client's unspoken question: "Why should I keep listening?"</p>
+                
+                <div className="grid md:grid-cols-2 gap-4">
+                  <div className="p-3 rounded bg-red-500/10 border-l-4 border-red-500/50">
+                    <p className="font-medium text-sm text-red-600 mb-2">❌ Bad Openings (What Most Do)</p>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>• "Hi, I'm calling from XYZ company..."</li>
+                      <li>• "Do you have a moment to talk about..."</li>
+                      <li>• "I wanted to introduce our services..."</li>
+                      <li>• "Is this a good time?" (Easy out)</li>
+                    </ul>
+                    <p className="text-xs text-red-500 mt-2 italic">Why bad: Client-focus is zero. It's all about YOU.</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-green-500/10 border-l-4 border-green-500/50">
+                    <p className="font-medium text-sm text-green-600 mb-2">✅ Great Openings (What Works)</p>
+                    <ul className="text-xs text-muted-foreground space-y-1">
+                      <li>• "I noticed [specific thing about them]..."</li>
+                      <li>• "Quick question - [relevant curiosity hook]?"</li>
+                      <li>• "[Mutual connection] mentioned you might..."</li>
+                      <li>• "I help [their type] with [their problem]..."</li>
+                    </ul>
+                    <p className="text-xs text-green-500 mt-2 italic">Why good: Shows you did homework. It's about THEM.</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <Lightbulb className="h-5 w-5 text-blue-500" />
+                  🎣 Hook Techniques - Earn The Right To Continue
+                </h3>
+                
+                <div className="grid gap-3">
+                  {[
+                    { title: "The Curiosity Hook", script: "\"I have a quick question that might save you [time/money/hassle]...\"", result: "Creates intrigue without commitment" },
+                    { title: "The Relevance Hook", script: "\"I noticed you're expanding to [area] - we just helped [similar company] with that...\"", result: "Shows you understand their world" },
+                    { title: "The Social Proof Hook", script: "\"[Known name/competitor] in your industry just completed [outcome] with us...\"", result: "Leverages fear of missing out" },
+                    { title: "The Problem Hook", script: "\"Most [their type] I talk to are struggling with [common pain]...\"", result: "Resonates if they have the problem" }
+                  ].map((item, i) => (
+                    <div key={i} className="p-3 rounded bg-background/80 border">
+                      <p className="font-medium text-sm text-blue-600">{item.title}</p>
+                      <p className="text-xs italic text-foreground mt-1">{item.script}</p>
+                      <p className="text-xs text-green-600 mt-1">🎯 {item.result}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <BookOpen className="h-5 w-5 text-purple-500" />
+                  Opening Scripts By Call Type
+                </h3>
+                
+                <div className="space-y-4">
+                  <div className="p-3 rounded bg-background/80 border-l-4 border-purple-500/50">
+                    <p className="font-medium text-sm text-purple-600 mb-2">Outbound Cold Call</p>
+                    <p className="text-xs italic text-foreground">"Hi [Name], this is [You] from AMANA. I'll be brief - I help business owners in [industry] open bank accounts in half the usual time. Is that something worth 2 minutes of your time?"</p>
+                    <p className="text-xs text-muted-foreground mt-2">💡 Key: Respect their time, give value proposition immediately</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border-l-4 border-green-500/50">
+                    <p className="font-medium text-sm text-green-600 mb-2">Inbound Inquiry</p>
+                    <p className="text-xs italic text-foreground">"Thanks for reaching out! Before I dive in, I'd love to understand what caught your attention about us - what are you hoping to achieve?"</p>
+                    <p className="text-xs text-muted-foreground mt-2">💡 Key: Warmth first, then understand their motivation</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border-l-4 border-blue-500/50">
+                    <p className="font-medium text-sm text-blue-600 mb-2">Follow-up Call</p>
+                    <p className="text-xs italic text-foreground">"Hi [Name], it's [You] from AMANA. We spoke [timeframe] ago about [topic]. I wanted to check in - has anything changed since then? Any new questions I can help with?"</p>
+                    <p className="text-xs text-muted-foreground mt-2">💡 Key: Remind context, show you remember them</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-gradient-to-br from-teal-500/10 to-cyan-500/10 border">
+                <h3 className="font-semibold mb-3 flex items-center gap-2">
+                  <Users className="h-5 w-5 text-teal-500" />
+                  Voice & Tone - How To Speak
+                </h3>
+                
+                <div className="grid md:grid-cols-2 gap-3">
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm">🎵 Pace</p>
+                    <p className="text-xs text-muted-foreground mt-1">Match their speed. Slow = authority. Fast = excitement.</p>
+                  </div>
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm">📊 Tone</p>
+                    <p className="text-xs text-muted-foreground mt-1">Confident but not pushy. Curious not interrogating.</p>
+                  </div>
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm">⏸️ Pauses</p>
+                    <p className="text-xs text-muted-foreground mt-1">After key points. Let them think. Don't fill silence.</p>
+                  </div>
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm">😊 Energy</p>
+                    <p className="text-xs text-muted-foreground mt-1">Smile while talking - they can hear it. Be warm.</p>
+                  </div>
+                </div>
+              </div>
             </TabsContent>
 
             {/* TRUST TAB */}
