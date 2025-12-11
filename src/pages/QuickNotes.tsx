@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, Brain, Target, Users, Lightbulb, AlertTriangle, BookOpen, CheckCircle2, Trophy, Heart, Shield, Zap, Handshake, DollarSign, MessageCircle } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Brain, Target, Users, Lightbulb, AlertTriangle, BookOpen, CheckCircle2, Trophy, Heart, Shield, Zap, Handshake, DollarSign } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -579,64 +579,6 @@ const QuickNotes = () => {
                   <li>• <strong>Asks technical questions:</strong> Answer briefly, then return to discovery</li>
                   <li>• <strong>Says they're in a hurry:</strong> "I respect your time. What's the ONE thing you need to know?"</li>
                 </ul>
-              </div>
-
-              <div className="p-4 rounded-lg bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border">
-                <h4 className="font-semibold mb-3 flex items-center gap-2">
-                  <Target className="h-4 w-4 text-blue-500" />
-                  BANT Framework
-                </h4>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-                  <div className="p-3 rounded bg-background/80 border text-center">
-                    <div className="w-10 h-10 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-2">
-                      <span className="text-lg font-bold text-blue-600">B</span>
-                    </div>
-                    <p className="font-medium text-sm">Budget</p>
-                    <p className="text-xs text-muted-foreground">Can they afford it?</p>
-                  </div>
-                  <div className="p-3 rounded bg-background/80 border text-center">
-                    <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center mx-auto mb-2">
-                      <span className="text-lg font-bold text-indigo-600">A</span>
-                    </div>
-                    <p className="font-medium text-sm">Authority</p>
-                    <p className="text-xs text-muted-foreground">Can they decide?</p>
-                  </div>
-                  <div className="p-3 rounded bg-background/80 border text-center">
-                    <div className="w-10 h-10 rounded-full bg-purple-500/20 flex items-center justify-center mx-auto mb-2">
-                      <span className="text-lg font-bold text-purple-600">N</span>
-                    </div>
-                    <p className="font-medium text-sm">Need</p>
-                    <p className="text-xs text-muted-foreground">Do they need it?</p>
-                  </div>
-                  <div className="p-3 rounded bg-background/80 border text-center">
-                    <div className="w-10 h-10 rounded-full bg-pink-500/20 flex items-center justify-center mx-auto mb-2">
-                      <span className="text-lg font-bold text-pink-600">T</span>
-                    </div>
-                    <p className="font-medium text-sm">Timeline</p>
-                    <p className="text-xs text-muted-foreground">When do they need it?</p>
-                  </div>
-                </div>
-              </div>
-
-              <div className="p-4 rounded-lg bg-gradient-to-br from-green-500/10 to-emerald-500/10 border">
-                <h4 className="font-semibold mb-3 flex items-center gap-2">
-                  <MessageCircle className="h-4 w-4 text-green-500" />
-                  Pain/Need Identification Questions
-                </h4>
-                <div className="space-y-2">
-                  <div className="p-3 rounded bg-background/80 border">
-                    <p className="text-sm italic text-foreground">"What's your biggest challenge with [area] right now?"</p>
-                  </div>
-                  <div className="p-3 rounded bg-background/80 border">
-                    <p className="text-sm italic text-foreground">"What happens if this problem isn't solved in the next 3 months?"</p>
-                  </div>
-                  <div className="p-3 rounded bg-background/80 border">
-                    <p className="text-sm italic text-foreground">"What have you tried before? What worked/didn't work?"</p>
-                  </div>
-                  <div className="p-3 rounded bg-background/80 border">
-                    <p className="text-sm italic text-foreground">"If you could wave a magic wand, what would the ideal outcome look like?"</p>
-                  </div>
-                </div>
               </div>
             </TabsContent>
 
