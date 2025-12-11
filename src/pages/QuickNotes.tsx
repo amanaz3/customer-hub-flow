@@ -1003,9 +1003,76 @@ const QuickNotes = () => {
                   <li>• Discussing implementation</li>
                 </ul>
               </div>
-            </TabsContent>
 
-            {/* RELUCTANCE TAB */}
+              <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Trophy className="h-5 w-5 text-purple-500" />
+                  Closing Techniques (Detailed)
+                </h3>
+                
+                <div className="grid md:grid-cols-2 gap-3">
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-semibold text-purple-600 mb-1">Assumptive Close</p>
+                    <p className="text-sm text-muted-foreground italic mb-2">"When would you like to get started?"</p>
+                    <p className="text-xs text-green-600"><strong>Best for:</strong> Warm leads showing buying signals</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-semibold text-purple-600 mb-1">Alternative Close</p>
+                    <p className="text-sm text-muted-foreground italic mb-2">"Would you prefer Package A or B?"</p>
+                    <p className="text-xs text-green-600"><strong>Best for:</strong> Indecisive customers</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-semibold text-purple-600 mb-1">Summary Close</p>
+                    <p className="text-sm text-muted-foreground italic mb-2">"So we've agreed on X, Y, Z. Shall we proceed?"</p>
+                    <p className="text-xs text-green-600"><strong>Best for:</strong> Complex sales, multiple features</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-semibold text-purple-600 mb-1">Urgency Close</p>
+                    <p className="text-sm text-muted-foreground italic mb-2">"This offer is valid until Friday..."</p>
+                    <p className="text-xs text-green-600"><strong>Best for:</strong> Hot leads, time-sensitive offers</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-semibold text-purple-600 mb-1">Trial Close</p>
+                    <p className="text-sm text-muted-foreground italic mb-2">"How does this sound so far?"</p>
+                    <p className="text-xs text-green-600"><strong>Best for:</strong> Testing readiness, mid-pitch</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-semibold text-purple-600 mb-1">Direct Ask</p>
+                    <p className="text-sm text-muted-foreground italic mb-2">"Are you ready to move forward?"</p>
+                    <p className="text-xs text-green-600"><strong>Best for:</strong> Direct personalities, clear signals</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
+                <h4 className="font-semibold mb-3 text-green-600 flex items-center gap-2">
+                  <CheckCircle2 className="h-4 w-4" />
+                  Buying Signals to Watch For
+                </h4>
+                <div className="grid md:grid-cols-2 gap-2">
+                  {[
+                    "Asks about pricing details",
+                    "Discusses implementation timeline",
+                    'Asks "What happens next?"',
+                    "Mentions other decision-makers approvingly",
+                    "Compares options seriously",
+                    "Asks about payment terms",
+                    "Requests references",
+                    "Nodding, leaning in, taking notes"
+                  ].map((signal, i) => (
+                    <div key={i} className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <CheckCircle2 className="h-3 w-3 text-green-500 shrink-0" />
+                      {signal}
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
             <TabsContent value="reluctance" className="space-y-4">
               <div className="p-4 rounded-lg bg-background/50 border">
                 <h3 className="font-semibold mb-3 flex items-center gap-2">
