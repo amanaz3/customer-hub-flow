@@ -122,6 +122,7 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
   const [activeTab, setActiveTab] = useState('call');
   const [selectedCallType, setSelectedCallType] = useState<CallTypeKey>('outbound_sales');
   const [currentStageIndex, setCurrentStageIndex] = useState(0);
+  const [stageJumpAlert, setStageJumpAlert] = useState<{ skipped: string[]; direction: 'forward' | 'backward' } | null>(null);
   
   // Map to legacy call type for useSalesAssistant
   const callType = selectedCallType.includes('outbound') 
@@ -362,6 +363,21 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
                 <React.Fragment key={`${stage}-${idx}`}>
                   <button
                     onClick={() => {
+                      const diff = idx - currentStageIndex;
+                      // Detect stage jumping (skipping stages)
+                      if (Math.abs(diff) > 1) {
+                        const skippedStages = diff > 0
+                          ? currentStages.slice(currentStageIndex + 1, idx)
+                          : currentStages.slice(idx + 1, currentStageIndex);
+                        setStageJumpAlert({
+                          skipped: skippedStages,
+                          direction: diff > 0 ? 'forward' : 'backward'
+                        });
+                        // Auto-dismiss after 4 seconds
+                        setTimeout(() => setStageJumpAlert(null), 4000);
+                      } else {
+                        setStageJumpAlert(null);
+                      }
                       setCurrentStageIndex(idx);
                       // Update activeStageId if using playbook stages
                       if (hasPlaybookStages && playbookStages[idx]) {
@@ -405,6 +421,18 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
             })}
           </div>
         </div>
+
+        {/* Stage Jump Alert */}
+        {stageJumpAlert && (
+          <div className="mt-2 p-2 rounded-md bg-amber-500/15 border border-amber-500/30 animate-pulse">
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-3.5 w-3.5 text-amber-500 flex-shrink-0" />
+              <p className="text-[10px] text-amber-600 dark:text-amber-400 font-medium">
+                Stage jumped! Skipped: {stageJumpAlert.skipped.join(' → ')}
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Main Tabs */}
