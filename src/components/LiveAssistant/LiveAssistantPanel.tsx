@@ -24,7 +24,8 @@ import {
   Headphones,
   UserCheck,
   ChevronRight,
-  Check
+  Check,
+  Target
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useSalesAssistant } from '@/hooks/useSalesAssistant';
@@ -303,18 +304,46 @@ const LiveAssistantPanel: React.FC<LiveAssistantPanelProps> = ({
         </div>
       </div>
 
+      {/* Current Call Status - Agent Quick Reference */}
+      <div className="px-3 py-2 border-b border-border bg-gradient-to-r from-primary/10 to-accent/10">
+        <div className="grid grid-cols-3 gap-2 text-[10px]">
+          {/* Playbook */}
+          <div className="flex flex-col gap-0.5">
+            <span className="text-muted-foreground flex items-center gap-1">
+              <BookOpen className="h-2.5 w-2.5" />
+              Playbook
+            </span>
+            <span className="font-semibold text-foreground truncate">
+              {activePlaybookName || 'Not selected'}
+            </span>
+          </div>
+          
+          {/* Current Stage */}
+          <div className="flex flex-col gap-0.5">
+            <span className="text-muted-foreground flex items-center gap-1">
+              <Target className="h-2.5 w-2.5" />
+              Stage
+            </span>
+            <span className="font-semibold text-primary truncate">
+              {currentStages[currentStageIndex] || 'N/A'}
+            </span>
+          </div>
+          
+          {/* Call Type */}
+          <div className="flex flex-col gap-0.5">
+            <span className="text-muted-foreground flex items-center gap-1">
+              <Phone className="h-2.5 w-2.5" />
+              Call Type
+            </span>
+            <span className="font-semibold text-foreground truncate">
+              {CALL_TYPES.find(t => t.key === selectedCallType)?.label.split(' ')[0] || 'N/A'}
+            </span>
+          </div>
+        </div>
+      </div>
+
       {/* Call Type & Stage Progress */}
       <div className="px-3 py-2 border-b border-border/50 bg-muted/20 space-y-2">
-        {/* Active Playbook Indicator */}
-        {activePlaybookName && (
-          <div className="flex items-center gap-1.5 text-[10px]">
-            <BookOpen className="h-3 w-3 text-primary" />
-            <span className="text-muted-foreground">Playbook:</span>
-            <Badge variant="secondary" className="h-4 px-1.5 text-[9px] font-medium">
-              {activePlaybookName}
-            </Badge>
-          </div>
-        )}
         
         {/* Call Type Selection */}
         <div className="flex gap-1">
