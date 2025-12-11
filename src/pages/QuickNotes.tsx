@@ -904,9 +904,74 @@ const QuickNotes = () => {
                   ))}
                 </div>
               </div>
-            </TabsContent>
 
-            {/* CLOSING TAB */}
+              <div className="p-4 rounded-lg bg-gradient-to-br from-amber-500/10 to-orange-500/10 border">
+                <h3 className="font-semibold mb-4 flex items-center gap-2">
+                  <Shield className="h-5 w-5 text-amber-500" />
+                  LAER Objection Handling Framework
+                </h3>
+                
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+                  <div className="p-3 rounded bg-background/80 border text-center">
+                    <div className="w-10 h-10 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-lg mx-auto mb-2">L</div>
+                    <p className="font-semibold text-blue-600 mb-1">Listen</p>
+                    <p className="text-xs text-muted-foreground">Hear them out fully</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border text-center">
+                    <div className="w-10 h-10 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-lg mx-auto mb-2">A</div>
+                    <p className="font-semibold text-green-600 mb-1">Acknowledge</p>
+                    <p className="text-xs text-muted-foreground">"I understand..."</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border text-center">
+                    <div className="w-10 h-10 rounded-full bg-purple-500 text-white flex items-center justify-center font-bold text-lg mx-auto mb-2">E</div>
+                    <p className="font-semibold text-purple-600 mb-1">Explore</p>
+                    <p className="text-xs text-muted-foreground">Ask clarifying questions</p>
+                  </div>
+                  
+                  <div className="p-3 rounded bg-background/80 border text-center">
+                    <div className="w-10 h-10 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-lg mx-auto mb-2">R</div>
+                    <p className="font-semibold text-amber-600 mb-1">Respond</p>
+                    <p className="text-xs text-muted-foreground">Address the concern</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-red-500/10 border border-red-500/20">
+                <h4 className="font-semibold mb-3 text-red-600 flex items-center gap-2">
+                  <DollarSign className="h-4 w-4" />
+                  Price Objections
+                </h4>
+                <div className="space-y-3">
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-red-600 mb-2">"It's too expensive"</p>
+                    <p className="text-sm text-muted-foreground italic">"I understand budget is important. Can you help me understand what you're comparing this to? Let's look at the value you're getting..."</p>
+                  </div>
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-red-600 mb-2">"I need to think about it"</p>
+                    <p className="text-sm text-muted-foreground italic">"Of course! What specific aspects would you like to consider? I want to make sure you have all the information you need."</p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                <h4 className="font-semibold mb-3 text-blue-600 flex items-center gap-2">
+                  <Shield className="h-4 w-4" />
+                  Trust Objections
+                </h4>
+                <div className="space-y-3">
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-blue-600 mb-2">"I need to check with others"</p>
+                    <p className="text-sm text-muted-foreground italic">"Absolutely! Who else should be involved? Would it help if I joined a call with your team to answer questions directly?"</p>
+                  </div>
+                  <div className="p-3 rounded bg-background/80 border">
+                    <p className="font-medium text-sm text-blue-600 mb-2">"We're happy with current provider"</p>
+                    <p className="text-sm text-muted-foreground italic">"That's great you have something working! Out of curiosity, what made you take this call today?"</p>
+                  </div>
+                </div>
+              </div>
+            </TabsContent>
             <TabsContent value="closing" className="space-y-4">
               <div className="p-4 rounded-lg bg-background/50 border">
                 <h4 className="font-semibold mb-3 flex items-center gap-2">
