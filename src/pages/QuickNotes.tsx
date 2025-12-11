@@ -1445,6 +1445,78 @@ const QuickNotes = () => {
                   Focus on understanding their needs, building trust, and guiding them to the right solution.
                 </p>
               </div>
+
+              <div className="p-4 rounded-lg bg-gradient-to-br from-purple-500/10 to-pink-500/10 border">
+                <h4 className="font-semibold mb-4 flex items-center gap-2">
+                  <Target className="h-4 w-4 text-purple-500" />
+                  Playbook Editor Tabs - Natural Call Flow
+                </h4>
+                
+                <div className="space-y-3">
+                  <div className="flex items-start gap-3 p-3 rounded bg-background/80 border-l-4 border-blue-500">
+                    <div className="w-7 h-7 rounded-full bg-blue-500 text-white flex items-center justify-center font-bold text-sm shrink-0">1</div>
+                    <div>
+                      <p className="font-semibold text-blue-600 text-sm">Stages</p>
+                      <p className="text-xs text-muted-foreground">Define the overall call structure first (Opening → Discovery → Pitch → Negotiation → Closing)</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 p-3 rounded bg-background/80 border-l-4 border-green-500">
+                    <div className="w-7 h-7 rounded-full bg-green-500 text-white flex items-center justify-center font-bold text-sm shrink-0">2</div>
+                    <div>
+                      <p className="font-semibold text-green-600 text-sm">Questions</p>
+                      <p className="text-xs text-muted-foreground">Discovery questions used early in the call to understand customer needs</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 p-3 rounded bg-background/80 border-l-4 border-amber-500">
+                    <div className="w-7 h-7 rounded-full bg-amber-500 text-white flex items-center justify-center font-bold text-sm shrink-0">3</div>
+                    <div>
+                      <p className="font-semibold text-amber-600 text-sm">Pricing</p>
+                      <p className="text-xs text-muted-foreground">Negotiation strategies discussed during the pricing/negotiation phase</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 p-3 rounded bg-background/80 border-l-4 border-red-500">
+                    <div className="w-7 h-7 rounded-full bg-red-500 text-white flex items-center justify-center font-bold text-sm shrink-0">4</div>
+                    <div>
+                      <p className="font-semibold text-red-600 text-sm">Objections</p>
+                      <p className="text-xs text-muted-foreground">Objections typically arise during pricing/negotiation - not after closing</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-start gap-3 p-3 rounded bg-background/80 border-l-4 border-purple-500">
+                    <div className="w-7 h-7 rounded-full bg-purple-500 text-white flex items-center justify-center font-bold text-sm shrink-0">5</div>
+                    <div>
+                      <p className="font-semibold text-purple-600 text-sm">Emotions</p>
+                      <p className="text-xs text-muted-foreground">Emotional responses can occur throughout the entire call and need handling</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-lg bg-background/50 border">
+                <h4 className="font-semibold mb-3 flex items-center gap-2">
+                  <Lightbulb className="h-4 w-4 text-amber-500" />
+                  Why This Order Matters
+                </h4>
+                <ul className="space-y-2 text-sm text-muted-foreground">
+                  <li>• <strong className="text-foreground">Questions before Objections:</strong> You ask discovery questions early in the call, objections come later during negotiation</li>
+                  <li>• <strong className="text-foreground">Pricing before Objections:</strong> Pricing discussion triggers most objections - "too expensive", "need to think about it"</li>
+                  <li>• <strong className="text-foreground">Objections after Pricing:</strong> Objections don't arise after closing - if you're at closing, objections have been handled</li>
+                  <li>• <strong className="text-foreground">Emotions throughout:</strong> Emotional responses (frustration, excitement, hesitation) can occur at any stage</li>
+                </ul>
+              </div>
+
+              <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <h4 className="font-semibold mb-2 text-amber-600 flex items-center gap-2">
+                  <Zap className="h-4 w-4" />
+                  Key Insight
+                </h4>
+                <p className="text-sm text-muted-foreground">
+                  <strong>Objections don't come after closing.</strong> If a customer has objections after you've reached the closing stage, it means you didn't fully address their concerns during negotiation. The goal is to handle all objections BEFORE asking for commitment, not after.
+                </p>
+              </div>
             </TabsContent>
           </ScrollArea>
         </Tabs>
