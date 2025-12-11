@@ -1334,66 +1334,52 @@ const PlaybookEditor = () => {
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {Object.entries(groupedPlaybooks).sort(([a], [b]) => a === 'General' ? 1 : b === 'General' ? -1 : a.localeCompare(b)).map(([productName, pbs]) => (
-                <div key={productName}>
-                  <div className="flex items-center gap-2 mb-2">
-                    <Package className="h-3.5 w-3.5 text-muted-foreground" />
-                    <span className="text-xs font-medium text-muted-foreground">{productName}</span>
-                    <Badge variant="secondary" className="text-[10px] px-1.5 py-0">{pbs.length}</Badge>
-                  </div>
-                  <ScrollArea className="w-full">
-                    <div className="flex gap-3 pb-2">
-                      {pbs.map(playbook => {
-                        const isSelected = selectedPlaybook?.id === playbook.id;
-                        const callTypeIcon = playbook.call_type === 'outbound' ? (
-                          <MessageSquare className="h-3.5 w-3.5" />
-                        ) : playbook.call_type === 'inbound' ? (
-                          <Heart className="h-3.5 w-3.5" />
-                        ) : (
-                          <Play className="h-3.5 w-3.5" />
-                        );
-                        const callTypeColor = playbook.call_type === 'outbound' 
-                          ? 'bg-blue-500/10 text-blue-700 border-blue-500/30'
-                          : playbook.call_type === 'inbound'
-                          ? 'bg-purple-500/10 text-purple-700 border-purple-500/30'
-                          : 'bg-amber-500/10 text-amber-700 border-amber-500/30';
-                        
-                        return (
-                          <div
-                            key={playbook.id}
-                            className={`group flex-shrink-0 w-56 p-3 rounded-lg cursor-pointer transition-all duration-200 border ${
-                              isSelected 
-                                ? 'bg-primary/10 border-primary/30 shadow-sm ring-1 ring-primary/20' 
-                                : 'border-border/50 hover:bg-muted/50 hover:border-border'
-                            }`}
-                            onClick={() => handleSelectPlaybook(playbook)}
-                          >
-                            <div className="flex items-start gap-3">
-                              <div className={`p-1.5 rounded-md ${isSelected ? 'bg-primary/20' : 'bg-muted/50 group-hover:bg-muted'} transition-colors`}>
-                                {callTypeIcon}
-                              </div>
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium text-sm truncate">{playbook.name}</div>
-                                <div className="flex items-center gap-1.5 mt-1.5">
-                                  <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${callTypeColor}`}>
-                                    {playbook.call_type === 'outbound' ? 'Outbound' : playbook.call_type === 'inbound' ? 'Inbound' : 'Follow-up'}
-                                  </Badge>
-                                  {playbook.is_active && (
-                                    <Badge className="text-[10px] px-1.5 py-0 bg-green-500/20 text-green-700 border-green-500/30">
-                                      Active
-                                    </Badge>
-                                  )}
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3">
+              {Object.entries(groupedPlaybooks).sort(([a], [b]) => a === 'General' ? 1 : b === 'General' ? -1 : a.localeCompare(b)).flatMap(([productName, pbs]) => 
+                pbs.map(playbook => {
+                  const isSelected = selectedPlaybook?.id === playbook.id;
+                  const callTypeIcon = playbook.call_type === 'outbound' ? (
+                    <MessageSquare className="h-3.5 w-3.5" />
+                  ) : playbook.call_type === 'inbound' ? (
+                    <Heart className="h-3.5 w-3.5" />
+                  ) : (
+                    <Play className="h-3.5 w-3.5" />
+                  );
+                  const callTypeColor = playbook.call_type === 'outbound' 
+                    ? 'bg-blue-500/10 text-blue-700 border-blue-500/30'
+                    : playbook.call_type === 'inbound'
+                    ? 'bg-purple-500/10 text-purple-700 border-purple-500/30'
+                    : 'bg-amber-500/10 text-amber-700 border-amber-500/30';
+                  
+                  return (
+                    <div
+                      key={playbook.id}
+                      className={`group p-3 rounded-lg cursor-pointer transition-all duration-200 border ${
+                        isSelected 
+                          ? 'bg-primary/10 border-primary/30 shadow-sm ring-1 ring-primary/20' 
+                          : 'border-border/50 hover:bg-muted/50 hover:border-border'
+                      }`}
+                      onClick={() => handleSelectPlaybook(playbook)}
+                    >
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className={`p-1.5 rounded-md ${isSelected ? 'bg-primary/20' : 'bg-muted/50 group-hover:bg-muted'} transition-colors`}>
+                          {callTypeIcon}
+                        </div>
+                        <Badge variant="outline" className={`text-[10px] px-1.5 py-0 ${callTypeColor}`}>
+                          {playbook.call_type === 'outbound' ? 'Out' : playbook.call_type === 'inbound' ? 'In' : 'F/U'}
+                        </Badge>
+                        {playbook.is_active && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-green-500" />
+                        )}
+                      </div>
+                      <div className="font-medium text-sm truncate">{playbook.name}</div>
+                      <div className="text-[10px] text-muted-foreground truncate mt-0.5">
+                        {productName}
+                      </div>
                     </div>
-                  </ScrollArea>
-                </div>
-              ))}
+                  );
+                })
+              )}
             </div>
           )}
         </CardContent>
