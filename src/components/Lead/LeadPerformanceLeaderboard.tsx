@@ -251,19 +251,22 @@ export const LeadPerformanceLeaderboard = () => {
           ))}
         </div>
 
-        {successStories.length > 0 && (
-          <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/50 flex-wrap">
-            <div className="flex items-center gap-1 text-xs text-muted-foreground">
-              <Star className="h-3 w-3 text-green-500" />
-              <span>Wins:</span>
-            </div>
-            {successStories.slice(0, 3).map((story, index) => (
+        <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/50 flex-wrap">
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <Star className="h-3 w-3 text-green-500" />
+            <span>Recent Conversions:</span>
+          </div>
+          {successStories.length > 0 ? (
+            successStories.slice(0, 3).map((story, index) => (
               <Badge key={index} variant="secondary" className="bg-green-500/10 text-green-600 text-[10px]">
                 {story.leadName.split(' ')[0]} → {story.agentName.split(' ')[0]}
+                {story.estimatedValue && ` (${(story.estimatedValue / 1000).toFixed(0)}K)`}
               </Badge>
-            ))}
-          </div>
-        )}
+            ))
+          ) : (
+            <span className="text-xs text-muted-foreground italic">No conversions this week</span>
+          )}
+        </div>
 
         {performances.length === 0 && (
           <p className="text-xs text-muted-foreground text-center py-4">No leads this week</p>
