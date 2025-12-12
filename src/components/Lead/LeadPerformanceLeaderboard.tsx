@@ -179,91 +179,133 @@ export const LeadPerformanceLeaderboard = () => {
   }
 
   return (
-    <Card className="border-border/50 bg-gradient-to-r from-yellow-500/5 via-background to-green-500/5">
-      <CardContent className="p-4">
-        <div className="flex items-center justify-between gap-4 flex-wrap">
-          {/* Header */}
+    <Card className="border-border/50">
+      <CardHeader className="pb-3">
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="p-2 rounded-lg bg-yellow-500/10">
               <Trophy className="h-5 w-5 text-yellow-500" />
             </div>
             <div>
-              <h3 className="font-semibold text-sm">Weekly Leaderboard</h3>
-              <p className="text-[10px] text-muted-foreground">
-                {format(weekRange.start, 'MMM d')} - {format(weekRange.end, 'MMM d')}
+              <CardTitle className="text-base">Weekly Leaderboard</CardTitle>
+              <p className="text-xs text-muted-foreground">
+                {format(weekRange.start, 'MMM d')} - {format(weekRange.end, 'MMM d')} • Leads Acquired
               </p>
             </div>
           </div>
-
-          {/* Top Performers - Horizontal (ranked by leads acquired) */}
-          <div className="flex items-center gap-3 flex-1 justify-center">
-            {performances.slice(0, 5).map((user, index) => (
-              <div 
-                key={user.id}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
-                  index === 0 ? 'bg-yellow-500/10 border border-yellow-500/20' : 
-                  index === 1 ? 'bg-muted/50' : 
-                  index === 2 ? 'bg-amber-500/5' : 'bg-muted/30'
-                }`}
-              >
-                {getRankIcon(index)}
-                <Avatar className="h-7 w-7">
-                  <AvatarFallback className={`text-[10px] ${
-                    index === 0 ? 'bg-yellow-500/20 text-yellow-700' : 'bg-primary/10 text-primary'
+          <div className="flex items-center gap-2">
+            <FlaskConical className="h-4 w-4 text-amber-500" />
+            <span className="text-xs text-muted-foreground">Demo</span>
+            <Switch
+              checked={showDummy}
+              onCheckedChange={toggleDummy}
+            />
+          </div>
+        </div>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Top Performers Grid */}
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
+          {performances.slice(0, 5).map((user, index) => (
+            <div 
+              key={user.id}
+              className={`relative p-4 rounded-xl transition-all ${
+                index === 0 ? 'bg-gradient-to-br from-yellow-500/15 to-yellow-500/5 border border-yellow-500/30 shadow-sm' : 
+                index === 1 ? 'bg-gradient-to-br from-muted/80 to-muted/40 border border-border/50' : 
+                index === 2 ? 'bg-gradient-to-br from-amber-500/10 to-amber-500/5 border border-amber-500/20' : 
+                'bg-muted/30 border border-border/30'
+              }`}
+            >
+              {/* Rank Badge */}
+              <div className={`absolute -top-2 -left-2 w-7 h-7 rounded-full flex items-center justify-center shadow-md ${
+                index === 0 ? 'bg-yellow-500 text-yellow-950' :
+                index === 1 ? 'bg-gray-400 text-white' :
+                index === 2 ? 'bg-amber-600 text-white' :
+                'bg-muted-foreground/20 text-muted-foreground'
+              }`}>
+                {index === 0 ? <Trophy className="h-4 w-4" /> :
+                 index === 1 ? <Medal className="h-4 w-4" /> :
+                 index === 2 ? <Award className="h-4 w-4" /> :
+                 <span className="text-xs font-bold">{index + 1}</span>}
+              </div>
+              
+              <div className="flex flex-col items-center text-center pt-2">
+                <Avatar className={`h-12 w-12 mb-2 ${index === 0 ? 'ring-2 ring-yellow-500/50' : ''}`}>
+                  <AvatarFallback className={`text-sm font-semibold ${
+                    index === 0 ? 'bg-yellow-500/20 text-yellow-700' : 
+                    index === 1 ? 'bg-gray-200 text-gray-700' :
+                    index === 2 ? 'bg-amber-100 text-amber-700' :
+                    'bg-primary/10 text-primary'
                   }`}>
                     {getInitials(user.name)}
                   </AvatarFallback>
                 </Avatar>
-                <div className="hidden sm:block">
-                  <p className="font-medium text-xs truncate max-w-[80px]">{user.name.split(' ')[0]}</p>
-                  <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                    <span className="text-red-500 font-medium">{user.hotLeads}</span>
-                    <span>/</span>
-                    <span className="text-yellow-500 font-medium">{user.warmLeads}</span>
-                    <span>/</span>
-                    <span className="text-blue-500 font-medium">{user.coldLeads}</span>
+                
+                <p className="font-semibold text-sm truncate w-full">{user.name}</p>
+                
+                <div className="flex items-center gap-2 mt-2">
+                  <Badge 
+                    variant="secondary" 
+                    className={`text-sm px-3 py-1 font-bold ${
+                      index === 0 ? 'bg-yellow-500/20 text-yellow-700' : 'bg-primary/10 text-primary'
+                    }`}
+                  >
+                    {user.leadsAcquired} leads
+                  </Badge>
+                </div>
+                
+                {/* Score Breakdown */}
+                <div className="flex items-center gap-3 mt-3 text-xs">
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-red-500" />
+                    <span className="font-medium">{user.hotLeads}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-yellow-500" />
+                    <span className="font-medium">{user.warmLeads}</span>
+                  </div>
+                  <div className="flex items-center gap-1">
+                    <div className="w-2 h-2 rounded-full bg-blue-500" />
+                    <span className="font-medium">{user.coldLeads}</span>
                   </div>
                 </div>
-                <Badge 
-                  variant="secondary" 
-                  className="text-[10px] px-1.5 py-0 h-5 bg-primary/10 text-primary font-bold"
-                >
-                  {user.leadsAcquired} leads
-                </Badge>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
+        </div>
 
-          {/* Recent Wins */}
-          {successStories.length > 0 && (
-            <div className="flex items-center gap-2">
-              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                <Star className="h-4 w-4 text-green-500" />
-                <span className="font-medium">Recent Wins:</span>
-              </div>
-              {successStories.slice(0, 2).map((story, index) => (
+        {/* Recent Wins */}
+        {successStories.length > 0 && (
+          <div className="pt-3 border-t border-border/50">
+            <div className="flex items-center gap-2 mb-2">
+              <Star className="h-4 w-4 text-green-500" />
+              <span className="text-sm font-medium">Recent Conversions</span>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              {successStories.map((story, index) => (
                 <Badge 
                   key={index}
                   variant="secondary" 
-                  className="bg-green-500/10 text-green-600 text-[10px]"
+                  className="bg-green-500/10 text-green-600 text-xs px-3 py-1"
                 >
-                  {story.leadName.split(' ')[0]} • {story.agentName.split(' ')[0]}
+                  {story.leadName} → {story.agentName}
+                  {story.estimatedValue && (
+                    <span className="ml-1 opacity-70">
+                      • {(story.estimatedValue / 1000).toFixed(0)}K
+                    </span>
+                  )}
                 </Badge>
               ))}
             </div>
-          )}
-
-          {/* Demo Toggle */}
-          <div className="flex items-center gap-1.5">
-            <FlaskConical className="h-3 w-3 text-amber-500" />
-            <span className="text-[10px] text-muted-foreground">Demo</span>
-            <Switch
-              checked={showDummy}
-              onCheckedChange={toggleDummy}
-              className="scale-75"
-            />
           </div>
-        </div>
+        )}
+
+        {performances.length === 0 && (
+          <div className="text-center py-8 text-muted-foreground">
+            <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+            <p className="text-sm">No leads acquired this week yet</p>
+          </div>
+        )}
       </CardContent>
     </Card>
   );
