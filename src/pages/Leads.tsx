@@ -41,6 +41,7 @@ import { DailyLeadCheckBanner } from '@/components/Lead/DailyLeadCheckBanner';
 import { LeadReminderScheduleDialog } from '@/components/Lead/LeadReminderScheduleDialog';
 import { LeadSettingsDialog } from '@/components/Lead/LeadSettingsDialog';
 import { FollowupSequenceConfig } from '@/components/Lead/FollowupSequenceConfig';
+import { LeadPerformanceLeaderboard } from '@/components/Lead/LeadPerformanceLeaderboard';
 import { LEAD_SCORE_COLORS, LEAD_STATUS_COLORS, type LeadScore, type LeadStatus } from '@/types/lead';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -219,121 +220,131 @@ export default function Leads() {
           </CardContent>
         </Card>
 
-        {/* Leads Table */}
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg">
-              {filteredLeads.length} Lead{filteredLeads.length !== 1 ? 's' : ''}
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            {loading ? (
-              <div className="text-center py-8 text-muted-foreground">Loading...</div>
-            ) : filteredLeads.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No leads found. Add your first lead to get started.
-              </div>
-            ) : (
-              <div className="overflow-x-auto">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Lead</TableHead>
-                      <TableHead>Contact</TableHead>
-                      <TableHead>Score</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Product Interest</TableHead>
-                      <TableHead>Assigned To</TableHead>
-                      <TableHead>Next Follow-up</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredLeads.map((lead) => (
-                      <TableRow
-                        key={lead.id}
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => navigate(`/leads/${lead.id}`)}
-                      >
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{lead.name}</div>
-                            {lead.company && (
-                              <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                <Building2 className="h-3 w-3" />
-                                {lead.company}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            {lead.email && (
-                              <div className="text-xs flex items-center gap-1">
-                                <Mail className="h-3 w-3 text-muted-foreground" />
-                                {lead.email}
-                              </div>
-                            )}
-                            {lead.mobile && (
-                              <div className="text-xs flex items-center gap-1">
-                                <Phone className="h-3 w-3 text-muted-foreground" />
-                                {lead.mobile}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={`${LEAD_SCORE_COLORS[lead.score]} flex items-center gap-1 w-fit`}
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Leads Table - 3 columns */}
+          <div className="lg:col-span-3">
+            <Card>
+              <CardHeader className="pb-3">
+                <CardTitle className="text-lg">
+                  {filteredLeads.length} Lead{filteredLeads.length !== 1 ? 's' : ''}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {loading ? (
+                  <div className="text-center py-8 text-muted-foreground">Loading...</div>
+                ) : filteredLeads.length === 0 ? (
+                  <div className="text-center py-8 text-muted-foreground">
+                    No leads found. Add your first lead to get started.
+                  </div>
+                ) : (
+                  <div className="overflow-x-auto">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Lead</TableHead>
+                          <TableHead>Contact</TableHead>
+                          <TableHead>Score</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Product Interest</TableHead>
+                          <TableHead>Assigned To</TableHead>
+                          <TableHead>Next Follow-up</TableHead>
+                          <TableHead>Created</TableHead>
+                          <TableHead></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {filteredLeads.map((lead) => (
+                          <TableRow
+                            key={lead.id}
+                            className="cursor-pointer hover:bg-muted/50"
+                            onClick={() => navigate(`/leads/${lead.id}`)}
                           >
-                            {scoreIcons[lead.score]}
-                            <span className="capitalize">{lead.score}</span>
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={`${LEAD_STATUS_COLORS[lead.status]} capitalize`}
-                          >
-                            {lead.status.replace('_', ' ')}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {lead.product_interest?.name || (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {lead.assigned_user?.name || (
-                            <span className="text-muted-foreground">Unassigned</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          {lead.next_follow_up ? (
-                            <div className="flex items-center gap-1 text-xs">
-                              <Calendar className="h-3 w-3" />
-                              {format(new Date(lead.next_follow_up), 'MMM d, yyyy')}
-                            </div>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
-                        </TableCell>
-                        <TableCell>
-                          <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
+                            <TableCell>
+                              <div>
+                                <div className="font-medium">{lead.name}</div>
+                                {lead.company && (
+                                  <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                    <Building2 className="h-3 w-3" />
+                                    {lead.company}
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <div className="space-y-1">
+                                {lead.email && (
+                                  <div className="text-xs flex items-center gap-1">
+                                    <Mail className="h-3 w-3 text-muted-foreground" />
+                                    {lead.email}
+                                  </div>
+                                )}
+                                {lead.mobile && (
+                                  <div className="text-xs flex items-center gap-1">
+                                    <Phone className="h-3 w-3 text-muted-foreground" />
+                                    {lead.mobile}
+                                  </div>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant="outline"
+                                className={`${LEAD_SCORE_COLORS[lead.score]} flex items-center gap-1 w-fit`}
+                              >
+                                {scoreIcons[lead.score]}
+                                <span className="capitalize">{lead.score}</span>
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant="outline"
+                                className={`${LEAD_STATUS_COLORS[lead.status]} capitalize`}
+                              >
+                                {lead.status.replace('_', ' ')}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>
+                              {lead.product_interest?.name || (
+                                <span className="text-muted-foreground">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {lead.assigned_user?.name || (
+                                <span className="text-muted-foreground">Unassigned</span>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              {lead.next_follow_up ? (
+                                <div className="flex items-center gap-1 text-xs">
+                                  <Calendar className="h-3 w-3" />
+                                  {format(new Date(lead.next_follow_up), 'MMM d, yyyy')}
+                                </div>
+                              ) : (
+                                <span className="text-muted-foreground">-</span>
+                              )}
+                            </TableCell>
+                            <TableCell className="text-xs text-muted-foreground">
+                              {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
+                            </TableCell>
+                            <TableCell>
+                              <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Leaderboard Sidebar - 1 column */}
+          <div className="lg:col-span-1">
+            <LeadPerformanceLeaderboard />
+          </div>
+        </div>
       </div>
 
       <CreateLeadDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} />
