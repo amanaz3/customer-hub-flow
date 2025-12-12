@@ -222,12 +222,22 @@ export const LeadPerformanceLeaderboard = () => {
                 </AvatarFallback>
               </Avatar>
               <span className="text-xs font-medium">{user.name.split(' ')[0]}</span>
-              <div className="flex items-center gap-1 text-[10px]">
-                <span className="text-red-500 font-semibold">{user.hotLeads}</span>
-                <span className="text-muted-foreground">/</span>
-                <span className="text-yellow-600 font-semibold">{user.warmLeads}</span>
-                <span className="text-muted-foreground">/</span>
-                <span className="text-blue-500 font-semibold">{user.coldLeads}</span>
+              <div className="flex items-center gap-2 text-[10px]">
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-red-500" />
+                  <span className="text-muted-foreground">Hot:</span>
+                  <span className="font-semibold">{user.hotLeads}</span>
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-yellow-500" />
+                  <span className="text-muted-foreground">Warm:</span>
+                  <span className="font-semibold">{user.warmLeads}</span>
+                </span>
+                <span className="flex items-center gap-1">
+                  <span className="w-2 h-2 rounded-full bg-blue-500" />
+                  <span className="text-muted-foreground">Cold:</span>
+                  <span className="font-semibold">{user.coldLeads}</span>
+                </span>
               </div>
               <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-5 bg-primary/10 text-primary font-bold">
                 {user.leadsAcquired}
