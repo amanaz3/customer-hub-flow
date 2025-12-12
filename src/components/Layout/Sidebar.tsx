@@ -98,12 +98,6 @@ const Sidebar: React.FC = () => {
       roles: ['admin', 'user'],
     },
     {
-      name: 'Leads',
-      path: '/leads',
-      icon: <UserRoundSearch className="h-5 w-5" />,
-      roles: ['admin', 'user'],
-    },
-    {
       name: 'Customers',
       path: '/customers',
       icon: <Users className="h-5 w-5" />,
