@@ -177,140 +177,99 @@ export const LeadPerformanceLeaderboard = () => {
   }
 
   return (
-    <div className="space-y-4">
-      {/* Demo Toggle */}
-      <div className="flex items-center justify-end gap-2 px-1">
-        <FlaskConical className="h-3.5 w-3.5 text-amber-500" />
-        <span className="text-xs text-muted-foreground">Demo</span>
-        <Switch
-          checked={showDummy}
-          onCheckedChange={toggleDummy}
-          className="scale-75"
-        />
-      </div>
-
-      {/* Weekly Leaderboard */}
-      <Card className="border-border/50 bg-gradient-to-br from-background to-muted/20">
-        <CardHeader className="pb-2 px-4 pt-4">
-          <div className="flex items-center gap-2">
-            <div className="p-1.5 rounded-lg bg-yellow-500/10">
-              <Trophy className="h-4 w-4 text-yellow-500" />
+    <Card className="border-border/50 bg-gradient-to-r from-yellow-500/5 via-background to-green-500/5">
+      <CardContent className="p-4">
+        <div className="flex items-center justify-between gap-4 flex-wrap">
+          {/* Header */}
+          <div className="flex items-center gap-3">
+            <div className="p-2 rounded-lg bg-yellow-500/10">
+              <Trophy className="h-5 w-5 text-yellow-500" />
             </div>
             <div>
-              <CardTitle className="text-sm font-semibold">Weekly Leaderboard</CardTitle>
+              <h3 className="font-semibold text-sm">Weekly Leaderboard</h3>
               <p className="text-[10px] text-muted-foreground">
                 {format(weekRange.start, 'MMM d')} - {format(weekRange.end, 'MMM d')}
               </p>
             </div>
           </div>
-        </CardHeader>
-        <CardContent className="px-3 pb-3 pt-0">
-          {performances.length === 0 ? (
-            <p className="text-center text-muted-foreground py-4 text-xs">No activity this week</p>
-          ) : (
-            <div className="space-y-2">
-              {performances.slice(0, 5).map((user, index) => (
-                <div 
-                  key={user.id}
-                  className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
-                    index === 0 ? 'bg-yellow-500/5 border border-yellow-500/20' : 
-                    index === 1 ? 'bg-muted/30' : 
-                    index === 2 ? 'bg-amber-500/5' : 'hover:bg-muted/30'
+
+          {/* Top Performers - Horizontal */}
+          <div className="flex items-center gap-3 flex-1 justify-center">
+            {performances.slice(0, 5).map((user, index) => (
+              <div 
+                key={user.id}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg transition-colors ${
+                  index === 0 ? 'bg-yellow-500/10 border border-yellow-500/20' : 
+                  index === 1 ? 'bg-muted/50' : 
+                  index === 2 ? 'bg-amber-500/5' : 'bg-muted/30'
+                }`}
+              >
+                {getRankIcon(index)}
+                <Avatar className="h-7 w-7">
+                  <AvatarFallback className={`text-[10px] ${
+                    index === 0 ? 'bg-yellow-500/20 text-yellow-700' : 'bg-primary/10 text-primary'
+                  }`}>
+                    {getInitials(user.name)}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="hidden sm:block">
+                  <p className="font-medium text-xs truncate max-w-[80px]">{user.name.split(' ')[0]}</p>
+                  <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
+                    <span className="flex items-center gap-0.5">
+                      <Phone className="h-2.5 w-2.5" />
+                      {user.leadsContacted}
+                    </span>
+                    <span className="flex items-center gap-0.5">
+                      <Users className="h-2.5 w-2.5" />
+                      {user.leadsConverted}
+                    </span>
+                  </div>
+                </div>
+                <Badge 
+                  variant="secondary" 
+                  className={`text-[10px] px-1.5 py-0 h-5 ${
+                    user.conversionRate >= 50 ? 'bg-green-500/10 text-green-600' :
+                    user.conversionRate >= 25 ? 'bg-yellow-500/10 text-yellow-600' :
+                    'bg-muted text-muted-foreground'
                   }`}
                 >
-                  <div className="flex-shrink-0">
-                    {getRankIcon(index)}
-                  </div>
-                  <Avatar className="h-6 w-6">
-                    <AvatarFallback className={`text-[10px] ${
-                      index === 0 ? 'bg-yellow-500/20 text-yellow-700' : 'bg-primary/10 text-primary'
-                    }`}>
-                      {getInitials(user.name)}
-                    </AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-xs truncate">{user.name}</p>
-                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
-                      <span className="flex items-center gap-0.5">
-                        <Phone className="h-2.5 w-2.5" />
-                        {user.leadsContacted}
-                      </span>
-                      <span className="flex items-center gap-0.5">
-                        <Users className="h-2.5 w-2.5" />
-                        {user.leadsConverted}
-                      </span>
-                    </div>
-                  </div>
-                  <Badge 
-                    variant="secondary" 
-                    className={`text-[10px] px-1.5 py-0 h-5 ${
-                      user.conversionRate >= 50 ? 'bg-green-500/10 text-green-600' :
-                      user.conversionRate >= 25 ? 'bg-yellow-500/10 text-yellow-600' :
-                      'bg-muted text-muted-foreground'
-                    }`}
-                  >
-                    {user.conversionRate.toFixed(0)}%
-                  </Badge>
-                </div>
+                  {user.conversionRate.toFixed(0)}%
+                </Badge>
+              </div>
+            ))}
+          </div>
+
+          {/* Recent Wins */}
+          {successStories.length > 0 && (
+            <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <Star className="h-4 w-4 text-green-500" />
+                <span className="font-medium">Recent Wins:</span>
+              </div>
+              {successStories.slice(0, 2).map((story, index) => (
+                <Badge 
+                  key={index}
+                  variant="secondary" 
+                  className="bg-green-500/10 text-green-600 text-[10px]"
+                >
+                  {story.leadName.split(' ')[0]} • {story.agentName.split(' ')[0]}
+                </Badge>
               ))}
             </div>
           )}
-        </CardContent>
-      </Card>
 
-      {/* Success Stories */}
-      {successStories.length > 0 && (
-        <Card className="border-border/50 bg-gradient-to-br from-green-500/5 to-background">
-          <CardHeader className="pb-2 px-4 pt-4">
-            <div className="flex items-center gap-2">
-              <div className="p-1.5 rounded-lg bg-green-500/10">
-                <Star className="h-4 w-4 text-green-500" />
-              </div>
-              <div>
-                <CardTitle className="text-sm font-semibold">Recent Wins</CardTitle>
-                <p className="text-[10px] text-muted-foreground">This week's conversions</p>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="px-3 pb-3 pt-0">
-            <div className="space-y-2">
-              {successStories.map((story, index) => (
-                <div 
-                  key={index}
-                  className="flex items-center justify-between p-2 rounded-lg bg-background/50 border border-green-500/10"
-                >
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-xs truncate">{story.leadName}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">
-                      by <span className="text-primary">{story.agentName}</span>
-                    </p>
-                  </div>
-                  {story.estimatedValue && (
-                    <Badge variant="secondary" className="bg-green-500/10 text-green-600 text-[10px] px-1.5 h-5 ml-2">
-                      {(story.estimatedValue / 1000).toFixed(0)}K
-                    </Badge>
-                  )}
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Encouragement Card */}
-      <Card className="border-border/50 bg-gradient-to-r from-primary/5 to-accent/5">
-        <CardContent className="p-3">
-          <div className="flex items-start gap-2">
-            <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
-            <div>
-              <p className="font-medium text-xs">Keep It Up!</p>
-              <p className="text-[10px] text-muted-foreground mt-0.5">
-                Log all calls & meetings to climb the leaderboard.
-              </p>
-            </div>
+          {/* Demo Toggle */}
+          <div className="flex items-center gap-1.5">
+            <FlaskConical className="h-3 w-3 text-amber-500" />
+            <span className="text-[10px] text-muted-foreground">Demo</span>
+            <Switch
+              checked={showDummy}
+              onCheckedChange={toggleDummy}
+              className="scale-75"
+            />
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
