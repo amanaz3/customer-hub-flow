@@ -39,6 +39,10 @@ import {
   Users,
   UserPlus,
   TrendingUp,
+  ArrowRightCircle,
+  CheckCircle,
+  Upload,
+  Calendar,
 } from 'lucide-react';
 
 interface FollowupStep {
@@ -61,6 +65,14 @@ interface AssignmentRule {
   rule_type: 'round_robin' | 'load_balanced' | 'manual';
   auto_assign_new_leads: boolean;
   max_leads_per_user: number;
+}
+
+interface ConversionSettings {
+  trigger_on_status_won: boolean;
+  require_signed_agreement: boolean;
+  prompt_document_delivery: boolean;
+  prompt_onboarding_call: boolean;
+  auto_create_customer: boolean;
 }
 
 const actionIcons: Record<string, React.ReactNode> = {
@@ -105,12 +117,23 @@ export function LeadSettingsDialog() {
   const [editingStep, setEditingStep] = useState<FollowupStep | null>(null);
   const [savingStep, setSavingStep] = useState(false);
 
+  // Conversion state
+  const [conversionSettings, setConversionSettings] = useState<ConversionSettings>({
+    trigger_on_status_won: true,
+    require_signed_agreement: false,
+    prompt_document_delivery: true,
+    prompt_onboarding_call: true,
+    auto_create_customer: false,
+  });
+  const [savingConversion, setSavingConversion] = useState(false);
+
   useEffect(() => {
     if (open) {
       fetchScoringThresholds();
       fetchAssignmentSettings();
       fetchFollowupSteps();
       fetchSalesAssistants();
+      fetchConversionSettings();
     }
   }, [open]);
 
@@ -208,6 +231,26 @@ export function LeadSettingsDialog() {
       });
     } finally {
       setSavingAssignment(false);
+    }
+  };
+
+  const fetchConversionSettings = async () => {
+    const stored = localStorage.getItem('lead_conversion_settings');
+    if (stored) {
+      setConversionSettings(JSON.parse(stored));
+    }
+  };
+
+  const handleSaveConversion = async () => {
+    setSavingConversion(true);
+    try {
+      localStorage.setItem('lead_conversion_settings', JSON.stringify(conversionSettings));
+      toast({
+        title: 'Success',
+        description: 'Conversion settings saved',
+      });
+    } finally {
+      setSavingConversion(false);
     }
   };
 
@@ -322,7 +365,7 @@ export function LeadSettingsDialog() {
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={setActiveTab} className="flex-1 overflow-hidden flex flex-col">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="scoring" className="flex items-center gap-2">
               <TrendingUp className="h-4 w-4" />
               Scoring
@@ -334,6 +377,10 @@ export function LeadSettingsDialog() {
             <TabsTrigger value="followup" className="flex items-center gap-2">
               <MessageCircle className="h-4 w-4" />
               Follow-ups
+            </TabsTrigger>
+            <TabsTrigger value="conversion" className="flex items-center gap-2">
+              <ArrowRightCircle className="h-4 w-4" />
+              Conversion
             </TabsTrigger>
           </TabsList>
 
@@ -692,6 +739,135 @@ export function LeadSettingsDialog() {
                   </CardContent>
                 </Card>
               )}
+            </TabsContent>
+
+            {/* Conversion Tab */}
+            <TabsContent value="conversion" className="space-y-4 m-0">
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Conversion Triggers</CardTitle>
+                  <CardDescription>
+                    Configure when and how leads are converted to customers
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex items-center justify-between p-3 rounded-lg border bg-green-50/50 dark:bg-green-950/20">
+                    <div className="flex items-center gap-3">
+                      <CheckCircle className="h-5 w-5 text-green-600" />
+                      <div>
+                        <Label>Auto-prompt on "Won" status</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Show conversion dialog when lead status changes to "won"
+                        </p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={conversionSettings.trigger_on_status_won}
+                      onCheckedChange={(v) =>
+                        setConversionSettings({ ...conversionSettings, trigger_on_status_won: v })
+                      }
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Conversion Requirements</CardTitle>
+                  <CardDescription>
+                    What must be completed before conversion
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between p-3 rounded-lg border">
+                    <div className="flex items-center gap-3">
+                      <Upload className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <Label>Require signed agreement</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Block conversion until agreement is uploaded
+                        </p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={conversionSettings.require_signed_agreement}
+                      onCheckedChange={(v) =>
+                        setConversionSettings({ ...conversionSettings, require_signed_agreement: v })
+                      }
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-base">Conversion Dialog Options</CardTitle>
+                  <CardDescription>
+                    What options to show in the conversion dialog
+                  </CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex items-center justify-between p-3 rounded-lg border">
+                    <div className="flex items-center gap-3">
+                      <FileText className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <Label>Document delivery options</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Show portal access and document checklist options
+                        </p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={conversionSettings.prompt_document_delivery}
+                      onCheckedChange={(v) =>
+                        setConversionSettings({ ...conversionSettings, prompt_document_delivery: v })
+                      }
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 rounded-lg border">
+                    <div className="flex items-center gap-3">
+                      <Calendar className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <Label>Onboarding call scheduling</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Show option to schedule onboarding call
+                        </p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={conversionSettings.prompt_onboarding_call}
+                      onCheckedChange={(v) =>
+                        setConversionSettings({ ...conversionSettings, prompt_onboarding_call: v })
+                      }
+                    />
+                  </div>
+
+                  <div className="flex items-center justify-between p-3 rounded-lg border">
+                    <div className="flex items-center gap-3">
+                      <Users className="h-5 w-5 text-muted-foreground" />
+                      <div>
+                        <Label>Auto-create customer record</Label>
+                        <p className="text-xs text-muted-foreground">
+                          Skip dialog and create customer immediately
+                        </p>
+                      </div>
+                    </div>
+                    <Switch
+                      checked={conversionSettings.auto_create_customer}
+                      onCheckedChange={(v) =>
+                        setConversionSettings({ ...conversionSettings, auto_create_customer: v })
+                      }
+                    />
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Button onClick={handleSaveConversion} disabled={savingConversion} className="w-full">
+                {savingConversion && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                <Save className="h-4 w-4 mr-2" />
+                Save Conversion Settings
+              </Button>
             </TabsContent>
           </div>
         </Tabs>
