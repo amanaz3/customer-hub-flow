@@ -212,6 +212,34 @@ export const LeadPerformanceLeaderboard = () => {
         </div>
       </CardHeader>
       <CardContent className="pt-0 px-4 pb-4">
+        {/* Lead Summary Stats */}
+        <div className="grid grid-cols-4 gap-2 mb-3 pb-3 border-b border-border/50">
+          <div className="text-center p-2 rounded-lg bg-muted/50">
+            <div className="text-lg font-bold text-foreground">
+              {performances.reduce((acc, p) => acc + p.leadsAcquired, 0)}
+            </div>
+            <div className="text-[10px] text-muted-foreground">Total Leads</div>
+          </div>
+          <div className="text-center p-2 rounded-lg bg-red-500/10">
+            <div className="text-lg font-bold text-red-500">
+              {performances.reduce((acc, p) => acc + p.hotLeads, 0)}
+            </div>
+            <div className="text-[10px] text-muted-foreground">Hot</div>
+          </div>
+          <div className="text-center p-2 rounded-lg bg-yellow-500/10">
+            <div className="text-lg font-bold text-yellow-600">
+              {performances.reduce((acc, p) => acc + p.warmLeads, 0)}
+            </div>
+            <div className="text-[10px] text-muted-foreground">Warm</div>
+          </div>
+          <div className="text-center p-2 rounded-lg bg-blue-500/10">
+            <div className="text-lg font-bold text-blue-500">
+              {performances.reduce((acc, p) => acc + p.coldLeads, 0)}
+            </div>
+            <div className="text-[10px] text-muted-foreground">Cold</div>
+          </div>
+        </div>
+
         <div className="flex flex-col gap-2">
           {performances.slice(0, 5).map((user, index) => (
             <div 
