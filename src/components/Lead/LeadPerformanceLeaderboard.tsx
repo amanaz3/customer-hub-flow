@@ -181,12 +181,27 @@ export const LeadPerformanceLeaderboard = () => {
   return (
     <Card className="border-border/50">
       <CardHeader className="py-3 px-4">
-        <div className="flex items-center justify-between">
+        <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2">
             <Trophy className="h-4 w-4 text-yellow-500" />
             <CardTitle className="text-sm">Weekly Leaderboard</CardTitle>
             <span className="text-xs text-muted-foreground">
               ({format(weekRange.start, 'MMM d')} - {format(weekRange.end, 'MMM d')})
+            </span>
+          </div>
+          {/* Legend */}
+          <div className="flex items-center gap-3 text-[10px]">
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-red-500" />
+              <span className="text-muted-foreground">Hot</span>
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-yellow-500" />
+              <span className="text-muted-foreground">Warm</span>
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2 h-2 rounded-full bg-blue-500" />
+              <span className="text-muted-foreground">Cold</span>
             </span>
           </div>
           <div className="flex items-center gap-2">
@@ -201,7 +216,7 @@ export const LeadPerformanceLeaderboard = () => {
           {performances.slice(0, 5).map((user, index) => (
             <div 
               key={user.id}
-              className={`flex items-center gap-2 px-3 py-2 rounded-lg ${
+              className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
                 index === 0 ? 'bg-yellow-500/10 border border-yellow-500/30' : 
                 index === 1 ? 'bg-muted/60' : 
                 index === 2 ? 'bg-amber-500/10' : 
@@ -221,26 +236,16 @@ export const LeadPerformanceLeaderboard = () => {
                   {getInitials(user.name)}
                 </AvatarFallback>
               </Avatar>
-              <span className="text-xs font-medium">{user.name.split(' ')[0]}</span>
-              <div className="flex items-center gap-2 text-[10px]">
-                <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-red-500" />
-                  <span className="text-muted-foreground">Hot:</span>
-                  <span className="font-semibold">{user.hotLeads}</span>
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-yellow-500" />
-                  <span className="text-muted-foreground">Warm:</span>
-                  <span className="font-semibold">{user.warmLeads}</span>
-                </span>
-                <span className="flex items-center gap-1">
-                  <span className="w-2 h-2 rounded-full bg-blue-500" />
-                  <span className="text-muted-foreground">Cold:</span>
-                  <span className="font-semibold">{user.coldLeads}</span>
-                </span>
+              <span className="text-xs font-medium flex-1">{user.name.split(' ')[0]}</span>
+              <div className="flex items-center gap-2 text-xs font-semibold">
+                <span className="text-red-500">{user.hotLeads}</span>
+                <span className="text-muted-foreground">/</span>
+                <span className="text-yellow-600">{user.warmLeads}</span>
+                <span className="text-muted-foreground">/</span>
+                <span className="text-blue-500">{user.coldLeads}</span>
               </div>
               <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-5 bg-primary/10 text-primary font-bold">
-                {user.leadsAcquired}
+                {user.leadsAcquired} total
               </Badge>
             </div>
           ))}
