@@ -11,10 +11,11 @@ interface UserPerformance {
   id: string;
   name: string;
   email: string;
-  leadsContacted: number;
+  leadsAcquired: number; // Total leads assigned this week
+  hotLeads: number;
+  warmLeads: number;
+  coldLeads: number;
   leadsConverted: number;
-  conversionRate: number;
-  totalLeads: number;
 }
 
 interface SuccessStory {
@@ -26,11 +27,11 @@ interface SuccessStory {
 
 // Dummy data for demo
 const dummyPerformances: UserPerformance[] = [
-  { id: '1', name: 'Sarah Ahmed', email: 'sarah@example.com', leadsContacted: 28, leadsConverted: 8, conversionRate: 72, totalLeads: 11 },
-  { id: '2', name: 'Mohammed Ali', email: 'mohammed@example.com', leadsContacted: 24, leadsConverted: 6, conversionRate: 55, totalLeads: 11 },
-  { id: '3', name: 'Fatima Hassan', email: 'fatima@example.com', leadsContacted: 19, leadsConverted: 4, conversionRate: 44, totalLeads: 9 },
-  { id: '4', name: 'Omar Khalid', email: 'omar@example.com', leadsContacted: 15, leadsConverted: 3, conversionRate: 38, totalLeads: 8 },
-  { id: '5', name: 'Aisha Rahman', email: 'aisha@example.com', leadsContacted: 12, leadsConverted: 2, conversionRate: 29, totalLeads: 7 },
+  { id: '1', name: 'Sarah Ahmed', email: 'sarah@example.com', leadsAcquired: 14, hotLeads: 5, warmLeads: 6, coldLeads: 3, leadsConverted: 3 },
+  { id: '2', name: 'Mohammed Ali', email: 'mohammed@example.com', leadsAcquired: 12, hotLeads: 4, warmLeads: 5, coldLeads: 3, leadsConverted: 2 },
+  { id: '3', name: 'Fatima Hassan', email: 'fatima@example.com', leadsAcquired: 9, hotLeads: 2, warmLeads: 4, coldLeads: 3, leadsConverted: 1 },
+  { id: '4', name: 'Omar Khalid', email: 'omar@example.com', leadsAcquired: 7, hotLeads: 2, warmLeads: 3, coldLeads: 2, leadsConverted: 1 },
+  { id: '5', name: 'Aisha Rahman', email: 'aisha@example.com', leadsAcquired: 5, hotLeads: 1, warmLeads: 2, coldLeads: 2, leadsConverted: 0 },
 ];
 
 const dummySuccessStories: SuccessStory[] = [
@@ -85,9 +86,10 @@ export const LeadPerformanceLeaderboard = () => {
           name,
           assigned_to,
           status,
+          score,
           converted_at,
           estimated_value,
-          last_contacted_at
+          created_at
         `);
 
       const { data: activities } = await supabase
@@ -96,38 +98,38 @@ export const LeadPerformanceLeaderboard = () => {
         .gte('created_at', weekStart.toISOString())
         .lte('created_at', weekEnd.toISOString());
 
-      // Calculate performance per user
+      // Calculate performance per user - leads acquired this week
       const userPerformance: UserPerformance[] = users.map(user => {
-        const userLeads = leads?.filter(l => l.assigned_to === user.id) || [];
-        const userActivities = activities?.filter(a => a.created_by === user.id) || [];
+        // Filter leads assigned to this user that were created this week
+        const userLeadsThisWeek = leads?.filter(l => 
+          l.assigned_to === user.id && 
+          new Date(l.created_at) >= weekStart &&
+          new Date(l.created_at) <= weekEnd
+        ) || [];
         
-        // Count unique leads contacted (via activities)
-        const contactedLeadIds = new Set(
-          userActivities
-            .filter(a => ['call', 'whatsapp', 'email', 'meeting'].includes(a.activity_type))
-            .map(a => a.lead_id)
-        );
-        
-        const leadsConverted = userLeads.filter(l => l.status === 'converted').length;
-        const totalLeads = userLeads.length;
+        const hotLeads = userLeadsThisWeek.filter(l => l.score === 'hot').length;
+        const warmLeads = userLeadsThisWeek.filter(l => l.score === 'warm').length;
+        const coldLeads = userLeadsThisWeek.filter(l => l.score === 'cold').length;
+        const leadsConverted = userLeadsThisWeek.filter(l => l.status === 'converted').length;
         
         return {
           id: user.id,
           name: user.name || user.email.split('@')[0],
           email: user.email,
-          leadsContacted: contactedLeadIds.size,
-          leadsConverted,
-          conversionRate: totalLeads > 0 ? (leadsConverted / totalLeads) * 100 : 0,
-          totalLeads
+          leadsAcquired: userLeadsThisWeek.length,
+          hotLeads,
+          warmLeads,
+          coldLeads,
+          leadsConverted
         };
       });
 
-      // Sort by conversion rate, then by leads contacted
+      // Sort by leads acquired (most leads first)
       const sorted = userPerformance
-        .filter(p => p.totalLeads > 0 || p.leadsContacted > 0)
+        .filter(p => p.leadsAcquired > 0)
         .sort((a, b) => {
-          if (b.conversionRate !== a.conversionRate) return b.conversionRate - a.conversionRate;
-          return b.leadsContacted - a.leadsContacted;
+          if (b.leadsAcquired !== a.leadsAcquired) return b.leadsAcquired - a.leadsAcquired;
+          return b.hotLeads - a.hotLeads; // Secondary: most hot leads
         });
 
       setPerformances(sorted);
@@ -193,7 +195,7 @@ export const LeadPerformanceLeaderboard = () => {
             </div>
           </div>
 
-          {/* Top Performers - Horizontal */}
+          {/* Top Performers - Horizontal (ranked by leads acquired) */}
           <div className="flex items-center gap-3 flex-1 justify-center">
             {performances.slice(0, 5).map((user, index) => (
               <div 
@@ -215,25 +217,18 @@ export const LeadPerformanceLeaderboard = () => {
                 <div className="hidden sm:block">
                   <p className="font-medium text-xs truncate max-w-[80px]">{user.name.split(' ')[0]}</p>
                   <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground">
-                    <span className="flex items-center gap-0.5">
-                      <Phone className="h-2.5 w-2.5" />
-                      {user.leadsContacted}
-                    </span>
-                    <span className="flex items-center gap-0.5">
-                      <Users className="h-2.5 w-2.5" />
-                      {user.leadsConverted}
-                    </span>
+                    <span className="text-red-500 font-medium">{user.hotLeads}</span>
+                    <span>/</span>
+                    <span className="text-yellow-500 font-medium">{user.warmLeads}</span>
+                    <span>/</span>
+                    <span className="text-blue-500 font-medium">{user.coldLeads}</span>
                   </div>
                 </div>
                 <Badge 
                   variant="secondary" 
-                  className={`text-[10px] px-1.5 py-0 h-5 ${
-                    user.conversionRate >= 50 ? 'bg-green-500/10 text-green-600' :
-                    user.conversionRate >= 25 ? 'bg-yellow-500/10 text-yellow-600' :
-                    'bg-muted text-muted-foreground'
-                  }`}
+                  className="text-[10px] px-1.5 py-0 h-5 bg-primary/10 text-primary font-bold"
                 >
-                  {user.conversionRate.toFixed(0)}%
+                  {user.leadsAcquired} leads
                 </Badge>
               </div>
             ))}
