@@ -197,7 +197,7 @@ export const LeadPerformanceLeaderboard = () => {
         </div>
       </CardHeader>
       <CardContent className="pt-0 px-4 pb-4">
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-col gap-2">
           {performances.slice(0, 5).map((user, index) => (
             <div 
               key={user.id}
