@@ -1,10 +1,11 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Trophy, Medal, Award, TrendingUp, Phone, Users, Star, Sparkles } from 'lucide-react';
+import { Trophy, Medal, Award, TrendingUp, Phone, Users, Star, Sparkles, FlaskConical } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
-import { format, startOfWeek, endOfWeek, subWeeks } from 'date-fns';
+import { format, startOfWeek, endOfWeek } from 'date-fns';
 
 interface UserPerformance {
   id: string;
@@ -23,15 +24,45 @@ interface SuccessStory {
   estimatedValue: number | null;
 }
 
+// Dummy data for demo
+const dummyPerformances: UserPerformance[] = [
+  { id: '1', name: 'Sarah Ahmed', email: 'sarah@example.com', leadsContacted: 28, leadsConverted: 8, conversionRate: 72, totalLeads: 11 },
+  { id: '2', name: 'Mohammed Ali', email: 'mohammed@example.com', leadsContacted: 24, leadsConverted: 6, conversionRate: 55, totalLeads: 11 },
+  { id: '3', name: 'Fatima Hassan', email: 'fatima@example.com', leadsContacted: 19, leadsConverted: 4, conversionRate: 44, totalLeads: 9 },
+  { id: '4', name: 'Omar Khalid', email: 'omar@example.com', leadsContacted: 15, leadsConverted: 3, conversionRate: 38, totalLeads: 8 },
+  { id: '5', name: 'Aisha Rahman', email: 'aisha@example.com', leadsContacted: 12, leadsConverted: 2, conversionRate: 29, totalLeads: 7 },
+];
+
+const dummySuccessStories: SuccessStory[] = [
+  { leadName: 'Gulf Trading LLC', convertedAt: new Date().toISOString(), agentName: 'Sarah Ahmed', estimatedValue: 85000 },
+  { leadName: 'Al Noor Properties', convertedAt: new Date(Date.now() - 86400000).toISOString(), agentName: 'Mohammed Ali', estimatedValue: 120000 },
+  { leadName: 'Emirates Consulting', convertedAt: new Date(Date.now() - 172800000).toISOString(), agentName: 'Fatima Hassan', estimatedValue: 45000 },
+];
+
 export const LeadPerformanceLeaderboard = () => {
   const [performances, setPerformances] = useState<UserPerformance[]>([]);
   const [successStories, setSuccessStories] = useState<SuccessStory[]>([]);
   const [loading, setLoading] = useState(true);
-  const [weekRange, setWeekRange] = useState({ start: startOfWeek(new Date()), end: endOfWeek(new Date()) });
+  const [showDummy, setShowDummy] = useState(() => {
+    const saved = localStorage.getItem('leadLeaderboardDummy');
+    return saved ? JSON.parse(saved) : true;
+  });
+  const [weekRange] = useState({ start: startOfWeek(new Date()), end: endOfWeek(new Date()) });
 
   useEffect(() => {
-    fetchPerformanceData();
-  }, []);
+    if (showDummy) {
+      setPerformances(dummyPerformances);
+      setSuccessStories(dummySuccessStories);
+      setLoading(false);
+    } else {
+      fetchPerformanceData();
+    }
+  }, [showDummy]);
+
+  const toggleDummy = (value: boolean) => {
+    setShowDummy(value);
+    localStorage.setItem('leadLeaderboardDummy', JSON.stringify(value));
+  };
 
   const fetchPerformanceData = async () => {
     try {
@@ -122,10 +153,10 @@ export const LeadPerformanceLeaderboard = () => {
   };
 
   const getRankIcon = (index: number) => {
-    if (index === 0) return <Trophy className="h-5 w-5 text-yellow-500" />;
-    if (index === 1) return <Medal className="h-5 w-5 text-gray-400" />;
-    if (index === 2) return <Award className="h-5 w-5 text-amber-600" />;
-    return <span className="w-5 h-5 flex items-center justify-center text-muted-foreground text-sm">{index + 1}</span>;
+    if (index === 0) return <Trophy className="h-4 w-4 text-yellow-500" />;
+    if (index === 1) return <Medal className="h-4 w-4 text-gray-400" />;
+    if (index === 2) return <Award className="h-4 w-4 text-amber-600" />;
+    return <span className="w-4 h-4 flex items-center justify-center text-muted-foreground text-xs">{index + 1}</span>;
   };
 
   const getInitials = (name: string) => {
@@ -147,36 +178,41 @@ export const LeadPerformanceLeaderboard = () => {
 
   return (
     <div className="space-y-4">
+      {/* Demo Toggle */}
+      <div className="flex items-center justify-end gap-2 px-1">
+        <FlaskConical className="h-3.5 w-3.5 text-amber-500" />
+        <span className="text-xs text-muted-foreground">Demo</span>
+        <Switch
+          checked={showDummy}
+          onCheckedChange={toggleDummy}
+          className="scale-75"
+        />
+      </div>
+
       {/* Weekly Leaderboard */}
       <Card className="border-border/50 bg-gradient-to-br from-background to-muted/20">
-        <CardHeader className="pb-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-yellow-500/10">
-                <Trophy className="h-5 w-5 text-yellow-500" />
-              </div>
-              <div>
-                <CardTitle className="text-lg">Weekly Leaderboard</CardTitle>
-                <p className="text-xs text-muted-foreground">
-                  {format(weekRange.start, 'MMM d')} - {format(weekRange.end, 'MMM d, yyyy')}
-                </p>
-              </div>
+        <CardHeader className="pb-2 px-4 pt-4">
+          <div className="flex items-center gap-2">
+            <div className="p-1.5 rounded-lg bg-yellow-500/10">
+              <Trophy className="h-4 w-4 text-yellow-500" />
             </div>
-            <Badge variant="secondary" className="bg-primary/10 text-primary">
-              <Sparkles className="h-3 w-3 mr-1" />
-              Top Performers
-            </Badge>
+            <div>
+              <CardTitle className="text-sm font-semibold">Weekly Leaderboard</CardTitle>
+              <p className="text-[10px] text-muted-foreground">
+                {format(weekRange.start, 'MMM d')} - {format(weekRange.end, 'MMM d')}
+              </p>
+            </div>
           </div>
         </CardHeader>
-        <CardContent className="pt-0">
+        <CardContent className="px-3 pb-3 pt-0">
           {performances.length === 0 ? (
-            <p className="text-center text-muted-foreground py-4">No activity this week yet</p>
+            <p className="text-center text-muted-foreground py-4 text-xs">No activity this week</p>
           ) : (
-            <div className="space-y-3">
+            <div className="space-y-2">
               {performances.slice(0, 5).map((user, index) => (
                 <div 
                   key={user.id}
-                  className={`flex items-center gap-3 p-3 rounded-lg transition-colors ${
+                  className={`flex items-center gap-2 p-2 rounded-lg transition-colors ${
                     index === 0 ? 'bg-yellow-500/5 border border-yellow-500/20' : 
                     index === 1 ? 'bg-muted/30' : 
                     index === 2 ? 'bg-amber-500/5' : 'hover:bg-muted/30'
@@ -185,39 +221,36 @@ export const LeadPerformanceLeaderboard = () => {
                   <div className="flex-shrink-0">
                     {getRankIcon(index)}
                   </div>
-                  <Avatar className="h-8 w-8">
-                    <AvatarFallback className={`text-xs ${
+                  <Avatar className="h-6 w-6">
+                    <AvatarFallback className={`text-[10px] ${
                       index === 0 ? 'bg-yellow-500/20 text-yellow-700' : 'bg-primary/10 text-primary'
                     }`}>
                       {getInitials(user.name)}
                     </AvatarFallback>
                   </Avatar>
                   <div className="flex-1 min-w-0">
-                    <p className="font-medium text-sm truncate">{user.name}</p>
-                    <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Phone className="h-3 w-3" />
-                        {user.leadsContacted} contacted
+                    <p className="font-medium text-xs truncate">{user.name}</p>
+                    <div className="flex items-center gap-2 text-[10px] text-muted-foreground">
+                      <span className="flex items-center gap-0.5">
+                        <Phone className="h-2.5 w-2.5" />
+                        {user.leadsContacted}
                       </span>
-                      <span className="flex items-center gap-1">
-                        <Users className="h-3 w-3" />
-                        {user.leadsConverted} converted
+                      <span className="flex items-center gap-0.5">
+                        <Users className="h-2.5 w-2.5" />
+                        {user.leadsConverted}
                       </span>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <Badge 
-                      variant="secondary" 
-                      className={`text-xs ${
-                        user.conversionRate >= 50 ? 'bg-green-500/10 text-green-600' :
-                        user.conversionRate >= 25 ? 'bg-yellow-500/10 text-yellow-600' :
-                        'bg-muted text-muted-foreground'
-                      }`}
-                    >
-                      <TrendingUp className="h-3 w-3 mr-1" />
-                      {user.conversionRate.toFixed(0)}%
-                    </Badge>
-                  </div>
+                  <Badge 
+                    variant="secondary" 
+                    className={`text-[10px] px-1.5 py-0 h-5 ${
+                      user.conversionRate >= 50 ? 'bg-green-500/10 text-green-600' :
+                      user.conversionRate >= 25 ? 'bg-yellow-500/10 text-yellow-600' :
+                      'bg-muted text-muted-foreground'
+                    }`}
+                  >
+                    {user.conversionRate.toFixed(0)}%
+                  </Badge>
                 </div>
               ))}
             </div>
@@ -228,40 +261,35 @@ export const LeadPerformanceLeaderboard = () => {
       {/* Success Stories */}
       {successStories.length > 0 && (
         <Card className="border-border/50 bg-gradient-to-br from-green-500/5 to-background">
-          <CardHeader className="pb-3">
+          <CardHeader className="pb-2 px-4 pt-4">
             <div className="flex items-center gap-2">
-              <div className="p-2 rounded-lg bg-green-500/10">
-                <Star className="h-5 w-5 text-green-500" />
+              <div className="p-1.5 rounded-lg bg-green-500/10">
+                <Star className="h-4 w-4 text-green-500" />
               </div>
               <div>
-                <CardTitle className="text-lg">Recent Wins</CardTitle>
-                <p className="text-xs text-muted-foreground">Celebrate our conversions!</p>
+                <CardTitle className="text-sm font-semibold">Recent Wins</CardTitle>
+                <p className="text-[10px] text-muted-foreground">This week's conversions</p>
               </div>
             </div>
           </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent className="px-3 pb-3 pt-0">
             <div className="space-y-2">
               {successStories.map((story, index) => (
                 <div 
                   key={index}
-                  className="flex items-center justify-between p-3 rounded-lg bg-background/50 border border-green-500/10"
+                  className="flex items-center justify-between p-2 rounded-lg bg-background/50 border border-green-500/10"
                 >
-                  <div>
-                    <p className="font-medium text-sm">{story.leadName}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Converted by <span className="text-primary font-medium">{story.agentName}</span>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-xs truncate">{story.leadName}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">
+                      by <span className="text-primary">{story.agentName}</span>
                     </p>
                   </div>
-                  <div className="text-right">
-                    {story.estimatedValue && (
-                      <Badge variant="secondary" className="bg-green-500/10 text-green-600">
-                        AED {story.estimatedValue.toLocaleString()}
-                      </Badge>
-                    )}
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {format(new Date(story.convertedAt), 'MMM d')}
-                    </p>
-                  </div>
+                  {story.estimatedValue && (
+                    <Badge variant="secondary" className="bg-green-500/10 text-green-600 text-[10px] px-1.5 h-5 ml-2">
+                      {(story.estimatedValue / 1000).toFixed(0)}K
+                    </Badge>
+                  )}
                 </div>
               ))}
             </div>
@@ -271,15 +299,13 @@ export const LeadPerformanceLeaderboard = () => {
 
       {/* Encouragement Card */}
       <Card className="border-border/50 bg-gradient-to-r from-primary/5 to-accent/5">
-        <CardContent className="p-4">
-          <div className="flex items-start gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Sparkles className="h-4 w-4 text-primary" />
-            </div>
+        <CardContent className="p-3">
+          <div className="flex items-start gap-2">
+            <Sparkles className="h-4 w-4 text-primary mt-0.5 flex-shrink-0" />
             <div>
-              <p className="font-medium text-sm">Keep Up the Great Work!</p>
-              <p className="text-xs text-muted-foreground mt-1">
-                Log every call, WhatsApp, and meeting to track your progress and climb the leaderboard.
+              <p className="font-medium text-xs">Keep It Up!</p>
+              <p className="text-[10px] text-muted-foreground mt-0.5">
+                Log all calls & meetings to climb the leaderboard.
               </p>
             </div>
           </div>
