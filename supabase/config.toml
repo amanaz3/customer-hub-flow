@@ -143,3 +143,9 @@ verify_jwt = true
 
 [functions.analyze-bank-pain-points]
 verify_jwt = true
+
+[functions.generate-outreach-messages]
+verify_jwt = true
+
+[functions.send-daily-lead-reminder]
+verify_jwt = false

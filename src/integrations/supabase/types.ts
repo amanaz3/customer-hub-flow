@@ -1560,64 +1560,91 @@ export type Database = {
       leads: {
         Row: {
           assigned_to: string | null
+          city: string | null
           company: string | null
           converted_at: string | null
           converted_customer_id: string | null
           created_at: string
+          dubai_setup_likelihood: string | null
           email: string | null
           estimated_value: number | null
           id: string
+          indicator: string | null
+          industry: string | null
           last_contacted_at: string | null
+          linkedin_profile: string | null
           mobile: string | null
           name: string
           next_follow_up: string | null
           notes: string | null
+          outreach_messages: Json | null
+          outreach_status: string | null
+          preferred_contact_method: string | null
           product_interest_id: string | null
           reference_number: number
           score: Database["public"]["Enums"]["lead_score"] | null
           source: string | null
+          state: string | null
           status: Database["public"]["Enums"]["lead_status"] | null
           updated_at: string
         }
         Insert: {
           assigned_to?: string | null
+          city?: string | null
           company?: string | null
           converted_at?: string | null
           converted_customer_id?: string | null
           created_at?: string
+          dubai_setup_likelihood?: string | null
           email?: string | null
           estimated_value?: number | null
           id?: string
+          indicator?: string | null
+          industry?: string | null
           last_contacted_at?: string | null
+          linkedin_profile?: string | null
           mobile?: string | null
           name: string
           next_follow_up?: string | null
           notes?: string | null
+          outreach_messages?: Json | null
+          outreach_status?: string | null
+          preferred_contact_method?: string | null
           product_interest_id?: string | null
           reference_number?: number
           score?: Database["public"]["Enums"]["lead_score"] | null
           source?: string | null
+          state?: string | null
           status?: Database["public"]["Enums"]["lead_status"] | null
           updated_at?: string
         }
         Update: {
           assigned_to?: string | null
+          city?: string | null
           company?: string | null
           converted_at?: string | null
           converted_customer_id?: string | null
           created_at?: string
+          dubai_setup_likelihood?: string | null
           email?: string | null
           estimated_value?: number | null
           id?: string
+          indicator?: string | null
+          industry?: string | null
           last_contacted_at?: string | null
+          linkedin_profile?: string | null
           mobile?: string | null
           name?: string
           next_follow_up?: string | null
           notes?: string | null
+          outreach_messages?: Json | null
+          outreach_status?: string | null
+          preferred_contact_method?: string | null
           product_interest_id?: string | null
           reference_number?: number
           score?: Database["public"]["Enums"]["lead_score"] | null
           source?: string | null
+          state?: string | null
           status?: Database["public"]["Enums"]["lead_status"] | null
           updated_at?: string
         }
