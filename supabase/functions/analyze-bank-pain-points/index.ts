@@ -21,6 +21,11 @@ interface AnalysisResult {
   painPoints: string[];
   recommendations: string[];
   documentationGaps: string[];
+  wealthTier: 'UHNW' | 'HNW' | 'Mass Affluent' | 'Standard';
+  bankingReadinessTier: 'Tier 1' | 'Tier 2' | 'Tier 3';
+  serviceOpportunity: 'High' | 'Medium' | 'Low';
+  nationalitySegment: string;
+  recommendedProducts: string[];
 }
 
 serve(async (req) => {
@@ -69,6 +74,33 @@ Common Pain Points for UAE Bank Account Opening:
 - Proof of address (can be from home country for non-residents)
 - Professional/business documentation
 
+CUSTOMER CLASSIFICATION CRITERIA:
+
+Wealth Tier Classification:
+- UHNW (Ultra High Net Worth): Multiple Dubai properties, premium areas (Palm Jumeirah, Downtown, Emirates Hills), property value >10M AED, or indicators of significant wealth
+- HNW (High Net Worth): Single premium property or multiple standard properties, property value 3-10M AED
+- Mass Affluent: Standard property in good areas, property value 1-3M AED
+- Standard: Entry-level property, property value <1M AED, or limited wealth indicators
+
+Banking Readiness Tier:
+- Tier 1 (Premium Ready): Low risk nationality, complete documentation likely, straightforward compliance, GCC/Western nationalities
+- Tier 2 (Standard Process): Medium risk, some documentation work needed, manageable compliance requirements
+- Tier 3 (Enhanced Due Diligence): High risk nationality, significant documentation gaps, requires EDD process
+
+Service Opportunity Classification:
+- High: Cross-sell potential (wealth management, investments, insurance, premium cards), multiple banking needs
+- Medium: Standard banking services with some upsell potential
+- Low: Basic banking needs only, limited cross-sell opportunity
+
+Nationality Segments:
+- GCC: UAE, Saudi Arabia, Kuwait, Qatar, Bahrain, Oman
+- EU/UK/US: European Union countries, United Kingdom, United States, Canada, Australia
+- Asian Markets: India, Pakistan, Philippines, China, Bangladesh, other Asian countries
+- High-Risk Jurisdictions: Iran, Syria, North Korea, sanctioned countries
+
+Recommended Products (based on profile):
+- Premium accounts, Wealth management, Investment services, Insurance products, Credit cards, Mortgages, Business banking
+
 Return analysis in JSON format.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -81,13 +113,13 @@ Return analysis in JSON format.`;
         model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Analyze these customers for UAE bank account opening pain points:\n\n${customerSummary}` }
+          { role: 'user', content: `Analyze these customers for UAE bank account opening pain points and classify them:\n\n${customerSummary}` }
         ],
         tools: [{
           type: 'function',
           function: {
             name: 'provide_analysis',
-            description: 'Provide bank account pain point analysis for each customer',
+            description: 'Provide bank account pain point analysis and customer classification for each customer',
             parameters: {
               type: 'object',
               properties: {
@@ -113,9 +145,34 @@ Return analysis in JSON format.`;
                         type: 'array',
                         items: { type: 'string' },
                         description: 'Documents they will likely need to prepare'
+                      },
+                      wealthTier: {
+                        type: 'string',
+                        enum: ['UHNW', 'HNW', 'Mass Affluent', 'Standard'],
+                        description: 'Wealth tier classification based on property and wealth indicators'
+                      },
+                      bankingReadinessTier: {
+                        type: 'string',
+                        enum: ['Tier 1', 'Tier 2', 'Tier 3'],
+                        description: 'Banking readiness tier based on risk and documentation'
+                      },
+                      serviceOpportunity: {
+                        type: 'string',
+                        enum: ['High', 'Medium', 'Low'],
+                        description: 'Cross-sell and service opportunity level'
+                      },
+                      nationalitySegment: {
+                        type: 'string',
+                        enum: ['GCC', 'EU/UK/US', 'Asian Markets', 'High-Risk Jurisdictions'],
+                        description: 'Nationality segment classification'
+                      },
+                      recommendedProducts: {
+                        type: 'array',
+                        items: { type: 'string' },
+                        description: 'List of recommended banking products for this customer'
                       }
                     },
-                    required: ['customerName', 'riskLevel', 'riskScore', 'painPoints', 'recommendations', 'documentationGaps']
+                    required: ['customerName', 'riskLevel', 'riskScore', 'painPoints', 'recommendations', 'documentationGaps', 'wealthTier', 'bankingReadinessTier', 'serviceOpportunity', 'nationalitySegment', 'recommendedProducts']
                   }
                 }
               },
@@ -167,7 +224,12 @@ Return analysis in JSON format.`;
         riskScore: r.riskScore,
         painPoints: r.painPoints || [],
         recommendations: r.recommendations || [],
-        documentationGaps: r.documentationGaps || []
+        documentationGaps: r.documentationGaps || [],
+        wealthTier: r.wealthTier || 'Standard',
+        bankingReadinessTier: r.bankingReadinessTier || 'Tier 2',
+        serviceOpportunity: r.serviceOpportunity || 'Medium',
+        nationalitySegment: r.nationalitySegment || 'Asian Markets',
+        recommendedProducts: r.recommendedProducts || []
       };
     });
 
