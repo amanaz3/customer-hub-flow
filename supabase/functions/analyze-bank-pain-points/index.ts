@@ -22,11 +22,14 @@ interface AnalysisResult {
   recommendations: string[];
   documentationGaps: string[];
   wealthTier: 'UHNW' | 'HNW' | 'Mass Affluent' | 'Standard';
+  wealthTierReason: string;
   bankingReadinessTier: 'Tier 1' | 'Tier 2' | 'Tier 3';
+  bankingReadinessReason: string;
   serviceOpportunity: 'High' | 'Medium' | 'Low';
+  serviceOpportunityReason: string;
   nationalitySegment: string;
+  nationalitySegmentReason: string;
   recommendedProducts: string[];
-  classificationReasoning: string;
 }
 
 serve(async (req) => {
@@ -174,12 +177,24 @@ Return analysis in JSON format.`;
                         items: { type: 'string' },
                         description: 'List of recommended banking products for this customer'
                       },
-                      classificationReasoning: {
+                      wealthTierReason: {
                         type: 'string',
-                        description: 'Brief explanation of why this wealth tier and classifications were assigned based on available data. Be honest if data is limited.'
+                        description: 'Why this wealth tier? Reference specific data like property value, business type, or state "No data - defaulted to Standard".'
+                      },
+                      bankingReadinessReason: {
+                        type: 'string',
+                        description: 'Why this readiness tier? Reference documents, visa status, nationality risk, or specific gaps.'
+                      },
+                      serviceOpportunityReason: {
+                        type: 'string',
+                        description: 'Why this service opportunity? Reference business type, scale, or growth indicators.'
+                      },
+                      nationalitySegmentReason: {
+                        type: 'string',
+                        description: 'Why this nationality segment? Reference country and its specific banking implications in UAE.'
                       }
                     },
-                    required: ['customerName', 'riskLevel', 'riskScore', 'painPoints', 'recommendations', 'documentationGaps', 'wealthTier', 'bankingReadinessTier', 'serviceOpportunity', 'nationalitySegment', 'recommendedProducts', 'classificationReasoning']
+                    required: ['customerName', 'riskLevel', 'riskScore', 'painPoints', 'recommendations', 'documentationGaps', 'wealthTier', 'wealthTierReason', 'bankingReadinessTier', 'bankingReadinessReason', 'serviceOpportunity', 'serviceOpportunityReason', 'nationalitySegment', 'nationalitySegmentReason', 'recommendedProducts']
                   }
                 }
               },
@@ -250,11 +265,14 @@ Return analysis in JSON format.`;
         recommendations: r.recommendations || [],
         documentationGaps: r.documentationGaps || [],
         wealthTier: r.wealthTier || 'Standard',
+        wealthTierReason: r.wealthTierReason || 'No data available',
         bankingReadinessTier: r.bankingReadinessTier || 'Tier 2',
+        bankingReadinessReason: r.bankingReadinessReason || 'No data available',
         serviceOpportunity: r.serviceOpportunity || 'Medium',
+        serviceOpportunityReason: r.serviceOpportunityReason || 'No data available',
         nationalitySegment: r.nationalitySegment || 'Asian Markets',
-        recommendedProducts: r.recommendedProducts || [],
-        classificationReasoning: r.classificationReasoning || 'No reasoning provided'
+        nationalitySegmentReason: r.nationalitySegmentReason || 'No data available',
+        recommendedProducts: r.recommendedProducts || []
       };
     });
 
