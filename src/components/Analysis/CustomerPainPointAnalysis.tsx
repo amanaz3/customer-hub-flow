@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -7,6 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
 import { 
   Upload, 
   FolderOpen, 
@@ -24,7 +25,10 @@ import {
   Shield,
   Briefcase,
   Filter,
-  X
+  X,
+  Database,
+  RefreshCw,
+  Sparkles
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,7 +40,10 @@ interface CustomerData {
   nationality?: string;
   phone?: string;
   country?: string;
-  [key: string]: string | undefined;
+  company?: string;
+  existingServices?: string[];
+  productName?: string;
+  [key: string]: string | string[] | undefined;
 }
 
 interface AnalysisResult {
@@ -55,6 +62,7 @@ interface AnalysisResult {
   nationalitySegment: string;
   nationalitySegmentReason?: string;
   recommendedProducts: string[];
+  crossSellOpportunities?: string[];
 }
 
 interface FileInfo {
@@ -68,6 +76,21 @@ interface FolderInfo {
   files: FileInfo[];
 }
 
+interface DBCustomer {
+  id: string;
+  name: string;
+  email: string;
+  company: string;
+  mobile: string;
+  product_id: string | null;
+  product_name: string | null;
+}
+
+interface Product {
+  id: string;
+  name: string;
+}
+
 const CustomerPainPointAnalysis = () => {
   const [folders, setFolders] = useState<FolderInfo[]>([]);
   const [allCustomers, setAllCustomers] = useState<CustomerData[]>([]);
@@ -76,6 +99,16 @@ const CustomerPainPointAnalysis = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [progress, setProgress] = useState(0);
   const [uploadStats, setUploadStats] = useState({ folders: 0, files: 0, customers: 0 });
+  
+  // Data source tab
+  const [dataSource, setDataSource] = useState<'upload' | 'database'>('database');
+  
+  // DB customers state
+  const [dbCustomers, setDbCustomers] = useState<DBCustomer[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
+  const [selectedProductFilter, setSelectedProductFilter] = useState<string>('all');
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState<Set<string>>(new Set());
+  const [isLoadingDB, setIsLoadingDB] = useState(false);
 
   // Classification filters
   const [wealthFilter, setWealthFilter] = useState<string>('all');
@@ -121,6 +154,142 @@ const CustomerPainPointAnalysis = () => {
 
   const hasActiveFilters = wealthFilter !== 'all' || readinessFilter !== 'all' || serviceFilter !== 'all' || nationalityFilter !== 'all';
 
+  // Load products and customers from DB
+  const loadDBData = useCallback(async () => {
+    setIsLoadingDB(true);
+    try {
+      // Load products
+      const { data: productsData, error: productsError } = await supabase
+        .from('products')
+        .select('id, name')
+        .eq('is_active', true);
+      
+      if (productsError) throw productsError;
+      setProducts(productsData || []);
+
+      // Load customers with their products
+      const { data: customersData, error: customersError } = await supabase
+        .from('customers')
+        .select(`
+          id, name, email, company, mobile,
+          product_id,
+          products:product_id (name)
+        `)
+        .order('created_at', { ascending: false })
+        .limit(500);
+      
+      if (customersError) throw customersError;
+      
+      const formattedCustomers: DBCustomer[] = (customersData || []).map((c: any) => ({
+        id: c.id,
+        name: c.name,
+        email: c.email,
+        company: c.company,
+        mobile: c.mobile,
+        product_id: c.product_id,
+        product_name: c.products?.name || null
+      }));
+      
+      setDbCustomers(formattedCustomers);
+    } catch (error) {
+      console.error('Error loading DB data:', error);
+      toast.error('Failed to load customers from database');
+    } finally {
+      setIsLoadingDB(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (dataSource === 'database') {
+      loadDBData();
+    }
+  }, [dataSource, loadDBData]);
+
+  // Filtered DB customers by product
+  const filteredDBCustomers = useMemo(() => {
+    if (selectedProductFilter === 'all') return dbCustomers;
+    if (selectedProductFilter === 'none') return dbCustomers.filter(c => !c.product_id);
+    return dbCustomers.filter(c => c.product_id === selectedProductFilter);
+  }, [dbCustomers, selectedProductFilter]);
+
+  // Toggle customer selection
+  const toggleCustomerSelection = (customerId: string) => {
+    const newSet = new Set(selectedCustomerIds);
+    if (newSet.has(customerId)) {
+      newSet.delete(customerId);
+    } else {
+      newSet.add(customerId);
+    }
+    setSelectedCustomerIds(newSet);
+  };
+
+  // Select/deselect all visible customers
+  const toggleSelectAll = () => {
+    if (selectedCustomerIds.size === filteredDBCustomers.length) {
+      setSelectedCustomerIds(new Set());
+    } else {
+      setSelectedCustomerIds(new Set(filteredDBCustomers.map(c => c.id)));
+    }
+  };
+
+  // Analyze selected DB customers
+  const analyzeDBCustomers = async () => {
+    if (selectedCustomerIds.size === 0) {
+      toast.error('Please select customers to analyze');
+      return;
+    }
+
+    const selectedCustomers = dbCustomers.filter(c => selectedCustomerIds.has(c.id));
+    const customerDataForAnalysis: CustomerData[] = selectedCustomers.map(c => ({
+      name: c.name,
+      email: c.email,
+      company: c.company,
+      phone: c.mobile,
+      productName: c.product_name || undefined,
+      existingServices: c.product_name ? [c.product_name] : undefined
+    }));
+
+    setAllCustomers(customerDataForAnalysis);
+    
+    // Trigger analysis
+    setIsAnalyzing(true);
+    setProgress(0);
+    const results: AnalysisResult[] = [];
+    const batchSize = 10;
+
+    try {
+      for (let i = 0; i < customerDataForAnalysis.length; i += batchSize) {
+        const batch = customerDataForAnalysis.slice(i, i + batchSize);
+        
+        const { data, error } = await supabase.functions.invoke('analyze-bank-pain-points', {
+          body: { customers: batch }
+        });
+
+        if (error) {
+          console.error('Analysis error:', error);
+          toast.error('Analysis error - retrying...');
+        } else if (data?.results) {
+          results.push(...data.results);
+        } else if (data?.retryable) {
+          toast.error(data.error || 'Please try again');
+        }
+
+        setProgress(((i + batchSize) / customerDataForAnalysis.length) * 100);
+      }
+
+      setAnalysisResults(results);
+      if (results.length > 0) {
+        toast.success(`Analysis complete: ${results.length} customers analyzed`);
+      } else {
+        toast.error('No results returned. Please try again.');
+      }
+    } catch (error) {
+      console.error('Analysis failed:', error);
+      toast.error('Analysis failed. Please try again.');
+    } finally {
+      setIsAnalyzing(false);
+    }
+  };
 
   const parseExcelFile = async (file: File): Promise<CustomerData[]> => {
     return new Promise((resolve, reject) => {
@@ -343,120 +512,221 @@ const CustomerPainPointAnalysis = () => {
 
   return (
     <div className="space-y-6">
-      {/* Upload Section */}
+      {/* Data Source Selection */}
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <FolderOpen className="h-5 w-5" />
-            Upload Customer Data
+            <Sparkles className="h-5 w-5 text-primary" />
+            Customer Analysis & Cross-Sell Opportunities
           </CardTitle>
           <CardDescription>
-            Select a parent directory containing child folders with Excel files (.xlsx, .xls, .csv)
+            Analyze customers for banking readiness, pain points, and cross-sell opportunities
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
-            <input
-              type="file"
-              id="directory-upload"
-              // @ts-ignore - webkitdirectory is not in standard types
-              webkitdirectory="true"
-              directory=""
-              multiple
-              onChange={handleDirectoryUpload}
-              className="hidden"
-              disabled={isLoading}
-            />
-            <label htmlFor="directory-upload" className="cursor-pointer">
-              <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-              <p className="text-lg font-medium">Click to select a folder</p>
-              <p className="text-sm text-muted-foreground mt-1">
-                All Excel files in subfolders will be processed
-              </p>
-            </label>
-          </div>
+        <CardContent>
+          <Tabs value={dataSource} onValueChange={(v) => setDataSource(v as 'upload' | 'database')}>
+            <TabsList className="grid w-full grid-cols-2 mb-4">
+              <TabsTrigger value="database" className="gap-2">
+                <Database className="h-4 w-4" />
+                Existing Customers
+              </TabsTrigger>
+              <TabsTrigger value="upload" className="gap-2">
+                <Upload className="h-4 w-4" />
+                Upload Data
+              </TabsTrigger>
+            </TabsList>
 
-          {isLoading && (
-            <div className="space-y-2">
-              <div className="flex items-center gap-2">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span className="text-sm">Processing files...</span>
-              </div>
-              <Progress value={progress} />
-            </div>
-          )}
-
-          {uploadStats.customers > 0 && !isLoading && (
-            <div className="grid grid-cols-3 gap-4">
-              <div className="p-4 rounded-lg bg-muted/50 text-center">
-                <FolderOpen className="h-6 w-6 mx-auto mb-2 text-primary" />
-                <p className="text-2xl font-bold">{uploadStats.folders}</p>
-                <p className="text-sm text-muted-foreground">Folders</p>
-              </div>
-              <div className="p-4 rounded-lg bg-muted/50 text-center">
-                <FileSpreadsheet className="h-6 w-6 mx-auto mb-2 text-primary" />
-                <p className="text-2xl font-bold">{uploadStats.files}</p>
-                <p className="text-sm text-muted-foreground">Files</p>
-              </div>
-              <div className="p-4 rounded-lg bg-muted/50 text-center">
-                <Users className="h-6 w-6 mx-auto mb-2 text-primary" />
-                <p className="text-2xl font-bold">{uploadStats.customers}</p>
-                <p className="text-sm text-muted-foreground">Customers</p>
-              </div>
-            </div>
-          )}
-
-          {folders.length > 0 && (
-            <Accordion type="multiple" className="w-full">
-              {folders.map((folder, idx) => (
-                <AccordionItem key={idx} value={folder.name}>
-                  <AccordionTrigger className="hover:no-underline">
-                    <div className="flex items-center gap-2">
-                      <FolderOpen className="h-4 w-4" />
-                      <span>{folder.name}</span>
-                      <Badge variant="secondary">{folder.files.length} files</Badge>
-                    </div>
-                  </AccordionTrigger>
-                  <AccordionContent>
-                    <div className="space-y-2 pl-6">
-                      {folder.files.map((file, fidx) => (
-                        <div key={fidx} className="flex items-center gap-2 text-sm">
-                          <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
-                          <span>{file.name}</span>
-                          <Badge variant="outline">{file.customers.length} records</Badge>
-                        </div>
+            {/* Database Customers Tab */}
+            <TabsContent value="database" className="space-y-4">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <Select value={selectedProductFilter} onValueChange={setSelectedProductFilter}>
+                    <SelectTrigger className="w-[200px]">
+                      <SelectValue placeholder="Filter by service" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Services</SelectItem>
+                      <SelectItem value="none">No Service Assigned</SelectItem>
+                      {products.map(p => (
+                        <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>
                       ))}
-                    </div>
-                  </AccordionContent>
-                </AccordionItem>
-              ))}
-            </Accordion>
-          )}
+                    </SelectContent>
+                  </Select>
+                  <Badge variant="secondary">{filteredDBCustomers.length} customers</Badge>
+                </div>
+                <Button variant="outline" size="sm" onClick={loadDBData} disabled={isLoadingDB}>
+                  <RefreshCw className={`h-4 w-4 mr-2 ${isLoadingDB ? 'animate-spin' : ''}`} />
+                  Refresh
+                </Button>
+              </div>
 
-          {allCustomers.length > 0 && (
-            <Button 
-              onClick={analyzeCustomers} 
-              disabled={isAnalyzing}
-              className="w-full"
-              size="lg"
-            >
-              {isAnalyzing ? (
-                <>
-                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                  Analyzing {allCustomers.length} customers...
-                </>
+              {isLoadingDB ? (
+                <div className="flex items-center justify-center py-8">
+                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                </div>
               ) : (
-                <>
-                  <AlertTriangle className="h-4 w-4 mr-2" />
-                  Analyze Bank Account Pain Points
-                </>
+                <ScrollArea className="h-[300px] border rounded-lg">
+                  <div className="p-2">
+                    <div className="flex items-center gap-2 p-2 border-b mb-2">
+                      <Checkbox
+                        checked={selectedCustomerIds.size === filteredDBCustomers.length && filteredDBCustomers.length > 0}
+                        onCheckedChange={toggleSelectAll}
+                      />
+                      <span className="text-sm font-medium">
+                        Select All ({selectedCustomerIds.size} selected)
+                      </span>
+                    </div>
+                    {filteredDBCustomers.map(customer => (
+                      <div
+                        key={customer.id}
+                        className="flex items-center gap-3 p-2 hover:bg-muted/50 rounded-md cursor-pointer"
+                        onClick={() => toggleCustomerSelection(customer.id)}
+                      >
+                        <Checkbox
+                          checked={selectedCustomerIds.has(customer.id)}
+                          onCheckedChange={() => toggleCustomerSelection(customer.id)}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">{customer.name}</p>
+                          <p className="text-sm text-muted-foreground truncate">{customer.company}</p>
+                        </div>
+                        {customer.product_name && (
+                          <Badge variant="outline" className="shrink-0">{customer.product_name}</Badge>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </ScrollArea>
               )}
-            </Button>
-          )}
 
-          {isAnalyzing && (
-            <Progress value={progress} className="mt-2" />
-          )}
+              <Button 
+                onClick={analyzeDBCustomers} 
+                disabled={isAnalyzing || selectedCustomerIds.size === 0}
+                className="w-full"
+                size="lg"
+              >
+                {isAnalyzing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Analyzing {selectedCustomerIds.size} customers...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4 mr-2" />
+                    Analyze {selectedCustomerIds.size} Selected Customers
+                  </>
+                )}
+              </Button>
+
+              {isAnalyzing && <Progress value={progress} />}
+            </TabsContent>
+
+            {/* Upload Tab */}
+            <TabsContent value="upload" className="space-y-4">
+              <div className="border-2 border-dashed border-border rounded-lg p-8 text-center hover:border-primary/50 transition-colors">
+                <input
+                  type="file"
+                  id="directory-upload"
+                  // @ts-ignore - webkitdirectory is not in standard types
+                  webkitdirectory="true"
+                  directory=""
+                  multiple
+                  onChange={handleDirectoryUpload}
+                  className="hidden"
+                  disabled={isLoading}
+                />
+                <label htmlFor="directory-upload" className="cursor-pointer">
+                  <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
+                  <p className="text-lg font-medium">Click to select a folder</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    All Excel files in subfolders will be processed
+                  </p>
+                </label>
+              </div>
+
+              {isLoading && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <span className="text-sm">Processing files...</span>
+                  </div>
+                  <Progress value={progress} />
+                </div>
+              )}
+
+              {uploadStats.customers > 0 && !isLoading && (
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="p-4 rounded-lg bg-muted/50 text-center">
+                    <FolderOpen className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-2xl font-bold">{uploadStats.folders}</p>
+                    <p className="text-sm text-muted-foreground">Folders</p>
+                  </div>
+                  <div className="p-4 rounded-lg bg-muted/50 text-center">
+                    <FileSpreadsheet className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-2xl font-bold">{uploadStats.files}</p>
+                    <p className="text-sm text-muted-foreground">Files</p>
+                  </div>
+                  <div className="p-4 rounded-lg bg-muted/50 text-center">
+                    <Users className="h-6 w-6 mx-auto mb-2 text-primary" />
+                    <p className="text-2xl font-bold">{uploadStats.customers}</p>
+                    <p className="text-sm text-muted-foreground">Customers</p>
+                  </div>
+                </div>
+              )}
+
+              {folders.length > 0 && (
+                <Accordion type="multiple" className="w-full">
+                  {folders.map((folder, idx) => (
+                    <AccordionItem key={idx} value={folder.name}>
+                      <AccordionTrigger className="hover:no-underline">
+                        <div className="flex items-center gap-2">
+                          <FolderOpen className="h-4 w-4" />
+                          <span>{folder.name}</span>
+                          <Badge variant="secondary">{folder.files.length} files</Badge>
+                        </div>
+                      </AccordionTrigger>
+                      <AccordionContent>
+                        <div className="space-y-2 pl-6">
+                          {folder.files.map((file, fidx) => (
+                            <div key={fidx} className="flex items-center gap-2 text-sm">
+                              <FileSpreadsheet className="h-4 w-4 text-muted-foreground" />
+                              <span>{file.name}</span>
+                              <Badge variant="outline">{file.customers.length} records</Badge>
+                            </div>
+                          ))}
+                        </div>
+                      </AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
+              )}
+
+              {allCustomers.length > 0 && dataSource === 'upload' && (
+                <Button 
+                  onClick={analyzeCustomers} 
+                  disabled={isAnalyzing}
+                  className="w-full"
+                  size="lg"
+                >
+                  {isAnalyzing ? (
+                    <>
+                      <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      Analyzing {allCustomers.length} customers...
+                    </>
+                  ) : (
+                    <>
+                      <AlertTriangle className="h-4 w-4 mr-2" />
+                      Analyze Bank Account Pain Points
+                    </>
+                  )}
+                </Button>
+              )}
+
+              {isAnalyzing && dataSource === 'upload' && (
+                <Progress value={progress} className="mt-2" />
+              )}
+            </TabsContent>
+          </Tabs>
         </CardContent>
       </Card>
 
