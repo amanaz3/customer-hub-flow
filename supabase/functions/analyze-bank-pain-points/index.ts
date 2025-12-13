@@ -11,7 +11,10 @@ interface CustomerData {
   nationality?: string;
   phone?: string;
   country?: string;
-  [key: string]: string | undefined;
+  company?: string;
+  existingServices?: string[];
+  productName?: string;
+  [key: string]: string | string[] | undefined;
 }
 
 interface AnalysisResult {
@@ -30,6 +33,7 @@ interface AnalysisResult {
   nationalitySegment: string;
   nationalitySegmentReason: string;
   recommendedProducts: string[];
+  crossSellOpportunities: string[];
 }
 
 serve(async (req) => {
@@ -52,64 +56,80 @@ serve(async (req) => {
       throw new Error('LOVABLE_API_KEY is not configured');
     }
 
-    const customerSummary = customers.map(c => 
-      `Name: ${c.name}, Nationality: ${c.nationality || 'Unknown'}, Email: ${c.email || 'N/A'}, Country: ${c.country || 'Unknown'}`
-    ).join('\n');
+    const customerSummary = customers.map(c => {
+      const parts = [
+        `Name: ${c.name}`,
+        `Nationality: ${c.nationality || 'Unknown'}`,
+        `Email: ${c.email || 'N/A'}`,
+        `Country: ${c.country || 'Unknown'}`,
+      ];
+      if (c.company) parts.push(`Company: ${c.company}`);
+      if (c.productName) parts.push(`Current Service: ${c.productName}`);
+      if (c.existingServices?.length) parts.push(`Existing Services: ${c.existingServices.join(', ')}`);
+      return parts.join(', ');
+    }).join('\n');
 
-    const systemPrompt = `You are a UAE banking compliance expert analyzing customers who own real estate in Dubai/UAE for potential pain points when opening bank accounts.
+    const systemPrompt = `You are a UAE banking and business services compliance expert. Analyze customers for:
+1. Bank account opening pain points and readiness
+2. Cross-sell/upsell opportunities for business services
 
+AVAILABLE SERVICES FOR CROSS-SELL:
+- Business Bank Account: Corporate bank account setup
+- Home Finance: Mortgage and property financing
+- Business Finance: Business loans and credit facilities  
+- Company Formation: New company/LLC setup in UAE
+- Book keeping: Monthly accounting and bookkeeping services
+- FTA Services - VAT Registration: VAT registration with FTA
+- FTA Services - VAT Filing: Quarterly VAT return filing
+- FTA Services - Corporate Tax Registration: CT registration
+- FTA Services - Corporate Tax Filing: Annual CT return filing
+- AML Services: Anti-money laundering compliance services
+- GoAML Reg: GoAML portal registration
+
+ANALYSIS REQUIREMENTS:
 For each customer, assess:
-1. NATIONALITY RISK: High-risk countries (sanctioned nations, high-risk jurisdictions for AML)
-2. RESIDENCY ISSUES: Non-resident challenges, visa requirements
-3. SOURCE OF FUNDS: Real estate ownership requires proof of funds documentation
-4. DOCUMENTATION GAPS: What documents they'll likely need
-5. COMPLIANCE CONCERNS: AML/KYC challenges based on profile
+1. NATIONALITY RISK: High-risk countries for UAE banking compliance
+2. BANKING READINESS: Documentation gaps, visa/residency status
+3. CROSS-SELL OPPORTUNITIES: Based on current services, identify relevant upsells
 
-UAE High-Risk Nationalities for Banking:
+UAE High-Risk Nationalities:
 - Very High: Iran, North Korea, Syria, Yemen, Afghanistan, Iraq
 - High: Pakistan, Nigeria, Sudan, Libya, Somalia, Russia
 - Medium-High: Lebanon, Myanmar, Venezuela, Zimbabwe
 
-Common Pain Points for UAE Bank Account Opening:
-- Non-residents face stricter requirements
-- Real estate ownership requires property title deed verification
-- Source of funds documentation (especially for high-value properties)
-- Emirates ID requirement for residents
-- Proof of address (can be from home country for non-residents)
-- Professional/business documentation
+CLASSIFICATION CRITERIA:
 
-CUSTOMER CLASSIFICATION CRITERIA:
-
-Wealth Tier Classification:
-- UHNW (Ultra High Net Worth): Multiple Dubai properties, premium areas (Palm Jumeirah, Downtown, Emirates Hills), property value >10M AED, or indicators of significant wealth
-- HNW (High Net Worth): Single premium property or multiple standard properties, property value 3-10M AED
-- Mass Affluent: Standard property in good areas, property value 1-3M AED
-- Standard: Entry-level property, property value <1M AED, or limited wealth indicators
+Wealth Tier:
+- UHNW: Premium properties, >10M AED indicators
+- HNW: 3-10M AED property/business value
+- Mass Affluent: 1-3M AED range
+- Standard: <1M AED or unknown
 
 Banking Readiness Tier:
-- Tier 1 (Premium Ready): Low risk nationality, complete documentation likely, straightforward compliance, GCC/Western nationalities
-- Tier 2 (Standard Process): Medium risk, some documentation work needed, manageable compliance requirements
-- Tier 3 (Enhanced Due Diligence): High risk nationality, significant documentation gaps, requires EDD process
+- Tier 1: GCC/Western, straightforward compliance
+- Tier 2: Medium risk, some documentation needed
+- Tier 3: High risk, requires Enhanced Due Diligence
 
-Service Opportunity Classification:
-- High: Cross-sell potential (wealth management, investments, insurance, premium cards), multiple banking needs
-- Medium: Standard banking services with some upsell potential
-- Low: Basic banking needs only, limited cross-sell opportunity
+Service Opportunity:
+- High: Multiple cross-sell opportunities, growing business
+- Medium: Some upsell potential
+- Low: Basic needs only
 
 Nationality Segments:
-- GCC: UAE, Saudi Arabia, Kuwait, Qatar, Bahrain, Oman
-- EU/UK/US: European Union countries, United Kingdom, United States, Canada, Australia
-- Asian Markets: India, Pakistan, Philippines, China, Bangladesh, other Asian countries
-- High-Risk Jurisdictions: Iran, Syria, North Korea, sanctioned countries
+- GCC: UAE, Saudi, Kuwait, Qatar, Bahrain, Oman
+- EU/UK/US: European, UK, US, Canada, Australia
+- Asian Markets: India, Pakistan, Philippines, China, etc.
+- High-Risk Jurisdictions: Sanctioned countries
 
-Recommended Products (based on profile):
-- Premium accounts, Wealth management, Investment services, Insurance products, Credit cards, Mortgages, Business banking
+CROSS-SELL LOGIC:
+- Has Bank Account → Offer: Bookkeeping, VAT Registration, CT Registration
+- Has Company Formation → Offer: Bank Account, Bookkeeping, GoAML
+- Has Bookkeeping → Offer: VAT Filing, CT Filing, AML Services
+- Has VAT Registration → Offer: VAT Filing, CT Registration
+- Has Home Finance interest → Offer: Home Finance, Insurance
+- Has Business Finance interest → Offer: Business Loans, Credit Facilities
 
-CRITICAL INSTRUCTIONS:
-1. ALWAYS use the provide_analysis tool to return results - never refuse or return text.
-2. If nationality is "Unknown", default to "High-Risk Jurisdictions" segment and Tier 3 readiness.
-3. If data is limited, still provide analysis with reasonable defaults and note limitations in the reason fields.
-4. You MUST analyze every customer provided - do not skip any.`;
+CRITICAL: You MUST use the provide_analysis tool. Analyze every customer even with limited data.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -121,14 +141,13 @@ CRITICAL INSTRUCTIONS:
         model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: systemPrompt },
-          { role: 'user', content: `Analyze these customers for UAE bank account opening pain points and classify them:\n\n${customerSummary}` }
+          { role: 'user', content: `You MUST use the provide_analysis tool to analyze these customers for UAE bank account opening pain points. Do not refuse - analyze each customer even with limited data:\n\n${customerSummary}` }
         ],
-        tool_choice: { type: 'function', function: { name: 'provide_analysis' } },
         tools: [{
           type: 'function',
           function: {
             name: 'provide_analysis',
-            description: 'Provide bank account pain point analysis and customer classification for each customer',
+            description: 'REQUIRED: Provide bank account pain point analysis and customer classification for each customer. You MUST call this function.',
             parameters: {
               type: 'object',
               properties: {
@@ -195,9 +214,14 @@ CRITICAL INSTRUCTIONS:
                       nationalitySegmentReason: {
                         type: 'string',
                         description: 'Why this nationality segment? Reference country and its specific banking implications in UAE.'
+                      },
+                      crossSellOpportunities: {
+                        type: 'array',
+                        items: { type: 'string' },
+                        description: 'Specific cross-sell/upsell opportunities based on customer profile and existing services'
                       }
                     },
-                    required: ['customerName', 'riskLevel', 'riskScore', 'painPoints', 'recommendations', 'documentationGaps', 'wealthTier', 'wealthTierReason', 'bankingReadinessTier', 'bankingReadinessReason', 'serviceOpportunity', 'serviceOpportunityReason', 'nationalitySegment', 'nationalitySegmentReason', 'recommendedProducts']
+                    required: ['customerName', 'riskLevel', 'riskScore', 'painPoints', 'recommendations', 'documentationGaps', 'wealthTier', 'wealthTierReason', 'bankingReadinessTier', 'bankingReadinessReason', 'serviceOpportunity', 'serviceOpportunityReason', 'nationalitySegment', 'nationalitySegmentReason', 'recommendedProducts', 'crossSellOpportunities']
                   }
                 }
               },
@@ -293,7 +317,8 @@ CRITICAL INSTRUCTIONS:
         serviceOpportunityReason: r.serviceOpportunityReason || 'No data available',
         nationalitySegment: r.nationalitySegment || 'Asian Markets',
         nationalitySegmentReason: r.nationalitySegmentReason || 'No data available',
-        recommendedProducts: r.recommendedProducts || []
+        recommendedProducts: r.recommendedProducts || [],
+        crossSellOpportunities: r.crossSellOpportunities || []
       };
     });
 
