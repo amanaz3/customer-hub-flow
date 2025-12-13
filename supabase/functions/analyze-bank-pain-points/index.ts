@@ -26,6 +26,7 @@ interface AnalysisResult {
   serviceOpportunity: 'High' | 'Medium' | 'Low';
   nationalitySegment: string;
   recommendedProducts: string[];
+  classificationReasoning: string;
 }
 
 serve(async (req) => {
@@ -101,6 +102,8 @@ Nationality Segments:
 Recommended Products (based on profile):
 - Premium accounts, Wealth management, Investment services, Insurance products, Credit cards, Mortgages, Business banking
 
+IMPORTANT: Since we only have limited customer data (name, nationality, email), be honest in classificationReasoning about what data informed each classification. If assigning a wealth tier without property value data, note this limitation. Default to "Standard" wealth tier unless there are clear indicators otherwise.
+
 Return analysis in JSON format.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -170,9 +173,13 @@ Return analysis in JSON format.`;
                         type: 'array',
                         items: { type: 'string' },
                         description: 'List of recommended banking products for this customer'
+                      },
+                      classificationReasoning: {
+                        type: 'string',
+                        description: 'Brief explanation of why this wealth tier and classifications were assigned based on available data. Be honest if data is limited.'
                       }
                     },
-                    required: ['customerName', 'riskLevel', 'riskScore', 'painPoints', 'recommendations', 'documentationGaps', 'wealthTier', 'bankingReadinessTier', 'serviceOpportunity', 'nationalitySegment', 'recommendedProducts']
+                    required: ['customerName', 'riskLevel', 'riskScore', 'painPoints', 'recommendations', 'documentationGaps', 'wealthTier', 'bankingReadinessTier', 'serviceOpportunity', 'nationalitySegment', 'recommendedProducts', 'classificationReasoning']
                   }
                 }
               },
@@ -246,7 +253,8 @@ Return analysis in JSON format.`;
         bankingReadinessTier: r.bankingReadinessTier || 'Tier 2',
         serviceOpportunity: r.serviceOpportunity || 'Medium',
         nationalitySegment: r.nationalitySegment || 'Asian Markets',
-        recommendedProducts: r.recommendedProducts || []
+        recommendedProducts: r.recommendedProducts || [],
+        classificationReasoning: r.classificationReasoning || 'No reasoning provided'
       };
     });
 
