@@ -48,6 +48,7 @@ interface AnalysisResult {
   serviceOpportunity: 'High' | 'Medium' | 'Low';
   nationalitySegment: string;
   recommendedProducts: string[];
+  classificationReasoning?: string;
 }
 
 interface FileInfo {
@@ -687,6 +688,13 @@ const CustomerPainPointAnalysis = () => {
                                   {getServiceOpportunityBadge(result.serviceOpportunity)}
                                 </div>
                               </div>
+
+                              {result.classificationReasoning && (
+                                <div className="mt-3 p-3 bg-muted/50 rounded-md">
+                                  <h5 className="text-sm font-medium mb-1 text-muted-foreground">Classification Reasoning</h5>
+                                  <p className="text-sm">{result.classificationReasoning}</p>
+                                </div>
+                              )}
 
                               {result.recommendedProducts && result.recommendedProducts.length > 0 && (
                                 <div className="mt-3">
