@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { 
   Upload, 
   FolderOpen, 
@@ -21,7 +22,9 @@ import {
   Star,
   TrendingUp,
   Shield,
-  Briefcase
+  Briefcase,
+  Filter,
+  X
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -71,6 +74,11 @@ const CustomerPainPointAnalysis = () => {
   const [progress, setProgress] = useState(0);
   const [uploadStats, setUploadStats] = useState({ folders: 0, files: 0, customers: 0 });
 
+  // Classification filters
+  const [wealthFilter, setWealthFilter] = useState<string>('all');
+  const [readinessFilter, setReadinessFilter] = useState<string>('all');
+  const [serviceFilter, setServiceFilter] = useState<string>('all');
+  const [nationalityFilter, setNationalityFilter] = useState<string>('all');
   // Classification counts
   const classificationCounts = useMemo(() => {
     const wealthTiers = { UHNW: 0, HNW: 0, 'Mass Affluent': 0, Standard: 0 };
@@ -89,6 +97,27 @@ const CustomerPainPointAnalysis = () => {
 
     return { wealthTiers, readinessTiers, serviceOpps, nationalitySegs };
   }, [analysisResults]);
+
+  // Filtered results for classifications tab
+  const filteredResults = useMemo(() => {
+    return analysisResults.filter(r => {
+      if (wealthFilter !== 'all' && r.wealthTier !== wealthFilter) return false;
+      if (readinessFilter !== 'all' && r.bankingReadinessTier !== readinessFilter) return false;
+      if (serviceFilter !== 'all' && r.serviceOpportunity !== serviceFilter) return false;
+      if (nationalityFilter !== 'all' && r.nationalitySegment !== nationalityFilter) return false;
+      return true;
+    });
+  }, [analysisResults, wealthFilter, readinessFilter, serviceFilter, nationalityFilter]);
+
+  const clearAllFilters = () => {
+    setWealthFilter('all');
+    setReadinessFilter('all');
+    setServiceFilter('all');
+    setNationalityFilter('all');
+  };
+
+  const hasActiveFilters = wealthFilter !== 'all' || readinessFilter !== 'all' || serviceFilter !== 'all' || nationalityFilter !== 'all';
+
 
   const parseExcelFile = async (file: File): Promise<CustomerData[]> => {
     return new Promise((resolve, reject) => {
@@ -650,6 +679,78 @@ const CustomerPainPointAnalysis = () => {
                 </Card>
               </div>
 
+              {/* Filters */}
+              <Card>
+                <CardContent className="pt-4">
+                  <div className="flex flex-wrap items-center gap-4">
+                    <div className="flex items-center gap-2">
+                      <Filter className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-sm font-medium">Filters:</span>
+                    </div>
+                    
+                    <Select value={wealthFilter} onValueChange={setWealthFilter}>
+                      <SelectTrigger className="w-[150px] bg-background">
+                        <SelectValue placeholder="Wealth Tier" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        <SelectItem value="all">All Wealth Tiers</SelectItem>
+                        <SelectItem value="UHNW">UHNW</SelectItem>
+                        <SelectItem value="HNW">HNW</SelectItem>
+                        <SelectItem value="Mass Affluent">Mass Affluent</SelectItem>
+                        <SelectItem value="Standard">Standard</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Select value={readinessFilter} onValueChange={setReadinessFilter}>
+                      <SelectTrigger className="w-[150px] bg-background">
+                        <SelectValue placeholder="Readiness" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        <SelectItem value="all">All Readiness</SelectItem>
+                        <SelectItem value="Tier 1">Tier 1 (Premium)</SelectItem>
+                        <SelectItem value="Tier 2">Tier 2 (Standard)</SelectItem>
+                        <SelectItem value="Tier 3">Tier 3 (EDD)</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Select value={serviceFilter} onValueChange={setServiceFilter}>
+                      <SelectTrigger className="w-[150px] bg-background">
+                        <SelectValue placeholder="Service Opp" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        <SelectItem value="all">All Opportunities</SelectItem>
+                        <SelectItem value="High">High Priority</SelectItem>
+                        <SelectItem value="Medium">Medium</SelectItem>
+                        <SelectItem value="Low">Low</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Select value={nationalityFilter} onValueChange={setNationalityFilter}>
+                      <SelectTrigger className="w-[180px] bg-background">
+                        <SelectValue placeholder="Nationality" />
+                      </SelectTrigger>
+                      <SelectContent className="bg-popover z-50">
+                        <SelectItem value="all">All Nationalities</SelectItem>
+                        {Object.keys(classificationCounts.nationalitySegs).map(seg => (
+                          <SelectItem key={seg} value={seg}>{seg}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+
+                    {hasActiveFilters && (
+                      <Button variant="ghost" size="sm" onClick={clearAllFilters} className="gap-1">
+                        <X className="h-3 w-3" />
+                        Clear
+                      </Button>
+                    )}
+
+                    <div className="ml-auto text-sm text-muted-foreground">
+                      Showing {filteredResults.length} of {analysisResults.length}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
               {/* Classification Results */}
               <Card>
                 <CardHeader>
@@ -659,7 +760,7 @@ const CustomerPainPointAnalysis = () => {
                 <CardContent>
                   <ScrollArea className="h-[600px]">
                     <div className="space-y-4">
-                      {analysisResults
+                      {filteredResults
                         .sort((a, b) => {
                           const tierOrder = { UHNW: 0, HNW: 1, 'Mass Affluent': 2, Standard: 3 };
                           return (tierOrder[a.wealthTier] || 3) - (tierOrder[b.wealthTier] || 3);
