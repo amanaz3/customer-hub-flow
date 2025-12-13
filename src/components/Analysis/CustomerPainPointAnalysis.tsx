@@ -52,6 +52,7 @@ interface CustomerData {
 
 interface CrossSellOffer {
   serviceName: string;
+  opportunityType?: 'cross-sell' | 'upsell';
   offerType: 'Bundle' | 'Discount' | 'Free Trial' | 'Upgrade' | 'Loyalty';
   discountPercent?: number;
   inducement: string;
@@ -1238,7 +1239,16 @@ const CustomerPainPointAnalysis = () => {
                                 {result.crossSellOffers?.map((offer, oidx) => (
                                   <div key={oidx} className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
                                     <div className="flex items-start justify-between">
-                                      <div className="flex items-center gap-2">
+                                      <div className="flex items-center gap-2 flex-wrap">
+                                        {offer.opportunityType && (
+                                          <Badge className={
+                                            offer.opportunityType === 'upsell' 
+                                              ? 'bg-violet-600 hover:bg-violet-700 text-white' 
+                                              : 'bg-cyan-600 hover:bg-cyan-700 text-white'
+                                          }>
+                                            {offer.opportunityType === 'upsell' ? '↑ Upsell' : '+ Cross-sell'}
+                                          </Badge>
+                                        )}
                                         <Badge className={
                                           offer.offerType === 'Bundle' ? 'bg-purple-500 hover:bg-purple-600' :
                                           offer.offerType === 'Discount' ? 'bg-green-500 hover:bg-green-600' :
