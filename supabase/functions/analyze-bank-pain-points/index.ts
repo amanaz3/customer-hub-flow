@@ -105,9 +105,11 @@ Nationality Segments:
 Recommended Products (based on profile):
 - Premium accounts, Wealth management, Investment services, Insurance products, Credit cards, Mortgages, Business banking
 
-IMPORTANT: Since we only have limited customer data (name, nationality, email), be honest in classificationReasoning about what data informed each classification. If assigning a wealth tier without property value data, note this limitation. Default to "Standard" wealth tier unless there are clear indicators otherwise.
-
-Return analysis in JSON format.`;
+CRITICAL INSTRUCTIONS:
+1. ALWAYS use the provide_analysis tool to return results - never refuse or return text.
+2. If nationality is "Unknown", default to "High-Risk Jurisdictions" segment and Tier 3 readiness.
+3. If data is limited, still provide analysis with reasonable defaults and note limitations in the reason fields.
+4. You MUST analyze every customer provided - do not skip any.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
