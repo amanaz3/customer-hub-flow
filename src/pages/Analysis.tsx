@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Target, Layers, Activity } from "lucide-react";
+import { Target, Layers, Activity, Building2 } from "lucide-react";
 
 const Analysis = () => {
   const navigate = useNavigate();
@@ -27,6 +27,13 @@ const Analysis = () => {
       icon: Layers,
       path: "/applications-by-services",
       color: "text-indigo-600"
+    },
+    {
+      title: "Bank Pain Analysis",
+      description: "Upload customer data to identify UAE bank account opening pain points",
+      icon: Building2,
+      path: "/bank-pain-analysis",
+      color: "text-red-600"
     }
   ];
 
