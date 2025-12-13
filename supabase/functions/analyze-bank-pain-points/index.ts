@@ -227,6 +227,18 @@ Return analysis in JSON format.`;
     const aiResponse = await response.json();
     console.log('AI Response structure:', JSON.stringify(aiResponse, null, 2));
     
+    // Check for provider errors in the response body
+    if (aiResponse.error) {
+      console.error('AI provider error:', aiResponse.error);
+      return new Response(
+        JSON.stringify({ 
+          error: `AI provider error: ${aiResponse.error.message || 'Unknown error'}. Please try again.`,
+          retryable: true 
+        }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+    
     const message = aiResponse.choices?.[0]?.message;
     const toolCall = message?.tool_calls?.[0];
     
@@ -247,7 +259,13 @@ Return analysis in JSON format.`;
     
     if (!analysisData?.results) {
       console.error('Could not extract analysis data. Full response:', JSON.stringify(aiResponse));
-      throw new Error('Invalid AI response format - no results found');
+      return new Response(
+        JSON.stringify({ 
+          error: 'Could not parse AI response. Please try again.',
+          retryable: true 
+        }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
     
     // Match AI results back to original customer objects
