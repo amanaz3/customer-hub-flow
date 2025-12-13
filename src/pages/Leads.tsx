@@ -33,6 +33,7 @@ import {
   Calendar,
   ArrowUpRight,
   FlaskConical,
+  Upload,
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { useLeads } from '@/hooks/useLeads';
@@ -42,6 +43,7 @@ import { LeadReminderScheduleDialog } from '@/components/Lead/LeadReminderSchedu
 import { LeadSettingsDialog } from '@/components/Lead/LeadSettingsDialog';
 import { FollowupSequenceConfig } from '@/components/Lead/FollowupSequenceConfig';
 import { LeadPerformanceLeaderboard } from '@/components/Lead/LeadPerformanceLeaderboard';
+import { OutreachImportDialog } from '@/components/Lead/OutreachImportDialog';
 import { LEAD_SCORE_COLORS, LEAD_STATUS_COLORS, type LeadScore, type LeadStatus } from '@/types/lead';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -60,6 +62,7 @@ export default function Leads() {
   const [scoreFilter, setScoreFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [showOutreachDialog, setShowOutreachDialog] = useState(false);
 
   const filteredLeads = useMemo(() => {
     return leads.filter((lead) => {
@@ -129,6 +132,10 @@ export default function Leads() {
                 <LeadReminderScheduleDialog />
               </>
             )}
+            <Button variant="outline" onClick={() => setShowOutreachDialog(true)}>
+              <Upload className="h-4 w-4 mr-2" />
+              Import & Outreach
+            </Button>
             <Button onClick={() => setShowCreateDialog(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Add Lead
@@ -341,6 +348,11 @@ export default function Leads() {
       </div>
 
       <CreateLeadDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} />
+      <OutreachImportDialog 
+        open={showOutreachDialog} 
+        onOpenChange={setShowOutreachDialog}
+        onImportComplete={() => window.location.reload()}
+      />
     </>
   );
 }
