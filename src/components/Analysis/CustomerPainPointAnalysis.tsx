@@ -28,7 +28,11 @@ import {
   X,
   Database,
   RefreshCw,
-  Sparkles
+  Sparkles,
+  Gift,
+  Percent,
+  Clock,
+  Zap
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -44,6 +48,16 @@ interface CustomerData {
   existingServices?: string[];
   productName?: string;
   [key: string]: string | string[] | undefined;
+}
+
+interface CrossSellOffer {
+  serviceName: string;
+  offerType: 'Bundle' | 'Discount' | 'Free Trial' | 'Upgrade' | 'Loyalty';
+  discountPercent?: number;
+  inducement: string;
+  valueProposition: string;
+  urgencyTrigger: string;
+  competitorAdvantage: string;
 }
 
 interface AnalysisResult {
@@ -63,6 +77,7 @@ interface AnalysisResult {
   nationalitySegmentReason?: string;
   recommendedProducts: string[];
   crossSellOpportunities?: string[];
+  crossSellOffers?: CrossSellOffer[];
 }
 
 interface FileInfo {
@@ -742,9 +757,10 @@ const CustomerPainPointAnalysis = () => {
           </div>
 
           <Tabs defaultValue="risk" className="w-full">
-            <TabsList className="grid w-full grid-cols-2">
+            <TabsList className="grid w-full grid-cols-3">
               <TabsTrigger value="risk">Risk Analysis</TabsTrigger>
               <TabsTrigger value="classifications">Classifications</TabsTrigger>
+              <TabsTrigger value="offers">Cross-Sell Offers</TabsTrigger>
             </TabsList>
 
             <TabsContent value="risk" className="space-y-4">
@@ -1121,6 +1137,173 @@ const CustomerPainPointAnalysis = () => {
                             </CardContent>
                           </Card>
                         ))}
+                    </div>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="offers" className="space-y-4">
+              {/* Cross-Sell Offers Summary */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card className="bg-gradient-to-br from-green-500/5 to-green-500/10 border-green-500/20">
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <Gift className="h-8 w-8 mx-auto mb-2 text-green-600" />
+                      <p className="text-3xl font-bold text-green-600">
+                        {analysisResults.filter(r => r.crossSellOffers && r.crossSellOffers.length > 0).length}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Customers with Offers</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-blue-500/20">
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <Percent className="h-8 w-8 mx-auto mb-2 text-blue-600" />
+                      <p className="text-3xl font-bold text-blue-600">
+                        {analysisResults.reduce((sum, r) => sum + (r.crossSellOffers?.length || 0), 0)}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Total Offers</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-gradient-to-br from-orange-500/5 to-orange-500/10 border-orange-500/20">
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <TrendingUp className="h-8 w-8 mx-auto mb-2 text-orange-600" />
+                      <p className="text-3xl font-bold text-orange-600">
+                        {analysisResults.filter(r => r.serviceOpportunity === 'High').length}
+                      </p>
+                      <p className="text-sm text-muted-foreground">High Priority</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-gradient-to-br from-purple-500/5 to-purple-500/10 border-purple-500/20">
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <Zap className="h-8 w-8 mx-auto mb-2 text-purple-600" />
+                      <p className="text-3xl font-bold text-purple-600">
+                        {analysisResults.reduce((sum, r) => sum + (r.crossSellOffers?.filter(o => o.offerType === 'Bundle' || o.offerType === 'Discount').length || 0), 0)}
+                      </p>
+                      <p className="text-sm text-muted-foreground">Discount Offers</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Cross-Sell Offers List */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Gift className="h-5 w-5 text-primary" />
+                    Cross-Sell & Upsell Offers
+                  </CardTitle>
+                  <CardDescription>Personalized offers with discounts, inducements, and conversion strategies</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[600px]">
+                    <div className="space-y-4">
+                      {analysisResults
+                        .filter(r => r.crossSellOffers && r.crossSellOffers.length > 0)
+                        .sort((a, b) => {
+                          const oppOrder = { High: 0, Medium: 1, Low: 2 };
+                          return (oppOrder[a.serviceOpportunity] || 2) - (oppOrder[b.serviceOpportunity] || 2);
+                        })
+                        .map((result, idx) => (
+                          <Card key={idx} className={`border-l-4 ${
+                            result.serviceOpportunity === 'High' ? 'border-l-green-500' :
+                            result.serviceOpportunity === 'Medium' ? 'border-l-blue-500' : 'border-l-muted'
+                          }`}>
+                            <CardContent className="pt-4">
+                              <div className="flex items-start justify-between mb-4">
+                                <div>
+                                  <h4 className="font-semibold text-lg">{result.customer.name}</h4>
+                                  <div className="flex items-center gap-3 text-sm text-muted-foreground mt-1">
+                                    {result.customer.company && <span>{result.customer.company}</span>}
+                                    {result.customer.productName && (
+                                      <Badge variant="outline" className="text-xs">
+                                        Current: {result.customer.productName}
+                                      </Badge>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {getServiceOpportunityBadge(result.serviceOpportunity)}
+                                  <Badge variant="secondary">{result.crossSellOffers?.length} offers</Badge>
+                                </div>
+                              </div>
+
+                              <div className="grid gap-3">
+                                {result.crossSellOffers?.map((offer, oidx) => (
+                                  <div key={oidx} className="p-4 rounded-lg bg-muted/30 border border-border/50 space-y-3">
+                                    <div className="flex items-start justify-between">
+                                      <div className="flex items-center gap-2">
+                                        <Badge className={
+                                          offer.offerType === 'Bundle' ? 'bg-purple-500 hover:bg-purple-600' :
+                                          offer.offerType === 'Discount' ? 'bg-green-500 hover:bg-green-600' :
+                                          offer.offerType === 'Free Trial' ? 'bg-blue-500 hover:bg-blue-600' :
+                                          offer.offerType === 'Upgrade' ? 'bg-orange-500 hover:bg-orange-600' :
+                                          'bg-amber-500 hover:bg-amber-600'
+                                        }>
+                                          {offer.offerType}
+                                        </Badge>
+                                        <span className="font-semibold">{offer.serviceName}</span>
+                                        {offer.discountPercent && (
+                                          <Badge variant="outline" className="text-green-600 border-green-500">
+                                            {offer.discountPercent}% OFF
+                                          </Badge>
+                                        )}
+                                      </div>
+                                    </div>
+
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+                                      <div className="flex items-start gap-2">
+                                        <Gift className="h-4 w-4 text-green-600 mt-0.5 shrink-0" />
+                                        <div>
+                                          <span className="font-medium text-green-700">Inducement:</span>
+                                          <p className="text-muted-foreground">{offer.inducement}</p>
+                                        </div>
+                                      </div>
+
+                                      <div className="flex items-start gap-2">
+                                        <TrendingUp className="h-4 w-4 text-blue-600 mt-0.5 shrink-0" />
+                                        <div>
+                                          <span className="font-medium text-blue-700">Value:</span>
+                                          <p className="text-muted-foreground">{offer.valueProposition}</p>
+                                        </div>
+                                      </div>
+
+                                      <div className="flex items-start gap-2">
+                                        <Clock className="h-4 w-4 text-orange-600 mt-0.5 shrink-0" />
+                                        <div>
+                                          <span className="font-medium text-orange-700">Urgency:</span>
+                                          <p className="text-muted-foreground">{offer.urgencyTrigger}</p>
+                                        </div>
+                                      </div>
+
+                                      <div className="flex items-start gap-2">
+                                        <Zap className="h-4 w-4 text-purple-600 mt-0.5 shrink-0" />
+                                        <div>
+                                          <span className="font-medium text-purple-700">Why Us:</span>
+                                          <p className="text-muted-foreground">{offer.competitorAdvantage}</p>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      
+                      {analysisResults.filter(r => r.crossSellOffers && r.crossSellOffers.length > 0).length === 0 && (
+                        <div className="text-center py-12 text-muted-foreground">
+                          <Gift className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                          <p>No cross-sell offers generated yet.</p>
+                          <p className="text-sm">Analyze customers to generate personalized offers.</p>
+                        </div>
+                      )}
                     </div>
                   </ScrollArea>
                 </CardContent>
