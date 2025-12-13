@@ -17,6 +17,16 @@ interface CustomerData {
   [key: string]: string | string[] | undefined;
 }
 
+interface CrossSellOffer {
+  serviceName: string;
+  offerType: 'Bundle' | 'Discount' | 'Free Trial' | 'Upgrade' | 'Loyalty';
+  discountPercent?: number;
+  inducement: string;
+  valueProposition: string;
+  urgencyTrigger: string;
+  competitorAdvantage: string;
+}
+
 interface AnalysisResult {
   customer: CustomerData;
   riskLevel: 'low' | 'medium' | 'high';
@@ -34,6 +44,7 @@ interface AnalysisResult {
   nationalitySegmentReason: string;
   recommendedProducts: string[];
   crossSellOpportunities: string[];
+  crossSellOffers: CrossSellOffer[];
 }
 
 serve(async (req) => {
@@ -129,6 +140,44 @@ CROSS-SELL LOGIC:
 - Has Home Finance interest → Offer: Home Finance, Insurance
 - Has Business Finance interest → Offer: Business Loans, Credit Facilities
 
+OFFER STRATEGIES (for crossSellOffers):
+For each cross-sell opportunity, provide specific offers to convert quickly:
+
+OFFER TYPES:
+- Bundle: "Get Bookkeeping + VAT Filing at 20% off when purchased together"
+- Discount: Direct percentage off (10-30% based on loyalty/volume)
+- Free Trial: "First month free" or "Free compliance assessment"
+- Upgrade: "Upgrade from basic to premium at 15% off"
+- Loyalty: "Existing customer exclusive: 25% off new services"
+
+INDUCEMENTS (what to give):
+- Waive setup fees (AED 500-2000 value)
+- Free initial consultation (AED 500 value)
+- Complimentary document review
+- Priority processing (2x faster)
+- Dedicated account manager
+- First month/quarter free
+
+URGENCY TRIGGERS:
+- "Limited time: Offer expires in 7 days"
+- "FTA deadline approaching - register now"
+- "Year-end special: Save before December 31"
+- "New customer onboarding discount"
+- "Bundle now before individual prices apply"
+
+COMPETITOR ADVANTAGES (why choose us):
+- "Unlike competitors, we handle bank liaison directly"
+- "Same-day document processing vs. 3-5 days elsewhere"
+- "All-in-one platform - no need for multiple providers"
+- "Local UAE expertise - not outsourced overseas"
+- "Dedicated WhatsApp support vs. email-only elsewhere"
+
+VALUE PROPOSITIONS:
+- Quantify savings: "Save AED X,XXX annually"
+- Time savings: "Save 10+ hours monthly"
+- Compliance peace of mind: "100% FTA compliance guaranteed"
+- Convenience: "One provider for all business needs"
+
 CRITICAL: You MUST use the provide_analysis tool. Analyze every customer even with limited data.`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -219,9 +268,26 @@ CRITICAL: You MUST use the provide_analysis tool. Analyze every customer even wi
                         type: 'array',
                         items: { type: 'string' },
                         description: 'Specific cross-sell/upsell opportunities based on customer profile and existing services'
+                      },
+                      crossSellOffers: {
+                        type: 'array',
+                        items: {
+                          type: 'object',
+                          properties: {
+                            serviceName: { type: 'string', description: 'Service being offered' },
+                            offerType: { type: 'string', enum: ['Bundle', 'Discount', 'Free Trial', 'Upgrade', 'Loyalty'] },
+                            discountPercent: { type: 'number', description: 'Discount percentage if applicable (10-30)' },
+                            inducement: { type: 'string', description: 'Specific incentive e.g. "Waive AED 1,500 setup fee" or "First month free"' },
+                            valueProposition: { type: 'string', description: 'Quantified value e.g. "Save AED 5,000 annually" or "Save 10 hours monthly"' },
+                            urgencyTrigger: { type: 'string', description: 'Why act now e.g. "VAT deadline in 30 days" or "Offer expires Friday"' },
+                            competitorAdvantage: { type: 'string', description: 'Why choose us over competitors e.g. "Same-day processing vs 3-5 days elsewhere"' }
+                          },
+                          required: ['serviceName', 'offerType', 'inducement', 'valueProposition', 'urgencyTrigger', 'competitorAdvantage']
+                        },
+                        description: 'Detailed offers with discounts, inducements, and conversion strategies for each cross-sell opportunity'
                       }
                     },
-                    required: ['customerName', 'riskLevel', 'riskScore', 'painPoints', 'recommendations', 'documentationGaps', 'wealthTier', 'wealthTierReason', 'bankingReadinessTier', 'bankingReadinessReason', 'serviceOpportunity', 'serviceOpportunityReason', 'nationalitySegment', 'nationalitySegmentReason', 'recommendedProducts', 'crossSellOpportunities']
+                    required: ['customerName', 'riskLevel', 'riskScore', 'painPoints', 'recommendations', 'documentationGaps', 'wealthTier', 'wealthTierReason', 'bankingReadinessTier', 'bankingReadinessReason', 'serviceOpportunity', 'serviceOpportunityReason', 'nationalitySegment', 'nationalitySegmentReason', 'recommendedProducts', 'crossSellOpportunities', 'crossSellOffers']
                   }
                 }
               },
@@ -318,7 +384,8 @@ CRITICAL: You MUST use the provide_analysis tool. Analyze every customer even wi
         nationalitySegment: r.nationalitySegment || 'Asian Markets',
         nationalitySegmentReason: r.nationalitySegmentReason || 'No data available',
         recommendedProducts: r.recommendedProducts || [],
-        crossSellOpportunities: r.crossSellOpportunities || []
+        crossSellOpportunities: r.crossSellOpportunities || [],
+        crossSellOffers: r.crossSellOffers || []
       };
     });
 
