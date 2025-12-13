@@ -75,6 +75,7 @@ import QuickReference from '@/pages/QuickReference';
 import QuickNotes from '@/pages/QuickNotes';
 import Leads from '@/pages/Leads';
 import LeadDetail from '@/pages/LeadDetail';
+import BankPainAnalysis from '@/pages/BankPainAnalysis';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -394,6 +395,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Analysis">
                           <Analysis />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/bank-pain-analysis" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Bank Pain Analysis">
+                          <BankPainAnalysis />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
