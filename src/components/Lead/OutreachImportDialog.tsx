@@ -321,6 +321,17 @@ export function OutreachImportDialog({ open, onOpenChange, onImportComplete }: O
           ))}
         </div>
 
+        {/* Preview step action buttons - always visible at top */}
+        {step === 'preview' && (
+          <div className="flex gap-2 justify-end pb-3 border-b mb-3">
+            <Button variant="outline" onClick={() => setStep('import')}>Back</Button>
+            <Button onClick={generateMessages}>
+              <Wand2 className="h-4 w-4 mr-2" />
+              Generate AI Messages
+            </Button>
+          </div>
+        )}
+
         <ScrollArea className="flex-1">
           {step === 'import' && (
             <div className="space-y-4 p-1">
@@ -437,14 +448,6 @@ export function OutreachImportDialog({ open, onOpenChange, onImportComplete }: O
                   ...and {parsedLeads.length - 10} more leads
                 </p>
               )}
-
-              <div className="flex gap-2 justify-end">
-                <Button variant="outline" onClick={() => setStep('import')}>Back</Button>
-                <Button onClick={generateMessages}>
-                  <Wand2 className="h-4 w-4 mr-2" />
-                  Generate AI Messages
-                </Button>
-              </div>
             </div>
           )}
 
