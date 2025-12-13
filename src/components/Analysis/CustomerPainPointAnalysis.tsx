@@ -47,11 +47,14 @@ interface AnalysisResult {
   recommendations: string[];
   documentationGaps: string[];
   wealthTier: 'UHNW' | 'HNW' | 'Mass Affluent' | 'Standard';
+  wealthTierReason?: string;
   bankingReadinessTier: 'Tier 1' | 'Tier 2' | 'Tier 3';
+  bankingReadinessReason?: string;
   serviceOpportunity: 'High' | 'Medium' | 'Low';
+  serviceOpportunityReason?: string;
   nationalitySegment: string;
+  nationalitySegmentReason?: string;
   recommendedProducts: string[];
-  classificationReasoning?: string;
 }
 
 interface FileInfo {
@@ -790,12 +793,47 @@ const CustomerPainPointAnalysis = () => {
                                 </div>
                               </div>
 
-                              {result.classificationReasoning && (
-                                <div className="mt-3 p-3 bg-muted/50 rounded-md">
-                                  <h5 className="text-sm font-medium mb-1 text-muted-foreground">Classification Reasoning</h5>
-                                  <p className="text-sm">{result.classificationReasoning}</p>
+                              <div className="mt-3 p-3 bg-muted/50 rounded-md space-y-2">
+                                <h5 className="text-sm font-medium text-muted-foreground">Classification Reasoning</h5>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+                                  {result.wealthTierReason && (
+                                    <div className="flex items-start gap-2">
+                                      <Crown className="h-3 w-3 text-amber-500 mt-0.5 shrink-0" />
+                                      <div>
+                                        <span className="font-medium">Wealth:</span>
+                                        <span className="text-muted-foreground ml-1">{result.wealthTierReason}</span>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {result.bankingReadinessReason && (
+                                    <div className="flex items-start gap-2">
+                                      <Shield className="h-3 w-3 text-blue-500 mt-0.5 shrink-0" />
+                                      <div>
+                                        <span className="font-medium">Readiness:</span>
+                                        <span className="text-muted-foreground ml-1">{result.bankingReadinessReason}</span>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {result.serviceOpportunityReason && (
+                                    <div className="flex items-start gap-2">
+                                      <TrendingUp className="h-3 w-3 text-orange-500 mt-0.5 shrink-0" />
+                                      <div>
+                                        <span className="font-medium">Service:</span>
+                                        <span className="text-muted-foreground ml-1">{result.serviceOpportunityReason}</span>
+                                      </div>
+                                    </div>
+                                  )}
+                                  {result.nationalitySegmentReason && (
+                                    <div className="flex items-start gap-2">
+                                      <Globe className="h-3 w-3 text-purple-500 mt-0.5 shrink-0" />
+                                      <div>
+                                        <span className="font-medium">Nationality:</span>
+                                        <span className="text-muted-foreground ml-1">{result.nationalitySegmentReason}</span>
+                                      </div>
+                                    </div>
+                                  )}
                                 </div>
-                              )}
+                              </div>
 
                               {result.recommendedProducts && result.recommendedProducts.length > 0 && (
                                 <div className="mt-3">
