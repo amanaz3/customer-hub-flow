@@ -12,6 +12,7 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -298,8 +299,8 @@ export function OutreachImportDialog({ open, onOpenChange, onImportComplete }: O
 
   return (
     <Dialog open={open} onOpenChange={(o) => { if (!o) resetDialog(); onOpenChange(o); }}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
-        <DialogHeader>
+      <DialogContent className="max-w-4xl max-h-[85vh] flex flex-col">
+        <DialogHeader className="flex-shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <FileSpreadsheet className="h-5 w-5 text-primary" />
             Outreach Import Assistant
@@ -309,7 +310,7 @@ export function OutreachImportDialog({ open, onOpenChange, onImportComplete }: O
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex items-center gap-2 mb-4">
+        <div className="flex items-center gap-2 mb-4 flex-shrink-0">
           {['import', 'preview', 'generate', 'results'].map((s, idx) => (
             <div key={s} className="flex items-center">
               <div className={`flex items-center gap-1 px-3 py-1 rounded-full text-sm ${step === s ? 'bg-primary text-primary-foreground' : 'bg-muted text-muted-foreground'}`}>
@@ -323,7 +324,7 @@ export function OutreachImportDialog({ open, onOpenChange, onImportComplete }: O
 
         {/* Preview step action buttons - always visible at top */}
         {step === 'preview' && (
-          <div className="flex gap-2 justify-end pb-3 border-b mb-3">
+          <div className="flex gap-2 justify-end pb-3 border-b mb-3 flex-shrink-0">
             <Button variant="outline" onClick={() => setStep('import')}>Back</Button>
             <Button onClick={generateMessages}>
               <Wand2 className="h-4 w-4 mr-2" />
@@ -332,7 +333,7 @@ export function OutreachImportDialog({ open, onOpenChange, onImportComplete }: O
           </div>
         )}
 
-        <ScrollArea className="flex-1">
+        <div className="flex-1 overflow-y-auto min-h-0">
           {step === 'import' && (
             <div className="space-y-4 p-1">
               <div className="border-2 border-dashed rounded-lg p-8 text-center">
@@ -425,24 +426,32 @@ export function OutreachImportDialog({ open, onOpenChange, onImportComplete }: O
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {parsedLeads.map((lead, idx) => (
-                        <TableRow key={idx}>
-                          <TableCell className="font-medium">{lead.company || lead.name}</TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {[lead.city, lead.state].filter(Boolean).join(', ') || '-'}
+                      {parsedLeads.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={5} className="text-center text-muted-foreground py-8">
+                            No leads to display
                           </TableCell>
-                          <TableCell className="text-sm">{lead.industry || '-'}</TableCell>
-                          <TableCell>
-                            {lead.dubai_setup_likelihood ? (
-                              <Badge variant="outline" className={LIKELIHOOD_COLORS[lead.dubai_setup_likelihood]}>
-                                {LIKELIHOOD_ICONS[lead.dubai_setup_likelihood]}
-                                <span className="ml-1 capitalize">{lead.dubai_setup_likelihood}</span>
-                              </Badge>
-                            ) : '-'}
-                          </TableCell>
-                          <TableCell className="capitalize">{lead.preferred_contact_method?.replace('_', ' ') || '-'}</TableCell>
                         </TableRow>
-                      ))}
+                      ) : (
+                        parsedLeads.map((lead, idx) => (
+                          <TableRow key={idx}>
+                            <TableCell className="font-medium">{lead.company || lead.name}</TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {[lead.city, lead.state].filter(Boolean).join(', ') || '-'}
+                            </TableCell>
+                            <TableCell className="text-sm">{lead.industry || '-'}</TableCell>
+                            <TableCell>
+                              {lead.dubai_setup_likelihood ? (
+                                <Badge variant="outline" className={LIKELIHOOD_COLORS[lead.dubai_setup_likelihood]}>
+                                  {LIKELIHOOD_ICONS[lead.dubai_setup_likelihood]}
+                                  <span className="ml-1 capitalize">{lead.dubai_setup_likelihood}</span>
+                                </Badge>
+                              ) : '-'}
+                            </TableCell>
+                            <TableCell className="capitalize">{lead.preferred_contact_method?.replace('_', ' ') || '-'}</TableCell>
+                          </TableRow>
+                        ))
+                      )}
                     </TableBody>
                   </Table>
                 </div>
@@ -624,7 +633,7 @@ export function OutreachImportDialog({ open, onOpenChange, onImportComplete }: O
               </div>
             </div>
           )}
-        </ScrollArea>
+        </div>
       </DialogContent>
     </Dialog>
   );
