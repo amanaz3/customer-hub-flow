@@ -203,13 +203,30 @@ Return analysis in JSON format.`;
     }
 
     const aiResponse = await response.json();
-    const toolCall = aiResponse.choices?.[0]?.message?.tool_calls?.[0];
+    console.log('AI Response structure:', JSON.stringify(aiResponse, null, 2));
     
-    if (!toolCall?.function?.arguments) {
-      throw new Error('Invalid AI response format');
+    const message = aiResponse.choices?.[0]?.message;
+    const toolCall = message?.tool_calls?.[0];
+    
+    let analysisData;
+    
+    // Try tool call first
+    if (toolCall?.function?.arguments) {
+      analysisData = JSON.parse(toolCall.function.arguments);
+    } 
+    // Fallback: Check if content contains JSON
+    else if (message?.content) {
+      console.log('No tool call, trying to parse content:', message.content);
+      const jsonMatch = message.content.match(/\{[\s\S]*\}/);
+      if (jsonMatch) {
+        analysisData = JSON.parse(jsonMatch[0]);
+      }
     }
-
-    const analysisData = JSON.parse(toolCall.function.arguments);
+    
+    if (!analysisData?.results) {
+      console.error('Could not extract analysis data. Full response:', JSON.stringify(aiResponse));
+      throw new Error('Invalid AI response format - no results found');
+    }
     
     // Match AI results back to original customer objects
     const results: AnalysisResult[] = analysisData.results.map((r: any) => {
