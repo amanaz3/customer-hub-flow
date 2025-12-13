@@ -1193,6 +1193,78 @@ const CustomerPainPointAnalysis = () => {
                 </Card>
               </div>
 
+              {/* Offer Type Guide for Agents */}
+              <Accordion type="single" collapsible className="w-full">
+                <AccordionItem value="offer-guide" className="border rounded-lg bg-muted/30">
+                  <AccordionTrigger className="px-4 hover:no-underline">
+                    <div className="flex items-center gap-2 text-sm">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      <span className="font-medium">Offer Type Guide for Agents</span>
+                      <Badge variant="outline" className="ml-2">Quick Reference</Badge>
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent className="px-4 pb-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-sm">
+                      <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-purple-500">Bundle</Badge>
+                        </div>
+                        <p className="text-muted-foreground mb-2"><strong>When:</strong> Customer needs 2+ related services</p>
+                        <p className="text-muted-foreground"><strong>Example:</strong> "Get Bookkeeping + VAT Filing together at 20% off"</p>
+                        <p className="text-xs mt-2 text-purple-600">Best for: New customers, comprehensive needs</p>
+                      </div>
+                      
+                      <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-green-500">Discount</Badge>
+                        </div>
+                        <p className="text-muted-foreground mb-2"><strong>When:</strong> Price-sensitive customer, competitive situation</p>
+                        <p className="text-muted-foreground"><strong>Example:</strong> "15% off VAT Registration this month"</p>
+                        <p className="text-xs mt-2 text-green-600">Best for: Closing hesitant prospects</p>
+                      </div>
+                      
+                      <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-blue-500">Free Trial</Badge>
+                        </div>
+                        <p className="text-muted-foreground mb-2"><strong>When:</strong> Customer unsure, needs to experience value</p>
+                        <p className="text-muted-foreground"><strong>Example:</strong> "First month of Bookkeeping free"</p>
+                        <p className="text-xs mt-2 text-blue-600">Best for: Risk-averse, first-time buyers</p>
+                      </div>
+                      
+                      <div className="p-3 rounded-lg bg-orange-500/10 border border-orange-500/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-orange-500">Upgrade</Badge>
+                        </div>
+                        <p className="text-muted-foreground mb-2"><strong>When:</strong> Existing customer on basic plan, growing needs</p>
+                        <p className="text-muted-foreground"><strong>Example:</strong> "Upgrade from basic to premium CT Filing"</p>
+                        <p className="text-xs mt-2 text-orange-600">Best for: Upselling existing clients</p>
+                      </div>
+                      
+                      <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-amber-500">Loyalty</Badge>
+                        </div>
+                        <p className="text-muted-foreground mb-2"><strong>When:</strong> Long-term customer, reward retention</p>
+                        <p className="text-muted-foreground"><strong>Example:</strong> "Exclusive 25% off for 2+ year clients"</p>
+                        <p className="text-xs mt-2 text-amber-600">Best for: Retention, preventing churn</p>
+                      </div>
+                      
+                      <div className="p-3 rounded-lg bg-violet-500/10 border border-violet-500/20">
+                        <div className="flex items-center gap-2 mb-2">
+                          <Badge className="bg-violet-600">↑ Upsell</Badge>
+                          <span className="text-xs">vs</span>
+                          <Badge className="bg-cyan-600">+ Cross-sell</Badge>
+                        </div>
+                        <p className="text-muted-foreground mb-2"><strong>Upsell:</strong> Upgrade within same service category</p>
+                        <p className="text-muted-foreground"><strong>Cross-sell:</strong> Add new service category they don't have</p>
+                        <p className="text-xs mt-2 text-violet-600">Upsell = more of same, Cross-sell = new category</p>
+                      </div>
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              </Accordion>
+
               {/* Cross-Sell Offers List */}
               <Card>
                 <CardHeader>
