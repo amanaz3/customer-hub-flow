@@ -19,6 +19,7 @@ interface CustomerData {
 
 interface CrossSellOffer {
   serviceName: string;
+  opportunityType: 'cross-sell' | 'upsell';
   offerType: 'Bundle' | 'Discount' | 'Free Trial' | 'Upgrade' | 'Loyalty';
   discountPercent?: number;
   inducement: string;
@@ -275,6 +276,7 @@ CRITICAL: You MUST use the provide_analysis tool. Analyze every customer even wi
                           type: 'object',
                           properties: {
                             serviceName: { type: 'string', description: 'Service being offered' },
+                            opportunityType: { type: 'string', enum: ['cross-sell', 'upsell'], description: 'cross-sell = new service category they dont have, upsell = upgrade or add-on to existing service' },
                             offerType: { type: 'string', enum: ['Bundle', 'Discount', 'Free Trial', 'Upgrade', 'Loyalty'] },
                             discountPercent: { type: 'number', description: 'Discount percentage if applicable (10-30)' },
                             inducement: { type: 'string', description: 'Specific incentive e.g. "Waive AED 1,500 setup fee" or "First month free"' },
