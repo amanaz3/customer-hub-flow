@@ -412,42 +412,42 @@ export function OutreachImportDialog({ open, onOpenChange, onImportComplete }: O
                 </Card>
               </div>
 
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Company</TableHead>
-                    <TableHead>Location</TableHead>
-                    <TableHead>Industry</TableHead>
-                    <TableHead>Likelihood</TableHead>
-                    <TableHead>Channel</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {parsedLeads.slice(0, 10).map((lead, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell className="font-medium">{lead.company || lead.name}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground">
-                        {[lead.city, lead.state].filter(Boolean).join(', ') || '-'}
-                      </TableCell>
-                      <TableCell className="text-sm">{lead.industry || '-'}</TableCell>
-                      <TableCell>
-                        {lead.dubai_setup_likelihood ? (
-                          <Badge variant="outline" className={LIKELIHOOD_COLORS[lead.dubai_setup_likelihood]}>
-                            {LIKELIHOOD_ICONS[lead.dubai_setup_likelihood]}
-                            <span className="ml-1 capitalize">{lead.dubai_setup_likelihood}</span>
-                          </Badge>
-                        ) : '-'}
-                      </TableCell>
-                      <TableCell className="capitalize">{lead.preferred_contact_method?.replace('_', ' ') || '-'}</TableCell>
+              <div className="border rounded-md max-h-[300px] overflow-auto">
+                <Table>
+                  <TableHeader className="sticky top-0 bg-background z-10">
+                    <TableRow>
+                      <TableHead>Company</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Industry</TableHead>
+                      <TableHead>Likelihood</TableHead>
+                      <TableHead>Channel</TableHead>
                     </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
-              {parsedLeads.length > 10 && (
-                <p className="text-sm text-muted-foreground text-center">
-                  ...and {parsedLeads.length - 10} more leads
-                </p>
-              )}
+                  </TableHeader>
+                  <TableBody>
+                    {parsedLeads.map((lead, idx) => (
+                      <TableRow key={idx}>
+                        <TableCell className="font-medium">{lead.company || lead.name}</TableCell>
+                        <TableCell className="text-sm text-muted-foreground">
+                          {[lead.city, lead.state].filter(Boolean).join(', ') || '-'}
+                        </TableCell>
+                        <TableCell className="text-sm">{lead.industry || '-'}</TableCell>
+                        <TableCell>
+                          {lead.dubai_setup_likelihood ? (
+                            <Badge variant="outline" className={LIKELIHOOD_COLORS[lead.dubai_setup_likelihood]}>
+                              {LIKELIHOOD_ICONS[lead.dubai_setup_likelihood]}
+                              <span className="ml-1 capitalize">{lead.dubai_setup_likelihood}</span>
+                            </Badge>
+                          ) : '-'}
+                        </TableCell>
+                        <TableCell className="capitalize">{lead.preferred_contact_method?.replace('_', ' ') || '-'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+              <p className="text-sm text-muted-foreground text-center">
+                {parsedLeads.length} leads imported
+              </p>
             </div>
           )}
 
