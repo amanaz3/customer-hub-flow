@@ -746,6 +746,303 @@ const CustomerPainPointAnalysis = () => {
         </CardContent>
       </Card>
 
+      {/* Analysis Methodology Guide */}
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="methodology" className="border rounded-lg px-4 bg-gradient-to-r from-blue-500/5 to-indigo-500/5">
+          <AccordionTrigger className="hover:no-underline">
+            <div className="flex items-center gap-2">
+              <Shield className="h-5 w-5 text-blue-500" />
+              <span className="font-semibold">Analysis Methodology & Classification Guide</span>
+              <Badge variant="outline" className="ml-2 text-xs">For Agents</Badge>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="space-y-6 pb-6">
+            {/* Overview */}
+            <div className="space-y-2">
+              <h4 className="font-semibold text-sm flex items-center gap-2">
+                <Sparkles className="h-4 w-4 text-primary" />
+                How This Analysis Works
+              </h4>
+              <p className="text-sm text-muted-foreground">
+                The AI analyzes customer data against UAE banking compliance requirements and our service catalog. 
+                It evaluates <strong>nationality risk</strong>, <strong>banking readiness</strong>, <strong>wealth indicators</strong>, 
+                and <strong>service gaps</strong> to identify pain points and cross-sell opportunities.
+              </p>
+            </div>
+
+            {/* Input Parameters */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm">📊 Input Data Used for Analysis</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+                <div className="space-y-1 p-3 bg-muted/50 rounded-lg">
+                  <p className="font-medium">From Customer Data:</p>
+                  <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                    <li><strong>Name</strong> - Customer identification</li>
+                    <li><strong>Nationality</strong> - Risk classification trigger</li>
+                    <li><strong>Email & Phone</strong> - Contact verification</li>
+                    <li><strong>Country</strong> - Residency status indicator</li>
+                    <li><strong>Company</strong> - Business type assessment</li>
+                  </ul>
+                </div>
+                <div className="space-y-1 p-3 bg-muted/50 rounded-lg">
+                  <p className="font-medium">From Database (if existing customer):</p>
+                  <ul className="list-disc list-inside text-muted-foreground space-y-1">
+                    <li><strong>Existing Services</strong> - Cross-sell logic trigger</li>
+                    <li><strong>Product Name</strong> - Current service relationship</li>
+                    <li><strong>Business Type</strong> - Wealth/opportunity indicators</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Nationality Risk Classification */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm">🌍 Nationality Risk Classification</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                  <p className="font-medium text-red-600 mb-2">Very High Risk</p>
+                  <p className="text-muted-foreground text-xs">Iran, North Korea, Syria, Yemen, Afghanistan, Iraq</p>
+                  <p className="text-xs mt-2 text-red-500">→ Enhanced Due Diligence Required</p>
+                </div>
+                <div className="p-3 bg-orange-500/10 border border-orange-500/20 rounded-lg">
+                  <p className="font-medium text-orange-600 mb-2">High Risk</p>
+                  <p className="text-muted-foreground text-xs">Pakistan, Nigeria, Sudan, Libya, Somalia, Russia</p>
+                  <p className="text-xs mt-2 text-orange-500">→ Additional Documentation Needed</p>
+                </div>
+                <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                  <p className="font-medium text-yellow-600 mb-2">Medium-High Risk</p>
+                  <p className="text-muted-foreground text-xs">Lebanon, Myanmar, Venezuela, Zimbabwe</p>
+                  <p className="text-xs mt-2 text-yellow-600">→ Standard+ Verification</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Wealth Tier Classification */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm">💰 Wealth Tier Classification</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="border-b">
+                      <th className="text-left p-2 font-medium">Tier</th>
+                      <th className="text-left p-2 font-medium">Indicators</th>
+                      <th className="text-left p-2 font-medium">Service Approach</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-muted-foreground">
+                    <tr className="border-b">
+                      <td className="p-2"><Badge className="bg-purple-500">UHNW</Badge></td>
+                      <td className="p-2">Premium properties, &gt;10M AED business value, luxury indicators</td>
+                      <td className="p-2">White-glove service, dedicated relationship manager</td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-2"><Badge className="bg-blue-500">HNW</Badge></td>
+                      <td className="p-2">3-10M AED property/business value, multiple properties</td>
+                      <td className="p-2">Priority banking, premium bundles</td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-2"><Badge className="bg-green-500">Mass Affluent</Badge></td>
+                      <td className="p-2">1-3M AED range, growing business, good income indicators</td>
+                      <td className="p-2">Standard+ service, bundle discounts</td>
+                    </tr>
+                    <tr>
+                      <td className="p-2"><Badge variant="secondary">Standard</Badge></td>
+                      <td className="p-2">&lt;1M AED or unknown/limited data</td>
+                      <td className="p-2">Standard service, value pricing</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p className="text-xs text-muted-foreground italic">
+                Note: If insufficient data exists, defaults conservatively to "Standard" tier.
+              </p>
+            </div>
+
+            {/* Banking Readiness Tier */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm">📋 Banking Readiness Tier</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                  <p className="font-medium text-green-600 mb-2">Tier 1 - Ready</p>
+                  <p className="text-muted-foreground text-xs">GCC/Western nationality, complete documentation, clear source of funds</p>
+                  <p className="text-xs mt-2 font-medium">Action: Fast-track processing</p>
+                </div>
+                <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                  <p className="font-medium text-yellow-600 mb-2">Tier 2 - Some Gaps</p>
+                  <p className="text-muted-foreground text-xs">Medium risk nationality, some docs missing, needs verification</p>
+                  <p className="text-xs mt-2 font-medium">Action: Document checklist + guidance</p>
+                </div>
+                <div className="p-3 bg-red-500/10 border border-red-500/20 rounded-lg">
+                  <p className="font-medium text-red-600 mb-2">Tier 3 - High Effort</p>
+                  <p className="text-muted-foreground text-xs">High-risk jurisdiction, EDD required, complex structure</p>
+                  <p className="text-xs mt-2 font-medium">Action: Senior review, EDD process</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Service Opportunity Classification */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm">📈 Service Opportunity Classification</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm">
+                <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
+                  <p className="font-medium text-green-600 mb-2">High Opportunity</p>
+                  <ul className="text-muted-foreground text-xs list-disc list-inside">
+                    <li>Multiple cross-sell matches</li>
+                    <li>Growing business indicators</li>
+                    <li>Active engagement signals</li>
+                  </ul>
+                </div>
+                <div className="p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+                  <p className="font-medium text-yellow-600 mb-2">Medium Opportunity</p>
+                  <ul className="text-muted-foreground text-xs list-disc list-inside">
+                    <li>1-2 upsell possibilities</li>
+                    <li>Stable business</li>
+                    <li>Some service gaps</li>
+                  </ul>
+                </div>
+                <div className="p-3 bg-muted border rounded-lg">
+                  <p className="font-medium mb-2">Low Opportunity</p>
+                  <ul className="text-muted-foreground text-xs list-disc list-inside">
+                    <li>Basic needs only</li>
+                    <li>Limited data available</li>
+                    <li>Single service customer</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+
+            {/* Nationality Segments */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm">🗺️ Nationality Segments</h4>
+              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 text-sm">
+                <div className="p-3 bg-muted/50 rounded-lg text-center">
+                  <p className="font-medium text-green-600">GCC</p>
+                  <p className="text-xs text-muted-foreground">UAE, Saudi, Kuwait, Qatar, Bahrain, Oman</p>
+                </div>
+                <div className="p-3 bg-muted/50 rounded-lg text-center">
+                  <p className="font-medium text-blue-600">EU/UK/US</p>
+                  <p className="text-xs text-muted-foreground">Europe, UK, US, Canada, Australia</p>
+                </div>
+                <div className="p-3 bg-muted/50 rounded-lg text-center">
+                  <p className="font-medium text-yellow-600">Asian Markets</p>
+                  <p className="text-xs text-muted-foreground">India, Pakistan, Philippines, China, etc.</p>
+                </div>
+                <div className="p-3 bg-muted/50 rounded-lg text-center">
+                  <p className="font-medium text-red-600">High-Risk</p>
+                  <p className="text-xs text-muted-foreground">Sanctioned countries, FATF high-risk</p>
+                </div>
+              </div>
+            </div>
+
+            {/* Cross-Sell Logic */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm">🔄 Cross-Sell Logic Rules</h4>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm border-collapse">
+                  <thead>
+                    <tr className="border-b bg-muted/50">
+                      <th className="text-left p-2 font-medium">If Customer Has...</th>
+                      <th className="text-left p-2 font-medium">Recommend...</th>
+                      <th className="text-left p-2 font-medium">Type</th>
+                    </tr>
+                  </thead>
+                  <tbody className="text-muted-foreground">
+                    <tr className="border-b">
+                      <td className="p-2">Bank Account</td>
+                      <td className="p-2">Bookkeeping, VAT Registration, CT Registration</td>
+                      <td className="p-2"><Badge variant="outline" className="bg-cyan-500/10 text-cyan-700">Cross-sell</Badge></td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-2">Company Formation</td>
+                      <td className="p-2">Bank Account, Bookkeeping, GoAML</td>
+                      <td className="p-2"><Badge variant="outline" className="bg-cyan-500/10 text-cyan-700">Cross-sell</Badge></td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-2">Bookkeeping</td>
+                      <td className="p-2">VAT Filing, CT Filing, AML Services</td>
+                      <td className="p-2"><Badge variant="outline" className="bg-violet-500/10 text-violet-700">Upsell</Badge></td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-2">VAT Registration</td>
+                      <td className="p-2">VAT Filing, CT Registration</td>
+                      <td className="p-2"><Badge variant="outline" className="bg-violet-500/10 text-violet-700">Upsell</Badge></td>
+                    </tr>
+                    <tr className="border-b">
+                      <td className="p-2">Home Finance interest</td>
+                      <td className="p-2">Home Finance, Insurance</td>
+                      <td className="p-2"><Badge variant="outline" className="bg-cyan-500/10 text-cyan-700">Cross-sell</Badge></td>
+                    </tr>
+                    <tr>
+                      <td className="p-2">Business Finance interest</td>
+                      <td className="p-2">Business Loans, Credit Facilities</td>
+                      <td className="p-2"><Badge variant="outline" className="bg-violet-500/10 text-violet-700">Upsell</Badge></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            {/* Risk Score Calculation */}
+            <div className="space-y-3">
+              <h4 className="font-semibold text-sm">⚡ Risk Score Calculation (0-100)</h4>
+              <div className="p-4 bg-muted/50 rounded-lg text-sm">
+                <p className="text-muted-foreground mb-3">
+                  The AI calculates a composite risk score considering:
+                </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <p className="font-medium mb-2">Increases Risk Score:</p>
+                    <ul className="list-disc list-inside text-muted-foreground text-xs space-y-1">
+                      <li>High-risk nationality (+20-40 points)</li>
+                      <li>Missing documentation (+5-15 points each)</li>
+                      <li>Complex business structure (+10-20 points)</li>
+                      <li>PEP/sanctions indicators (+30-50 points)</li>
+                      <li>Unclear source of funds (+15-25 points)</li>
+                    </ul>
+                  </div>
+                  <div>
+                    <p className="font-medium mb-2">Decreases Risk Score:</p>
+                    <ul className="list-disc list-inside text-muted-foreground text-xs space-y-1">
+                      <li>GCC/Western nationality (-10-20 points)</li>
+                      <li>Complete documentation (-5-10 points)</li>
+                      <li>Existing bank relationship (-10 points)</li>
+                      <li>Clear employment/business (-5-10 points)</li>
+                      <li>UAE residency status (-5-15 points)</li>
+                    </ul>
+                  </div>
+                </div>
+                <div className="mt-4 flex gap-4 text-xs">
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-green-500"></div>
+                    <span>Low Risk: 0-33</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-yellow-500"></div>
+                    <span>Medium Risk: 34-66</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <div className="w-3 h-3 rounded-full bg-red-500"></div>
+                    <span>High Risk: 67-100</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* AI Model Info */}
+            <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg text-sm">
+              <p className="font-medium flex items-center gap-2 mb-1">
+                <Sparkles className="h-4 w-4 text-primary" />
+                AI Model: Google Gemini 2.5 Flash
+              </p>
+              <p className="text-xs text-muted-foreground">
+                Analysis is performed by AI and should be reviewed by agents. Results are based on available data - 
+                limited data will result in conservative defaults. Always verify with actual customer documentation.
+              </p>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
       {/* Results Section */}
       {analysisResults.length > 0 && (
         <>
