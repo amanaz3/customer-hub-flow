@@ -123,6 +123,7 @@ CRITICAL INSTRUCTIONS:
           { role: 'system', content: systemPrompt },
           { role: 'user', content: `Analyze these customers for UAE bank account opening pain points and classify them:\n\n${customerSummary}` }
         ],
+        tool_choice: { type: 'function', function: { name: 'provide_analysis' } },
         tools: [{
           type: 'function',
           function: {
