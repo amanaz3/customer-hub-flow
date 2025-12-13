@@ -1,10 +1,11 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Upload, 
   FolderOpen, 
@@ -15,8 +16,12 @@ import {
   Loader2,
   Download,
   Users,
-  Building2,
-  Globe
+  Globe,
+  Crown,
+  Star,
+  TrendingUp,
+  Shield,
+  Briefcase
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -38,6 +43,11 @@ interface AnalysisResult {
   painPoints: string[];
   recommendations: string[];
   documentationGaps: string[];
+  wealthTier: 'UHNW' | 'HNW' | 'Mass Affluent' | 'Standard';
+  bankingReadinessTier: 'Tier 1' | 'Tier 2' | 'Tier 3';
+  serviceOpportunity: 'High' | 'Medium' | 'Low';
+  nationalitySegment: string;
+  recommendedProducts: string[];
 }
 
 interface FileInfo {
@@ -60,6 +70,25 @@ const CustomerPainPointAnalysis = () => {
   const [progress, setProgress] = useState(0);
   const [uploadStats, setUploadStats] = useState({ folders: 0, files: 0, customers: 0 });
 
+  // Classification counts
+  const classificationCounts = useMemo(() => {
+    const wealthTiers = { UHNW: 0, HNW: 0, 'Mass Affluent': 0, Standard: 0 };
+    const readinessTiers = { 'Tier 1': 0, 'Tier 2': 0, 'Tier 3': 0 };
+    const serviceOpps = { High: 0, Medium: 0, Low: 0 };
+    const nationalitySegs: Record<string, number> = {};
+
+    analysisResults.forEach(r => {
+      if (r.wealthTier) wealthTiers[r.wealthTier]++;
+      if (r.bankingReadinessTier) readinessTiers[r.bankingReadinessTier]++;
+      if (r.serviceOpportunity) serviceOpps[r.serviceOpportunity]++;
+      if (r.nationalitySegment) {
+        nationalitySegs[r.nationalitySegment] = (nationalitySegs[r.nationalitySegment] || 0) + 1;
+      }
+    });
+
+    return { wealthTiers, readinessTiers, serviceOpps, nationalitySegs };
+  }, [analysisResults]);
+
   const parseExcelFile = async (file: File): Promise<CustomerData[]> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -70,7 +99,6 @@ const CustomerPainPointAnalysis = () => {
           const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
           const jsonData = XLSX.utils.sheet_to_json(firstSheet) as CustomerData[];
           
-          // Normalize column names
           const normalizedData = jsonData.map(row => {
             const normalized: CustomerData = { name: '' };
             Object.entries(row).forEach(([key, value]) => {
@@ -185,7 +213,6 @@ const CustomerPainPointAnalysis = () => {
 
         if (error) {
           console.error('Analysis error:', error);
-          // Continue with next batch
         } else if (data?.results) {
           results.push(...data.results);
         }
@@ -212,6 +239,11 @@ const CustomerPainPointAnalysis = () => {
       Nationality: r.customer.nationality || '',
       'Risk Level': r.riskLevel,
       'Risk Score': r.riskScore,
+      'Wealth Tier': r.wealthTier || '',
+      'Banking Readiness': r.bankingReadinessTier || '',
+      'Service Opportunity': r.serviceOpportunity || '',
+      'Nationality Segment': r.nationalitySegment || '',
+      'Recommended Products': (r.recommendedProducts || []).join('; '),
       'Pain Points': r.painPoints.join('; '),
       'Recommendations': r.recommendations.join('; '),
       'Documentation Gaps': r.documentationGaps.join('; ')
@@ -232,6 +264,43 @@ const CustomerPainPointAnalysis = () => {
         return <Badge variant="secondary" className="gap-1 bg-yellow-500/10 text-yellow-600"><AlertTriangle className="h-3 w-3" /> Medium Risk</Badge>;
       default:
         return <Badge variant="secondary" className="gap-1 bg-green-500/10 text-green-600"><CheckCircle className="h-3 w-3" /> Low Risk</Badge>;
+    }
+  };
+
+  const getWealthTierBadge = (tier: string) => {
+    switch (tier) {
+      case 'UHNW':
+        return <Badge className="gap-1 bg-gradient-to-r from-amber-400 to-yellow-500 text-amber-950 border-0"><Crown className="h-3 w-3" /> UHNW</Badge>;
+      case 'HNW':
+        return <Badge className="gap-1 bg-amber-100 text-amber-700 border-amber-200"><Star className="h-3 w-3" /> HNW</Badge>;
+      case 'Mass Affluent':
+        return <Badge variant="secondary" className="gap-1 bg-blue-500/10 text-blue-600">Mass Affluent</Badge>;
+      default:
+        return <Badge variant="outline" className="gap-1">Standard</Badge>;
+    }
+  };
+
+  const getReadinessBadge = (tier: string) => {
+    switch (tier) {
+      case 'Tier 1':
+        return <Badge className="gap-1 bg-green-500/10 text-green-600 border-green-200"><Shield className="h-3 w-3" /> Tier 1</Badge>;
+      case 'Tier 2':
+        return <Badge className="gap-1 bg-yellow-500/10 text-yellow-600 border-yellow-200">Tier 2</Badge>;
+      case 'Tier 3':
+        return <Badge variant="destructive" className="gap-1">Tier 3 (EDD)</Badge>;
+      default:
+        return <Badge variant="outline">{tier}</Badge>;
+    }
+  };
+
+  const getServiceOpportunityBadge = (level: string) => {
+    switch (level) {
+      case 'High':
+        return <Badge className="gap-1 bg-orange-500/10 text-orange-600 border-orange-200"><TrendingUp className="h-3 w-3" /> High Priority</Badge>;
+      case 'Medium':
+        return <Badge variant="secondary" className="gap-1 bg-blue-500/10 text-blue-600">Medium</Badge>;
+      default:
+        return <Badge variant="outline" className="gap-1">Low</Badge>;
     }
   };
 
@@ -361,46 +430,6 @@ const CustomerPainPointAnalysis = () => {
       {/* Results Section */}
       {analysisResults.length > 0 && (
         <>
-          {/* Summary Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-            <Card className="bg-gradient-to-br from-card to-card/50">
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <Users className="h-8 w-8 mx-auto mb-2 text-primary" />
-                  <p className="text-3xl font-bold">{analysisResults.length}</p>
-                  <p className="text-sm text-muted-foreground">Total Analyzed</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-red-500/5 to-red-500/10 border-red-500/20">
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <XCircle className="h-8 w-8 mx-auto mb-2 text-red-500" />
-                  <p className="text-3xl font-bold text-red-500">{highRiskCount}</p>
-                  <p className="text-sm text-muted-foreground">High Risk</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-yellow-500/5 to-yellow-500/10 border-yellow-500/20">
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-yellow-600" />
-                  <p className="text-3xl font-bold text-yellow-600">{mediumRiskCount}</p>
-                  <p className="text-sm text-muted-foreground">Medium Risk</p>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="bg-gradient-to-br from-green-500/5 to-green-500/10 border-green-500/20">
-              <CardContent className="pt-6">
-                <div className="text-center">
-                  <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-600" />
-                  <p className="text-3xl font-bold text-green-600">{lowRiskCount}</p>
-                  <p className="text-sm text-muted-foreground">Low Risk</p>
-                </div>
-              </CardContent>
-            </Card>
-          </div>
-
           {/* Export Button */}
           <div className="flex justify-end">
             <Button variant="outline" onClick={exportResults}>
@@ -409,86 +438,278 @@ const CustomerPainPointAnalysis = () => {
             </Button>
           </div>
 
-          {/* Detailed Results */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Analysis Results</CardTitle>
-              <CardDescription>
-                Customers sorted by risk level (high risk first)
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <ScrollArea className="h-[600px]">
-                <div className="space-y-4">
-                  {analysisResults
-                    .sort((a, b) => {
-                      const order = { high: 0, medium: 1, low: 2 };
-                      return order[a.riskLevel] - order[b.riskLevel];
-                    })
-                    .map((result, idx) => (
-                      <Card key={idx} className={`border-l-4 ${
-                        result.riskLevel === 'high' ? 'border-l-red-500' :
-                        result.riskLevel === 'medium' ? 'border-l-yellow-500' : 'border-l-green-500'
-                      }`}>
-                        <CardContent className="pt-4">
-                          <div className="flex items-start justify-between mb-3">
-                            <div>
-                              <h4 className="font-semibold text-lg">{result.customer.name}</h4>
-                              <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
-                                {result.customer.email && <span>{result.customer.email}</span>}
-                                {result.customer.nationality && (
-                                  <span className="flex items-center gap-1">
-                                    <Globe className="h-3 w-3" />
-                                    {result.customer.nationality}
-                                  </span>
-                                )}
+          <Tabs defaultValue="risk" className="w-full">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="risk">Risk Analysis</TabsTrigger>
+              <TabsTrigger value="classifications">Classifications</TabsTrigger>
+            </TabsList>
+
+            <TabsContent value="risk" className="space-y-4">
+              {/* Risk Summary Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card className="bg-gradient-to-br from-card to-card/50">
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <Users className="h-8 w-8 mx-auto mb-2 text-primary" />
+                      <p className="text-3xl font-bold">{analysisResults.length}</p>
+                      <p className="text-sm text-muted-foreground">Total Analyzed</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-gradient-to-br from-red-500/5 to-red-500/10 border-red-500/20">
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <XCircle className="h-8 w-8 mx-auto mb-2 text-red-500" />
+                      <p className="text-3xl font-bold text-red-500">{highRiskCount}</p>
+                      <p className="text-sm text-muted-foreground">High Risk</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-gradient-to-br from-yellow-500/5 to-yellow-500/10 border-yellow-500/20">
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <AlertTriangle className="h-8 w-8 mx-auto mb-2 text-yellow-600" />
+                      <p className="text-3xl font-bold text-yellow-600">{mediumRiskCount}</p>
+                      <p className="text-sm text-muted-foreground">Medium Risk</p>
+                    </div>
+                  </CardContent>
+                </Card>
+                <Card className="bg-gradient-to-br from-green-500/5 to-green-500/10 border-green-500/20">
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <CheckCircle className="h-8 w-8 mx-auto mb-2 text-green-600" />
+                      <p className="text-3xl font-bold text-green-600">{lowRiskCount}</p>
+                      <p className="text-sm text-muted-foreground">Low Risk</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* Risk Analysis Results */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Risk Analysis Results</CardTitle>
+                  <CardDescription>Customers sorted by risk level (high risk first)</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[600px]">
+                    <div className="space-y-4">
+                      {analysisResults
+                        .sort((a, b) => {
+                          const order = { high: 0, medium: 1, low: 2 };
+                          return order[a.riskLevel] - order[b.riskLevel];
+                        })
+                        .map((result, idx) => (
+                          <Card key={idx} className={`border-l-4 ${
+                            result.riskLevel === 'high' ? 'border-l-red-500' :
+                            result.riskLevel === 'medium' ? 'border-l-yellow-500' : 'border-l-green-500'
+                          }`}>
+                            <CardContent className="pt-4">
+                              <div className="flex items-start justify-between mb-3">
+                                <div>
+                                  <h4 className="font-semibold text-lg">{result.customer.name}</h4>
+                                  <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                                    {result.customer.email && <span>{result.customer.email}</span>}
+                                    {result.customer.nationality && (
+                                      <span className="flex items-center gap-1">
+                                        <Globe className="h-3 w-3" />
+                                        {result.customer.nationality}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  {getRiskBadge(result.riskLevel)}
+                                  <Badge variant="outline">Score: {result.riskScore}/100</Badge>
+                                </div>
                               </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              {getRiskBadge(result.riskLevel)}
-                              <Badge variant="outline">Score: {result.riskScore}/100</Badge>
-                            </div>
+
+                              <Accordion type="single" collapsible className="w-full">
+                                <AccordionItem value="details" className="border-none">
+                                  <AccordionTrigger className="py-2 text-sm hover:no-underline">
+                                    View Details
+                                  </AccordionTrigger>
+                                  <AccordionContent>
+                                    <div className="grid gap-4 pt-2">
+                                      {result.painPoints.length > 0 && (
+                                        <div>
+                                          <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
+                                            <AlertTriangle className="h-4 w-4 text-destructive" />
+                                            Pain Points
+                                          </h5>
+                                          <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                                            {result.painPoints.map((point, pidx) => (
+                                              <li key={pidx}>{point}</li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+
+                                      {result.recommendations.length > 0 && (
+                                        <div>
+                                          <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
+                                            <CheckCircle className="h-4 w-4 text-green-600" />
+                                            Recommendations
+                                          </h5>
+                                          <ul className="list-disc list-inside space-y-1 text-sm text-muted-foreground">
+                                            {result.recommendations.map((rec, ridx) => (
+                                              <li key={ridx}>{rec}</li>
+                                            ))}
+                                          </ul>
+                                        </div>
+                                      )}
+
+                                      {result.documentationGaps.length > 0 && (
+                                        <div>
+                                          <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
+                                            <FileSpreadsheet className="h-4 w-4 text-blue-600" />
+                                            Documentation Needed
+                                          </h5>
+                                          <div className="flex flex-wrap gap-2">
+                                            {result.documentationGaps.map((doc, didx) => (
+                                              <Badge key={didx} variant="outline">{doc}</Badge>
+                                            ))}
+                                          </div>
+                                        </div>
+                                      )}
+                                    </div>
+                                  </AccordionContent>
+                                </AccordionItem>
+                              </Accordion>
+                            </CardContent>
+                          </Card>
+                        ))}
+                    </div>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            </TabsContent>
+
+            <TabsContent value="classifications" className="space-y-4">
+              {/* Classification Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <Card className="bg-gradient-to-br from-amber-500/5 to-amber-500/10 border-amber-500/20">
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <Crown className="h-8 w-8 mx-auto mb-2 text-amber-500" />
+                      <p className="text-sm font-medium text-muted-foreground mb-2">Wealth Tier</p>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between"><span>UHNW</span><span className="font-bold">{classificationCounts.wealthTiers.UHNW}</span></div>
+                        <div className="flex justify-between"><span>HNW</span><span className="font-bold">{classificationCounts.wealthTiers.HNW}</span></div>
+                        <div className="flex justify-between"><span>Mass Affluent</span><span className="font-bold">{classificationCounts.wealthTiers['Mass Affluent']}</span></div>
+                        <div className="flex justify-between"><span>Standard</span><span className="font-bold">{classificationCounts.wealthTiers.Standard}</span></div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-blue-500/5 to-blue-500/10 border-blue-500/20">
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <Shield className="h-8 w-8 mx-auto mb-2 text-blue-500" />
+                      <p className="text-sm font-medium text-muted-foreground mb-2">Banking Readiness</p>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between"><span>Tier 1 (Premium)</span><span className="font-bold text-green-600">{classificationCounts.readinessTiers['Tier 1']}</span></div>
+                        <div className="flex justify-between"><span>Tier 2 (Standard)</span><span className="font-bold text-yellow-600">{classificationCounts.readinessTiers['Tier 2']}</span></div>
+                        <div className="flex justify-between"><span>Tier 3 (EDD)</span><span className="font-bold text-red-600">{classificationCounts.readinessTiers['Tier 3']}</span></div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-orange-500/5 to-orange-500/10 border-orange-500/20">
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <TrendingUp className="h-8 w-8 mx-auto mb-2 text-orange-500" />
+                      <p className="text-sm font-medium text-muted-foreground mb-2">Service Opportunity</p>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between"><span>High Priority</span><span className="font-bold text-orange-600">{classificationCounts.serviceOpps.High}</span></div>
+                        <div className="flex justify-between"><span>Medium</span><span className="font-bold text-blue-600">{classificationCounts.serviceOpps.Medium}</span></div>
+                        <div className="flex justify-between"><span>Low</span><span className="font-bold">{classificationCounts.serviceOpps.Low}</span></div>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card className="bg-gradient-to-br from-purple-500/5 to-purple-500/10 border-purple-500/20">
+                  <CardContent className="pt-6">
+                    <div className="text-center">
+                      <Globe className="h-8 w-8 mx-auto mb-2 text-purple-500" />
+                      <p className="text-sm font-medium text-muted-foreground mb-2">Nationality Segments</p>
+                      <div className="space-y-1 text-sm">
+                        {Object.entries(classificationCounts.nationalitySegs).map(([seg, count]) => (
+                          <div key={seg} className="flex justify-between">
+                            <span className="truncate">{seg}</span>
+                            <span className="font-bold">{count}</span>
                           </div>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
 
-                          {result.painPoints.length > 0 && (
-                            <div className="mb-3">
-                              <p className="text-sm font-medium mb-1 text-red-600">Pain Points:</p>
-                              <ul className="text-sm text-muted-foreground list-disc list-inside">
-                                {result.painPoints.map((point, i) => (
-                                  <li key={i}>{point}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
+              {/* Classification Results */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Customer Classifications</CardTitle>
+                  <CardDescription>Customers with wealth tier, readiness, and service opportunity classifications</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <ScrollArea className="h-[600px]">
+                    <div className="space-y-4">
+                      {analysisResults
+                        .sort((a, b) => {
+                          const tierOrder = { UHNW: 0, HNW: 1, 'Mass Affluent': 2, Standard: 3 };
+                          return (tierOrder[a.wealthTier] || 3) - (tierOrder[b.wealthTier] || 3);
+                        })
+                        .map((result, idx) => (
+                          <Card key={idx} className="border-l-4 border-l-primary/50">
+                            <CardContent className="pt-4">
+                              <div className="flex items-start justify-between mb-3">
+                                <div>
+                                  <h4 className="font-semibold text-lg">{result.customer.name}</h4>
+                                  <div className="flex items-center gap-4 text-sm text-muted-foreground mt-1">
+                                    {result.customer.nationality && (
+                                      <span className="flex items-center gap-1">
+                                        <Globe className="h-3 w-3" />
+                                        {result.customer.nationality}
+                                      </span>
+                                    )}
+                                    {result.nationalitySegment && (
+                                      <Badge variant="outline" className="text-xs">{result.nationalitySegment}</Badge>
+                                    )}
+                                  </div>
+                                </div>
+                                <div className="flex flex-wrap items-center gap-2 justify-end">
+                                  {getWealthTierBadge(result.wealthTier)}
+                                  {getReadinessBadge(result.bankingReadinessTier)}
+                                  {getServiceOpportunityBadge(result.serviceOpportunity)}
+                                </div>
+                              </div>
 
-                          {result.documentationGaps.length > 0 && (
-                            <div className="mb-3">
-                              <p className="text-sm font-medium mb-1 text-yellow-600">Documentation Gaps:</p>
-                              <ul className="text-sm text-muted-foreground list-disc list-inside">
-                                {result.documentationGaps.map((gap, i) => (
-                                  <li key={i}>{gap}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-
-                          {result.recommendations.length > 0 && (
-                            <div>
-                              <p className="text-sm font-medium mb-1 text-green-600">Recommendations:</p>
-                              <ul className="text-sm text-muted-foreground list-disc list-inside">
-                                {result.recommendations.map((rec, i) => (
-                                  <li key={i}>{rec}</li>
-                                ))}
-                              </ul>
-                            </div>
-                          )}
-                        </CardContent>
-                      </Card>
-                    ))}
-                </div>
-              </ScrollArea>
-            </CardContent>
-          </Card>
+                              {result.recommendedProducts && result.recommendedProducts.length > 0 && (
+                                <div className="mt-3">
+                                  <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
+                                    <Briefcase className="h-4 w-4 text-primary" />
+                                    Recommended Products
+                                  </h5>
+                                  <div className="flex flex-wrap gap-2">
+                                    {result.recommendedProducts.map((product, pidx) => (
+                                      <Badge key={pidx} variant="secondary" className="text-xs">{product}</Badge>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+                            </CardContent>
+                          </Card>
+                        ))}
+                    </div>
+                  </ScrollArea>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
         </>
       )}
     </div>
