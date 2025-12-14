@@ -303,6 +303,12 @@ const LeadDiscoveryAnalysis = () => {
       const updatedResult = { ...resultRecord, output_data: data.result, status: 'completed' as const };
       setSessionResults(prev => [...prev, updatedResult]);
       setCurrentData(data.result);
+      setSelectedSession(prev => prev ? { 
+        ...prev, 
+        status: 'completed', 
+        product_id: selectedProductForApply,
+        product: selectedProduct
+      } : null);
       setShowApplyDialog(false);
       setSelectedProductForApply('');
       setApplyPrompt('');
