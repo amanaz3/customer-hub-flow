@@ -65,7 +65,7 @@ import { CreateCampaignDialog } from '@/components/Lead/CreateCampaignDialog';
 import { CampaignCard } from '@/components/Lead/CampaignCard';
 import { CampaignLeadsView } from '@/components/Lead/CampaignLeadsView';
 import { OutreachImportDialog } from '@/components/Lead/OutreachImportDialog';
-import LeadWorkflowSettingsDialog from '@/components/Lead/LeadWorkflowSettingsDialog';
+
 import BulkLeadWorkflowDialog from '@/components/Lead/BulkLeadWorkflowDialog';
 import { LEAD_SCORE_COLORS, LEAD_STATUS_COLORS, type LeadScore, type Lead } from '@/types/lead';
 import { format, formatDistanceToNow } from 'date-fns';
@@ -121,7 +121,7 @@ const LeadWorkflow = () => {
   
   // Workflow state
   const [currentStep, setCurrentStep] = useState(1);
-  const [settingsOpen, setSettingsOpen] = useState(false);
+  
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
   
   // Dialog state
@@ -332,10 +332,6 @@ const LeadWorkflow = () => {
                     <Button variant="outline" size="sm" onClick={() => setBulkDialogOpen(true)}>
                       <Users className="h-4 w-4 mr-1" />
                       Bulk Move
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)}>
-                      <Settings className="h-4 w-4 mr-1" />
-                      Settings
                     </Button>
                   </div>
                 </div>
@@ -757,7 +753,7 @@ const LeadWorkflow = () => {
         onOpenChange={setShowOutreachDialog}
         onImportComplete={() => window.location.reload()}
       />
-      <LeadWorkflowSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+      
       <BulkLeadWorkflowDialog open={bulkDialogOpen} onOpenChange={setBulkDialogOpen} leads={leads} />
     </div>
   );
