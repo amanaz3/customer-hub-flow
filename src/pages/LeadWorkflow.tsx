@@ -67,7 +67,7 @@ import { CampaignLeadsView } from '@/components/Lead/CampaignLeadsView';
 import { OutreachImportDialog } from '@/components/Lead/OutreachImportDialog';
 
 import BulkLeadWorkflowDialog from '@/components/Lead/BulkLeadWorkflowDialog';
-import { LEAD_SCORE_COLORS, LEAD_STATUS_COLORS, type LeadScore, type Lead } from '@/types/lead';
+import { LEAD_SCORE_COLORS, LEAD_STATUS_COLORS, type LeadScore, type LeadStatus, type Lead } from '@/types/lead';
 import { format, formatDistanceToNow } from 'date-fns';
 
 // Map lead status to workflow step
@@ -103,7 +103,7 @@ const scoreIcons: Record<LeadScore, React.ReactNode> = {
 
 const LeadWorkflow = () => {
   const navigate = useNavigate();
-  const { leads, loading, showDummyData, toggleDummyData } = useLeads();
+  const { leads, loading, showDummyData, toggleDummyData, updateLead } = useLeads();
   const { 
     campaigns, 
     isLoading: campaignsLoading, 
@@ -675,20 +675,79 @@ const LeadWorkflow = () => {
                                     <span className="text-sm">{lead.product_interest?.name || '-'}</span>
                                   </TableCell>
                                   {currentStepData?.key !== 'import' && (
-                                    <TableCell>
-                                      {lead.score && (
-                                        <Badge className={cn("text-xs", LEAD_SCORE_COLORS[lead.score])}>
-                                          {scoreIcons[lead.score]}
-                                          <span className="ml-1 capitalize">{lead.score}</span>
-                                        </Badge>
+                                    <TableCell onClick={(e) => e.stopPropagation()}>
+                                      {currentStepData?.key === 'qualify' ? (
+                                        <Select
+                                          value={lead.score || 'warm'}
+                                          onValueChange={(value) => {
+                                            if (!lead.id.startsWith('dummy-')) {
+                                              updateLead(lead.id, { score: value as LeadScore });
+                                            }
+                                          }}
+                                        >
+                                          <SelectTrigger className="h-7 w-[90px] text-xs">
+                                            <SelectValue />
+                                          </SelectTrigger>
+                                          <SelectContent>
+                                            <SelectItem value="hot">
+                                              <div className="flex items-center gap-1">
+                                                <Flame className="h-3 w-3 text-red-500" />
+                                                Hot
+                                              </div>
+                                            </SelectItem>
+                                            <SelectItem value="warm">
+                                              <div className="flex items-center gap-1">
+                                                <ThermometerSun className="h-3 w-3 text-amber-500" />
+                                                Warm
+                                              </div>
+                                            </SelectItem>
+                                            <SelectItem value="cold">
+                                              <div className="flex items-center gap-1">
+                                                <Snowflake className="h-3 w-3 text-blue-500" />
+                                                Cold
+                                              </div>
+                                            </SelectItem>
+                                          </SelectContent>
+                                        </Select>
+                                      ) : (
+                                        lead.score && (
+                                          <Badge className={cn("text-xs", LEAD_SCORE_COLORS[lead.score])}>
+                                            {scoreIcons[lead.score]}
+                                            <span className="ml-1 capitalize">{lead.score}</span>
+                                          </Badge>
+                                        )
                                       )}
                                     </TableCell>
                                   )}
-                                  <TableCell>
-                                    {lead.status && (
-                                      <Badge variant="outline" className={cn("text-xs capitalize", LEAD_STATUS_COLORS[lead.status])}>
-                                        {lead.status}
-                                      </Badge>
+                                  <TableCell onClick={(e) => e.stopPropagation()}>
+                                    {currentStepData?.key === 'qualify' ? (
+                                      <Select
+                                        value={lead.status || 'contacted'}
+                                        onValueChange={(value) => {
+                                          if (!lead.id.startsWith('dummy-')) {
+                                            updateLead(lead.id, { status: value as LeadStatus });
+                                          }
+                                        }}
+                                      >
+                                        <SelectTrigger className="h-7 w-[110px] text-xs">
+                                          <SelectValue />
+                                        </SelectTrigger>
+                                        <SelectContent>
+                                          <SelectItem value="new">New</SelectItem>
+                                          <SelectItem value="contacted">Contacted</SelectItem>
+                                          <SelectItem value="qualified">Qualified</SelectItem>
+                                          <SelectItem value="proposal">Proposal</SelectItem>
+                                          <SelectItem value="negotiation">Negotiation</SelectItem>
+                                          <SelectItem value="converted">Converted</SelectItem>
+                                          <SelectItem value="lost">Lost</SelectItem>
+                                        </SelectContent>
+                                      </Select>
+                                    ) : (
+                                      lead.status && (
+                                        <Badge variant="outline" className={cn("text-xs capitalize", LEAD_STATUS_COLORS[lead.status])}>
+                                          {lead.status}
+                                        </Badge>
+                                      )
                                     )}
                                   </TableCell>
                                   <TableCell>
