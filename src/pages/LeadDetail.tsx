@@ -784,19 +784,32 @@ export default function LeadDetail() {
                         </AccordionTrigger>
                         <AccordionContent>
                           <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.linkedin}</p>
-                          <Button 
-                            variant="outline" 
-                            size="sm" 
-                            className="w-full mt-2"
-                            onClick={() => {
-                              navigator.clipboard.writeText((lead as any).outreach_messages.linkedin);
-                              setCopiedMessage('linkedin');
-                              setTimeout(() => setCopiedMessage(null), 2000);
-                            }}
-                          >
-                            {copiedMessage === 'linkedin' ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
-                            {copiedMessage === 'linkedin' ? 'Copied!' : 'Copy'}
-                          </Button>
+                          <div className="flex gap-2 mt-2">
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="flex-1"
+                              onClick={() => {
+                                navigator.clipboard.writeText((lead as any).outreach_messages.linkedin);
+                                setCopiedMessage('linkedin');
+                                setTimeout(() => setCopiedMessage(null), 2000);
+                              }}
+                            >
+                              {copiedMessage === 'linkedin' ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                              {copiedMessage === 'linkedin' ? 'Copied!' : 'Copy'}
+                            </Button>
+                            {(lead as any).linkedin_profile && (
+                              <Button 
+                                variant="default" 
+                                size="sm" 
+                                className="flex-1"
+                                onClick={() => window.open((lead as any).linkedin_profile, '_blank')}
+                              >
+                                <Linkedin className="h-3 w-3 mr-1" />
+                                Open LinkedIn
+                              </Button>
+                            )}
+                          </div>
                         </AccordionContent>
                       </AccordionItem>
                     )}
