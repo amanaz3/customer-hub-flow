@@ -251,7 +251,7 @@ const LeadWorkflow = () => {
     <>
       <div className="space-y-4 pb-6">
 
-        {/* Header with Actions */}
+        {/* Header */}
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
@@ -262,32 +262,48 @@ const LeadWorkflow = () => {
               From import to customer conversion
             </p>
           </div>
-          <div className="flex items-center gap-2">
-            {isAdmin && (
-              <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md border">
-                <TestTube className="h-4 w-4 text-amber-500" />
-                <Label htmlFor="demo-mode" className="text-xs text-muted-foreground cursor-pointer">Demo</Label>
-                <Switch
-                  id="demo-mode"
-                  checked={showDummyData}
-                  onCheckedChange={toggleDummyData}
-                  className="scale-75"
-                />
-              </div>
-            )}
-            <Button variant="outline" size="sm" onClick={() => setShowOutreachDialog(true)}>
-              <Upload className="h-4 w-4 mr-2" />
-              Import
-            </Button>
-            <Button size="sm" onClick={() => setShowCampaignDialog(true)}>
-              <FolderKanban className="h-4 w-4 mr-2" />
-              New Campaign
-            </Button>
-            <Button size="sm" onClick={() => setShowCreateDialog(true)}>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Lead
-            </Button>
-          </div>
+          {isAdmin && (
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md border">
+              <TestTube className="h-4 w-4 text-amber-500" />
+              <Label htmlFor="demo-mode" className="text-xs text-muted-foreground cursor-pointer">Demo</Label>
+              <Switch
+                id="demo-mode"
+                checked={showDummyData}
+                onCheckedChange={toggleDummyData}
+                className="scale-75"
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Floating Action Buttons */}
+        <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+          <Button
+            size="lg"
+            variant="outline"
+            className="rounded-full shadow-lg bg-background hover:bg-muted h-12 w-12 p-0"
+            onClick={() => setShowOutreachDialog(true)}
+            title="Import"
+          >
+            <Upload className="h-5 w-5" />
+          </Button>
+          <Button
+            size="lg"
+            variant="outline"
+            className="rounded-full shadow-lg bg-background hover:bg-muted h-12 w-12 p-0"
+            onClick={() => setShowCampaignDialog(true)}
+            title="New Campaign"
+          >
+            <FolderKanban className="h-5 w-5" />
+          </Button>
+          <Button
+            size="lg"
+            className="rounded-full shadow-lg h-14 w-14 p-0"
+            onClick={() => setShowCreateDialog(true)}
+            title="Add Lead"
+          >
+            <Plus className="h-6 w-6" />
+          </Button>
         </div>
 
         {/* Stats Row - Compact */}
