@@ -2,19 +2,23 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { X, Bell, Flame, ThermometerSun, Snowflake, Phone, MessageSquare, Mail, CheckCircle } from 'lucide-react';
+import { X, Bell, Flame, ThermometerSun, Snowflake, Phone, MessageSquare, Mail, CheckCircle, Users } from 'lucide-react';
 import { useAuth } from '@/contexts/SecureAuthContext';
 
 interface DailyLeadCheckBannerProps {
   hotCount: number;
   warmCount: number;
   coldCount: number;
+  convertedCount?: number;
   onDismiss?: () => void;
 }
 
-export function DailyLeadCheckBanner({ hotCount, warmCount, coldCount, onDismiss }: DailyLeadCheckBannerProps) {
+export function DailyLeadCheckBanner({ hotCount, warmCount, coldCount, convertedCount = 0, onDismiss }: DailyLeadCheckBannerProps) {
   const [dismissed, setDismissed] = useState(false);
   const { user } = useAuth();
+  
+  const totalCount = hotCount + warmCount + coldCount;
+  const conversionRate = totalCount > 0 ? ((convertedCount / totalCount) * 100).toFixed(1) : '0.0';
   
   // Check if banner was dismissed today
   useEffect(() => {
@@ -51,7 +55,16 @@ export function DailyLeadCheckBanner({ hotCount, warmCount, coldCount, onDismiss
               <div className="space-y-2 text-sm text-muted-foreground">
                 <p className="font-medium text-foreground">Review your assigned leads and take action:</p>
                 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mt-3">
+                <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mt-3">
+                  {/* Total Leads */}
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-primary/10 border border-primary/20">
+                    <Users className="h-4 w-4 text-primary" />
+                    <div>
+                      <span className="font-semibold text-primary">{totalCount} Total</span>
+                      <span className="text-xs block text-primary/80">Active leads</span>
+                    </div>
+                  </div>
+                  
                   {/* Hot Leads Action */}
                   <div className="flex items-center gap-2 p-2 rounded-lg bg-red-500/10 border border-red-500/20">
                     <Flame className="h-4 w-4 text-red-500" />
@@ -76,6 +89,15 @@ export function DailyLeadCheckBanner({ hotCount, warmCount, coldCount, onDismiss
                     <div>
                       <span className="font-semibold text-blue-700 dark:text-blue-400">{coldCount} Cold</span>
                       <span className="text-xs block text-blue-600/80">→ Add to nurture</span>
+                    </div>
+                  </div>
+
+                  {/* Conversion Rate */}
+                  <div className="flex items-center gap-2 p-2 rounded-lg bg-green-500/10 border border-green-500/20">
+                    <CheckCircle className="h-4 w-4 text-green-500" />
+                    <div>
+                      <span className="font-semibold text-green-700 dark:text-green-400">{conversionRate}%</span>
+                      <span className="text-xs block text-green-600/80">Conversion rate</span>
                     </div>
                   </div>
                 </div>

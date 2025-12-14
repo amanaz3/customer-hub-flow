@@ -94,7 +94,8 @@ export default function Leads() {
         <DailyLeadCheckBanner 
           hotCount={stats.hot} 
           warmCount={stats.warm} 
-          coldCount={stats.cold} 
+          coldCount={stats.cold}
+          convertedCount={stats.converted}
         />
 
         {/* Header */}
