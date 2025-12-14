@@ -6,6 +6,7 @@ import {
   Activity,
   TrendingUp
 } from "lucide-react";
+import { LeadPerformanceLeaderboard } from "@/components/Lead/LeadPerformanceLeaderboard";
 
 const Strategic = () => {
   const navigate = useNavigate();
@@ -99,6 +100,12 @@ const Strategic = () => {
             </Card>
           );
         })}
+      </div>
+
+      {/* Lead Performance Leaderboard */}
+      <div className="mt-6">
+        <h2 className="text-xl font-semibold mb-4">Lead Performance</h2>
+        <LeadPerformanceLeaderboard />
       </div>
     </div>
   );

@@ -38,7 +38,6 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { useLeads } from '@/hooks/useLeads';
 import { CreateLeadDialog } from '@/components/Lead/CreateLeadDialog';
-import { LeadPerformanceLeaderboard } from '@/components/Lead/LeadPerformanceLeaderboard';
 import { DailyLeadCheckBanner } from '@/components/Lead/DailyLeadCheckBanner';
 
 import { OutreachImportDialog } from '@/components/Lead/OutreachImportDialog';
@@ -97,9 +96,6 @@ export default function Leads() {
           warmCount={stats.warm} 
           coldCount={stats.cold} 
         />
-
-        {/* Admin-only Leaderboard */}
-        {isAdmin && <LeadPerformanceLeaderboard />}
 
         {/* Header */}
         <div className="flex items-center justify-between">

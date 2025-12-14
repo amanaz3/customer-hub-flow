@@ -15,6 +15,7 @@ import {
   ArrowLeft,
   Users
 } from "lucide-react";
+import { LeadPerformanceLeaderboard } from "@/components/Lead/LeadPerformanceLeaderboard";
 
 const Ops = () => {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -166,6 +167,12 @@ const Ops = () => {
             </Card>
           );
         })}
+      </div>
+
+      {/* Lead Performance Leaderboard */}
+      <div className="mt-6">
+        <h2 className="text-xl font-semibold mb-4">Lead Performance</h2>
+        <LeadPerformanceLeaderboard />
       </div>
     </div>
   );
