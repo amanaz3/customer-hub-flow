@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useMemo } from 'react';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -43,6 +43,7 @@ import {
   Copy,
   Check,
   RefreshCw,
+  ChevronRight,
 } from 'lucide-react';
 import {
   Accordion,
@@ -68,6 +69,78 @@ import { format, formatDistanceToNow } from 'date-fns';
 import { LeadFollowupTimeline } from '@/components/Lead/LeadFollowupTimeline';
 import { LeadConversionDialog, ConversionOptions } from '@/components/Lead/LeadConversionDialog';
 
+// Workflow step configuration
+const WORKFLOW_STEPS = [
+  { key: 'import', label: 'Import', order: 1 },
+  { key: 'qualify', label: 'Qualify', order: 2 },
+  { key: 'nurture', label: 'Nurture', order: 3 },
+  { key: 'propose', label: 'Propose', order: 4 },
+  { key: 'convert', label: 'Convert', order: 5 },
+];
+
+// Define which sections are visible for each workflow stage
+const STAGE_VISIBILITY: Record<string, {
+  leadInfo: boolean;
+  scoreStatus: boolean;
+  quickInfo: boolean;
+  followupTimeline: boolean;
+  logActivity: boolean;
+  activityHistory: boolean;
+  outreachMessages: boolean;
+  convertButton: boolean;
+}> = {
+  import: {
+    leadInfo: true,
+    scoreStatus: false, // Score is determined in Qualify
+    quickInfo: true,
+    followupTimeline: false,
+    logActivity: true,
+    activityHistory: true,
+    outreachMessages: false,
+    convertButton: false,
+  },
+  qualify: {
+    leadInfo: true,
+    scoreStatus: true,
+    quickInfo: true,
+    followupTimeline: true,
+    logActivity: true,
+    activityHistory: true,
+    outreachMessages: false,
+    convertButton: false,
+  },
+  nurture: {
+    leadInfo: true,
+    scoreStatus: true,
+    quickInfo: true,
+    followupTimeline: true,
+    logActivity: true,
+    activityHistory: true,
+    outreachMessages: true,
+    convertButton: false,
+  },
+  propose: {
+    leadInfo: true,
+    scoreStatus: true,
+    quickInfo: true,
+    followupTimeline: true,
+    logActivity: true,
+    activityHistory: true,
+    outreachMessages: true,
+    convertButton: false,
+  },
+  convert: {
+    leadInfo: true,
+    scoreStatus: true,
+    quickInfo: true,
+    followupTimeline: true,
+    logActivity: true,
+    activityHistory: true,
+    outreachMessages: true,
+    convertButton: true,
+  },
+};
+
 const activityIcons: Record<string, React.ReactNode> = {
   call: <Phone className="h-4 w-4" />,
   whatsapp: <MessageCircle className="h-4 w-4" />,
@@ -78,6 +151,7 @@ const activityIcons: Record<string, React.ReactNode> = {
 
 export default function LeadDetail() {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user, isAdmin } = useAuth();
@@ -103,6 +177,22 @@ export default function LeadDetail() {
     whatsapp: ''
   });
   const [savingCustom, setSavingCustom] = useState(false);
+  const [currentWorkflowStep, setCurrentWorkflowStep] = useState<string>('import');
+
+  // Get workflow step from URL param or fetch from database
+  const stageFromUrl = searchParams.get('stage');
+
+  // Determine current stage visibility config
+  const stageVisibility = useMemo(() => {
+    const stage = stageFromUrl || currentWorkflowStep || 'import';
+    return STAGE_VISIBILITY[stage] || STAGE_VISIBILITY.import;
+  }, [stageFromUrl, currentWorkflowStep]);
+
+  // Get current step info for display
+  const currentStepInfo = useMemo(() => {
+    const stage = stageFromUrl || currentWorkflowStep || 'import';
+    return WORKFLOW_STEPS.find(s => s.key === stage) || WORKFLOW_STEPS[0];
+  }, [stageFromUrl, currentWorkflowStep]);
 
   // Dummy leads data for demo mode
   const dummyLeads: Lead[] = [
@@ -280,6 +370,23 @@ export default function LeadDetail() {
 
       setLead(data as unknown as Lead);
       setLoading(false);
+
+      // Fetch workflow step to determine current stage
+      const { data: workflowSteps } = await supabase
+        .from('lead_workflow_steps')
+        .select('step_key, status')
+        .eq('lead_id', id)
+        .order('step_order', { ascending: false });
+
+      if (workflowSteps && workflowSteps.length > 0) {
+        // Find the highest completed or in_progress step
+        const activeStep = workflowSteps.find(s => s.status === 'in_progress') 
+          || workflowSteps.find(s => s.status === 'completed')
+          || workflowSteps[workflowSteps.length - 1];
+        if (activeStep) {
+          setCurrentWorkflowStep(activeStep.step_key);
+        }
+      }
     };
 
     fetchLead();
@@ -516,10 +623,37 @@ export default function LeadDetail() {
 
   return (
     <div className="space-y-6 py-6">
+        {/* Workflow Stage Indicator */}
+        <div className="flex items-center gap-1 p-3 bg-muted/30 rounded-lg overflow-x-auto">
+          {WORKFLOW_STEPS.map((step, index) => {
+            const isActive = step.key === currentStepInfo.key;
+            const isPast = step.order < currentStepInfo.order;
+            return (
+              <div key={step.key} className="flex items-center">
+                <button
+                  onClick={() => navigate(`/leads/${id}?stage=${step.key}`)}
+                  className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors whitespace-nowrap ${
+                    isActive 
+                      ? 'bg-primary text-primary-foreground' 
+                      : isPast 
+                        ? 'bg-primary/20 text-primary hover:bg-primary/30' 
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                  }`}
+                >
+                  {step.label}
+                </button>
+                {index < WORKFLOW_STEPS.length - 1 && (
+                  <ChevronRight className="h-4 w-4 text-muted-foreground mx-1 flex-shrink-0" />
+                )}
+              </div>
+            );
+          })}
+        </div>
+
         {/* Header */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <Button variant="ghost" size="icon" onClick={() => navigate('/leads')}>
+            <Button variant="ghost" size="icon" onClick={() => navigate('/lead-workflow')}>
               <ArrowLeft className="h-4 w-4" />
             </Button>
             <div>
@@ -527,11 +661,12 @@ export default function LeadDetail() {
               <p className="text-sm text-muted-foreground">
                 Lead #{lead.reference_number} • Created{' '}
                 {formatDistanceToNow(new Date(lead.created_at), { addSuffix: true })}
+                <Badge variant="outline" className="ml-2">{currentStepInfo.label}</Badge>
               </p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            {!isConverted && (
+            {stageVisibility.convertButton && !isConverted && (
               <Button onClick={() => setShowConversionDialog(true)} variant="outline" className="text-green-600">
                 <UserCheck className="h-4 w-4 mr-2" />
                 Convert to Customer
@@ -671,207 +806,217 @@ export default function LeadDetail() {
               </CardContent>
             </Card>
 
-            {/* Follow-up Sequence Timeline */}
-            <LeadFollowupTimeline
-              leadId={id!}
-              leadCreatedAt={lead.created_at}
-              activities={activities}
-              onLogActivity={async (type, description) => {
-                const success = await addActivity({
-                  activity_type: type,
-                  description,
-                  created_by: user?.id,
-                });
-                return success;
-              }}
-            />
+            {/* Follow-up Sequence Timeline - visible in Qualify, Nurture, Propose, Convert */}
+            {stageVisibility.followupTimeline && (
+              <LeadFollowupTimeline
+                leadId={id!}
+                leadCreatedAt={lead.created_at}
+                activities={activities}
+                onLogActivity={async (type, description) => {
+                  const success = await addActivity({
+                    activity_type: type,
+                    description,
+                    created_by: user?.id,
+                  });
+                  return success;
+                }}
+              />
+            )}
 
-            {/* Log Activity */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Log Activity</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="flex gap-2 flex-wrap">
-                  {ACTIVITY_TYPES.map((type) => (
-                    <Button
-                      key={type.value}
-                      variant={activityType === type.value ? 'default' : 'outline'}
-                      size="sm"
-                      onClick={() => setActivityType(type.value)}
-                    >
-                      {activityIcons[type.value]}
-                      <span className="ml-1">{type.label}</span>
-                    </Button>
-                  ))}
-                </div>
-                <Textarea
-                  placeholder="Enter activity details..."
-                  value={activityDescription}
-                  onChange={(e) => setActivityDescription(e.target.value)}
-                  rows={2}
-                />
-                <Button onClick={handleLogActivity} disabled={loggingActivity}>
-                  {loggingActivity ? 'Logging...' : 'Log Activity'}
-                </Button>
-              </CardContent>
-            </Card>
-
-            {/* Activity History */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Activity History</CardTitle>
-              </CardHeader>
-              <CardContent>
-                {activities.length === 0 ? (
-                  <p className="text-muted-foreground text-sm">No activities logged yet.</p>
-                ) : (
-                  <div className="space-y-3">
-                    {activities.map((activity) => (
-                      <div
-                        key={activity.id}
-                        className="flex items-start gap-3 p-3 rounded-lg bg-muted/50"
+            {/* Log Activity - visible in all stages */}
+            {stageVisibility.logActivity && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Log Activity</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div className="flex gap-2 flex-wrap">
+                    {ACTIVITY_TYPES.map((type) => (
+                      <Button
+                        key={type.value}
+                        variant={activityType === type.value ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setActivityType(type.value)}
                       >
-                        <div className="p-2 rounded-full bg-primary/10 text-primary">
-                          {activityIcons[activity.activity_type] || <FileText className="h-4 w-4" />}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium capitalize">
-                              {activity.activity_type}
-                            </span>
-                            <span className="text-xs text-muted-foreground">
-                              by {activity.creator?.name || 'Unknown'}
-                            </span>
-                          </div>
-                          <p className="text-sm text-muted-foreground mt-1">
-                            {activity.description}
-                          </p>
-                          <p className="text-xs text-muted-foreground mt-1">
-                            {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
-                          </p>
-                        </div>
-                      </div>
+                        {activityIcons[type.value]}
+                        <span className="ml-1">{type.label}</span>
+                      </Button>
                     ))}
                   </div>
-                )}
-              </CardContent>
-            </Card>
+                  <Textarea
+                    placeholder="Enter activity details..."
+                    value={activityDescription}
+                    onChange={(e) => setActivityDescription(e.target.value)}
+                    rows={2}
+                  />
+                  <Button onClick={handleLogActivity} disabled={loggingActivity}>
+                    {loggingActivity ? 'Logging...' : 'Log Activity'}
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Activity History - visible in all stages */}
+            {stageVisibility.activityHistory && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Activity History</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  {activities.length === 0 ? (
+                    <p className="text-muted-foreground text-sm">No activities logged yet.</p>
+                  ) : (
+                    <div className="space-y-3">
+                      {activities.map((activity) => (
+                        <div
+                          key={activity.id}
+                          className="flex items-start gap-3 p-3 rounded-lg bg-muted/50"
+                        >
+                          <div className="p-2 rounded-full bg-primary/10 text-primary">
+                            {activityIcons[activity.activity_type] || <FileText className="h-4 w-4" />}
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium capitalize">
+                                {activity.activity_type}
+                              </span>
+                              <span className="text-xs text-muted-foreground">
+                                by {activity.creator?.name || 'Unknown'}
+                              </span>
+                            </div>
+                            <p className="text-sm text-muted-foreground mt-1">
+                              {activity.description}
+                            </p>
+                            <p className="text-xs text-muted-foreground mt-1">
+                              {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
+                            </p>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
           </div>
 
           {/* Sidebar */}
           <div className="space-y-6">
-            {/* Score & Status */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Score & Status</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div>
-                  <Label>Lead Score</Label>
-                  <Select
-                    value={lead.score}
-                    onValueChange={(value: LeadScore) => setLead({ ...lead, score: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="hot">
-                        <span className="flex items-center gap-2">
-                          <Flame className="h-4 w-4 text-red-500" /> Hot
-                        </span>
-                      </SelectItem>
-                      <SelectItem value="warm">
-                        <span className="flex items-center gap-2">
-                          <ThermometerSun className="h-4 w-4 text-amber-500" /> Warm
-                        </span>
-                      </SelectItem>
-                      <SelectItem value="cold">
-                        <span className="flex items-center gap-2">
-                          <Snowflake className="h-4 w-4 text-blue-500" /> Cold
-                        </span>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Status</Label>
-                  <Select
-                    value={lead.status}
-                    onValueChange={(value: LeadStatus) => setLead({ ...lead, status: value })}
-                    disabled={isConverted}
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="new">New</SelectItem>
-                      <SelectItem value="contacted">Contacted</SelectItem>
-                      <SelectItem value="qualified">Qualified</SelectItem>
-                      <SelectItem value="proposal">Proposal</SelectItem>
-                      <SelectItem value="negotiation">Negotiation</SelectItem>
-                      <SelectItem value="converted">Converted</SelectItem>
-                      <SelectItem value="lost">Lost</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Assigned To</Label>
-                  <Select
-                    value={lead.assigned_to || ''}
-                    onValueChange={(value) => setLead({ ...lead, assigned_to: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Unassigned" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {users.map((u) => (
-                        <SelectItem key={u.id} value={u.id}>
-                          {u.name}
+            {/* Score & Status - visible from Qualify stage onwards */}
+            {stageVisibility.scoreStatus && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Score & Status</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                  <div>
+                    <Label>Lead Score</Label>
+                    <Select
+                      value={lead.score}
+                      onValueChange={(value: LeadScore) => setLead({ ...lead, score: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="hot">
+                          <span className="flex items-center gap-2">
+                            <Flame className="h-4 w-4 text-red-500" /> Hot
+                          </span>
                         </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </CardContent>
-            </Card>
+                        <SelectItem value="warm">
+                          <span className="flex items-center gap-2">
+                            <ThermometerSun className="h-4 w-4 text-amber-500" /> Warm
+                          </span>
+                        </SelectItem>
+                        <SelectItem value="cold">
+                          <span className="flex items-center gap-2">
+                            <Snowflake className="h-4 w-4 text-blue-500" /> Cold
+                          </span>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Status</Label>
+                    <Select
+                      value={lead.status}
+                      onValueChange={(value: LeadStatus) => setLead({ ...lead, status: value })}
+                      disabled={isConverted}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="new">New</SelectItem>
+                        <SelectItem value="contacted">Contacted</SelectItem>
+                        <SelectItem value="qualified">Qualified</SelectItem>
+                        <SelectItem value="proposal">Proposal</SelectItem>
+                        <SelectItem value="negotiation">Negotiation</SelectItem>
+                        <SelectItem value="converted">Converted</SelectItem>
+                        <SelectItem value="lost">Lost</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Assigned To</Label>
+                    <Select
+                      value={lead.assigned_to || ''}
+                      onValueChange={(value) => setLead({ ...lead, assigned_to: value })}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Unassigned" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {users.map((u) => (
+                          <SelectItem key={u.id} value={u.id}>
+                            {u.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Quick Info */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Quick Info</CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-3 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-muted-foreground">Created</span>
-                  <span>{format(new Date(lead.created_at), 'MMM d, yyyy')}</span>
-                </div>
-                {lead.last_contacted_at && (
+            {/* Quick Info - always visible */}
+            {stageVisibility.quickInfo && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Quick Info</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3 text-sm">
                   <div className="flex justify-between">
-                    <span className="text-muted-foreground">Last Contacted</span>
-                    <span>
-                      {formatDistanceToNow(new Date(lead.last_contacted_at), { addSuffix: true })}
-                    </span>
+                    <span className="text-muted-foreground">Created</span>
+                    <span>{format(new Date(lead.created_at), 'MMM d, yyyy')}</span>
                   </div>
-                )}
-                {lead.next_follow_up && (
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Next Follow-up</span>
-                    <span>{format(new Date(lead.next_follow_up), 'MMM d, yyyy')}</span>
-                  </div>
-                )}
-                {isConverted && lead.converted_at && (
-                  <div className="flex justify-between text-green-600">
-                    <span>Converted</span>
-                    <span>{format(new Date(lead.converted_at), 'MMM d, yyyy')}</span>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
+                  {lead.last_contacted_at && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Last Contacted</span>
+                      <span>
+                        {formatDistanceToNow(new Date(lead.last_contacted_at), { addSuffix: true })}
+                      </span>
+                    </div>
+                  )}
+                  {lead.next_follow_up && (
+                    <div className="flex justify-between">
+                      <span className="text-muted-foreground">Next Follow-up</span>
+                      <span>{format(new Date(lead.next_follow_up), 'MMM d, yyyy')}</span>
+                    </div>
+                  )}
+                  {isConverted && lead.converted_at && (
+                    <div className="flex justify-between text-green-600">
+                      <span>Converted</span>
+                      <span>{format(new Date(lead.converted_at), 'MMM d, yyyy')}</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
+            )}
 
-            {/* Outreach Messages */}
-            {(lead as any).outreach_messages ? (
+            {/* Outreach Messages - visible from Nurture stage onwards */}
+            {stageVisibility.outreachMessages && (lead as any).outreach_messages ? (
               <Card>
                 <CardHeader className="pb-2">
                   <div className="flex items-center justify-between">
