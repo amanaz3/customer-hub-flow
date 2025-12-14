@@ -59,8 +59,15 @@ const actionColors: Record<string, string> = {
   note: 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400',
 };
 
-export function FollowupSequenceConfig() {
-  const [open, setOpen] = useState(false);
+interface FollowupSequenceConfigProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function FollowupSequenceConfig({ open: controlledOpen, onOpenChange }: FollowupSequenceConfigProps = {}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [steps, setSteps] = useState<FollowupStep[]>([]);
