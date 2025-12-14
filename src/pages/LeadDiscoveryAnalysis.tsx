@@ -580,7 +580,30 @@ const LeadDiscoveryAnalysis = () => {
                 </CardHeader>
               </Card>
 
-              {/* Prompt Pipeline */}
+              {/* Completed Session Notice */}
+              {selectedSession.status === 'completed' && (
+                <Card className="border-emerald-500/30 bg-emerald-500/5">
+                  <CardContent className="py-3">
+                    <div className="flex items-center justify-between">
+                      <p className="text-sm text-muted-foreground">
+                        <CheckCircle className="h-4 w-4 inline mr-2 text-emerald-500" />
+                        This session is complete. You can still add more filters or reuse intermediate data.
+                      </p>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setCurrentData(selectedSession.original_data);
+                          toast.success('Reset to original uploaded data');
+                        }}
+                      >
+                        <FileSpreadsheet className="h-3 w-3 mr-1" />
+                        Reset to Original Data
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
               <Card>
                 <CardHeader>
                   <CardTitle className="text-lg flex items-center gap-2">
@@ -622,6 +645,32 @@ const LeadDiscoveryAnalysis = () => {
                             </div>
                             {result.error_message && (
                               <p className="text-sm text-destructive mt-2">{result.error_message}</p>
+                            )}
+                            {/* Reuse buttons */}
+                            {result.status === 'completed' && result.output_data && (
+                              <div className="flex gap-2 mt-3 pt-3 border-t">
+                                <Button
+                                  variant="outline"
+                                  size="sm"
+                                  onClick={() => {
+                                    setCurrentData(result.output_data);
+                                    toast.success(`Using Step ${idx + 1} output as current data`);
+                                  }}
+                                >
+                                  <Play className="h-3 w-3 mr-1" />
+                                  Use Output as Current Data
+                                </Button>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => {
+                                    setPromptText(result.prompt_text);
+                                    toast.success('Prompt copied');
+                                  }}
+                                >
+                                  Reuse Prompt
+                                </Button>
+                              </div>
                             )}
                           </AccordionContent>
                         </AccordionItem>
