@@ -264,10 +264,6 @@ const LeadWorkflow = () => {
                 />
               </div>
             )}
-            <Button variant="outline" size="sm" onClick={() => setTableDrawerOpen(true)}>
-              <TableIcon className="h-4 w-4 mr-2" />
-              Table View
-            </Button>
             <Button variant="outline" size="sm" onClick={() => setShowOutreachDialog(true)}>
               <Upload className="h-4 w-4 mr-2" />
               Import
