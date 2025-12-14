@@ -536,8 +536,57 @@ const LeadWorkflow = () => {
                   </div>
                 )}
 
-                {/* Actions - Only show for non-qualify steps */}
-                {currentStepData.key !== 'qualify' && (
+                {/* Nurture Step - Day Sequence Stepper */}
+                {currentStepData.key === 'nurture' && (
+                  <div className="mb-4">
+                    <div className="flex items-center gap-2 mb-3">
+                      <Heart className="h-4 w-4 text-primary" />
+                      <span className="text-sm font-medium">Follow-up Sequence</span>
+                      <span className="text-xs text-muted-foreground">(Outreach starts here)</span>
+                    </div>
+                    <div className="flex items-center justify-between bg-background rounded-lg border p-3">
+                      {[
+                        { day: 0, label: 'Day 0', action: 'WhatsApp Welcome', icon: <MessageSquare className="h-3.5 w-3.5" /> },
+                        { day: 1, label: 'Day 1', action: 'Call', icon: <Phone className="h-3.5 w-3.5" /> },
+                        { day: 2, label: 'Day 2', action: 'WhatsApp Reminder', icon: <MessageSquare className="h-3.5 w-3.5" /> },
+                        { day: 3, label: 'Day 3', action: 'Email Proposal', icon: <Mail className="h-3.5 w-3.5" /> },
+                        { day: 5, label: 'Day 5', action: 'Final Reminder', icon: <MessageSquare className="h-3.5 w-3.5" /> },
+                        { day: 7, label: 'Day 7', action: 'Mark Cold', icon: <Snowflake className="h-3.5 w-3.5" /> },
+                      ].map((step, idx, arr) => (
+                        <React.Fragment key={step.day}>
+                          <div className="flex flex-col items-center gap-1 group cursor-pointer">
+                            <div className={cn(
+                              "w-8 h-8 rounded-full flex items-center justify-center transition-all",
+                              idx === 0 
+                                ? "bg-primary text-primary-foreground" 
+                                : "bg-muted text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary"
+                            )}>
+                              {step.icon}
+                            </div>
+                            <span className={cn(
+                              "text-xs font-medium",
+                              idx === 0 ? "text-primary" : "text-muted-foreground"
+                            )}>
+                              {step.label}
+                            </span>
+                            <span className="text-[10px] text-muted-foreground text-center max-w-[60px] truncate">
+                              {step.action}
+                            </span>
+                          </div>
+                          {idx < arr.length - 1 && (
+                            <div className={cn(
+                              "flex-1 h-0.5 mx-1 rounded-full",
+                              idx === 0 ? "bg-primary/30" : "bg-muted"
+                            )} />
+                          )}
+                        </React.Fragment>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Actions - Only show for import/propose/convert steps */}
+                {currentStepData.key !== 'qualify' && currentStepData.key !== 'nurture' && (
                   <div className="grid grid-cols-3 gap-2 mb-4">
                     {currentStepData.actions.map((action, idx) => (
                       <div
