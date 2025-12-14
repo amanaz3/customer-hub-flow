@@ -319,10 +319,14 @@ const LeadDiscoveryAnalysis = () => {
     switch (status) {
       case 'completed':
         return <Badge className="bg-emerald-500/20 text-emerald-400"><CheckCircle className="h-3 w-3 mr-1" />Completed</Badge>;
+      case 'processing':
+        return <Badge className="bg-blue-500/20 text-blue-400"><Loader2 className="h-3 w-3 mr-1 animate-spin" />Processing</Badge>;
       case 'running':
         return <Badge className="bg-blue-500/20 text-blue-400"><Loader2 className="h-3 w-3 mr-1 animate-spin" />Running</Badge>;
       case 'failed':
         return <Badge className="bg-destructive/20 text-destructive"><XCircle className="h-3 w-3 mr-1" />Failed</Badge>;
+      case 'draft':
+        return <Badge className="bg-muted text-muted-foreground"><Clock className="h-3 w-3 mr-1" />Draft</Badge>;
       default:
         return <Badge className="bg-muted text-muted-foreground"><Clock className="h-3 w-3 mr-1" />Pending</Badge>;
     }
