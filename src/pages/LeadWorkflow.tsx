@@ -477,8 +477,10 @@ const LeadWorkflow = () => {
                           <Table>
                             <TableHeader>
                               <TableRow>
-                                <TableHead className="w-[200px]">Lead</TableHead>
+                                <TableHead className="w-[180px]">Lead</TableHead>
                                 <TableHead>Company</TableHead>
+                                <TableHead>Email</TableHead>
+                                <TableHead>Mobile</TableHead>
                                 <TableHead>Score</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead>Last Contact</TableHead>
@@ -493,16 +495,19 @@ const LeadWorkflow = () => {
                                   onClick={() => navigate(`/lead/${lead.id}`)}
                                 >
                                   <TableCell>
-                                    <div>
-                                      <p className="font-medium">{lead.name}</p>
-                                      <p className="text-xs text-muted-foreground">{lead.email || 'No email'}</p>
-                                    </div>
+                                    <p className="font-medium">{lead.name}</p>
                                   </TableCell>
                                   <TableCell>
                                     <div className="flex items-center gap-1.5">
                                       <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
                                       <span className="text-sm">{lead.company || '-'}</span>
                                     </div>
+                                  </TableCell>
+                                  <TableCell>
+                                    <span className="text-sm text-muted-foreground">{lead.email || '-'}</span>
+                                  </TableCell>
+                                  <TableCell>
+                                    <span className="text-sm text-muted-foreground">{lead.mobile || '-'}</span>
                                   </TableCell>
                                   <TableCell>
                                     {lead.score && (
