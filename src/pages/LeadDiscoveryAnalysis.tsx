@@ -49,6 +49,7 @@ const LeadDiscoveryAnalysis = () => {
   const [stepType, setStepType] = useState<'prompt' | 'tag'>('prompt');
   const [selectedServiceForTag, setSelectedServiceForTag] = useState('');
   const [tagPromptText, setTagPromptText] = useState('');
+  const [tagPromptName, setTagPromptName] = useState('');
   const [promptName, setPromptName] = useState('');
   
   // New session form
@@ -277,8 +278,13 @@ const LeadDiscoveryAnalysis = () => {
   };
 
   const handleTagServiceWithPrompt = async () => {
-    if (!selectedSession || !selectedServiceForTag) {
-      toast.error('Please select a service');
+    if (!selectedSession || !selectedServiceForTag || !tagPromptText.trim()) {
+      toast.error('Please select a service and enter a prompt');
+      return;
+    }
+
+    if (!currentData) {
+      toast.error('No data loaded');
       return;
     }
 
@@ -298,54 +304,56 @@ const LeadDiscoveryAnalysis = () => {
         product: selectedProduct
       } : null);
 
-      // If there's a prompt, run it as a step
-      if (tagPromptText.trim() && currentData) {
-        const stepOrder = sessionResults.length + 1;
-        const fullPromptText = `[SERVICE: ${selectedProduct?.name}] ${tagPromptText}`;
-        
-        const resultRecord = await addPromptResult.mutateAsync({
-          session_id: selectedSession.id,
-          step_order: stepOrder,
-          prompt_text: fullPromptText,
-          input_data: currentData,
-          status: 'running'
-        });
+      // Run prompt as a step
+      const stepOrder = sessionResults.length + 1;
+      const promptLabel = tagPromptName.trim() 
+        ? `[${tagPromptName.trim()}] [SERVICE: ${selectedProduct?.name}]` 
+        : `[SERVICE: ${selectedProduct?.name}]`;
+      const fullPromptText = `${promptLabel} ${tagPromptText}`;
+      
+      const resultRecord = await addPromptResult.mutateAsync({
+        session_id: selectedSession.id,
+        step_order: stepOrder,
+        prompt_text: fullPromptText,
+        input_data: currentData,
+        status: 'running'
+      });
 
-        const { data, error } = await supabase.functions.invoke('process-lead-discovery', {
-          body: {
-            prompt: tagPromptText,
-            data: currentData,
-            industry: industries.find(i => i.id === selectedSession.industry_id)?.name,
-            product: selectedProduct?.name
-          }
-        });
+      const { data, error } = await supabase.functions.invoke('process-lead-discovery', {
+        body: {
+          prompt: tagPromptText,
+          data: currentData,
+          industry: industries.find(i => i.id === selectedSession.industry_id)?.name,
+          product: selectedProduct?.name
+        }
+      });
 
-        if (error) throw error;
+      if (error) throw error;
 
-        await updatePromptResult.mutateAsync({
-          id: resultRecord.id,
-          output_data: data.result,
-          status: 'completed',
-          execution_time_ms: data.execution_time_ms
-        });
+      await updatePromptResult.mutateAsync({
+        id: resultRecord.id,
+        output_data: data.result,
+        status: 'completed',
+        execution_time_ms: data.execution_time_ms
+      });
 
-        const updatedResult = { ...resultRecord, output_data: data.result, status: 'completed' as const };
-        setSessionResults(prev => [...prev, updatedResult]);
-        setCurrentData(data.result);
+      const updatedResult = { ...resultRecord, output_data: data.result, status: 'completed' as const };
+      setSessionResults(prev => [...prev, updatedResult]);
+      setCurrentData(data.result);
 
-        await updateSession.mutateAsync({
-          id: selectedSession.id,
-          final_result: data.result,
-          status: 'processing'
-        });
-      }
+      await updateSession.mutateAsync({
+        id: selectedSession.id,
+        final_result: data.result,
+        status: 'processing'
+      });
 
-      toast.success(`Tagged with ${selectedProduct?.name}${tagPromptText ? ' and ran prompt' : ''}`);
+      toast.success(`Tagged with ${selectedProduct?.name} and ran prompt`);
       setSelectedServiceForTag('');
       setTagPromptText('');
+      setTagPromptName('');
       setStepType('prompt');
     } catch (error: any) {
-      toast.error(error.message || 'Failed to tag service');
+      toast.error(error.message || 'Failed to run prompt');
     } finally {
       setIsRunning(false);
     }
@@ -879,7 +887,7 @@ const LeadDiscoveryAnalysis = () => {
                       </TabsTrigger>
                       <TabsTrigger value="tag" className="flex-1">
                         <Package className="h-4 w-4 mr-2" />
-                        Tag Service
+                        Tag Service & Run Prompt
                       </TabsTrigger>
                     </TabsList>
 
@@ -935,26 +943,35 @@ const LeadDiscoveryAnalysis = () => {
                         </Select>
                       </div>
                       <div>
-                        <Label>Prompt (optional)</Label>
+                        <Label>Prompt Name (for tagging)</Label>
+                        <Input
+                          value={tagPromptName}
+                          onChange={(e) => setTagPromptName(e.target.value)}
+                          placeholder="e.g., 'Service-specific filter', 'Qualify for product'..."
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label>Prompt *</Label>
                         <Textarea
                           value={tagPromptText}
                           onChange={(e) => setTagPromptText(e.target.value)}
-                          placeholder="Optional: Enter a prompt to run after tagging the service..."
+                          placeholder="Enter your prompt... e.g., 'Filter leads that are suitable for this service'"
                           rows={3}
-                          className="resize-none"
+                          className="resize-none mt-1"
                         />
                       </div>
                       <div className="flex justify-end">
                         <Button 
                           onClick={handleTagServiceWithPrompt} 
-                          disabled={isRunning || !selectedServiceForTag}
+                          disabled={isRunning || !selectedServiceForTag || !tagPromptText.trim() || !currentData}
                         >
                           {isRunning ? (
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                           ) : (
-                            <Package className="h-4 w-4 mr-2" />
+                            <Play className="h-4 w-4 mr-2" />
                           )}
-                          {tagPromptText.trim() ? 'Tag & Run Prompt' : 'Tag Service'}
+                          Run Prompt
                         </Button>
                       </div>
                     </TabsContent>
