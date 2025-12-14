@@ -1177,8 +1177,34 @@ export default function LeadDetail() {
               <CardHeader className="p-0 pb-2">
                 <CardTitle className="text-sm flex items-center gap-2">
                   <User className="h-4 w-4" />
-                  Lead Info
+                  Quick Info
                 </CardTitle>
+              </CardHeader>
+              <CardContent className="p-0">
+                <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <Mail className="h-3 w-3" />
+                    <span className="truncate">{lead.email || 'N/A'}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <Phone className="h-3 w-3" />
+                    <span>{lead.mobile || 'N/A'}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <Building2 className="h-3 w-3" />
+                    <span className="truncate">{lead.company || 'N/A'}</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-muted-foreground">
+                    <span className="font-medium">AED</span>
+                    <span>{lead.estimated_value?.toLocaleString() || 'N/A'}</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card className="p-3">
+              <CardHeader className="p-0 pb-2">
+                <CardTitle className="text-sm">Edit Lead</CardTitle>
               </CardHeader>
               <CardContent className="p-0 space-y-2">
                 <div>
