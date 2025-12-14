@@ -13,12 +13,18 @@ import {
   MessageSquare,
   Phone,
   Mail,
-  ArrowRight
+  ArrowRight,
+  Settings,
+  Users
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import LeadWorkflowSettingsDialog from './LeadWorkflowSettingsDialog';
+import BulkLeadWorkflowDialog from './BulkLeadWorkflowDialog';
+import { useLeads } from '@/hooks/useLeads';
 
 interface WorkflowStep {
   id: number;
+  key: string;
   name: string;
   description: string;
   icon: React.ReactNode;
@@ -32,10 +38,14 @@ interface WorkflowStep {
 
 const LeadWorkflowStepper = () => {
   const [currentStep, setCurrentStep] = useState(2);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
+  const { leads } = useLeads();
 
   const steps: WorkflowStep[] = [
     {
       id: 1,
+      key: 'import',
       name: 'Import',
       description: 'Data entry from CSV, API, or manual',
       icon: <Upload className="h-5 w-5" />,
@@ -48,6 +58,7 @@ const LeadWorkflowStepper = () => {
     },
     {
       id: 2,
+      key: 'qualify',
       name: 'Qualify',
       description: 'Score leads and assign to agents',
       icon: <Target className="h-5 w-5" />,
@@ -60,6 +71,7 @@ const LeadWorkflowStepper = () => {
     },
     {
       id: 3,
+      key: 'nurture',
       name: 'Nurture',
       description: 'Follow-up sequence over multiple days',
       icon: <Heart className="h-5 w-5" />,
@@ -72,6 +84,7 @@ const LeadWorkflowStepper = () => {
     },
     {
       id: 4,
+      key: 'propose',
       name: 'Propose',
       description: 'Send offers and negotiate terms',
       icon: <FileText className="h-5 w-5" />,
@@ -84,6 +97,7 @@ const LeadWorkflowStepper = () => {
     },
     {
       id: 5,
+      key: 'convert',
       name: 'Convert',
       description: 'Transform lead into customer',
       icon: <UserCheck className="h-5 w-5" />,
@@ -112,121 +126,156 @@ const LeadWorkflowStepper = () => {
   };
 
   return (
-    <Card className="border-0 bg-gradient-to-br from-card to-card/50">
-      <CardHeader className="pb-4">
-        <CardTitle className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-primary/10">
-              <Target className="h-5 w-5 text-primary" />
+    <>
+      <Card className="border-0 bg-gradient-to-br from-card to-card/50">
+        <CardHeader className="pb-4">
+          <CardTitle className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-lg bg-primary/10">
+                <Target className="h-5 w-5 text-primary" />
+              </div>
+              <div>
+                <span>Lead Workflow</span>
+                <p className="text-sm font-normal text-muted-foreground mt-1">
+                  From import to customer conversion
+                </p>
+              </div>
             </div>
-            <div>
-              <span>Lead Workflow</span>
-              <p className="text-sm font-normal text-muted-foreground mt-1">
-                From import to customer conversion
-              </p>
-            </div>
-          </div>
-          <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
-            Step {currentStep} of 5
-          </Badge>
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {/* Stepper Header */}
-        <div className="flex items-center justify-between px-2">
-          {steps.map((step, index) => (
-            <React.Fragment key={step.id}>
-              <button
-                onClick={() => setCurrentStep(step.id)}
-                className="flex flex-col items-center gap-2 group cursor-pointer"
+            <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setBulkDialogOpen(true)}
+                className="gap-2"
               >
-                <div
-                  className={cn(
-                    "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200",
-                    getStepStyles(step.status),
-                    "group-hover:scale-110"
-                  )}
-                >
-                  {step.status === 'completed' ? (
-                    <Check className="h-5 w-5" />
-                  ) : (
-                    step.icon
-                  )}
-                </div>
-                <div className="text-center">
-                  <p className={cn(
-                    "text-sm font-medium",
-                    step.status === 'current' ? 'text-primary' : 'text-muted-foreground'
-                  )}>
-                    {step.name}
-                  </p>
-                </div>
-              </button>
-              {index < steps.length - 1 && (
-                <div className={cn(
-                  "flex-1 h-1 mx-2 rounded-full transition-all duration-200",
-                  getConnectorStyles(steps[index + 1].status === 'completed' || steps[index + 1].status === 'current' ? 'completed' : 'upcoming')
-                )} />
-              )}
-            </React.Fragment>
-          ))}
-        </div>
-
-        {/* Current Step Details */}
-        {steps.map((step) => (
-          step.status === 'current' && (
-            <div key={step.id} className="mt-6 p-4 bg-muted/30 rounded-lg border border-border/50">
-              <div className="flex items-center gap-3 mb-4">
-                <div className="p-2 rounded-lg bg-primary/10">
-                  {step.icon}
-                </div>
-                <div>
-                  <h4 className="font-semibold">{step.name}</h4>
-                  <p className="text-sm text-muted-foreground">{step.description}</p>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-                {step.actions.map((action, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 bg-background rounded-lg border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer"
-                  >
-                    <div className="flex items-center gap-2 mb-1">
-                      <div className="p-1.5 rounded bg-primary/10 text-primary">
-                        {action.icon}
-                      </div>
-                      <span className="text-sm font-medium">{action.label}</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground ml-8">{action.description}</p>
-                  </div>
-                ))}
-              </div>
+                <Users className="h-4 w-4" />
+                Bulk Move
+              </Button>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setSettingsOpen(true)}
+                className="gap-2"
+              >
+                <Settings className="h-4 w-4" />
+                Settings
+              </Button>
+              <Badge variant="outline" className="bg-primary/10 text-primary border-primary/20">
+                Step {currentStep} of 5
+              </Badge>
             </div>
-          )
-        ))}
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {/* Stepper Header */}
+          <div className="flex items-center justify-between px-2">
+            {steps.map((step, index) => (
+              <React.Fragment key={step.id}>
+                <button
+                  onClick={() => setCurrentStep(step.id)}
+                  className="flex flex-col items-center gap-2 group cursor-pointer"
+                >
+                  <div
+                    className={cn(
+                      "w-10 h-10 rounded-full flex items-center justify-center transition-all duration-200",
+                      getStepStyles(step.status),
+                      "group-hover:scale-110"
+                    )}
+                  >
+                    {step.status === 'completed' ? (
+                      <Check className="h-5 w-5" />
+                    ) : (
+                      step.icon
+                    )}
+                  </div>
+                  <div className="text-center">
+                    <p className={cn(
+                      "text-sm font-medium",
+                      step.status === 'current' ? 'text-primary' : 'text-muted-foreground'
+                    )}>
+                      {step.name}
+                    </p>
+                  </div>
+                </button>
+                {index < steps.length - 1 && (
+                  <div className={cn(
+                    "flex-1 h-1 mx-2 rounded-full transition-all duration-200",
+                    getConnectorStyles(steps[index + 1].status === 'completed' || steps[index + 1].status === 'current' ? 'completed' : 'upcoming')
+                  )} />
+                )}
+              </React.Fragment>
+            ))}
+          </div>
 
-        {/* Navigation Buttons */}
-        <div className="flex justify-between pt-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
-            disabled={currentStep === 1}
-          >
-            Previous
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => setCurrentStep(Math.min(5, currentStep + 1))}
-            disabled={currentStep === 5}
-          >
-            Next Step
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+          {/* Current Step Details */}
+          {steps.map((step) => (
+            step.status === 'current' && (
+              <div key={step.id} className="mt-6 p-4 bg-muted/30 rounded-lg border border-border/50">
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="p-2 rounded-lg bg-primary/10">
+                    {step.icon}
+                  </div>
+                  <div>
+                    <h4 className="font-semibold">{step.name}</h4>
+                    <p className="text-sm text-muted-foreground">{step.description}</p>
+                  </div>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {step.actions.map((action, idx) => (
+                    <div
+                      key={idx}
+                      className="p-3 bg-background rounded-lg border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer"
+                    >
+                      <div className="flex items-center gap-2 mb-1">
+                        <div className="p-1.5 rounded bg-primary/10 text-primary">
+                          {action.icon}
+                        </div>
+                        <span className="text-sm font-medium">{action.label}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground ml-8">{action.description}</p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )
+          ))}
+
+          {/* Navigation Buttons */}
+          <div className="flex justify-between pt-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setCurrentStep(Math.max(1, currentStep - 1))}
+              disabled={currentStep === 1}
+            >
+              Previous
+            </Button>
+            <Button
+              size="sm"
+              onClick={() => setCurrentStep(Math.min(5, currentStep + 1))}
+              disabled={currentStep === 5}
+            >
+              Next Step
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Settings Dialog */}
+      <LeadWorkflowSettingsDialog 
+        open={settingsOpen} 
+        onOpenChange={setSettingsOpen} 
+      />
+
+      {/* Bulk Move Dialog */}
+      <BulkLeadWorkflowDialog
+        open={bulkDialogOpen}
+        onOpenChange={setBulkDialogOpen}
+        leads={leads}
+      />
+    </>
   );
 };
 
