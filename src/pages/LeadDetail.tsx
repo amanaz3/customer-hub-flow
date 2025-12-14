@@ -80,10 +80,10 @@ const WORKFLOW_STEPS = [
 ];
 
 // Define which sections are visible for each workflow stage
-// Import: Fresh from Apollo.io, just make first contact
-// Qualify: Assess lead quality, score, decide if worth pursuing
-// Nurture: Build relationship, send outreach messages
-// Propose: Send proposal/offer
+// Import: Internal data prep - add missing info, clean data (NO customer contact)
+// Qualify: Internal validation - check category, product interest, fix issues (NO customer contact)
+// Nurture: Actual outreach starts from Day 0 - welcome message, follow-up sequence
+// Propose: Send proposal/quote
 // Convert: Ready to convert to customer
 const STAGE_VISIBILITY: Record<string, {
   leadInfo: boolean;
@@ -96,30 +96,30 @@ const STAGE_VISIBILITY: Record<string, {
   convertButton: boolean;
 }> = {
   import: {
-    leadInfo: true,
-    scoreStatus: false, // Not assessing yet, just making first contact
+    leadInfo: true, // Edit and clean lead data
+    scoreStatus: false, // Not assessing yet
     quickInfo: true,
-    followupTimeline: false, // No follow-ups planned yet
-    logActivity: true, // Log first contact → triggers auto-move to Qualify
-    activityHistory: false, // No history yet, fresh imports
-    outreachMessages: true, // Need message templates for first contact
+    followupTimeline: false, // No outreach yet - internal prep stage
+    logActivity: true, // Log internal notes only
+    activityHistory: true, // See any notes
+    outreachMessages: false, // NO outreach - internal data prep only
     convertButton: false,
   },
   qualify: {
-    leadInfo: true,
-    scoreStatus: true, // Assess and score the lead
+    leadInfo: true, // Fix category, product interest, etc.
+    scoreStatus: true, // Assess lead fitness
     quickInfo: true,
-    followupTimeline: true, // Track follow-ups during assessment
-    logActivity: true,
-    activityHistory: true, // See contact history
-    outreachMessages: false, // Not nurturing yet
+    followupTimeline: false, // No outreach yet - internal validation stage
+    logActivity: true, // Log internal notes
+    activityHistory: true,
+    outreachMessages: false, // NO outreach - internal validation only
     convertButton: false,
   },
   nurture: {
     leadInfo: true,
     scoreStatus: true,
     quickInfo: true,
-    followupTimeline: true,
+    followupTimeline: true, // Day 0 outreach starts here!
     logActivity: true,
     activityHistory: true,
     outreachMessages: true, // Start sending outreach messages
@@ -133,7 +133,7 @@ const STAGE_VISIBILITY: Record<string, {
     logActivity: true,
     activityHistory: true,
     outreachMessages: true,
-    convertButton: false, // Not ready to convert yet
+    convertButton: false,
   },
   convert: {
     leadInfo: true,
@@ -143,7 +143,7 @@ const STAGE_VISIBILITY: Record<string, {
     logActivity: true,
     activityHistory: true,
     outreachMessages: true,
-    convertButton: true, // Show convert button
+    convertButton: true,
   },
 };
 
