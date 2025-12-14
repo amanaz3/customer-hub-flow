@@ -39,7 +39,16 @@ import {
   Flame,
   ThermometerSun,
   Snowflake,
+  Linkedin,
+  Copy,
+  Check,
 } from 'lucide-react';
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@/components/ui/accordion';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLeads, useLeadActivities } from '@/hooks/useLeads';
@@ -83,6 +92,7 @@ export default function LeadDetail() {
   const [loggingActivity, setLoggingActivity] = useState(false);
   const [showConversionDialog, setShowConversionDialog] = useState(false);
   const [converting, setConverting] = useState(false);
+  const [copiedMessage, setCopiedMessage] = useState<string | null>(null);
 
   // Dummy leads data for demo mode
   const dummyLeads: Lead[] = [
@@ -720,6 +730,106 @@ export default function LeadDetail() {
                 )}
               </CardContent>
             </Card>
+
+            {/* Outreach Messages */}
+            {(lead as any).outreach_messages && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <MessageCircle className="h-4 w-4" />
+                    Outreach Messages
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <Accordion type="single" collapsible className="w-full">
+                    {(lead as any).outreach_messages.email && (
+                      <AccordionItem value="email">
+                        <AccordionTrigger className="text-sm">
+                          <span className="flex items-center gap-2">
+                            <Mail className="h-4 w-4" />
+                            Email
+                          </span>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <div className="space-y-2">
+                            <div className="text-xs text-muted-foreground font-medium">Subject:</div>
+                            <p className="text-sm bg-muted/50 p-2 rounded">{(lead as any).outreach_messages.email.subject}</p>
+                            <div className="text-xs text-muted-foreground font-medium mt-2">Body:</div>
+                            <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.email.body}</p>
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full mt-2"
+                              onClick={() => {
+                                const text = `Subject: ${(lead as any).outreach_messages.email.subject}\n\n${(lead as any).outreach_messages.email.body}`;
+                                navigator.clipboard.writeText(text);
+                                setCopiedMessage('email');
+                                setTimeout(() => setCopiedMessage(null), 2000);
+                              }}
+                            >
+                              {copiedMessage === 'email' ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                              {copiedMessage === 'email' ? 'Copied!' : 'Copy'}
+                            </Button>
+                          </div>
+                        </AccordionContent>
+                      </AccordionItem>
+                    )}
+                    {(lead as any).outreach_messages.linkedin && (
+                      <AccordionItem value="linkedin">
+                        <AccordionTrigger className="text-sm">
+                          <span className="flex items-center gap-2">
+                            <Linkedin className="h-4 w-4" />
+                            LinkedIn
+                          </span>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.linkedin}</p>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="w-full mt-2"
+                            onClick={() => {
+                              navigator.clipboard.writeText((lead as any).outreach_messages.linkedin);
+                              setCopiedMessage('linkedin');
+                              setTimeout(() => setCopiedMessage(null), 2000);
+                            }}
+                          >
+                            {copiedMessage === 'linkedin' ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                            {copiedMessage === 'linkedin' ? 'Copied!' : 'Copy'}
+                          </Button>
+                        </AccordionContent>
+                      </AccordionItem>
+                    )}
+                    {(lead as any).outreach_messages.whatsapp && (
+                      <AccordionItem value="whatsapp">
+                        <AccordionTrigger className="text-sm">
+                          <span className="flex items-center gap-2">
+                            <MessageCircle className="h-4 w-4" />
+                            WhatsApp
+                          </span>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                          <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.whatsapp}</p>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            className="w-full mt-2"
+                            onClick={() => {
+                              navigator.clipboard.writeText((lead as any).outreach_messages.whatsapp);
+                              setCopiedMessage('whatsapp');
+                              setTimeout(() => setCopiedMessage(null), 2000);
+                            }}
+                          >
+                            {copiedMessage === 'whatsapp' ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                            {copiedMessage === 'whatsapp' ? 'Copied!' : 'Copy'}
+                          </Button>
+                        </AccordionContent>
+                      </AccordionItem>
+                    )}
+                  </Accordion>
+                </CardContent>
+              </Card>
+            )}
           </div>
       </div>
 
