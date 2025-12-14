@@ -101,7 +101,7 @@ const STAGE_VISIBILITY: Record<string, {
     followupTimeline: false, // No follow-ups planned yet
     logActivity: true, // Log first contact → triggers auto-move to Qualify
     activityHistory: false, // No history yet, fresh imports
-    outreachMessages: false,
+    outreachMessages: true, // Need message templates for first contact
     convertButton: false,
   },
   qualify: {
