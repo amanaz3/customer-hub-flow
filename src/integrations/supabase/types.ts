@@ -1629,6 +1629,201 @@ export type Database = {
           },
         ]
       }
+      lead_discovery_industries: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      lead_discovery_prompt_results: {
+        Row: {
+          created_at: string
+          error_message: string | null
+          execution_time_ms: number | null
+          id: string
+          input_data: Json | null
+          output_data: Json | null
+          prompt_id: string | null
+          prompt_text: string
+          session_id: string
+          status: string
+          step_order: number
+        }
+        Insert: {
+          created_at?: string
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          input_data?: Json | null
+          output_data?: Json | null
+          prompt_id?: string | null
+          prompt_text: string
+          session_id: string
+          status?: string
+          step_order: number
+        }
+        Update: {
+          created_at?: string
+          error_message?: string | null
+          execution_time_ms?: number | null
+          id?: string
+          input_data?: Json | null
+          output_data?: Json | null
+          prompt_id?: string | null
+          prompt_text?: string
+          session_id?: string
+          status?: string
+          step_order?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_discovery_prompt_results_prompt_id_fkey"
+            columns: ["prompt_id"]
+            isOneToOne: false
+            referencedRelation: "lead_discovery_prompts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_discovery_prompt_results_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "lead_discovery_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_discovery_prompts: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_template: boolean
+          name: string
+          prompt_text: string
+          prompt_type: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_template?: boolean
+          name: string
+          prompt_text: string
+          prompt_type?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_template?: boolean
+          name?: string
+          prompt_text?: string
+          prompt_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_discovery_prompts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lead_discovery_sessions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          final_result: Json | null
+          id: string
+          industry_id: string
+          original_data: Json | null
+          product_id: string | null
+          session_name: string
+          status: string
+          updated_at: string
+          uploaded_file_name: string | null
+          uploaded_file_path: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          final_result?: Json | null
+          id?: string
+          industry_id: string
+          original_data?: Json | null
+          product_id?: string | null
+          session_name: string
+          status?: string
+          updated_at?: string
+          uploaded_file_name?: string | null
+          uploaded_file_path?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          final_result?: Json | null
+          id?: string
+          industry_id?: string
+          original_data?: Json | null
+          product_id?: string | null
+          session_name?: string
+          status?: string
+          updated_at?: string
+          uploaded_file_name?: string | null
+          uploaded_file_path?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_discovery_sessions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_discovery_sessions_industry_id_fkey"
+            columns: ["industry_id"]
+            isOneToOne: false
+            referencedRelation: "lead_discovery_industries"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_discovery_sessions_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_followup_sequence: {
         Row: {
           action_description: string | null
