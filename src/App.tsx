@@ -78,6 +78,7 @@ import LeadDetail from '@/pages/LeadDetail';
 import LeadWorkflow from '@/pages/LeadWorkflow';
 import BankPainAnalysis from '@/pages/BankPainAnalysis';
 import AccessManagement from '@/pages/AccessManagement';
+import LeadDiscoveryAnalysis from '@/pages/LeadDiscoveryAnalysis';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -407,6 +408,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Bank Pain Analysis">
                           <BankPainAnalysis />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/lead-discovery-analysis" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Lead Discovery Analysis">
+                          <LeadDiscoveryAnalysis />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
