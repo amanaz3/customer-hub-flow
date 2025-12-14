@@ -46,6 +46,9 @@ const LeadDiscoveryAnalysis = () => {
   const [promptText, setPromptText] = useState('');
   const [isRunning, setIsRunning] = useState(false);
   const [showAllSessions, setShowAllSessions] = useState(false);
+  const [stepType, setStepType] = useState<'prompt' | 'tag'>('prompt');
+  const [selectedServiceForTag, setSelectedServiceForTag] = useState('');
+  const [tagPromptText, setTagPromptText] = useState('');
   
   // New session form
   const [newSessionName, setNewSessionName] = useState('');
@@ -267,25 +270,78 @@ const LeadDiscoveryAnalysis = () => {
     setNewIndustryDesc('');
   };
 
-  const handleTagService = async (productId: string) => {
-    if (!selectedSession) return;
+  const handleTagServiceWithPrompt = async () => {
+    if (!selectedSession || !selectedServiceForTag) {
+      toast.error('Please select a service');
+      return;
+    }
+
+    setIsRunning(true);
+    const selectedProduct = products.find(p => p.id === selectedServiceForTag);
     
     try {
+      // First, tag the service
       await updateSession.mutateAsync({
         id: selectedSession.id,
-        product_id: productId
+        product_id: selectedServiceForTag
       });
       
-      const selectedProduct = products.find(p => p.id === productId);
       setSelectedSession(prev => prev ? { 
         ...prev, 
-        product_id: productId,
+        product_id: selectedServiceForTag,
         product: selectedProduct
       } : null);
-      
-      toast.success(`Session tagged with ${selectedProduct?.name}`);
+
+      // If there's a prompt, run it as a step
+      if (tagPromptText.trim() && currentData) {
+        const stepOrder = sessionResults.length + 1;
+        const fullPromptText = `[SERVICE: ${selectedProduct?.name}] ${tagPromptText}`;
+        
+        const resultRecord = await addPromptResult.mutateAsync({
+          session_id: selectedSession.id,
+          step_order: stepOrder,
+          prompt_text: fullPromptText,
+          input_data: currentData,
+          status: 'running'
+        });
+
+        const { data, error } = await supabase.functions.invoke('process-lead-discovery', {
+          body: {
+            prompt: tagPromptText,
+            data: currentData,
+            industry: industries.find(i => i.id === selectedSession.industry_id)?.name,
+            product: selectedProduct?.name
+          }
+        });
+
+        if (error) throw error;
+
+        await updatePromptResult.mutateAsync({
+          id: resultRecord.id,
+          output_data: data.result,
+          status: 'completed',
+          execution_time_ms: data.execution_time_ms
+        });
+
+        const updatedResult = { ...resultRecord, output_data: data.result, status: 'completed' as const };
+        setSessionResults(prev => [...prev, updatedResult]);
+        setCurrentData(data.result);
+
+        await updateSession.mutateAsync({
+          id: selectedSession.id,
+          final_result: data.result,
+          status: 'processing'
+        });
+      }
+
+      toast.success(`Tagged with ${selectedProduct?.name}${tagPromptText ? ' and ran prompt' : ''}`);
+      setSelectedServiceForTag('');
+      setTagPromptText('');
+      setStepType('prompt');
     } catch (error: any) {
       toast.error(error.message || 'Failed to tag service');
+    } finally {
+      setIsRunning(false);
     }
   };
 
@@ -777,69 +833,98 @@ const LeadDiscoveryAnalysis = () => {
                 </CardContent>
               </Card>
 
-              {/* Service Tag Selector - Show if no product tagged yet */}
-              {!selectedSession.product_id && (
-                <Card>
-                  <CardHeader className="pb-3">
-                    <div className="flex items-center justify-between">
-                      <div>
-                        <CardTitle className="text-lg flex items-center gap-2">
-                          <Package className="h-5 w-5" />
-                          Tag Service
-                        </CardTitle>
-                        <CardDescription>
-                          Tag this session with a service for categorization
-                        </CardDescription>
-                      </div>
-                      <Select onValueChange={handleTagService}>
-                        <SelectTrigger className="w-[200px]">
-                          <SelectValue placeholder="Select service..." />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {products.map(prod => (
-                            <SelectItem key={prod.id} value={prod.id}>
-                              <div className="flex items-center gap-2">
-                                <Package className="h-4 w-4" />
-                                {prod.name}
-                              </div>
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
-                    </div>
-                  </CardHeader>
-                </Card>
-              )}
-
-              {/* Prompt Input */}
+              {/* Add Step - Unified section for both prompt and tag+prompt */}
               <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <Sparkles className="h-5 w-5" />
-                    Run Prompt
-                  </CardTitle>
-                  <CardDescription>
-                    Current data: {Array.isArray(currentData) ? `${currentData.length} items` : 'No data loaded'}
-                  </CardDescription>
+                <CardHeader className="pb-3">
+                  <div className="flex items-center justify-between">
+                    <div>
+                      <CardTitle className="text-lg flex items-center gap-2">
+                        <Plus className="h-5 w-5" />
+                        Add Step
+                      </CardTitle>
+                      <CardDescription>
+                        Current data: {Array.isArray(currentData) ? `${currentData.length} items` : 'No data loaded'}
+                      </CardDescription>
+                    </div>
+                  </div>
                 </CardHeader>
                 <CardContent className="space-y-4">
-                  <Textarea
-                    value={promptText}
-                    onChange={(e) => setPromptText(e.target.value)}
-                    placeholder="Enter your prompt... e.g., 'Filter to only include companies with annual revenue > 1M AED and headquarters in Dubai'"
-                    rows={4}
-                    className="resize-none"
-                  />
-                  <div className="flex justify-end">
-                    <Button onClick={handleRunPrompt} disabled={isRunning || !promptText || !currentData}>
-                      {isRunning ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <Play className="h-4 w-4 mr-2" />
-                      )}
-                      Run Prompt
-                    </Button>
-                  </div>
+                  <Tabs value={stepType} onValueChange={(v) => setStepType(v as 'prompt' | 'tag')}>
+                    <TabsList className="w-full">
+                      <TabsTrigger value="prompt" className="flex-1">
+                        <Sparkles className="h-4 w-4 mr-2" />
+                        Run Prompt
+                      </TabsTrigger>
+                      <TabsTrigger value="tag" className="flex-1">
+                        <Package className="h-4 w-4 mr-2" />
+                        Tag Service
+                      </TabsTrigger>
+                    </TabsList>
+
+                    <TabsContent value="prompt" className="mt-4 space-y-4">
+                      <Textarea
+                        value={promptText}
+                        onChange={(e) => setPromptText(e.target.value)}
+                        placeholder="Enter your prompt... e.g., 'Filter to only include companies with annual revenue > 1M AED'"
+                        rows={4}
+                        className="resize-none"
+                      />
+                      <div className="flex justify-end">
+                        <Button onClick={handleRunPrompt} disabled={isRunning || !promptText || !currentData}>
+                          {isRunning ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <Play className="h-4 w-4 mr-2" />
+                          )}
+                          Run Prompt
+                        </Button>
+                      </div>
+                    </TabsContent>
+
+                    <TabsContent value="tag" className="mt-4 space-y-4">
+                      <div>
+                        <Label>Select Service *</Label>
+                        <Select value={selectedServiceForTag} onValueChange={setSelectedServiceForTag}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose a service to tag..." />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {products.map(prod => (
+                              <SelectItem key={prod.id} value={prod.id}>
+                                <div className="flex items-center gap-2">
+                                  <Package className="h-4 w-4" />
+                                  {prod.name}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Prompt (optional)</Label>
+                        <Textarea
+                          value={tagPromptText}
+                          onChange={(e) => setTagPromptText(e.target.value)}
+                          placeholder="Optional: Enter a prompt to run after tagging the service..."
+                          rows={3}
+                          className="resize-none"
+                        />
+                      </div>
+                      <div className="flex justify-end">
+                        <Button 
+                          onClick={handleTagServiceWithPrompt} 
+                          disabled={isRunning || !selectedServiceForTag}
+                        >
+                          {isRunning ? (
+                            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                          ) : (
+                            <Package className="h-4 w-4 mr-2" />
+                          )}
+                          {tagPromptText.trim() ? 'Tag & Run Prompt' : 'Tag Service'}
+                        </Button>
+                      </div>
+                    </TabsContent>
+                  </Tabs>
                 </CardContent>
               </Card>
 
