@@ -539,10 +539,22 @@ const LeadWorkflow = () => {
                 {/* Nurture Step - Day Sequence Stepper */}
                 {currentStepData.key === 'nurture' && (
                   <div className="mb-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Heart className="h-4 w-4 text-primary" />
-                      <span className="text-sm font-medium">Follow-up Sequence</span>
-                      <span className="text-xs text-muted-foreground">(Outreach starts here)</span>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <Heart className="h-4 w-4 text-primary" />
+                        <span className="text-sm font-medium">Follow-up Sequence</span>
+                        <span className="text-xs text-muted-foreground">(Outreach starts here)</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs">
+                        <Badge variant="outline" className="text-emerald-600 border-emerald-300 bg-emerald-50">
+                          <Check className="h-3 w-3 mr-1" />
+                          Lead replies → Propose
+                        </Badge>
+                        <Badge variant="outline" className="text-blue-600 border-blue-300 bg-blue-50">
+                          <Snowflake className="h-3 w-3 mr-1" />
+                          No reply Day 7 → Cold
+                        </Badge>
+                      </div>
                     </div>
                     <div className="flex items-center justify-between bg-background rounded-lg border p-3">
                       {[
@@ -551,7 +563,7 @@ const LeadWorkflow = () => {
                         { day: 2, label: 'Day 2', action: 'WhatsApp Reminder', icon: <MessageSquare className="h-3.5 w-3.5" /> },
                         { day: 3, label: 'Day 3', action: 'Email Proposal', icon: <Mail className="h-3.5 w-3.5" /> },
                         { day: 5, label: 'Day 5', action: 'Final Reminder', icon: <MessageSquare className="h-3.5 w-3.5" /> },
-                        { day: 7, label: 'Day 7', action: 'Mark Cold', icon: <Snowflake className="h-3.5 w-3.5" /> },
+                        { day: 7, label: 'Day 7', action: 'Mark Cold', icon: <Snowflake className="h-3.5 w-3.5" />, isCold: true },
                       ].map((step, idx, arr) => (
                         <React.Fragment key={step.day}>
                           <div className="flex flex-col items-center gap-1 group cursor-pointer">
@@ -559,13 +571,15 @@ const LeadWorkflow = () => {
                               "w-8 h-8 rounded-full flex items-center justify-center transition-all",
                               idx === 0 
                                 ? "bg-primary text-primary-foreground" 
-                                : "bg-muted text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary"
+                                : (step as any).isCold
+                                  ? "bg-blue-100 text-blue-600 group-hover:bg-blue-200"
+                                  : "bg-muted text-muted-foreground group-hover:bg-primary/20 group-hover:text-primary"
                             )}>
                               {step.icon}
                             </div>
                             <span className={cn(
                               "text-xs font-medium",
-                              idx === 0 ? "text-primary" : "text-muted-foreground"
+                              idx === 0 ? "text-primary" : (step as any).isCold ? "text-blue-600" : "text-muted-foreground"
                             )}>
                               {step.label}
                             </span>
@@ -582,6 +596,9 @@ const LeadWorkflow = () => {
                         </React.Fragment>
                       ))}
                     </div>
+                    <p className="text-xs text-muted-foreground mt-2 text-center">
+                      💡 When lead replies or shows interest, they auto-move to <strong>Propose</strong>. No response after Day 7 marks them <strong>Cold</strong> but stays in Nurture.
+                    </p>
                   </div>
                 )}
 
