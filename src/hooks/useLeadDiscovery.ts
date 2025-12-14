@@ -181,6 +181,32 @@ export const useLeadDiscovery = () => {
     }
   });
 
+  // Delete session (and all related prompt results)
+  const deleteSession = useMutation({
+    mutationFn: async (sessionId: string) => {
+      // First delete all prompt results for this session
+      const { error: resultsError } = await supabase
+        .from('lead_discovery_prompt_results')
+        .delete()
+        .eq('session_id', sessionId);
+      if (resultsError) throw resultsError;
+
+      // Then delete the session
+      const { error } = await supabase
+        .from('lead_discovery_sessions')
+        .delete()
+        .eq('id', sessionId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['lead-discovery-sessions'] });
+      toast.success('Session deleted');
+    },
+    onError: (error: any) => {
+      toast.error(error.message || 'Failed to delete session');
+    }
+  });
+
   // Save prompt
   const savePrompt = useMutation({
     mutationFn: async (prompt: {
@@ -268,6 +294,7 @@ export const useLeadDiscovery = () => {
     createIndustry,
     createSession,
     updateSession,
+    deleteSession,
     savePrompt,
     fetchSessionResults,
     addPromptResult,

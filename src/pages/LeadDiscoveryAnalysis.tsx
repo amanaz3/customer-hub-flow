@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import { 
   Upload, Play, Save, Plus, FileSpreadsheet, Building2, 
   Package, ChevronRight, Clock, CheckCircle, XCircle, Loader2,
-  Sparkles, History, Settings, Send
+  Sparkles, History, Settings, Send, Trash2
 } from 'lucide-react';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
@@ -32,6 +32,7 @@ const LeadDiscoveryAnalysis = () => {
     createIndustry,
     createSession,
     updateSession,
+    deleteSession,
     savePrompt,
     fetchSessionResults,
     addPromptResult,
@@ -552,7 +553,29 @@ const LeadDiscoveryAnalysis = () => {
                         )}
                       </CardDescription>
                     </div>
-                    {getStatusBadge(selectedSession.status)}
+                    <div className="flex items-center gap-2">
+                      {getStatusBadge(selectedSession.status)}
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                        onClick={async () => {
+                          if (confirm('Delete this session and all its data?')) {
+                            await deleteSession.mutateAsync(selectedSession.id);
+                            setSelectedSession(null);
+                            setSessionResults([]);
+                            setCurrentData(null);
+                          }
+                        }}
+                        disabled={deleteSession.isPending}
+                      >
+                        {deleteSession.isPending ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <Trash2 className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
                   </div>
                 </CardHeader>
               </Card>
