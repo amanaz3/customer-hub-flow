@@ -73,7 +73,22 @@ RESPOND WITH ONLY THE JSON ARRAY. No explanations, no markdown, no code blocks. 
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('AI API error:', errorText);
+      console.error('AI API error:', response.status, errorText);
+      
+      if (response.status === 402) {
+        return new Response(
+          JSON.stringify({ error: 'AI credits depleted. Please add credits to your Lovable workspace in Settings → Workspace → Usage.' }),
+          { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
+      if (response.status === 429) {
+        return new Response(
+          JSON.stringify({ error: 'Rate limit exceeded. Please wait a moment and try again.' }),
+          { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+      
       throw new Error(`AI API error: ${response.status}`);
     }
 
