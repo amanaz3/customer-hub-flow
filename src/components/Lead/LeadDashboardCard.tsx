@@ -2,24 +2,13 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
   Trophy, 
-  Bell, 
-  Flame, 
-  ThermometerSun, 
-  Snowflake, 
-  Phone, 
-  MessageSquare, 
-  Mail, 
-  X, 
   Star, 
   FlaskConical 
 } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { supabase } from '@/integrations/supabase/client';
-import { useAuth } from '@/contexts/SecureAuthContext';
 import { format, startOfWeek, endOfWeek } from 'date-fns';
 
 interface UserPerformance {
@@ -40,12 +29,6 @@ interface SuccessStory {
   estimatedValue: number | null;
 }
 
-interface LeadDashboardCardProps {
-  hotCount: number;
-  warmCount: number;
-  coldCount: number;
-}
-
 const dummyPerformances: UserPerformance[] = [
   { id: '1', name: 'Sarah Ahmed', email: 'sarah@example.com', leadsAcquired: 14, hotLeads: 5, warmLeads: 6, coldLeads: 3, leadsConverted: 3 },
   { id: '2', name: 'Mohammed Ali', email: 'mohammed@example.com', leadsAcquired: 12, hotLeads: 4, warmLeads: 5, coldLeads: 3, leadsConverted: 2 },
@@ -60,9 +43,7 @@ const dummySuccessStories: SuccessStory[] = [
   { leadName: 'Emirates Consulting', convertedAt: new Date(Date.now() - 172800000).toISOString(), agentName: 'Fatima Hassan', estimatedValue: 45000 },
 ];
 
-export function LeadDashboardCard({ hotCount, warmCount, coldCount }: LeadDashboardCardProps) {
-  const { user } = useAuth();
-  const [dismissed, setDismissed] = useState(false);
+export function LeadDashboardCard() {
   const [performances, setPerformances] = useState<UserPerformance[]>([]);
   const [successStories, setSuccessStories] = useState<SuccessStory[]>([]);
   const [loading, setLoading] = useState(true);
@@ -73,14 +54,6 @@ export function LeadDashboardCard({ hotCount, warmCount, coldCount }: LeadDashbo
   const [weekRange] = useState({ start: startOfWeek(new Date()), end: endOfWeek(new Date()) });
 
   useEffect(() => {
-    const dismissedDate = localStorage.getItem(`lead_check_dismissed_${user?.id}`);
-    const today = new Date().toDateString();
-    if (dismissedDate === today) {
-      setDismissed(true);
-    }
-  }, [user?.id]);
-
-  useEffect(() => {
     if (showDummy) {
       setPerformances(dummyPerformances);
       setSuccessStories(dummySuccessStories);
@@ -89,12 +62,6 @@ export function LeadDashboardCard({ hotCount, warmCount, coldCount }: LeadDashbo
       fetchPerformanceData();
     }
   }, [showDummy]);
-
-  const handleDismiss = () => {
-    const today = new Date().toDateString();
-    localStorage.setItem(`lead_check_dismissed_${user?.id}`, today);
-    setDismissed(true);
-  };
 
   const toggleDummy = (value: boolean) => {
     setShowDummy(value);
@@ -184,173 +151,104 @@ export function LeadDashboardCard({ hotCount, warmCount, coldCount }: LeadDashbo
         </div>
       </CardHeader>
       <CardContent className="pt-0 px-4 pb-4">
-        <Tabs defaultValue="leaderboard" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 h-8">
-            <TabsTrigger value="leaderboard" className="text-xs">
-              <Trophy className="h-3 w-3 mr-1" />
-              Leaderboard
-            </TabsTrigger>
-            <TabsTrigger value="daily-check" className="text-xs">
-              <Bell className="h-3 w-3 mr-1" />
-              Daily Check
-              {!dismissed && <span className="ml-1 w-1.5 h-1.5 bg-primary rounded-full" />}
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="leaderboard" className="mt-3">
-            {loading ? (
-              <div className="animate-pulse space-y-2">
-                <div className="h-4 bg-muted rounded w-1/3" />
-                <div className="h-16 bg-muted rounded" />
+        {loading ? (
+          <div className="animate-pulse space-y-2">
+            <div className="h-4 bg-muted rounded w-1/3" />
+            <div className="h-16 bg-muted rounded" />
+          </div>
+        ) : (
+          <>
+            {/* Stats */}
+            <div className="grid grid-cols-4 gap-2 mb-3 pb-3 border-b border-border/50">
+              <div className="text-center p-2 rounded-lg bg-muted/50">
+                <div className="text-lg font-bold text-foreground">
+                  {performances.reduce((acc, p) => acc + p.leadsAcquired, 0)}
+                </div>
+                <div className="text-[10px] text-muted-foreground">Total</div>
               </div>
-            ) : (
-              <>
-                {/* Stats */}
-                <div className="grid grid-cols-4 gap-2 mb-3 pb-3 border-b border-border/50">
-                  <div className="text-center p-2 rounded-lg bg-muted/50">
-                    <div className="text-lg font-bold text-foreground">
-                      {performances.reduce((acc, p) => acc + p.leadsAcquired, 0)}
-                    </div>
-                    <div className="text-[10px] text-muted-foreground">Total</div>
-                  </div>
-                  <div className="text-center p-2 rounded-lg bg-red-500/10">
-                    <div className="text-lg font-bold text-red-500">
-                      {performances.reduce((acc, p) => acc + p.hotLeads, 0)}
-                    </div>
-                    <div className="text-[10px] text-muted-foreground">Hot</div>
-                  </div>
-                  <div className="text-center p-2 rounded-lg bg-yellow-500/10">
-                    <div className="text-lg font-bold text-yellow-600">
-                      {performances.reduce((acc, p) => acc + p.warmLeads, 0)}
-                    </div>
-                    <div className="text-[10px] text-muted-foreground">Warm</div>
-                  </div>
-                  <div className="text-center p-2 rounded-lg bg-blue-500/10">
-                    <div className="text-lg font-bold text-blue-500">
-                      {performances.reduce((acc, p) => acc + p.coldLeads, 0)}
-                    </div>
-                    <div className="text-[10px] text-muted-foreground">Cold</div>
-                  </div>
+              <div className="text-center p-2 rounded-lg bg-red-500/10">
+                <div className="text-lg font-bold text-red-500">
+                  {performances.reduce((acc, p) => acc + p.hotLeads, 0)}
                 </div>
-
-                {/* Leaderboard List */}
-                <div className="flex flex-col gap-2">
-                  {performances.slice(0, 5).map((user, index) => (
-                    <div 
-                      key={user.id}
-                      className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
-                        index === 0 ? 'bg-yellow-500/10 border border-yellow-500/30' : 
-                        index === 1 ? 'bg-muted/60' : 
-                        index === 2 ? 'bg-amber-500/10' : 
-                        'bg-muted/30'
-                      }`}
-                    >
-                      <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
-                        index === 0 ? 'bg-yellow-500 text-yellow-950' :
-                        index === 1 ? 'bg-gray-400 text-white' :
-                        index === 2 ? 'bg-amber-600 text-white' :
-                        'bg-muted-foreground/30 text-muted-foreground'
-                      }`}>
-                        {index + 1}
-                      </div>
-                      <Avatar className="h-6 w-6">
-                        <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
-                          {getInitials(user.name)}
-                        </AvatarFallback>
-                      </Avatar>
-                      <span className="text-xs font-medium flex-1">{user.name.split(' ')[0]}</span>
-                      <div className="flex items-center gap-2 text-xs font-semibold">
-                        <span className="text-red-500">{user.hotLeads}</span>
-                        <span className="text-muted-foreground">/</span>
-                        <span className="text-yellow-600">{user.warmLeads}</span>
-                        <span className="text-muted-foreground">/</span>
-                        <span className="text-blue-500">{user.coldLeads}</span>
-                      </div>
-                      <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-5 bg-primary/10 text-primary font-bold">
-                        {user.leadsAcquired} total
-                      </Badge>
-                    </div>
-                  ))}
+                <div className="text-[10px] text-muted-foreground">Hot</div>
+              </div>
+              <div className="text-center p-2 rounded-lg bg-yellow-500/10">
+                <div className="text-lg font-bold text-yellow-600">
+                  {performances.reduce((acc, p) => acc + p.warmLeads, 0)}
                 </div>
+                <div className="text-[10px] text-muted-foreground">Warm</div>
+              </div>
+              <div className="text-center p-2 rounded-lg bg-blue-500/10">
+                <div className="text-lg font-bold text-blue-500">
+                  {performances.reduce((acc, p) => acc + p.coldLeads, 0)}
+                </div>
+                <div className="text-[10px] text-muted-foreground">Cold</div>
+              </div>
+            </div>
 
-                {/* Success Stories */}
-                <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/50 flex-wrap">
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Star className="h-3 w-3 text-green-500" />
-                    <span>Conversions:</span>
+            {/* Leaderboard List */}
+            <div className="flex flex-col gap-2">
+              {performances.slice(0, 5).map((user, index) => (
+                <div 
+                  key={user.id}
+                  className={`flex items-center gap-3 px-3 py-2 rounded-lg ${
+                    index === 0 ? 'bg-yellow-500/10 border border-yellow-500/30' : 
+                    index === 1 ? 'bg-muted/60' : 
+                    index === 2 ? 'bg-amber-500/10' : 
+                    'bg-muted/30'
+                  }`}
+                >
+                  <div className={`w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-bold ${
+                    index === 0 ? 'bg-yellow-500 text-yellow-950' :
+                    index === 1 ? 'bg-gray-400 text-white' :
+                    index === 2 ? 'bg-amber-600 text-white' :
+                    'bg-muted-foreground/30 text-muted-foreground'
+                  }`}>
+                    {index + 1}
                   </div>
-                  {successStories.length > 0 ? (
-                    successStories.slice(0, 3).map((story, index) => (
-                      <Badge key={index} variant="secondary" className="bg-green-500/10 text-green-600 text-[10px]">
-                        {story.leadName.split(' ')[0]} → {story.agentName.split(' ')[0]}
-                        {story.estimatedValue && ` (${(story.estimatedValue / 1000).toFixed(0)}K)`}
-                      </Badge>
-                    ))
-                  ) : (
-                    <span className="text-xs text-muted-foreground italic">No conversions this week</span>
-                  )}
+                  <Avatar className="h-6 w-6">
+                    <AvatarFallback className="text-[10px] bg-primary/10 text-primary">
+                      {getInitials(user.name)}
+                    </AvatarFallback>
+                  </Avatar>
+                  <span className="text-xs font-medium flex-1">{user.name.split(' ')[0]}</span>
+                  <div className="flex items-center gap-2 text-xs font-semibold">
+                    <span className="text-red-500">{user.hotLeads}</span>
+                    <span className="text-muted-foreground">/</span>
+                    <span className="text-yellow-600">{user.warmLeads}</span>
+                    <span className="text-muted-foreground">/</span>
+                    <span className="text-blue-500">{user.coldLeads}</span>
+                  </div>
+                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-5 bg-primary/10 text-primary font-bold">
+                    {user.leadsAcquired} total
+                  </Badge>
                 </div>
+              ))}
+            </div>
 
-                {performances.length === 0 && (
-                  <p className="text-xs text-muted-foreground text-center py-4">No leads this week</p>
-                )}
-              </>
+            {/* Success Stories */}
+            <div className="flex items-center gap-2 mt-3 pt-3 border-t border-border/50 flex-wrap">
+              <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                <Star className="h-3 w-3 text-green-500" />
+                <span>Conversions:</span>
+              </div>
+              {successStories.length > 0 ? (
+                successStories.slice(0, 3).map((story, index) => (
+                  <Badge key={index} variant="secondary" className="bg-green-500/10 text-green-600 text-[10px]">
+                    {story.leadName.split(' ')[0]} → {story.agentName.split(' ')[0]}
+                    {story.estimatedValue && ` (${(story.estimatedValue / 1000).toFixed(0)}K)`}
+                  </Badge>
+                ))
+              ) : (
+                <span className="text-xs text-muted-foreground italic">No conversions this week</span>
+              )}
+            </div>
+
+            {performances.length === 0 && (
+              <p className="text-xs text-muted-foreground text-center py-4">No leads this week</p>
             )}
-          </TabsContent>
-
-          <TabsContent value="daily-check" className="mt-3">
-            {dismissed ? (
-              <div className="text-center py-6 text-muted-foreground">
-                <Bell className="h-8 w-8 mx-auto mb-2 opacity-30" />
-                <p className="text-sm">Daily check dismissed</p>
-                <p className="text-xs">Come back tomorrow for your next reminder</p>
-              </div>
-            ) : (
-              <div className="space-y-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm font-medium text-foreground">Review your assigned leads:</p>
-                  <Button variant="ghost" size="sm" className="h-6 px-2" onClick={handleDismiss}>
-                    <X className="h-3 w-3 mr-1" />
-                    <span className="text-xs">Dismiss</span>
-                  </Button>
-                </div>
-                
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-red-500/10 border border-red-500/20">
-                    <Flame className="h-5 w-5 text-red-500" />
-                    <span className="text-xl font-bold text-red-700 dark:text-red-400">{hotCount}</span>
-                    <span className="text-[10px] text-red-600/80 text-center">Immediate outreach</span>
-                  </div>
-                  
-                  <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                    <ThermometerSun className="h-5 w-5 text-amber-500" />
-                    <span className="text-xl font-bold text-amber-700 dark:text-amber-400">{warmCount}</span>
-                    <span className="text-[10px] text-amber-600/80 text-center">Schedule follow-up</span>
-                  </div>
-                  
-                  <div className="flex flex-col items-center gap-1 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-                    <Snowflake className="h-5 w-5 text-blue-500" />
-                    <span className="text-xl font-bold text-blue-700 dark:text-blue-400">{coldCount}</span>
-                    <span className="text-[10px] text-blue-600/80 text-center">Add to nurture</span>
-                  </div>
-                </div>
-                
-                <div className="flex items-center gap-4 pt-2 border-t border-border/50">
-                  <span className="text-xs text-muted-foreground">Log activities:</span>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Phone className="h-3 w-3" /> Calls
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <MessageSquare className="h-3 w-3" /> WhatsApp
-                  </div>
-                  <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                    <Mail className="h-3 w-3" /> Emails
-                  </div>
-                </div>
-              </div>
-            )}
-          </TabsContent>
-        </Tabs>
+          </>
+        )}
       </CardContent>
     </Card>
   );
