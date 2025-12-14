@@ -248,7 +248,7 @@ const LeadWorkflow = () => {
   const currentStepLeads = currentStepData ? getLeadsPerStep(currentStepData.key) : [];
 
   return (
-    <>
+    <div className="w-full min-h-[calc(100vh-8rem)] py-6 px-4 sm:px-6 bg-muted/30">
       <Card className="p-6">
         <div className="space-y-4">
 
@@ -747,7 +747,7 @@ const LeadWorkflow = () => {
       />
       <LeadWorkflowSettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
       <BulkLeadWorkflowDialog open={bulkDialogOpen} onOpenChange={setBulkDialogOpen} leads={leads} />
-    </>
+    </div>
   );
 };
 
