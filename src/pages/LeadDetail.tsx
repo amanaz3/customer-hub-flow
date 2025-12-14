@@ -95,8 +95,14 @@ export default function LeadDetail() {
   const [showConversionDialog, setShowConversionDialog] = useState(false);
   const [converting, setConverting] = useState(false);
   const [copiedMessage, setCopiedMessage] = useState<string | null>(null);
-  const [messageVersion, setMessageVersion] = useState<'professional' | 'friendly'>('professional');
+  const [messageVersion, setMessageVersion] = useState<'professional' | 'friendly' | 'custom'>('professional');
   const [regeneratingMessages, setRegeneratingMessages] = useState(false);
+  const [customMessage, setCustomMessage] = useState({
+    email: { subject: '', body: '' },
+    linkedin: '',
+    whatsapp: ''
+  });
+  const [savingCustom, setSavingCustom] = useState(false);
 
   // Dummy leads data for demo mode
   const dummyLeads: Lead[] = [
@@ -294,6 +300,18 @@ export default function LeadDetail() {
     }
   }, [id, navigate, toast, isDummyLead]);
 
+  // Load existing custom messages when lead changes
+  useEffect(() => {
+    if (lead && (lead as any).outreach_messages?.custom) {
+      const custom = (lead as any).outreach_messages.custom;
+      setCustomMessage({
+        email: custom.email || { subject: '', body: '' },
+        linkedin: custom.linkedin || '',
+        whatsapp: custom.whatsapp || ''
+      });
+    }
+  }, [lead]);
+
   const handleSave = async () => {
     if (!lead || !id) return;
 
@@ -392,6 +410,57 @@ export default function LeadDetail() {
       });
     } finally {
       setRegeneratingMessages(false);
+    }
+  };
+
+  const handleSaveCustomMessage = async () => {
+    if (!lead || !id) return;
+    
+    setSavingCustom(true);
+    try {
+      const existingMessages = (lead as any).outreach_messages || {};
+      const updatedMessages = {
+        ...existingMessages,
+        custom: {
+          email: customMessage.email,
+          linkedin: customMessage.linkedin,
+          whatsapp: customMessage.whatsapp
+        }
+      };
+
+      const { error } = await supabase
+        .from('leads')
+        .update({ outreach_messages: updatedMessages })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      // Refetch lead
+      const { data: refreshedLead } = await supabase
+        .from('leads')
+        .select(`
+          *,
+          assigned_user:profiles!leads_assigned_to_fkey(id, name, email),
+          product_interest:products!leads_product_interest_id_fkey(id, name)
+        `)
+        .eq('id', id)
+        .single();
+      
+      if (refreshedLead) setLead(refreshedLead as unknown as Lead);
+
+      toast({
+        title: 'Custom Message Saved',
+        description: 'Your custom outreach message has been saved.',
+      });
+    } catch (error: any) {
+      console.error('Error saving custom message:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to save custom message',
+        variant: 'destructive',
+      });
+    } finally {
+      setSavingCustom(false);
     }
   };
 
@@ -823,10 +892,11 @@ export default function LeadDetail() {
                 <CardContent>
                   {/* Check if new format with professional/friendly versions */}
                   {(lead as any).outreach_messages.professional ? (
-                    <Tabs value={messageVersion} onValueChange={(v) => setMessageVersion(v as 'professional' | 'friendly')}>
-                      <TabsList className="grid w-full grid-cols-2 mb-3">
-                        <TabsTrigger value="professional" className="text-xs">Professional</TabsTrigger>
+                    <Tabs value={messageVersion} onValueChange={(v) => setMessageVersion(v as 'professional' | 'friendly' | 'custom')}>
+                      <TabsList className="grid w-full grid-cols-3 mb-3">
+                        <TabsTrigger value="professional" className="text-xs">Pro</TabsTrigger>
                         <TabsTrigger value="friendly" className="text-xs">Friendly</TabsTrigger>
+                        <TabsTrigger value="custom" className="text-xs">Custom</TabsTrigger>
                       </TabsList>
                       
                       {['professional', 'friendly'].map((version) => (
@@ -967,6 +1037,78 @@ export default function LeadDetail() {
                           </Accordion>
                         </TabsContent>
                       ))}
+                      
+                      {/* Custom Tab */}
+                      <TabsContent value="custom" className="mt-0">
+                        <div className="space-y-4">
+                          {/* Email */}
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2 text-sm font-medium">
+                              <Mail className="h-4 w-4" />
+                              Email
+                            </Label>
+                            <Input
+                              placeholder="Subject..."
+                              value={customMessage.email.subject}
+                              onChange={(e) => setCustomMessage(prev => ({
+                                ...prev,
+                                email: { ...prev.email, subject: e.target.value }
+                              }))}
+                            />
+                            <Textarea
+                              placeholder="Write your email message..."
+                              value={customMessage.email.body}
+                              onChange={(e) => setCustomMessage(prev => ({
+                                ...prev,
+                                email: { ...prev.email, body: e.target.value }
+                              }))}
+                              rows={4}
+                            />
+                          </div>
+                          
+                          {/* LinkedIn */}
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2 text-sm font-medium">
+                              <Linkedin className="h-4 w-4" />
+                              LinkedIn
+                            </Label>
+                            <Textarea
+                              placeholder="Write your LinkedIn message..."
+                              value={customMessage.linkedin}
+                              onChange={(e) => setCustomMessage(prev => ({
+                                ...prev,
+                                linkedin: e.target.value
+                              }))}
+                              rows={3}
+                            />
+                          </div>
+                          
+                          {/* WhatsApp */}
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2 text-sm font-medium">
+                              <MessageCircle className="h-4 w-4" />
+                              WhatsApp
+                            </Label>
+                            <Textarea
+                              placeholder="Write your WhatsApp message..."
+                              value={customMessage.whatsapp}
+                              onChange={(e) => setCustomMessage(prev => ({
+                                ...prev,
+                                whatsapp: e.target.value
+                              }))}
+                              rows={3}
+                            />
+                          </div>
+                          
+                          <Button
+                            onClick={handleSaveCustomMessage}
+                            disabled={savingCustom}
+                            className="w-full"
+                          >
+                            {savingCustom ? 'Saving...' : 'Save Custom Messages'}
+                          </Button>
+                        </div>
+                      </TabsContent>
                     </Tabs>
                   ) : (
                     /* Legacy format - backward compatible */
