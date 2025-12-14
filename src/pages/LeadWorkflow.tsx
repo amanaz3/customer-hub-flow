@@ -397,25 +397,166 @@ const LeadWorkflow = () => {
                   </div>
                 </div>
                 
-                {/* Actions */}
-                <div className="grid grid-cols-3 gap-2 mb-4">
-                  {currentStepData.actions.map((action, idx) => (
-                    <div
-                      key={idx}
-                      className="p-2.5 bg-background rounded-lg border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer"
-                    >
-                      <div className="flex items-center gap-2">
-                        <div className="p-1 rounded bg-primary/10 text-primary">
-                          {action.icon}
+                {/* Qualify Step - Special UI */}
+                {currentStepData.key === 'qualify' && (
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    {/* Score & Status */}
+                    <Card className="bg-background">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium flex items-center gap-2">
+                          <Target className="h-4 w-4 text-primary" />
+                          Score & Status
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">Score Distribution</span>
                         </div>
-                        <div>
-                          <span className="text-sm font-medium">{action.label}</span>
-                          <p className="text-xs text-muted-foreground">{action.description}</p>
+                        <div className="flex gap-2">
+                          <Badge className={cn("text-xs flex-1 justify-center", LEAD_SCORE_COLORS.hot)}>
+                            <Flame className="h-3 w-3 mr-1" />
+                            Hot: {currentStepLeads.filter(l => l.score === 'hot').length}
+                          </Badge>
+                          <Badge className={cn("text-xs flex-1 justify-center", LEAD_SCORE_COLORS.warm)}>
+                            <ThermometerSun className="h-3 w-3 mr-1" />
+                            Warm: {currentStepLeads.filter(l => l.score === 'warm').length}
+                          </Badge>
+                          <Badge className={cn("text-xs flex-1 justify-center", LEAD_SCORE_COLORS.cold)}>
+                            <Snowflake className="h-3 w-3 mr-1" />
+                            Cold: {currentStepLeads.filter(l => l.score === 'cold').length}
+                          </Badge>
+                        </div>
+                        <div className="pt-2 border-t">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Avg. Est. Value</span>
+                            <span className="font-medium">
+                              AED {currentStepLeads.length > 0 
+                                ? Math.round(currentStepLeads.reduce((sum, l) => sum + (l.estimated_value || 0), 0) / currentStepLeads.length).toLocaleString()
+                                : 0}
+                            </span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Activity History */}
+                    <Card className="bg-background">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium flex items-center gap-2">
+                          <MessageSquare className="h-4 w-4 text-primary" />
+                          Activity Summary
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-1.5">
+                            <Phone className="h-3 w-3 text-muted-foreground" />
+                            <span>Contacted</span>
+                          </div>
+                          <Badge variant="secondary" className="text-xs">
+                            {currentStepLeads.filter(l => l.last_contacted_at).length}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-1.5">
+                            <Mail className="h-3 w-3 text-muted-foreground" />
+                            <span>Has Interest</span>
+                          </div>
+                          <Badge variant="secondary" className="text-xs">
+                            {currentStepLeads.filter(l => l.product_interest_id).length}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <div className="flex items-center gap-1.5">
+                            <MessageSquare className="h-3 w-3 text-muted-foreground" />
+                            <span>Has Notes</span>
+                          </div>
+                          <Badge variant="secondary" className="text-xs">
+                            {currentStepLeads.filter(l => l.notes).length}
+                          </Badge>
+                        </div>
+                        <div className="pt-2 border-t">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">Response Rate</span>
+                            <span className="font-medium text-primary">
+                              {currentStepLeads.length > 0 
+                                ? Math.round((currentStepLeads.filter(l => l.last_contacted_at).length / currentStepLeads.length) * 100)
+                                : 0}%
+                            </span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+
+                    {/* Follow-up */}
+                    <Card className="bg-background">
+                      <CardHeader className="pb-2">
+                        <CardTitle className="text-sm font-medium flex items-center gap-2">
+                          <Heart className="h-4 w-4 text-primary" />
+                          Follow-up Status
+                        </CardTitle>
+                      </CardHeader>
+                      <CardContent className="space-y-2">
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Due Today</span>
+                          <Badge variant="destructive" className="text-xs">
+                            {currentStepLeads.filter(l => {
+                              if (!l.next_follow_up) return false;
+                              const followUp = new Date(l.next_follow_up);
+                              const today = new Date();
+                              return followUp.toDateString() === today.toDateString();
+                            }).length}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Overdue</span>
+                          <Badge variant="outline" className="text-xs text-destructive border-destructive">
+                            {currentStepLeads.filter(l => {
+                              if (!l.next_follow_up) return false;
+                              return new Date(l.next_follow_up) < new Date();
+                            }).length}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center justify-between text-xs">
+                          <span className="text-muted-foreground">Scheduled</span>
+                          <Badge variant="secondary" className="text-xs">
+                            {currentStepLeads.filter(l => l.next_follow_up).length}
+                          </Badge>
+                        </div>
+                        <div className="pt-2 border-t">
+                          <div className="flex items-center justify-between text-xs">
+                            <span className="text-muted-foreground">No Follow-up Set</span>
+                            <span className="font-medium text-amber-600">
+                              {currentStepLeads.filter(l => !l.next_follow_up).length}
+                            </span>
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+                )}
+
+                {/* Actions - Only show for non-qualify steps */}
+                {currentStepData.key !== 'qualify' && (
+                  <div className="grid grid-cols-3 gap-2 mb-4">
+                    {currentStepData.actions.map((action, idx) => (
+                      <div
+                        key={idx}
+                        className="p-2.5 bg-background rounded-lg border border-border/50 hover:border-primary/30 hover:bg-primary/5 transition-all cursor-pointer"
+                      >
+                        <div className="flex items-center gap-2">
+                          <div className="p-1 rounded bg-primary/10 text-primary">
+                            {action.icon}
+                          </div>
+                          <div>
+                            <span className="text-sm font-medium">{action.label}</span>
+                            <p className="text-xs text-muted-foreground">{action.description}</p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
+                    ))}
+                  </div>
+                )}
 
                 {/* Leads in this step - Table View */}
                 <div className="pt-3 border-t border-border/50">
