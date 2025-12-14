@@ -38,11 +38,10 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { useLeads } from '@/hooks/useLeads';
 import { CreateLeadDialog } from '@/components/Lead/CreateLeadDialog';
-import { DailyLeadCheckBanner } from '@/components/Lead/DailyLeadCheckBanner';
+import { LeadDashboardCard } from '@/components/Lead/LeadDashboardCard';
 import { LeadReminderScheduleDialog } from '@/components/Lead/LeadReminderScheduleDialog';
 import { LeadSettingsDialog } from '@/components/Lead/LeadSettingsDialog';
 import { FollowupSequenceConfig } from '@/components/Lead/FollowupSequenceConfig';
-import { LeadPerformanceLeaderboard } from '@/components/Lead/LeadPerformanceLeaderboard';
 import { OutreachImportDialog } from '@/components/Lead/OutreachImportDialog';
 import { LEAD_SCORE_COLORS, LEAD_STATUS_COLORS, type LeadScore, type LeadStatus } from '@/types/lead';
 import { useAuth } from '@/contexts/SecureAuthContext';
@@ -93,11 +92,8 @@ export default function Leads() {
   return (
     <>
       <div className="space-y-6 py-6">
-        {/* Performance Leaderboard */}
-        <LeadPerformanceLeaderboard />
-
-        {/* Daily Lead Check Banner */}
-        <DailyLeadCheckBanner 
+        {/* Lead Dashboard Card (Leaderboard + Daily Check) */}
+        <LeadDashboardCard 
           hotCount={stats.hot} 
           warmCount={stats.warm} 
           coldCount={stats.cold} 
