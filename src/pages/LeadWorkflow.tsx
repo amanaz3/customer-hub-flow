@@ -7,6 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Table,
   TableBody,
@@ -53,10 +54,16 @@ import {
   ArrowUpRight,
   LayoutGrid,
   ChevronRight,
+  FolderKanban,
+  List,
 } from 'lucide-react';
 import { useLeads } from '@/hooks/useLeads';
+import { useLeadCampaigns } from '@/hooks/useLeadCampaigns';
 import { useAuth } from '@/contexts/SecureAuthContext';
 import { CreateLeadDialog } from '@/components/Lead/CreateLeadDialog';
+import { CreateCampaignDialog } from '@/components/Lead/CreateCampaignDialog';
+import { CampaignCard } from '@/components/Lead/CampaignCard';
+import { CampaignLeadsView } from '@/components/Lead/CampaignLeadsView';
 import { OutreachImportDialog } from '@/components/Lead/OutreachImportDialog';
 import LeadWorkflowSettingsDialog from '@/components/Lead/LeadWorkflowSettingsDialog';
 import BulkLeadWorkflowDialog from '@/components/Lead/BulkLeadWorkflowDialog';
@@ -97,7 +104,20 @@ const scoreIcons: Record<LeadScore, React.ReactNode> = {
 const LeadWorkflow = () => {
   const navigate = useNavigate();
   const { leads, loading, showDummyData, toggleDummyData } = useLeads();
+  const { 
+    campaigns, 
+    isLoading: campaignsLoading, 
+    createCampaign, 
+    updateCampaign,
+    uploadExcelFile,
+    saveOutreachTemplate 
+  } = useLeadCampaigns();
   const { isAdmin } = useAuth();
+  
+  // Tab state
+  const [activeTab, setActiveTab] = useState<'pipeline' | 'campaigns'>('pipeline');
+  const [campaignView, setCampaignView] = useState<'cards' | 'list'>('cards');
+  const [selectedCampaign, setSelectedCampaign] = useState<string | null>(null);
   
   // Workflow state
   const [currentStep, setCurrentStep] = useState(1);
@@ -107,6 +127,7 @@ const LeadWorkflow = () => {
   // Dialog state
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showOutreachDialog, setShowOutreachDialog] = useState(false);
+  const [showCampaignDialog, setShowCampaignDialog] = useState(false);
   
   
   // Table filters
@@ -258,6 +279,10 @@ const LeadWorkflow = () => {
               <Upload className="h-4 w-4 mr-2" />
               Import
             </Button>
+            <Button size="sm" onClick={() => setShowCampaignDialog(true)}>
+              <FolderKanban className="h-4 w-4 mr-2" />
+              New Campaign
+            </Button>
             <Button size="sm" onClick={() => setShowCreateDialog(true)}>
               <Plus className="h-4 w-4 mr-2" />
               Add Lead
@@ -298,27 +323,42 @@ const LeadWorkflow = () => {
           </Card>
         </div>
 
-        {/* Workflow Pipeline */}
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <LayoutGrid className="h-5 w-5 text-primary" />
-                <span className="font-semibold">Pipeline Stages</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm" onClick={() => setBulkDialogOpen(true)}>
-                  <Users className="h-4 w-4 mr-1" />
-                  Bulk Move
-                </Button>
-                <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)}>
-                  <Settings className="h-4 w-4 mr-1" />
-                  Settings
-                </Button>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        {/* Main Tabs: Pipeline & Campaigns */}
+        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'pipeline' | 'campaigns')}>
+          <TabsList>
+            <TabsTrigger value="pipeline" className="gap-2">
+              <LayoutGrid className="h-4 w-4" />
+              Pipeline
+            </TabsTrigger>
+            <TabsTrigger value="campaigns" className="gap-2">
+              <FolderKanban className="h-4 w-4" />
+              Campaigns
+              <Badge variant="secondary" className="ml-1">{campaigns.length}</Badge>
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Pipeline Tab */}
+          <TabsContent value="pipeline" className="mt-4">
+            <Card>
+              <CardHeader className="pb-3">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <LayoutGrid className="h-5 w-5 text-primary" />
+                    <span className="font-semibold">Pipeline Stages</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setBulkDialogOpen(true)}>
+                      <Users className="h-4 w-4 mr-1" />
+                      Bulk Move
+                    </Button>
+                    <Button variant="outline" size="sm" onClick={() => setSettingsOpen(true)}>
+                      <Settings className="h-4 w-4 mr-1" />
+                      Settings
+                    </Button>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent className="space-y-4">
             {/* Stepper */}
             <div className="flex items-center justify-between">
               {steps.map((step, index) => (
@@ -603,13 +643,132 @@ const LeadWorkflow = () => {
               </Button>
             </div>
           </CardContent>
-        </Card>
+            </Card>
+          </TabsContent>
+
+          {/* Campaigns Tab */}
+          <TabsContent value="campaigns" className="mt-4">
+            {selectedCampaign ? (
+              <CampaignLeadsView
+                campaign={campaigns.find(c => c.id === selectedCampaign)!}
+                onBack={() => setSelectedCampaign(null)}
+              />
+            ) : (
+              <div className="space-y-4">
+                {/* View Toggle */}
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    {campaigns.length} campaign{campaigns.length !== 1 ? 's' : ''}
+                  </p>
+                  <div className="flex items-center gap-1 bg-muted rounded-md p-1">
+                    <Button
+                      variant={campaignView === 'cards' ? 'secondary' : 'ghost'}
+                      size="sm"
+                      className="h-7 px-2"
+                      onClick={() => setCampaignView('cards')}
+                    >
+                      <LayoutGrid className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant={campaignView === 'list' ? 'secondary' : 'ghost'}
+                      size="sm"
+                      className="h-7 px-2"
+                      onClick={() => setCampaignView('list')}
+                    >
+                      <List className="h-4 w-4" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Campaigns Grid/List */}
+                {campaignView === 'cards' ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {campaigns.map((campaign) => (
+                      <CampaignCard
+                        key={campaign.id}
+                        campaign={campaign}
+                        onClick={() => setSelectedCampaign(campaign.id)}
+                        onStatusChange={(status) => updateCampaign(campaign.id, { status })}
+                        onGenerateOutreach={() => {
+                          // TODO: Open outreach generation dialog for campaign
+                        }}
+                      />
+                    ))}
+                    {campaigns.length === 0 && (
+                      <div className="col-span-full text-center py-12 text-muted-foreground">
+                        <FolderKanban className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                        <p>No campaigns yet</p>
+                        <Button
+                          variant="outline"
+                          className="mt-4"
+                          onClick={() => setShowCampaignDialog(true)}
+                        >
+                          <Plus className="h-4 w-4 mr-2" />
+                          Create First Campaign
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ) : (
+                  <Card>
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Campaign</TableHead>
+                          <TableHead>Agent</TableHead>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Leads</TableHead>
+                          <TableHead>Progress</TableHead>
+                          <TableHead>Start Date</TableHead>
+                          <TableHead>Expected</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {campaigns.map((campaign) => (
+                          <TableRow
+                            key={campaign.id}
+                            className="cursor-pointer hover:bg-muted/50"
+                            onClick={() => setSelectedCampaign(campaign.id)}
+                          >
+                            <TableCell className="font-medium">{campaign.name}</TableCell>
+                            <TableCell>{campaign.assigned_user?.name || 'Unassigned'}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className="capitalize">{campaign.status}</Badge>
+                            </TableCell>
+                            <TableCell>{campaign.lead_count}</TableCell>
+                            <TableCell>
+                              {campaign.lead_count > 0 
+                                ? `${Math.round((campaign.converted_count / campaign.lead_count) * 100)}%`
+                                : '0%'}
+                            </TableCell>
+                            <TableCell>{format(new Date(campaign.start_date), 'MMM d, yyyy')}</TableCell>
+                            <TableCell>
+                              {campaign.expected_completion_date 
+                                ? format(new Date(campaign.expected_completion_date), 'MMM d, yyyy')
+                                : '-'}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </Card>
+                )}
+              </div>
+            )}
+          </TabsContent>
+        </Tabs>
 
       </div>
 
 
       {/* Dialogs */}
       <CreateLeadDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} />
+      <CreateCampaignDialog
+        open={showCampaignDialog}
+        onOpenChange={setShowCampaignDialog}
+        onCreateCampaign={createCampaign}
+        onUploadFile={uploadExcelFile}
+      />
       <OutreachImportDialog 
         open={showOutreachDialog} 
         onOpenChange={setShowOutreachDialog}
