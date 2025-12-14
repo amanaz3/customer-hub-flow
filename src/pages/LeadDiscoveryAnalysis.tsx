@@ -16,7 +16,7 @@ import { toast } from 'sonner';
 import { 
   Upload, Play, Save, Plus, FileSpreadsheet, Building2, 
   Package, ChevronRight, Clock, CheckCircle, XCircle, Loader2,
-  Sparkles, History, Settings
+  Sparkles, History, Settings, Send
 } from 'lucide-react';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
@@ -44,11 +44,15 @@ const LeadDiscoveryAnalysis = () => {
   const [currentData, setCurrentData] = useState<any>(null);
   const [promptText, setPromptText] = useState('');
   const [isRunning, setIsRunning] = useState(false);
+  const [isApplying, setIsApplying] = useState(false);
+  const [showApplyDialog, setShowApplyDialog] = useState(false);
+  const [selectedProductForApply, setSelectedProductForApply] = useState('');
+  const [applyPrompt, setApplyPrompt] = useState('');
   
   // New session form
   const [newSessionName, setNewSessionName] = useState('');
   const [newSessionIndustry, setNewSessionIndustry] = useState('');
-  const [newSessionProduct, setNewSessionProduct] = useState('');
+  // Removed: product selection now happens after filtering
   const [uploadedData, setUploadedData] = useState<any>(null);
   const [uploadedFileName, setUploadedFileName] = useState('');
   const [showNewSessionDialog, setShowNewSessionDialog] = useState(false);
@@ -96,7 +100,6 @@ const LeadDiscoveryAnalysis = () => {
       const result = await createSession.mutateAsync({
         session_name: newSessionName,
         industry_id: newSessionIndustry,
-        product_id: newSessionProduct || undefined,
         original_data: uploadedData,
         uploaded_file_name: uploadedFileName || undefined
       });
@@ -104,7 +107,6 @@ const LeadDiscoveryAnalysis = () => {
       setShowNewSessionDialog(false);
       setNewSessionName('');
       setNewSessionIndustry('');
-      setNewSessionProduct('');
       setUploadedData(null);
       setUploadedFileName('');
       
@@ -244,6 +246,72 @@ const LeadDiscoveryAnalysis = () => {
     toast.success('Prompt loaded');
   };
 
+  const handleApplyToService = async () => {
+    if (!selectedSession || !selectedProductForApply || !currentData) {
+      toast.error('Please select a service and ensure data is ready');
+      return;
+    }
+
+    setIsApplying(true);
+    const stepOrder = sessionResults.length + 1;
+    const selectedProduct = products.find(p => p.id === selectedProductForApply);
+    const finalPrompt = applyPrompt || `Apply this curated data to the ${selectedProduct?.name} service. Format and structure the data appropriately for this service.`;
+
+    try {
+      // Create pending result
+      const resultRecord = await addPromptResult.mutateAsync({
+        session_id: selectedSession.id,
+        step_order: stepOrder,
+        prompt_text: `[APPLY TO SERVICE: ${selectedProduct?.name}] ${finalPrompt}`,
+        input_data: currentData,
+        status: 'running'
+      });
+
+      // Call edge function with apply context
+      const { data, error } = await supabase.functions.invoke('process-lead-discovery', {
+        body: {
+          prompt: finalPrompt,
+          data: currentData,
+          industry: industries.find(i => i.id === selectedSession.industry_id)?.name,
+          product: selectedProduct?.name,
+          isApplyStep: true
+        }
+      });
+
+      if (error) throw error;
+
+      // Update result with output
+      await updatePromptResult.mutateAsync({
+        id: resultRecord.id,
+        output_data: data.result,
+        status: 'completed',
+        execution_time_ms: data.execution_time_ms
+      });
+
+      // Update session with product and final result
+      await updateSession.mutateAsync({
+        id: selectedSession.id,
+        product_id: selectedProductForApply,
+        final_result: data.result,
+        status: 'completed'
+      });
+
+      // Update local state
+      const updatedResult = { ...resultRecord, output_data: data.result, status: 'completed' as const };
+      setSessionResults(prev => [...prev, updatedResult]);
+      setCurrentData(data.result);
+      setShowApplyDialog(false);
+      setSelectedProductForApply('');
+      setApplyPrompt('');
+
+      toast.success(`Data applied to ${selectedProduct?.name} successfully!`);
+    } catch (error: any) {
+      toast.error(error.message || 'Failed to apply to service');
+    } finally {
+      setIsApplying(false);
+    }
+  };
+
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'completed':
@@ -333,19 +401,9 @@ const LeadDiscoveryAnalysis = () => {
                       ))}
                     </SelectContent>
                   </Select>
-                </div>
-                <div>
-                  <Label>Target Service (optional)</Label>
-                  <Select value={newSessionProduct} onValueChange={setNewSessionProduct}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select service to apply" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {products.map(prod => (
-                        <SelectItem key={prod.id} value={prod.id}>{prod.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    You'll select which service to apply after filtering your data
+                  </p>
                 </div>
                 <div>
                   <Label>Upload Data (Excel/CSV)</Label>
@@ -549,6 +607,65 @@ const LeadDiscoveryAnalysis = () => {
                   )}
                 </CardContent>
               </Card>
+
+              {/* Apply to Service Section */}
+              {sessionResults.length > 0 && currentData && Array.isArray(currentData) && currentData.length > 0 && (
+                <Card className="border-primary/50 bg-primary/5">
+                  <CardHeader>
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <Send className="h-5 w-5" />
+                      Apply to Service
+                    </CardTitle>
+                    <CardDescription>
+                      Data is ready! Select a service to apply this curated data ({currentData.length} items)
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="grid grid-cols-2 gap-4">
+                      <div>
+                        <Label>Select Service *</Label>
+                        <Select value={selectedProductForApply} onValueChange={setSelectedProductForApply}>
+                          <SelectTrigger>
+                            <SelectValue placeholder="Choose service to apply data" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {products.map(prod => (
+                              <SelectItem key={prod.id} value={prod.id}>
+                                <div className="flex items-center gap-2">
+                                  <Package className="h-4 w-4" />
+                                  {prod.name}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+                      <div>
+                        <Label>Application Prompt (optional)</Label>
+                        <Textarea
+                          value={applyPrompt}
+                          onChange={(e) => setApplyPrompt(e.target.value)}
+                          placeholder="Add specific instructions for how to apply this data..."
+                          rows={2}
+                          className="resize-none"
+                        />
+                      </div>
+                    </div>
+                    <Button 
+                      onClick={handleApplyToService} 
+                      disabled={isApplying || !selectedProductForApply}
+                      className="w-full"
+                    >
+                      {isApplying ? (
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                      ) : (
+                        <Send className="h-4 w-4 mr-2" />
+                      )}
+                      Apply Data to {products.find(p => p.id === selectedProductForApply)?.name || 'Service'}
+                    </Button>
+                  </CardContent>
+                </Card>
+              )}
 
               {/* Prompt Input */}
               <Card>
