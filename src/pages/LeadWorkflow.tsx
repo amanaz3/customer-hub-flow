@@ -513,7 +513,7 @@ const LeadWorkflow = () => {
                                 <TableRow 
                                   key={lead.id} 
                                   className="cursor-pointer hover:bg-muted/50"
-                                  onClick={() => navigate(`/lead/${lead.id}`)}
+                                  onClick={() => navigate(`/leads/${lead.id}`)}
                                 >
                                   <TableCell>
                                     <p className="font-medium">{lead.name}</p>
