@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -50,6 +50,9 @@ const LeadDiscoveryAnalysis = () => {
   const [selectedServiceForTag, setSelectedServiceForTag] = useState('');
   const [tagPromptText, setTagPromptText] = useState('');
   const [tagPromptName, setTagPromptName] = useState('');
+  const [saveAsTemplate, setSaveAsTemplate] = useState(false);
+  const [savedPrompts, setSavedPrompts] = useState<any[]>([]);
+  const [selectedSavedPrompt, setSelectedSavedPrompt] = useState('');
   const [promptName, setPromptName] = useState('');
   
   // New session form
@@ -184,6 +187,55 @@ const LeadDiscoveryAnalysis = () => {
     }
   };
 
+  // Fetch saved prompts on mount
+  const fetchSavedPrompts = async () => {
+    const { data, error } = await supabase
+      .from('lead_discovery_prompts')
+      .select('*')
+      .order('created_at', { ascending: false });
+    
+    if (!error && data) {
+      setSavedPrompts(data);
+    }
+  };
+
+  // Load saved prompts when component mounts
+  useEffect(() => {
+    fetchSavedPrompts();
+  }, []);
+
+  const handleSelectSavedPrompt = (promptId: string) => {
+    const prompt = savedPrompts.find(p => p.id === promptId);
+    if (prompt) {
+      setPromptText(prompt.prompt_text);
+      setSelectedSavedPrompt(promptId);
+    }
+  };
+
+  const savePromptAsTemplate = async (name: string, text: string, type: string = 'filter') => {
+    const { data: userData } = await supabase.auth.getUser();
+    const { data, error } = await supabase
+      .from('lead_discovery_prompts')
+      .insert({
+        name,
+        prompt_text: text,
+        prompt_type: type,
+        is_template: true,
+        created_by: userData.user?.id
+      })
+      .select()
+      .single();
+    
+    if (error) {
+      toast.error('Failed to save prompt template');
+      return null;
+    }
+    
+    toast.success('Prompt saved as template');
+    fetchSavedPrompts();
+    return data;
+  };
+
   const handleRunPrompt = async () => {
     if (!selectedSession || !promptText.trim() || !currentData) {
       toast.error('Please select a session, enter a prompt, and ensure data is loaded');
@@ -192,12 +244,16 @@ const LeadDiscoveryAnalysis = () => {
 
     setIsRunning(true);
     const stepOrder = sessionResults.length + 1;
+    const promptNameToUse = promptName.trim() || `Prompt ${stepOrder}`;
 
     try {
+      // Save as template if checkbox is checked
+      if (saveAsTemplate && promptNameToUse) {
+        await savePromptAsTemplate(promptNameToUse, promptText, 'filter');
+      }
+
       // Create pending result with name prefix
-      const fullPromptText = promptName.trim() 
-        ? `[${promptName.trim()}] ${promptText}` 
-        : promptText;
+      const fullPromptText = `[${promptNameToUse}] ${promptText}`;
       
       const resultRecord = await addPromptResult.mutateAsync({
         session_id: selectedSession.id,
@@ -233,6 +289,8 @@ const LeadDiscoveryAnalysis = () => {
       setCurrentData(data.result);
       setPromptText('');
       setPromptName('');
+      setSaveAsTemplate(false);
+      setSelectedSavedPrompt('');
 
       // Update session with final result
       await updateSession.mutateAsync({
@@ -892,8 +950,29 @@ const LeadDiscoveryAnalysis = () => {
                     </TabsList>
 
                     <TabsContent value="prompt" className="mt-4 space-y-4">
+                      {/* Saved Prompts Dropdown */}
+                      {savedPrompts.length > 0 && (
+                        <div>
+                          <Label>Use Saved Prompt</Label>
+                          <Select value={selectedSavedPrompt} onValueChange={handleSelectSavedPrompt}>
+                            <SelectTrigger>
+                              <SelectValue placeholder="Select a saved prompt..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {savedPrompts.map(prompt => (
+                                <SelectItem key={prompt.id} value={prompt.id}>
+                                  <div className="flex items-center gap-2">
+                                    <Save className="h-4 w-4" />
+                                    {prompt.name}
+                                  </div>
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      )}
                       <div>
-                        <Label>Prompt Name (for tagging)</Label>
+                        <Label>Prompt Name *</Label>
                         <Input
                           value={promptName}
                           onChange={(e) => setPromptName(e.target.value)}
@@ -902,7 +981,7 @@ const LeadDiscoveryAnalysis = () => {
                         />
                       </div>
                       <div>
-                        <Label>Prompt</Label>
+                        <Label>Prompt *</Label>
                         <Textarea
                           value={promptText}
                           onChange={(e) => setPromptText(e.target.value)}
@@ -911,8 +990,20 @@ const LeadDiscoveryAnalysis = () => {
                           className="resize-none mt-1"
                         />
                       </div>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="checkbox"
+                          id="saveAsTemplate"
+                          checked={saveAsTemplate}
+                          onChange={(e) => setSaveAsTemplate(e.target.checked)}
+                          className="h-4 w-4 rounded border-border"
+                        />
+                        <Label htmlFor="saveAsTemplate" className="text-sm cursor-pointer">
+                          Save this prompt as a reusable template
+                        </Label>
+                      </div>
                       <div className="flex justify-end">
-                        <Button onClick={handleRunPrompt} disabled={isRunning || !promptText || !currentData}>
+                        <Button onClick={handleRunPrompt} disabled={isRunning || !promptText || !promptName || !currentData}>
                           {isRunning ? (
                             <Loader2 className="h-4 w-4 mr-2 animate-spin" />
                           ) : (
