@@ -22,6 +22,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 import { 
   Upload, 
   Target, 
@@ -104,6 +112,10 @@ const LeadWorkflow = () => {
   // Table filters
   const [search, setSearch] = useState('');
   const [scoreFilter, setScoreFilter] = useState<string>('all');
+  
+  // Pagination state
+  const [currentPage, setCurrentPage] = useState(1);
+  const leadsPerPage = 10;
   
 
   // Stats calculation
@@ -417,75 +429,140 @@ const LeadWorkflow = () => {
                     </div>
                   </div>
                   
-                  {loading ? (
-                    <div className="text-center py-6 text-muted-foreground text-sm">Loading...</div>
-                  ) : currentStepLeads.length === 0 ? (
-                    <div className="text-center py-6 text-muted-foreground text-sm">No leads in this stage.</div>
-                  ) : (
-                    <div className="border rounded-lg overflow-hidden max-h-[300px] overflow-y-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow className="bg-muted/30">
-                            <TableHead className="text-xs">Lead</TableHead>
-                            <TableHead className="text-xs">Score</TableHead>
-                            <TableHead className="text-xs">Value</TableHead>
-                            <TableHead className="text-xs w-8"></TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {currentStepLeads
-                            .filter((lead) => {
-                              const matchesSearch =
-                                lead.name.toLowerCase().includes(search.toLowerCase()) ||
-                                lead.email?.toLowerCase().includes(search.toLowerCase()) ||
-                                lead.company?.toLowerCase().includes(search.toLowerCase());
-                              const matchesScore = scoreFilter === 'all' || lead.score === scoreFilter;
-                              return matchesSearch && matchesScore;
-                            })
-                            .map((lead) => (
-                              <TableRow
-                                key={lead.id}
-                                className="cursor-pointer hover:bg-muted/50"
-                                onClick={() => navigate(`/leads/${lead.id}`)}
-                              >
-                                <TableCell className="py-2">
-                                  <div>
-                                    <div className="font-medium text-sm">{lead.name}</div>
-                                    {lead.company && (
-                                      <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                        <Building2 className="h-3 w-3" />
-                                        {lead.company}
-                                      </div>
-                                    )}
-                                  </div>
-                                </TableCell>
-                                <TableCell className="py-2">
-                                  <Badge
-                                    variant="outline"
-                                    className={cn(LEAD_SCORE_COLORS[lead.score], "flex items-center gap-1 w-fit text-xs")}
-                                  >
-                                    {scoreIcons[lead.score]}
-                                    <span className="capitalize">{lead.score}</span>
-                                  </Badge>
-                                </TableCell>
-                                <TableCell className="py-2">
-                                  {lead.estimated_value ? (
-                                    <span className="text-sm font-medium text-primary">
-                                      AED {lead.estimated_value.toLocaleString()}
-                                    </span>
-                                  ) : (
-                                    <span className="text-muted-foreground text-sm">-</span>
-                                  )}
-                                </TableCell>
-                                <TableCell className="py-2">
-                                  <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
-                                </TableCell>
+                  {(() => {
+                    const filteredLeads = currentStepLeads.filter((lead) => {
+                      const matchesSearch =
+                        lead.name.toLowerCase().includes(search.toLowerCase()) ||
+                        lead.email?.toLowerCase().includes(search.toLowerCase()) ||
+                        lead.company?.toLowerCase().includes(search.toLowerCase());
+                      const matchesScore = scoreFilter === 'all' || lead.score === scoreFilter;
+                      return matchesSearch && matchesScore;
+                    });
+                    
+                    const totalPages = Math.ceil(filteredLeads.length / leadsPerPage);
+                    const startIndex = (currentPage - 1) * leadsPerPage;
+                    const paginatedLeads = filteredLeads.slice(startIndex, startIndex + leadsPerPage);
+                    
+                    // Reset to page 1 if current page exceeds total pages
+                    if (currentPage > totalPages && totalPages > 0) {
+                      setCurrentPage(1);
+                    }
+                    
+                    if (loading) {
+                      return <div className="text-center py-6 text-muted-foreground text-sm">Loading...</div>;
+                    }
+                    
+                    if (filteredLeads.length === 0) {
+                      return <div className="text-center py-6 text-muted-foreground text-sm">No leads in this stage.</div>;
+                    }
+                    
+                    return (
+                      <>
+                        <div className="border rounded-lg overflow-hidden">
+                          <Table>
+                            <TableHeader>
+                              <TableRow className="bg-muted/30">
+                                <TableHead className="text-xs">Lead</TableHead>
+                                <TableHead className="text-xs">Score</TableHead>
+                                <TableHead className="text-xs">Value</TableHead>
+                                <TableHead className="text-xs w-8"></TableHead>
                               </TableRow>
-                            ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  )}
+                            </TableHeader>
+                            <TableBody>
+                              {paginatedLeads.map((lead) => (
+                                <TableRow
+                                  key={lead.id}
+                                  className="cursor-pointer hover:bg-muted/50"
+                                  onClick={() => navigate(`/leads/${lead.id}`)}
+                                >
+                                  <TableCell className="py-2">
+                                    <div>
+                                      <div className="font-medium text-sm">{lead.name}</div>
+                                      {lead.company && (
+                                        <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                          <Building2 className="h-3 w-3" />
+                                          {lead.company}
+                                        </div>
+                                      )}
+                                    </div>
+                                  </TableCell>
+                                  <TableCell className="py-2">
+                                    <Badge
+                                      variant="outline"
+                                      className={cn(LEAD_SCORE_COLORS[lead.score], "flex items-center gap-1 w-fit text-xs")}
+                                    >
+                                      {scoreIcons[lead.score]}
+                                      <span className="capitalize">{lead.score}</span>
+                                    </Badge>
+                                  </TableCell>
+                                  <TableCell className="py-2">
+                                    {lead.estimated_value ? (
+                                      <span className="text-sm font-medium text-primary">
+                                        AED {lead.estimated_value.toLocaleString()}
+                                      </span>
+                                    ) : (
+                                      <span className="text-muted-foreground text-sm">-</span>
+                                    )}
+                                  </TableCell>
+                                  <TableCell className="py-2">
+                                    <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                        
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                          <div className="flex items-center justify-between mt-3">
+                            <span className="text-xs text-muted-foreground">
+                              Showing {startIndex + 1}-{Math.min(startIndex + leadsPerPage, filteredLeads.length)} of {filteredLeads.length}
+                            </span>
+                            <Pagination>
+                              <PaginationContent>
+                                <PaginationItem>
+                                  <PaginationPrevious 
+                                    onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                                    className={cn(currentPage === 1 && "pointer-events-none opacity-50", "cursor-pointer")}
+                                  />
+                                </PaginationItem>
+                                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
+                                  let pageNum: number;
+                                  if (totalPages <= 5) {
+                                    pageNum = i + 1;
+                                  } else if (currentPage <= 3) {
+                                    pageNum = i + 1;
+                                  } else if (currentPage >= totalPages - 2) {
+                                    pageNum = totalPages - 4 + i;
+                                  } else {
+                                    pageNum = currentPage - 2 + i;
+                                  }
+                                  return (
+                                    <PaginationItem key={pageNum}>
+                                      <PaginationLink
+                                        onClick={() => setCurrentPage(pageNum)}
+                                        isActive={currentPage === pageNum}
+                                        className="cursor-pointer"
+                                      >
+                                        {pageNum}
+                                      </PaginationLink>
+                                    </PaginationItem>
+                                  );
+                                })}
+                                <PaginationItem>
+                                  <PaginationNext 
+                                    onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                                    className={cn(currentPage === totalPages && "pointer-events-none opacity-50", "cursor-pointer")}
+                                  />
+                                </PaginationItem>
+                              </PaginationContent>
+                            </Pagination>
+                          </div>
+                        )}
+                      </>
+                    );
+                  })()}
                 </div>
               </div>
             )}
