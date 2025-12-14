@@ -48,10 +48,6 @@ const LeadDiscoveryAnalysis = () => {
   const [currentData, setCurrentData] = useState<any>(null);
   const [promptText, setPromptText] = useState('');
   const [isRunning, setIsRunning] = useState(false);
-  const [isApplying, setIsApplying] = useState(false);
-  const [showApplyDialog, setShowApplyDialog] = useState(false);
-  const [selectedProductForApply, setSelectedProductForApply] = useState('');
-  const [applyPrompt, setApplyPrompt] = useState('');
   const [showAllSessions, setShowAllSessions] = useState(false);
   
   // New session form
@@ -300,75 +296,25 @@ const LeadDiscoveryAnalysis = () => {
     toast.success('Prompt loaded');
   };
 
-  const handleApplyToService = async () => {
-    if (!selectedSession || !selectedProductForApply || !currentData) {
-      toast.error('Please select a service and ensure data is ready');
-      return;
-    }
-
-    setIsApplying(true);
-    const stepOrder = sessionResults.length + 1;
-    const selectedProduct = products.find(p => p.id === selectedProductForApply);
-    const finalPrompt = applyPrompt || `Apply this curated data to the ${selectedProduct?.name} service. Format and structure the data appropriately for this service.`;
-
+  const handleTagService = async (productId: string) => {
+    if (!selectedSession) return;
+    
     try {
-      // Create pending result
-      const resultRecord = await addPromptResult.mutateAsync({
-        session_id: selectedSession.id,
-        step_order: stepOrder,
-        prompt_text: `[APPLY TO SERVICE: ${selectedProduct?.name}] ${finalPrompt}`,
-        input_data: currentData,
-        status: 'running'
-      });
-
-      // Call edge function with apply context
-      const { data, error } = await supabase.functions.invoke('process-lead-discovery', {
-        body: {
-          prompt: finalPrompt,
-          data: currentData,
-          industry: industries.find(i => i.id === selectedSession.industry_id)?.name,
-          product: selectedProduct?.name,
-          isApplyStep: true
-        }
-      });
-
-      if (error) throw error;
-
-      // Update result with output
-      await updatePromptResult.mutateAsync({
-        id: resultRecord.id,
-        output_data: data.result,
-        status: 'completed',
-        execution_time_ms: data.execution_time_ms
-      });
-
-      // Update session with product and final result
       await updateSession.mutateAsync({
         id: selectedSession.id,
-        product_id: selectedProductForApply,
-        final_result: data.result,
-        status: 'completed'
+        product_id: productId
       });
-
-      // Update local state
-      const updatedResult = { ...resultRecord, output_data: data.result, status: 'completed' as const };
-      setSessionResults(prev => [...prev, updatedResult]);
-      setCurrentData(data.result);
+      
+      const selectedProduct = products.find(p => p.id === productId);
       setSelectedSession(prev => prev ? { 
         ...prev, 
-        status: 'completed', 
-        product_id: selectedProductForApply,
+        product_id: productId,
         product: selectedProduct
       } : null);
-      setShowApplyDialog(false);
-      setSelectedProductForApply('');
-      setApplyPrompt('');
-
-      toast.success(`Data applied to ${selectedProduct?.name} successfully!`);
+      
+      toast.success(`Session tagged with ${selectedProduct?.name}`);
     } catch (error: any) {
-      toast.error(error.message || 'Failed to apply to service');
-    } finally {
-      setIsApplying(false);
+      toast.error(error.message || 'Failed to tag service');
     }
   };
 
@@ -896,62 +842,37 @@ const LeadDiscoveryAnalysis = () => {
                 </CardContent>
               </Card>
 
-              {/* Apply to Service Section - Only show if no product selected yet */}
-              {sessionResults.length > 0 && currentData && Array.isArray(currentData) && currentData.length > 0 && !selectedSession.product_id && (
-                <Card className="border-primary/50 bg-primary/5">
-                  <CardHeader>
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <Send className="h-5 w-5" />
-                      Apply to Service
-                    </CardTitle>
-                    <CardDescription>
-                      Data is ready! Select a service to apply this curated data ({currentData.length} items)
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <div className="grid grid-cols-2 gap-4">
+              {/* Service Tag Selector - Show if no product tagged yet */}
+              {!selectedSession.product_id && (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
                       <div>
-                        <Label>Select Service *</Label>
-                        <Select value={selectedProductForApply} onValueChange={setSelectedProductForApply}>
-                          <SelectTrigger>
-                            <SelectValue placeholder="Choose service to apply data" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            {products.map(prod => (
-                              <SelectItem key={prod.id} value={prod.id}>
-                                <div className="flex items-center gap-2">
-                                  <Package className="h-4 w-4" />
-                                  {prod.name}
-                                </div>
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <Package className="h-5 w-5" />
+                          Tag Service
+                        </CardTitle>
+                        <CardDescription>
+                          Tag this session with a service for categorization
+                        </CardDescription>
                       </div>
-                      <div>
-                        <Label>Application Prompt (optional)</Label>
-                        <Textarea
-                          value={applyPrompt}
-                          onChange={(e) => setApplyPrompt(e.target.value)}
-                          placeholder="Add specific instructions for how to apply this data..."
-                          rows={2}
-                          className="resize-none"
-                        />
-                      </div>
+                      <Select onValueChange={handleTagService}>
+                        <SelectTrigger className="w-[200px]">
+                          <SelectValue placeholder="Select service..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {products.map(prod => (
+                            <SelectItem key={prod.id} value={prod.id}>
+                              <div className="flex items-center gap-2">
+                                <Package className="h-4 w-4" />
+                                {prod.name}
+                              </div>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </div>
-                    <Button 
-                      onClick={handleApplyToService} 
-                      disabled={isApplying || !selectedProductForApply}
-                      className="w-full"
-                    >
-                      {isApplying ? (
-                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-                      ) : (
-                        <Send className="h-4 w-4 mr-2" />
-                      )}
-                      Apply Data to {products.find(p => p.id === selectedProductForApply)?.name || 'Service'}
-                    </Button>
-                  </CardContent>
+                  </CardHeader>
                 </Card>
               )}
 
