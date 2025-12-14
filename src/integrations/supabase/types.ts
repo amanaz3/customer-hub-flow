@@ -1759,6 +1759,8 @@ export type Database = {
       }
       lead_discovery_sessions: {
         Row: {
+          assigned_to: string | null
+          campaign_name: string | null
           created_at: string
           created_by: string | null
           final_result: Json | null
@@ -1773,6 +1775,8 @@ export type Database = {
           uploaded_file_path: string | null
         }
         Insert: {
+          assigned_to?: string | null
+          campaign_name?: string | null
           created_at?: string
           created_by?: string | null
           final_result?: Json | null
@@ -1787,6 +1791,8 @@ export type Database = {
           uploaded_file_path?: string | null
         }
         Update: {
+          assigned_to?: string | null
+          campaign_name?: string | null
           created_at?: string
           created_by?: string | null
           final_result?: Json | null
@@ -1801,6 +1807,13 @@ export type Database = {
           uploaded_file_path?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "lead_discovery_sessions_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "lead_discovery_sessions_created_by_fkey"
             columns: ["created_by"]
