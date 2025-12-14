@@ -441,7 +441,7 @@ function App() {
                   } />
                   
                   <Route path="/legacy" element={
-                    <ProtectedRoute>
+                    <ProtectedRoute requireAdmin>
                       <MainLayout>
                         <PageErrorBoundary pageName="Legacy">
                           <Legacy />
