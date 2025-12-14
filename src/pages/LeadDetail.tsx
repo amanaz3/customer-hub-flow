@@ -79,6 +79,11 @@ const WORKFLOW_STEPS = [
 ];
 
 // Define which sections are visible for each workflow stage
+// Import: Fresh from Apollo.io, just make first contact
+// Qualify: Assess lead quality, score, decide if worth pursuing
+// Nurture: Build relationship, send outreach messages
+// Propose: Send proposal/offer
+// Convert: Ready to convert to customer
 const STAGE_VISIBILITY: Record<string, {
   leadInfo: boolean;
   scoreStatus: boolean;
@@ -91,22 +96,22 @@ const STAGE_VISIBILITY: Record<string, {
 }> = {
   import: {
     leadInfo: true,
-    scoreStatus: false, // Score is determined in Qualify
+    scoreStatus: false, // Not assessing yet, just making first contact
     quickInfo: true,
-    followupTimeline: false,
-    logActivity: true,
-    activityHistory: true,
+    followupTimeline: false, // No follow-ups planned yet
+    logActivity: true, // Log first contact → triggers auto-move to Qualify
+    activityHistory: false, // No history yet, fresh imports
     outreachMessages: false,
     convertButton: false,
   },
   qualify: {
     leadInfo: true,
-    scoreStatus: true,
+    scoreStatus: true, // Assess and score the lead
     quickInfo: true,
-    followupTimeline: true,
+    followupTimeline: true, // Track follow-ups during assessment
     logActivity: true,
-    activityHistory: true,
-    outreachMessages: false,
+    activityHistory: true, // See contact history
+    outreachMessages: false, // Not nurturing yet
     convertButton: false,
   },
   nurture: {
@@ -116,7 +121,7 @@ const STAGE_VISIBILITY: Record<string, {
     followupTimeline: true,
     logActivity: true,
     activityHistory: true,
-    outreachMessages: true,
+    outreachMessages: true, // Start sending outreach messages
     convertButton: false,
   },
   propose: {
@@ -127,7 +132,7 @@ const STAGE_VISIBILITY: Record<string, {
     logActivity: true,
     activityHistory: true,
     outreachMessages: true,
-    convertButton: false,
+    convertButton: false, // Not ready to convert yet
   },
   convert: {
     leadInfo: true,
@@ -137,7 +142,7 @@ const STAGE_VISIBILITY: Record<string, {
     logActivity: true,
     activityHistory: true,
     outreachMessages: true,
-    convertButton: true,
+    convertButton: true, // Show convert button
   },
 };
 
