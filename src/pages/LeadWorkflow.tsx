@@ -62,7 +62,6 @@ import { CreateLeadDialog } from '@/components/Lead/CreateLeadDialog';
 import { OutreachImportDialog } from '@/components/Lead/OutreachImportDialog';
 import LeadWorkflowSettingsDialog from '@/components/Lead/LeadWorkflowSettingsDialog';
 import BulkLeadWorkflowDialog from '@/components/Lead/BulkLeadWorkflowDialog';
-import { DailyLeadCheckBanner } from '@/components/Lead/DailyLeadCheckBanner';
 import { LEAD_SCORE_COLORS, LEAD_STATUS_COLORS, type LeadScore, type Lead } from '@/types/lead';
 import { format, formatDistanceToNow } from 'date-fns';
 
@@ -240,13 +239,6 @@ const LeadWorkflow = () => {
   return (
     <>
       <div className="space-y-4 pb-6">
-        {/* Daily Lead Check Banner */}
-        <DailyLeadCheckBanner 
-          hotCount={stats.hot} 
-          warmCount={stats.warm} 
-          coldCount={stats.cold}
-          convertedCount={stats.converted}
-        />
 
         {/* Header with Actions */}
         <div className="flex items-center justify-between">

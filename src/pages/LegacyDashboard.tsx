@@ -25,12 +25,24 @@ import { format } from 'date-fns';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { LazyLoadingBoundary } from '@/components/Performance/LazyLoadingBoundary';
+import { DailyLeadCheckBanner } from '@/components/Lead/DailyLeadCheckBanner';
+import { useLeads } from '@/hooks/useLeads';
 
 const EnhancedCustomerTable = React.lazy(() => import('@/components/Customer/EnhancedCustomerTable'));
 
 const LegacyDashboard = () => {
   const { user, isAdmin } = useAuth();
   const navigate = useNavigate();
+  const { leads } = useLeads();
+  
+  // Lead stats for DailyLeadCheckBanner
+  const leadStats = useMemo(() => {
+    const hot = leads.filter((l) => l.score === 'hot').length;
+    const warm = leads.filter((l) => l.score === 'warm').length;
+    const cold = leads.filter((l) => l.score === 'cold').length;
+    const converted = leads.filter((l) => l.status === 'converted').length;
+    return { hot, warm, cold, converted };
+  }, [leads]);
   
   const [activeWidget, setActiveWidget] = useState<'applications' | 'completed' | 'pending' | 'revenue'>('applications');
   const [revenueSelectedMonths, setRevenueSelectedMonths] = useState<string[]>([]);
@@ -209,6 +221,14 @@ const LegacyDashboard = () => {
         <ArrowLeft className="h-4 w-4" />
         Back to Legacy
       </Button>
+
+      {/* Daily Lead Check Banner */}
+      <DailyLeadCheckBanner 
+        hotCount={leadStats.hot} 
+        warmCount={leadStats.warm} 
+        coldCount={leadStats.cold}
+        convertedCount={leadStats.converted}
+      />
 
       {/* Enhanced Header */}
       <DashboardHeader
