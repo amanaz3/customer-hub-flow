@@ -40,6 +40,7 @@ import { useLeads } from '@/hooks/useLeads';
 import { CreateLeadDialog } from '@/components/Lead/CreateLeadDialog';
 import { LeadDashboardCard } from '@/components/Lead/LeadDashboardCard';
 import { LeadPerformanceLeaderboard } from '@/components/Lead/LeadPerformanceLeaderboard';
+import { DailyLeadCheckBanner } from '@/components/Lead/DailyLeadCheckBanner';
 
 import { OutreachImportDialog } from '@/components/Lead/OutreachImportDialog';
 import { LEAD_SCORE_COLORS, LEAD_STATUS_COLORS, type LeadScore, type LeadStatus } from '@/types/lead';
@@ -91,8 +92,8 @@ export default function Leads() {
   return (
     <>
       <div className="space-y-6 py-6">
-        {/* Lead Dashboard Card (Leaderboard + Daily Check) */}
-        <LeadDashboardCard 
+        {/* Daily Lead Check Banner */}
+        <DailyLeadCheckBanner 
           hotCount={stats.hot} 
           warmCount={stats.warm} 
           coldCount={stats.cold} 
@@ -100,6 +101,9 @@ export default function Leads() {
 
         {/* Admin-only Leaderboard */}
         {isAdmin && <LeadPerformanceLeaderboard />}
+
+        {/* Lead Dashboard Card */}
+        <LeadDashboardCard />
 
         {/* Header */}
         <div className="flex items-center justify-between">
