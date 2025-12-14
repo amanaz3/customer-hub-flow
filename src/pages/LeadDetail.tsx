@@ -42,6 +42,7 @@ import {
   Linkedin,
   Copy,
   Check,
+  RefreshCw,
 } from 'lucide-react';
 import {
   Accordion,
@@ -95,6 +96,7 @@ export default function LeadDetail() {
   const [converting, setConverting] = useState(false);
   const [copiedMessage, setCopiedMessage] = useState<string | null>(null);
   const [messageVersion, setMessageVersion] = useState<'professional' | 'friendly'>('professional');
+  const [regeneratingMessages, setRegeneratingMessages] = useState(false);
 
   // Dummy leads data for demo mode
   const dummyLeads: Lead[] = [
@@ -324,6 +326,72 @@ export default function LeadDetail() {
         .eq('id', id)
         .single();
       if (data) setLead(data as unknown as Lead);
+    }
+  };
+
+  const handleRegenerateMessages = async () => {
+    if (!lead || !id) return;
+    
+    setRegeneratingMessages(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('generate-outreach-messages', {
+        body: {
+          leads: [{
+            name: lead.name,
+            company: lead.company,
+            city: (lead as any).city,
+            state: (lead as any).state,
+            industry: (lead as any).industry,
+            email: lead.email,
+            linkedin_profile: (lead as any).linkedin_profile,
+            dubai_setup_likelihood: (lead as any).dubai_setup_likelihood,
+            preferred_contact_method: (lead as any).preferred_contact_method,
+            indicator: (lead as any).indicator,
+          }]
+        }
+      });
+
+      if (error) throw error;
+
+      const result = data?.results?.[0];
+      if (result?.success && result?.messages) {
+        // Update lead with new messages
+        const { error: updateError } = await supabase
+          .from('leads')
+          .update({ outreach_messages: result.messages })
+          .eq('id', id);
+
+        if (updateError) throw updateError;
+
+        // Refetch lead to get updated data
+        const { data: refreshedLead } = await supabase
+          .from('leads')
+          .select(`
+            *,
+            assigned_user:profiles!leads_assigned_to_fkey(id, name, email),
+            product_interest:products!leads_product_interest_id_fkey(id, name)
+          `)
+          .eq('id', id)
+          .single();
+        
+        if (refreshedLead) setLead(refreshedLead as unknown as Lead);
+
+        toast({
+          title: 'Messages Regenerated',
+          description: 'Outreach messages have been updated with Professional and Friendly versions.',
+        });
+      } else {
+        throw new Error(result?.error || 'Failed to generate messages');
+      }
+    } catch (error: any) {
+      console.error('Error regenerating messages:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to regenerate messages',
+        variant: 'destructive',
+      });
+    } finally {
+      setRegeneratingMessages(false);
     }
   };
 
@@ -734,13 +802,23 @@ export default function LeadDetail() {
             </Card>
 
             {/* Outreach Messages */}
-            {(lead as any).outreach_messages && (
+            {(lead as any).outreach_messages ? (
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <MessageCircle className="h-4 w-4" />
-                    Outreach Messages
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <MessageCircle className="h-4 w-4" />
+                      Outreach Messages
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRegenerateMessages}
+                      disabled={regeneratingMessages}
+                    >
+                      <RefreshCw className={`h-4 w-4 ${regeneratingMessages ? 'animate-spin' : ''}`} />
+                    </Button>
+                  </div>
                 </CardHeader>
                 <CardContent>
                   {/* Check if new format with professional/friendly versions */}
@@ -1036,7 +1114,7 @@ export default function LeadDetail() {
                   )}
                 </CardContent>
               </Card>
-            )}
+            ) : null}
           </div>
       </div>
 
