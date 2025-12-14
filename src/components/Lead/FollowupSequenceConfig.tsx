@@ -206,14 +206,18 @@ export function FollowupSequenceConfig({ open: controlledOpen, onOpenChange }: F
     });
   };
 
+  const isControlled = controlledOpen !== undefined;
+
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
-          <Settings2 className="h-4 w-4 mr-2" />
-          Follow-up Sequence
-        </Button>
-      </DialogTrigger>
+      {!isControlled && (
+        <DialogTrigger asChild>
+          <Button variant="outline" size="sm">
+            <Settings2 className="h-4 w-4 mr-2" />
+            Follow-up Sequence
+          </Button>
+        </DialogTrigger>
+      )}
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
