@@ -111,6 +111,7 @@ const LeadWorkflow = () => {
   
   // Table filters
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
   const [scoreFilter, setScoreFilter] = useState<string>('all');
   
   // Pagination state
@@ -426,6 +427,21 @@ const LeadWorkflow = () => {
                           <SelectItem value="cold">Cold</SelectItem>
                         </SelectContent>
                       </Select>
+                      <Select value={statusFilter} onValueChange={setStatusFilter}>
+                        <SelectTrigger className="h-8 w-[100px] text-sm">
+                          <SelectValue placeholder="Status" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All Status</SelectItem>
+                          <SelectItem value="new">New</SelectItem>
+                          <SelectItem value="contacted">Contacted</SelectItem>
+                          <SelectItem value="qualified">Qualified</SelectItem>
+                          <SelectItem value="proposal">Proposal</SelectItem>
+                          <SelectItem value="negotiation">Negotiation</SelectItem>
+                          <SelectItem value="converted">Converted</SelectItem>
+                          <SelectItem value="lost">Lost</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
                   </div>
                   
@@ -436,75 +452,81 @@ const LeadWorkflow = () => {
                         lead.email?.toLowerCase().includes(search.toLowerCase()) ||
                         lead.company?.toLowerCase().includes(search.toLowerCase());
                       const matchesScore = scoreFilter === 'all' || lead.score === scoreFilter;
-                      return matchesSearch && matchesScore;
+                      const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
+                      return matchesSearch && matchesScore && matchesStatus;
                     });
                     
+                    // Pagination
                     const totalPages = Math.ceil(filteredLeads.length / leadsPerPage);
-                    const startIndex = (currentPage - 1) * leadsPerPage;
-                    const paginatedLeads = filteredLeads.slice(startIndex, startIndex + leadsPerPage);
+                    const paginatedLeads = filteredLeads.slice(
+                      (currentPage - 1) * leadsPerPage,
+                      currentPage * leadsPerPage
+                    );
                     
-                    // Reset to page 1 if current page exceeds total pages
-                    if (currentPage > totalPages && totalPages > 0) {
-                      setCurrentPage(1);
-                    }
-                    
-                    if (loading) {
-                      return <div className="text-center py-6 text-muted-foreground text-sm">Loading...</div>;
-                    }
-                    
-                    if (filteredLeads.length === 0) {
-                      return <div className="text-center py-6 text-muted-foreground text-sm">No leads in this stage.</div>;
+                    if (paginatedLeads.length === 0) {
+                      return (
+                        <div className="text-center py-6 text-muted-foreground text-sm">
+                          No leads found matching filters
+                        </div>
+                      );
                     }
                     
                     return (
                       <>
-                        <div className="border rounded-lg overflow-hidden">
+                        <div className="rounded-md border">
                           <Table>
                             <TableHeader>
-                              <TableRow className="bg-muted/30">
-                                <TableHead className="text-xs">Lead</TableHead>
-                                <TableHead className="text-xs">Score</TableHead>
-                                <TableHead className="text-xs">Value</TableHead>
-                                <TableHead className="text-xs w-8"></TableHead>
+                              <TableRow>
+                                <TableHead className="w-[200px]">Lead</TableHead>
+                                <TableHead>Company</TableHead>
+                                <TableHead>Score</TableHead>
+                                <TableHead>Status</TableHead>
+                                <TableHead>Last Contact</TableHead>
+                                <TableHead className="w-[50px]"></TableHead>
                               </TableRow>
                             </TableHeader>
                             <TableBody>
                               {paginatedLeads.map((lead) => (
-                                <TableRow
-                                  key={lead.id}
+                                <TableRow 
+                                  key={lead.id} 
                                   className="cursor-pointer hover:bg-muted/50"
-                                  onClick={() => navigate(`/leads/${lead.id}`)}
+                                  onClick={() => navigate(`/lead/${lead.id}`)}
                                 >
-                                  <TableCell className="py-2">
+                                  <TableCell>
                                     <div>
-                                      <div className="font-medium text-sm">{lead.name}</div>
-                                      {lead.company && (
-                                        <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                          <Building2 className="h-3 w-3" />
-                                          {lead.company}
-                                        </div>
-                                      )}
+                                      <p className="font-medium">{lead.name}</p>
+                                      <p className="text-xs text-muted-foreground">{lead.email || 'No email'}</p>
                                     </div>
                                   </TableCell>
-                                  <TableCell className="py-2">
-                                    <Badge
-                                      variant="outline"
-                                      className={cn(LEAD_SCORE_COLORS[lead.score], "flex items-center gap-1 w-fit text-xs")}
-                                    >
-                                      {scoreIcons[lead.score]}
-                                      <span className="capitalize">{lead.score}</span>
-                                    </Badge>
+                                  <TableCell>
+                                    <div className="flex items-center gap-1.5">
+                                      <Building2 className="h-3.5 w-3.5 text-muted-foreground" />
+                                      <span className="text-sm">{lead.company || '-'}</span>
+                                    </div>
                                   </TableCell>
-                                  <TableCell className="py-2">
-                                    {lead.estimated_value ? (
-                                      <span className="text-sm font-medium text-primary">
-                                        AED {lead.estimated_value.toLocaleString()}
-                                      </span>
-                                    ) : (
-                                      <span className="text-muted-foreground text-sm">-</span>
+                                  <TableCell>
+                                    {lead.score && (
+                                      <Badge className={cn("text-xs", LEAD_SCORE_COLORS[lead.score])}>
+                                        {scoreIcons[lead.score]}
+                                        <span className="ml-1 capitalize">{lead.score}</span>
+                                      </Badge>
                                     )}
                                   </TableCell>
-                                  <TableCell className="py-2">
+                                  <TableCell>
+                                    {lead.status && (
+                                      <Badge variant="outline" className={cn("text-xs capitalize", LEAD_STATUS_COLORS[lead.status])}>
+                                        {lead.status}
+                                      </Badge>
+                                    )}
+                                  </TableCell>
+                                  <TableCell>
+                                    <span className="text-xs text-muted-foreground">
+                                      {lead.last_contacted_at 
+                                        ? formatDistanceToNow(new Date(lead.last_contacted_at), { addSuffix: true })
+                                        : 'Never'}
+                                    </span>
+                                  </TableCell>
+                                  <TableCell>
                                     <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
                                   </TableCell>
                                 </TableRow>
@@ -515,45 +537,30 @@ const LeadWorkflow = () => {
                         
                         {/* Pagination */}
                         {totalPages > 1 && (
-                          <div className="flex items-center justify-between mt-3">
-                            <span className="text-xs text-muted-foreground">
-                              Showing {startIndex + 1}-{Math.min(startIndex + leadsPerPage, filteredLeads.length)} of {filteredLeads.length}
-                            </span>
+                          <div className="flex justify-center mt-4">
                             <Pagination>
                               <PaginationContent>
                                 <PaginationItem>
                                   <PaginationPrevious 
                                     onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
-                                    className={cn(currentPage === 1 && "pointer-events-none opacity-50", "cursor-pointer")}
+                                    className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
                                   />
                                 </PaginationItem>
-                                {Array.from({ length: Math.min(5, totalPages) }, (_, i) => {
-                                  let pageNum: number;
-                                  if (totalPages <= 5) {
-                                    pageNum = i + 1;
-                                  } else if (currentPage <= 3) {
-                                    pageNum = i + 1;
-                                  } else if (currentPage >= totalPages - 2) {
-                                    pageNum = totalPages - 4 + i;
-                                  } else {
-                                    pageNum = currentPage - 2 + i;
-                                  }
-                                  return (
-                                    <PaginationItem key={pageNum}>
-                                      <PaginationLink
-                                        onClick={() => setCurrentPage(pageNum)}
-                                        isActive={currentPage === pageNum}
-                                        className="cursor-pointer"
-                                      >
-                                        {pageNum}
-                                      </PaginationLink>
-                                    </PaginationItem>
-                                  );
-                                })}
+                                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                                  <PaginationItem key={page}>
+                                    <PaginationLink
+                                      onClick={() => setCurrentPage(page)}
+                                      isActive={currentPage === page}
+                                      className="cursor-pointer"
+                                    >
+                                      {page}
+                                    </PaginationLink>
+                                  </PaginationItem>
+                                ))}
                                 <PaginationItem>
                                   <PaginationNext 
                                     onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
-                                    className={cn(currentPage === totalPages && "pointer-events-none opacity-50", "cursor-pointer")}
+                                    className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
                                   />
                                 </PaginationItem>
                               </PaginationContent>
