@@ -29,6 +29,7 @@ import {
   Save,
   Trash2,
   UserCheck,
+  User,
   Phone,
   MessageCircle,
   Mail,
@@ -707,7 +708,7 @@ export default function LeadDetail() {
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Left Column - Outreach Messages (Primary action for contacting) */}
-          <div className="space-y-6">
+            <div className="lg:col-span-2 space-y-6">
             {/* Outreach Messages - visible based on stage */}
             {stageVisibility.outreachMessages && (lead as any).outreach_messages ? (
               <Card>
@@ -1170,106 +1171,121 @@ export default function LeadDetail() {
             )}
           </div>
 
-          {/* Right Column - Lead Info */}
-          <div className="lg:col-span-2 space-y-6">
-            {/* Contact & Company */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="text-lg">Lead Information</CardTitle>
+          {/* Right Column - Lead Info (Compact) */}
+          <div className="space-y-3">
+            <Card className="p-3">
+              <CardHeader className="p-0 pb-2">
+                <CardTitle className="text-sm flex items-center gap-2">
+                  <User className="h-4 w-4" />
+                  Lead Info
+                </CardTitle>
               </CardHeader>
-              <CardContent className="grid grid-cols-2 gap-4">
-                <div className="col-span-2">
-                  <Label>Name</Label>
+              <CardContent className="p-0 space-y-2">
+                <div>
+                  <Label className="text-xs">Name</Label>
                   <Input
+                    className="h-8 text-sm"
                     value={lead.name}
                     onChange={(e) => setLead({ ...lead, name: e.target.value })}
                   />
                 </div>
-                <div>
-                  <Label>Email</Label>
-                  <Input
-                    type="email"
-                    value={lead.email || ''}
-                    onChange={(e) => setLead({ ...lead, email: e.target.value })}
-                  />
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-xs">Email</Label>
+                    <Input
+                      className="h-8 text-sm"
+                      type="email"
+                      value={lead.email || ''}
+                      onChange={(e) => setLead({ ...lead, email: e.target.value })}
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Mobile</Label>
+                    <Input
+                      className="h-8 text-sm"
+                      value={lead.mobile || ''}
+                      onChange={(e) => setLead({ ...lead, mobile: e.target.value })}
+                    />
+                  </div>
                 </div>
                 <div>
-                  <Label>Mobile</Label>
+                  <Label className="text-xs">Company</Label>
                   <Input
-                    value={lead.mobile || ''}
-                    onChange={(e) => setLead({ ...lead, mobile: e.target.value })}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <Label>Company</Label>
-                  <Input
+                    className="h-8 text-sm"
                     value={lead.company || ''}
                     onChange={(e) => setLead({ ...lead, company: e.target.value })}
                   />
                 </div>
-                <div>
-                  <Label>Lead Source</Label>
-                  <Select
-                    value={lead.source || ''}
-                    onValueChange={(value) => setLead({ ...lead, source: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select source" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {LEAD_SOURCES.map((source) => (
-                        <SelectItem key={source} value={source}>
-                          {source}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-xs">Source</Label>
+                    <Select
+                      value={lead.source || ''}
+                      onValueChange={(value) => setLead({ ...lead, source: value })}
+                    >
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {LEAD_SOURCES.map((source) => (
+                          <SelectItem key={source} value={source}>
+                            {source}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label className="text-xs">Product</Label>
+                    <Select
+                      value={lead.product_interest_id || ''}
+                      onValueChange={(value) => setLead({ ...lead, product_interest_id: value })}
+                    >
+                      <SelectTrigger className="h-8 text-sm">
+                        <SelectValue placeholder="Select" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {products.map((product) => (
+                          <SelectItem key={product.id} value={product.id}>
+                            {product.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <Label className="text-xs">Est. Value (AED)</Label>
+                    <Input
+                      className="h-8 text-sm"
+                      type="number"
+                      value={lead.estimated_value || ''}
+                      onChange={(e) =>
+                        setLead({
+                          ...lead,
+                          estimated_value: e.target.value ? parseFloat(e.target.value) : null,
+                        })
+                      }
+                    />
+                  </div>
+                  <div>
+                    <Label className="text-xs">Follow-up</Label>
+                    <Input
+                      className="h-8 text-sm"
+                      type="date"
+                      value={lead.next_follow_up || ''}
+                      onChange={(e) => setLead({ ...lead, next_follow_up: e.target.value })}
+                    />
+                  </div>
                 </div>
                 <div>
-                  <Label>Product Interest</Label>
-                  <Select
-                    value={lead.product_interest_id || ''}
-                    onValueChange={(value) => setLead({ ...lead, product_interest_id: value })}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select product" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {products.map((product) => (
-                        <SelectItem key={product.id} value={product.id}>
-                          {product.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div>
-                  <Label>Estimated Value (AED)</Label>
-                  <Input
-                    type="number"
-                    value={lead.estimated_value || ''}
-                    onChange={(e) =>
-                      setLead({
-                        ...lead,
-                        estimated_value: e.target.value ? parseFloat(e.target.value) : null,
-                      })
-                    }
-                  />
-                </div>
-                <div>
-                  <Label>Next Follow-up</Label>
-                  <Input
-                    type="date"
-                    value={lead.next_follow_up || ''}
-                    onChange={(e) => setLead({ ...lead, next_follow_up: e.target.value })}
-                  />
-                </div>
-                <div className="col-span-2">
-                  <Label>Notes</Label>
+                  <Label className="text-xs">Notes</Label>
                   <Textarea
+                    className="text-sm min-h-[60px]"
                     value={lead.notes || ''}
                     onChange={(e) => setLead({ ...lead, notes: e.target.value })}
-                    rows={3}
+                    rows={2}
                   />
                 </div>
               </CardContent>
