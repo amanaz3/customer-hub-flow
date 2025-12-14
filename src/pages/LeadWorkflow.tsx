@@ -306,38 +306,6 @@ const LeadWorkflow = () => {
           </Button>
         </div>
 
-        {/* Stats Row - Compact */}
-        <div className="grid grid-cols-5 gap-3">
-          <Card className="p-3">
-            <div className="text-xl font-bold">{stats.total}</div>
-            <div className="text-xs text-muted-foreground">Total</div>
-          </Card>
-          <Card className="p-3 border-red-200 bg-red-50/50 dark:bg-red-950/20">
-            <div className="flex items-center gap-1.5">
-              <Flame className="h-4 w-4 text-red-500" />
-              <span className="text-xl font-bold text-red-700 dark:text-red-400">{stats.hot}</span>
-            </div>
-            <div className="text-xs text-muted-foreground">Hot</div>
-          </Card>
-          <Card className="p-3 border-amber-200 bg-amber-50/50 dark:bg-amber-950/20">
-            <div className="flex items-center gap-1.5">
-              <ThermometerSun className="h-4 w-4 text-amber-500" />
-              <span className="text-xl font-bold text-amber-700 dark:text-amber-400">{stats.warm}</span>
-            </div>
-            <div className="text-xs text-muted-foreground">Warm</div>
-          </Card>
-          <Card className="p-3 border-blue-200 bg-blue-50/50 dark:bg-blue-950/20">
-            <div className="flex items-center gap-1.5">
-              <Snowflake className="h-4 w-4 text-blue-500" />
-              <span className="text-xl font-bold text-blue-700 dark:text-blue-400">{stats.cold}</span>
-            </div>
-            <div className="text-xs text-muted-foreground">Cold</div>
-          </Card>
-          <Card className="p-3 border-green-200 bg-green-50/50 dark:bg-green-950/20">
-            <div className="text-xl font-bold text-green-700 dark:text-green-400">{stats.conversionRate}%</div>
-            <div className="text-xs text-muted-foreground">Converted</div>
-          </Card>
-        </div>
 
         {/* Main Tabs: Pipeline & Campaigns */}
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'pipeline' | 'campaigns')}>
