@@ -1557,6 +1557,78 @@ export type Database = {
           },
         ]
       }
+      lead_campaigns: {
+        Row: {
+          actual_completion_date: string | null
+          assigned_to: string | null
+          converted_count: number
+          created_at: string
+          created_by: string | null
+          description: string | null
+          excel_file_name: string | null
+          excel_file_path: string | null
+          expected_completion_date: string | null
+          id: string
+          lead_count: number
+          name: string
+          outreach_template: Json | null
+          start_date: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          actual_completion_date?: string | null
+          assigned_to?: string | null
+          converted_count?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          excel_file_name?: string | null
+          excel_file_path?: string | null
+          expected_completion_date?: string | null
+          id?: string
+          lead_count?: number
+          name: string
+          outreach_template?: Json | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          actual_completion_date?: string | null
+          assigned_to?: string | null
+          converted_count?: number
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          excel_file_name?: string | null
+          excel_file_path?: string | null
+          expected_completion_date?: string | null
+          id?: string
+          lead_count?: number
+          name?: string
+          outreach_template?: Json | null
+          start_date?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_campaigns_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_campaigns_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       lead_followup_sequence: {
         Row: {
           action_description: string | null
@@ -1719,6 +1791,7 @@ export type Database = {
       leads: {
         Row: {
           assigned_to: string | null
+          campaign_id: string | null
           city: string | null
           company: string | null
           converted_at: string | null
@@ -1749,6 +1822,7 @@ export type Database = {
         }
         Insert: {
           assigned_to?: string | null
+          campaign_id?: string | null
           city?: string | null
           company?: string | null
           converted_at?: string | null
@@ -1779,6 +1853,7 @@ export type Database = {
         }
         Update: {
           assigned_to?: string | null
+          campaign_id?: string | null
           city?: string | null
           company?: string | null
           converted_at?: string | null
@@ -1813,6 +1888,13 @@ export type Database = {
             columns: ["assigned_to"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "lead_campaigns"
             referencedColumns: ["id"]
           },
           {
