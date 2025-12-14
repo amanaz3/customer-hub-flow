@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { LayoutDashboard, ChevronRight, Activity, ListChecks, Headphones, Users, BarChart3 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import LeadWorkflowStepper from '@/components/Lead/LeadWorkflowStepper';
 
 const Legacy = () => {
   const navigate = useNavigate();
@@ -17,6 +18,9 @@ const Legacy = () => {
         <h1 className="text-2xl font-bold">Sandbox</h1>
         <p className="text-muted-foreground">Access sandbox views and tools</p>
       </div>
+
+      {/* Lead Workflow Stepper Card */}
+      <LeadWorkflowStepper />
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
         {/* Tracker Card */}
