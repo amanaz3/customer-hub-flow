@@ -1020,7 +1020,7 @@ export default function LeadDetail() {
               </Card>
             )}
 
-            {/* Outreach Messages - visible from Nurture stage onwards */}
+            {/* Outreach Messages - visible based on stage */}
             {stageVisibility.outreachMessages && (lead as any).outreach_messages ? (
               <Card>
                 <CardHeader className="pb-2">
@@ -1404,6 +1404,30 @@ export default function LeadDetail() {
                       )}
                     </Accordion>
                   )}
+                </CardContent>
+              </Card>
+            ) : stageVisibility.outreachMessages ? (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <MessageCircle className="h-4 w-4" />
+                    Outreach Messages
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-6 text-muted-foreground">
+                    <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm mb-3">No outreach messages generated yet</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRegenerateMessages}
+                      disabled={regeneratingMessages}
+                    >
+                      <RefreshCw className={`h-4 w-4 mr-2 ${regeneratingMessages ? 'animate-spin' : ''}`} />
+                      {regeneratingMessages ? 'Generating...' : 'Generate Messages'}
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ) : null}
