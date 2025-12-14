@@ -77,16 +77,58 @@ Return ONLY the processed JSON array, no other text.`;
 
     const aiResponse = await response.json();
     let resultText = aiResponse.choices[0]?.message?.content || '[]';
+    console.log('Raw AI response length:', resultText.length);
 
     // Clean up the response - remove markdown code blocks if present
     resultText = resultText.replace(/```json\n?/gi, '').replace(/```\n?/gi, '').trim();
 
+    // Try to extract JSON array from the response
     let result;
     try {
       result = JSON.parse(resultText);
     } catch (parseError) {
-      console.error('Failed to parse AI response:', resultText);
-      throw new Error('AI returned invalid JSON');
+      console.log('Initial parse failed, attempting to extract JSON array...');
+      
+      // Try to find JSON array in the response
+      const arrayMatch = resultText.match(/\[[\s\S]*\]/);
+      if (arrayMatch) {
+        try {
+          result = JSON.parse(arrayMatch[0]);
+          console.log('Successfully extracted JSON array');
+        } catch (e) {
+          // Try to fix common JSON issues
+          let cleaned = arrayMatch[0]
+            .replace(/,\s*]/g, ']') // Remove trailing commas
+            .replace(/,\s*}/g, '}') // Remove trailing commas in objects
+            .replace(/[\x00-\x1F\x7F]/g, ' '); // Remove control characters
+          
+          try {
+            result = JSON.parse(cleaned);
+            console.log('Successfully parsed cleaned JSON');
+          } catch (e2) {
+            console.error('Failed to parse even after cleaning:', e2.message);
+            console.error('First 500 chars of response:', resultText.substring(0, 500));
+            throw new Error('AI returned invalid JSON - unable to extract valid array');
+          }
+        }
+      } else {
+        // Check if it's a single object
+        const objectMatch = resultText.match(/\{[\s\S]*\}/);
+        if (objectMatch) {
+          try {
+            const obj = JSON.parse(objectMatch[0]);
+            result = [obj]; // Wrap single object in array
+            console.log('Wrapped single object in array');
+          } catch (e) {
+            console.error('Failed to parse as object either');
+            throw new Error('AI returned invalid JSON');
+          }
+        } else {
+          console.error('No JSON structure found in response');
+          console.error('Response preview:', resultText.substring(0, 500));
+          throw new Error('AI returned invalid JSON - no array or object found');
+        }
+      }
     }
 
     const executionTime = Date.now() - startTime;
