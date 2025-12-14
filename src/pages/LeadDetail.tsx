@@ -1308,39 +1308,6 @@ export default function LeadDetail() {
               />
             )}
 
-            {/* Log Activity - visible in all stages */}
-            {stageVisibility.logActivity && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Log Activity</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div className="flex gap-2 flex-wrap">
-                    {ACTIVITY_TYPES.map((type) => (
-                      <Button
-                        key={type.value}
-                        variant={activityType === type.value ? 'default' : 'outline'}
-                        size="sm"
-                        onClick={() => setActivityType(type.value)}
-                      >
-                        {activityIcons[type.value]}
-                        <span className="ml-1">{type.label}</span>
-                      </Button>
-                    ))}
-                  </div>
-                  <Textarea
-                    placeholder="Enter activity details..."
-                    value={activityDescription}
-                    onChange={(e) => setActivityDescription(e.target.value)}
-                    rows={2}
-                  />
-                  <Button onClick={handleLogActivity} disabled={loggingActivity}>
-                    {loggingActivity ? 'Logging...' : 'Log Activity'}
-                  </Button>
-                </CardContent>
-              </Card>
-            )}
-
             {/* Activity History - visible in all stages */}
             {stageVisibility.activityHistory && (
               <Card>
