@@ -783,14 +783,35 @@ export default function LeadDetail() {
                           </span>
                         </AccordionTrigger>
                         <AccordionContent>
-                          <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.linkedin}</p>
+                          {typeof (lead as any).outreach_messages.linkedin === 'string' ? (
+                            <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.linkedin}</p>
+                          ) : (
+                            <div className="space-y-3">
+                              {(lead as any).outreach_messages.linkedin.connection_note && (
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium mb-1">Connection Note:</div>
+                                  <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.linkedin.connection_note}</p>
+                                </div>
+                              )}
+                              {(lead as any).outreach_messages.linkedin.follow_up && (
+                                <div>
+                                  <div className="text-xs text-muted-foreground font-medium mb-1">Follow-up Message:</div>
+                                  <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.linkedin.follow_up}</p>
+                                </div>
+                              )}
+                            </div>
+                          )}
                           <div className="flex gap-2 mt-2">
                             <Button 
                               variant="outline" 
                               size="sm" 
                               className="flex-1"
                               onClick={() => {
-                                navigator.clipboard.writeText((lead as any).outreach_messages.linkedin);
+                                const linkedinMsg = (lead as any).outreach_messages.linkedin;
+                                const text = typeof linkedinMsg === 'string' 
+                                  ? linkedinMsg 
+                                  : `Connection Note:\n${linkedinMsg.connection_note || ''}\n\nFollow-up:\n${linkedinMsg.follow_up || ''}`;
+                                navigator.clipboard.writeText(text);
                                 setCopiedMessage('linkedin');
                                 setTimeout(() => setCopiedMessage(null), 2000);
                               }}
