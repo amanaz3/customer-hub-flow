@@ -32,8 +32,15 @@ const SCHEDULE_TIMES = [
   '06:00', '07:00', '08:00', '09:00', '10:00', '11:00', '12:00',
 ];
 
-export function LeadReminderScheduleDialog() {
-  const [open, setOpen] = useState(false);
+interface LeadReminderScheduleDialogProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
+}
+
+export function LeadReminderScheduleDialog({ open: controlledOpen, onOpenChange }: LeadReminderScheduleDialogProps = {}) {
+  const [internalOpen, setInternalOpen] = useState(false);
+  const open = controlledOpen !== undefined ? controlledOpen : internalOpen;
+  const setOpen = onOpenChange || setInternalOpen;
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [testingSend, setTestingSend] = useState(false);

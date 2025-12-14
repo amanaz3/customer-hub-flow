@@ -1,9 +1,16 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Shield, BookOpen, UserCog, Building2, Flag, DollarSign, Settings2, Box } from "lucide-react";
+import { Users, MessageSquare, Shield, BookOpen, UserCog, Building2, Flag, DollarSign, Settings2, Box, Target, CalendarClock, ListChecks } from "lucide-react";
+import { LeadSettingsDialog } from "@/components/Lead/LeadSettingsDialog";
+import { FollowupSequenceConfig } from "@/components/Lead/FollowupSequenceConfig";
+import { LeadReminderScheduleDialog } from "@/components/Lead/LeadReminderScheduleDialog";
 
 const Manage = () => {
   const navigate = useNavigate();
+  const [showLeadSettings, setShowLeadSettings] = useState(false);
+  const [showFollowupConfig, setShowFollowupConfig] = useState(false);
+  const [showReminderSchedule, setShowReminderSchedule] = useState(false);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -125,7 +132,68 @@ const Manage = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Sales & Marketing Configuration Card */}
+        <Card className="border-2">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Target className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Sales & Marketing</CardTitle>
+                <CardDescription>Lead and outreach configuration</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => setShowLeadSettings(true)}
+            >
+              <Settings2 className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">Lead Settings</p>
+                <p className="text-xs text-muted-foreground">Scoring, assignment and conversion rules</p>
+              </div>
+            </div>
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => setShowFollowupConfig(true)}
+            >
+              <ListChecks className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">Follow-up Sequence</p>
+                <p className="text-xs text-muted-foreground">Configure automated follow-up actions</p>
+              </div>
+            </div>
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => setShowReminderSchedule(true)}
+            >
+              <CalendarClock className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">Reminder Schedule</p>
+                <p className="text-xs text-muted-foreground">Daily lead check reminder settings</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Dialogs */}
+      <LeadSettingsDialog 
+        open={showLeadSettings} 
+        onOpenChange={setShowLeadSettings} 
+      />
+      <FollowupSequenceConfig 
+        open={showFollowupConfig} 
+        onOpenChange={setShowFollowupConfig} 
+      />
+      <LeadReminderScheduleDialog 
+        open={showReminderSchedule} 
+        onOpenChange={setShowReminderSchedule} 
+      />
     </div>
   );
 };
