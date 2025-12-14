@@ -38,7 +38,7 @@ const Strategic = () => {
       title: "Lead Analytics",
       description: "Lead conversion trends, pipeline forecasting, and performance metrics",
       icon: TrendingUp,
-      path: "/leads",
+      path: "/lead-workflow",
       color: "text-amber-600"
     }
   ];
