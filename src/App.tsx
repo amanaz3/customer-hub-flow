@@ -76,6 +76,7 @@ import QuickNotes from '@/pages/QuickNotes';
 import Leads from '@/pages/Leads';
 import LeadDetail from '@/pages/LeadDetail';
 import BankPainAnalysis from '@/pages/BankPainAnalysis';
+import AccessManagement from '@/pages/AccessManagement';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -497,6 +498,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="User Management">
                           <LazySecureUserManagement />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/access-management" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Access Management">
+                          <AccessManagement />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
