@@ -12,7 +12,8 @@ import {
   BarChart3, 
   Activity, 
   Target,
-  ArrowLeft
+  ArrowLeft,
+  Users
 } from "lucide-react";
 
 const Ops = () => {
@@ -105,6 +106,13 @@ const Ops = () => {
       icon: Target,
       path: "/team-targets",
       color: "text-teal-600"
+    },
+    {
+      title: "Leads",
+      description: "Day-to-day lead management, follow-ups, and conversions",
+      icon: Users,
+      path: "/leads",
+      color: "text-amber-600"
     }
   ];
 
