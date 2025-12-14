@@ -28,7 +28,6 @@ const LeadDiscoveryAnalysis = () => {
   const {
     industries,
     sessions,
-    savedPrompts,
     products,
     industriesLoading,
     sessionsLoading,
@@ -36,13 +35,11 @@ const LeadDiscoveryAnalysis = () => {
     createSession,
     updateSession,
     deleteSession,
-    savePrompt,
     fetchSessionResults,
     addPromptResult,
     updatePromptResult
   } = useLeadDiscovery();
 
-  const [activeTab, setActiveTab] = useState('sessions');
   const [selectedSession, setSelectedSession] = useState<DiscoverySession | null>(null);
   const [sessionResults, setSessionResults] = useState<PromptResult[]>([]);
   const [currentData, setCurrentData] = useState<any>(null);
@@ -64,11 +61,6 @@ const LeadDiscoveryAnalysis = () => {
   const [newIndustryName, setNewIndustryName] = useState('');
   const [newIndustryDesc, setNewIndustryDesc] = useState('');
   const [showNewIndustryDialog, setShowNewIndustryDialog] = useState(false);
-
-  // Save prompt form
-  const [savePromptName, setSavePromptName] = useState('');
-  const [savePromptType, setSavePromptType] = useState<'filter' | 'curate' | 'transform' | 'apply' | 'custom'>('filter');
-  const [showSavePromptDialog, setShowSavePromptDialog] = useState(false);
 
   const handleFileUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -259,22 +251,6 @@ const LeadDiscoveryAnalysis = () => {
     }
   };
 
-  const handleSavePrompt = async () => {
-    if (!savePromptName || !promptText) {
-      toast.error('Please enter prompt name and text');
-      return;
-    }
-
-    await savePrompt.mutateAsync({
-      name: savePromptName,
-      prompt_text: promptText,
-      prompt_type: savePromptType
-    });
-
-    setShowSavePromptDialog(false);
-    setSavePromptName('');
-  };
-
   const handleCreateIndustry = async () => {
     if (!newIndustryName) {
       toast.error('Please enter industry name');
@@ -289,11 +265,6 @@ const LeadDiscoveryAnalysis = () => {
     setShowNewIndustryDialog(false);
     setNewIndustryName('');
     setNewIndustryDesc('');
-  };
-
-  const handleLoadSavedPrompt = (prompt: { prompt_text: string }) => {
-    setPromptText(prompt.prompt_text);
-    toast.success('Prompt loaded');
   };
 
   const handleTagService = async (productId: string) => {
@@ -579,102 +550,66 @@ const LeadDiscoveryAnalysis = () => {
       </div>
 
       <div className="grid grid-cols-12 gap-6">
-        {/* Sessions & Prompts Sidebar */}
+        {/* Sessions Sidebar */}
         <div className="col-span-3">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="w-full">
-              <TabsTrigger value="sessions" className="flex-1">Sessions</TabsTrigger>
-              <TabsTrigger value="prompts" className="flex-1">Prompts</TabsTrigger>
-            </TabsList>
-
-            <TabsContent value="sessions" className="mt-4">
-              <ScrollArea className="h-[calc(100vh-280px)]">
-                <div className="space-y-2">
-                  {sessionsLoading ? (
-                    <div className="text-center py-8 text-muted-foreground">Loading...</div>
-                  ) : sessions.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No sessions yet. Create one to start.
-                    </div>
-                  ) : (
-                    sessions.map(session => (
-                      <Card 
-                        key={session.id}
-                        className={`cursor-pointer transition-colors hover:bg-accent/50 ${
-                          selectedSession?.id === session.id ? 'border-primary bg-accent/30' : ''
-                        }`}
-                        onClick={() => handleSelectSession(session)}
-                      >
-                        <CardContent className="p-3">
-                          <div className="flex items-start justify-between">
-                            <div className="flex-1 min-w-0">
-                              <p className="font-medium truncate">{session.session_name}</p>
-                              {session.campaign_name && (
-                                <p className="text-xs text-muted-foreground truncate">
-                                  {session.campaign_name}
-                                </p>
-                              )}
-                              <div className="flex items-center flex-wrap gap-1 mt-1">
-                                <Badge variant="outline" className="text-xs">
-                                  {session.industry?.name || 'Unknown'}
-                                </Badge>
-                                {session.product && (
-                                  <Badge variant="secondary" className="text-xs">
-                                    <Package className="h-3 w-3 mr-1" />
-                                    {session.product.name}
-                                  </Badge>
-                                )}
-                              </div>
-                              <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
-                                <span>{format(new Date(session.created_at), 'MMM d, yyyy')}</span>
-                                {session.assigned_user && (
-                                  <span className="flex items-center gap-1">
-                                    <User className="h-3 w-3" />
-                                    {session.assigned_user.name}
-                                  </span>
-                                )}
-                              </div>
-                            </div>
-                            {getStatusBadge(session.status)}
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="font-semibold">Sessions</h3>
+          </div>
+          <ScrollArea className="h-[calc(100vh-280px)]">
+            <div className="space-y-2">
+              {sessionsLoading ? (
+                <div className="text-center py-8 text-muted-foreground">Loading...</div>
+              ) : sessions.length === 0 ? (
+                <div className="text-center py-8 text-muted-foreground">
+                  No sessions yet. Create one to start.
+                </div>
+              ) : (
+                sessions.map(session => (
+                  <Card 
+                    key={session.id}
+                    className={`cursor-pointer transition-colors hover:bg-accent/50 ${
+                      selectedSession?.id === session.id ? 'border-primary bg-accent/30' : ''
+                    }`}
+                    onClick={() => handleSelectSession(session)}
+                  >
+                    <CardContent className="p-3">
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium truncate">{session.session_name}</p>
+                          {session.campaign_name && (
+                            <p className="text-xs text-muted-foreground truncate">
+                              {session.campaign_name}
+                            </p>
+                          )}
+                          <div className="flex items-center flex-wrap gap-1 mt-1">
+                            <Badge variant="outline" className="text-xs">
+                              {session.industry?.name || 'Unknown'}
+                            </Badge>
+                            {session.product && (
+                              <Badge variant="secondary" className="text-xs">
+                                <Package className="h-3 w-3 mr-1" />
+                                {session.product.name}
+                              </Badge>
+                            )}
                           </div>
-                        </CardContent>
-                      </Card>
-                    ))
-                  )}
-                </div>
-              </ScrollArea>
-            </TabsContent>
-
-            <TabsContent value="prompts" className="mt-4">
-              <ScrollArea className="h-[calc(100vh-280px)]">
-                <div className="space-y-2">
-                  {savedPrompts.length === 0 ? (
-                    <div className="text-center py-8 text-muted-foreground">
-                      No saved prompts yet.
-                    </div>
-                  ) : (
-                    savedPrompts.map(prompt => (
-                      <Card 
-                        key={prompt.id}
-                        className="cursor-pointer hover:bg-accent/50 transition-colors"
-                        onClick={() => handleLoadSavedPrompt(prompt)}
-                      >
-                        <CardContent className="p-3">
-                          <p className="font-medium">{prompt.name}</p>
-                          <Badge variant="outline" className="text-xs mt-1">
-                            {prompt.prompt_type}
-                          </Badge>
-                          <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
-                            {prompt.prompt_text}
-                          </p>
-                        </CardContent>
-                      </Card>
-                    ))
-                  )}
-                </div>
-              </ScrollArea>
-            </TabsContent>
-          </Tabs>
+                          <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                            <span>{format(new Date(session.created_at), 'MMM d, yyyy')}</span>
+                            {session.assigned_user && (
+                              <span className="flex items-center gap-1">
+                                <User className="h-3 w-3" />
+                                {session.assigned_user.name}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                        {getStatusBadge(session.status)}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))
+              )}
+            </div>
+          </ScrollArea>
         </div>
 
         {/* Main Content */}
@@ -895,50 +830,7 @@ const LeadDiscoveryAnalysis = () => {
                     rows={4}
                     className="resize-none"
                   />
-                  <div className="flex justify-between">
-                    <Dialog open={showSavePromptDialog} onOpenChange={setShowSavePromptDialog}>
-                      <DialogTrigger asChild>
-                        <Button variant="outline" disabled={!promptText}>
-                          <Save className="h-4 w-4 mr-2" />
-                          Save Prompt
-                        </Button>
-                      </DialogTrigger>
-                      <DialogContent>
-                        <DialogHeader>
-                          <DialogTitle>Save Prompt</DialogTitle>
-                        </DialogHeader>
-                        <div className="space-y-4 pt-4">
-                          <div>
-                            <Label>Prompt Name</Label>
-                            <Input 
-                              value={savePromptName}
-                              onChange={(e) => setSavePromptName(e.target.value)}
-                              placeholder="e.g., Filter High Revenue Companies"
-                            />
-                          </div>
-                          <div>
-                            <Label>Prompt Type</Label>
-                            <Select value={savePromptType} onValueChange={(v: any) => setSavePromptType(v)}>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="filter">Filter</SelectItem>
-                                <SelectItem value="curate">Curate</SelectItem>
-                                <SelectItem value="transform">Transform</SelectItem>
-                                <SelectItem value="apply">Apply</SelectItem>
-                                <SelectItem value="custom">Custom</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <Button onClick={handleSavePrompt} className="w-full">
-                            <Save className="h-4 w-4 mr-2" />
-                            Save
-                          </Button>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
-
+                  <div className="flex justify-end">
                     <Button onClick={handleRunPrompt} disabled={isRunning || !promptText || !currentData}>
                       {isRunning ? (
                         <Loader2 className="h-4 w-4 mr-2 animate-spin" />
