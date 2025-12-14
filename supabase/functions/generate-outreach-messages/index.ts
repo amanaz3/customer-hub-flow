@@ -45,7 +45,9 @@ Key benefits to highlight:
 - Easy visa and residency options
 - Access to growing MENA markets
 
-Keep messages professional but personalized based on the lead's industry and location.`;
+You will generate TWO versions of each message:
+1. "professional" - Standard business outreach, formal but personalized
+2. "friendly" - Casual, warm, human-like conversation. Short sentences. Like texting a friend who happens to work in business. No corporate jargon, no "hope this finds you well", no sales pitch feeling. Just genuine curiosity and helpfulness.`;
 
       const userPrompt = `Generate outreach messages for this lead:
 - Name: ${lead.name}
@@ -56,19 +58,35 @@ Keep messages professional but personalized based on the lead's industry and loc
 - Indicator: ${lead.indicator || 'None'}
 - Preferred Contact: ${lead.preferred_contact_method || 'email'}
 
-Generate messages in this exact JSON format:
+Generate messages in this exact JSON format with BOTH versions:
 {
-  "email": {
-    "subject": "Email subject line",
-    "body": "Professional email body (3-4 paragraphs)"
+  "professional": {
+    "email": {
+      "subject": "Email subject line",
+      "body": "Professional email body (3-4 paragraphs)"
+    },
+    "linkedin": {
+      "connection_note": "Short LinkedIn connection request (under 300 chars)",
+      "follow_up": "Follow-up message after connection accepted"
+    },
+    "whatsapp": {
+      "initial": "Brief WhatsApp message with clear CTA",
+      "follow_up": "Follow-up if no response"
+    }
   },
-  "linkedin": {
-    "connection_note": "Short LinkedIn connection request (under 300 chars)",
-    "follow_up": "Follow-up message after connection accepted"
-  },
-  "whatsapp": {
-    "initial": "Brief WhatsApp message with clear CTA",
-    "follow_up": "Follow-up if no response"
+  "friendly": {
+    "email": {
+      "subject": "Casual, intriguing subject (like from a friend)",
+      "body": "Short, warm email. 2-3 short paragraphs max. Sounds like a real person, not a template."
+    },
+    "linkedin": {
+      "connection_note": "Super casual connection note, like you're genuinely curious about them (under 300 chars)",
+      "follow_up": "Friendly follow-up, no pressure, just checking in"
+    },
+    "whatsapp": {
+      "initial": "Very short, casual WhatsApp. Like texting someone you just met at a conference.",
+      "follow_up": "Quick friendly nudge"
+    }
   },
   "priority_score": 1-10,
   "suggested_follow_up_days": number,
