@@ -112,7 +112,7 @@ const Ops = () => {
       title: "Leads",
       description: "Day-to-day lead management, follow-ups, and conversions",
       icon: Users,
-      path: "/leads",
+      path: "/lead-workflow",
       color: "text-amber-600"
     }
   ];

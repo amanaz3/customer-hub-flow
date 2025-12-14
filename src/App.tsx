@@ -73,7 +73,7 @@ import PlaybookEditor from '@/pages/PlaybookEditor';
 import SalesGuide from '@/pages/SalesGuide';
 import QuickReference from '@/pages/QuickReference';
 import QuickNotes from '@/pages/QuickNotes';
-import Leads from '@/pages/Leads';
+// Leads.tsx removed - now consolidated into LeadWorkflow.tsx
 import LeadDetail from '@/pages/LeadDetail';
 import LeadWorkflow from '@/pages/LeadWorkflow';
 import BankPainAnalysis from '@/pages/BankPainAnalysis';
@@ -727,15 +727,7 @@ function App() {
                     </ProtectedRoute>
                   } />
                   
-                  <Route path="/leads" element={
-                    <ProtectedRoute>
-                      <MainLayout>
-                        <PageErrorBoundary pageName="Leads">
-                          <Leads />
-                        </PageErrorBoundary>
-                      </MainLayout>
-                    </ProtectedRoute>
-                  } />
+                  <Route path="/leads" element={<Navigate to="/lead-workflow" replace />} />
                   
                   <Route path="/leads/:id" element={
                     <ProtectedRoute>
