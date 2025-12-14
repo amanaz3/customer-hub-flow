@@ -608,8 +608,8 @@ const LeadDiscoveryAnalysis = () => {
                 </CardContent>
               </Card>
 
-              {/* Apply to Service Section */}
-              {sessionResults.length > 0 && currentData && Array.isArray(currentData) && currentData.length > 0 && (
+              {/* Apply to Service Section - Only show if no product selected yet */}
+              {sessionResults.length > 0 && currentData && Array.isArray(currentData) && currentData.length > 0 && !selectedSession.product_id && (
                 <Card className="border-primary/50 bg-primary/5">
                   <CardHeader>
                     <CardTitle className="text-lg flex items-center gap-2">
