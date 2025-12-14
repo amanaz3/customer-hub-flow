@@ -707,8 +707,8 @@ export default function LeadDetail() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Left Column - Outreach Messages (Primary action for contacting) */}
-            <div className="lg:col-span-2 space-y-6">
+          {/* Left Column - Outreach Messages (takes 2/3) */}
+          <div className="lg:col-span-2 space-y-6 order-2 lg:order-1">
             {/* Outreach Messages - visible based on stage */}
             {stageVisibility.outreachMessages && (lead as any).outreach_messages ? (
               <Card>
@@ -1171,8 +1171,8 @@ export default function LeadDetail() {
             )}
           </div>
 
-          {/* Right Column - Lead Info (Compact) */}
-          <div className="space-y-3">
+          {/* Right Column - Lead Info (Compact, takes 1/3) */}
+          <div className="space-y-3 order-1 lg:order-2">
             {/* Quick Info - moved to top */}
             <Card className="p-3">
               <CardHeader className="p-0 pb-2">
