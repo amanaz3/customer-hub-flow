@@ -477,10 +477,11 @@ const LeadWorkflow = () => {
                           <Table>
                             <TableHeader>
                               <TableRow>
-                                <TableHead className="w-[180px]">Lead</TableHead>
+                                <TableHead className="w-[150px]">Lead</TableHead>
                                 <TableHead>Company</TableHead>
                                 <TableHead>Email</TableHead>
                                 <TableHead>Mobile</TableHead>
+                                <TableHead>Product Interest</TableHead>
                                 <TableHead>Score</TableHead>
                                 <TableHead>Status</TableHead>
                                 <TableHead>Last Contact</TableHead>
@@ -508,6 +509,9 @@ const LeadWorkflow = () => {
                                   </TableCell>
                                   <TableCell>
                                     <span className="text-sm text-muted-foreground">{lead.mobile || '-'}</span>
+                                  </TableCell>
+                                  <TableCell>
+                                    <span className="text-sm">{lead.product_interest?.name || '-'}</span>
                                   </TableCell>
                                   <TableCell>
                                     {lead.score && (
