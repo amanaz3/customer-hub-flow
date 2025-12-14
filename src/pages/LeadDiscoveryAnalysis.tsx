@@ -16,9 +16,10 @@ import { toast } from 'sonner';
 import { 
   Upload, Play, Save, Plus, FileSpreadsheet, Building2, 
   Package, ChevronRight, Clock, CheckCircle, XCircle, Loader2,
-  Sparkles, History, Settings, Send, Trash2, List, ArrowLeft, Eye
+  Sparkles, History, Settings, Send, Trash2, List, ArrowLeft, Eye, Download
 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
 
@@ -92,6 +93,49 @@ const LeadDiscoveryAnalysis = () => {
     };
     reader.readAsBinaryString(file);
   }, []);
+
+  const exportData = useCallback((data: any, filename: string, format: 'csv' | 'xlsx') => {
+    if (!data || (Array.isArray(data) && data.length === 0)) {
+      toast.error('No data to export');
+      return;
+    }
+
+    try {
+      const dataArray = Array.isArray(data) ? data : [data];
+      const worksheet = XLSX.utils.json_to_sheet(dataArray);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, 'Data');
+      
+      const extension = format === 'csv' ? '.csv' : '.xlsx';
+      const bookType = format === 'csv' ? 'csv' : 'xlsx';
+      
+      XLSX.writeFile(workbook, `${filename}${extension}`, { bookType });
+      toast.success(`Exported ${dataArray.length} rows as ${format.toUpperCase()}`);
+    } catch (error) {
+      toast.error('Failed to export data');
+    }
+  }, []);
+
+  const ExportButton = ({ data, label }: { data: any; label: string }) => (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button variant="outline" size="sm" disabled={!data || (Array.isArray(data) && data.length === 0)}>
+          <Download className="h-4 w-4 mr-1" />
+          Export
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent>
+        <DropdownMenuItem onClick={() => exportData(data, label, 'csv')}>
+          <FileSpreadsheet className="h-4 w-4 mr-2" />
+          Export as CSV
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => exportData(data, label, 'xlsx')}>
+          <FileSpreadsheet className="h-4 w-4 mr-2" />
+          Export as Excel
+        </DropdownMenuItem>
+      </DropdownMenuContent>
+    </DropdownMenu>
+  );
 
   const handleCreateSession = async () => {
     if (!newSessionName || !newSessionIndustry) {
@@ -734,13 +778,38 @@ const LeadDiscoveryAnalysis = () => {
                 </CardHeader>
               </Card>
 
+              {/* Initial Data Export */}
+              {selectedSession.original_data && Array.isArray(selectedSession.original_data) && selectedSession.original_data.length > 0 && (
+                <Card>
+                  <CardHeader className="pb-3">
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <CardTitle className="text-lg flex items-center gap-2">
+                          <FileSpreadsheet className="h-5 w-5" />
+                          Initial Data ({selectedSession.original_data.length} rows)
+                        </CardTitle>
+                        {selectedSession.uploaded_file_name && (
+                          <p className="text-sm text-muted-foreground mt-1">Source: {selectedSession.uploaded_file_name}</p>
+                        )}
+                      </div>
+                      <ExportButton data={selectedSession.original_data} label={`${selectedSession.session_name}-initial-data`} />
+                    </div>
+                  </CardHeader>
+                </Card>
+              )}
+
               {/* Prompt Pipeline */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <History className="h-5 w-5" />
-                    Prompt Pipeline ({sessionResults.length} steps)
-                  </CardTitle>
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <History className="h-5 w-5" />
+                      Prompt Pipeline ({sessionResults.length} steps)
+                    </CardTitle>
+                    {currentData && Array.isArray(currentData) && currentData.length > 0 && (
+                      <ExportButton data={currentData} label={`${selectedSession.session_name}-current-data`} />
+                    )}
+                  </div>
                 </CardHeader>
                 <CardContent>
                   {sessionResults.length === 0 ? (
@@ -762,14 +831,20 @@ const LeadDiscoveryAnalysis = () => {
                           <AccordionContent>
                             <div className="grid grid-cols-2 gap-4 pt-2">
                               <div>
-                                <Label className="text-xs">Input ({Array.isArray(result.input_data) ? result.input_data.length : 0} items)</Label>
-                                <ScrollArea className="h-40 mt-1 border rounded p-2 bg-muted/30">
+                                <div className="flex items-center justify-between mb-1">
+                                  <Label className="text-xs">Input ({Array.isArray(result.input_data) ? result.input_data.length : 0} items)</Label>
+                                  <ExportButton data={result.input_data} label={`step-${idx + 1}-input`} />
+                                </div>
+                                <ScrollArea className="h-40 border rounded p-2 bg-muted/30">
                                   <pre className="text-xs">{JSON.stringify(result.input_data, null, 2)}</pre>
                                 </ScrollArea>
                               </div>
                               <div>
-                                <Label className="text-xs">Output ({Array.isArray(result.output_data) ? result.output_data.length : 0} items)</Label>
-                                <ScrollArea className="h-40 mt-1 border rounded p-2 bg-muted/30">
+                                <div className="flex items-center justify-between mb-1">
+                                  <Label className="text-xs">Output ({Array.isArray(result.output_data) ? result.output_data.length : 0} items)</Label>
+                                  <ExportButton data={result.output_data} label={`step-${idx + 1}-output`} />
+                                </div>
+                                <ScrollArea className="h-40 border rounded p-2 bg-muted/30">
                                   <pre className="text-xs">{JSON.stringify(result.output_data, null, 2)}</pre>
                                 </ScrollArea>
                               </div>
