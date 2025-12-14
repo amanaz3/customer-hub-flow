@@ -434,17 +434,19 @@ const LeadWorkflow = () => {
                           className="pl-8 h-8 w-40 text-sm"
                         />
                       </div>
-                      <Select value={scoreFilter} onValueChange={setScoreFilter}>
-                        <SelectTrigger className="h-8 w-[90px] text-sm">
-                          <SelectValue placeholder="Score" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">All</SelectItem>
-                          <SelectItem value="hot">Hot</SelectItem>
-                          <SelectItem value="warm">Warm</SelectItem>
-                          <SelectItem value="cold">Cold</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      {currentStepData?.key !== 'import' && (
+                        <Select value={scoreFilter} onValueChange={setScoreFilter}>
+                          <SelectTrigger className="h-8 w-[90px] text-sm">
+                            <SelectValue placeholder="Score" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="all">All</SelectItem>
+                            <SelectItem value="hot">Hot</SelectItem>
+                            <SelectItem value="warm">Warm</SelectItem>
+                            <SelectItem value="cold">Cold</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      )}
                       <Select value={statusFilter} onValueChange={setStatusFilter}>
                         <SelectTrigger className="h-8 w-[100px] text-sm">
                           <SelectValue placeholder="Status" />
@@ -500,7 +502,7 @@ const LeadWorkflow = () => {
                                 <TableHead>Email</TableHead>
                                 <TableHead>Mobile</TableHead>
                                 <TableHead>Product Interest</TableHead>
-                                <TableHead>Score</TableHead>
+                                {currentStepData?.key !== 'import' && <TableHead>Score</TableHead>}
                                 <TableHead>Status</TableHead>
                                 <TableHead>Last Contact</TableHead>
                                 <TableHead className="w-[50px]"></TableHead>
@@ -531,14 +533,16 @@ const LeadWorkflow = () => {
                                   <TableCell>
                                     <span className="text-sm">{lead.product_interest?.name || '-'}</span>
                                   </TableCell>
-                                  <TableCell>
-                                    {lead.score && (
-                                      <Badge className={cn("text-xs", LEAD_SCORE_COLORS[lead.score])}>
-                                        {scoreIcons[lead.score]}
-                                        <span className="ml-1 capitalize">{lead.score}</span>
-                                      </Badge>
-                                    )}
-                                  </TableCell>
+                                  {currentStepData?.key !== 'import' && (
+                                    <TableCell>
+                                      {lead.score && (
+                                        <Badge className={cn("text-xs", LEAD_SCORE_COLORS[lead.score])}>
+                                          {scoreIcons[lead.score]}
+                                          <span className="ml-1 capitalize">{lead.score}</span>
+                                        </Badge>
+                                      )}
+                                    </TableCell>
+                                  )}
                                   <TableCell>
                                     {lead.status && (
                                       <Badge variant="outline" className={cn("text-xs capitalize", LEAD_STATUS_COLORS[lead.status])}>
