@@ -49,6 +49,7 @@ const LeadDiscoveryAnalysis = () => {
   const [stepType, setStepType] = useState<'prompt' | 'tag'>('prompt');
   const [selectedServiceForTag, setSelectedServiceForTag] = useState('');
   const [tagPromptText, setTagPromptText] = useState('');
+  const [promptName, setPromptName] = useState('');
   
   // New session form
   const [newSessionName, setNewSessionName] = useState('');
@@ -192,11 +193,15 @@ const LeadDiscoveryAnalysis = () => {
     const stepOrder = sessionResults.length + 1;
 
     try {
-      // Create pending result
+      // Create pending result with name prefix
+      const fullPromptText = promptName.trim() 
+        ? `[${promptName.trim()}] ${promptText}` 
+        : promptText;
+      
       const resultRecord = await addPromptResult.mutateAsync({
         session_id: selectedSession.id,
         step_order: stepOrder,
-        prompt_text: promptText,
+        prompt_text: fullPromptText,
         input_data: currentData,
         status: 'running'
       });
@@ -226,6 +231,7 @@ const LeadDiscoveryAnalysis = () => {
       setSessionResults(prev => [...prev, updatedResult]);
       setCurrentData(data.result);
       setPromptText('');
+      setPromptName('');
 
       // Update session with final result
       await updateSession.mutateAsync({
@@ -789,18 +795,33 @@ const LeadDiscoveryAnalysis = () => {
                     <p className="text-muted-foreground text-sm">No prompts executed yet. Enter a prompt below to start.</p>
                   ) : (
                     <Accordion type="multiple" className="space-y-2">
-                      {sessionResults.map((result, idx) => (
-                        <AccordionItem key={result.id} value={result.id} className="border rounded-lg px-4">
-                          <AccordionTrigger className="hover:no-underline">
-                            <div className="flex items-center gap-3 w-full">
-                              <Badge variant="outline" className="shrink-0">Step {idx + 1}</Badge>
-                              <span className="truncate flex-1 text-left">{result.prompt_text}</span>
-                              {getStatusBadge(result.status)}
-                              {result.execution_time_ms && (
-                                <span className="text-xs text-muted-foreground">{result.execution_time_ms}ms</span>
-                              )}
-                            </div>
-                          </AccordionTrigger>
+                      {sessionResults.map((result, idx) => {
+                        // Extract name from prompt if it has [Name] prefix
+                        const promptMatch = result.prompt_text.match(/^\[([^\]]+)\]\s*(.*)$/);
+                        const promptLabel = promptMatch ? promptMatch[1] : `Step ${idx + 1}`;
+                        const promptContent = promptMatch ? promptMatch[2] : result.prompt_text;
+                        const exportLabel = promptMatch 
+                          ? promptMatch[1].toLowerCase().replace(/\s+/g, '-')
+                          : `step-${idx + 1}`;
+                        
+                        return (
+                          <AccordionItem key={result.id} value={result.id} className="border rounded-lg px-4">
+                            <AccordionTrigger className="hover:no-underline">
+                              <div className="flex items-center gap-3 w-full">
+                                <Badge variant="outline" className="shrink-0">Step {idx + 1}</Badge>
+                                {promptMatch && (
+                                  <Badge variant="secondary" className="shrink-0">{promptLabel}</Badge>
+                                )}
+                                <span className="truncate flex-1 text-left">{promptContent}</span>
+                                {getStatusBadge(result.status)}
+                                {result.execution_time_ms && (
+                                  <span className="text-xs text-muted-foreground">{result.execution_time_ms}ms</span>
+                                )}
+                                {result.status === 'completed' && result.output_data && (
+                                  <ExportButton data={result.output_data} label={`${selectedSession.session_name}-${exportLabel}`} />
+                                )}
+                              </div>
+                            </AccordionTrigger>
                           <AccordionContent>
                             <div className="grid grid-cols-2 gap-4 pt-2">
                               <div>
@@ -827,7 +848,8 @@ const LeadDiscoveryAnalysis = () => {
                             )}
                           </AccordionContent>
                         </AccordionItem>
-                      ))}
+                        );
+                      })}
                     </Accordion>
                   )}
                 </CardContent>
@@ -862,13 +884,25 @@ const LeadDiscoveryAnalysis = () => {
                     </TabsList>
 
                     <TabsContent value="prompt" className="mt-4 space-y-4">
-                      <Textarea
-                        value={promptText}
-                        onChange={(e) => setPromptText(e.target.value)}
-                        placeholder="Enter your prompt... e.g., 'Filter to only include companies with annual revenue > 1M AED'"
-                        rows={4}
-                        className="resize-none"
-                      />
+                      <div>
+                        <Label>Prompt Name (for tagging)</Label>
+                        <Input
+                          value={promptName}
+                          onChange={(e) => setPromptName(e.target.value)}
+                          placeholder="e.g., 'Filter high-value leads', 'Remove duplicates'..."
+                          className="mt-1"
+                        />
+                      </div>
+                      <div>
+                        <Label>Prompt</Label>
+                        <Textarea
+                          value={promptText}
+                          onChange={(e) => setPromptText(e.target.value)}
+                          placeholder="Enter your prompt... e.g., 'Filter to only include companies with annual revenue > 1M AED'"
+                          rows={4}
+                          className="resize-none mt-1"
+                        />
+                      </div>
                       <div className="flex justify-end">
                         <Button onClick={handleRunPrompt} disabled={isRunning || !promptText || !currentData}>
                           {isRunning ? (
