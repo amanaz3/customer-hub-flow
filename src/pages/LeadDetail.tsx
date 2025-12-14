@@ -706,7 +706,471 @@ export default function LeadDetail() {
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Main Info */}
+          {/* Left Column - Outreach Messages (Primary action for contacting) */}
+          <div className="space-y-6">
+            {/* Outreach Messages - visible based on stage */}
+            {stageVisibility.outreachMessages && (lead as any).outreach_messages ? (
+              <Card>
+                <CardHeader className="pb-2">
+                  <div className="flex items-center justify-between">
+                    <CardTitle className="text-lg flex items-center gap-2">
+                      <MessageCircle className="h-4 w-4" />
+                      Outreach Messages
+                    </CardTitle>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleRegenerateMessages}
+                      disabled={regeneratingMessages}
+                    >
+                      <RefreshCw className={`h-4 w-4 ${regeneratingMessages ? 'animate-spin' : ''}`} />
+                    </Button>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  {/* Check if new format with professional/friendly versions */}
+                  {(lead as any).outreach_messages.professional ? (
+                    <Tabs value={messageVersion} onValueChange={(v) => setMessageVersion(v as 'professional' | 'friendly' | 'custom')}>
+                      <TabsList className="grid w-full grid-cols-3 mb-3">
+                        <TabsTrigger value="professional" className="text-xs">Pro</TabsTrigger>
+                        <TabsTrigger value="friendly" className="text-xs">Friendly</TabsTrigger>
+                        <TabsTrigger value="custom" className="text-xs">Custom</TabsTrigger>
+                      </TabsList>
+                      
+                      {['professional', 'friendly'].map((version) => (
+                        <TabsContent key={version} value={version} className="mt-0">
+                          <Accordion type="single" collapsible className="w-full">
+                            {/* Email */}
+                            {(lead as any).outreach_messages[version]?.email && (
+                              <AccordionItem value="email">
+                                <AccordionTrigger className="text-sm">
+                                  <span className="flex items-center gap-2">
+                                    <Mail className="h-4 w-4" />
+                                    Email
+                                  </span>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                  <div className="space-y-2">
+                                    <div className="text-xs text-muted-foreground font-medium">Subject:</div>
+                                    <p className="text-sm bg-muted/50 p-2 rounded">{(lead as any).outreach_messages[version].email.subject}</p>
+                                    <div className="text-xs text-muted-foreground font-medium mt-2">Body:</div>
+                                    <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages[version].email.body}</p>
+                                    <Button 
+                                      variant="outline" 
+                                      size="sm" 
+                                      className="w-full mt-2"
+                                      onClick={() => {
+                                        const text = `Subject: ${(lead as any).outreach_messages[version].email.subject}\n\n${(lead as any).outreach_messages[version].email.body}`;
+                                        navigator.clipboard.writeText(text);
+                                        setCopiedMessage(`email-${version}`);
+                                        setTimeout(() => setCopiedMessage(null), 2000);
+                                      }}
+                                    >
+                                      {copiedMessage === `email-${version}` ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                                      {copiedMessage === `email-${version}` ? 'Copied!' : 'Copy'}
+                                    </Button>
+                                  </div>
+                                </AccordionContent>
+                              </AccordionItem>
+                            )}
+                            
+                            {/* LinkedIn */}
+                            {(lead as any).outreach_messages[version]?.linkedin && (
+                              <AccordionItem value="linkedin">
+                                <AccordionTrigger className="text-sm">
+                                  <span className="flex items-center gap-2">
+                                    <Linkedin className="h-4 w-4" />
+                                    LinkedIn
+                                  </span>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                  <div className="space-y-3">
+                                    {(lead as any).outreach_messages[version].linkedin.connection_note && (
+                                      <div>
+                                        <div className="text-xs text-muted-foreground font-medium mb-1">Connection Note:</div>
+                                        <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages[version].linkedin.connection_note}</p>
+                                      </div>
+                                    )}
+                                    {(lead as any).outreach_messages[version].linkedin.follow_up && (
+                                      <div>
+                                        <div className="text-xs text-muted-foreground font-medium mb-1">Follow-up:</div>
+                                        <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages[version].linkedin.follow_up}</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="w-full mt-2"
+                                    onClick={() => {
+                                      const linkedinMsg = (lead as any).outreach_messages[version].linkedin;
+                                      const text = `Connection Note:\n${linkedinMsg.connection_note || ''}\n\nFollow-up:\n${linkedinMsg.follow_up || ''}`;
+                                      navigator.clipboard.writeText(text);
+                                      setCopiedMessage(`linkedin-${version}`);
+                                      setTimeout(() => setCopiedMessage(null), 2000);
+                                    }}
+                                  >
+                                    {copiedMessage === `linkedin-${version}` ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                                    {copiedMessage === `linkedin-${version}` ? 'Copied!' : 'Copy'}
+                                  </Button>
+                                </AccordionContent>
+                              </AccordionItem>
+                            )}
+                            
+                            {/* WhatsApp */}
+                            {(lead as any).outreach_messages[version]?.whatsapp && (
+                              <AccordionItem value="whatsapp">
+                                <AccordionTrigger className="text-sm">
+                                  <span className="flex items-center gap-2">
+                                    <MessageCircle className="h-4 w-4" />
+                                    WhatsApp
+                                  </span>
+                                </AccordionTrigger>
+                                <AccordionContent>
+                                  <div className="space-y-3">
+                                    {(lead as any).outreach_messages[version].whatsapp.initial && (
+                                      <div>
+                                        <div className="text-xs text-muted-foreground font-medium mb-1">Initial:</div>
+                                        <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages[version].whatsapp.initial}</p>
+                                      </div>
+                                    )}
+                                    {(lead as any).outreach_messages[version].whatsapp.follow_up && (
+                                      <div>
+                                        <div className="text-xs text-muted-foreground font-medium mb-1">Follow-up:</div>
+                                        <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages[version].whatsapp.follow_up}</p>
+                                      </div>
+                                    )}
+                                  </div>
+                                  <Button 
+                                    variant="outline" 
+                                    size="sm" 
+                                    className="w-full mt-2"
+                                    onClick={() => {
+                                      const waMsg = (lead as any).outreach_messages[version].whatsapp;
+                                      const text = `Initial:\n${waMsg.initial || ''}\n\nFollow-up:\n${waMsg.follow_up || ''}`;
+                                      navigator.clipboard.writeText(text);
+                                      setCopiedMessage(`whatsapp-${version}`);
+                                      setTimeout(() => setCopiedMessage(null), 2000);
+                                    }}
+                                  >
+                                    {copiedMessage === `whatsapp-${version}` ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                                    {copiedMessage === `whatsapp-${version}` ? 'Copied!' : 'Copy'}
+                                  </Button>
+                                </AccordionContent>
+                              </AccordionItem>
+                            )}
+                          </Accordion>
+                        </TabsContent>
+                      ))}
+                      
+                      {/* Custom Messages Tab */}
+                      <TabsContent value="custom" className="mt-0">
+                        <div className="space-y-4">
+                          {/* Email */}
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2 text-sm font-medium">
+                              <Mail className="h-4 w-4" />
+                              Email
+                            </Label>
+                            <Input
+                              placeholder="Subject..."
+                              value={customMessage.email.subject}
+                              onChange={(e) => setCustomMessage(prev => ({
+                                ...prev,
+                                email: { ...prev.email, subject: e.target.value }
+                              }))}
+                            />
+                            <Textarea
+                              placeholder="Write your email message..."
+                              value={customMessage.email.body}
+                              onChange={(e) => setCustomMessage(prev => ({
+                                ...prev,
+                                email: { ...prev.email, body: e.target.value }
+                              }))}
+                              rows={4}
+                            />
+                          </div>
+                          
+                          {/* LinkedIn */}
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2 text-sm font-medium">
+                              <Linkedin className="h-4 w-4" />
+                              LinkedIn
+                            </Label>
+                            <Textarea
+                              placeholder="Write your LinkedIn message..."
+                              value={customMessage.linkedin}
+                              onChange={(e) => setCustomMessage(prev => ({
+                                ...prev,
+                                linkedin: e.target.value
+                              }))}
+                              rows={3}
+                            />
+                          </div>
+                          
+                          {/* WhatsApp */}
+                          <div className="space-y-2">
+                            <Label className="flex items-center gap-2 text-sm font-medium">
+                              <MessageCircle className="h-4 w-4" />
+                              WhatsApp
+                            </Label>
+                            <Textarea
+                              placeholder="Write your WhatsApp message..."
+                              value={customMessage.whatsapp}
+                              onChange={(e) => setCustomMessage(prev => ({
+                                ...prev,
+                                whatsapp: e.target.value
+                              }))}
+                              rows={3}
+                            />
+                          </div>
+                          
+                          <Button
+                            onClick={handleSaveCustomMessage}
+                            disabled={savingCustom}
+                            className="w-full"
+                          >
+                            {savingCustom ? 'Saving...' : 'Save Custom Messages'}
+                          </Button>
+                        </div>
+                      </TabsContent>
+                    </Tabs>
+                  ) : (
+                    /* Legacy format - backward compatible */
+                    <Accordion type="single" collapsible className="w-full">
+                      {(lead as any).outreach_messages.email && (
+                        <AccordionItem value="email">
+                          <AccordionTrigger className="text-sm">
+                            <span className="flex items-center gap-2">
+                              <Mail className="h-4 w-4" />
+                              Email
+                            </span>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            <div className="space-y-2">
+                              <div className="text-xs text-muted-foreground font-medium">Subject:</div>
+                              <p className="text-sm bg-muted/50 p-2 rounded">{(lead as any).outreach_messages.email.subject}</p>
+                              <div className="text-xs text-muted-foreground font-medium mt-2">Body:</div>
+                              <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.email.body}</p>
+                              <Button 
+                                variant="outline" 
+                                size="sm" 
+                                className="w-full mt-2"
+                                onClick={() => {
+                                  const text = `Subject: ${(lead as any).outreach_messages.email.subject}\n\n${(lead as any).outreach_messages.email.body}`;
+                                  navigator.clipboard.writeText(text);
+                                  setCopiedMessage('email');
+                                  setTimeout(() => setCopiedMessage(null), 2000);
+                                }}
+                              >
+                                {copiedMessage === 'email' ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                                {copiedMessage === 'email' ? 'Copied!' : 'Copy'}
+                              </Button>
+                            </div>
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
+                      {(lead as any).outreach_messages.linkedin && (
+                        <AccordionItem value="linkedin">
+                          <AccordionTrigger className="text-sm">
+                            <span className="flex items-center gap-2">
+                              <Linkedin className="h-4 w-4" />
+                              LinkedIn
+                            </span>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            {typeof (lead as any).outreach_messages.linkedin === 'string' ? (
+                              <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.linkedin}</p>
+                            ) : (
+                              <div className="space-y-3">
+                                {(lead as any).outreach_messages.linkedin.connection_note && (
+                                  <div>
+                                    <div className="text-xs text-muted-foreground font-medium mb-1">Connection Note:</div>
+                                    <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.linkedin.connection_note}</p>
+                                  </div>
+                                )}
+                                {(lead as any).outreach_messages.linkedin.follow_up && (
+                                  <div>
+                                    <div className="text-xs text-muted-foreground font-medium mb-1">Follow-up:</div>
+                                    <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.linkedin.follow_up}</p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full mt-2"
+                              onClick={() => {
+                                const linkedinMsg = (lead as any).outreach_messages.linkedin;
+                                const text = typeof linkedinMsg === 'string' 
+                                  ? linkedinMsg 
+                                  : `Connection Note:\n${linkedinMsg.connection_note || ''}\n\nFollow-up:\n${linkedinMsg.follow_up || ''}`;
+                                navigator.clipboard.writeText(text);
+                                setCopiedMessage('linkedin');
+                                setTimeout(() => setCopiedMessage(null), 2000);
+                              }}
+                            >
+                              {copiedMessage === 'linkedin' ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                              {copiedMessage === 'linkedin' ? 'Copied!' : 'Copy'}
+                            </Button>
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
+                      {(lead as any).outreach_messages.whatsapp && (
+                        <AccordionItem value="whatsapp">
+                          <AccordionTrigger className="text-sm">
+                            <span className="flex items-center gap-2">
+                              <MessageCircle className="h-4 w-4" />
+                              WhatsApp
+                            </span>
+                          </AccordionTrigger>
+                          <AccordionContent>
+                            {typeof (lead as any).outreach_messages.whatsapp === 'string' ? (
+                              <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.whatsapp}</p>
+                            ) : (
+                              <div className="space-y-3">
+                                {(lead as any).outreach_messages.whatsapp.initial && (
+                                  <div>
+                                    <div className="text-xs text-muted-foreground font-medium mb-1">Initial:</div>
+                                    <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.whatsapp.initial}</p>
+                                  </div>
+                                )}
+                                {(lead as any).outreach_messages.whatsapp.follow_up && (
+                                  <div>
+                                    <div className="text-xs text-muted-foreground font-medium mb-1">Follow-up:</div>
+                                    <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.whatsapp.follow_up}</p>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                            <Button 
+                              variant="outline" 
+                              size="sm" 
+                              className="w-full mt-2"
+                              onClick={() => {
+                                const waMsg = (lead as any).outreach_messages.whatsapp;
+                                const text = typeof waMsg === 'string' 
+                                  ? waMsg 
+                                  : `Initial:\n${waMsg.initial || ''}\n\nFollow-up:\n${waMsg.follow_up || ''}`;
+                                navigator.clipboard.writeText(text);
+                                setCopiedMessage('whatsapp');
+                                setTimeout(() => setCopiedMessage(null), 2000);
+                              }}
+                            >
+                              {copiedMessage === 'whatsapp' ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
+                              {copiedMessage === 'whatsapp' ? 'Copied!' : 'Copy'}
+                            </Button>
+                          </AccordionContent>
+                        </AccordionItem>
+                      )}
+                    </Accordion>
+                  )}
+                </CardContent>
+              </Card>
+            ) : stageVisibility.outreachMessages ? (
+              <Card>
+                <CardHeader className="pb-2">
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <MessageCircle className="h-4 w-4" />
+                    Outreach Messages
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="text-center py-6 text-muted-foreground">
+                    <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p className="text-sm mb-3">No outreach messages generated yet</p>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleRegenerateMessages}
+                      disabled={regeneratingMessages}
+                    >
+                      <RefreshCw className={`h-4 w-4 mr-2 ${regeneratingMessages ? 'animate-spin' : ''}`} />
+                      {regeneratingMessages ? 'Generating...' : 'Generate Messages'}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ) : null}
+
+            {/* Log Activity - visible from Import stage */}
+            {stageVisibility.logActivity && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg flex items-center gap-2">
+                    <FileText className="h-4 w-4" />
+                    Log Activity
+                  </CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-3">
+                  <div className="flex gap-2 flex-wrap">
+                    {ACTIVITY_TYPES.map((type) => (
+                      <Button
+                        key={type.value}
+                        variant={activityType === type.value ? 'default' : 'outline'}
+                        size="sm"
+                        onClick={() => setActivityType(type.value)}
+                        className="flex items-center gap-1"
+                      >
+                        {activityIcons[type.value]}
+                        {type.label}
+                      </Button>
+                    ))}
+                  </div>
+                  <Textarea
+                    placeholder="Add notes about this activity..."
+                    value={activityDescription}
+                    onChange={(e) => setActivityDescription(e.target.value)}
+                    rows={2}
+                  />
+                  <Button
+                    onClick={handleLogActivity}
+                    disabled={loggingActivity}
+                    className="w-full"
+                  >
+                    {loggingActivity ? 'Logging...' : 'Log Activity'}
+                  </Button>
+                </CardContent>
+              </Card>
+            )}
+
+            {/* Activity History - visible from Qualify stage */}
+            {stageVisibility.activityHistory && activities.length > 0 && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Activity History</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3 max-h-64 overflow-y-auto">
+                    {activities.map((activity) => (
+                      <div
+                        key={activity.id}
+                        className="flex items-start gap-3 p-2 bg-muted/50 rounded"
+                      >
+                        <div className="mt-1">{activityIcons[activity.activity_type] || <FileText className="h-4 w-4" />}</div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <Badge variant="outline" className="text-xs">
+                              {ACTIVITY_TYPES.find(t => t.value === activity.activity_type)?.label || activity.activity_type}
+                            </Badge>
+                            <span className="text-xs text-muted-foreground">
+                              {formatDistanceToNow(new Date(activity.created_at), { addSuffix: true })}
+                            </span>
+                          </div>
+                          {activity.description && (
+                            <p className="text-sm mt-1 text-muted-foreground">{activity.description}</p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+          </div>
+
+          {/* Right Column - Lead Info */}
           <div className="lg:col-span-2 space-y-6">
             {/* Contact & Company */}
             <Card>
@@ -1020,417 +1484,6 @@ export default function LeadDetail() {
               </Card>
             )}
 
-            {/* Outreach Messages - visible based on stage */}
-            {stageVisibility.outreachMessages && (lead as any).outreach_messages ? (
-              <Card>
-                <CardHeader className="pb-2">
-                  <div className="flex items-center justify-between">
-                    <CardTitle className="text-lg flex items-center gap-2">
-                      <MessageCircle className="h-4 w-4" />
-                      Outreach Messages
-                    </CardTitle>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleRegenerateMessages}
-                      disabled={regeneratingMessages}
-                    >
-                      <RefreshCw className={`h-4 w-4 ${regeneratingMessages ? 'animate-spin' : ''}`} />
-                    </Button>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  {/* Check if new format with professional/friendly versions */}
-                  {(lead as any).outreach_messages.professional ? (
-                    <Tabs value={messageVersion} onValueChange={(v) => setMessageVersion(v as 'professional' | 'friendly' | 'custom')}>
-                      <TabsList className="grid w-full grid-cols-3 mb-3">
-                        <TabsTrigger value="professional" className="text-xs">Pro</TabsTrigger>
-                        <TabsTrigger value="friendly" className="text-xs">Friendly</TabsTrigger>
-                        <TabsTrigger value="custom" className="text-xs">Custom</TabsTrigger>
-                      </TabsList>
-                      
-                      {['professional', 'friendly'].map((version) => (
-                        <TabsContent key={version} value={version} className="mt-0">
-                          <Accordion type="single" collapsible className="w-full">
-                            {/* Email */}
-                            {(lead as any).outreach_messages[version]?.email && (
-                              <AccordionItem value="email">
-                                <AccordionTrigger className="text-sm">
-                                  <span className="flex items-center gap-2">
-                                    <Mail className="h-4 w-4" />
-                                    Email
-                                  </span>
-                                </AccordionTrigger>
-                                <AccordionContent>
-                                  <div className="space-y-2">
-                                    <div className="text-xs text-muted-foreground font-medium">Subject:</div>
-                                    <p className="text-sm bg-muted/50 p-2 rounded">{(lead as any).outreach_messages[version].email.subject}</p>
-                                    <div className="text-xs text-muted-foreground font-medium mt-2">Body:</div>
-                                    <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages[version].email.body}</p>
-                                    <Button 
-                                      variant="outline" 
-                                      size="sm" 
-                                      className="w-full mt-2"
-                                      onClick={() => {
-                                        const text = `Subject: ${(lead as any).outreach_messages[version].email.subject}\n\n${(lead as any).outreach_messages[version].email.body}`;
-                                        navigator.clipboard.writeText(text);
-                                        setCopiedMessage(`email-${version}`);
-                                        setTimeout(() => setCopiedMessage(null), 2000);
-                                      }}
-                                    >
-                                      {copiedMessage === `email-${version}` ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
-                                      {copiedMessage === `email-${version}` ? 'Copied!' : 'Copy'}
-                                    </Button>
-                                  </div>
-                                </AccordionContent>
-                              </AccordionItem>
-                            )}
-                            
-                            {/* LinkedIn */}
-                            {(lead as any).outreach_messages[version]?.linkedin && (
-                              <AccordionItem value="linkedin">
-                                <AccordionTrigger className="text-sm">
-                                  <span className="flex items-center gap-2">
-                                    <Linkedin className="h-4 w-4" />
-                                    LinkedIn
-                                  </span>
-                                </AccordionTrigger>
-                                <AccordionContent>
-                                  <div className="space-y-3">
-                                    {(lead as any).outreach_messages[version].linkedin.connection_note && (
-                                      <div>
-                                        <div className="text-xs text-muted-foreground font-medium mb-1">Connection Note:</div>
-                                        <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages[version].linkedin.connection_note}</p>
-                                      </div>
-                                    )}
-                                    {(lead as any).outreach_messages[version].linkedin.follow_up && (
-                                      <div>
-                                        <div className="text-xs text-muted-foreground font-medium mb-1">Follow-up:</div>
-                                        <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages[version].linkedin.follow_up}</p>
-                                      </div>
-                                    )}
-                                  </div>
-                                  <div className="flex gap-2 mt-2">
-                                    <Button 
-                                      variant="outline" 
-                                      size="sm" 
-                                      className="flex-1"
-                                      onClick={() => {
-                                        const linkedinMsg = (lead as any).outreach_messages[version].linkedin;
-                                        const text = `Connection Note:\n${linkedinMsg.connection_note || ''}\n\nFollow-up:\n${linkedinMsg.follow_up || ''}`;
-                                        navigator.clipboard.writeText(text);
-                                        setCopiedMessage(`linkedin-${version}`);
-                                        setTimeout(() => setCopiedMessage(null), 2000);
-                                      }}
-                                    >
-                                      {copiedMessage === `linkedin-${version}` ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
-                                      {copiedMessage === `linkedin-${version}` ? 'Copied!' : 'Copy'}
-                                    </Button>
-                                    {(lead as any).linkedin_profile && (
-                                      <Button 
-                                        variant="default" 
-                                        size="sm" 
-                                        className="flex-1"
-                                        onClick={() => window.open((lead as any).linkedin_profile, '_blank')}
-                                      >
-                                        <Linkedin className="h-3 w-3 mr-1" />
-                                        Open
-                                      </Button>
-                                    )}
-                                  </div>
-                                </AccordionContent>
-                              </AccordionItem>
-                            )}
-                            
-                            {/* WhatsApp */}
-                            {(lead as any).outreach_messages[version]?.whatsapp && (
-                              <AccordionItem value="whatsapp">
-                                <AccordionTrigger className="text-sm">
-                                  <span className="flex items-center gap-2">
-                                    <MessageCircle className="h-4 w-4" />
-                                    WhatsApp
-                                  </span>
-                                </AccordionTrigger>
-                                <AccordionContent>
-                                  <div className="space-y-3">
-                                    {(lead as any).outreach_messages[version].whatsapp.initial && (
-                                      <div>
-                                        <div className="text-xs text-muted-foreground font-medium mb-1">Initial:</div>
-                                        <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages[version].whatsapp.initial}</p>
-                                      </div>
-                                    )}
-                                    {(lead as any).outreach_messages[version].whatsapp.follow_up && (
-                                      <div>
-                                        <div className="text-xs text-muted-foreground font-medium mb-1">Follow-up:</div>
-                                        <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages[version].whatsapp.follow_up}</p>
-                                      </div>
-                                    )}
-                                  </div>
-                                  <Button 
-                                    variant="outline" 
-                                    size="sm" 
-                                    className="w-full mt-2"
-                                    onClick={() => {
-                                      const waMsg = (lead as any).outreach_messages[version].whatsapp;
-                                      const text = `Initial:\n${waMsg.initial || ''}\n\nFollow-up:\n${waMsg.follow_up || ''}`;
-                                      navigator.clipboard.writeText(text);
-                                      setCopiedMessage(`whatsapp-${version}`);
-                                      setTimeout(() => setCopiedMessage(null), 2000);
-                                    }}
-                                  >
-                                    {copiedMessage === `whatsapp-${version}` ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
-                                    {copiedMessage === `whatsapp-${version}` ? 'Copied!' : 'Copy'}
-                                  </Button>
-                                </AccordionContent>
-                              </AccordionItem>
-                            )}
-                          </Accordion>
-                        </TabsContent>
-                      ))}
-                      
-                      {/* Custom Tab */}
-                      <TabsContent value="custom" className="mt-0">
-                        <div className="space-y-4">
-                          {/* Email */}
-                          <div className="space-y-2">
-                            <Label className="flex items-center gap-2 text-sm font-medium">
-                              <Mail className="h-4 w-4" />
-                              Email
-                            </Label>
-                            <Input
-                              placeholder="Subject..."
-                              value={customMessage.email.subject}
-                              onChange={(e) => setCustomMessage(prev => ({
-                                ...prev,
-                                email: { ...prev.email, subject: e.target.value }
-                              }))}
-                            />
-                            <Textarea
-                              placeholder="Write your email message..."
-                              value={customMessage.email.body}
-                              onChange={(e) => setCustomMessage(prev => ({
-                                ...prev,
-                                email: { ...prev.email, body: e.target.value }
-                              }))}
-                              rows={4}
-                            />
-                          </div>
-                          
-                          {/* LinkedIn */}
-                          <div className="space-y-2">
-                            <Label className="flex items-center gap-2 text-sm font-medium">
-                              <Linkedin className="h-4 w-4" />
-                              LinkedIn
-                            </Label>
-                            <Textarea
-                              placeholder="Write your LinkedIn message..."
-                              value={customMessage.linkedin}
-                              onChange={(e) => setCustomMessage(prev => ({
-                                ...prev,
-                                linkedin: e.target.value
-                              }))}
-                              rows={3}
-                            />
-                          </div>
-                          
-                          {/* WhatsApp */}
-                          <div className="space-y-2">
-                            <Label className="flex items-center gap-2 text-sm font-medium">
-                              <MessageCircle className="h-4 w-4" />
-                              WhatsApp
-                            </Label>
-                            <Textarea
-                              placeholder="Write your WhatsApp message..."
-                              value={customMessage.whatsapp}
-                              onChange={(e) => setCustomMessage(prev => ({
-                                ...prev,
-                                whatsapp: e.target.value
-                              }))}
-                              rows={3}
-                            />
-                          </div>
-                          
-                          <Button
-                            onClick={handleSaveCustomMessage}
-                            disabled={savingCustom}
-                            className="w-full"
-                          >
-                            {savingCustom ? 'Saving...' : 'Save Custom Messages'}
-                          </Button>
-                        </div>
-                      </TabsContent>
-                    </Tabs>
-                  ) : (
-                    /* Legacy format - backward compatible */
-                    <Accordion type="single" collapsible className="w-full">
-                      {(lead as any).outreach_messages.email && (
-                        <AccordionItem value="email">
-                          <AccordionTrigger className="text-sm">
-                            <span className="flex items-center gap-2">
-                              <Mail className="h-4 w-4" />
-                              Email
-                            </span>
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <div className="space-y-2">
-                              <div className="text-xs text-muted-foreground font-medium">Subject:</div>
-                              <p className="text-sm bg-muted/50 p-2 rounded">{(lead as any).outreach_messages.email.subject}</p>
-                              <div className="text-xs text-muted-foreground font-medium mt-2">Body:</div>
-                              <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.email.body}</p>
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="w-full mt-2"
-                                onClick={() => {
-                                  const text = `Subject: ${(lead as any).outreach_messages.email.subject}\n\n${(lead as any).outreach_messages.email.body}`;
-                                  navigator.clipboard.writeText(text);
-                                  setCopiedMessage('email');
-                                  setTimeout(() => setCopiedMessage(null), 2000);
-                                }}
-                              >
-                                {copiedMessage === 'email' ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
-                                {copiedMessage === 'email' ? 'Copied!' : 'Copy'}
-                              </Button>
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      )}
-                      {(lead as any).outreach_messages.linkedin && (
-                        <AccordionItem value="linkedin">
-                          <AccordionTrigger className="text-sm">
-                            <span className="flex items-center gap-2">
-                              <Linkedin className="h-4 w-4" />
-                              LinkedIn
-                            </span>
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            {typeof (lead as any).outreach_messages.linkedin === 'string' ? (
-                              <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.linkedin}</p>
-                            ) : (
-                              <div className="space-y-3">
-                                {(lead as any).outreach_messages.linkedin.connection_note && (
-                                  <div>
-                                    <div className="text-xs text-muted-foreground font-medium mb-1">Connection Note:</div>
-                                    <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.linkedin.connection_note}</p>
-                                  </div>
-                                )}
-                                {(lead as any).outreach_messages.linkedin.follow_up && (
-                                  <div>
-                                    <div className="text-xs text-muted-foreground font-medium mb-1">Follow-up:</div>
-                                    <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.linkedin.follow_up}</p>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                            <div className="flex gap-2 mt-2">
-                              <Button 
-                                variant="outline" 
-                                size="sm" 
-                                className="flex-1"
-                                onClick={() => {
-                                  const linkedinMsg = (lead as any).outreach_messages.linkedin;
-                                  const text = typeof linkedinMsg === 'string' 
-                                    ? linkedinMsg 
-                                    : `Connection Note:\n${linkedinMsg.connection_note || ''}\n\nFollow-up:\n${linkedinMsg.follow_up || ''}`;
-                                  navigator.clipboard.writeText(text);
-                                  setCopiedMessage('linkedin');
-                                  setTimeout(() => setCopiedMessage(null), 2000);
-                                }}
-                              >
-                                {copiedMessage === 'linkedin' ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
-                                {copiedMessage === 'linkedin' ? 'Copied!' : 'Copy'}
-                              </Button>
-                              {(lead as any).linkedin_profile && (
-                                <Button 
-                                  variant="default" 
-                                  size="sm" 
-                                  className="flex-1"
-                                  onClick={() => window.open((lead as any).linkedin_profile, '_blank')}
-                                >
-                                  <Linkedin className="h-3 w-3 mr-1" />
-                                  Open
-                                </Button>
-                              )}
-                            </div>
-                          </AccordionContent>
-                        </AccordionItem>
-                      )}
-                      {(lead as any).outreach_messages.whatsapp && (
-                        <AccordionItem value="whatsapp">
-                          <AccordionTrigger className="text-sm">
-                            <span className="flex items-center gap-2">
-                              <MessageCircle className="h-4 w-4" />
-                              WhatsApp
-                            </span>
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            {typeof (lead as any).outreach_messages.whatsapp === 'string' ? (
-                              <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.whatsapp}</p>
-                            ) : (
-                              <div className="space-y-3">
-                                {(lead as any).outreach_messages.whatsapp.initial && (
-                                  <div>
-                                    <div className="text-xs text-muted-foreground font-medium mb-1">Initial:</div>
-                                    <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.whatsapp.initial}</p>
-                                  </div>
-                                )}
-                                {(lead as any).outreach_messages.whatsapp.follow_up && (
-                                  <div>
-                                    <div className="text-xs text-muted-foreground font-medium mb-1">Follow-up:</div>
-                                    <p className="text-sm bg-muted/50 p-2 rounded whitespace-pre-wrap">{(lead as any).outreach_messages.whatsapp.follow_up}</p>
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                            <Button 
-                              variant="outline" 
-                              size="sm" 
-                              className="w-full mt-2"
-                              onClick={() => {
-                                const waMsg = (lead as any).outreach_messages.whatsapp;
-                                const text = typeof waMsg === 'string' 
-                                  ? waMsg 
-                                  : `Initial:\n${waMsg.initial || ''}\n\nFollow-up:\n${waMsg.follow_up || ''}`;
-                                navigator.clipboard.writeText(text);
-                                setCopiedMessage('whatsapp');
-                                setTimeout(() => setCopiedMessage(null), 2000);
-                              }}
-                            >
-                              {copiedMessage === 'whatsapp' ? <Check className="h-3 w-3 mr-1" /> : <Copy className="h-3 w-3 mr-1" />}
-                              {copiedMessage === 'whatsapp' ? 'Copied!' : 'Copy'}
-                            </Button>
-                          </AccordionContent>
-                        </AccordionItem>
-                      )}
-                    </Accordion>
-                  )}
-                </CardContent>
-              </Card>
-            ) : stageVisibility.outreachMessages ? (
-              <Card>
-                <CardHeader className="pb-2">
-                  <CardTitle className="text-lg flex items-center gap-2">
-                    <MessageCircle className="h-4 w-4" />
-                    Outreach Messages
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-center py-6 text-muted-foreground">
-                    <MessageCircle className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                    <p className="text-sm mb-3">No outreach messages generated yet</p>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={handleRegenerateMessages}
-                      disabled={regeneratingMessages}
-                    >
-                      <RefreshCw className={`h-4 w-4 mr-2 ${regeneratingMessages ? 'animate-spin' : ''}`} />
-                      {regeneratingMessages ? 'Generating...' : 'Generate Messages'}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ) : null}
           </div>
       </div>
 
