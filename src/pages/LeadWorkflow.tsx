@@ -249,52 +249,52 @@ const LeadWorkflow = () => {
 
   return (
     <>
-      <div className="space-y-4 pb-6">
+      <Card className="p-6">
+        <div className="space-y-4">
 
-        {/* Header */}
-        <div>
-          <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-            <Target className="h-6 w-6 text-primary" />
-            Lead Workflow
-          </h1>
-          <p className="text-muted-foreground text-sm">
-            From import to customer conversion
-          </p>
-        </div>
+          {/* Header */}
+          <div>
+            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+              <Target className="h-6 w-6 text-primary" />
+              Lead Workflow
+            </h1>
+            <p className="text-muted-foreground text-sm">
+              From import to customer conversion
+            </p>
+          </div>
 
-        {/* Floating Action Buttons */}
-        <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
-          <Button
-            size="lg"
-            variant="outline"
-            className="rounded-full shadow-lg bg-background hover:bg-muted h-12 w-12 p-0"
-            onClick={() => setShowOutreachDialog(true)}
-            title="Import"
-          >
-            <Upload className="h-5 w-5" />
-          </Button>
-          <Button
-            size="lg"
-            variant="outline"
-            className="rounded-full shadow-lg bg-background hover:bg-muted h-12 w-12 p-0"
-            onClick={() => setShowCampaignDialog(true)}
-            title="New Campaign"
-          >
-            <FolderKanban className="h-5 w-5" />
-          </Button>
-          <Button
-            size="lg"
-            className="rounded-full shadow-lg h-14 w-14 p-0"
-            onClick={() => setShowCreateDialog(true)}
-            title="Add Lead"
-          >
-            <Plus className="h-6 w-6" />
-          </Button>
-        </div>
+          {/* Floating Action Buttons */}
+          <div className="fixed bottom-6 right-6 z-50 flex flex-col gap-3">
+            <Button
+              size="lg"
+              variant="outline"
+              className="rounded-full shadow-lg bg-background hover:bg-muted h-12 w-12 p-0"
+              onClick={() => setShowOutreachDialog(true)}
+              title="Import"
+            >
+              <Upload className="h-5 w-5" />
+            </Button>
+            <Button
+              size="lg"
+              variant="outline"
+              className="rounded-full shadow-lg bg-background hover:bg-muted h-12 w-12 p-0"
+              onClick={() => setShowCampaignDialog(true)}
+              title="New Campaign"
+            >
+              <FolderKanban className="h-5 w-5" />
+            </Button>
+            <Button
+              size="lg"
+              className="rounded-full shadow-lg h-14 w-14 p-0"
+              onClick={() => setShowCreateDialog(true)}
+              title="Add Lead"
+            >
+              <Plus className="h-6 w-6" />
+            </Button>
+          </div>
 
-
-        {/* Main Tabs: Pipeline & Campaigns */}
-        <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'pipeline' | 'campaigns')}>
+          {/* Main Tabs: Pipeline & Campaigns */}
+          <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'pipeline' | 'campaigns')}>
           <TabsList>
             <TabsTrigger value="pipeline" className="gap-2">
               <LayoutGrid className="h-4 w-4" />
@@ -726,9 +726,10 @@ const LeadWorkflow = () => {
               </div>
             )}
           </TabsContent>
-        </Tabs>
+          </Tabs>
 
-      </div>
+        </div>
+      </Card>
 
 
       {/* Dialogs */}
