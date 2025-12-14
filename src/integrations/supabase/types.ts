@@ -1629,6 +1629,93 @@ export type Database = {
         }
         Relationships: []
       }
+      lead_workflow_settings: {
+        Row: {
+          created_at: string
+          id: string
+          is_enabled: boolean
+          setting_key: string
+          setting_value: Json
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          setting_key: string
+          setting_value?: Json
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_enabled?: boolean
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      lead_workflow_steps: {
+        Row: {
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          id: string
+          lead_id: string
+          notes: string | null
+          started_at: string | null
+          status: string
+          step_key: string
+          step_name: string
+          step_order: number
+          updated_at: string
+        }
+        Insert: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          id?: string
+          lead_id: string
+          notes?: string | null
+          started_at?: string | null
+          status?: string
+          step_key: string
+          step_name: string
+          step_order: number
+          updated_at?: string
+        }
+        Update: {
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          id?: string
+          lead_id?: string
+          notes?: string | null
+          started_at?: string | null
+          status?: string
+          step_key?: string
+          step_name?: string
+          step_order?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lead_workflow_steps_completed_by_fkey"
+            columns: ["completed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_workflow_steps_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       leads: {
         Row: {
           assigned_to: string | null
