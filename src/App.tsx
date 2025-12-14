@@ -75,6 +75,7 @@ import QuickReference from '@/pages/QuickReference';
 import QuickNotes from '@/pages/QuickNotes';
 import Leads from '@/pages/Leads';
 import LeadDetail from '@/pages/LeadDetail';
+import LeadWorkflow from '@/pages/LeadWorkflow';
 import BankPainAnalysis from '@/pages/BankPainAnalysis';
 import AccessManagement from '@/pages/AccessManagement';
 import ErrorTracker from '@/utils/errorTracking';
@@ -741,6 +742,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Lead Detail">
                           <LeadDetail />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/lead-workflow" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Lead Workflow">
+                          <LeadWorkflow />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
