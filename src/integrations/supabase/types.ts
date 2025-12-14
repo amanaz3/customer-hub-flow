@@ -14,6 +14,78 @@ export type Database = {
   }
   public: {
     Tables: {
+      access_management_settings: {
+        Row: {
+          conflict_strategy: Database["public"]["Enums"]["access_conflict_strategy"]
+          created_at: string
+          expiry_behavior: Database["public"]["Enums"]["access_expiry_behavior"]
+          id: string
+          updated_at: string
+        }
+        Insert: {
+          conflict_strategy?: Database["public"]["Enums"]["access_conflict_strategy"]
+          created_at?: string
+          expiry_behavior?: Database["public"]["Enums"]["access_expiry_behavior"]
+          id?: string
+          updated_at?: string
+        }
+        Update: {
+          conflict_strategy?: Database["public"]["Enums"]["access_conflict_strategy"]
+          created_at?: string
+          expiry_behavior?: Database["public"]["Enums"]["access_expiry_behavior"]
+          id?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      access_permissions: {
+        Row: {
+          created_at: string
+          created_by: string | null
+          end_date: string | null
+          feature_key: string | null
+          id: string
+          is_allowed: boolean
+          is_sensitive: boolean
+          page_key: string
+          reason: string | null
+          role: Database["public"]["Enums"]["app_role"] | null
+          start_date: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          feature_key?: string | null
+          id?: string
+          is_allowed?: boolean
+          is_sensitive?: boolean
+          page_key: string
+          reason?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
+          start_date?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          created_by?: string | null
+          end_date?: string | null
+          feature_key?: string | null
+          id?: string
+          is_allowed?: boolean
+          is_sensitive?: boolean
+          page_key?: string
+          reason?: string | null
+          role?: Database["public"]["Enums"]["app_role"] | null
+          start_date?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       account_applications: {
         Row: {
           application_assessment: Json | null
@@ -3127,6 +3199,10 @@ export type Database = {
           completion_rate: number
         }[]
       }
+      check_page_access: {
+        Args: { _feature_key?: string; _page_key: string; _user_id: string }
+        Returns: boolean
+      }
       cleanup_deleted_users: {
         Args: never
         Returns: {
@@ -3264,6 +3340,15 @@ export type Database = {
       validate_session_security: { Args: never; Returns: boolean }
     }
     Enums: {
+      access_conflict_strategy:
+        | "user_overrides_role"
+        | "most_restrictive"
+        | "most_permissive"
+        | "admin_review"
+      access_expiry_behavior:
+        | "auto_revoke_silent"
+        | "auto_revoke_notify"
+        | "flag_for_review"
       app_role: "admin" | "user" | "manager"
       application_status:
         | "draft"
@@ -3471,6 +3556,17 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      access_conflict_strategy: [
+        "user_overrides_role",
+        "most_restrictive",
+        "most_permissive",
+        "admin_review",
+      ],
+      access_expiry_behavior: [
+        "auto_revoke_silent",
+        "auto_revoke_notify",
+        "flag_for_review",
+      ],
       app_role: ["admin", "user", "manager"],
       application_status: [
         "draft",

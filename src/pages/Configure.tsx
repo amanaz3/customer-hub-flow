@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Shield, BookOpen, UserCog, Building2, Flag, DollarSign, Settings2, Box, Target, CalendarClock, ListChecks } from "lucide-react";
+import { Users, MessageSquare, Shield, BookOpen, UserCog, Building2, Flag, DollarSign, Settings2, Box, Target, CalendarClock, ListChecks, KeyRound } from "lucide-react";
 import { LeadSettingsDialog } from "@/components/Lead/LeadSettingsDialog";
 import { FollowupSequenceConfig } from "@/components/Lead/FollowupSequenceConfig";
 import { LeadReminderScheduleDialog } from "@/components/Lead/LeadReminderScheduleDialog";
@@ -61,6 +61,16 @@ const Manage = () => {
               <div>
                 <p className="font-medium text-sm">Help Editor</p>
                 <p className="text-xs text-muted-foreground">Manage help content and documentation</p>
+              </div>
+            </div>
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => navigate('/access-management')}
+            >
+              <KeyRound className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">Access Management</p>
+                <p className="text-xs text-muted-foreground">Granular page and feature access control</p>
               </div>
             </div>
           </CardContent>
