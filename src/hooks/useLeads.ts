@@ -604,6 +604,9 @@ export const useLeadActivities = (leadId: string | undefined) => {
     fetchActivities();
   }, [fetchActivities]);
 
+  // Activity types that trigger auto-move to Propose stage
+  const PROPOSE_TRIGGER_ACTIVITIES = ['replied', 'interested', 'asked_pricing'];
+
   const addActivity = async (activityData: {
     activity_type: string;
     description?: string | null;
@@ -616,18 +619,31 @@ export const useLeadActivities = (leadId: string | undefined) => {
 
       if (error) throw error;
       
-      // Update last_contacted_at on lead
+      // Update last_contacted_at on lead (except for notes)
       if (activityData.activity_type !== 'note') {
         await supabase
           .from('leads')
           .update({ last_contacted_at: new Date().toISOString() })
           .eq('id', leadId);
       }
-      
-      toast({
-        title: 'Success',
-        description: 'Activity logged successfully',
-      });
+
+      // Auto-move to Propose stage if trigger activity logged
+      if (PROPOSE_TRIGGER_ACTIVITIES.includes(activityData.activity_type)) {
+        await supabase
+          .from('leads')
+          .update({ status: 'proposal' })
+          .eq('id', leadId);
+        
+        toast({
+          title: 'Lead Moved to Propose',
+          description: `Lead automatically moved to Propose stage based on "${activityData.activity_type}" activity`,
+        });
+      } else {
+        toast({
+          title: 'Success',
+          description: 'Activity logged successfully',
+        });
+      }
       
       await fetchActivities();
       return true;

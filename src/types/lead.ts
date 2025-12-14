@@ -70,7 +70,14 @@ export const ACTIVITY_TYPES = [
   { value: 'email', label: 'Email', icon: 'Mail' },
   { value: 'meeting', label: 'Meeting', icon: 'Users' },
   { value: 'note', label: 'Note', icon: 'FileText' },
+  // Trigger activities - auto-move to Propose stage
+  { value: 'replied', label: 'Lead Replied', icon: 'MessageSquare', triggersPropose: true },
+  { value: 'interested', label: 'Marked Interested', icon: 'ThumbsUp', triggersPropose: true },
+  { value: 'asked_pricing', label: 'Asked for Pricing', icon: 'DollarSign', triggersPropose: true },
 ] as const;
+
+// Activity types that trigger auto-move to Propose stage
+export const PROPOSE_TRIGGER_ACTIVITIES = ['replied', 'interested', 'asked_pricing'] as const;
 
 export const LEAD_SOURCES = [
   'Website',
