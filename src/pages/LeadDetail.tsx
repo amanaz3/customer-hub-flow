@@ -1173,31 +1173,53 @@ export default function LeadDetail() {
 
           {/* Right Column - Lead Info (Compact) */}
           <div className="space-y-3">
+            {/* Quick Info - moved to top */}
             <Card className="p-3">
               <CardHeader className="p-0 pb-2">
-                <CardTitle className="text-sm flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Quick Info
-                </CardTitle>
+                <CardTitle className="text-sm">Quick Info</CardTitle>
               </CardHeader>
-              <CardContent className="p-0">
-                <div className="grid grid-cols-2 gap-x-3 gap-y-1 text-xs">
-                  <div className="flex items-center gap-1 text-muted-foreground">
-                    <Mail className="h-3 w-3" />
-                    <span className="truncate">{lead.email || 'N/A'}</span>
+              <CardContent className="p-0 space-y-1.5 text-xs">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Created</span>
+                  <span>{format(new Date(lead.created_at), 'MMM d, yyyy')}</span>
+                </div>
+                {lead.last_contacted_at && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Last Contacted</span>
+                    <span>
+                      {formatDistanceToNow(new Date(lead.last_contacted_at), { addSuffix: true })}
+                    </span>
                   </div>
-                  <div className="flex items-center gap-1 text-muted-foreground">
-                    <Phone className="h-3 w-3" />
-                    <span>{lead.mobile || 'N/A'}</span>
+                )}
+                {lead.next_follow_up && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">Next Follow-up</span>
+                    <span>{format(new Date(lead.next_follow_up), 'MMM d, yyyy')}</span>
                   </div>
-                  <div className="flex items-center gap-1 text-muted-foreground">
-                    <Building2 className="h-3 w-3" />
-                    <span className="truncate">{lead.company || 'N/A'}</span>
+                )}
+                {isConverted && lead.converted_at && (
+                  <div className="flex justify-between text-green-600">
+                    <span>Converted</span>
+                    <span>{format(new Date(lead.converted_at), 'MMM d, yyyy')}</span>
                   </div>
-                  <div className="flex items-center gap-1 text-muted-foreground">
-                    <span className="font-medium">AED</span>
-                    <span>{lead.estimated_value?.toLocaleString() || 'N/A'}</span>
-                  </div>
+                )}
+                <div className="flex justify-between pt-1 border-t">
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <Mail className="h-3 w-3" /> Email
+                  </span>
+                  <span className="truncate max-w-[120px]">{lead.email || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <Phone className="h-3 w-3" /> Phone
+                  </span>
+                  <span>{lead.mobile || 'N/A'}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    <Building2 className="h-3 w-3" /> Company
+                  </span>
+                  <span className="truncate max-w-[120px]">{lead.company || 'N/A'}</span>
                 </div>
               </CardContent>
             </Card>
@@ -1457,42 +1479,6 @@ export default function LeadDetail() {
                 </CardContent>
               </Card>
             )}
-
-            {/* Quick Info - always visible */}
-            {stageVisibility.quickInfo && (
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Quick Info</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-3 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-muted-foreground">Created</span>
-                    <span>{format(new Date(lead.created_at), 'MMM d, yyyy')}</span>
-                  </div>
-                  {lead.last_contacted_at && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Last Contacted</span>
-                      <span>
-                        {formatDistanceToNow(new Date(lead.last_contacted_at), { addSuffix: true })}
-                      </span>
-                    </div>
-                  )}
-                  {lead.next_follow_up && (
-                    <div className="flex justify-between">
-                      <span className="text-muted-foreground">Next Follow-up</span>
-                      <span>{format(new Date(lead.next_follow_up), 'MMM d, yyyy')}</span>
-                    </div>
-                  )}
-                  {isConverted && lead.converted_at && (
-                    <div className="flex justify-between text-green-600">
-                      <span>Converted</span>
-                      <span>{format(new Date(lead.converted_at), 'MMM d, yyyy')}</span>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
-            )}
-
           </div>
       </div>
 
