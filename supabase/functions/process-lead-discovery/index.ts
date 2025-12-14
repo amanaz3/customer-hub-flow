@@ -27,30 +27,32 @@ serve(async (req) => {
 
     const systemPrompt = `You are a data processing AI assistant specialized in lead discovery and analysis for B2B sales.
 
-Your task is to process the provided data according to the user's prompt and return the modified data.
+Your task is to process the provided data according to the user's prompt and return ONLY a valid JSON array.
 
 Context:
 - Industry: ${industry || 'Not specified'}
 - Target Product/Service: ${product || 'Not specified'}
 
-IMPORTANT RULES:
-1. You MUST return valid JSON only - no explanations, no markdown, just the JSON array
-2. Preserve the original data structure when possible
-3. For filtering: return only items that match the criteria
-4. For transformation: modify fields as requested while keeping other fields intact
-5. For curation: enrich, deduplicate, or organize data as requested
-6. If you cannot process the data, return an empty array []
+CRITICAL OUTPUT RULES:
+1. Return ONLY a valid JSON array - absolutely no other text, explanations, or formatting
+2. Do NOT use markdown code blocks
+3. Do NOT include any text before or after the JSON array
+4. The response must start with [ and end with ]
+5. Preserve the original data structure - each object should have the same fields as input
+6. Add any new classification columns as additional fields in each object
+7. If filtering, return only matching items as a JSON array
+8. If no items match, return an empty array: []
 
-The input data is a JSON array. Process it according to the user's prompt and return the resulting JSON array.`;
+The input is a JSON array of objects. Your output must also be a JSON array of objects.`;
 
-    const userMessage = `Process this data according to the following instruction:
+    const userMessage = `Process this data and return a JSON array:
 
 INSTRUCTION: ${prompt}
 
-DATA:
-${JSON.stringify(data, null, 2)}
+INPUT DATA (JSON array):
+${JSON.stringify(data)}
 
-Return ONLY the processed JSON array, no other text.`;
+RESPOND WITH ONLY THE JSON ARRAY. No explanations, no markdown, no code blocks. Start with [ and end with ].`;
 
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -80,55 +82,86 @@ Return ONLY the processed JSON array, no other text.`;
     console.log('Raw AI response length:', resultText.length);
 
     // Clean up the response - remove markdown code blocks if present
-    resultText = resultText.replace(/```json\n?/gi, '').replace(/```\n?/gi, '').trim();
+    resultText = resultText
+      .replace(/```json\s*/gi, '')
+      .replace(/```\s*/gi, '')
+      .replace(/^\s*```\s*/gm, '')
+      .trim();
 
     // Try to extract JSON array from the response
     let result;
+    
+    // First, try direct parse
     try {
       result = JSON.parse(resultText);
+      console.log('Direct parse succeeded');
     } catch (parseError) {
-      console.log('Initial parse failed, attempting to extract JSON array...');
+      console.log('Initial parse failed, attempting extraction...');
       
-      // Try to find JSON array in the response
-      const arrayMatch = resultText.match(/\[[\s\S]*\]/);
-      if (arrayMatch) {
+      // Find the first [ and last ] to extract the array
+      const firstBracket = resultText.indexOf('[');
+      const lastBracket = resultText.lastIndexOf(']');
+      
+      if (firstBracket !== -1 && lastBracket > firstBracket) {
+        let jsonCandidate = resultText.substring(firstBracket, lastBracket + 1);
+        console.log('Extracted JSON candidate length:', jsonCandidate.length);
+        
+        // Clean common issues
+        jsonCandidate = jsonCandidate
+          .replace(/,\s*]/g, ']')  // Remove trailing commas in arrays
+          .replace(/,\s*}/g, '}')  // Remove trailing commas in objects
+          .replace(/[\x00-\x1F\x7F]/g, ' ')  // Remove control characters
+          .replace(/\n\s*\n/g, '\n')  // Remove double newlines
+          .replace(/\\n/g, ' ')  // Replace escaped newlines with space
+          .replace(/\t/g, ' ');  // Replace tabs with space
+        
         try {
-          result = JSON.parse(arrayMatch[0]);
-          console.log('Successfully extracted JSON array');
-        } catch (e) {
-          // Try to fix common JSON issues
-          let cleaned = arrayMatch[0]
-            .replace(/,\s*]/g, ']') // Remove trailing commas
-            .replace(/,\s*}/g, '}') // Remove trailing commas in objects
-            .replace(/[\x00-\x1F\x7F]/g, ' '); // Remove control characters
+          result = JSON.parse(jsonCandidate);
+          console.log('Cleaned JSON parse succeeded, items:', Array.isArray(result) ? result.length : 1);
+        } catch (e2) {
+          console.error('JSON parse still failed after cleaning');
+          console.error('First 1000 chars:', jsonCandidate.substring(0, 1000));
+          console.error('Last 500 chars:', jsonCandidate.substring(jsonCandidate.length - 500));
           
-          try {
-            result = JSON.parse(cleaned);
-            console.log('Successfully parsed cleaned JSON');
-          } catch (e2) {
-            console.error('Failed to parse even after cleaning:', e2.message);
-            console.error('First 500 chars of response:', resultText.substring(0, 500));
-            throw new Error('AI returned invalid JSON - unable to extract valid array');
+          // Last resort: try to parse incrementally to find valid portion
+          let validResult = null;
+          for (let endPos = jsonCandidate.length; endPos > 100; endPos -= 100) {
+            const partial = jsonCandidate.substring(0, endPos);
+            // Try to close any open structures
+            const openBrackets = (partial.match(/\[/g) || []).length;
+            const closeBrackets = (partial.match(/\]/g) || []).length;
+            const openBraces = (partial.match(/\{/g) || []).length;
+            const closeBraces = (partial.match(/\}/g) || []).length;
+            
+            let attempt = partial;
+            for (let i = 0; i < openBraces - closeBraces; i++) attempt += '}';
+            for (let i = 0; i < openBrackets - closeBrackets; i++) attempt += ']';
+            
+            try {
+              validResult = JSON.parse(attempt);
+              console.log('Partial parse succeeded at position:', endPos);
+              break;
+            } catch (e) {
+              continue;
+            }
+          }
+          
+          if (validResult) {
+            result = validResult;
+          } else {
+            throw new Error('AI returned invalid JSON - could not extract valid array');
           }
         }
       } else {
-        // Check if it's a single object
-        const objectMatch = resultText.match(/\{[\s\S]*\}/);
-        if (objectMatch) {
-          try {
-            const obj = JSON.parse(objectMatch[0]);
-            result = [obj]; // Wrap single object in array
-            console.log('Wrapped single object in array');
-          } catch (e) {
-            console.error('Failed to parse as object either');
-            throw new Error('AI returned invalid JSON');
-          }
-        } else {
-          console.error('No JSON structure found in response');
-          console.error('Response preview:', resultText.substring(0, 500));
-          throw new Error('AI returned invalid JSON - no array or object found');
-        }
+        console.error('No JSON array structure found in response');
+        console.error('Response preview:', resultText.substring(0, 500));
+        throw new Error('AI returned invalid JSON - no array found');
       }
+    }
+    
+    // Ensure result is an array
+    if (!Array.isArray(result)) {
+      result = [result];
     }
 
     const executionTime = Date.now() - startTime;
