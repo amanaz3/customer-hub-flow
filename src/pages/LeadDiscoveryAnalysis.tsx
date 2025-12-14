@@ -16,12 +16,13 @@ import { toast } from 'sonner';
 import { 
   Upload, Play, Save, Plus, FileSpreadsheet, Building2, 
   Package, ChevronRight, Clock, CheckCircle, XCircle, Loader2,
-  Sparkles, History, Settings, Send, Trash2, List, ArrowLeft, Eye, Download
+  Sparkles, History, Settings, Send, Trash2, List, ArrowLeft, Eye, Download, User
 } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
+import { UserSelector } from '@/components/Customer/UserSelector';
 
 const LeadDiscoveryAnalysis = () => {
   const {
@@ -56,6 +57,8 @@ const LeadDiscoveryAnalysis = () => {
   // New session form
   const [newSessionName, setNewSessionName] = useState('');
   const [newSessionIndustry, setNewSessionIndustry] = useState('');
+  const [newSessionCampaignName, setNewSessionCampaignName] = useState('');
+  const [newSessionAssignedTo, setNewSessionAssignedTo] = useState('');
   // Removed: product selection now happens after filtering
   const [uploadedData, setUploadedData] = useState<any>(null);
   const [uploadedFileName, setUploadedFileName] = useState('');
@@ -147,6 +150,8 @@ const LeadDiscoveryAnalysis = () => {
       const result = await createSession.mutateAsync({
         session_name: newSessionName,
         industry_id: newSessionIndustry,
+        campaign_name: newSessionCampaignName || undefined,
+        assigned_to: newSessionAssignedTo || undefined,
         original_data: uploadedData,
         uploaded_file_name: uploadedFileName || undefined
       });
@@ -154,6 +159,8 @@ const LeadDiscoveryAnalysis = () => {
       setShowNewSessionDialog(false);
       setNewSessionName('');
       setNewSessionIndustry('');
+      setNewSessionCampaignName('');
+      setNewSessionAssignedTo('');
       setUploadedData(null);
       setUploadedFileName('');
       
@@ -566,21 +573,39 @@ const LeadDiscoveryAnalysis = () => {
                   />
                 </div>
                 <div>
-                  <Label>Industry *</Label>
-                  <Select value={newSessionIndustry} onValueChange={setNewSessionIndustry}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select industry" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {industries.map(ind => (
-                        <SelectItem key={ind.id} value={ind.id}>{ind.name}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    You'll select which service to apply after filtering your data
-                  </p>
+                  <Label>Campaign Name</Label>
+                  <Input 
+                    value={newSessionCampaignName} 
+                    onChange={(e) => setNewSessionCampaignName(e.target.value)}
+                    placeholder="e.g., Q1 Real Estate Outreach"
+                  />
                 </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div>
+                    <Label>Industry *</Label>
+                    <Select value={newSessionIndustry} onValueChange={setNewSessionIndustry}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select industry" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {industries.map(ind => (
+                          <SelectItem key={ind.id} value={ind.id}>{ind.name}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div>
+                    <Label>Assign To</Label>
+                    <UserSelector
+                      value={newSessionAssignedTo}
+                      onValueChange={setNewSessionAssignedTo}
+                      placeholder="Select user"
+                    />
+                  </div>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  You'll select which service to apply after filtering your data
+                </p>
                 <div>
                   <Label>Upload Data (Excel/CSV)</Label>
                   <div className="mt-2">
@@ -638,7 +663,12 @@ const LeadDiscoveryAnalysis = () => {
                           <div className="flex items-start justify-between">
                             <div className="flex-1 min-w-0">
                               <p className="font-medium truncate">{session.session_name}</p>
-                              <div className="flex items-center gap-2 mt-1">
+                              {session.campaign_name && (
+                                <p className="text-xs text-muted-foreground truncate">
+                                  {session.campaign_name}
+                                </p>
+                              )}
+                              <div className="flex items-center flex-wrap gap-1 mt-1">
                                 <Badge variant="outline" className="text-xs">
                                   {session.industry?.name || 'Unknown'}
                                 </Badge>
@@ -649,9 +679,15 @@ const LeadDiscoveryAnalysis = () => {
                                   </Badge>
                                 )}
                               </div>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                {format(new Date(session.created_at), 'MMM d, yyyy')}
-                              </p>
+                              <div className="flex items-center gap-2 mt-1 text-xs text-muted-foreground">
+                                <span>{format(new Date(session.created_at), 'MMM d, yyyy')}</span>
+                                {session.assigned_user && (
+                                  <span className="flex items-center gap-1">
+                                    <User className="h-3 w-3" />
+                                    {session.assigned_user.name}
+                                  </span>
+                                )}
+                              </div>
                             </div>
                             {getStatusBadge(session.status)}
                           </div>

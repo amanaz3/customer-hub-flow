@@ -16,6 +16,8 @@ export interface DiscoverySession {
   industry_id: string;
   product_id: string | null;
   session_name: string;
+  campaign_name: string | null;
+  assigned_to: string | null;
   uploaded_file_name: string | null;
   uploaded_file_path: string | null;
   original_data: any;
@@ -26,6 +28,7 @@ export interface DiscoverySession {
   updated_at: string;
   industry?: Industry;
   product?: { id: string; name: string };
+  assigned_user?: { id: string; name: string; email: string };
 }
 
 export interface SavedPrompt {
@@ -78,7 +81,8 @@ export const useLeadDiscovery = () => {
         .select(`
           *,
           industry:lead_discovery_industries(id, name),
-          product:products(id, name)
+          product:products(id, name),
+          assigned_user:profiles!lead_discovery_sessions_assigned_to_fkey(id, name, email)
         `)
         .order('created_at', { ascending: false });
       if (error) throw error;
@@ -138,6 +142,8 @@ export const useLeadDiscovery = () => {
     mutationFn: async (session: {
       industry_id: string;
       session_name: string;
+      campaign_name?: string;
+      assigned_to?: string;
       product_id?: string;
       original_data?: any;
       uploaded_file_name?: string;
