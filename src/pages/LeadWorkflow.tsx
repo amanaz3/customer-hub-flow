@@ -8,13 +8,6 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from '@/components/ui/sheet';
-import {
   Table,
   TableBody,
   TableCell,
@@ -52,7 +45,7 @@ import {
   Building2,
   Calendar,
   ArrowUpRight,
-  TableIcon,
+  
   LayoutGrid,
   ChevronRight,
 } from 'lucide-react';
@@ -109,7 +102,7 @@ const LeadWorkflow = () => {
   // Dialog state
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showOutreachDialog, setShowOutreachDialog] = useState(false);
-  const [tableDrawerOpen, setTableDrawerOpen] = useState(false);
+  
   
   // Table filters
   const [search, setSearch] = useState('');
@@ -483,7 +476,7 @@ const LeadWorkflow = () => {
           <CardHeader className="pb-3">
             <div className="flex items-center justify-between">
               <CardTitle className="flex items-center gap-2 text-lg">
-                <TableIcon className="h-5 w-5 text-primary" />
+                <Users className="h-5 w-5 text-primary" />
                 All Leads ({filteredLeads.length})
               </CardTitle>
               <div className="flex items-center gap-2">
@@ -543,7 +536,7 @@ const LeadWorkflow = () => {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {filteredLeads.slice(0, 10).map((lead) => (
+                    {filteredLeads.map((lead) => (
                       <TableRow
                         key={lead.id}
                         className="cursor-pointer hover:bg-muted/50"
@@ -590,142 +583,12 @@ const LeadWorkflow = () => {
                     ))}
                   </TableBody>
                 </Table>
-                {filteredLeads.length > 10 && (
-                  <div className="p-3 text-center border-t">
-                    <Button variant="ghost" size="sm" onClick={() => setTableDrawerOpen(true)}>
-                      View all {filteredLeads.length} leads
-                    </Button>
-                  </div>
-                )}
               </div>
             )}
           </CardContent>
         </Card>
       </div>
 
-      {/* Table View Drawer */}
-      <Sheet open={tableDrawerOpen} onOpenChange={setTableDrawerOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-3xl overflow-y-auto">
-          <SheetHeader>
-            <SheetTitle className="flex items-center gap-2">
-              <TableIcon className="h-5 w-5" />
-              All Leads ({filteredLeads.length})
-            </SheetTitle>
-          </SheetHeader>
-          
-          <div className="mt-4 space-y-4">
-            {/* Filters */}
-            <div className="flex flex-col sm:flex-row gap-2">
-              <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Search leads..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="pl-9"
-                />
-              </div>
-              <Select value={scoreFilter} onValueChange={setScoreFilter}>
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue placeholder="Score" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Scores</SelectItem>
-                  <SelectItem value="hot">Hot</SelectItem>
-                  <SelectItem value="warm">Warm</SelectItem>
-                  <SelectItem value="cold">Cold</SelectItem>
-                </SelectContent>
-              </Select>
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-[120px]">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All</SelectItem>
-                  <SelectItem value="new">New</SelectItem>
-                  <SelectItem value="contacted">Contacted</SelectItem>
-                  <SelectItem value="qualified">Qualified</SelectItem>
-                  <SelectItem value="proposal">Proposal</SelectItem>
-                  <SelectItem value="negotiation">Negotiation</SelectItem>
-                  <SelectItem value="converted">Converted</SelectItem>
-                  <SelectItem value="lost">Lost</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            {/* Table */}
-            {loading ? (
-              <div className="text-center py-8 text-muted-foreground">Loading...</div>
-            ) : filteredLeads.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">No leads found.</div>
-            ) : (
-              <div className="border rounded-lg">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Lead</TableHead>
-                      <TableHead>Score</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Value</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredLeads.map((lead) => (
-                      <TableRow
-                        key={lead.id}
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => {
-                          setTableDrawerOpen(false);
-                          navigate(`/leads/${lead.id}`);
-                        }}
-                      >
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{lead.name}</div>
-                            {lead.company && (
-                              <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                <Building2 className="h-3 w-3" />
-                                {lead.company}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={cn(LEAD_SCORE_COLORS[lead.score], "flex items-center gap-1 w-fit")}
-                          >
-                            {scoreIcons[lead.score]}
-                            <span className="capitalize">{lead.score}</span>
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={cn(LEAD_STATUS_COLORS[lead.status], "capitalize")}>
-                            {lead.status.replace('_', ' ')}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {lead.estimated_value ? (
-                            <span className="text-sm font-medium text-primary">
-                              AED {lead.estimated_value.toLocaleString()}
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </div>
-        </SheetContent>
-      </Sheet>
 
       {/* Dialogs */}
       <CreateLeadDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} />
