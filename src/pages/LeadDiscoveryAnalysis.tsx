@@ -680,6 +680,29 @@ const LeadDiscoveryAnalysis = () => {
                     </div>
                     <div className="flex items-center gap-2">
                       {getStatusBadge(selectedSession.status)}
+                      {selectedSession.status !== 'completed' && sessionResults.length > 0 && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={async () => {
+                            await updateSession.mutateAsync({
+                              id: selectedSession.id,
+                              status: 'completed',
+                              final_result: currentData
+                            });
+                            setSelectedSession(prev => prev ? { ...prev, status: 'completed' } : null);
+                            toast.success('Session marked as completed');
+                          }}
+                          disabled={updateSession.isPending}
+                        >
+                          {updateSession.isPending ? (
+                            <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                          ) : (
+                            <CheckCircle className="h-4 w-4 mr-1" />
+                          )}
+                          Mark as Done
+                        </Button>
+                      )}
                       <Button
                         variant="ghost"
                         size="icon"
