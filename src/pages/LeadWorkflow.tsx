@@ -41,11 +41,8 @@ import {
   Snowflake,
   Plus,
   Search,
-  Filter,
   Building2,
-  Calendar,
   ArrowUpRight,
-  
   LayoutGrid,
   ChevronRight,
 } from 'lucide-react';
@@ -107,7 +104,7 @@ const LeadWorkflow = () => {
   // Table filters
   const [search, setSearch] = useState('');
   const [scoreFilter, setScoreFilter] = useState<string>('all');
-  const [statusFilter, setStatusFilter] = useState<string>('all');
+  
 
   // Stats calculation
   const stats = useMemo(() => {
@@ -120,19 +117,6 @@ const LeadWorkflow = () => {
     return { total, hot, warm, cold, converted, conversionRate };
   }, [leads]);
 
-  // Filtered leads for table
-  const filteredLeads = useMemo(() => {
-    return leads.filter((lead) => {
-      const matchesSearch =
-        lead.name.toLowerCase().includes(search.toLowerCase()) ||
-        lead.email?.toLowerCase().includes(search.toLowerCase()) ||
-        lead.company?.toLowerCase().includes(search.toLowerCase()) ||
-        lead.mobile?.includes(search);
-      const matchesScore = scoreFilter === 'all' || lead.score === scoreFilter;
-      const matchesStatus = statusFilter === 'all' || lead.status === statusFilter;
-      return matchesSearch && matchesScore && matchesStatus;
-    });
-  }, [leads, search, scoreFilter, statusFilter]);
 
   // Count leads per workflow step
   const getLeadsPerStep = (stepKey: string): Lead[] => {
@@ -402,50 +386,107 @@ const LeadWorkflow = () => {
                   ))}
                 </div>
 
-                {/* Leads in this step */}
-                {currentStepLeads.length > 0 && (
-                  <div className="pt-3 border-t border-border/50">
-                    <h5 className="text-sm font-medium mb-2 flex items-center gap-2">
+                {/* Leads in this step - Table View */}
+                <div className="pt-3 border-t border-border/50">
+                  <div className="flex items-center justify-between mb-3">
+                    <h5 className="text-sm font-medium flex items-center gap-2">
                       <Users className="h-4 w-4 text-muted-foreground" />
                       {currentStepLeads.length} Lead{currentStepLeads.length !== 1 ? 's' : ''} in {currentStepData.name}
                     </h5>
-                    <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                      {currentStepLeads.slice(0, 8).map((lead) => (
-                        <div 
-                          key={lead.id}
-                          onClick={() => navigate(`/leads/${lead.id}`)}
-                          className="p-2 bg-background rounded-lg border border-border/50 hover:border-primary/30 cursor-pointer transition-all"
-                        >
-                          <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium truncate">{lead.name}</span>
-                            <Badge 
-                              variant="outline" 
-                              className={cn(
-                                "text-xs capitalize ml-1",
-                                lead.score === 'hot' && "bg-destructive/10 text-destructive border-destructive/30",
-                                lead.score === 'warm' && "bg-amber-500/10 text-amber-600 border-amber-300",
-                                lead.score === 'cold' && "bg-blue-500/10 text-blue-600 border-blue-300"
-                              )}
-                            >
-                              {lead.score}
-                            </Badge>
-                          </div>
-                          <p className="text-xs text-muted-foreground truncate">{lead.company}</p>
-                          {lead.estimated_value && (
-                            <p className="text-xs text-primary font-medium mt-0.5">
-                              AED {lead.estimated_value.toLocaleString()}
-                            </p>
-                          )}
-                        </div>
-                      ))}
+                    <div className="flex items-center gap-2">
+                      <div className="relative">
+                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                        <Input
+                          placeholder="Search..."
+                          value={search}
+                          onChange={(e) => setSearch(e.target.value)}
+                          className="pl-8 h-8 w-40 text-sm"
+                        />
+                      </div>
+                      <Select value={scoreFilter} onValueChange={setScoreFilter}>
+                        <SelectTrigger className="h-8 w-[90px] text-sm">
+                          <SelectValue placeholder="Score" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">All</SelectItem>
+                          <SelectItem value="hot">Hot</SelectItem>
+                          <SelectItem value="warm">Warm</SelectItem>
+                          <SelectItem value="cold">Cold</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
-                    {currentStepLeads.length > 8 && (
-                      <p className="text-xs text-muted-foreground mt-2 text-center">
-                        +{currentStepLeads.length - 8} more leads
-                      </p>
-                    )}
                   </div>
-                )}
+                  
+                  {loading ? (
+                    <div className="text-center py-6 text-muted-foreground text-sm">Loading...</div>
+                  ) : currentStepLeads.length === 0 ? (
+                    <div className="text-center py-6 text-muted-foreground text-sm">No leads in this stage.</div>
+                  ) : (
+                    <div className="border rounded-lg overflow-hidden max-h-[300px] overflow-y-auto">
+                      <Table>
+                        <TableHeader>
+                          <TableRow className="bg-muted/30">
+                            <TableHead className="text-xs">Lead</TableHead>
+                            <TableHead className="text-xs">Score</TableHead>
+                            <TableHead className="text-xs">Value</TableHead>
+                            <TableHead className="text-xs w-8"></TableHead>
+                          </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                          {currentStepLeads
+                            .filter((lead) => {
+                              const matchesSearch =
+                                lead.name.toLowerCase().includes(search.toLowerCase()) ||
+                                lead.email?.toLowerCase().includes(search.toLowerCase()) ||
+                                lead.company?.toLowerCase().includes(search.toLowerCase());
+                              const matchesScore = scoreFilter === 'all' || lead.score === scoreFilter;
+                              return matchesSearch && matchesScore;
+                            })
+                            .map((lead) => (
+                              <TableRow
+                                key={lead.id}
+                                className="cursor-pointer hover:bg-muted/50"
+                                onClick={() => navigate(`/leads/${lead.id}`)}
+                              >
+                                <TableCell className="py-2">
+                                  <div>
+                                    <div className="font-medium text-sm">{lead.name}</div>
+                                    {lead.company && (
+                                      <div className="text-xs text-muted-foreground flex items-center gap-1">
+                                        <Building2 className="h-3 w-3" />
+                                        {lead.company}
+                                      </div>
+                                    )}
+                                  </div>
+                                </TableCell>
+                                <TableCell className="py-2">
+                                  <Badge
+                                    variant="outline"
+                                    className={cn(LEAD_SCORE_COLORS[lead.score], "flex items-center gap-1 w-fit text-xs")}
+                                  >
+                                    {scoreIcons[lead.score]}
+                                    <span className="capitalize">{lead.score}</span>
+                                  </Badge>
+                                </TableCell>
+                                <TableCell className="py-2">
+                                  {lead.estimated_value ? (
+                                    <span className="text-sm font-medium text-primary">
+                                      AED {lead.estimated_value.toLocaleString()}
+                                    </span>
+                                  ) : (
+                                    <span className="text-muted-foreground text-sm">-</span>
+                                  )}
+                                </TableCell>
+                                <TableCell className="py-2">
+                                  <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
+                                </TableCell>
+                              </TableRow>
+                            ))}
+                        </TableBody>
+                      </Table>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
 
@@ -471,122 +512,6 @@ const LeadWorkflow = () => {
           </CardContent>
         </Card>
 
-        {/* Leads Table - Inline */}
-        <Card>
-          <CardHeader className="pb-3">
-            <div className="flex items-center justify-between">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Users className="h-5 w-5 text-primary" />
-                All Leads ({filteredLeads.length})
-              </CardTitle>
-              <div className="flex items-center gap-2">
-                <div className="relative">
-                  <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Search..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    className="pl-9 w-48"
-                  />
-                </div>
-                <Select value={scoreFilter} onValueChange={setScoreFilter}>
-                  <SelectTrigger className="w-[100px]">
-                    <SelectValue placeholder="Score" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="hot">Hot</SelectItem>
-                    <SelectItem value="warm">Warm</SelectItem>
-                    <SelectItem value="cold">Cold</SelectItem>
-                  </SelectContent>
-                </Select>
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-[110px]">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">All</SelectItem>
-                    <SelectItem value="new">New</SelectItem>
-                    <SelectItem value="contacted">Contacted</SelectItem>
-                    <SelectItem value="qualified">Qualified</SelectItem>
-                    <SelectItem value="proposal">Proposal</SelectItem>
-                    <SelectItem value="negotiation">Negotiation</SelectItem>
-                    <SelectItem value="converted">Converted</SelectItem>
-                    <SelectItem value="lost">Lost</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="p-0">
-            {loading ? (
-              <div className="text-center py-8 text-muted-foreground">Loading...</div>
-            ) : filteredLeads.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">No leads found.</div>
-            ) : (
-              <div className="border-t">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Lead</TableHead>
-                      <TableHead>Score</TableHead>
-                      <TableHead>Status</TableHead>
-                      <TableHead>Value</TableHead>
-                      <TableHead></TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredLeads.map((lead) => (
-                      <TableRow
-                        key={lead.id}
-                        className="cursor-pointer hover:bg-muted/50"
-                        onClick={() => navigate(`/leads/${lead.id}`)}
-                      >
-                        <TableCell>
-                          <div>
-                            <div className="font-medium">{lead.name}</div>
-                            {lead.company && (
-                              <div className="text-xs text-muted-foreground flex items-center gap-1">
-                                <Building2 className="h-3 w-3" />
-                                {lead.company}
-                              </div>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>
-                          <Badge
-                            variant="outline"
-                            className={cn(LEAD_SCORE_COLORS[lead.score], "flex items-center gap-1 w-fit")}
-                          >
-                            {scoreIcons[lead.score]}
-                            <span className="capitalize">{lead.score}</span>
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          <Badge variant="outline" className={cn(LEAD_STATUS_COLORS[lead.status], "capitalize")}>
-                            {lead.status.replace('_', ' ')}
-                          </Badge>
-                        </TableCell>
-                        <TableCell>
-                          {lead.estimated_value ? (
-                            <span className="text-sm font-medium text-primary">
-                              AED {lead.estimated_value.toLocaleString()}
-                            </span>
-                          ) : (
-                            <span className="text-muted-foreground">-</span>
-                          )}
-                        </TableCell>
-                        <TableCell>
-                          <ArrowUpRight className="h-4 w-4 text-muted-foreground" />
-                        </TableCell>
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </div>
-            )}
-          </CardContent>
-        </Card>
       </div>
 
 
