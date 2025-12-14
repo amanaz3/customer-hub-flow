@@ -16,8 +16,9 @@ import { toast } from 'sonner';
 import { 
   Upload, Play, Save, Plus, FileSpreadsheet, Building2, 
   Package, ChevronRight, Clock, CheckCircle, XCircle, Loader2,
-  Sparkles, History, Settings, Send, Trash2
+  Sparkles, History, Settings, Send, Trash2, List, ArrowLeft, Eye
 } from 'lucide-react';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { format } from 'date-fns';
 import * as XLSX from 'xlsx';
 
@@ -49,6 +50,7 @@ const LeadDiscoveryAnalysis = () => {
   const [showApplyDialog, setShowApplyDialog] = useState(false);
   const [selectedProductForApply, setSelectedProductForApply] = useState('');
   const [applyPrompt, setApplyPrompt] = useState('');
+  const [showAllSessions, setShowAllSessions] = useState(false);
   
   // New session form
   const [newSessionName, setNewSessionName] = useState('');
@@ -326,6 +328,120 @@ const LeadDiscoveryAnalysis = () => {
     }
   };
 
+  // All Sessions Table View
+  if (showAllSessions) {
+    return (
+      <div className="container mx-auto p-6 space-y-6">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <Button variant="ghost" size="icon" onClick={() => setShowAllSessions(false)}>
+              <ArrowLeft className="h-5 w-5" />
+            </Button>
+            <div>
+              <h1 className="text-3xl font-bold">All Sessions</h1>
+              <p className="text-muted-foreground">View all past discovery sessions</p>
+            </div>
+          </div>
+        </div>
+
+        <Card>
+          <CardContent className="p-0">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Session Name</TableHead>
+                  <TableHead>Industry</TableHead>
+                  <TableHead>Service</TableHead>
+                  <TableHead>Status</TableHead>
+                  <TableHead>Created</TableHead>
+                  <TableHead>File</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {sessionsLoading ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      <Loader2 className="h-5 w-5 animate-spin mx-auto mb-2" />
+                      Loading sessions...
+                    </TableCell>
+                  </TableRow>
+                ) : sessions.length === 0 ? (
+                  <TableRow>
+                    <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      No sessions found
+                    </TableCell>
+                  </TableRow>
+                ) : (
+                  sessions.map(session => (
+                    <TableRow key={session.id}>
+                      <TableCell className="font-medium">{session.session_name}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{session.industry?.name || 'Unknown'}</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {session.product ? (
+                          <Badge variant="secondary">
+                            <Package className="h-3 w-3 mr-1" />
+                            {session.product.name}
+                          </Badge>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell>{getStatusBadge(session.status)}</TableCell>
+                      <TableCell className="text-muted-foreground text-sm">
+                        {format(new Date(session.created_at), 'MMM d, yyyy HH:mm')}
+                      </TableCell>
+                      <TableCell>
+                        {session.uploaded_file_name ? (
+                          <span className="text-sm flex items-center gap-1">
+                            <FileSpreadsheet className="h-3 w-3" />
+                            {session.uploaded_file_name}
+                          </span>
+                        ) : (
+                          <span className="text-muted-foreground text-sm">—</span>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex items-center justify-end gap-1">
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => {
+                              handleSelectSession(session);
+                              setShowAllSessions(false);
+                            }}
+                          >
+                            <Eye className="h-4 w-4 mr-1" />
+                            View
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={async () => {
+                              if (confirm('Delete this session and all its data?')) {
+                                await deleteSession.mutateAsync(session.id);
+                              }
+                            }}
+                            disabled={deleteSession.isPending}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex items-center justify-between">
@@ -334,6 +450,11 @@ const LeadDiscoveryAnalysis = () => {
           <p className="text-muted-foreground">Upload data, run AI prompts, and apply to services</p>
         </div>
         <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={() => setShowAllSessions(true)}>
+            <List className="h-4 w-4 mr-2" />
+            All Sessions
+          </Button>
+          
           <Dialog open={showNewIndustryDialog} onOpenChange={setShowNewIndustryDialog}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm">
