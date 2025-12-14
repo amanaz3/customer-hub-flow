@@ -253,14 +253,26 @@ const LeadWorkflow = () => {
         <div className="space-y-4">
 
           {/* Header */}
-          <div>
-            <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
-              <Target className="h-6 w-6 text-primary" />
-              Lead Workflow
-            </h1>
-            <p className="text-muted-foreground text-sm">
-              From import to customer conversion
-            </p>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
+                <Target className="h-6 w-6 text-primary" />
+                Lead Workflow
+              </h1>
+              <p className="text-muted-foreground text-sm">
+                From import to customer conversion
+              </p>
+            </div>
+            <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-md border">
+              <TestTube className="h-4 w-4 text-amber-500" />
+              <Label htmlFor="demo-mode" className="text-xs text-muted-foreground cursor-pointer">Demo</Label>
+              <Switch
+                id="demo-mode"
+                checked={showDummyData}
+                onCheckedChange={toggleDummyData}
+                className="scale-75"
+              />
+            </div>
           </div>
 
           {/* Floating Action Buttons */}
