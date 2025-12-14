@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { 
   Upload, 
   Target, 
@@ -15,12 +17,38 @@ import {
   Mail,
   ArrowRight,
   Settings,
-  Users
+  Users,
+  TestTube
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import LeadWorkflowSettingsDialog from './LeadWorkflowSettingsDialog';
 import BulkLeadWorkflowDialog from './BulkLeadWorkflowDialog';
 import { useLeads } from '@/hooks/useLeads';
+
+import type { Lead } from '@/types/lead';
+
+// Dummy data for demo mode
+const DUMMY_LEADS: Lead[] = [
+  { id: '1', reference_number: 1001, name: 'John Smith', company: 'Tech Innovations LLC', score: 'hot', status: 'qualified', email: 'john@techinnovations.com', mobile: '+971501234567', source: 'Website', assigned_to: null, notes: null, product_interest_id: null, estimated_value: 75000, next_follow_up: null, last_contacted_at: null, converted_customer_id: null, converted_at: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '2', reference_number: 1002, name: 'Sarah Johnson', company: 'Global Trading Co', score: 'warm', status: 'contacted', email: 'sarah@globaltrading.com', mobile: '+971502345678', source: 'Referral', assigned_to: null, notes: null, product_interest_id: null, estimated_value: 45000, next_follow_up: null, last_contacted_at: null, converted_customer_id: null, converted_at: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '3', reference_number: 1003, name: 'Ahmed Al-Rashid', company: 'Dubai Ventures', score: 'hot', status: 'proposal', email: 'ahmed@dubaiventures.ae', mobile: '+971503456789', source: 'Partner', assigned_to: null, notes: null, product_interest_id: null, estimated_value: 120000, next_follow_up: null, last_contacted_at: null, converted_customer_id: null, converted_at: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '4', reference_number: 1004, name: 'Maria Garcia', company: 'Consulting Plus', score: 'cold', status: 'new', email: 'maria@consultingplus.com', mobile: '+971504567890', source: 'Cold Call', assigned_to: null, notes: null, product_interest_id: null, estimated_value: 8000, next_follow_up: null, last_contacted_at: null, converted_customer_id: null, converted_at: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '5', reference_number: 1005, name: 'James Wilson', company: 'Property Masters', score: 'warm', status: 'qualified', email: 'james@propertymasters.com', mobile: '+971505678901', source: 'Website', assigned_to: null, notes: null, product_interest_id: null, estimated_value: 35000, next_follow_up: null, last_contacted_at: null, converted_customer_id: null, converted_at: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '6', reference_number: 1006, name: 'Fatima Hassan', company: 'Healthcare Solutions', score: 'hot', status: 'negotiation', email: 'fatima@healthcaresol.ae', mobile: '+971506789012', source: 'Event', assigned_to: null, notes: null, product_interest_id: null, estimated_value: 95000, next_follow_up: null, last_contacted_at: null, converted_customer_id: null, converted_at: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '7', reference_number: 1007, name: 'Robert Chen', company: 'Import Export Ltd', score: 'warm', status: 'contacted', email: 'robert@importexport.com', mobile: '+971507890123', source: 'Social Media', assigned_to: null, notes: null, product_interest_id: null, estimated_value: 28000, next_follow_up: null, last_contacted_at: null, converted_customer_id: null, converted_at: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+  { id: '8', reference_number: 1008, name: 'Lisa Anderson', company: 'Digital Marketing Pro', score: 'cold', status: 'new', email: 'lisa@digitalmarketing.com', mobile: '+971508901234', source: 'Advertisement', assigned_to: null, notes: null, product_interest_id: null, estimated_value: 5000, next_follow_up: null, last_contacted_at: null, converted_customer_id: null, converted_at: null, created_at: new Date().toISOString(), updated_at: new Date().toISOString() },
+];
+
+// Map lead status to workflow step
+const STATUS_TO_STEP: Record<string, string> = {
+  'new': 'import',
+  'contacted': 'qualify',
+  'qualified': 'nurture',
+  'proposal': 'propose',
+  'negotiation': 'propose',
+  'converted': 'convert',
+  'lost': 'convert',
+};
 
 interface WorkflowStep {
   id: number;
@@ -40,7 +68,19 @@ const LeadWorkflowStepper = () => {
   const [currentStep, setCurrentStep] = useState(2);
   const [settingsOpen, setSettingsOpen] = useState(false);
   const [bulkDialogOpen, setBulkDialogOpen] = useState(false);
-  const { leads } = useLeads();
+  const [demoMode, setDemoMode] = useState(true);
+  const { leads: realLeads } = useLeads();
+
+  // Use dummy data in demo mode, real data otherwise
+  const leads = demoMode ? DUMMY_LEADS : realLeads;
+
+  // Count leads per step using status mapping
+  const getLeadsPerStep = (stepKey: string) => {
+    return leads?.filter(lead => {
+      const leadStep = STATUS_TO_STEP[lead.status] || 'import';
+      return leadStep === stepKey;
+    }) || [];
+  };
 
   const steps: WorkflowStep[] = [
     {
@@ -141,7 +181,20 @@ const LeadWorkflowStepper = () => {
                 </p>
               </div>
             </div>
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-3">
+              {/* Demo Mode Toggle */}
+              <div className="flex items-center gap-2 px-3 py-1.5 bg-muted/50 rounded-lg border border-border/50">
+                <TestTube className="h-4 w-4 text-muted-foreground" />
+                <Label htmlFor="demo-mode" className="text-xs font-medium text-muted-foreground cursor-pointer">
+                  Demo
+                </Label>
+                <Switch
+                  id="demo-mode"
+                  checked={demoMode}
+                  onCheckedChange={setDemoMode}
+                  className="scale-75"
+                />
+              </div>
               <Button 
                 variant="outline" 
                 size="sm"
@@ -195,6 +248,18 @@ const LeadWorkflowStepper = () => {
                     )}>
                       {step.name}
                     </p>
+                    {/* Lead count badge */}
+                    <Badge 
+                      variant="secondary" 
+                      className={cn(
+                        "mt-1 text-xs",
+                        getLeadsPerStep(step.key).length > 0 
+                          ? "bg-primary/10 text-primary" 
+                          : "bg-muted text-muted-foreground"
+                      )}
+                    >
+                      {getLeadsPerStep(step.key).length} leads
+                    </Badge>
                   </div>
                 </button>
                 {index < steps.length - 1 && (
@@ -237,6 +302,50 @@ const LeadWorkflowStepper = () => {
                     </div>
                   ))}
                 </div>
+
+                {/* Leads in this step */}
+                {getLeadsPerStep(step.key).length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-border/50">
+                    <h5 className="text-sm font-medium mb-3 flex items-center gap-2">
+                      <Users className="h-4 w-4 text-muted-foreground" />
+                      Leads in {step.name} ({getLeadsPerStep(step.key).length})
+                    </h5>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-2">
+                      {getLeadsPerStep(step.key).slice(0, 8).map((lead) => (
+                        <div 
+                          key={lead.id}
+                          className="p-2 bg-background rounded-lg border border-border/50 hover:border-primary/30 transition-all"
+                        >
+                          <div className="flex items-center justify-between">
+                            <span className="text-sm font-medium truncate">{lead.name}</span>
+                            <Badge 
+                              variant="outline" 
+                              className={cn(
+                                "text-xs capitalize",
+                                lead.score === 'hot' && "bg-destructive/10 text-destructive border-destructive/30",
+                                lead.score === 'warm' && "bg-amber-500/10 text-amber-600 border-amber-300",
+                                lead.score === 'cold' && "bg-blue-500/10 text-blue-600 border-blue-300"
+                              )}
+                            >
+                              {lead.score}
+                            </Badge>
+                          </div>
+                          <p className="text-xs text-muted-foreground truncate">{lead.company}</p>
+                          {lead.estimated_value && (
+                            <p className="text-xs text-primary font-medium mt-1">
+                              AED {lead.estimated_value.toLocaleString()}
+                            </p>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                    {getLeadsPerStep(step.key).length > 8 && (
+                      <p className="text-xs text-muted-foreground mt-2 text-center">
+                        +{getLeadsPerStep(step.key).length - 8} more leads
+                      </p>
+                    )}
+                  </div>
+                )}
               </div>
             )
           ))}
