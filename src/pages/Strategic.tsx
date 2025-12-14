@@ -3,8 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { 
   BarChart3, 
   Building2,
-  Activity,
-  TrendingUp
+  Activity
 } from "lucide-react";
 
 const Strategic = () => {
@@ -32,13 +31,6 @@ const Strategic = () => {
       icon: Building2,
       path: "/customer-classification",
       color: "text-pink-600"
-    },
-    {
-      title: "Lead Analytics",
-      description: "Lead conversion trends, pipeline forecasting, and performance metrics",
-      icon: TrendingUp,
-      path: "/leads",
-      color: "text-amber-600"
     }
   ];
 
