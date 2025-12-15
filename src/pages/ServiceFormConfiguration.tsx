@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff, Upload, Download, FileJson, AlertTriangle, Code, FileText, Check, ChevronsUpDown, Settings } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff, Upload, Download, FileJson, AlertTriangle, Code, FileText, Check, ChevronsUpDown, Settings, HelpCircle, ChevronDown, ChevronUp, Lightbulb, MousePointerClick, Link } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
@@ -14,6 +14,7 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { ScrollArea } from "@/components/ui/scroll-area";
@@ -974,6 +975,19 @@ const ServiceFormConfiguration = () => {
   });
   const [fieldSelectionServiceConfig, setFieldSelectionServiceConfig] = useState<any>(null);
   const [productSearchOpen, setProductSearchOpen] = useState(false);
+  const [showGuide, setShowGuide] = useState(() => {
+    // Show guide by default for first-time users (check localStorage)
+    const hasSeenGuide = localStorage.getItem('serviceFormConfig_hasSeenGuide');
+    return !hasSeenGuide;
+  });
+
+  // Mark guide as seen when collapsed
+  const handleGuideToggle = (open: boolean) => {
+    setShowGuide(open);
+    if (!open) {
+      localStorage.setItem('serviceFormConfig_hasSeenGuide', 'true');
+    }
+  };
 
   // Fetch fields for field selection in draft stage dialog
   const fetchFieldsForService = async (serviceId: string) => {
@@ -2114,6 +2128,97 @@ const ServiceFormConfiguration = () => {
             </div>
           </div>
         </div>
+      </div>
+
+      {/* First-Time User Guide */}
+      <div className="container mx-auto px-4 pt-4">
+        <Collapsible open={showGuide} onOpenChange={handleGuideToggle}>
+          <Card className="border-primary/20 bg-primary/5">
+            <CollapsibleTrigger asChild>
+              <CardHeader className="pb-2 cursor-pointer hover:bg-primary/10 transition-colors rounded-t-lg">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <HelpCircle className="h-5 w-5 text-primary" />
+                    <CardTitle className="text-base">Getting Started Guide</CardTitle>
+                  </div>
+                  <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                    <span>{showGuide ? 'Click to collapse' : 'Click to expand'}</span>
+                    {showGuide ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                  </div>
+                </div>
+                <CardDescription className="text-xs">
+                  Learn what this page does and how to configure service forms
+                </CardDescription>
+              </CardHeader>
+            </CollapsibleTrigger>
+            <CollapsibleContent>
+              <CardContent className="pt-2 space-y-4">
+                {/* What is this page */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Lightbulb className="h-4 w-4 text-amber-500" />
+                    <h4 className="font-semibold text-sm">What is this page?</h4>
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-relaxed pl-6">
+                    This page allows you to configure the <strong>dynamic forms</strong> that appear when creating or editing applications for each service/product. 
+                    You define which fields appear, their types, validation rules, required documents, and when they become mandatory during the application lifecycle.
+                  </p>
+                </div>
+
+                {/* How to use the Visual Editor */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <MousePointerClick className="h-4 w-4 text-blue-500" />
+                    <h4 className="font-semibold text-sm">How to use the Visual Editor</h4>
+                  </div>
+                  <div className="text-xs text-muted-foreground leading-relaxed pl-6 space-y-1.5">
+                    <p><strong>1. Select a Product/Service</strong> - Choose which service's form you want to configure from the dropdown.</p>
+                    <p><strong>2. Choose Edit Mode</strong> - Select "Visual Editor" for drag-and-drop editing or "Manual JSON" for direct code editing.</p>
+                    <p><strong>3. Add Sections & Fields</strong> - Use the "Add Section" button to create form sections, then add fields within each section.</p>
+                    <p><strong>4. Drag to Reorder</strong> - Grab the grip handle (⋮⋮) to drag sections and fields into your preferred order.</p>
+                    <p><strong>5. Configure Field Properties</strong> - Set field type, label, placeholder, validation rules, and stage-based requirements.</p>
+                    <p><strong>6. Required Documents</strong> - Switch to the Documents tab to define what documents customers must upload.</p>
+                    <p><strong>7. Save Changes</strong> - Click the Save button to persist your configuration.</p>
+                  </div>
+                </div>
+
+                {/* How it connects to Service Details */}
+                <div className="space-y-2">
+                  <div className="flex items-center gap-2">
+                    <Link className="h-4 w-4 text-green-500" />
+                    <h4 className="font-semibold text-sm">How it connects to Service Details forms</h4>
+                  </div>
+                  <div className="text-xs text-muted-foreground leading-relaxed pl-6 space-y-1.5">
+                    <p>
+                      When you create or edit an <strong>application</strong> in the system (via Customer Detail or New Application pages), the form displayed is 
+                      <strong> dynamically generated</strong> from the configuration you set here.
+                    </p>
+                    <p>
+                      <strong>Sections</strong> you create here become collapsible form sections. <strong>Fields</strong> become the actual input elements 
+                      (text inputs, dropdowns, checkboxes, etc.). <strong>Required Documents</strong> appear in the document upload section.
+                    </p>
+                    <p>
+                      <strong>Stage-based validation:</strong> Fields marked as "required at submitted stage" won't block draft saves but will 
+                      prevent submission until filled. This allows progressive data collection throughout the application lifecycle.
+                    </p>
+                  </div>
+                </div>
+
+                {/* Quick Tips */}
+                <Alert className="bg-muted/50">
+                  <AlertTriangle className="h-4 w-4" />
+                  <AlertTitle className="text-xs">Quick Tips</AlertTitle>
+                  <AlertDescription className="text-xs space-y-1">
+                    <p>• Use <strong>Templates</strong> to save and reuse form configurations across services.</p>
+                    <p>• <strong>Export/Import JSON</strong> for backup or sharing configurations between environments.</p>
+                    <p>• <strong>Version History</strong> tracks all changes - you can restore previous versions if needed.</p>
+                    <p>• <strong>Preview</strong> your form at different stages to see what users will experience.</p>
+                  </AlertDescription>
+                </Alert>
+              </CardContent>
+            </CollapsibleContent>
+          </Card>
+        </Collapsible>
       </div>
 
       {/* Main Content */}
