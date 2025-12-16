@@ -1,7 +1,8 @@
 import React from 'react';
 import { useWebflow } from '@/contexts/WebflowContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Briefcase, Building2 } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Briefcase, Building2, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const intents = [
@@ -25,7 +26,19 @@ export const BusinessIntentStep: React.FC = () => {
   return (
     <Card className="border-0 shadow-lg">
       <CardHeader className="text-center pb-2">
-        <CardTitle className="text-2xl">What brings you here?</CardTitle>
+        <div className="flex items-center justify-center gap-2">
+          <CardTitle className="text-2xl">What brings you here?</CardTitle>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle className="w-4 h-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>This helps us customize the process for your business type.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <CardDescription className="text-base">
           Tell us about your business needs so we can guide you to the right services
         </CardDescription>
