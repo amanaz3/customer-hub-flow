@@ -115,7 +115,7 @@ export const SimpleStepLayout: React.FC<SimpleStepLayoutProps> = ({
       </div>
 
       {/* Main content */}
-      <div className="flex-1 overflow-y-auto flex flex-col items-center px-4 py-12">
+      <div className="flex-1 overflow-y-scroll flex flex-col items-center px-4 py-12">
         <div className="w-full max-w-2xl animate-fade-in">
           {/* Header */}
           <div className="text-center mb-8">
