@@ -6,7 +6,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
-import { User, Upload, Info, Check, Clock } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { User, Upload, Info, Check, Clock, HelpCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const visaStatuses = [
@@ -63,7 +64,19 @@ export const FounderDetailsStep: React.FC = () => {
         <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
           <User className="w-6 h-6 text-primary" />
         </div>
-        <CardTitle className="text-2xl">Founder Details</CardTitle>
+        <div className="flex items-center justify-center gap-2">
+          <CardTitle className="text-2xl">Founder Details</CardTitle>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle className="w-4 h-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>We need these documents to register your company and open a bank account.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <CardDescription className="text-base">
           We need your information to complete the company registration
         </CardDescription>
