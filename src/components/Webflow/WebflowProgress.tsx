@@ -27,7 +27,7 @@ export const WebflowProgress: React.FC = () => {
           const isAccessible = step.id <= Math.max(...state.completedSteps, state.currentStep);
 
           return (
-            <React.Fragment key={step.id}>
+            <div key={step.id} className="contents">
               <button
                 onClick={() => isAccessible && goToStep(step.id)}
                 disabled={!isAccessible}
@@ -59,7 +59,7 @@ export const WebflowProgress: React.FC = () => {
                   isCompleted ? "bg-primary" : "bg-muted"
                 )} />
               )}
-            </React.Fragment>
+            </div>
           );
         })}
       </div>

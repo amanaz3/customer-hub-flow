@@ -129,6 +129,16 @@ export const JurisdictionStep: React.FC = () => {
             </AlertDescription>
           </Alert>
         )}
+
+        {/* Validation helper */}
+        {(!state.emirate || !state.locationType || !state.legalForm) && (
+          <div className="text-sm text-muted-foreground text-center p-3 bg-muted/50 rounded-lg">
+            Please complete all selections: 
+            {!state.emirate && <span className="text-amber-600"> Emirate</span>}
+            {!state.locationType && <span className="text-amber-600"> Location Type</span>}
+            {!state.legalForm && <span className="text-amber-600"> Legal Form</span>}
+          </div>
+        )}
       </CardContent>
     </Card>
   );
