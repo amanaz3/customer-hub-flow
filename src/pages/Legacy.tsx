@@ -182,7 +182,7 @@ const Legacy = () => {
         {/* Web Card */}
         <Card 
           className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
-          onClick={() => navigate('/webflow-simple')}
+          onClick={() => navigate('/web')}
         >
           <CardHeader className="pb-3">
             <CardTitle className="flex items-center justify-between">
