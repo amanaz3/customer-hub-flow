@@ -5,7 +5,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Calculator, Info, Check } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Calculator, Info, Check, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const frequencies = [
@@ -41,7 +42,19 @@ export const BookkeepingTaxStep: React.FC = () => {
         <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
           <Calculator className="w-6 h-6 text-primary" />
         </div>
-        <CardTitle className="text-2xl">Bookkeeping & Tax Setup</CardTitle>
+        <div className="flex items-center justify-center gap-2">
+          <CardTitle className="text-2xl">Bookkeeping & Tax Setup</CardTitle>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle className="w-4 h-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>This helps us manage your ongoing compliance efficiently.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <CardDescription className="text-base">
           Configure your accounting preferences and tax compliance
         </CardDescription>
