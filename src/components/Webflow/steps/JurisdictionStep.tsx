@@ -4,7 +4,8 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { MapPin, Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { MapPin, Info, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const emirates = [
@@ -54,7 +55,19 @@ export const JurisdictionStep: React.FC = () => {
         <div className="mx-auto w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center mb-4">
           <MapPin className="w-6 h-6 text-primary" />
         </div>
-        <CardTitle className="text-2xl">Where will your business be based?</CardTitle>
+        <div className="flex items-center justify-center gap-2">
+          <CardTitle className="text-2xl">Where will your business be based?</CardTitle>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle className="w-4 h-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Select your emirate and legal form to see eligible services.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <CardDescription className="text-base">
           Choose your emirate, location type, and legal structure
         </CardDescription>
