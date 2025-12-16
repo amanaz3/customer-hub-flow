@@ -4,9 +4,10 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { 
   Building2, CreditCard, Calculator, FileText, 
-  Clock, CheckCircle2, AlertCircle, User, RefreshCcw, Upload
+  Clock, CheckCircle2, AlertCircle, User, RefreshCcw, Upload, HelpCircle
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -87,7 +88,19 @@ export const DashboardStep: React.FC = () => {
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-2xl">Welcome, {state.founderName || 'Founder'}!</CardTitle>
+              <div className="flex items-center gap-2">
+                <CardTitle className="text-2xl">Welcome, {state.founderName || 'Founder'}!</CardTitle>
+                <TooltipProvider>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <HelpCircle className="w-4 h-4 text-muted-foreground cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Track the progress of your company and compliance tasks here.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </TooltipProvider>
+              </div>
               <CardDescription>
                 Track your business setup progress here
               </CardDescription>
