@@ -33,7 +33,8 @@ import {
   UserCheck,
   Clock,
   Code,
-  UserRoundSearch
+  UserRoundSearch,
+  Globe
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -132,6 +133,12 @@ const Sidebar: React.FC = () => {
       path: '/devtools',
       icon: <Code className="h-5 w-5" />,
       roles: ['admin'],
+    },
+    {
+      name: 'Webflow',
+      path: '/webflow',
+      icon: <Globe className="h-5 w-5" />,
+      roles: ['admin', 'user'],
     }
   ];
 
