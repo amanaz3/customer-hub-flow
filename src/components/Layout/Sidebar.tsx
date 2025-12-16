@@ -139,6 +139,12 @@ const Sidebar: React.FC = () => {
       path: '/webflow',
       icon: <Globe className="h-5 w-5" />,
       roles: ['admin', 'user'],
+    },
+    {
+      name: 'Webflow Simple',
+      path: '/webflow-simple',
+      icon: <Globe className="h-5 w-5" />,
+      roles: ['admin', 'user'],
     }
   ];
 
@@ -163,6 +169,14 @@ const Sidebar: React.FC = () => {
     if (path === '/customers') {
       return location.pathname === '/customers' || 
              (location.pathname.startsWith('/customers/') && location.pathname !== '/customers/new');
+    }
+    
+    // Special handling for webflow routes
+    if (path === '/webflow') {
+      return location.pathname === '/webflow';
+    }
+    if (path === '/webflow-simple') {
+      return location.pathname.startsWith('/webflow-simple');
     }
     
     return false;
