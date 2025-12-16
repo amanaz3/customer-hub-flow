@@ -3,7 +3,8 @@ import { useWebflow } from '@/contexts/WebflowContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Globe, AlertTriangle, Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Globe, AlertTriangle, Info, HelpCircle } from 'lucide-react';
 
 const countries = [
   { code: 'AE', name: 'United Arab Emirates', eligible: true },
@@ -46,18 +47,33 @@ export const CountryStep: React.FC = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        <Select value={state.nationality} onValueChange={handleCountryChange}>
-          <SelectTrigger className="h-12">
-            <SelectValue placeholder="Select your nationality" />
-          </SelectTrigger>
-          <SelectContent>
-            {countries.map(country => (
-              <SelectItem key={country.code} value={country.code}>
-                {country.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">Country of Citizenship</span>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <HelpCircle className="w-4 h-4 text-muted-foreground cursor-help" />
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>We need your nationality to show available services in UAE.</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+          <Select value={state.nationality} onValueChange={handleCountryChange}>
+            <SelectTrigger className="h-12">
+              <SelectValue placeholder="Select your nationality" />
+            </SelectTrigger>
+            <SelectContent>
+              {countries.map(country => (
+                <SelectItem key={country.code} value={country.code}>
+                  {country.name}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
 
         {selectedCountry && !selectedCountry.eligible && (
           <Alert variant="destructive">
