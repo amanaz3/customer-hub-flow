@@ -35,6 +35,7 @@ export interface WebflowState {
   visaStatus: string;
   address: string;
   documentsUploaded: string[];
+  pendingDocuments: string[];
   
   // Step 8: Bookkeeping & Tax
   accountingFrequency: 'monthly' | 'quarterly' | null;
@@ -68,6 +69,7 @@ const initialState: WebflowState = {
   visaStatus: '',
   address: '',
   documentsUploaded: [],
+  pendingDocuments: [],
   accountingFrequency: null,
   accountingSystem: '',
   taxRegistrationNumber: '',
@@ -139,7 +141,13 @@ export const WebflowProvider: React.FC<{ children: ReactNode }> = ({ children })
       case 4: return !!state.activityCode;
       case 5: return !!state.selectedPlan;
       case 6: return state.paymentCompleted;
-      case 7: return !!state.founderName && !!state.founderPhone && !!state.passportNumber;
+      case 7: {
+        const requiredDocs = ['passport', 'photo', 'emirates_id', 'address_proof'];
+        const allDocsHandled = requiredDocs.every(
+          doc => state.documentsUploaded.includes(doc) || state.pendingDocuments.includes(doc)
+        );
+        return !!state.founderName && !!state.founderPhone && !!state.passportNumber && allDocsHandled;
+      }
       case 8: return !!state.accountingFrequency;
       default: return true;
     }

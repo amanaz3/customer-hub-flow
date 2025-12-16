@@ -6,7 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { 
   Building2, CreditCard, Calculator, FileText, 
-  Clock, CheckCircle2, AlertCircle, User, RefreshCcw
+  Clock, CheckCircle2, AlertCircle, User, RefreshCcw, Upload
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -19,17 +19,33 @@ const getStatusIcon = (status: string) => {
   }
 };
 
+const documentNames: Record<string, string> = {
+  passport: 'Passport Copy',
+  photo: 'Passport Photo',
+  emirates_id: 'Emirates ID',
+  address_proof: 'Address Proof',
+};
+
 export const DashboardStep: React.FC = () => {
-  const { state, resetFlow } = useWebflow();
+  const { state, resetFlow, updateState } = useWebflow();
+
+  const handleDocumentUpload = (docId: string) => {
+    updateState({
+      documentsUploaded: [...state.documentsUploaded, docId],
+      pendingDocuments: state.pendingDocuments.filter(id => id !== docId),
+    });
+  };
 
   const services = [
     {
       id: 'formation',
       title: 'Company Formation',
       icon: Building2,
-      status: 'in_progress',
-      progress: 65,
-      nextAction: 'Awaiting document verification',
+      status: state.pendingDocuments.length > 0 ? 'pending' : 'in_progress',
+      progress: state.pendingDocuments.length > 0 ? 45 : 65,
+      nextAction: state.pendingDocuments.length > 0 
+        ? 'Upload pending documents to continue' 
+        : 'Awaiting document verification',
     },
     {
       id: 'banking',
@@ -58,9 +74,11 @@ export const DashboardStep: React.FC = () => {
   ];
 
   const pendingActions = [
-    { text: 'Upload remaining documents', urgent: true },
-    { text: 'Schedule identity verification call', urgent: false },
-    { text: 'Review and sign MOA', urgent: false },
+    ...(state.pendingDocuments.length > 0 
+      ? [{ text: `Upload ${state.pendingDocuments.length} pending document(s)`, urgent: true, type: 'documents' }]
+      : []),
+    { text: 'Schedule identity verification call', urgent: false, type: 'action' },
+    { text: 'Review and sign MOA', urgent: false, type: 'action' },
   ];
 
   return (
@@ -93,6 +111,45 @@ export const DashboardStep: React.FC = () => {
           </div>
         </CardContent>
       </Card>
+
+      {/* Pending Documents Alert */}
+      {state.pendingDocuments.length > 0 && (
+        <Card className="border-amber-200 bg-amber-50">
+          <CardHeader className="pb-2">
+            <div className="flex items-center gap-2">
+              <AlertCircle className="w-5 h-5 text-amber-600" />
+              <CardTitle className="text-lg text-amber-800">Pending Documents</CardTitle>
+            </div>
+            <CardDescription className="text-amber-700">
+              Please upload these documents to continue your application
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="grid md:grid-cols-2 gap-3">
+              {state.pendingDocuments.map(docId => (
+                <div
+                  key={docId}
+                  className="flex items-center justify-between p-3 bg-white rounded-lg border border-amber-200"
+                >
+                  <div className="flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-amber-500" />
+                    <span className="text-sm font-medium">{documentNames[docId] || docId}</span>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => handleDocumentUpload(docId)}
+                    className="border-amber-300 hover:bg-amber-100"
+                  >
+                    <Upload className="w-4 h-4 mr-1" />
+                    Upload
+                  </Button>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       <div className="grid md:grid-cols-2 gap-4">
         {services.map(service => {
