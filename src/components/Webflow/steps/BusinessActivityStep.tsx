@@ -3,7 +3,8 @@ import { useWebflow } from '@/contexts/WebflowContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Search, AlertTriangle, Check, Info } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { Search, AlertTriangle, Check, Info, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const activities = [
@@ -40,7 +41,19 @@ export const BusinessActivityStep: React.FC = () => {
   return (
     <Card className="border-0 shadow-lg">
       <CardHeader className="text-center pb-2">
-        <CardTitle className="text-2xl">What will your business do?</CardTitle>
+        <div className="flex items-center justify-center gap-2">
+          <CardTitle className="text-2xl">What will your business do?</CardTitle>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <HelpCircle className="w-4 h-4 text-muted-foreground cursor-help" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Choose your primary business activity. This helps with compliance and banking.</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
+        </div>
         <CardDescription className="text-base">
           Select your primary business activity from our approved list
         </CardDescription>
