@@ -80,6 +80,7 @@ import BankPainAnalysis from '@/pages/BankPainAnalysis';
 import AccessManagement from '@/pages/AccessManagement';
 import LeadDiscoveryAnalysis from '@/pages/LeadDiscoveryAnalysis';
 import Webflow from '@/pages/Webflow';
+import WebflowSimple from '@/pages/WebflowSimple';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -427,6 +428,12 @@ function App() {
                   <Route path="/webflow" element={
                     <PageErrorBoundary pageName="Webflow">
                       <Webflow />
+                    </PageErrorBoundary>
+                  } />
+                  
+                  <Route path="/webflow-simple/*" element={
+                    <PageErrorBoundary pageName="Webflow Simple">
+                      <WebflowSimple />
                     </PageErrorBoundary>
                   } />
                   
