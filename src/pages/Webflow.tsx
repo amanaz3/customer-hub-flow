@@ -35,8 +35,8 @@ const WebflowContent: React.FC = () => {
   const isDashboard = state.currentStep === 9;
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-muted/30">
-      <div className="max-w-3xl mx-auto px-4 py-8">
+    <div className="h-screen overflow-y-auto bg-gradient-to-b from-background to-muted/30">
+      <div className="max-w-3xl mx-auto px-4 py-8 pb-24">
         {/* Header */}
         <div className="text-center mb-8">
           <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/60 bg-clip-text text-transparent">
