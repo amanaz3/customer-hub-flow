@@ -81,6 +81,7 @@ import AccessManagement from '@/pages/AccessManagement';
 import LeadDiscoveryAnalysis from '@/pages/LeadDiscoveryAnalysis';
 import Webflow from '@/pages/Webflow';
 import WebflowSimple from '@/pages/WebflowSimple';
+import Web from '@/pages/Web';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -420,6 +421,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Lead Discovery Analysis">
                           <LeadDiscoveryAnalysis />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/web" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Web">
+                          <Web />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
