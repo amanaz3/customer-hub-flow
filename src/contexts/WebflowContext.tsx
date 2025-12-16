@@ -148,7 +148,7 @@ export const WebflowProvider: React.FC<{ children: ReactNode }> = ({ children })
         );
         return !!state.founderName && !!state.founderPhone && !!state.passportNumber && allDocsHandled;
       }
-      case 8: return !!state.accountingFrequency;
+      case 8: return !state.includesBookkeeping || !!state.accountingFrequency;
       default: return true;
     }
   })();
