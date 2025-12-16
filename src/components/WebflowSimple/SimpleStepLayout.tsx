@@ -74,7 +74,7 @@ export const SimpleStepLayout: React.FC<SimpleStepLayoutProps> = ({
   };
 
   return (
-    <div className={cn("min-h-screen flex flex-col", bgClasses[backgroundVariant])}>
+    <div className={cn("h-screen flex flex-col overflow-hidden", bgClasses[backgroundVariant])}>
       {/* Progress bar */}
       <div className="w-full bg-background/80 backdrop-blur-sm border-b sticky top-0 z-10">
         <div className="max-w-4xl mx-auto px-4 py-4">
@@ -115,8 +115,8 @@ export const SimpleStepLayout: React.FC<SimpleStepLayoutProps> = ({
       </div>
 
       {/* Main content */}
-      <div className="flex-1 overflow-y-scroll webflow-scroll flex flex-col items-center px-4 py-12">
-        <div className="w-full max-w-2xl animate-fade-in">
+      <div className="flex-1 overflow-y-scroll webflow-scroll px-4 py-12">
+        <div className="w-full max-w-2xl mx-auto animate-fade-in">
           {/* Header */}
           <div className="text-center mb-8">
             <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent mb-4">
