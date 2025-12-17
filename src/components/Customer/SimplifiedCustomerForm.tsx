@@ -200,6 +200,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [step1AccordionOpen, setStep1AccordionOpen] = useState<string>('');
   const [selectedCustomerData, setSelectedCustomerData] = useState<any>(null);
   const [fieldLabelMap, setFieldLabelMap] = useState<Record<string, string>>({});
+  const [ruleContextMapping, setRuleContextMapping] = useState<Record<string, string>>({});
   const [applicationId, setApplicationId] = useState<string | null>(null);
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
@@ -435,6 +436,15 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       // Extract rule engine context from form data
       const context: Record<string, any> = {};
       
+      // Build reverse lookup: contextKey -> [labels that map to it]
+      const contextKeyToLabels: Record<string, string[]> = {};
+      Object.entries(ruleContextMapping).forEach(([label, contextKey]) => {
+        if (!contextKeyToLabels[contextKey]) {
+          contextKeyToLabels[contextKey] = [];
+        }
+        contextKeyToLabels[contextKey].push(label.toLowerCase());
+      });
+      
       // Search for fields that might be relevant for the rule engine
       Object.entries(formValues).forEach(([key, value]) => {
         if (!value) return;
@@ -445,30 +455,40 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         const keyLower = key.toLowerCase();
         const valueLower = String(value).toLowerCase();
         
-        // License Type / Location Type mapping - check both key and label
-        if (labelLower.includes('license') || labelLower.includes('location') || 
-            keyLower.includes('license') || keyLower.includes('location')) {
-          if (valueLower.includes('mainland')) {
-            context.locationType = 'mainland';
-          } else if (valueLower.includes('freezone') || valueLower.includes('free zone')) {
-            context.locationType = 'freezone';
+        // First, check explicit ruleContextMapping (using field labels)
+        const mappedContextKey = Object.entries(ruleContextMapping).find(
+          ([mappedLabel]) => mappedLabel.toLowerCase() === labelLower
+        )?.[1];
+        
+        if (mappedContextKey) {
+          // Use explicit mapping - store the value directly
+          context[mappedContextKey] = value;
+        } else {
+          // Fallback: License Type / Location Type mapping - check both key and label
+          if (labelLower.includes('license') || labelLower.includes('location') || 
+              keyLower.includes('license') || keyLower.includes('location')) {
+            if (valueLower.includes('mainland')) {
+              context.locationType = 'mainland';
+            } else if (valueLower.includes('freezone') || valueLower.includes('free zone')) {
+              context.locationType = 'freezone';
+            }
           }
-        }
-        
-        // Emirate / Jurisdiction mapping
-        if (labelLower.includes('jurisdiction') || labelLower.includes('emirate') ||
-            keyLower.includes('jurisdiction') || keyLower.includes('emirate')) {
-          context.emirate = value;
-        }
-        
-        // Nationality
-        if (labelLower.includes('nationality') || keyLower.includes('nationality')) {
-          context.nationality = value;
-        }
-        
-        // Activity / Risk Level
-        if (labelLower.includes('risk') || keyLower.includes('risk')) {
-          context.activityRiskLevel = value;
+          
+          // Fallback: Emirate / Jurisdiction mapping
+          if (labelLower.includes('jurisdiction') || labelLower.includes('emirate') ||
+              keyLower.includes('jurisdiction') || keyLower.includes('emirate')) {
+            context.emirate = value;
+          }
+          
+          // Fallback: Nationality
+          if (labelLower.includes('nationality') || keyLower.includes('nationality')) {
+            context.nationality = value;
+          }
+          
+          // Fallback: Activity / Risk Level
+          if (labelLower.includes('risk') || keyLower.includes('risk')) {
+            context.activityRiskLevel = value;
+          }
         }
       });
       
@@ -478,22 +498,26 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         
         const valueLower = String(value).toLowerCase();
         
-        // Detect license type from values
-        if (valueLower === 'mainland' || valueLower === 'freezone') {
-          context.locationType = valueLower;
+        // Detect license type from values (only if not already set by mapping)
+        if (!context.locationType) {
+          if (valueLower === 'mainland' || valueLower === 'freezone') {
+            context.locationType = valueLower;
+          }
         }
         
-        // Detect emirate from values
-        if (['dubai', 'abu dhabi', 'sharjah', 'ajman', 'rak', 'fujairah', 'umm al quwain'].some(
-          e => valueLower.includes(e.toLowerCase())
-        )) {
-          context.emirate = value;
+        // Detect emirate from values (only if not already set by mapping)
+        if (!context.emirate) {
+          if (['dubai', 'abu dhabi', 'sharjah', 'ajman', 'rak', 'fujairah', 'umm al quwain'].some(
+            e => valueLower.includes(e.toLowerCase())
+          )) {
+            context.emirate = value;
+          }
         }
       });
       
       onRuleEngineContextChange(context);
     }
-  }, [currentStep, JSON.stringify(formValues), fieldLabelMap, onRuleEngineContextChange]);
+  }, [currentStep, JSON.stringify(formValues), fieldLabelMap, ruleContextMapping, onRuleEngineContextChange]);
   const fetchDocumentsForProduct = async (productId: string) => {
     try {
       const { data: configData } = await supabase
@@ -518,6 +542,13 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
               requiredAtStages: d.requiredAtStages || [],
             }))
           }));
+        }
+        
+        // Load rule context mapping if available
+        if (raw.ruleContextMapping) {
+          setRuleContextMapping(raw.ruleContextMapping);
+        } else {
+          setRuleContextMapping({});
         }
         
         onDocumentsChange?.(documents);
