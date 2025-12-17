@@ -204,7 +204,10 @@ export default function WebflowConfig() {
         </TabsContent>
 
         <TabsContent value="rules">
-          <RulesTab />
+          <RulesTab 
+            rules={config?.config_data?.rules || []} 
+            onUpdate={async (rules) => { await updateRules(rules as any); }}
+          />
         </TabsContent>
       </Tabs>
 
