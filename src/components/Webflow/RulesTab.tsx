@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,7 +23,9 @@ import {
   XCircle,
   Copy,
   Download,
-  Upload
+  Upload,
+  PlayCircle,
+  Calculator
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -250,18 +252,22 @@ export default function RulesTab({ rules: propRules, onUpdate }: RulesTabProps) 
       </CardHeader>
       <CardContent>
         <Tabs value={activeView} onValueChange={(v) => setActiveView(v as any)} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3 max-w-md">
+          <TabsList className="grid w-full grid-cols-4 max-w-lg">
             <TabsTrigger value="visual" className="flex items-center gap-2">
               <Workflow className="h-4 w-4" />
-              Visual Builder
+              Visual
             </TabsTrigger>
             <TabsTrigger value="json" className="flex items-center gap-2">
               <Code className="h-4 w-4" />
-              JSON Editor
+              JSON
             </TabsTrigger>
             <TabsTrigger value="tree" className="flex items-center gap-2">
               <GitBranch className="h-4 w-4" />
-              Decision Tree
+              Tree
+            </TabsTrigger>
+            <TabsTrigger value="test" className="flex items-center gap-2">
+              <PlayCircle className="h-4 w-4" />
+              Test
             </TabsTrigger>
           </TabsList>
 
@@ -285,6 +291,10 @@ export default function RulesTab({ rules: propRules, onUpdate }: RulesTabProps) 
 
           <TabsContent value="tree" className="space-y-4">
             <DecisionTreeView rules={rules} />
+          </TabsContent>
+
+          <TabsContent value="test" className="space-y-4">
+            <RuleTester rules={rules} />
           </TabsContent>
         </Tabs>
 
@@ -822,5 +832,260 @@ function RuleEditorDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// Rule Tester Component
+function RuleTester({ rules }: { rules: WebflowRule[] }) {
+  const [testContext, setTestContext] = useState({
+    emirate: '',
+    locationType: '',
+    activityRiskLevel: '',
+    planCode: '',
+  });
+
+  const testResults = useMemo(() => {
+    const results = {
+      priceMultiplier: 1,
+      additionalFees: 0,
+      appliedRules: [] as string[],
+      warnings: [] as string[],
+      blocked: false,
+      blockMessage: '',
+      requiredDocuments: [] as string[],
+    };
+
+    const evaluateCondition = (condition: RuleCondition): boolean => {
+      const fieldMap: Record<string, string> = {
+        'jurisdiction.type': testContext.locationType,
+        'jurisdiction_type': testContext.locationType,
+        'location_type': testContext.locationType,
+        'jurisdiction.emirate': testContext.emirate,
+        'emirate': testContext.emirate,
+        'activity.risk_level': testContext.activityRiskLevel,
+        'risk_level': testContext.activityRiskLevel,
+        'plan.code': testContext.planCode,
+        'plan_code': testContext.planCode,
+      };
+
+      const fieldValue = fieldMap[condition.field] || '';
+      const condValue = String(condition.value);
+
+      switch (condition.operator) {
+        case 'equals':
+          return fieldValue.toLowerCase() === condValue.toLowerCase();
+        case 'not_equals':
+          return fieldValue.toLowerCase() !== condValue.toLowerCase();
+        case 'contains':
+          return fieldValue.toLowerCase().includes(condValue.toLowerCase());
+        case 'in':
+          const inList = Array.isArray(condition.value) ? condition.value : condValue.split(',').map(s => s.trim());
+          return inList.some(v => v.toLowerCase() === fieldValue.toLowerCase());
+        case 'not_in':
+          const notInList = Array.isArray(condition.value) ? condition.value : condValue.split(',').map(s => s.trim());
+          return !notInList.some(v => v.toLowerCase() === fieldValue.toLowerCase());
+        default:
+          return false;
+      }
+    };
+
+    for (const rule of rules) {
+      if (!rule.is_active) continue;
+
+      const allConditionsMatch = rule.conditions.length === 0 || 
+        rule.conditions.every(cond => evaluateCondition(cond));
+
+      if (allConditionsMatch) {
+        results.appliedRules.push(rule.rule_name);
+
+        for (const action of rule.actions) {
+          switch (action.type) {
+            case 'set_price':
+              if (action.value && typeof action.value === 'number') {
+                if (action.value > 1) {
+                  results.additionalFees += action.value;
+                } else {
+                  results.priceMultiplier *= action.value;
+                }
+              }
+              break;
+            case 'show_warning':
+              if (action.message) results.warnings.push(action.message);
+              break;
+            case 'block':
+              results.blocked = true;
+              results.blockMessage = action.message || 'Blocked';
+              break;
+            case 'require_document':
+              if (action.target) results.requiredDocuments.push(action.target);
+              break;
+          }
+        }
+      }
+    }
+
+    return results;
+  }, [rules, testContext]);
+
+  const hasAnyInput = testContext.emirate || testContext.locationType || 
+                      testContext.activityRiskLevel || testContext.planCode;
+
+  return (
+    <div className="space-y-6">
+      <div className="flex items-center gap-2 mb-4">
+        <PlayCircle className="h-5 w-5 text-muted-foreground" />
+        <span className="font-medium">Rule Tester</span>
+        <span className="text-sm text-muted-foreground">— Simulate selections to see which rules fire</span>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        <div className="space-y-2">
+          <Label>Emirate</Label>
+          <Select value={testContext.emirate} onValueChange={(v) => setTestContext(prev => ({ ...prev, emirate: v }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select emirate" />
+            </SelectTrigger>
+            <SelectContent className="bg-background z-50">
+              <SelectItem value="dubai">Dubai</SelectItem>
+              <SelectItem value="abu_dhabi">Abu Dhabi</SelectItem>
+              <SelectItem value="sharjah">Sharjah</SelectItem>
+              <SelectItem value="ajman">Ajman</SelectItem>
+              <SelectItem value="rak">RAK</SelectItem>
+              <SelectItem value="fujairah">Fujairah</SelectItem>
+              <SelectItem value="umm_al_quwain">Umm Al Quwain</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Location Type</Label>
+          <Select value={testContext.locationType} onValueChange={(v) => setTestContext(prev => ({ ...prev, locationType: v }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select type" />
+            </SelectTrigger>
+            <SelectContent className="bg-background z-50">
+              <SelectItem value="mainland">Mainland</SelectItem>
+              <SelectItem value="freezone">Freezone</SelectItem>
+              <SelectItem value="offshore">Offshore</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Activity Risk Level</Label>
+          <Select value={testContext.activityRiskLevel} onValueChange={(v) => setTestContext(prev => ({ ...prev, activityRiskLevel: v }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select risk" />
+            </SelectTrigger>
+            <SelectContent className="bg-background z-50">
+              <SelectItem value="low">Low</SelectItem>
+              <SelectItem value="medium">Medium</SelectItem>
+              <SelectItem value="high">High</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="space-y-2">
+          <Label>Plan Code</Label>
+          <Select value={testContext.planCode} onValueChange={(v) => setTestContext(prev => ({ ...prev, planCode: v }))}>
+            <SelectTrigger>
+              <SelectValue placeholder="Select plan" />
+            </SelectTrigger>
+            <SelectContent className="bg-background z-50">
+              <SelectItem value="starter">Starter</SelectItem>
+              <SelectItem value="business">Business</SelectItem>
+              <SelectItem value="complete">Complete</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      </div>
+
+      {/* Results */}
+      <div className="border rounded-lg p-4 bg-muted/30 space-y-4">
+        <div className="flex items-center gap-2">
+          <Calculator className="h-5 w-5 text-primary" />
+          <span className="font-medium">Test Results</span>
+        </div>
+
+        {!hasAnyInput ? (
+          <p className="text-muted-foreground text-sm">Select values above to test which rules would fire.</p>
+        ) : (
+          <div className="space-y-4">
+            {/* Applied Rules */}
+            <div>
+              <Label className="text-muted-foreground">Applied Rules ({testResults.appliedRules.length})</Label>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {testResults.appliedRules.length === 0 ? (
+                  <span className="text-sm text-muted-foreground italic">No rules matched</span>
+                ) : (
+                  testResults.appliedRules.map((rule, i) => (
+                    <Badge key={i} variant="default">{rule}</Badge>
+                  ))
+                )}
+              </div>
+            </div>
+
+            {/* Price Adjustments */}
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label className="text-muted-foreground">Price Multiplier</Label>
+                <p className={cn(
+                  "text-lg font-bold",
+                  testResults.priceMultiplier !== 1 && "text-amber-600"
+                )}>
+                  {testResults.priceMultiplier === 1 ? '×1.00 (no change)' : `×${testResults.priceMultiplier.toFixed(2)}`}
+                </p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Additional Fees</Label>
+                <p className={cn(
+                  "text-lg font-bold",
+                  testResults.additionalFees > 0 && "text-amber-600"
+                )}>
+                  {testResults.additionalFees === 0 ? 'AED 0' : `+AED ${testResults.additionalFees.toLocaleString()}`}
+                </p>
+              </div>
+            </div>
+
+            {/* Blocked */}
+            {testResults.blocked && (
+              <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-lg">
+                <div className="flex items-center gap-2">
+                  <XCircle className="h-4 w-4 text-destructive" />
+                  <span className="font-medium text-destructive">BLOCKED: {testResults.blockMessage}</span>
+                </div>
+              </div>
+            )}
+
+            {/* Warnings */}
+            {testResults.warnings.length > 0 && (
+              <div className="space-y-2">
+                <Label className="text-muted-foreground">Warnings</Label>
+                {testResults.warnings.map((warning, i) => (
+                  <div key={i} className="p-2 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded">
+                    <div className="flex items-center gap-2">
+                      <AlertTriangle className="h-4 w-4 text-amber-600" />
+                      <span className="text-sm">{warning}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Required Documents */}
+            {testResults.requiredDocuments.length > 0 && (
+              <div>
+                <Label className="text-muted-foreground">Required Documents</Label>
+                <ul className="list-disc list-inside mt-1 text-sm">
+                  {testResults.requiredDocuments.map((doc, i) => (
+                    <li key={i}>{doc}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
   );
 }
