@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -8,97 +8,24 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { 
-  Globe, 
-  Building2, 
-  Briefcase, 
-  CreditCard, 
-  FileText, 
-  Plus, 
-  Pencil, 
-  Trash2, 
-  Settings,
-  AlertTriangle,
-  CheckCircle,
-  XCircle,
-  Search,
-  Filter,
-  Workflow
+  Globe, Building2, Briefcase, CreditCard, FileText, Plus, Pencil, Trash2, Settings,
+  AlertTriangle, CheckCircle, XCircle, Search, Filter, Workflow, Download, Upload, 
+  History, RotateCcw, Loader2
 } from 'lucide-react';
 import RulesTab from '@/components/Webflow/RulesTab';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-
-// Types - using any for flexibility with Supabase JSONB/enum returns
-interface WebflowCountry {
-  id: string;
-  country_code: string;
-  country_name: string;
-  is_blocked: boolean;
-  block_reason: string | null;
-  risk_level: string;
-  requires_enhanced_due_diligence: boolean;
-  is_active: boolean;
-}
-
-interface WebflowJurisdiction {
-  id: string;
-  jurisdiction_code: string;
-  jurisdiction_name: string;
-  jurisdiction_type: string;
-  emirate: string | null;
-  legal_forms: any[];
-  base_price: number;
-  processing_days: number;
-  is_active: boolean;
-  notes: string | null;
-}
-
-interface WebflowActivity {
-  id: string;
-  activity_code: string;
-  activity_name: string;
-  category: string | null;
-  risk_level: string;
-  is_restricted: boolean;
-  restriction_reason: string | null;
-  requires_approval: boolean;
-  allowed_jurisdictions: any[];
-  additional_requirements: any[];
-  price_modifier: number;
-  is_active: boolean;
-}
-
-interface WebflowPricing {
-  id: string;
-  plan_code: string;
-  plan_name: string;
-  description: string | null;
-  base_price: number;
-  features: any[];
-  included_services: any[];
-  jurisdiction_pricing: any;
-  is_popular: boolean;
-  is_active: boolean;
-  sort_order: number;
-}
-
-interface WebflowDocument {
-  id: string;
-  document_code: string;
-  document_name: string;
-  description: string | null;
-  is_mandatory: boolean;
-  applies_to_nationalities: any[];
-  applies_to_jurisdictions: any[];
-  applies_to_activities: any[];
-  accepted_formats: any[];
-  max_file_size_mb: number;
-  is_active: boolean;
-  sort_order: number;
-}
+import { 
+  useWebflowConfig, 
+  WebflowCountryConfig, 
+  WebflowJurisdictionConfig, 
+  WebflowActivityConfig, 
+  WebflowDocumentConfig,
+  WebflowPricingConfig,
+  WebflowConfigVersion
+} from '@/hooks/useWebflowConfig';
 
 const RISK_COLORS: Record<string, string> = {
   low: 'bg-green-100 text-green-800',
@@ -107,9 +34,50 @@ const RISK_COLORS: Record<string, string> = {
   prohibited: 'bg-red-100 text-red-800'
 };
 
+const TYPE_COLORS: Record<string, string> = {
+  mainland: 'bg-blue-100 text-blue-800',
+  freezone: 'bg-purple-100 text-purple-800',
+  offshore: 'bg-slate-100 text-slate-800'
+};
+
 export default function WebflowConfig() {
   const [activeTab, setActiveTab] = useState('countries');
   const [searchQuery, setSearchQuery] = useState('');
+  const [showVersionHistory, setShowVersionHistory] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  const { 
+    config, 
+    configData, 
+    versions, 
+    loading, 
+    saving, 
+    exportConfig, 
+    importConfig,
+    restoreVersion,
+    updateCountries,
+    updateJurisdictions,
+    updateActivities,
+    updateDocuments,
+    updatePricing,
+    updateRules
+  } = useWebflowConfig();
+
+  const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await importConfig(file);
+      e.target.value = '';
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -123,6 +91,30 @@ export default function WebflowConfig() {
             Configure eligibility rules, jurisdictions, activities, pricing, and documents
           </p>
         </div>
+        <div className="flex items-center gap-2">
+          <Badge variant="outline" className="text-xs">
+            v{config?.version_number || 1}
+          </Badge>
+          <Button variant="outline" size="sm" onClick={() => setShowVersionHistory(true)}>
+            <History className="h-4 w-4 mr-2" />
+            History
+          </Button>
+          <Button variant="outline" size="sm" onClick={exportConfig}>
+            <Download className="h-4 w-4 mr-2" />
+            Export
+          </Button>
+          <Button variant="outline" size="sm" onClick={() => fileInputRef.current?.click()}>
+            <Upload className="h-4 w-4 mr-2" />
+            Import
+          </Button>
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept=".json"
+            onChange={handleFileImport}
+            className="hidden"
+          />
+        </div>
       </div>
 
       <div className="flex items-center gap-4 mb-4">
@@ -135,6 +127,12 @@ export default function WebflowConfig() {
             className="pl-10"
           />
         </div>
+        {saving && (
+          <Badge variant="secondary" className="flex items-center gap-1">
+            <Loader2 className="h-3 w-3 animate-spin" />
+            Saving...
+          </Badge>
+        )}
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
@@ -166,100 +164,174 @@ export default function WebflowConfig() {
         </TabsList>
 
         <TabsContent value="countries">
-          <CountriesTab searchQuery={searchQuery} />
+          <CountriesTab 
+            searchQuery={searchQuery} 
+            countries={configData.countries}
+            onUpdate={updateCountries}
+          />
         </TabsContent>
         
         <TabsContent value="jurisdictions">
-          <JurisdictionsTab searchQuery={searchQuery} />
+          <JurisdictionsTab 
+            searchQuery={searchQuery}
+            jurisdictions={configData.jurisdictions}
+            onUpdate={updateJurisdictions}
+          />
         </TabsContent>
         
         <TabsContent value="activities">
-          <ActivitiesTab searchQuery={searchQuery} />
+          <ActivitiesTab 
+            searchQuery={searchQuery}
+            activities={configData.activities}
+            onUpdate={updateActivities}
+          />
         </TabsContent>
         
         <TabsContent value="pricing">
-          <PricingTab searchQuery={searchQuery} />
+          <PricingTab 
+            searchQuery={searchQuery}
+            pricing={configData.pricing}
+            onUpdate={updatePricing}
+          />
         </TabsContent>
         
         <TabsContent value="documents">
-          <DocumentsTab searchQuery={searchQuery} />
+          <DocumentsTab 
+            searchQuery={searchQuery}
+            documents={configData.documents}
+            onUpdate={updateDocuments}
+          />
         </TabsContent>
 
         <TabsContent value="rules">
           <RulesTab />
         </TabsContent>
       </Tabs>
+
+      <VersionHistoryDialog
+        open={showVersionHistory}
+        onOpenChange={setShowVersionHistory}
+        versions={versions}
+        currentVersion={config?.version_number || 1}
+        onRestore={restoreVersion}
+      />
     </div>
   );
 }
 
+// Version History Dialog
+function VersionHistoryDialog({
+  open,
+  onOpenChange,
+  versions,
+  currentVersion,
+  onRestore
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  versions: WebflowConfigVersion[];
+  currentVersion: number;
+  onRestore: (version: WebflowConfigVersion) => Promise<boolean>;
+}) {
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-2xl">
+        <DialogHeader>
+          <DialogTitle>Version History</DialogTitle>
+          <DialogDescription>
+            View and restore previous configuration versions
+          </DialogDescription>
+        </DialogHeader>
+        <div className="max-h-[400px] overflow-y-auto">
+          {versions.length === 0 ? (
+            <p className="text-center py-8 text-muted-foreground">No previous versions</p>
+          ) : (
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Version</TableHead>
+                  <TableHead>Date</TableHead>
+                  <TableHead>Notes</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {versions.map((version) => (
+                  <TableRow key={version.id}>
+                    <TableCell>
+                      <Badge variant={version.version_number === currentVersion - 1 ? "default" : "outline"}>
+                        v{version.version_number}
+                      </Badge>
+                    </TableCell>
+                    <TableCell className="text-sm">
+                      {new Date(version.created_at).toLocaleString()}
+                    </TableCell>
+                    <TableCell className="text-sm text-muted-foreground">
+                      {version.change_notes || '-'}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button 
+                        variant="ghost" 
+                        size="sm"
+                        onClick={() => onRestore(version)}
+                      >
+                        <RotateCcw className="h-4 w-4 mr-1" />
+                        Restore
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Countries Tab Component
-function CountriesTab({ searchQuery }: { searchQuery: string }) {
-  const [countries, setCountries] = useState<WebflowCountry[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingCountry, setEditingCountry] = useState<WebflowCountry | null>(null);
+function CountriesTab({ 
+  searchQuery, 
+  countries,
+  onUpdate
+}: { 
+  searchQuery: string;
+  countries: WebflowCountryConfig[];
+  onUpdate: (countries: WebflowCountryConfig[]) => Promise<boolean>;
+}) {
+  const [editingCountry, setEditingCountry] = useState<WebflowCountryConfig | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  useEffect(() => {
-    fetchCountries();
-  }, []);
-
-  const fetchCountries = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('webflow_countries')
-      .select('*')
-      .order('country_name');
+  const handleSave = async (country: Partial<WebflowCountryConfig>) => {
+    let updatedCountries: WebflowCountryConfig[];
     
-    if (error) {
-      toast({ title: 'Error', description: 'Failed to fetch countries', variant: 'destructive' });
-    } else {
-      setCountries(data || []);
-    }
-    setLoading(false);
-  };
-
-  const handleSave = async (country: Partial<WebflowCountry>) => {
     if (editingCountry?.id) {
-      const { error } = await supabase
-        .from('webflow_countries')
-        .update(country)
-        .eq('id', editingCountry.id);
-      
-      if (error) {
-        toast({ title: 'Error', description: 'Failed to update country', variant: 'destructive' });
-      } else {
-        toast({ title: 'Success', description: 'Country updated' });
-        fetchCountries();
-      }
+      updatedCountries = countries.map(c => 
+        c.id === editingCountry.id ? { ...c, ...country } as WebflowCountryConfig : c
+      );
     } else {
-      const { error } = await supabase
-        .from('webflow_countries')
-        .insert(country as any);
-      
-      if (error) {
-        toast({ title: 'Error', description: 'Failed to create country', variant: 'destructive' });
-      } else {
-        toast({ title: 'Success', description: 'Country created' });
-        fetchCountries();
-      }
+      const newCountry: WebflowCountryConfig = {
+        id: crypto.randomUUID(),
+        country_code: country.country_code || '',
+        country_name: country.country_name || '',
+        is_blocked: country.is_blocked || false,
+        block_reason: country.block_reason || null,
+        risk_level: country.risk_level || 'standard',
+        requires_enhanced_due_diligence: country.requires_enhanced_due_diligence || false,
+        is_active: country.is_active !== false
+      };
+      updatedCountries = [...countries, newCountry];
     }
+    
+    await onUpdate(updatedCountries);
     setIsDialogOpen(false);
     setEditingCountry(null);
   };
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase
-      .from('webflow_countries')
-      .delete()
-      .eq('id', id);
-    
-    if (error) {
-      toast({ title: 'Error', description: 'Failed to delete country', variant: 'destructive' });
-    } else {
-      toast({ title: 'Success', description: 'Country deleted' });
-      fetchCountries();
-    }
+    const updatedCountries = countries.filter(c => c.id !== id);
+    await onUpdate(updatedCountries);
   };
 
   const filteredCountries = countries.filter(c => 
@@ -280,9 +352,7 @@ function CountriesTab({ searchQuery }: { searchQuery: string }) {
         </Button>
       </CardHeader>
       <CardContent>
-        {loading ? (
-          <p className="text-center py-8 text-muted-foreground">Loading...</p>
-        ) : filteredCountries.length === 0 ? (
+        {filteredCountries.length === 0 ? (
           <p className="text-center py-8 text-muted-foreground">No countries configured</p>
         ) : (
           <Table>
@@ -302,7 +372,7 @@ function CountriesTab({ searchQuery }: { searchQuery: string }) {
                   <TableCell className="font-medium">{country.country_name}</TableCell>
                   <TableCell>{country.country_code}</TableCell>
                   <TableCell>
-                    <Badge className={RISK_COLORS[country.risk_level]}>
+                    <Badge className={RISK_COLORS[country.risk_level] || RISK_COLORS.standard}>
                       {country.risk_level}
                     </Badge>
                   </TableCell>
@@ -355,25 +425,14 @@ function CountriesTab({ searchQuery }: { searchQuery: string }) {
 }
 
 function CountryDialog({ 
-  open, 
-  onOpenChange, 
-  country, 
-  onSave 
+  open, onOpenChange, country, onSave 
 }: { 
   open: boolean; 
   onOpenChange: (open: boolean) => void;
-  country: WebflowCountry | null;
-  onSave: (country: Partial<WebflowCountry>) => void;
+  country: WebflowCountryConfig | null;
+  onSave: (country: Partial<WebflowCountryConfig>) => void;
 }) {
-  const [formData, setFormData] = useState<Partial<WebflowCountry>>({
-    country_code: '',
-    country_name: '',
-    is_blocked: false,
-    block_reason: '',
-    risk_level: 'standard',
-    requires_enhanced_due_diligence: false,
-    is_active: true
-  });
+  const [formData, setFormData] = useState<Partial<WebflowCountryConfig>>({});
 
   useEffect(() => {
     if (country) {
@@ -396,9 +455,7 @@ function CountryDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{country ? 'Edit Country' : 'Add Country'}</DialogTitle>
-          <DialogDescription>
-            Configure country eligibility rules
-          </DialogDescription>
+          <DialogDescription>Configure country eligibility rules</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -425,11 +482,9 @@ function CountryDialog({
             <Label>Risk Level</Label>
             <Select 
               value={formData.risk_level || 'standard'} 
-              onValueChange={(value) => setFormData({...formData, risk_level: value as WebflowCountry['risk_level']})}
+              onValueChange={(value) => setFormData({...formData, risk_level: value})}
             >
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
+              <SelectTrigger><SelectValue /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="low">Low Risk</SelectItem>
                 <SelectItem value="standard">Standard</SelectItem>
@@ -484,87 +539,54 @@ function CountryDialog({
 }
 
 // Jurisdictions Tab Component
-function JurisdictionsTab({ searchQuery }: { searchQuery: string }) {
-  const [jurisdictions, setJurisdictions] = useState<WebflowJurisdiction[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingJurisdiction, setEditingJurisdiction] = useState<WebflowJurisdiction | null>(null);
+function JurisdictionsTab({ 
+  searchQuery,
+  jurisdictions,
+  onUpdate
+}: { 
+  searchQuery: string;
+  jurisdictions: WebflowJurisdictionConfig[];
+  onUpdate: (jurisdictions: WebflowJurisdictionConfig[]) => Promise<boolean>;
+}) {
+  const [editingJurisdiction, setEditingJurisdiction] = useState<WebflowJurisdictionConfig | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  useEffect(() => {
-    fetchJurisdictions();
-  }, []);
-
-  const fetchJurisdictions = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('webflow_jurisdictions')
-      .select('*')
-      .order('jurisdiction_name');
+  const handleSave = async (jurisdiction: Partial<WebflowJurisdictionConfig>) => {
+    let updated: WebflowJurisdictionConfig[];
     
-    if (error) {
-      toast({ title: 'Error', description: 'Failed to fetch jurisdictions', variant: 'destructive' });
-    } else {
-      setJurisdictions((data || []).map(j => ({
-        ...j,
-        legal_forms: Array.isArray(j.legal_forms) ? j.legal_forms : []
-      })));
-    }
-    setLoading(false);
-  };
-
-  const handleSave = async (jurisdiction: Partial<WebflowJurisdiction>) => {
     if (editingJurisdiction?.id) {
-      const { error } = await supabase
-        .from('webflow_jurisdictions')
-        .update(jurisdiction)
-        .eq('id', editingJurisdiction.id);
-      
-      if (error) {
-        toast({ title: 'Error', description: 'Failed to update jurisdiction', variant: 'destructive' });
-      } else {
-        toast({ title: 'Success', description: 'Jurisdiction updated' });
-        fetchJurisdictions();
-      }
+      updated = jurisdictions.map(j => 
+        j.id === editingJurisdiction.id ? { ...j, ...jurisdiction } as WebflowJurisdictionConfig : j
+      );
     } else {
-      const { error } = await supabase
-        .from('webflow_jurisdictions')
-        .insert(jurisdiction as any);
-      
-      if (error) {
-        toast({ title: 'Error', description: 'Failed to create jurisdiction', variant: 'destructive' });
-      } else {
-        toast({ title: 'Success', description: 'Jurisdiction created' });
-        fetchJurisdictions();
-      }
+      const newItem: WebflowJurisdictionConfig = {
+        id: crypto.randomUUID(),
+        jurisdiction_code: jurisdiction.jurisdiction_code || '',
+        jurisdiction_name: jurisdiction.jurisdiction_name || '',
+        jurisdiction_type: jurisdiction.jurisdiction_type || 'freezone',
+        emirate: jurisdiction.emirate || '',
+        legal_forms: jurisdiction.legal_forms || [],
+        base_price: jurisdiction.base_price || 0,
+        processing_days: jurisdiction.processing_days || 14,
+        is_active: jurisdiction.is_active !== false,
+        notes: jurisdiction.notes || null
+      };
+      updated = [...jurisdictions, newItem];
     }
+    
+    await onUpdate(updated);
     setIsDialogOpen(false);
     setEditingJurisdiction(null);
   };
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase
-      .from('webflow_jurisdictions')
-      .delete()
-      .eq('id', id);
-    
-    if (error) {
-      toast({ title: 'Error', description: 'Failed to delete jurisdiction', variant: 'destructive' });
-    } else {
-      toast({ title: 'Success', description: 'Jurisdiction deleted' });
-      fetchJurisdictions();
-    }
+    await onUpdate(jurisdictions.filter(j => j.id !== id));
   };
 
   const filteredJurisdictions = jurisdictions.filter(j => 
     j.jurisdiction_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     j.jurisdiction_code.toLowerCase().includes(searchQuery.toLowerCase())
   );
-
-  const TYPE_COLORS = {
-    mainland: 'bg-blue-100 text-blue-800',
-    freezone: 'bg-purple-100 text-purple-800',
-    offshore: 'bg-slate-100 text-slate-800'
-  };
 
   return (
     <Card>
@@ -579,9 +601,7 @@ function JurisdictionsTab({ searchQuery }: { searchQuery: string }) {
         </Button>
       </CardHeader>
       <CardContent>
-        {loading ? (
-          <p className="text-center py-8 text-muted-foreground">Loading...</p>
-        ) : filteredJurisdictions.length === 0 ? (
+        {filteredJurisdictions.length === 0 ? (
           <p className="text-center py-8 text-muted-foreground">No jurisdictions configured</p>
         ) : (
           <Table>
@@ -608,7 +628,7 @@ function JurisdictionsTab({ searchQuery }: { searchQuery: string }) {
                       </div>
                     </TableCell>
                     <TableCell>
-                      <Badge className={TYPE_COLORS[jurisdiction.jurisdiction_type as keyof typeof TYPE_COLORS]}>
+                      <Badge className={TYPE_COLORS[jurisdiction.jurisdiction_type] || TYPE_COLORS.freezone}>
                         {jurisdiction.jurisdiction_type}
                       </Badge>
                     </TableCell>
@@ -618,10 +638,8 @@ function JurisdictionsTab({ searchQuery }: { searchQuery: string }) {
                           <span className="text-xs text-muted-foreground">All forms</span>
                         ) : (
                           <>
-                            {legalForms.slice(0, 2).map((form: string, idx: number) => (
-                              <Badge key={idx} variant="outline" className="text-xs">
-                                {form}
-                              </Badge>
+                            {legalForms.slice(0, 2).map((form, idx) => (
+                              <Badge key={idx} variant="outline" className="text-xs">{form}</Badge>
                             ))}
                             {legalForms.length > 2 && (
                               <Badge variant="secondary" className="text-xs">+{legalForms.length - 2}</Badge>
@@ -666,28 +684,14 @@ function JurisdictionsTab({ searchQuery }: { searchQuery: string }) {
 }
 
 function JurisdictionDialog({ 
-  open, 
-  onOpenChange, 
-  jurisdiction, 
-  onSave 
+  open, onOpenChange, jurisdiction, onSave 
 }: { 
   open: boolean; 
   onOpenChange: (open: boolean) => void;
-  jurisdiction: WebflowJurisdiction | null;
-  onSave: (jurisdiction: Partial<WebflowJurisdiction>) => void;
+  jurisdiction: WebflowJurisdictionConfig | null;
+  onSave: (jurisdiction: Partial<WebflowJurisdictionConfig>) => void;
 }) {
-  const [formData, setFormData] = useState<Partial<WebflowJurisdiction>>({
-    jurisdiction_code: '',
-    jurisdiction_name: '',
-    jurisdiction_type: 'freezone',
-    emirate: '',
-    legal_forms: [],
-    base_price: 0,
-    processing_days: 14,
-    is_active: true,
-    notes: ''
-  });
-  
+  const [formData, setFormData] = useState<Partial<WebflowJurisdictionConfig>>({});
   const [legalFormsText, setLegalFormsText] = useState('');
 
   useEffect(() => {
@@ -696,15 +700,8 @@ function JurisdictionDialog({
       setLegalFormsText((jurisdiction.legal_forms || []).join(', '));
     } else {
       setFormData({
-        jurisdiction_code: '',
-        jurisdiction_name: '',
-        jurisdiction_type: 'freezone',
-        emirate: '',
-        legal_forms: [],
-        base_price: 0,
-        processing_days: 14,
-        is_active: true,
-        notes: ''
+        jurisdiction_code: '', jurisdiction_name: '', jurisdiction_type: 'freezone',
+        emirate: '', legal_forms: [], base_price: 0, processing_days: 14, is_active: true, notes: ''
       });
       setLegalFormsText('');
     }
@@ -712,10 +709,7 @@ function JurisdictionDialog({
 
   const handleSave = () => {
     const legalForms = legalFormsText.split(',').map(s => s.trim()).filter(Boolean);
-    onSave({
-      ...formData,
-      legal_forms: legalForms
-    });
+    onSave({ ...formData, legal_forms: legalForms });
   };
 
   return (
@@ -723,40 +717,25 @@ function JurisdictionDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{jurisdiction ? 'Edit Jurisdiction' : 'Add Jurisdiction'}</DialogTitle>
-          <DialogDescription>
-            Configure jurisdiction settings and available legal forms
-          </DialogDescription>
+          <DialogDescription>Configure jurisdiction settings and available legal forms</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-2">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Code</Label>
-              <Input 
-                value={formData.jurisdiction_code || ''} 
-                onChange={(e) => setFormData({...formData, jurisdiction_code: e.target.value})}
-                placeholder="DMCC"
-              />
+              <Input value={formData.jurisdiction_code || ''} onChange={(e) => setFormData({...formData, jurisdiction_code: e.target.value})} placeholder="DMCC" />
             </div>
             <div className="space-y-2">
               <Label>Name</Label>
-              <Input 
-                value={formData.jurisdiction_name || ''} 
-                onChange={(e) => setFormData({...formData, jurisdiction_name: e.target.value})}
-                placeholder="Dubai Multi Commodities Centre"
-              />
+              <Input value={formData.jurisdiction_name || ''} onChange={(e) => setFormData({...formData, jurisdiction_name: e.target.value})} placeholder="Dubai Multi Commodities Centre" />
             </div>
           </div>
           
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Type</Label>
-              <Select 
-                value={formData.jurisdiction_type || 'freezone'} 
-                onValueChange={(value) => setFormData({...formData, jurisdiction_type: value as WebflowJurisdiction['jurisdiction_type']})}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
+              <Select value={formData.jurisdiction_type || 'freezone'} onValueChange={(value) => setFormData({...formData, jurisdiction_type: value as any})}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="mainland">Mainland</SelectItem>
                   <SelectItem value="freezone">Free Zone</SelectItem>
@@ -766,13 +745,8 @@ function JurisdictionDialog({
             </div>
             <div className="space-y-2">
               <Label>Emirate</Label>
-              <Select 
-                value={formData.emirate || ''} 
-                onValueChange={(value) => setFormData({...formData, emirate: value})}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Select emirate" />
-                </SelectTrigger>
+              <Select value={formData.emirate || ''} onValueChange={(value) => setFormData({...formData, emirate: value})}>
+                <SelectTrigger><SelectValue placeholder="Select emirate" /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="Dubai">Dubai</SelectItem>
                   <SelectItem value="Abu Dhabi">Abu Dhabi</SelectItem>
@@ -789,54 +763,31 @@ function JurisdictionDialog({
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Base Price (AED)</Label>
-              <Input 
-                type="number"
-                value={formData.base_price || 0} 
-                onChange={(e) => setFormData({...formData, base_price: parseFloat(e.target.value) || 0})}
-              />
+              <Input type="number" value={formData.base_price || 0} onChange={(e) => setFormData({...formData, base_price: parseFloat(e.target.value) || 0})} />
             </div>
             <div className="space-y-2">
               <Label>Processing Days</Label>
-              <Input 
-                type="number"
-                value={formData.processing_days || 14} 
-                onChange={(e) => setFormData({...formData, processing_days: parseInt(e.target.value) || 14})}
-              />
+              <Input type="number" value={formData.processing_days || 14} onChange={(e) => setFormData({...formData, processing_days: parseInt(e.target.value) || 14})} />
             </div>
           </div>
 
-          {/* Legal Forms Section */}
           <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
             <div className="flex items-center gap-2">
               <Filter className="h-4 w-4 text-muted-foreground" />
               <Label className="font-semibold">Available Legal Forms</Label>
             </div>
-            <Input 
-              value={legalFormsText} 
-              onChange={(e) => setLegalFormsText(e.target.value)}
-              placeholder="LLC, FZC, FZE, Branch (comma-separated)"
-              className="text-sm"
-            />
-            <p className="text-xs text-muted-foreground">
-              Legal entity types available in this jurisdiction. Leave empty for all forms.
-            </p>
+            <Input value={legalFormsText} onChange={(e) => setLegalFormsText(e.target.value)} placeholder="LLC, FZC, FZE, Branch (comma-separated)" className="text-sm" />
+            <p className="text-xs text-muted-foreground">Legal entity types available in this jurisdiction. Leave empty for all forms.</p>
           </div>
 
           <div className="space-y-2">
             <Label>Notes</Label>
-            <Textarea 
-              value={formData.notes || ''} 
-              onChange={(e) => setFormData({...formData, notes: e.target.value})}
-              placeholder="Additional notes..."
-            />
+            <Textarea value={formData.notes || ''} onChange={(e) => setFormData({...formData, notes: e.target.value})} placeholder="Additional notes..." />
           </div>
 
           <div className="flex items-center justify-between">
             <Label>Active</Label>
-            <Switch 
-              checked={formData.is_active !== false} 
-              onCheckedChange={(checked) => setFormData({...formData, is_active: checked})}
-            />
+            <Switch checked={formData.is_active !== false} onCheckedChange={(checked) => setFormData({...formData, is_active: checked})} />
           </div>
         </div>
         <DialogFooter>
@@ -849,76 +800,49 @@ function JurisdictionDialog({
 }
 
 // Activities Tab Component
-function ActivitiesTab({ searchQuery }: { searchQuery: string }) {
-  const [activities, setActivities] = useState<WebflowActivity[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingActivity, setEditingActivity] = useState<WebflowActivity | null>(null);
+function ActivitiesTab({ 
+  searchQuery,
+  activities,
+  onUpdate
+}: { 
+  searchQuery: string;
+  activities: WebflowActivityConfig[];
+  onUpdate: (activities: WebflowActivityConfig[]) => Promise<boolean>;
+}) {
+  const [editingActivity, setEditingActivity] = useState<WebflowActivityConfig | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  useEffect(() => {
-    fetchActivities();
-  }, []);
-
-  const fetchActivities = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('webflow_activities')
-      .select('*')
-      .order('activity_name');
+  const handleSave = async (activity: Partial<WebflowActivityConfig>) => {
+    let updated: WebflowActivityConfig[];
     
-    if (error) {
-      toast({ title: 'Error', description: 'Failed to fetch activities', variant: 'destructive' });
-    } else {
-      setActivities((data || []).map(a => ({
-        ...a,
-        allowed_jurisdictions: Array.isArray(a.allowed_jurisdictions) ? a.allowed_jurisdictions : [],
-        additional_requirements: Array.isArray(a.additional_requirements) ? a.additional_requirements : []
-      })));
-    }
-    setLoading(false);
-  };
-
-  const handleSave = async (activity: Partial<WebflowActivity>) => {
     if (editingActivity?.id) {
-      const { error } = await supabase
-        .from('webflow_activities')
-        .update(activity)
-        .eq('id', editingActivity.id);
-      
-      if (error) {
-        toast({ title: 'Error', description: 'Failed to update activity', variant: 'destructive' });
-      } else {
-        toast({ title: 'Success', description: 'Activity updated' });
-        fetchActivities();
-      }
+      updated = activities.map(a => a.id === editingActivity.id ? { ...a, ...activity } as WebflowActivityConfig : a);
     } else {
-      const { error } = await supabase
-        .from('webflow_activities')
-        .insert(activity as any);
-      
-      if (error) {
-        toast({ title: 'Error', description: 'Failed to create activity', variant: 'destructive' });
-      } else {
-        toast({ title: 'Success', description: 'Activity created' });
-        fetchActivities();
-      }
+      const newItem: WebflowActivityConfig = {
+        id: crypto.randomUUID(),
+        activity_code: activity.activity_code || '',
+        activity_name: activity.activity_name || '',
+        category: activity.category || '',
+        risk_level: activity.risk_level || 'standard',
+        is_restricted: activity.is_restricted || false,
+        restriction_reason: activity.restriction_reason || null,
+        requires_approval: activity.requires_approval || false,
+        allowed_jurisdictions: activity.allowed_jurisdictions || [],
+        price_modifier: activity.price_modifier || 0,
+        enhanced_due_diligence: activity.enhanced_due_diligence || false,
+        edd_requirements: activity.edd_requirements || [],
+        is_active: activity.is_active !== false
+      };
+      updated = [...activities, newItem];
     }
+    
+    await onUpdate(updated);
     setIsDialogOpen(false);
     setEditingActivity(null);
   };
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase
-      .from('webflow_activities')
-      .delete()
-      .eq('id', id);
-    
-    if (error) {
-      toast({ title: 'Error', description: 'Failed to delete activity', variant: 'destructive' });
-    } else {
-      toast({ title: 'Success', description: 'Activity deleted' });
-      fetchActivities();
-    }
+    await onUpdate(activities.filter(a => a.id !== id));
   };
 
   const filteredActivities = activities.filter(a => 
@@ -940,9 +864,7 @@ function ActivitiesTab({ searchQuery }: { searchQuery: string }) {
         </Button>
       </CardHeader>
       <CardContent>
-        {loading ? (
-          <p className="text-center py-8 text-muted-foreground">Loading...</p>
-        ) : filteredActivities.length === 0 ? (
+        {filteredActivities.length === 0 ? (
           <p className="text-center py-8 text-muted-foreground">No activities configured</p>
         ) : (
           <Table>
@@ -957,89 +879,61 @@ function ActivitiesTab({ searchQuery }: { searchQuery: string }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredActivities.map((activity) => {
-                const allowedJurisdictions = activity.allowed_jurisdictions || [];
-                const hasEDD = (activity as any).enhanced_due_diligence === true;
-                
-                return (
-                  <TableRow key={activity.id}>
-                    <TableCell>
-                      <div>
-                        <p className="font-medium">{activity.activity_name}</p>
-                        <p className="text-xs text-muted-foreground">{activity.category || '-'}</p>
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="space-y-1">
-                        <Badge className={RISK_COLORS[activity.risk_level]}>
-                          {activity.risk_level}
-                        </Badge>
-                        {activity.is_restricted && (
-                          <Badge variant="outline" className="text-amber-600 border-amber-600 ml-1">
-                            <AlertTriangle className="h-3 w-3 mr-1" />
-                            Restricted
-                          </Badge>
-                        )}
-                        {hasEDD && (
-                          <Badge variant="outline" className="text-red-600 border-red-600 ml-1">
-                            EDD
-                          </Badge>
-                        )}
-                        {activity.requires_approval && (
-                          <Badge variant="outline" className="text-blue-600 border-blue-600 ml-1">
-                            Approval
-                          </Badge>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex flex-wrap gap-1 max-w-[180px]">
-                        {allowedJurisdictions.length === 0 ? (
-                          <Badge variant="secondary" className="text-xs">
-                            <Globe className="h-3 w-3 mr-1" />
-                            All
-                          </Badge>
-                        ) : (
-                          <>
-                            {allowedJurisdictions.slice(0, 2).map((jur: string, idx: number) => (
-                              <Badge key={idx} variant="outline" className="text-xs bg-blue-50 border-blue-300">
-                                {jur}
-                              </Badge>
-                            ))}
-                            {allowedJurisdictions.length > 2 && (
-                              <Badge variant="secondary" className="text-xs">+{allowedJurisdictions.length - 2}</Badge>
-                            )}
-                          </>
-                        )}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      {activity.price_modifier > 0 ? (
-                        <Badge variant="outline" className="text-amber-600">+{activity.price_modifier}%</Badge>
-                      ) : activity.price_modifier < 0 ? (
-                        <Badge variant="outline" className="text-green-600">{activity.price_modifier}%</Badge>
+              {filteredActivities.map((activity) => (
+                <TableRow key={activity.id}>
+                  <TableCell>
+                    <div>
+                      <p className="font-medium">{activity.activity_name}</p>
+                      <p className="text-xs text-muted-foreground">{activity.category || '-'}</p>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      <Badge className={RISK_COLORS[activity.risk_level] || RISK_COLORS.standard}>{activity.risk_level}</Badge>
+                      {activity.is_restricted && <Badge variant="destructive" className="text-xs">Restricted</Badge>}
+                      {activity.enhanced_due_diligence && <Badge variant="outline" className="text-amber-600 text-xs">EDD</Badge>}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1 max-w-[150px]">
+                      {(activity.allowed_jurisdictions || []).length === 0 ? (
+                        <span className="text-xs text-muted-foreground">All</span>
                       ) : (
-                        <span className="text-muted-foreground">-</span>
+                        <>
+                          {activity.allowed_jurisdictions.slice(0, 2).map((j, idx) => (
+                            <Badge key={idx} variant="outline" className="text-xs">{j}</Badge>
+                          ))}
+                          {activity.allowed_jurisdictions.length > 2 && (
+                            <Badge variant="secondary" className="text-xs">+{activity.allowed_jurisdictions.length - 2}</Badge>
+                          )}
+                        </>
                       )}
-                    </TableCell>
-                    <TableCell>
-                      {activity.is_active ? (
-                        <Badge variant="outline" className="text-green-600 border-green-600">Active</Badge>
-                      ) : (
-                        <Badge variant="secondary">Inactive</Badge>
-                      )}
-                    </TableCell>
-                    <TableCell className="text-right">
-                      <Button variant="ghost" size="sm" onClick={() => { setEditingActivity(activity); setIsDialogOpen(true); }}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(activity.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                );
-              })}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {activity.price_modifier !== 0 && (
+                      <span className={activity.price_modifier > 0 ? 'text-red-600' : 'text-green-600'}>
+                        {activity.price_modifier > 0 ? '+' : ''}{activity.price_modifier}%
+                      </span>
+                    )}
+                  </TableCell>
+                  <TableCell>
+                    {activity.is_active ? (
+                      <Badge variant="outline" className="text-green-600 border-green-600">Active</Badge>
+                    ) : (
+                      <Badge variant="secondary">Inactive</Badge>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="ghost" size="sm" onClick={() => { setEditingActivity(activity); setIsDialogOpen(true); }}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleDelete(activity.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
             </TableBody>
           </Table>
         )}
@@ -1056,68 +950,40 @@ function ActivitiesTab({ searchQuery }: { searchQuery: string }) {
 }
 
 function ActivityDialog({ 
-  open, 
-  onOpenChange, 
-  activity, 
-  onSave 
+  open, onOpenChange, activity, onSave 
 }: { 
   open: boolean; 
   onOpenChange: (open: boolean) => void;
-  activity: WebflowActivity | null;
-  onSave: (activity: Partial<WebflowActivity>) => void;
+  activity: WebflowActivityConfig | null;
+  onSave: (activity: Partial<WebflowActivityConfig>) => void;
 }) {
-  const [formData, setFormData] = useState<Partial<WebflowActivity>>({
-    activity_code: '',
-    activity_name: '',
-    category: '',
-    risk_level: 'standard',
-    is_restricted: false,
-    restriction_reason: '',
-    requires_approval: false,
-    price_modifier: 0,
-    is_active: true,
-    allowed_jurisdictions: []
-  });
-  
-  const [allowedJurisdictionsText, setAllowedJurisdictionsText] = useState('');
-  const [eddRequirementsText, setEddRequirementsText] = useState('');
-  const [enhancedDD, setEnhancedDD] = useState(false);
+  const [formData, setFormData] = useState<Partial<WebflowActivityConfig>>({});
+  const [jurisdictionsText, setJurisdictionsText] = useState('');
+  const [eddReqText, setEddReqText] = useState('');
 
   useEffect(() => {
     if (activity) {
       setFormData(activity);
-      setAllowedJurisdictionsText((activity.allowed_jurisdictions || []).join(', '));
-      setEnhancedDD((activity as any).enhanced_due_diligence || false);
-      setEddRequirementsText(((activity as any).edd_requirements || []).join(', '));
+      setJurisdictionsText((activity.allowed_jurisdictions || []).join(', '));
+      setEddReqText((activity.edd_requirements || []).join(', '));
     } else {
       setFormData({
-        activity_code: '',
-        activity_name: '',
-        category: '',
-        risk_level: 'standard',
-        is_restricted: false,
-        restriction_reason: '',
-        requires_approval: false,
-        price_modifier: 0,
-        is_active: true,
-        allowed_jurisdictions: []
+        activity_code: '', activity_name: '', category: '', risk_level: 'standard',
+        is_restricted: false, restriction_reason: '', requires_approval: false,
+        allowed_jurisdictions: [], price_modifier: 0, enhanced_due_diligence: false,
+        edd_requirements: [], is_active: true
       });
-      setAllowedJurisdictionsText('');
-      setEnhancedDD(false);
-      setEddRequirementsText('');
+      setJurisdictionsText('');
+      setEddReqText('');
     }
   }, [activity, open]);
 
   const handleSave = () => {
-    const allowedJurisdictions = allowedJurisdictionsText.split(',').map(s => s.trim()).filter(Boolean);
-    const eddRequirements = eddRequirementsText.split(',').map(s => s.trim()).filter(Boolean);
-    
     onSave({
       ...formData,
-      allowed_jurisdictions: allowedJurisdictions,
-      enhanced_due_diligence: enhancedDD,
-      edd_requirements: eddRequirements
-    } as any);
+      allowed_jurisdictions: jurisdictionsText.split(',').map(s => s.trim()).filter(Boolean),
+      edd_requirements: eddReqText.split(',').map(s => s.trim()).filter(Boolean)
+    });
   };
 
   return (
@@ -1125,144 +991,78 @@ function ActivityDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{activity ? 'Edit Activity' : 'Add Activity'}</DialogTitle>
-          <DialogDescription>
-            Configure business activity settings and jurisdiction rules
-          </DialogDescription>
+          <DialogDescription>Configure business activity settings</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-2">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Code</Label>
-              <Input 
-                value={formData.activity_code || ''} 
-                onChange={(e) => setFormData({...formData, activity_code: e.target.value})}
-                placeholder="CONSULTING"
-              />
+              <Input value={formData.activity_code || ''} onChange={(e) => setFormData({...formData, activity_code: e.target.value})} placeholder="GEN-TRAD" />
             </div>
             <div className="space-y-2">
-              <Label>Category</Label>
-              <Input 
-                value={formData.category || ''} 
-                onChange={(e) => setFormData({...formData, category: e.target.value})}
-                placeholder="Professional Services"
-              />
+              <Label>Name</Label>
+              <Input value={formData.activity_name || ''} onChange={(e) => setFormData({...formData, activity_name: e.target.value})} placeholder="General Trading" />
             </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label>Activity Name</Label>
-            <Input 
-              value={formData.activity_name || ''} 
-              onChange={(e) => setFormData({...formData, activity_name: e.target.value})}
-              placeholder="Management Consultancy"
-            />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
+              <Label>Category</Label>
+              <Input value={formData.category || ''} onChange={(e) => setFormData({...formData, category: e.target.value})} placeholder="Trading" />
+            </div>
+            <div className="space-y-2">
               <Label>Risk Level</Label>
-              <Select 
-                value={formData.risk_level || 'standard'} 
-                onValueChange={(value) => setFormData({...formData, risk_level: value as WebflowActivity['risk_level']})}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
+              <Select value={formData.risk_level || 'standard'} onValueChange={(value) => setFormData({...formData, risk_level: value})}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="low">Low Risk</SelectItem>
+                  <SelectItem value="low">Low</SelectItem>
                   <SelectItem value="standard">Standard</SelectItem>
-                  <SelectItem value="high">High Risk</SelectItem>
+                  <SelectItem value="high">High</SelectItem>
                   <SelectItem value="prohibited">Prohibited</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          <div className="space-y-2">
+            <Label>Allowed Jurisdictions</Label>
+            <Input value={jurisdictionsText} onChange={(e) => setJurisdictionsText(e.target.value)} placeholder="mainland, freezone (comma-separated, leave empty for all)" />
+          </div>
+
+          <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Price Modifier (%)</Label>
-              <Input 
-                type="number"
-                value={formData.price_modifier || 0} 
-                onChange={(e) => setFormData({...formData, price_modifier: parseFloat(e.target.value) || 0})}
-              />
+              <Input type="number" value={formData.price_modifier || 0} onChange={(e) => setFormData({...formData, price_modifier: parseFloat(e.target.value) || 0})} />
             </div>
-          </div>
-
-          {/* Jurisdiction Rules Section */}
-          <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
-            <div className="flex items-center gap-2">
-              <Building2 className="h-4 w-4 text-muted-foreground" />
-              <Label className="font-semibold">Jurisdiction Rules</Label>
-            </div>
-            <Input 
-              value={allowedJurisdictionsText} 
-              onChange={(e) => setAllowedJurisdictionsText(e.target.value)}
-              placeholder="DMCC, DIFC, ADGM (comma-separated codes)"
-              className="text-sm"
-            />
-            <p className="text-xs text-muted-foreground">
-              Jurisdictions where this activity is allowed. Leave empty for all jurisdictions.
-            </p>
-          </div>
-
-          {/* EDD Section */}
-          <div className="border rounded-lg p-4 space-y-3 bg-amber-50/50">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <AlertTriangle className="h-4 w-4 text-amber-600" />
-                <Label className="font-semibold">Enhanced Due Diligence</Label>
-              </div>
-              <Switch 
-                checked={enhancedDD} 
-                onCheckedChange={setEnhancedDD}
-              />
-            </div>
-            {enhancedDD && (
-              <>
-                <Input 
-                  value={eddRequirementsText} 
-                  onChange={(e) => setEddRequirementsText(e.target.value)}
-                  placeholder="Source of Funds, Bank Reference (comma-separated)"
-                  className="text-sm"
-                />
-                <p className="text-xs text-muted-foreground">
-                  Additional compliance requirements for this high-risk activity
-                </p>
-              </>
-            )}
           </div>
 
           <div className="flex items-center justify-between">
-            <Label>Restricted Activity</Label>
-            <Switch 
-              checked={formData.is_restricted || false} 
-              onCheckedChange={(checked) => setFormData({...formData, is_restricted: checked})}
-            />
+            <Label>Restricted</Label>
+            <Switch checked={formData.is_restricted || false} onCheckedChange={(checked) => setFormData({...formData, is_restricted: checked})} />
           </div>
 
           {formData.is_restricted && (
             <div className="space-y-2">
               <Label>Restriction Reason</Label>
-              <Textarea 
-                value={formData.restriction_reason || ''} 
-                onChange={(e) => setFormData({...formData, restriction_reason: e.target.value})}
-                placeholder="Reason for restriction..."
-              />
+              <Textarea value={formData.restriction_reason || ''} onChange={(e) => setFormData({...formData, restriction_reason: e.target.value})} placeholder="Reason..." />
             </div>
           )}
 
           <div className="flex items-center justify-between">
-            <Label>Requires Approval</Label>
-            <Switch 
-              checked={formData.requires_approval || false} 
-              onCheckedChange={(checked) => setFormData({...formData, requires_approval: checked})}
-            />
+            <Label>Requires Enhanced Due Diligence</Label>
+            <Switch checked={formData.enhanced_due_diligence || false} onCheckedChange={(checked) => setFormData({...formData, enhanced_due_diligence: checked})} />
           </div>
+
+          {formData.enhanced_due_diligence && (
+            <div className="space-y-2">
+              <Label>EDD Requirements</Label>
+              <Input value={eddReqText} onChange={(e) => setEddReqText(e.target.value)} placeholder="SOF declaration, Bank references (comma-separated)" />
+            </div>
+          )}
 
           <div className="flex items-center justify-between">
             <Label>Active</Label>
-            <Switch 
-              checked={formData.is_active !== false} 
-              onCheckedChange={(checked) => setFormData({...formData, is_active: checked})}
-            />
+            <Switch checked={formData.is_active !== false} onCheckedChange={(checked) => setFormData({...formData, is_active: checked})} />
           </div>
         </div>
         <DialogFooter>
@@ -1275,77 +1075,47 @@ function ActivityDialog({
 }
 
 // Pricing Tab Component
-function PricingTab({ searchQuery }: { searchQuery: string }) {
-  const [pricing, setPricing] = useState<WebflowPricing[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingPlan, setEditingPlan] = useState<WebflowPricing | null>(null);
+function PricingTab({ 
+  searchQuery,
+  pricing,
+  onUpdate
+}: { 
+  searchQuery: string;
+  pricing: WebflowPricingConfig[];
+  onUpdate: (pricing: WebflowPricingConfig[]) => Promise<boolean>;
+}) {
+  const [editingPricing, setEditingPricing] = useState<WebflowPricingConfig | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  useEffect(() => {
-    fetchPricing();
-  }, []);
-
-  const fetchPricing = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('webflow_pricing')
-      .select('*')
-      .order('sort_order');
+  const handleSave = async (item: Partial<WebflowPricingConfig>) => {
+    let updated: WebflowPricingConfig[];
     
-    if (error) {
-      toast({ title: 'Error', description: 'Failed to fetch pricing', variant: 'destructive' });
+    if (editingPricing?.id) {
+      updated = pricing.map(p => p.id === editingPricing.id ? { ...p, ...item } as WebflowPricingConfig : p);
     } else {
-      setPricing((data || []).map(p => ({
-        ...p,
-        features: Array.isArray(p.features) ? p.features : [],
-        included_services: Array.isArray(p.included_services) ? p.included_services : [],
-        jurisdiction_pricing: typeof p.jurisdiction_pricing === 'object' ? p.jurisdiction_pricing : {}
-      })));
+      const newItem: WebflowPricingConfig = {
+        id: crypto.randomUUID(),
+        plan_code: item.plan_code || '',
+        plan_name: item.plan_name || '',
+        description: item.description || null,
+        base_price: item.base_price || 0,
+        features: item.features || [],
+        included_services: item.included_services || [],
+        jurisdiction_pricing: item.jurisdiction_pricing || {},
+        is_popular: item.is_popular || false,
+        is_active: item.is_active !== false,
+        sort_order: item.sort_order || 0
+      };
+      updated = [...pricing, newItem];
     }
-    setLoading(false);
-  };
-
-  const handleSave = async (plan: Partial<WebflowPricing>) => {
-    if (editingPlan?.id) {
-      const { error } = await supabase
-        .from('webflow_pricing')
-        .update(plan)
-        .eq('id', editingPlan.id);
-      
-      if (error) {
-        toast({ title: 'Error', description: 'Failed to update plan', variant: 'destructive' });
-      } else {
-        toast({ title: 'Success', description: 'Plan updated' });
-        fetchPricing();
-      }
-    } else {
-      const { error } = await supabase
-        .from('webflow_pricing')
-        .insert(plan as any);
-      
-      if (error) {
-        toast({ title: 'Error', description: 'Failed to create plan', variant: 'destructive' });
-      } else {
-        toast({ title: 'Success', description: 'Plan created' });
-        fetchPricing();
-      }
-    }
+    
+    await onUpdate(updated);
     setIsDialogOpen(false);
-    setEditingPlan(null);
+    setEditingPricing(null);
   };
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase
-      .from('webflow_pricing')
-      .delete()
-      .eq('id', id);
-    
-    if (error) {
-      toast({ title: 'Error', description: 'Failed to delete plan', variant: 'destructive' });
-    } else {
-      toast({ title: 'Success', description: 'Plan deleted' });
-      fetchPricing();
-    }
+    await onUpdate(pricing.filter(p => p.id !== id));
   };
 
   const filteredPricing = pricing.filter(p => 
@@ -1357,77 +1127,67 @@ function PricingTab({ searchQuery }: { searchQuery: string }) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Pricing & Plans</CardTitle>
-          <CardDescription>Manage pricing plans and included services</CardDescription>
+          <CardTitle>Pricing Plans</CardTitle>
+          <CardDescription>Manage pricing plans and packages</CardDescription>
         </div>
-        <Button onClick={() => { setEditingPlan(null); setIsDialogOpen(true); }}>
+        <Button onClick={() => { setEditingPricing(null); setIsDialogOpen(true); }}>
           <Plus className="h-4 w-4 mr-2" />
           Add Plan
         </Button>
       </CardHeader>
       <CardContent>
-        {loading ? (
-          <p className="text-center py-8 text-muted-foreground">Loading...</p>
-        ) : filteredPricing.length === 0 ? (
+        {filteredPricing.length === 0 ? (
           <p className="text-center py-8 text-muted-foreground">No pricing plans configured</p>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredPricing.map((plan) => (
-              <Card key={plan.id} className={`relative ${plan.is_popular ? 'border-primary border-2' : ''}`}>
-                {plan.is_popular && (
-                  <Badge className="absolute -top-2 left-1/2 transform -translate-x-1/2 bg-primary">
-                    Popular
-                  </Badge>
-                )}
-                <CardHeader>
-                  <CardTitle className="flex items-center justify-between">
-                    {plan.plan_name}
-                    <div className="flex gap-1">
-                      <Button variant="ghost" size="sm" onClick={() => { setEditingPlan(plan); setIsDialogOpen(true); }}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(plan.id)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>Plan</TableHead>
+                <TableHead>Base Price</TableHead>
+                <TableHead>Features</TableHead>
+                <TableHead>Status</TableHead>
+                <TableHead className="text-right">Actions</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {filteredPricing.map((plan) => (
+                <TableRow key={plan.id}>
+                  <TableCell>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{plan.plan_name}</p>
+                      {plan.is_popular && <Badge variant="default" className="text-xs">Popular</Badge>}
                     </div>
-                  </CardTitle>
-                  <CardDescription>{plan.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="text-3xl font-bold mb-4">
-                    AED {plan.base_price.toLocaleString()}
-                  </div>
-                  <div className="space-y-2">
-                    {(plan.features as string[]).slice(0, 4).map((feature, idx) => (
-                      <div key={idx} className="flex items-center gap-2 text-sm">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        {feature}
-                      </div>
-                    ))}
-                    {(plan.features as string[]).length > 4 && (
-                      <p className="text-sm text-muted-foreground">
-                        +{(plan.features as string[]).length - 4} more features
-                      </p>
-                    )}
-                  </div>
-                  <div className="mt-4">
+                  </TableCell>
+                  <TableCell>AED {plan.base_price?.toLocaleString()}</TableCell>
+                  <TableCell>
+                    <Badge variant="outline" className="text-xs">{(plan.features || []).length} features</Badge>
+                  </TableCell>
+                  <TableCell>
                     {plan.is_active ? (
                       <Badge variant="outline" className="text-green-600 border-green-600">Active</Badge>
                     ) : (
                       <Badge variant="secondary">Inactive</Badge>
                     )}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <Button variant="ghost" size="sm" onClick={() => { setEditingPricing(plan); setIsDialogOpen(true); }}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleDelete(plan.id)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         )}
       </CardContent>
 
       <PricingDialog 
         open={isDialogOpen} 
         onOpenChange={setIsDialogOpen}
-        plan={editingPlan}
+        pricing={editingPricing}
         onSave={handleSave}
       />
     </Card>
@@ -1435,133 +1195,85 @@ function PricingTab({ searchQuery }: { searchQuery: string }) {
 }
 
 function PricingDialog({ 
-  open, 
-  onOpenChange, 
-  plan, 
-  onSave 
+  open, onOpenChange, pricing, onSave 
 }: { 
   open: boolean; 
   onOpenChange: (open: boolean) => void;
-  plan: WebflowPricing | null;
-  onSave: (plan: Partial<WebflowPricing>) => void;
+  pricing: WebflowPricingConfig | null;
+  onSave: (pricing: Partial<WebflowPricingConfig>) => void;
 }) {
-  const [formData, setFormData] = useState<Partial<WebflowPricing>>({
-    plan_code: '',
-    plan_name: '',
-    description: '',
-    base_price: 0,
-    features: [],
-    is_popular: false,
-    is_active: true,
-    sort_order: 0
-  });
+  const [formData, setFormData] = useState<Partial<WebflowPricingConfig>>({});
   const [featuresText, setFeaturesText] = useState('');
 
   useEffect(() => {
-    if (plan) {
-      setFormData(plan);
-      setFeaturesText(Array.isArray(plan.features) ? (plan.features as string[]).join('\n') : '');
+    if (pricing) {
+      setFormData(pricing);
+      setFeaturesText((pricing.features || []).join('\n'));
     } else {
       setFormData({
-        plan_code: '',
-        plan_name: '',
-        description: '',
-        base_price: 0,
-        features: [],
-        is_popular: false,
-        is_active: true,
-        sort_order: 0
+        plan_code: '', plan_name: '', description: '', base_price: 0,
+        features: [], included_services: [], jurisdiction_pricing: {},
+        is_popular: false, is_active: true, sort_order: 0
       });
       setFeaturesText('');
     }
-  }, [plan, open]);
+  }, [pricing, open]);
 
   const handleSave = () => {
-    const features = featuresText.split('\n').filter(f => f.trim());
-    onSave({ ...formData, features });
+    onSave({
+      ...formData,
+      features: featuresText.split('\n').map(s => s.trim()).filter(Boolean)
+    });
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>{plan ? 'Edit Plan' : 'Add Plan'}</DialogTitle>
-          <DialogDescription>
-            Configure pricing plan settings
-          </DialogDescription>
+          <DialogTitle>{pricing ? 'Edit Plan' : 'Add Plan'}</DialogTitle>
+          <DialogDescription>Configure pricing plan details</DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+        <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-2">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Code</Label>
-              <Input 
-                value={formData.plan_code || ''} 
-                onChange={(e) => setFormData({...formData, plan_code: e.target.value})}
-                placeholder="STARTER"
-              />
+              <Input value={formData.plan_code || ''} onChange={(e) => setFormData({...formData, plan_code: e.target.value})} placeholder="BASIC" />
             </div>
             <div className="space-y-2">
               <Label>Name</Label>
-              <Input 
-                value={formData.plan_name || ''} 
-                onChange={(e) => setFormData({...formData, plan_name: e.target.value})}
-                placeholder="Starter Plan"
-              />
+              <Input value={formData.plan_name || ''} onChange={(e) => setFormData({...formData, plan_name: e.target.value})} placeholder="Basic Plan" />
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <Label>Description</Label>
-            <Textarea 
-              value={formData.description || ''} 
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
-              placeholder="Plan description..."
-            />
+            <Textarea value={formData.description || ''} onChange={(e) => setFormData({...formData, description: e.target.value})} placeholder="Plan description..." />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Base Price (AED)</Label>
-              <Input 
-                type="number"
-                value={formData.base_price || 0} 
-                onChange={(e) => setFormData({...formData, base_price: parseFloat(e.target.value) || 0})}
-              />
+              <Input type="number" value={formData.base_price || 0} onChange={(e) => setFormData({...formData, base_price: parseFloat(e.target.value) || 0})} />
             </div>
             <div className="space-y-2">
               <Label>Sort Order</Label>
-              <Input 
-                type="number"
-                value={formData.sort_order || 0} 
-                onChange={(e) => setFormData({...formData, sort_order: parseInt(e.target.value) || 0})}
-              />
+              <Input type="number" value={formData.sort_order || 0} onChange={(e) => setFormData({...formData, sort_order: parseInt(e.target.value) || 0})} />
             </div>
           </div>
 
           <div className="space-y-2">
             <Label>Features (one per line)</Label>
-            <Textarea 
-              value={featuresText} 
-              onChange={(e) => setFeaturesText(e.target.value)}
-              placeholder="Feature 1&#10;Feature 2&#10;Feature 3"
-              rows={5}
-            />
+            <Textarea value={featuresText} onChange={(e) => setFeaturesText(e.target.value)} placeholder="Trade license&#10;Visa quota: 3&#10;Office space included" rows={4} />
           </div>
 
           <div className="flex items-center justify-between">
-            <Label>Popular Plan</Label>
-            <Switch 
-              checked={formData.is_popular || false} 
-              onCheckedChange={(checked) => setFormData({...formData, is_popular: checked})}
-            />
+            <Label>Popular</Label>
+            <Switch checked={formData.is_popular || false} onCheckedChange={(checked) => setFormData({...formData, is_popular: checked})} />
           </div>
 
           <div className="flex items-center justify-between">
             <Label>Active</Label>
-            <Switch 
-              checked={formData.is_active !== false} 
-              onCheckedChange={(checked) => setFormData({...formData, is_active: checked})}
-            />
+            <Switch checked={formData.is_active !== false} onCheckedChange={(checked) => setFormData({...formData, is_active: checked})} />
           </div>
         </div>
         <DialogFooter>
@@ -1574,78 +1286,48 @@ function PricingDialog({
 }
 
 // Documents Tab Component
-function DocumentsTab({ searchQuery }: { searchQuery: string }) {
-  const [documents, setDocuments] = useState<WebflowDocument[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [editingDocument, setEditingDocument] = useState<WebflowDocument | null>(null);
+function DocumentsTab({ 
+  searchQuery,
+  documents,
+  onUpdate
+}: { 
+  searchQuery: string;
+  documents: WebflowDocumentConfig[];
+  onUpdate: (documents: WebflowDocumentConfig[]) => Promise<boolean>;
+}) {
+  const [editingDocument, setEditingDocument] = useState<WebflowDocumentConfig | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  useEffect(() => {
-    fetchDocuments();
-  }, []);
-
-  const fetchDocuments = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('webflow_documents')
-      .select('*')
-      .order('sort_order');
+  const handleSave = async (doc: Partial<WebflowDocumentConfig>) => {
+    let updated: WebflowDocumentConfig[];
     
-    if (error) {
-      toast({ title: 'Error', description: 'Failed to fetch documents', variant: 'destructive' });
-    } else {
-      setDocuments((data || []).map(d => ({
-        ...d,
-        applies_to_nationalities: Array.isArray(d.applies_to_nationalities) ? d.applies_to_nationalities : [],
-        applies_to_jurisdictions: Array.isArray(d.applies_to_jurisdictions) ? d.applies_to_jurisdictions : [],
-        applies_to_activities: Array.isArray(d.applies_to_activities) ? d.applies_to_activities : [],
-        accepted_formats: Array.isArray(d.accepted_formats) ? d.accepted_formats : ['pdf', 'jpg', 'png']
-      })));
-    }
-    setLoading(false);
-  };
-
-  const handleSave = async (document: Partial<WebflowDocument>) => {
     if (editingDocument?.id) {
-      const { error } = await supabase
-        .from('webflow_documents')
-        .update(document)
-        .eq('id', editingDocument.id);
-      
-      if (error) {
-        toast({ title: 'Error', description: 'Failed to update document', variant: 'destructive' });
-      } else {
-        toast({ title: 'Success', description: 'Document updated' });
-        fetchDocuments();
-      }
+      updated = documents.map(d => d.id === editingDocument.id ? { ...d, ...doc } as WebflowDocumentConfig : d);
     } else {
-      const { error } = await supabase
-        .from('webflow_documents')
-        .insert(document as any);
-      
-      if (error) {
-        toast({ title: 'Error', description: 'Failed to create document', variant: 'destructive' });
-      } else {
-        toast({ title: 'Success', description: 'Document created' });
-        fetchDocuments();
-      }
+      const newItem: WebflowDocumentConfig = {
+        id: crypto.randomUUID(),
+        document_code: doc.document_code || '',
+        document_name: doc.document_name || '',
+        description: doc.description || null,
+        is_mandatory: doc.is_mandatory || false,
+        applies_to_nationalities: doc.applies_to_nationalities || [],
+        applies_to_jurisdictions: doc.applies_to_jurisdictions || [],
+        applies_to_activities: doc.applies_to_activities || [],
+        accepted_formats: doc.accepted_formats || ['pdf', 'jpg', 'png'],
+        max_file_size_mb: doc.max_file_size_mb || 10,
+        is_active: doc.is_active !== false,
+        sort_order: doc.sort_order || 0
+      };
+      updated = [...documents, newItem];
     }
+    
+    await onUpdate(updated);
     setIsDialogOpen(false);
     setEditingDocument(null);
   };
 
   const handleDelete = async (id: string) => {
-    const { error } = await supabase
-      .from('webflow_documents')
-      .delete()
-      .eq('id', id);
-    
-    if (error) {
-      toast({ title: 'Error', description: 'Failed to delete document', variant: 'destructive' });
-    } else {
-      toast({ title: 'Success', description: 'Document deleted' });
-      fetchDocuments();
-    }
+    await onUpdate(documents.filter(d => d.id !== id));
   };
 
   const filteredDocuments = documents.filter(d => 
@@ -1657,8 +1339,8 @@ function DocumentsTab({ searchQuery }: { searchQuery: string }) {
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Document Requirements</CardTitle>
-          <CardDescription>Manage required documents and their conditions</CardDescription>
+          <CardTitle>Required Documents</CardTitle>
+          <CardDescription>Manage document requirements and upload rules</CardDescription>
         </div>
         <Button onClick={() => { setEditingDocument(null); setIsDialogOpen(true); }}>
           <Plus className="h-4 w-4 mr-2" />
@@ -1666,29 +1348,25 @@ function DocumentsTab({ searchQuery }: { searchQuery: string }) {
         </Button>
       </CardHeader>
       <CardContent>
-        {loading ? (
-          <p className="text-center py-8 text-muted-foreground">Loading...</p>
-        ) : filteredDocuments.length === 0 ? (
+        {filteredDocuments.length === 0 ? (
           <p className="text-center py-8 text-muted-foreground">No documents configured</p>
         ) : (
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Document</TableHead>
-                <TableHead>Mandatory</TableHead>
                 <TableHead>Applies To (Rules)</TableHead>
                 <TableHead>Formats</TableHead>
+                <TableHead>Required</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {filteredDocuments.map((doc) => {
-                const hasActivities = doc.applies_to_activities && doc.applies_to_activities.length > 0;
-                const hasJurisdictions = doc.applies_to_jurisdictions && doc.applies_to_jurisdictions.length > 0;
-                const hasNationalities = doc.applies_to_nationalities && doc.applies_to_nationalities.length > 0;
-                const isUniversal = !hasActivities && !hasJurisdictions && !hasNationalities;
-                
+                const hasRules = (doc.applies_to_nationalities?.length || 0) > 0 || 
+                                (doc.applies_to_jurisdictions?.length || 0) > 0 || 
+                                (doc.applies_to_activities?.length || 0) > 0;
                 return (
                   <TableRow key={doc.id}>
                     <TableCell>
@@ -1698,73 +1376,31 @@ function DocumentsTab({ searchQuery }: { searchQuery: string }) {
                       </div>
                     </TableCell>
                     <TableCell>
-                      {doc.is_mandatory ? (
-                        <Badge variant="destructive">Required</Badge>
+                      {hasRules ? (
+                        <div className="flex flex-wrap gap-1">
+                          {(doc.applies_to_nationalities?.length || 0) > 0 && (
+                            <Badge variant="outline" className="text-xs">{doc.applies_to_nationalities.length} nationalities</Badge>
+                          )}
+                          {(doc.applies_to_jurisdictions?.length || 0) > 0 && (
+                            <Badge variant="outline" className="text-xs">{doc.applies_to_jurisdictions.length} jurisdictions</Badge>
+                          )}
+                          {(doc.applies_to_activities?.length || 0) > 0 && (
+                            <Badge variant="outline" className="text-xs">{doc.applies_to_activities.length} activities</Badge>
+                          )}
+                        </div>
                       ) : (
-                        <Badge variant="outline">Optional</Badge>
+                        <span className="text-xs text-muted-foreground">All Applications</span>
                       )}
                     </TableCell>
                     <TableCell>
-                      <div className="space-y-1 max-w-[250px]">
-                        {isUniversal ? (
-                          <Badge variant="secondary" className="text-xs">
-                            <Globe className="h-3 w-3 mr-1" />
-                            All Applications
-                          </Badge>
-                        ) : (
-                          <>
-                            {hasActivities && (
-                              <div className="flex flex-wrap gap-1">
-                                <span className="text-xs text-muted-foreground mr-1">Activities:</span>
-                                {(doc.applies_to_activities as string[]).slice(0, 2).map((act, idx) => (
-                                  <Badge key={idx} variant="outline" className="text-xs bg-amber-50 border-amber-300">
-                                    <Briefcase className="h-2.5 w-2.5 mr-1" />
-                                    {act}
-                                  </Badge>
-                                ))}
-                                {doc.applies_to_activities.length > 2 && (
-                                  <Badge variant="secondary" className="text-xs">+{doc.applies_to_activities.length - 2}</Badge>
-                                )}
-                              </div>
-                            )}
-                            {hasJurisdictions && (
-                              <div className="flex flex-wrap gap-1">
-                                <span className="text-xs text-muted-foreground mr-1">Jurisdictions:</span>
-                                {(doc.applies_to_jurisdictions as string[]).slice(0, 2).map((jur, idx) => (
-                                  <Badge key={idx} variant="outline" className="text-xs bg-blue-50 border-blue-300">
-                                    <Building2 className="h-2.5 w-2.5 mr-1" />
-                                    {jur}
-                                  </Badge>
-                                ))}
-                                {doc.applies_to_jurisdictions.length > 2 && (
-                                  <Badge variant="secondary" className="text-xs">+{doc.applies_to_jurisdictions.length - 2}</Badge>
-                                )}
-                              </div>
-                            )}
-                            {hasNationalities && (
-                              <div className="flex flex-wrap gap-1">
-                                <span className="text-xs text-muted-foreground mr-1">Nationalities:</span>
-                                {(doc.applies_to_nationalities as string[]).slice(0, 2).map((nat, idx) => (
-                                  <Badge key={idx} variant="outline" className="text-xs bg-green-50 border-green-300">
-                                    <Globe className="h-2.5 w-2.5 mr-1" />
-                                    {nat}
-                                  </Badge>
-                                ))}
-                                {doc.applies_to_nationalities.length > 2 && (
-                                  <Badge variant="secondary" className="text-xs">+{doc.applies_to_nationalities.length - 2}</Badge>
-                                )}
-                              </div>
-                            )}
-                          </>
-                        )}
-                      </div>
+                      <span className="text-xs">{(doc.accepted_formats || []).join(', ')}</span>
                     </TableCell>
                     <TableCell>
-                      <div className="flex gap-1 flex-wrap">
-                        {(doc.accepted_formats as string[]).slice(0, 3).map((fmt, idx) => (
-                          <Badge key={idx} variant="secondary" className="text-xs">{fmt}</Badge>
-                        ))}
-                      </div>
+                      {doc.is_mandatory ? (
+                        <Badge variant="destructive" className="text-xs">Required</Badge>
+                      ) : (
+                        <Badge variant="secondary" className="text-xs">Optional</Badge>
+                      )}
                     </TableCell>
                     <TableCell>
                       {doc.is_active ? (
@@ -1800,70 +1436,46 @@ function DocumentsTab({ searchQuery }: { searchQuery: string }) {
 }
 
 function DocumentDialog({ 
-  open, 
-  onOpenChange, 
-  document, 
-  onSave 
+  open, onOpenChange, document, onSave 
 }: { 
   open: boolean; 
   onOpenChange: (open: boolean) => void;
-  document: WebflowDocument | null;
-  onSave: (document: Partial<WebflowDocument>) => void;
+  document: WebflowDocumentConfig | null;
+  onSave: (document: Partial<WebflowDocumentConfig>) => void;
 }) {
-  const [formData, setFormData] = useState<Partial<WebflowDocument>>({
-    document_code: '',
-    document_name: '',
-    description: '',
-    is_mandatory: true,
-    accepted_formats: ['pdf', 'jpg', 'png'],
-    max_file_size_mb: 10,
-    is_active: true,
-    sort_order: 0,
-    applies_to_activities: [],
-    applies_to_jurisdictions: [],
-    applies_to_nationalities: []
-  });
-  
-  const [activitiesText, setActivitiesText] = useState('');
-  const [jurisdictionsText, setJurisdictionsText] = useState('');
+  const [formData, setFormData] = useState<Partial<WebflowDocumentConfig>>({});
   const [nationalitiesText, setNationalitiesText] = useState('');
+  const [jurisdictionsText, setJurisdictionsText] = useState('');
+  const [activitiesText, setActivitiesText] = useState('');
+  const [formatsText, setFormatsText] = useState('');
 
   useEffect(() => {
     if (document) {
       setFormData(document);
-      setActivitiesText((document.applies_to_activities || []).join(', '));
-      setJurisdictionsText((document.applies_to_jurisdictions || []).join(', '));
       setNationalitiesText((document.applies_to_nationalities || []).join(', '));
+      setJurisdictionsText((document.applies_to_jurisdictions || []).join(', '));
+      setActivitiesText((document.applies_to_activities || []).join(', '));
+      setFormatsText((document.accepted_formats || []).join(', '));
     } else {
       setFormData({
-        document_code: '',
-        document_name: '',
-        description: '',
-        is_mandatory: true,
-        accepted_formats: ['pdf', 'jpg', 'png'],
-        max_file_size_mb: 10,
-        is_active: true,
-        sort_order: 0,
-        applies_to_activities: [],
-        applies_to_jurisdictions: [],
-        applies_to_nationalities: []
+        document_code: '', document_name: '', description: '', is_mandatory: false,
+        applies_to_nationalities: [], applies_to_jurisdictions: [], applies_to_activities: [],
+        accepted_formats: ['pdf', 'jpg', 'png'], max_file_size_mb: 10, is_active: true, sort_order: 0
       });
-      setActivitiesText('');
-      setJurisdictionsText('');
       setNationalitiesText('');
+      setJurisdictionsText('');
+      setActivitiesText('');
+      setFormatsText('pdf, jpg, png');
     }
   }, [document, open]);
 
   const handleSave = () => {
-    const activities = activitiesText.split(',').map(s => s.trim()).filter(Boolean);
-    const jurisdictions = jurisdictionsText.split(',').map(s => s.trim()).filter(Boolean);
-    const nationalities = nationalitiesText.split(',').map(s => s.trim()).filter(Boolean);
-    
     onSave({
       ...formData,
-      applies_to_activities: activities,
-      applies_to_jurisdictions: jurisdictions,
-      applies_to_nationalities: nationalities
+      applies_to_nationalities: nationalitiesText.split(',').map(s => s.trim()).filter(Boolean),
+      applies_to_jurisdictions: jurisdictionsText.split(',').map(s => s.trim()).filter(Boolean),
+      applies_to_activities: activitiesText.split(',').map(s => s.trim()).filter(Boolean),
+      accepted_formats: formatsText.split(',').map(s => s.trim()).filter(Boolean)
     });
   };
 
@@ -1872,127 +1484,60 @@ function DocumentDialog({
       <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{document ? 'Edit Document' : 'Add Document'}</DialogTitle>
-          <DialogDescription>
-            Configure document requirement settings and dynamic rules
-          </DialogDescription>
+          <DialogDescription>Configure document requirements</DialogDescription>
         </DialogHeader>
         <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-2">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Code</Label>
-              <Input 
-                value={formData.document_code || ''} 
-                onChange={(e) => setFormData({...formData, document_code: e.target.value})}
-                placeholder="PASSPORT"
-              />
+              <Input value={formData.document_code || ''} onChange={(e) => setFormData({...formData, document_code: e.target.value})} placeholder="PASSPORT" />
             </div>
             <div className="space-y-2">
-              <Label>Sort Order</Label>
-              <Input 
-                type="number"
-                value={formData.sort_order || 0} 
-                onChange={(e) => setFormData({...formData, sort_order: parseInt(e.target.value) || 0})}
-              />
+              <Label>Name</Label>
+              <Input value={formData.document_name || ''} onChange={(e) => setFormData({...formData, document_name: e.target.value})} placeholder="Passport Copy" />
             </div>
-          </div>
-          
-          <div className="space-y-2">
-            <Label>Document Name</Label>
-            <Input 
-              value={formData.document_name || ''} 
-              onChange={(e) => setFormData({...formData, document_name: e.target.value})}
-              placeholder="Passport Copy"
-            />
           </div>
 
           <div className="space-y-2">
             <Label>Description</Label>
-            <Textarea 
-              value={formData.description || ''} 
-              onChange={(e) => setFormData({...formData, description: e.target.value})}
-              placeholder="Document description..."
-            />
+            <Textarea value={formData.description || ''} onChange={(e) => setFormData({...formData, description: e.target.value})} placeholder="Document description..." />
           </div>
 
-          {/* Dynamic Rules Section */}
-          <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
-            <div className="flex items-center gap-2">
-              <Filter className="h-4 w-4 text-muted-foreground" />
-              <Label className="font-semibold">Dynamic Rules (leave empty for all applications)</Label>
-            </div>
-            
+          <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+            <Label className="font-semibold">Applies To (Rules)</Label>
             <div className="space-y-2">
-              <Label className="text-sm flex items-center gap-2">
-                <Briefcase className="h-3.5 w-3.5 text-amber-600" />
-                Applies to Activities
-              </Label>
-              <Input 
-                value={activitiesText} 
-                onChange={(e) => setActivitiesText(e.target.value)}
-                placeholder="money_exchange, crypto_trading (comma-separated activity codes)"
-                className="text-sm"
-              />
-              <p className="text-xs text-muted-foreground">
-                Document required when customer selects these activities
-              </p>
+              <Label className="text-xs">Nationalities (leave empty for all)</Label>
+              <Input value={nationalitiesText} onChange={(e) => setNationalitiesText(e.target.value)} placeholder="IN, PK, BD (comma-separated)" className="text-sm" />
             </div>
-            
             <div className="space-y-2">
-              <Label className="text-sm flex items-center gap-2">
-                <Building2 className="h-3.5 w-3.5 text-blue-600" />
-                Applies to Jurisdictions
-              </Label>
-              <Input 
-                value={jurisdictionsText} 
-                onChange={(e) => setJurisdictionsText(e.target.value)}
-                placeholder="DIFC, ADGM (comma-separated jurisdiction codes)"
-                className="text-sm"
-              />
-              <p className="text-xs text-muted-foreground">
-                Document required when customer selects these jurisdictions
-              </p>
+              <Label className="text-xs">Jurisdictions (leave empty for all)</Label>
+              <Input value={jurisdictionsText} onChange={(e) => setJurisdictionsText(e.target.value)} placeholder="mainland, freezone (comma-separated)" className="text-sm" />
             </div>
-            
             <div className="space-y-2">
-              <Label className="text-sm flex items-center gap-2">
-                <Globe className="h-3.5 w-3.5 text-green-600" />
-                Applies to Nationalities
-              </Label>
-              <Input 
-                value={nationalitiesText} 
-                onChange={(e) => setNationalitiesText(e.target.value)}
-                placeholder="IRN, SYR, PRK (comma-separated country codes)"
-                className="text-sm"
-              />
-              <p className="text-xs text-muted-foreground">
-                Document required for customers from these countries
-              </p>
+              <Label className="text-xs">Activities (leave empty for all)</Label>
+              <Input value={activitiesText} onChange={(e) => setActivitiesText(e.target.value)} placeholder="MONEY-EX, CRYPTO (comma-separated)" className="text-sm" />
             </div>
           </div>
 
-          <div className="space-y-2">
-            <Label>Max File Size (MB)</Label>
-            <Input 
-              type="number"
-              value={formData.max_file_size_mb || 10} 
-              onChange={(e) => setFormData({...formData, max_file_size_mb: parseInt(e.target.value) || 10})}
-            />
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Accepted Formats</Label>
+              <Input value={formatsText} onChange={(e) => setFormatsText(e.target.value)} placeholder="pdf, jpg, png" />
+            </div>
+            <div className="space-y-2">
+              <Label>Max File Size (MB)</Label>
+              <Input type="number" value={formData.max_file_size_mb || 10} onChange={(e) => setFormData({...formData, max_file_size_mb: parseInt(e.target.value) || 10})} />
+            </div>
           </div>
 
           <div className="flex items-center justify-between">
             <Label>Mandatory</Label>
-            <Switch 
-              checked={formData.is_mandatory !== false} 
-              onCheckedChange={(checked) => setFormData({...formData, is_mandatory: checked})}
-            />
+            <Switch checked={formData.is_mandatory || false} onCheckedChange={(checked) => setFormData({...formData, is_mandatory: checked})} />
           </div>
 
           <div className="flex items-center justify-between">
             <Label>Active</Label>
-            <Switch 
-              checked={formData.is_active !== false} 
-              onCheckedChange={(checked) => setFormData({...formData, is_active: checked})}
-            />
+            <Switch checked={formData.is_active !== false} onCheckedChange={(checked) => setFormData({...formData, is_active: checked})} />
           </div>
         </div>
         <DialogFooter>
