@@ -4,6 +4,7 @@ import { useCustomer } from '@/contexts/CustomerContext';
 import { useToast } from '@/hooks/use-toast';
 import SimplifiedCustomerForm from '@/components/Customer/SimplifiedCustomerForm';
 import { CustomerEventsSidebar } from '@/components/Customer/CustomerEventsSidebar';
+import { AgentRuleEngineToggle } from '@/components/Application/AgentRuleEngineToggle';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { UserPlus, Users, Circle, CircleDot } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -223,6 +224,11 @@ const CustomerNew = () => {
         {/* Seamless Tabbed Interface */}
         <Tabs value={activeTab} onValueChange={handleTabChange} className="w-full">
           <div className="w-full max-w-4xl mx-auto">
+            
+            {/* Rule Engine Toggle - Only visible when admin enabled */}
+            <div className="flex justify-end mb-2">
+              <AgentRuleEngineToggle />
+            </div>
             
             {/* Connected Tabs with Clear Boundary - Hidden when resuming predraft application */}
             {!applicationId && (
