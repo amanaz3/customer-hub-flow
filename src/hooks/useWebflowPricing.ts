@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useWebflowRuleEngine } from './useWebflowRuleEngine';
 
 export interface PricingPlan {
   id: string;
@@ -29,10 +30,13 @@ export interface PriceBreakdown {
   basePlanPrice: number;
   jurisdictionFee: number;
   activityModifier: number;
+  ruleAdjustments: number;
   totalPrice: number;
   planName: string;
   jurisdictionName: string;
   activityName: string;
+  appliedRules: string[];
+  warnings: string[];
 }
 
 export function useWebflowPricing(
@@ -44,6 +48,19 @@ export function useWebflowPricing(
   const [plans, setPlans] = useState<PricingPlan[]>([]);
   const [activities, setActivities] = useState<ActivityPricing[]>([]);
   const [loading, setLoading] = useState(true);
+
+  // Get current activity for rule engine context
+  const currentActivity = activities.find(a => a.activity_code === activityCode);
+
+  // Use the rule engine with current context
+  const ruleEngine = useWebflowRuleEngine({
+    emirate,
+    locationType: locationType || undefined,
+    activityCode,
+    activityRiskLevel: currentActivity?.risk_level,
+    planCode: selectedPlan,
+    jurisdictionType: locationType || undefined,
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -108,7 +125,15 @@ export function useWebflowPricing(
     const jurisdictionFee = plan.jurisdiction_pricing[jurisdictionKey] || 0;
     
     const activity = activities.find(a => a.activity_code === activityCode);
-    const activityModifier = activity?.price_modifier || 0;
+    const staticActivityModifier = activity?.price_modifier || 0;
+
+    // Calculate base price before rule adjustments
+    const baseTotal = plan.base_price + jurisdictionFee + staticActivityModifier;
+    
+    // Apply rule engine multiplier and additional fees
+    const afterMultiplier = baseTotal * ruleEngine.priceMultiplier;
+    const ruleAdjustments = (afterMultiplier - baseTotal) + ruleEngine.additionalFees;
+    const finalTotal = afterMultiplier + ruleEngine.additionalFees;
 
     const jurisdictionLabel = emirate && locationType 
       ? `${emirate} ${locationType.charAt(0).toUpperCase() + locationType.slice(1)}`
@@ -117,13 +142,16 @@ export function useWebflowPricing(
     return {
       basePlanPrice: plan.base_price,
       jurisdictionFee,
-      activityModifier,
-      totalPrice: plan.base_price + jurisdictionFee + activityModifier,
+      activityModifier: staticActivityModifier,
+      ruleAdjustments,
+      totalPrice: finalTotal,
       planName: plan.plan_name,
       jurisdictionName: jurisdictionLabel,
       activityName: activity?.activity_name || 'Not selected',
+      appliedRules: ruleEngine.appliedRules,
+      warnings: ruleEngine.warnings,
     };
-  }, [selectedPlan, emirate, locationType, activityCode, plans, activities]);
+  }, [selectedPlan, emirate, locationType, activityCode, plans, activities, ruleEngine]);
 
   const selectedActivity = useMemo(() => {
     return activities.find(a => a.activity_code === activityCode);
@@ -134,6 +162,7 @@ export function useWebflowPricing(
     activities,
     priceBreakdown,
     selectedActivity,
-    loading,
+    loading: loading || ruleEngine.loading,
+    ruleEngine,
   };
 }
