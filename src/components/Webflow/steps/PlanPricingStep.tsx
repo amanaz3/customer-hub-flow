@@ -52,7 +52,7 @@ const fallbackPlans = [
 
 export const PlanPricingStep: React.FC = () => {
   const { state, updateState } = useWebflow();
-  const { plans: dbPlans, priceBreakdown, selectedActivity, loading } = useWebflowPricing(
+  const { plans: dbPlans, priceBreakdown, selectedActivity, loading, ruleEngine } = useWebflowPricing(
     state.selectedPlan,
     state.emirate,
     state.locationType,
@@ -198,6 +198,47 @@ export const PlanPricingStep: React.FC = () => {
                   <span className="font-medium text-amber-600">+AED {priceBreakdown.activityModifier.toLocaleString()}</span>
                 </div>
               )}
+
+              {/* Dynamic Rule Adjustments */}
+              {priceBreakdown.ruleAdjustments !== 0 && (
+                <div className="flex justify-between items-center">
+                  <span className="text-muted-foreground flex items-center gap-1">
+                    Rule Adjustments
+                    <TooltipProvider>
+                      <Tooltip>
+                        <TooltipTrigger asChild>
+                          <HelpCircle className="w-3 h-3 cursor-help" />
+                        </TooltipTrigger>
+                        <TooltipContent className="max-w-xs">
+                          <p className="font-medium mb-1">Applied Rules:</p>
+                          <ul className="text-xs space-y-1">
+                            {priceBreakdown.appliedRules.map((rule, i) => (
+                              <li key={i}>• {rule}</li>
+                            ))}
+                          </ul>
+                        </TooltipContent>
+                      </Tooltip>
+                    </TooltipProvider>
+                  </span>
+                  <span className={cn(
+                    "font-medium",
+                    priceBreakdown.ruleAdjustments > 0 ? "text-amber-600" : "text-green-600"
+                  )}>
+                    {priceBreakdown.ruleAdjustments > 0 ? '+' : ''}AED {priceBreakdown.ruleAdjustments.toLocaleString()}
+                  </span>
+                </div>
+              )}
+
+              {/* Applied Rules Badges */}
+              {priceBreakdown.appliedRules.length > 0 && (
+                <div className="flex flex-wrap gap-1 pt-2">
+                  {priceBreakdown.appliedRules.map((rule, i) => (
+                    <Badge key={i} variant="outline" className="text-xs">
+                      {rule}
+                    </Badge>
+                  ))}
+                </div>
+              )}
               
               <div className="border-t pt-3 mt-3">
                 <div className="flex justify-between items-center">
@@ -205,6 +246,20 @@ export const PlanPricingStep: React.FC = () => {
                   <span className="font-bold text-xl text-primary">AED {priceBreakdown.totalPrice.toLocaleString()}</span>
                 </div>
               </div>
+
+              {/* Rule Engine Warnings */}
+              {priceBreakdown.warnings.length > 0 && (
+                <div className="mt-4 space-y-2">
+                  {priceBreakdown.warnings.map((warning, i) => (
+                    <div key={i} className="p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800">
+                      <div className="flex items-start gap-2">
+                        <AlertTriangle className="w-4 h-4 text-amber-600 mt-0.5 flex-shrink-0" />
+                        <p className="text-sm text-amber-800 dark:text-amber-200">{warning}</p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
 
               {selectedActivity?.enhanced_due_diligence && (
                 <div className="mt-4 p-3 bg-amber-50 dark:bg-amber-950/30 rounded-lg border border-amber-200 dark:border-amber-800">
