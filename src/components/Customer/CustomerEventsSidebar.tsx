@@ -7,12 +7,22 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Calendar, FileText, User, Building2, Clock, ChevronLeft, ChevronRight, Users, ClipboardList, Download, Mail, MessageCircle } from 'lucide-react';
+import { Calendar, FileText, User, Building2, Clock, ChevronLeft, ChevronRight, Users, ClipboardList, Download, Mail, MessageCircle, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { formatChecklistForSharing, shareViaWhatsApp, emailDocumentChecklist } from '@/utils/documentChecklistSharing';
 import { validateEmail, validatePhoneNumber } from '@/utils/inputValidation';
+import { RuleEngineAssistPanel } from '@/components/Application/RuleEngineAssistPanel';
+import { useAgentRuleEngine } from '@/hooks/useAgentRuleEngine';
+
+interface RuleEngineContext {
+  nationality?: string;
+  emirate?: string;
+  locationType?: string;
+  activityRiskLevel?: string;
+  planCode?: string;
+}
 
 interface CustomerEventsSidebarProps {
   customerId: string;
@@ -20,7 +30,7 @@ interface CustomerEventsSidebarProps {
   onCollapsedChange?: (collapsed: boolean) => void;
   productType?: 'goaml' | 'home_finance' | 'bank_account' | null;
   isExistingCustomer?: boolean;
-  defaultTab?: 'events' | 'documents';
+  defaultTab?: 'events' | 'documents' | 'assist';
   newCustomerData?: {
     email?: string;
     name?: string;
@@ -31,6 +41,7 @@ interface CustomerEventsSidebarProps {
     category: string;
     documents: Array<{ name: string; required: boolean; requiredAtStages?: string[] }>;
   }>;
+  ruleEngineContext?: RuleEngineContext;
 }
 
 export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({ 
@@ -41,13 +52,17 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
   isExistingCustomer = false,
   defaultTab,
   newCustomerData,
-  serviceDocuments = []
+  serviceDocuments = [],
+  ruleEngineContext
 }) => {
   console.log('[CustomerEventsSidebar] Mounted/Rendered', { customerId, collapsed, productType, isExistingCustomer });
   const { toast } = useToast();
   const [internalCollapsed, setInternalCollapsed] = React.useState(true);
   // Use defaultTab if provided, otherwise default to 'events' for existing customer flow, 'documents' for new customer flow
   const [activeTab, setActiveTab] = useState<string>(defaultTab || (isExistingCustomer ? 'events' : 'documents'));
+  
+  // Rule engine hook
+  const { isFeatureEnabled, isActive: isRuleEngineActive, ruleResult, loading: ruleLoading } = useAgentRuleEngine(ruleEngineContext || {});
   const [hasAutoExpanded, setHasAutoExpanded] = React.useState(false);
   const isCollapsed = collapsed !== undefined ? collapsed : internalCollapsed;
 
@@ -815,13 +830,34 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                 )}
               >
                 <FileText className="h-4 w-4" />
-                <span>Documents</span>
+                <span>Docs</span>
                 {productType && (
                   <Badge variant="secondary" className="text-xs">
                     {documentCategories.reduce((sum, cat) => sum + cat.count, 0)}
                   </Badge>
                 )}
               </button>
+
+              {/* AI Assist Tab - Only show when feature is enabled */}
+              {isFeatureEnabled && (
+                <button
+                  onClick={() => setActiveTab('assist')}
+                  className={cn(
+                    "flex items-center gap-2 px-3 py-2 rounded-t-lg text-sm font-medium transition-colors border-b-2",
+                    activeTab === 'assist'
+                      ? "bg-background border-primary text-primary"
+                      : "bg-transparent border-transparent text-muted-foreground hover:text-foreground hover:bg-muted/50"
+                  )}
+                >
+                  <Zap className={cn("h-4 w-4", isRuleEngineActive && "text-amber-500")} />
+                  <span>Assist</span>
+                  {isRuleEngineActive && ruleResult?.warnings && ruleResult.warnings.length > 0 && (
+                    <Badge variant="destructive" className="text-xs px-1.5 py-0">
+                      {ruleResult.warnings.length}
+                    </Badge>
+                  )}
+                </button>
+              )}
             </div>
           </div>
 
@@ -1302,10 +1338,21 @@ export const CustomerEventsSidebar: React.FC<CustomerEventsSidebarProps> = ({
                    </p>
                  </CardContent>
                </Card>
-             </div>
-             )}
-             </div>
-           )}
+              </div>
+              )}
+              </div>
+            )}
+
+            {/* AI Assist View */}
+            {activeTab === 'assist' && (
+              <div className="flex-1 min-h-0 overflow-y-auto">
+                <RuleEngineAssistPanel
+                  ruleResult={ruleResult}
+                  loading={ruleLoading}
+                  isActive={isRuleEngineActive}
+                />
+              </div>
+            )}
         </div>
       )}
     </div>
