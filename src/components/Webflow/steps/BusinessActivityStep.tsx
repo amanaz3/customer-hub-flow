@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useWebflow } from '@/contexts/WebflowContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,33 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Search, AlertTriangle, Check, Info, HelpCircle, ShieldAlert, Loader2, DollarSign } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { supabase } from '@/integrations/supabase/client';
-
-interface Activity {
-  id: string;
-  activity_code: string;
-  activity_name: string;
-  category: string;
-  risk_level: string;
-  is_restricted: boolean;
-  restriction_reason: string | null;
-  requires_approval: boolean;
-  price_modifier: number;
-  enhanced_due_diligence: boolean;
-  edd_requirements: string[];
-}
-
-// Fallback activities if database is empty
-const fallbackActivities: Activity[] = [
-  { id: '1', activity_code: 'IT001', activity_name: 'Software Development', category: 'Technology', risk_level: 'low', is_restricted: false, restriction_reason: null, requires_approval: false, price_modifier: 0, enhanced_due_diligence: false, edd_requirements: [] },
-  { id: '2', activity_code: 'IT002', activity_name: 'IT Consulting', category: 'Technology', risk_level: 'low', is_restricted: false, restriction_reason: null, requires_approval: false, price_modifier: 0, enhanced_due_diligence: false, edd_requirements: [] },
-  { id: '3', activity_code: 'IT003', activity_name: 'E-commerce', category: 'Technology', risk_level: 'low', is_restricted: false, restriction_reason: null, requires_approval: false, price_modifier: 1500, enhanced_due_diligence: false, edd_requirements: [] },
-  { id: '4', activity_code: 'TR001', activity_name: 'General Trading', category: 'Trading', risk_level: 'standard', is_restricted: false, restriction_reason: null, requires_approval: false, price_modifier: 0, enhanced_due_diligence: false, edd_requirements: [] },
-  { id: '5', activity_code: 'TR002', activity_name: 'Import/Export', category: 'Trading', risk_level: 'standard', is_restricted: false, restriction_reason: null, requires_approval: false, price_modifier: 0, enhanced_due_diligence: false, edd_requirements: [] },
-  { id: '6', activity_code: 'TR003', activity_name: 'Gold & Precious Metals Trading', category: 'Trading', risk_level: 'high', is_restricted: false, restriction_reason: null, requires_approval: true, price_modifier: 5000, enhanced_due_diligence: true, edd_requirements: ['Source of Funds Declaration', 'Bank Reference Letter'] },
-  { id: '7', activity_code: 'FN001', activity_name: 'Money Exchange', category: 'Financial', risk_level: 'high', is_restricted: true, restriction_reason: 'Requires special CBUAE license', requires_approval: true, price_modifier: 15000, enhanced_due_diligence: true, edd_requirements: ['CBUAE License', 'Compliance Officer Details'] },
-  { id: '8', activity_code: 'FN002', activity_name: 'Cryptocurrency Trading', category: 'Financial', risk_level: 'high', is_restricted: true, restriction_reason: 'Requires special VARA/SCA license', requires_approval: true, price_modifier: 20000, enhanced_due_diligence: true, edd_requirements: ['VARA License', 'Compliance Framework'] },
-];
+import { useWebflowData, filterActivitiesByJurisdiction } from '@/hooks/useWebflowData';
 
 const getRiskBadgeVariant = (riskLevel: string): "default" | "secondary" | "destructive" | "outline" => {
   switch (riskLevel) {
@@ -46,47 +20,21 @@ const getRiskBadgeVariant = (riskLevel: string): "default" | "secondary" | "dest
 export const BusinessActivityStep: React.FC = () => {
   const { state, updateState } = useWebflow();
   const [search, setSearch] = useState('');
-  const [activities, setActivities] = useState<Activity[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { activities, loading } = useWebflowData();
 
-  useEffect(() => {
-    const fetchActivities = async () => {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('webflow_activities')
-        .select('*')
-        .eq('is_active', true)
-        .order('category', { ascending: true })
-        .order('activity_name', { ascending: true });
+  // Filter activities by jurisdiction (uses allowed_jurisdictions from DB)
+  const jurisdictionFilteredActivities = useMemo(() => {
+    return filterActivitiesByJurisdiction(activities, state.locationType);
+  }, [activities, state.locationType]);
 
-      if (error || !data || data.length === 0) {
-        setActivities(fallbackActivities);
-      } else {
-        setActivities(data.map(a => ({
-          id: a.id,
-          activity_code: a.activity_code,
-          activity_name: a.activity_name,
-          category: a.category || 'General',
-          risk_level: a.risk_level || 'low',
-          is_restricted: a.is_restricted || false,
-          restriction_reason: a.restriction_reason,
-          requires_approval: a.requires_approval || false,
-          price_modifier: Number(a.price_modifier) || 0,
-          enhanced_due_diligence: a.enhanced_due_diligence || false,
-          edd_requirements: Array.isArray(a.edd_requirements) ? (a.edd_requirements as string[]) : [],
-        })));
-      }
-      setLoading(false);
-    };
-
-    fetchActivities();
-  }, []);
-
-  const filteredActivities = activities.filter(
-    a => a.activity_name.toLowerCase().includes(search.toLowerCase()) ||
-         a.category.toLowerCase().includes(search.toLowerCase()) ||
-         a.activity_code.toLowerCase().includes(search.toLowerCase())
-  );
+  // Then filter by search
+  const filteredActivities = useMemo(() => {
+    return jurisdictionFilteredActivities.filter(
+      a => a.activity_name.toLowerCase().includes(search.toLowerCase()) ||
+           a.category.toLowerCase().includes(search.toLowerCase()) ||
+           a.activity_code.toLowerCase().includes(search.toLowerCase())
+    );
+  }, [jurisdictionFilteredActivities, search]);
 
   const selectedActivity = activities.find(a => a.activity_code === state.activityCode);
 
@@ -119,6 +67,11 @@ export const BusinessActivityStep: React.FC = () => {
           </div>
           <CardDescription className="text-base">
             Select your primary business activity from our approved list
+            {state.locationType && (
+              <span className="block text-xs mt-1 text-muted-foreground">
+                Showing activities available for {state.locationType} setup
+              </span>
+            )}
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -131,6 +84,15 @@ export const BusinessActivityStep: React.FC = () => {
               className="pl-10 h-12"
             />
           </div>
+
+          {filteredActivities.length === 0 && (
+            <Alert>
+              <Info className="h-4 w-4" />
+              <AlertDescription>
+                No activities found matching your search or jurisdiction. Try a different search term or contact support.
+              </AlertDescription>
+            </Alert>
+          )}
 
           <div className="max-h-[300px] overflow-y-auto space-y-2 pr-2">
             {filteredActivities.map(activity => (

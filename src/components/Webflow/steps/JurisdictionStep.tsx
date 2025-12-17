@@ -1,53 +1,60 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useWebflow } from '@/contexts/WebflowContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { MapPin, Info, HelpCircle } from 'lucide-react';
+import { MapPin, Info, HelpCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useWebflowData, getUniqueEmirates, getJurisdictionTypes, getLegalFormsForType } from '@/hooks/useWebflowData';
 
-const emirates = [
-  { code: 'DXB', name: 'Dubai' },
-  { code: 'AUH', name: 'Abu Dhabi' },
-  { code: 'SHJ', name: 'Sharjah' },
-  { code: 'AJM', name: 'Ajman' },
-  { code: 'RAK', name: 'Ras Al Khaimah' },
-  { code: 'FUJ', name: 'Fujairah' },
-  { code: 'UAQ', name: 'Umm Al Quwain' },
-];
-
-const locationTypes = [
-  {
-    id: 'mainland',
+// Display names for location types
+const LOCATION_TYPE_INFO: Record<string, { title: string; description: string }> = {
+  mainland: {
     title: 'Mainland',
     description: 'Trade anywhere in UAE, requires local sponsor for some nationalities',
   },
-  {
-    id: 'freezone',
+  freezone: {
     title: 'Freezone',
     description: '100% foreign ownership, tax benefits, limited to freezone activities',
   },
-  {
-    id: 'offshore',
+  offshore: {
     title: 'Offshore',
     description: 'For international business, cannot trade within UAE',
   },
-];
+};
 
-const legalForms = [
-  { id: 'llc', name: 'LLC (Limited Liability Company)', available: ['mainland', 'freezone'] },
-  { id: 'sole_establishment', name: 'Sole Establishment', available: ['mainland'] },
-  { id: 'branch', name: 'Branch Office', available: ['mainland', 'freezone', 'offshore'] },
-];
+// Display names for legal forms
+const LEGAL_FORM_NAMES: Record<string, string> = {
+  llc: 'LLC (Limited Liability Company)',
+  sole_establishment: 'Sole Establishment',
+  branch: 'Branch Office',
+  fz_llc: 'Freezone LLC',
+  fz_establishment: 'Freezone Establishment',
+};
 
 export const JurisdictionStep: React.FC = () => {
   const { state, updateState } = useWebflow();
+  const { jurisdictions, loading } = useWebflowData();
 
-  const availableLegalForms = legalForms.filter(
-    form => !state.locationType || form.available.includes(state.locationType)
-  );
+  // Derive data from DB jurisdictions
+  const emirates = useMemo(() => getUniqueEmirates(jurisdictions), [jurisdictions]);
+  const locationTypes = useMemo(() => getJurisdictionTypes(jurisdictions), [jurisdictions]);
+  const availableLegalForms = useMemo(() => {
+    if (!state.locationType) return [];
+    return getLegalFormsForType(jurisdictions, state.locationType);
+  }, [jurisdictions, state.locationType]);
+
+  if (loading) {
+    return (
+      <Card className="border-0 shadow-lg">
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="border-0 shadow-lg">
@@ -81,8 +88,8 @@ export const JurisdictionStep: React.FC = () => {
             </SelectTrigger>
             <SelectContent>
               {emirates.map(emirate => (
-                <SelectItem key={emirate.code} value={emirate.code}>
-                  {emirate.name}
+                <SelectItem key={emirate} value={emirate}>
+                  {emirate}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -92,28 +99,31 @@ export const JurisdictionStep: React.FC = () => {
         <div className="space-y-3">
           <Label>Location Type</Label>
           <div className="grid gap-3">
-            {locationTypes.map(type => (
-              <button
-                key={type.id}
-                onClick={() => updateState({ 
-                  locationType: type.id as 'mainland' | 'freezone' | 'offshore',
-                  legalForm: null 
-                })}
-                className={cn(
-                  "p-4 rounded-lg border-2 text-left transition-all",
-                  state.locationType === type.id
-                    ? "border-primary bg-primary/5"
-                    : "border-border hover:border-primary/50"
-                )}
-              >
-                <h4 className="font-medium">{type.title}</h4>
-                <p className="text-sm text-muted-foreground">{type.description}</p>
-              </button>
-            ))}
+            {locationTypes.map(type => {
+              const info = LOCATION_TYPE_INFO[type] || { title: type, description: '' };
+              return (
+                <button
+                  key={type}
+                  onClick={() => updateState({ 
+                    locationType: type as 'mainland' | 'freezone' | 'offshore',
+                    legalForm: null 
+                  })}
+                  className={cn(
+                    "p-4 rounded-lg border-2 text-left transition-all",
+                    state.locationType === type
+                      ? "border-primary bg-primary/5"
+                      : "border-border hover:border-primary/50"
+                  )}
+                >
+                  <h4 className="font-medium">{info.title}</h4>
+                  <p className="text-sm text-muted-foreground">{info.description}</p>
+                </button>
+              );
+            })}
           </div>
         </div>
 
-        {state.locationType && (
+        {state.locationType && availableLegalForms.length > 0 && (
           <div className="space-y-2">
             <Label>Legal Form</Label>
             <Select 
@@ -125,8 +135,8 @@ export const JurisdictionStep: React.FC = () => {
               </SelectTrigger>
               <SelectContent>
                 {availableLegalForms.map(form => (
-                  <SelectItem key={form.id} value={form.id}>
-                    {form.name}
+                  <SelectItem key={form} value={form}>
+                    {LEGAL_FORM_NAMES[form] || form}
                   </SelectItem>
                 ))}
               </SelectContent>
