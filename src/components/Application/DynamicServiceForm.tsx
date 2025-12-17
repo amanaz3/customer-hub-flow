@@ -47,7 +47,7 @@ function normalizeConfig(raw: any): FormConfig {
         max: f.max !== undefined ? Number(f.max) : undefined,
         step: f.step !== undefined ? Number(f.step) : undefined,
         conditionalDisplay: f.conditionalDisplay,
-        isServiceChargeField: f.isServiceChargeField || f.name === 'service_charge' || f.label?.toLowerCase().includes('service charge'),
+        isServiceChargeField: f.isServiceChargeField || f.name === 'service_charge' || f.label?.toLowerCase().replace(/\s+/g, '').includes('servicecharge') || f.label?.toLowerCase().includes('service charge'),
       }))
     }));
 
@@ -314,11 +314,13 @@ const DynamicServiceForm: React.FC<DynamicServiceFormProps> = ({
     if (serviceFee && formConfig) {
       formConfig.sections.forEach((section, sectionIndex) => {
         section.fields.forEach((field) => {
-          // Check if this is a service charge field
+          // Check if this is a service charge field (normalize by removing spaces)
+          const normalizedLabel = field.label?.toLowerCase().replace(/\s+/g, '') || '';
           const isServiceChargeField = 
             field.isServiceChargeField || 
             field.name === 'service_charge' || 
             field.name === 'serviceCharge' ||
+            normalizedLabel.includes('servicecharge') ||
             field.label?.toLowerCase().includes('service charge');
           
           if (isServiceChargeField) {
