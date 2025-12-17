@@ -165,6 +165,7 @@ interface SimplifiedCustomerFormProps {
   }) => void;
   hideCustomerTypeSelector?: boolean;
   resumeApplicationId?: string;
+  onRuleEngineContextChange?: (context: Record<string, any>) => void;
 }
 
 const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
@@ -184,6 +185,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   onDocumentsChange,
   hideCustomerTypeSelector = false,
   resumeApplicationId,
+  onRuleEngineContextChange,
 }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [completedSteps, setCompletedSteps] = useState<Set<number>>(new Set());
@@ -408,7 +410,68 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
     }
   }, [currentStep, selectedProductName, onProductChange]);
 
-  // Helper function to fetch documents for a product
+  // Notify parent about rule engine context changes for Step 3
+  const formValues = form.watch();
+  useEffect(() => {
+    if (currentStep === 3 && onRuleEngineContextChange) {
+      // Extract rule engine context from form data
+      // Look for common field patterns in dynamic form data
+      const context: Record<string, any> = {};
+      
+      // Search for fields that might be relevant for the rule engine
+      Object.entries(formValues).forEach(([key, value]) => {
+        if (!value) return;
+        
+        const keyLower = key.toLowerCase();
+        const valueLower = String(value).toLowerCase();
+        
+        // License Type / Location Type mapping
+        if (keyLower.includes('license') || keyLower.includes('location')) {
+          if (valueLower.includes('mainland')) {
+            context.locationType = 'mainland';
+          } else if (valueLower.includes('freezone') || valueLower.includes('free zone')) {
+            context.locationType = 'freezone';
+          }
+        }
+        
+        // Emirate / Jurisdiction mapping
+        if (keyLower.includes('jurisdiction') || keyLower.includes('emirate')) {
+          context.emirate = value;
+        }
+        
+        // Nationality
+        if (keyLower.includes('nationality')) {
+          context.nationality = value;
+        }
+        
+        // Activity / Risk
+        if (keyLower.includes('activity') || keyLower.includes('risk')) {
+          context.activityRiskLevel = value;
+        }
+      });
+      
+      // Also check dynamic section fields (section_X_fieldId format)
+      Object.entries(formValues).forEach(([key, value]) => {
+        if (!key.startsWith('section_') || !value) return;
+        
+        const valueLower = String(value).toLowerCase();
+        
+        // Detect license type from values
+        if (valueLower === 'mainland' || valueLower === 'freezone') {
+          context.locationType = valueLower;
+        }
+        
+        // Detect emirate from values
+        if (['dubai', 'abudhabi', 'abu dhabi', 'sharjah', 'ajman', 'rak', 'fujairah', 'umm al quwain'].some(
+          e => valueLower.includes(e.toLowerCase())
+        )) {
+          context.emirate = value;
+        }
+      });
+      
+      onRuleEngineContextChange(context);
+    }
+  }, [currentStep, JSON.stringify(formValues), onRuleEngineContextChange]);
   const fetchDocumentsForProduct = async (productId: string) => {
     try {
       const { data: configData } = await supabase

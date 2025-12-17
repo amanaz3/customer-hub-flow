@@ -34,6 +34,7 @@ const CustomerNew = () => {
     category: string;
     documents: Array<{ name: string; required: boolean; requiredAtStages?: string[] }>;
   }>>([]);
+  const [ruleEngineContext, setRuleEngineContext] = useState<Record<string, any>>({});
   
   // Customer selection state (for existing customer tab)
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
@@ -310,6 +311,7 @@ const CustomerNew = () => {
                   onDocumentsChange={setServiceDocuments}
                   hideCustomerTypeSelector={true}
                   resumeApplicationId={applicationId}
+                  onRuleEngineContextChange={setRuleEngineContext}
                 />
               </TabsContent>
 
@@ -331,6 +333,7 @@ const CustomerNew = () => {
                   onDocumentsChange={setServiceDocuments}
                   hideCustomerTypeSelector={true}
                   resumeApplicationId={applicationId}
+                  onRuleEngineContextChange={setRuleEngineContext}
                 />
               </TabsContent>
             </div>
@@ -370,6 +373,7 @@ const CustomerNew = () => {
                 company: customerCompany,
               }}
               serviceDocuments={serviceDocuments}
+              ruleEngineContext={ruleEngineContext}
             />
           </div>
         )}

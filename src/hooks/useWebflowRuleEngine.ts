@@ -8,7 +8,7 @@ interface RuleCondition {
 }
 
 interface RuleAction {
-  type: 'multiply_price' | 'add_fee' | 'set_flag' | 'require_document' | 'block' | 'show_warning' | 'set_processing_time' | 'recommend_bank';
+  type: 'multiply_price' | 'add_fee' | 'set_price' | 'set_flag' | 'require_document' | 'block' | 'show_warning' | 'set_processing_time' | 'recommend_bank';
   value?: number | string | boolean;
   message?: string;
   processingDays?: number;
@@ -76,19 +76,22 @@ export function useWebflowRuleEngine(context: RuleContext) {
   }, []);
 
   const evaluateCondition = (condition: RuleCondition, ctx: RuleContext): boolean => {
-    const fieldValue = getFieldValue(condition.field, ctx);
+    const fieldValue = getFieldValue(condition.field, ctx)?.toLowerCase();
+    const conditionValue = typeof condition.value === 'string' 
+      ? condition.value.toLowerCase() 
+      : condition.value;
     
     switch (condition.operator) {
       case 'equals':
-        return fieldValue === condition.value;
+        return fieldValue === conditionValue;
       case 'not_equals':
-        return fieldValue !== condition.value;
+        return fieldValue !== conditionValue;
       case 'contains':
-        return typeof fieldValue === 'string' && fieldValue.includes(condition.value as string);
+        return typeof fieldValue === 'string' && typeof conditionValue === 'string' && fieldValue.includes(conditionValue);
       case 'in':
-        return Array.isArray(condition.value) && condition.value.includes(fieldValue as string);
+        return Array.isArray(conditionValue) && conditionValue.map(v => v.toLowerCase()).includes(fieldValue as string);
       case 'not_in':
-        return Array.isArray(condition.value) && !condition.value.includes(fieldValue as string);
+        return Array.isArray(conditionValue) && !conditionValue.map(v => v.toLowerCase()).includes(fieldValue as string);
       default:
         return false;
     }
@@ -145,6 +148,7 @@ export function useWebflowRuleEngine(context: RuleContext) {
               engineResult.priceMultiplier *= (action.value as number) || 1;
               break;
             case 'add_fee':
+            case 'set_price': // Treat set_price as add_fee for compatibility
               engineResult.additionalFees += (action.value as number) || 0;
               break;
             case 'set_flag':
