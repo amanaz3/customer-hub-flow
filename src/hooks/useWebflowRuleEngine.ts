@@ -8,13 +8,14 @@ interface RuleCondition {
 }
 
 interface RuleAction {
-  type: 'multiply_price' | 'add_fee' | 'set_price' | 'set_flag' | 'require_document' | 'block' | 'show_warning' | 'set_processing_time' | 'recommend_bank';
+  type: 'multiply_price' | 'add_fee' | 'set_price' | 'set_flag' | 'require_document' | 'block' | 'show_warning' | 'set_processing_time' | 'recommend_bank' | 'skip_step' | 'show_step' | 'set_next_step';
   value?: number | string | boolean;
   // Some rules store document id as `target` instead of `value`
   target?: string;
   message?: string;
   processingDays?: number;
   banks?: string[];
+  stepKey?: string;
 }
 
 interface WebflowRule {
@@ -37,7 +38,7 @@ interface RuleContext {
   jurisdictionType?: string;
 }
 
-interface RuleEngineResult {
+export interface RuleEngineResult {
   priceMultiplier: number;
   additionalFees: number;
   flags: Record<string, boolean>;
@@ -48,6 +49,10 @@ interface RuleEngineResult {
   appliedRules: string[];
   processingTimeDays: number | null;
   recommendedBanks: string[];
+  // Step flow control
+  skippedSteps: string[];
+  visibleSteps: string[];
+  nextStep?: string;
 }
 
 export function useWebflowRuleEngine(context: RuleContext) {
@@ -153,6 +158,9 @@ export function useWebflowRuleEngine(context: RuleContext) {
       appliedRules: [],
       processingTimeDays: null,
       recommendedBanks: [],
+      skippedSteps: [],
+      visibleSteps: [],
+      nextStep: undefined,
     };
 
     if (loading) return engineResult;
@@ -216,6 +224,21 @@ export function useWebflowRuleEngine(context: RuleContext) {
                     engineResult.recommendedBanks.push(bank);
                   }
                 });
+              }
+              break;
+            case 'skip_step':
+              if (action.stepKey && !engineResult.skippedSteps.includes(action.stepKey)) {
+                engineResult.skippedSteps.push(action.stepKey);
+              }
+              break;
+            case 'show_step':
+              if (action.stepKey && !engineResult.visibleSteps.includes(action.stepKey)) {
+                engineResult.visibleSteps.push(action.stepKey);
+              }
+              break;
+            case 'set_next_step':
+              if (action.stepKey) {
+                engineResult.nextStep = action.stepKey;
               }
               break;
           }

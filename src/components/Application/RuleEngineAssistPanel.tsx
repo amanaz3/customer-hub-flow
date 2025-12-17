@@ -11,7 +11,9 @@ import {
   Ban,
   Zap,
   CheckCircle2,
-  DollarSign
+  DollarSign,
+  SkipForward,
+  ArrowRight
 } from 'lucide-react';
 
 interface RuleEngineAssistPanelProps {
@@ -25,6 +27,9 @@ interface RuleEngineAssistPanelProps {
     processingTimeDays: number | null;
     recommendedBanks: string[];
     appliedRules: string[];
+    skippedSteps?: string[];
+    visibleSteps?: string[];
+    nextStep?: string;
   } | null;
   loading?: boolean;
   isActive?: boolean;
@@ -71,7 +76,9 @@ export const RuleEngineAssistPanel: React.FC<RuleEngineAssistPanelProps> = ({
                   ruleResult.requiredDocuments.length > 0 || 
                   ruleResult.warnings.length > 0 ||
                   ruleResult.processingTimeDays !== null ||
-                  ruleResult.appliedRules.length > 0;
+                  ruleResult.appliedRules.length > 0 ||
+                  (ruleResult.skippedSteps && ruleResult.skippedSteps.length > 0) ||
+                  ruleResult.nextStep;
 
   if (!hasData) {
     return (
@@ -161,7 +168,40 @@ export const RuleEngineAssistPanel: React.FC<RuleEngineAssistPanelProps> = ({
         </Card>
       )}
 
-      {/* Pricing Adjustments */}
+      {/* Step Flow Control */}
+      {((ruleResult.skippedSteps && ruleResult.skippedSteps.length > 0) || ruleResult.nextStep) && (
+        <Card className="border-blue-500/30 bg-blue-500/5">
+          <CardHeader className="pb-2 px-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2 text-blue-600">
+              <SkipForward className="h-4 w-4" />
+              Step Flow
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-3 pb-3 space-y-2">
+            {ruleResult.skippedSteps && ruleResult.skippedSteps.length > 0 && (
+              <div>
+                <p className="text-[10px] text-muted-foreground mb-1">Skipped Steps:</p>
+                <div className="flex flex-wrap gap-1">
+                  {ruleResult.skippedSteps.map((step, idx) => (
+                    <Badge key={idx} variant="secondary" className="text-xs bg-blue-100 text-blue-700">
+                      {step}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+            {ruleResult.nextStep && (
+              <div className="flex items-center gap-2 text-xs">
+                <ArrowRight className="h-3 w-3 text-blue-600" />
+                <span className="text-muted-foreground">Next:</span>
+                <Badge variant="outline" className="text-xs border-blue-500 text-blue-600">
+                  {ruleResult.nextStep}
+                </Badge>
+              </div>
+            )}
+          </CardContent>
+        </Card>
+      )}
       {(ruleResult.priceMultiplier !== 1 || ruleResult.additionalFees > 0) && (
         <Card>
           <CardHeader className="pb-2 px-3">
