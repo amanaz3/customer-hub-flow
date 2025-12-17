@@ -337,6 +337,11 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
             }
           });
           setStep3FieldValues(step3Fields);
+          
+          // Restore field labels if they were saved
+          if (appData.step3.fieldLabels) {
+            setFieldLabelMap(appData.step3.fieldLabels);
+          }
         }
         
         // Determine which steps are completed and calculate next step
@@ -737,6 +742,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           ...existingData,
           step3: {
             ...serviceDetails,
+            fieldLabels: fieldLabelMap, // Store labels for preview display
             completed: true,
             completed_at: new Date().toISOString(),
           }
