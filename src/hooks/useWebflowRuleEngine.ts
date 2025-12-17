@@ -64,10 +64,18 @@ export function useWebflowRuleEngine(context: RuleContext) {
         .single();
 
       if (data?.config_data) {
-        const configData = data.config_data as { rules?: WebflowRule[] };
-        const fetchedRules = configData.rules || [];
-        // Sort by priority (higher priority first)
-        setRules(fetchedRules.sort((a, b) => (b.priority || 0) - (a.priority || 0)));
+        const configData = data.config_data as { rules?: any[] };
+        const fetchedRules = (configData.rules || []).map((r: any) => ({
+          id: r.id,
+          name: r.rule_name || r.name,
+          type: r.rule_type || r.type,
+          conditions: r.conditions || [],
+          actions: r.actions || [],
+          priority: r.priority || 0,
+          isActive: r.is_active !== undefined ? r.is_active : (r.isActive !== undefined ? r.isActive : true),
+        }));
+        // Sort by priority (lower number = higher priority)
+        setRules(fetchedRules.sort((a, b) => (a.priority || 0) - (b.priority || 0)));
       }
       setLoading(false);
     };
@@ -99,16 +107,24 @@ export function useWebflowRuleEngine(context: RuleContext) {
 
   const getFieldValue = (field: string, ctx: RuleContext): string | undefined => {
     const fieldMap: Record<string, string | undefined> = {
+      // Country/Nationality
       'country': ctx.nationality,
       'nationality': ctx.nationality,
+      // Emirate
       'emirate': ctx.emirate,
+      // Jurisdiction/Location Type
       'jurisdiction.type': ctx.locationType,
       'jurisdiction_type': ctx.locationType,
       'location_type': ctx.locationType,
+      'locationType': ctx.locationType,
+      'license_type': ctx.locationType,
+      // Activity
       'activity.code': ctx.activityCode,
       'activity_code': ctx.activityCode,
       'activity.risk_level': ctx.activityRiskLevel,
+      'activityRiskLevel': ctx.activityRiskLevel,
       'risk_level': ctx.activityRiskLevel,
+      // Plan
       'plan': ctx.planCode,
       'plan_code': ctx.planCode,
     };
