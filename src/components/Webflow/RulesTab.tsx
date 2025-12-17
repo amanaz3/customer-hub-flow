@@ -58,50 +58,6 @@ interface RuleAction {
   message?: string;
 }
 
-// Sample rules for demo
-const SAMPLE_RULES: WebflowRule[] = [
-  {
-    id: '1',
-    rule_name: 'Block High Risk Countries',
-    rule_type: 'eligibility',
-    conditions: [
-      { id: 'c1', field: 'country.risk_level', operator: 'equals', value: 'prohibited' }
-    ],
-    actions: [
-      { id: 'a1', type: 'block', message: 'Applications from this country are not accepted' }
-    ],
-    priority: 1,
-    is_active: true
-  },
-  {
-    id: '2',
-    rule_name: 'Mainland Requires Trade License',
-    rule_type: 'document',
-    conditions: [
-      { id: 'c1', field: 'jurisdiction.type', operator: 'equals', value: 'mainland' }
-    ],
-    actions: [
-      { id: 'a1', type: 'require_document', target: 'trade_license', message: 'Trade license required for mainland' }
-    ],
-    priority: 2,
-    is_active: true
-  },
-  {
-    id: '3',
-    rule_name: 'Premium Plan Pricing',
-    rule_type: 'pricing',
-    conditions: [
-      { id: 'c1', field: 'plan.code', operator: 'equals', value: 'premium' },
-      { id: 'c2', field: 'jurisdiction.type', operator: 'equals', value: 'freezone', logic: 'AND' }
-    ],
-    actions: [
-      { id: 'a1', type: 'set_price', value: 15000 }
-    ],
-    priority: 3,
-    is_active: true
-  }
-];
-
 const FIELD_OPTIONS = [
   { value: 'country.code', label: 'Country Code' },
   { value: 'country.risk_level', label: 'Country Risk Level' },
