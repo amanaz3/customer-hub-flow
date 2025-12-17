@@ -589,7 +589,7 @@ function JurisdictionsTab({ searchQuery }: { searchQuery: string }) {
               <TableRow>
                 <TableHead>Jurisdiction</TableHead>
                 <TableHead>Type</TableHead>
-                <TableHead>Emirate</TableHead>
+                <TableHead>Legal Forms</TableHead>
                 <TableHead>Base Price</TableHead>
                 <TableHead>Processing</TableHead>
                 <TableHead>Status</TableHead>
@@ -597,34 +597,59 @@ function JurisdictionsTab({ searchQuery }: { searchQuery: string }) {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredJurisdictions.map((jurisdiction) => (
-                <TableRow key={jurisdiction.id}>
-                  <TableCell className="font-medium">{jurisdiction.jurisdiction_name}</TableCell>
-                  <TableCell>
-                    <Badge className={TYPE_COLORS[jurisdiction.jurisdiction_type]}>
-                      {jurisdiction.jurisdiction_type}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>{jurisdiction.emirate || '-'}</TableCell>
-                  <TableCell>AED {jurisdiction.base_price?.toLocaleString()}</TableCell>
-                  <TableCell>{jurisdiction.processing_days} days</TableCell>
-                  <TableCell>
-                    {jurisdiction.is_active ? (
-                      <Badge variant="outline" className="text-green-600 border-green-600">Active</Badge>
-                    ) : (
-                      <Badge variant="secondary">Inactive</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" onClick={() => { setEditingJurisdiction(jurisdiction); setIsDialogOpen(true); }}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleDelete(jurisdiction.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {filteredJurisdictions.map((jurisdiction) => {
+                const legalForms = jurisdiction.legal_forms || [];
+                return (
+                  <TableRow key={jurisdiction.id}>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{jurisdiction.jurisdiction_name}</p>
+                        <p className="text-xs text-muted-foreground">{jurisdiction.emirate || '-'}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Badge className={TYPE_COLORS[jurisdiction.jurisdiction_type as keyof typeof TYPE_COLORS]}>
+                        {jurisdiction.jurisdiction_type}
+                      </Badge>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1 max-w-[200px]">
+                        {legalForms.length === 0 ? (
+                          <span className="text-xs text-muted-foreground">All forms</span>
+                        ) : (
+                          <>
+                            {legalForms.slice(0, 2).map((form: string, idx: number) => (
+                              <Badge key={idx} variant="outline" className="text-xs">
+                                {form}
+                              </Badge>
+                            ))}
+                            {legalForms.length > 2 && (
+                              <Badge variant="secondary" className="text-xs">+{legalForms.length - 2}</Badge>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>AED {jurisdiction.base_price?.toLocaleString()}</TableCell>
+                    <TableCell>{jurisdiction.processing_days} days</TableCell>
+                    <TableCell>
+                      {jurisdiction.is_active ? (
+                        <Badge variant="outline" className="text-green-600 border-green-600">Active</Badge>
+                      ) : (
+                        <Badge variant="secondary">Inactive</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm" onClick={() => { setEditingJurisdiction(jurisdiction); setIsDialogOpen(true); }}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(jurisdiction.id)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         )}
@@ -662,10 +687,13 @@ function JurisdictionDialog({
     is_active: true,
     notes: ''
   });
+  
+  const [legalFormsText, setLegalFormsText] = useState('');
 
   useEffect(() => {
     if (jurisdiction) {
       setFormData(jurisdiction);
+      setLegalFormsText((jurisdiction.legal_forms || []).join(', '));
     } else {
       setFormData({
         jurisdiction_code: '',
@@ -678,19 +706,28 @@ function JurisdictionDialog({
         is_active: true,
         notes: ''
       });
+      setLegalFormsText('');
     }
   }, [jurisdiction, open]);
 
+  const handleSave = () => {
+    const legalForms = legalFormsText.split(',').map(s => s.trim()).filter(Boolean);
+    onSave({
+      ...formData,
+      legal_forms: legalForms
+    });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{jurisdiction ? 'Edit Jurisdiction' : 'Add Jurisdiction'}</DialogTitle>
           <DialogDescription>
-            Configure jurisdiction settings
+            Configure jurisdiction settings and available legal forms
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+        <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-2">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Code</Label>
@@ -768,6 +805,23 @@ function JurisdictionDialog({
             </div>
           </div>
 
+          {/* Legal Forms Section */}
+          <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <Label className="font-semibold">Available Legal Forms</Label>
+            </div>
+            <Input 
+              value={legalFormsText} 
+              onChange={(e) => setLegalFormsText(e.target.value)}
+              placeholder="LLC, FZC, FZE, Branch (comma-separated)"
+              className="text-sm"
+            />
+            <p className="text-xs text-muted-foreground">
+              Legal entity types available in this jurisdiction. Leave empty for all forms.
+            </p>
+          </div>
+
           <div className="space-y-2">
             <Label>Notes</Label>
             <Textarea 
@@ -787,7 +841,7 @@ function JurisdictionDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={() => onSave(formData)}>Save</Button>
+          <Button onClick={handleSave}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
@@ -895,52 +949,97 @@ function ActivitiesTab({ searchQuery }: { searchQuery: string }) {
             <TableHeader>
               <TableRow>
                 <TableHead>Activity</TableHead>
-                <TableHead>Category</TableHead>
-                <TableHead>Risk Level</TableHead>
+                <TableHead>Risk & Rules</TableHead>
+                <TableHead>Allowed Jurisdictions</TableHead>
                 <TableHead>Price Modifier</TableHead>
-                <TableHead>Restricted</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredActivities.map((activity) => (
-                <TableRow key={activity.id}>
-                  <TableCell className="font-medium">{activity.activity_name}</TableCell>
-                  <TableCell>{activity.category || '-'}</TableCell>
-                  <TableCell>
-                    <Badge className={RISK_COLORS[activity.risk_level]}>
-                      {activity.risk_level}
-                    </Badge>
-                  </TableCell>
-                  <TableCell>
-                    {activity.price_modifier > 0 ? `+${activity.price_modifier}%` : activity.price_modifier < 0 ? `${activity.price_modifier}%` : '-'}
-                  </TableCell>
-                  <TableCell>
-                    {activity.is_restricted && (
-                      <Badge variant="outline" className="text-amber-600 border-amber-600">
-                        <AlertTriangle className="h-3 w-3 mr-1" />
-                        Restricted
-                      </Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    {activity.is_active ? (
-                      <Badge variant="outline" className="text-green-600 border-green-600">Active</Badge>
-                    ) : (
-                      <Badge variant="secondary">Inactive</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" onClick={() => { setEditingActivity(activity); setIsDialogOpen(true); }}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleDelete(activity.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {filteredActivities.map((activity) => {
+                const allowedJurisdictions = activity.allowed_jurisdictions || [];
+                const hasEDD = (activity as any).enhanced_due_diligence === true;
+                
+                return (
+                  <TableRow key={activity.id}>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{activity.activity_name}</p>
+                        <p className="text-xs text-muted-foreground">{activity.category || '-'}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1">
+                        <Badge className={RISK_COLORS[activity.risk_level]}>
+                          {activity.risk_level}
+                        </Badge>
+                        {activity.is_restricted && (
+                          <Badge variant="outline" className="text-amber-600 border-amber-600 ml-1">
+                            <AlertTriangle className="h-3 w-3 mr-1" />
+                            Restricted
+                          </Badge>
+                        )}
+                        {hasEDD && (
+                          <Badge variant="outline" className="text-red-600 border-red-600 ml-1">
+                            EDD
+                          </Badge>
+                        )}
+                        {activity.requires_approval && (
+                          <Badge variant="outline" className="text-blue-600 border-blue-600 ml-1">
+                            Approval
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1 max-w-[180px]">
+                        {allowedJurisdictions.length === 0 ? (
+                          <Badge variant="secondary" className="text-xs">
+                            <Globe className="h-3 w-3 mr-1" />
+                            All
+                          </Badge>
+                        ) : (
+                          <>
+                            {allowedJurisdictions.slice(0, 2).map((jur: string, idx: number) => (
+                              <Badge key={idx} variant="outline" className="text-xs bg-blue-50 border-blue-300">
+                                {jur}
+                              </Badge>
+                            ))}
+                            {allowedJurisdictions.length > 2 && (
+                              <Badge variant="secondary" className="text-xs">+{allowedJurisdictions.length - 2}</Badge>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {activity.price_modifier > 0 ? (
+                        <Badge variant="outline" className="text-amber-600">+{activity.price_modifier}%</Badge>
+                      ) : activity.price_modifier < 0 ? (
+                        <Badge variant="outline" className="text-green-600">{activity.price_modifier}%</Badge>
+                      ) : (
+                        <span className="text-muted-foreground">-</span>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      {activity.is_active ? (
+                        <Badge variant="outline" className="text-green-600 border-green-600">Active</Badge>
+                      ) : (
+                        <Badge variant="secondary">Inactive</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm" onClick={() => { setEditingActivity(activity); setIsDialogOpen(true); }}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(activity.id)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         )}
@@ -976,12 +1075,20 @@ function ActivityDialog({
     restriction_reason: '',
     requires_approval: false,
     price_modifier: 0,
-    is_active: true
+    is_active: true,
+    allowed_jurisdictions: []
   });
+  
+  const [allowedJurisdictionsText, setAllowedJurisdictionsText] = useState('');
+  const [eddRequirementsText, setEddRequirementsText] = useState('');
+  const [enhancedDD, setEnhancedDD] = useState(false);
 
   useEffect(() => {
     if (activity) {
       setFormData(activity);
+      setAllowedJurisdictionsText((activity.allowed_jurisdictions || []).join(', '));
+      setEnhancedDD((activity as any).enhanced_due_diligence || false);
+      setEddRequirementsText(((activity as any).edd_requirements || []).join(', '));
     } else {
       setFormData({
         activity_code: '',
@@ -992,21 +1099,37 @@ function ActivityDialog({
         restriction_reason: '',
         requires_approval: false,
         price_modifier: 0,
-        is_active: true
+        is_active: true,
+        allowed_jurisdictions: []
       });
+      setAllowedJurisdictionsText('');
+      setEnhancedDD(false);
+      setEddRequirementsText('');
     }
   }, [activity, open]);
 
+  const handleSave = () => {
+    const allowedJurisdictions = allowedJurisdictionsText.split(',').map(s => s.trim()).filter(Boolean);
+    const eddRequirements = eddRequirementsText.split(',').map(s => s.trim()).filter(Boolean);
+    
+    onSave({
+      ...formData,
+      allowed_jurisdictions: allowedJurisdictions,
+      enhanced_due_diligence: enhancedDD,
+      edd_requirements: eddRequirements
+    } as any);
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{activity ? 'Edit Activity' : 'Add Activity'}</DialogTitle>
           <DialogDescription>
-            Configure business activity settings
+            Configure business activity settings and jurisdiction rules
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+        <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-2">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Code</Label>
@@ -1063,6 +1186,50 @@ function ActivityDialog({
             </div>
           </div>
 
+          {/* Jurisdiction Rules Section */}
+          <div className="border rounded-lg p-4 space-y-3 bg-muted/30">
+            <div className="flex items-center gap-2">
+              <Building2 className="h-4 w-4 text-muted-foreground" />
+              <Label className="font-semibold">Jurisdiction Rules</Label>
+            </div>
+            <Input 
+              value={allowedJurisdictionsText} 
+              onChange={(e) => setAllowedJurisdictionsText(e.target.value)}
+              placeholder="DMCC, DIFC, ADGM (comma-separated codes)"
+              className="text-sm"
+            />
+            <p className="text-xs text-muted-foreground">
+              Jurisdictions where this activity is allowed. Leave empty for all jurisdictions.
+            </p>
+          </div>
+
+          {/* EDD Section */}
+          <div className="border rounded-lg p-4 space-y-3 bg-amber-50/50">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="h-4 w-4 text-amber-600" />
+                <Label className="font-semibold">Enhanced Due Diligence</Label>
+              </div>
+              <Switch 
+                checked={enhancedDD} 
+                onCheckedChange={setEnhancedDD}
+              />
+            </div>
+            {enhancedDD && (
+              <>
+                <Input 
+                  value={eddRequirementsText} 
+                  onChange={(e) => setEddRequirementsText(e.target.value)}
+                  placeholder="Source of Funds, Bank Reference (comma-separated)"
+                  className="text-sm"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Additional compliance requirements for this high-risk activity
+                </p>
+              </>
+            )}
+          </div>
+
           <div className="flex items-center justify-between">
             <Label>Restricted Activity</Label>
             <Switch 
@@ -1100,7 +1267,7 @@ function ActivityDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={() => onSave(formData)}>Save</Button>
+          <Button onClick={handleSave}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
