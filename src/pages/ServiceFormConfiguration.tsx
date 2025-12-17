@@ -6,7 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff, Upload, Download, FileJson, AlertTriangle, Code, FileText, Check, ChevronsUpDown, Settings, HelpCircle, ChevronDown, ChevronUp, Lightbulb, MousePointerClick, Link } from "lucide-react";
+import { ArrowLeft, Plus, Trash2, GripVertical, Save, Eye, EyeOff, Upload, Download, FileJson, AlertTriangle, Code, FileText, Check, ChevronsUpDown, Settings, HelpCircle, ChevronDown, ChevronUp, Lightbulb, MousePointerClick, Link, Sparkles, Zap } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Switch } from "@/components/ui/switch";
@@ -94,6 +94,7 @@ interface FormConfig {
   requiredDocuments?: {
     categories: DocumentCategory[];
   };
+  ruleContextMapping?: Record<string, string>;
 }
 
 interface Product {
@@ -943,7 +944,7 @@ const ServiceFormConfiguration = () => {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [activeTab, setActiveTab] = useState<"fields" | "validation" | "documents">("fields");
+  const [activeTab, setActiveTab] = useState<"fields" | "validation" | "documents" | "rulemapping">("fields");
   const [currentStage, setCurrentStage] = useState<string>("draft");
   const [importErrors, setImportErrors] = useState<string[]>([]);
   const [importWarnings, setImportWarnings] = useState<string[]>([]);
@@ -2379,8 +2380,8 @@ const ServiceFormConfiguration = () => {
                 Back to Mode Selection
               </Button>
             </div>
-            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "fields" | "validation" | "documents")} className="space-y-6">
-              <TabsList className="grid w-full max-w-2xl grid-cols-3 h-11">
+            <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as "fields" | "validation" | "documents" | "rulemapping")} className="space-y-6">
+              <TabsList className="grid w-full max-w-3xl grid-cols-4 h-11">
                 <TabsTrigger value="fields" className="gap-2">
                   <GripVertical className="h-4 w-4" />
                   Form Fields
@@ -2392,6 +2393,10 @@ const ServiceFormConfiguration = () => {
                 <TabsTrigger value="documents" className="gap-2">
                   <FileJson className="h-4 w-4" />
                   Required Documents
+                </TabsTrigger>
+                <TabsTrigger value="rulemapping" className="gap-2">
+                  <Sparkles className="h-4 w-4" />
+                  AI Rule Mapping
                 </TabsTrigger>
               </TabsList>
 
@@ -2713,6 +2718,169 @@ const ServiceFormConfiguration = () => {
                     </Card>
                   </div>
                 )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="rulemapping" className="mt-6">
+              <div className="space-y-4">
+                <Card className="border-primary/30 bg-gradient-to-br from-primary/5 to-transparent">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm flex items-center gap-2">
+                      <Sparkles className="h-4 w-4 text-primary" />
+                      AI Rule Context Mapping
+                    </CardTitle>
+                    <CardDescription className="text-xs">
+                      Map your form field labels to the AI rule engine context keys. This allows the rule engine to understand your form fields and provide intelligent recommendations.
+                    </CardDescription>
+                  </CardHeader>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm">Available Rule Engine Context Keys</CardTitle>
+                    <CardDescription className="text-xs">
+                      These are the keys the AI rule engine understands. Map your form fields to these keys for intelligent recommendations.
+                    </CardDescription>
+                  </CardHeader>
+                  <CardContent className="pt-0">
+                    <div className="flex flex-wrap gap-2">
+                      {[
+                        { key: 'emirate', description: 'Emirate/city (e.g., Dubai, Abu Dhabi)' },
+                        { key: 'locationType', description: 'License type (e.g., Mainland, Free Zone)' },
+                        { key: 'activityRiskLevel', description: 'Risk level (e.g., low, medium, high)' },
+                        { key: 'activityCode', description: 'Business activity code' },
+                        { key: 'planCode', description: 'Selected plan/package code' },
+                        { key: 'nationality', description: 'Customer nationality' },
+                      ].map(({ key, description }) => (
+                        <div key={key} className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-primary/10 border border-primary/20">
+                          <code className="text-xs font-semibold text-primary">{key}</code>
+                          <span className="text-xs text-muted-foreground">- {description}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </CardContent>
+                </Card>
+
+                {formConfig.sections.length > 0 ? (
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm flex items-center gap-2">
+                        <Zap className="h-4 w-4 text-amber-500" />
+                        Field to Context Mapping
+                      </CardTitle>
+                      <CardDescription className="text-xs">
+                        Select which form fields map to each rule context key. Leave empty if no field applies.
+                      </CardDescription>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="space-y-3">
+                        {[
+                          { key: 'emirate', label: 'Emirate' },
+                          { key: 'locationType', label: 'License/Location Type' },
+                          { key: 'activityRiskLevel', label: 'Activity Risk Level' },
+                          { key: 'activityCode', label: 'Activity Code' },
+                          { key: 'planCode', label: 'Plan Code' },
+                          { key: 'nationality', label: 'Nationality' },
+                        ].map(({ key, label }) => {
+                          const allFields = formConfig.sections.flatMap(s => 
+                            s.fields.map(f => ({ label: f.label, sectionTitle: s.sectionTitle }))
+                          );
+                          const currentMapping = formConfig.ruleContextMapping || {};
+                          const mappedFieldLabel = Object.entries(currentMapping).find(
+                            ([, contextKey]) => contextKey === key
+                          )?.[0];
+                          
+                          return (
+                            <div key={key} className="grid grid-cols-3 gap-3 items-center py-2 border-b border-border/50 last:border-0">
+                              <div>
+                                <Label className="text-xs font-medium">{label}</Label>
+                                <p className="text-xs text-muted-foreground">Maps to: <code className="bg-muted px-1 rounded">{key}</code></p>
+                              </div>
+                              <div className="col-span-2">
+                                <Select
+                                  value={mappedFieldLabel || ""}
+                                  onValueChange={(fieldLabel) => {
+                                    const newMapping = { ...currentMapping };
+                                    // Remove old mapping for this context key
+                                    Object.keys(newMapping).forEach(k => {
+                                      if (newMapping[k] === key) delete newMapping[k];
+                                    });
+                                    // Add new mapping if field selected
+                                    if (fieldLabel) {
+                                      newMapping[fieldLabel] = key;
+                                    }
+                                    setFormConfig({
+                                      ...formConfig,
+                                      ruleContextMapping: newMapping
+                                    });
+                                  }}
+                                >
+                                  <SelectTrigger className="h-8 text-xs">
+                                    <SelectValue placeholder="Select a form field..." />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    <SelectItem value="">
+                                      <span className="text-muted-foreground">No mapping</span>
+                                    </SelectItem>
+                                    {allFields.map((field, idx) => (
+                                      <SelectItem key={`${field.label}-${idx}`} value={field.label}>
+                                        {field.label} <span className="text-muted-foreground text-xs">({field.sectionTitle})</span>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ) : (
+                  <Card className="border-dashed">
+                    <CardContent className="py-12 text-center text-muted-foreground">
+                      <AlertTriangle className="h-8 w-8 mx-auto mb-3 opacity-50" />
+                      <p className="text-sm">No form fields configured</p>
+                      <p className="text-xs mt-1">Add fields in the "Form Fields" tab first to set up rule mappings</p>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {Object.keys(formConfig.ruleContextMapping || {}).length > 0 && (
+                  <Card className="border-green-500/30 bg-green-500/5">
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm flex items-center gap-2 text-green-700">
+                        <Check className="h-4 w-4" />
+                        Current Mappings
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent className="pt-0">
+                      <div className="space-y-1">
+                        {Object.entries(formConfig.ruleContextMapping || {}).map(([fieldLabel, contextKey]) => (
+                          <div key={fieldLabel} className="flex items-center gap-2 text-xs">
+                            <span className="font-medium">{fieldLabel}</span>
+                            <span className="text-muted-foreground">→</span>
+                            <code className="bg-muted px-1.5 py-0.5 rounded text-green-700">{contextKey}</code>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Version Notes */}
+                <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
+                  <CardContent className="pt-6 space-y-3">
+                    <Label className="text-sm font-medium">Version Notes (Optional)</Label>
+                    <Textarea
+                      value={changeNotes}
+                      onChange={(e) => setChangeNotes(e.target.value)}
+                      placeholder="Describe what changed in this version..."
+                      rows={2}
+                      className="resize-none"
+                    />
+                  </CardContent>
+                </Card>
               </div>
             </TabsContent>
           </Tabs>
