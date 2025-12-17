@@ -1509,53 +1509,114 @@ function DocumentsTab({ searchQuery }: { searchQuery: string }) {
               <TableRow>
                 <TableHead>Document</TableHead>
                 <TableHead>Mandatory</TableHead>
+                <TableHead>Applies To (Rules)</TableHead>
                 <TableHead>Formats</TableHead>
-                <TableHead>Max Size</TableHead>
                 <TableHead>Status</TableHead>
                 <TableHead className="text-right">Actions</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {filteredDocuments.map((doc) => (
-                <TableRow key={doc.id}>
-                  <TableCell>
-                    <div>
-                      <p className="font-medium">{doc.document_name}</p>
-                      <p className="text-xs text-muted-foreground">{doc.document_code}</p>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    {doc.is_mandatory ? (
-                      <Badge variant="destructive">Required</Badge>
-                    ) : (
-                      <Badge variant="outline">Optional</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex gap-1 flex-wrap">
-                      {(doc.accepted_formats as string[]).map((fmt, idx) => (
-                        <Badge key={idx} variant="secondary" className="text-xs">{fmt}</Badge>
-                      ))}
-                    </div>
-                  </TableCell>
-                  <TableCell>{doc.max_file_size_mb} MB</TableCell>
-                  <TableCell>
-                    {doc.is_active ? (
-                      <Badge variant="outline" className="text-green-600 border-green-600">Active</Badge>
-                    ) : (
-                      <Badge variant="secondary">Inactive</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" onClick={() => { setEditingDocument(doc); setIsDialogOpen(true); }}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleDelete(doc.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
+              {filteredDocuments.map((doc) => {
+                const hasActivities = doc.applies_to_activities && doc.applies_to_activities.length > 0;
+                const hasJurisdictions = doc.applies_to_jurisdictions && doc.applies_to_jurisdictions.length > 0;
+                const hasNationalities = doc.applies_to_nationalities && doc.applies_to_nationalities.length > 0;
+                const isUniversal = !hasActivities && !hasJurisdictions && !hasNationalities;
+                
+                return (
+                  <TableRow key={doc.id}>
+                    <TableCell>
+                      <div>
+                        <p className="font-medium">{doc.document_name}</p>
+                        <p className="text-xs text-muted-foreground">{doc.document_code}</p>
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {doc.is_mandatory ? (
+                        <Badge variant="destructive">Required</Badge>
+                      ) : (
+                        <Badge variant="outline">Optional</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell>
+                      <div className="space-y-1 max-w-[250px]">
+                        {isUniversal ? (
+                          <Badge variant="secondary" className="text-xs">
+                            <Globe className="h-3 w-3 mr-1" />
+                            All Applications
+                          </Badge>
+                        ) : (
+                          <>
+                            {hasActivities && (
+                              <div className="flex flex-wrap gap-1">
+                                <span className="text-xs text-muted-foreground mr-1">Activities:</span>
+                                {(doc.applies_to_activities as string[]).slice(0, 2).map((act, idx) => (
+                                  <Badge key={idx} variant="outline" className="text-xs bg-amber-50 border-amber-300">
+                                    <Briefcase className="h-2.5 w-2.5 mr-1" />
+                                    {act}
+                                  </Badge>
+                                ))}
+                                {doc.applies_to_activities.length > 2 && (
+                                  <Badge variant="secondary" className="text-xs">+{doc.applies_to_activities.length - 2}</Badge>
+                                )}
+                              </div>
+                            )}
+                            {hasJurisdictions && (
+                              <div className="flex flex-wrap gap-1">
+                                <span className="text-xs text-muted-foreground mr-1">Jurisdictions:</span>
+                                {(doc.applies_to_jurisdictions as string[]).slice(0, 2).map((jur, idx) => (
+                                  <Badge key={idx} variant="outline" className="text-xs bg-blue-50 border-blue-300">
+                                    <Building2 className="h-2.5 w-2.5 mr-1" />
+                                    {jur}
+                                  </Badge>
+                                ))}
+                                {doc.applies_to_jurisdictions.length > 2 && (
+                                  <Badge variant="secondary" className="text-xs">+{doc.applies_to_jurisdictions.length - 2}</Badge>
+                                )}
+                              </div>
+                            )}
+                            {hasNationalities && (
+                              <div className="flex flex-wrap gap-1">
+                                <span className="text-xs text-muted-foreground mr-1">Nationalities:</span>
+                                {(doc.applies_to_nationalities as string[]).slice(0, 2).map((nat, idx) => (
+                                  <Badge key={idx} variant="outline" className="text-xs bg-green-50 border-green-300">
+                                    <Globe className="h-2.5 w-2.5 mr-1" />
+                                    {nat}
+                                  </Badge>
+                                ))}
+                                {doc.applies_to_nationalities.length > 2 && (
+                                  <Badge variant="secondary" className="text-xs">+{doc.applies_to_nationalities.length - 2}</Badge>
+                                )}
+                              </div>
+                            )}
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex gap-1 flex-wrap">
+                        {(doc.accepted_formats as string[]).slice(0, 3).map((fmt, idx) => (
+                          <Badge key={idx} variant="secondary" className="text-xs">{fmt}</Badge>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      {doc.is_active ? (
+                        <Badge variant="outline" className="text-green-600 border-green-600">Active</Badge>
+                      ) : (
+                        <Badge variant="secondary">Inactive</Badge>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <Button variant="ghost" size="sm" onClick={() => { setEditingDocument(doc); setIsDialogOpen(true); }}>
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button variant="ghost" size="sm" onClick={() => handleDelete(doc.id)}>
+                        <Trash2 className="h-4 w-4 text-destructive" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                );
+              })}
             </TableBody>
           </Table>
         )}
@@ -1590,12 +1651,22 @@ function DocumentDialog({
     accepted_formats: ['pdf', 'jpg', 'png'],
     max_file_size_mb: 10,
     is_active: true,
-    sort_order: 0
+    sort_order: 0,
+    applies_to_activities: [],
+    applies_to_jurisdictions: [],
+    applies_to_nationalities: []
   });
+  
+  const [activitiesText, setActivitiesText] = useState('');
+  const [jurisdictionsText, setJurisdictionsText] = useState('');
+  const [nationalitiesText, setNationalitiesText] = useState('');
 
   useEffect(() => {
     if (document) {
       setFormData(document);
+      setActivitiesText((document.applies_to_activities || []).join(', '));
+      setJurisdictionsText((document.applies_to_jurisdictions || []).join(', '));
+      setNationalitiesText((document.applies_to_nationalities || []).join(', '));
     } else {
       setFormData({
         document_code: '',
@@ -1605,21 +1676,40 @@ function DocumentDialog({
         accepted_formats: ['pdf', 'jpg', 'png'],
         max_file_size_mb: 10,
         is_active: true,
-        sort_order: 0
+        sort_order: 0,
+        applies_to_activities: [],
+        applies_to_jurisdictions: [],
+        applies_to_nationalities: []
       });
+      setActivitiesText('');
+      setJurisdictionsText('');
+      setNationalitiesText('');
     }
   }, [document, open]);
 
+  const handleSave = () => {
+    const activities = activitiesText.split(',').map(s => s.trim()).filter(Boolean);
+    const jurisdictions = jurisdictionsText.split(',').map(s => s.trim()).filter(Boolean);
+    const nationalities = nationalitiesText.split(',').map(s => s.trim()).filter(Boolean);
+    
+    onSave({
+      ...formData,
+      applies_to_activities: activities,
+      applies_to_jurisdictions: jurisdictions,
+      applies_to_nationalities: nationalities
+    });
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>{document ? 'Edit Document' : 'Add Document'}</DialogTitle>
           <DialogDescription>
-            Configure document requirement settings
+            Configure document requirement settings and dynamic rules
           </DialogDescription>
         </DialogHeader>
-        <div className="space-y-4 max-h-[60vh] overflow-y-auto">
+        <div className="space-y-4 max-h-[65vh] overflow-y-auto pr-2">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Code</Label>
@@ -1657,6 +1747,62 @@ function DocumentDialog({
             />
           </div>
 
+          {/* Dynamic Rules Section */}
+          <div className="border rounded-lg p-4 space-y-4 bg-muted/30">
+            <div className="flex items-center gap-2">
+              <Filter className="h-4 w-4 text-muted-foreground" />
+              <Label className="font-semibold">Dynamic Rules (leave empty for all applications)</Label>
+            </div>
+            
+            <div className="space-y-2">
+              <Label className="text-sm flex items-center gap-2">
+                <Briefcase className="h-3.5 w-3.5 text-amber-600" />
+                Applies to Activities
+              </Label>
+              <Input 
+                value={activitiesText} 
+                onChange={(e) => setActivitiesText(e.target.value)}
+                placeholder="money_exchange, crypto_trading (comma-separated activity codes)"
+                className="text-sm"
+              />
+              <p className="text-xs text-muted-foreground">
+                Document required when customer selects these activities
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label className="text-sm flex items-center gap-2">
+                <Building2 className="h-3.5 w-3.5 text-blue-600" />
+                Applies to Jurisdictions
+              </Label>
+              <Input 
+                value={jurisdictionsText} 
+                onChange={(e) => setJurisdictionsText(e.target.value)}
+                placeholder="DIFC, ADGM (comma-separated jurisdiction codes)"
+                className="text-sm"
+              />
+              <p className="text-xs text-muted-foreground">
+                Document required when customer selects these jurisdictions
+              </p>
+            </div>
+            
+            <div className="space-y-2">
+              <Label className="text-sm flex items-center gap-2">
+                <Globe className="h-3.5 w-3.5 text-green-600" />
+                Applies to Nationalities
+              </Label>
+              <Input 
+                value={nationalitiesText} 
+                onChange={(e) => setNationalitiesText(e.target.value)}
+                placeholder="IRN, SYR, PRK (comma-separated country codes)"
+                className="text-sm"
+              />
+              <p className="text-xs text-muted-foreground">
+                Document required for customers from these countries
+              </p>
+            </div>
+          </div>
+
           <div className="space-y-2">
             <Label>Max File Size (MB)</Label>
             <Input 
@@ -1684,7 +1830,7 @@ function DocumentDialog({
         </div>
         <DialogFooter>
           <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
-          <Button onClick={() => onSave(formData)}>Save</Button>
+          <Button onClick={handleSave}>Save</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>
