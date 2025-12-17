@@ -8,10 +8,11 @@ interface RuleCondition {
 }
 
 interface RuleAction {
-  type: 'multiply_price' | 'add_fee' | 'set_flag' | 'require_document' | 'block' | 'show_warning' | 'set_processing_time';
+  type: 'multiply_price' | 'add_fee' | 'set_flag' | 'require_document' | 'block' | 'show_warning' | 'set_processing_time' | 'recommend_bank';
   value?: number | string | boolean;
   message?: string;
   processingDays?: number;
+  banks?: string[];
 }
 
 interface WebflowRule {
@@ -44,6 +45,7 @@ interface RuleEngineResult {
   blockMessage?: string;
   appliedRules: string[];
   processingTimeDays: number | null;
+  recommendedBanks: string[];
 }
 
 export function useWebflowRuleEngine(context: RuleContext) {
@@ -120,6 +122,7 @@ export function useWebflowRuleEngine(context: RuleContext) {
       blocked: false,
       appliedRules: [],
       processingTimeDays: null,
+      recommendedBanks: [],
     };
 
     if (loading) return engineResult;
@@ -170,6 +173,16 @@ export function useWebflowRuleEngine(context: RuleContext) {
                 engineResult.processingTimeDays = engineResult.processingTimeDays 
                   ? Math.max(engineResult.processingTimeDays, days)
                   : days;
+              }
+              break;
+            case 'recommend_bank':
+              if (action.banks && action.banks.length > 0) {
+                // Add banks without duplicates
+                action.banks.forEach(bank => {
+                  if (!engineResult.recommendedBanks.includes(bank)) {
+                    engineResult.recommendedBanks.push(bank);
+                  }
+                });
               }
               break;
           }
