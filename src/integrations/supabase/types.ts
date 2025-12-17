@@ -3534,6 +3534,95 @@ export type Database = {
         }
         Relationships: []
       }
+      webflow_configuration_versions: {
+        Row: {
+          change_notes: string | null
+          changed_by: string | null
+          config_data: Json
+          configuration_id: string
+          created_at: string
+          id: string
+          version_number: number
+        }
+        Insert: {
+          change_notes?: string | null
+          changed_by?: string | null
+          config_data: Json
+          configuration_id: string
+          created_at?: string
+          id?: string
+          version_number: number
+        }
+        Update: {
+          change_notes?: string | null
+          changed_by?: string | null
+          config_data?: Json
+          configuration_id?: string
+          created_at?: string
+          id?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webflow_configuration_versions_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "webflow_configuration_versions_configuration_id_fkey"
+            columns: ["configuration_id"]
+            isOneToOne: false
+            referencedRelation: "webflow_configurations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      webflow_configurations: {
+        Row: {
+          config_data: Json
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          name: string
+          updated_at: string
+          version_number: number
+        }
+        Insert: {
+          config_data?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+          version_number?: number
+        }
+        Update: {
+          config_data?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          name?: string
+          updated_at?: string
+          version_number?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "webflow_configurations_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       webflow_countries: {
         Row: {
           block_reason: string | null
