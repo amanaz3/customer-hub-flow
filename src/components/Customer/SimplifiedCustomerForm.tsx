@@ -433,18 +433,21 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   useEffect(() => {
     if (currentStep === 3 && onRuleEngineContextChange) {
       // Extract rule engine context from form data
-      // Look for common field patterns in dynamic form data
       const context: Record<string, any> = {};
       
       // Search for fields that might be relevant for the rule engine
       Object.entries(formValues).forEach(([key, value]) => {
         if (!value) return;
         
+        // Get the label for this field (use fieldLabelMap for dynamic fields)
+        const label = fieldLabelMap[key] || key;
+        const labelLower = label.toLowerCase();
         const keyLower = key.toLowerCase();
         const valueLower = String(value).toLowerCase();
         
-        // License Type / Location Type mapping
-        if (keyLower.includes('license') || keyLower.includes('location')) {
+        // License Type / Location Type mapping - check both key and label
+        if (labelLower.includes('license') || labelLower.includes('location') || 
+            keyLower.includes('license') || keyLower.includes('location')) {
           if (valueLower.includes('mainland')) {
             context.locationType = 'mainland';
           } else if (valueLower.includes('freezone') || valueLower.includes('free zone')) {
@@ -453,22 +456,23 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         }
         
         // Emirate / Jurisdiction mapping
-        if (keyLower.includes('jurisdiction') || keyLower.includes('emirate')) {
+        if (labelLower.includes('jurisdiction') || labelLower.includes('emirate') ||
+            keyLower.includes('jurisdiction') || keyLower.includes('emirate')) {
           context.emirate = value;
         }
         
         // Nationality
-        if (keyLower.includes('nationality')) {
+        if (labelLower.includes('nationality') || keyLower.includes('nationality')) {
           context.nationality = value;
         }
         
-        // Activity / Risk
-        if (keyLower.includes('activity') || keyLower.includes('risk')) {
+        // Activity / Risk Level
+        if (labelLower.includes('risk') || keyLower.includes('risk')) {
           context.activityRiskLevel = value;
         }
       });
       
-      // Also check dynamic section fields (section_X_fieldId format)
+      // Also check dynamic section fields for value-based detection
       Object.entries(formValues).forEach(([key, value]) => {
         if (!key.startsWith('section_') || !value) return;
         
@@ -480,7 +484,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
         }
         
         // Detect emirate from values
-        if (['dubai', 'abudhabi', 'abu dhabi', 'sharjah', 'ajman', 'rak', 'fujairah', 'umm al quwain'].some(
+        if (['dubai', 'abu dhabi', 'sharjah', 'ajman', 'rak', 'fujairah', 'umm al quwain'].some(
           e => valueLower.includes(e.toLowerCase())
         )) {
           context.emirate = value;
@@ -489,7 +493,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
       
       onRuleEngineContextChange(context);
     }
-  }, [currentStep, JSON.stringify(formValues), onRuleEngineContextChange]);
+  }, [currentStep, JSON.stringify(formValues), fieldLabelMap, onRuleEngineContextChange]);
   const fetchDocumentsForProduct = async (productId: string) => {
     try {
       const { data: configData } = await supabase
