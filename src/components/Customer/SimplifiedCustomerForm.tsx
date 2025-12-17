@@ -203,6 +203,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   const [applicationId, setApplicationId] = useState<string | null>(null);
   const [customerId, setCustomerId] = useState<string | null>(null);
   const [validationErrors, setValidationErrors] = useState<string[]>([]);
+  const [step3FieldValues, setStep3FieldValues] = useState<Record<string, any>>({});
   const { toast } = useToast();
   const { user } = useAuth();
 
@@ -324,6 +325,18 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
           if (step2.license_type) {
             form.setValue('license_type', step2.license_type);
           }
+        }
+        
+        // Load step3 dynamic fields if they exist
+        if (appData.step3) {
+          const step3Fields: Record<string, any> = {};
+          Object.entries(appData.step3).forEach(([key, value]) => {
+            if (key.startsWith('section_')) {
+              step3Fields[key] = value;
+              form.setValue(key as any, value);
+            }
+          });
+          setStep3FieldValues(step3Fields);
         }
         
         // Determine which steps are completed and calculate next step
@@ -1661,6 +1674,10 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
                         formData={form.getValues()}
                         onFieldChange={(fieldKey, value) => {
                           form.setValue(fieldKey as any, value);
+                          // Track step 3 fields in state for preview
+                          if (fieldKey.startsWith('section_')) {
+                            setStep3FieldValues(prev => ({ ...prev, [fieldKey]: value }));
+                          }
                         }}
                         onFieldLabelsLoaded={(labelMap) => {
                           setFieldLabelMap(labelMap);
@@ -1779,9 +1796,9 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
 
                     {/* Service Details Preview - From Step 3 Dynamic Form */}
                     {(() => {
-                      const allFormValues = form.getValues();
-                      const serviceDetailsFields = Object.entries(allFormValues)
-                        .filter(([key, value]) => key.startsWith('section_') && value)
+                      // Use step3FieldValues state which tracks dynamic form fields
+                      const serviceDetailsFields = Object.entries(step3FieldValues)
+                        .filter(([key, value]) => key.startsWith('section_') && value !== undefined && value !== null && value !== '')
                         .map(([key, value]) => {
                           const label = fieldLabelMap[key] || (() => {
                             const parts = key.replace('section_', '').split('_');
