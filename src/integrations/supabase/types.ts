@@ -3477,6 +3477,240 @@ export type Database = {
           },
         ]
       }
+      webflow_activities: {
+        Row: {
+          activity_code: string
+          activity_name: string
+          additional_requirements: Json | null
+          allowed_jurisdictions: Json | null
+          category: string | null
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          is_restricted: boolean | null
+          price_modifier: number | null
+          requires_approval: boolean | null
+          restriction_reason: string | null
+          risk_level: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          activity_code: string
+          activity_name: string
+          additional_requirements?: Json | null
+          allowed_jurisdictions?: Json | null
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_restricted?: boolean | null
+          price_modifier?: number | null
+          requires_approval?: boolean | null
+          restriction_reason?: string | null
+          risk_level?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          activity_code?: string
+          activity_name?: string
+          additional_requirements?: Json | null
+          allowed_jurisdictions?: Json | null
+          category?: string | null
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_restricted?: boolean | null
+          price_modifier?: number | null
+          requires_approval?: boolean | null
+          restriction_reason?: string | null
+          risk_level?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      webflow_countries: {
+        Row: {
+          block_reason: string | null
+          country_code: string
+          country_name: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          is_blocked: boolean | null
+          requires_enhanced_due_diligence: boolean | null
+          risk_level: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          block_reason?: string | null
+          country_code: string
+          country_name: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_blocked?: boolean | null
+          requires_enhanced_due_diligence?: boolean | null
+          risk_level?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          block_reason?: string | null
+          country_code?: string
+          country_name?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          is_blocked?: boolean | null
+          requires_enhanced_due_diligence?: boolean | null
+          risk_level?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      webflow_documents: {
+        Row: {
+          accepted_formats: Json | null
+          applies_to_activities: Json | null
+          applies_to_jurisdictions: Json | null
+          applies_to_nationalities: Json | null
+          created_at: string | null
+          description: string | null
+          document_code: string
+          document_name: string
+          id: string
+          is_active: boolean | null
+          is_mandatory: boolean | null
+          max_file_size_mb: number | null
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          accepted_formats?: Json | null
+          applies_to_activities?: Json | null
+          applies_to_jurisdictions?: Json | null
+          applies_to_nationalities?: Json | null
+          created_at?: string | null
+          description?: string | null
+          document_code: string
+          document_name: string
+          id?: string
+          is_active?: boolean | null
+          is_mandatory?: boolean | null
+          max_file_size_mb?: number | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          accepted_formats?: Json | null
+          applies_to_activities?: Json | null
+          applies_to_jurisdictions?: Json | null
+          applies_to_nationalities?: Json | null
+          created_at?: string | null
+          description?: string | null
+          document_code?: string
+          document_name?: string
+          id?: string
+          is_active?: boolean | null
+          is_mandatory?: boolean | null
+          max_file_size_mb?: number | null
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      webflow_jurisdictions: {
+        Row: {
+          base_price: number | null
+          created_at: string | null
+          emirate: string | null
+          id: string
+          is_active: boolean | null
+          jurisdiction_code: string
+          jurisdiction_name: string
+          jurisdiction_type: string
+          legal_forms: Json | null
+          notes: string | null
+          processing_days: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          base_price?: number | null
+          created_at?: string | null
+          emirate?: string | null
+          id?: string
+          is_active?: boolean | null
+          jurisdiction_code: string
+          jurisdiction_name: string
+          jurisdiction_type: string
+          legal_forms?: Json | null
+          notes?: string | null
+          processing_days?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          base_price?: number | null
+          created_at?: string | null
+          emirate?: string | null
+          id?: string
+          is_active?: boolean | null
+          jurisdiction_code?: string
+          jurisdiction_name?: string
+          jurisdiction_type?: string
+          legal_forms?: Json | null
+          notes?: string | null
+          processing_days?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      webflow_pricing: {
+        Row: {
+          base_price: number
+          created_at: string | null
+          description: string | null
+          features: Json | null
+          id: string
+          included_services: Json | null
+          is_active: boolean | null
+          is_popular: boolean | null
+          jurisdiction_pricing: Json | null
+          plan_code: string
+          plan_name: string
+          sort_order: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          base_price: number
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          included_services?: Json | null
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          jurisdiction_pricing?: Json | null
+          plan_code: string
+          plan_name: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          base_price?: number
+          created_at?: string | null
+          description?: string | null
+          features?: Json | null
+          id?: string
+          included_services?: Json | null
+          is_active?: boolean | null
+          is_popular?: boolean | null
+          jurisdiction_pricing?: Json | null
+          plan_code?: string
+          plan_name?: string
+          sort_order?: number | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
       weekly_activities: {
         Row: {
           activity_type: string
