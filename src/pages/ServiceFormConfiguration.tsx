@@ -2798,15 +2798,15 @@ const ServiceFormConfiguration = () => {
                               </div>
                               <div className="col-span-2">
                                 <Select
-                                  value={mappedFieldLabel || ""}
+                                  value={mappedFieldLabel || "__none__"}
                                   onValueChange={(fieldLabel) => {
                                     const newMapping = { ...currentMapping };
                                     // Remove old mapping for this context key
                                     Object.keys(newMapping).forEach(k => {
                                       if (newMapping[k] === key) delete newMapping[k];
                                     });
-                                    // Add new mapping if field selected
-                                    if (fieldLabel) {
+                                    // Add new mapping if field selected (not __none__)
+                                    if (fieldLabel && fieldLabel !== "__none__") {
                                       newMapping[fieldLabel] = key;
                                     }
                                     setFormConfig({
@@ -2819,7 +2819,7 @@ const ServiceFormConfiguration = () => {
                                     <SelectValue placeholder="Select a form field..." />
                                   </SelectTrigger>
                                   <SelectContent>
-                                    <SelectItem value="">
+                                    <SelectItem value="__none__">
                                       <span className="text-muted-foreground">No mapping</span>
                                     </SelectItem>
                                     {allFields.map((field, idx) => (
