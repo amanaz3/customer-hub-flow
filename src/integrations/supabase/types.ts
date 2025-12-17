@@ -3485,6 +3485,8 @@ export type Database = {
           allowed_jurisdictions: Json | null
           category: string | null
           created_at: string | null
+          edd_requirements: Json | null
+          enhanced_due_diligence: boolean | null
           id: string
           is_active: boolean | null
           is_restricted: boolean | null
@@ -3501,6 +3503,8 @@ export type Database = {
           allowed_jurisdictions?: Json | null
           category?: string | null
           created_at?: string | null
+          edd_requirements?: Json | null
+          enhanced_due_diligence?: boolean | null
           id?: string
           is_active?: boolean | null
           is_restricted?: boolean | null
@@ -3517,6 +3521,8 @@ export type Database = {
           allowed_jurisdictions?: Json | null
           category?: string | null
           created_at?: string | null
+          edd_requirements?: Json | null
+          enhanced_due_diligence?: boolean | null
           id?: string
           is_active?: boolean | null
           is_restricted?: boolean | null

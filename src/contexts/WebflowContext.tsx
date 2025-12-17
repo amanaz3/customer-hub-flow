@@ -142,7 +142,8 @@ export const WebflowProvider: React.FC<{ children: ReactNode }> = ({ children })
       case 5: return !!state.selectedPlan;
       case 6: return state.paymentCompleted;
       case 7: {
-        const requiredDocs = ['passport', 'photo', 'emirates_id', 'address_proof'];
+        // Base required docs must be handled
+        const requiredDocs = ['passport', 'photo', 'address_proof'];
         const allDocsHandled = requiredDocs.every(
           doc => state.documentsUploaded.includes(doc) || state.pendingDocuments.includes(doc)
         );
