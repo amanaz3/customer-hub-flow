@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -1047,26 +1048,31 @@ function BankRecommendationsEditor({
   onChange: (banks: string[]) => void;
 }) {
   const [newBank, setNewBank] = useState('');
+  const [availableBanks, setAvailableBanks] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Common UAE banks
-  const COMMON_BANKS = [
-    'Emirates NBD',
-    'ADCB',
-    'FAB (First Abu Dhabi Bank)',
-    'Mashreq Bank',
-    'RAK Bank',
-    'Dubai Islamic Bank',
-    'Abu Dhabi Islamic Bank',
-    'Commercial Bank of Dubai',
-    'HSBC UAE',
-    'Standard Chartered UAE',
-    'Citibank UAE',
-    'National Bank of Fujairah',
-    'Sharjah Islamic Bank',
-    'United Arab Bank',
-    'Wio Bank',
-    'Liv Bank',
-  ];
+  // Fetch banks from database
+  useEffect(() => {
+    const fetchBanks = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('banks')
+          .select('name')
+          .eq('is_active', true)
+          .order('name');
+        
+        if (error) throw error;
+        setAvailableBanks(data?.map(b => b.name) || []);
+      } catch (err) {
+        console.error('Failed to fetch banks:', err);
+        // Fallback to empty array - admin can still type custom banks
+        setAvailableBanks([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchBanks();
+  }, []);
 
   const addBank = (bank: string) => {
     if (bank && !banks.includes(bank)) {
@@ -1111,9 +1117,15 @@ function BankRecommendationsEditor({
             <SelectValue placeholder="Select or add a bank..." />
           </SelectTrigger>
           <SelectContent className="bg-background z-[9999]" position="popper" sideOffset={4}>
-            {COMMON_BANKS.filter(b => !banks.includes(b)).map(bank => (
-              <SelectItem key={bank} value={bank}>{bank}</SelectItem>
-            ))}
+            {loading ? (
+              <SelectItem value="_loading" disabled>Loading banks...</SelectItem>
+            ) : availableBanks.length === 0 ? (
+              <SelectItem value="_empty" disabled>No banks configured</SelectItem>
+            ) : (
+              availableBanks.filter(b => !banks.includes(b)).map(bank => (
+                <SelectItem key={bank} value={bank}>{bank}</SelectItem>
+              ))
+            )}
           </SelectContent>
         </Select>
       </div>
