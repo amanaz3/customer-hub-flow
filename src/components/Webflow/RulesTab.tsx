@@ -135,11 +135,47 @@ const ACTION_OPTIONS = [
 
 export default function RulesTab() {
   const [activeView, setActiveView] = useState<'visual' | 'json' | 'tree'>('visual');
-  const [rules, setRules] = useState<WebflowRule[]>(SAMPLE_RULES);
+  const [rules, setRules] = useState<WebflowRule[]>([]);
   const [selectedRule, setSelectedRule] = useState<WebflowRule | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [jsonContent, setJsonContent] = useState('');
   const [jsonError, setJsonError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch rules from database
+  const fetchRules = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('webflow_rules')
+        .select('*')
+        .order('priority', { ascending: true });
+      
+      if (error) throw error;
+      
+      const mappedRules: WebflowRule[] = (data || []).map(r => ({
+        id: r.id,
+        rule_name: r.rule_name,
+        rule_type: r.rule_type as WebflowRule['rule_type'],
+        conditions: (r.conditions || []) as unknown as RuleCondition[],
+        actions: (r.actions || []) as unknown as RuleAction[],
+        priority: r.priority,
+        is_active: r.is_active,
+        created_at: r.created_at,
+        updated_at: r.updated_at
+      }));
+      
+      setRules(mappedRules);
+    } catch (error) {
+      console.error('Error fetching rules:', error);
+      toast({ title: 'Error', description: 'Failed to load rules', variant: 'destructive' });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchRules();
+  }, []);
 
   useEffect(() => {
     setJsonContent(JSON.stringify(rules, null, 2));
@@ -155,13 +191,28 @@ export default function RulesTab() {
     }
   };
 
-  const applyJsonChanges = () => {
+  const applyJsonChanges = async () => {
     try {
       const parsed = JSON.parse(jsonContent);
-      setRules(parsed);
+      // Update all rules in database
+      for (const rule of parsed) {
+        const { error } = await supabase
+          .from('webflow_rules')
+          .upsert({
+            id: rule.id,
+            rule_name: rule.rule_name,
+            rule_type: rule.rule_type,
+            conditions: rule.conditions,
+            actions: rule.actions,
+            priority: rule.priority,
+            is_active: rule.is_active
+          });
+        if (error) throw error;
+      }
+      await fetchRules();
       toast({ title: 'Success', description: 'Rules updated from JSON' });
     } catch (e) {
-      toast({ title: 'Error', description: 'Invalid JSON', variant: 'destructive' });
+      toast({ title: 'Error', description: 'Failed to apply JSON changes', variant: 'destructive' });
     }
   };
 
@@ -176,18 +227,32 @@ export default function RulesTab() {
     toast({ title: 'Exported', description: 'Rules downloaded as JSON' });
   };
 
-  const importRules = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const importRules = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
       const reader = new FileReader();
-      reader.onload = (event) => {
+      reader.onload = async (event) => {
         try {
           const imported = JSON.parse(event.target?.result as string);
-          setRules(imported);
-          setJsonContent(JSON.stringify(imported, null, 2));
+          // Insert imported rules to database
+          for (const rule of imported) {
+            const { error } = await supabase
+              .from('webflow_rules')
+              .upsert({
+                id: rule.id?.startsWith('rule-') ? undefined : rule.id,
+                rule_name: rule.rule_name,
+                rule_type: rule.rule_type,
+                conditions: rule.conditions,
+                actions: rule.actions,
+                priority: rule.priority,
+                is_active: rule.is_active
+              });
+            if (error) throw error;
+          }
+          await fetchRules();
           toast({ title: 'Imported', description: 'Rules loaded successfully' });
         } catch (err) {
-          toast({ title: 'Error', description: 'Invalid JSON file', variant: 'destructive' });
+          toast({ title: 'Error', description: 'Failed to import rules', variant: 'destructive' });
         }
       };
       reader.readAsText(file);
@@ -196,7 +261,7 @@ export default function RulesTab() {
 
   const addNewRule = () => {
     const newRule: WebflowRule = {
-      id: `rule-${Date.now()}`,
+      id: '',
       rule_name: 'New Rule',
       rule_type: 'eligibility',
       conditions: [],
@@ -208,23 +273,90 @@ export default function RulesTab() {
     setIsDialogOpen(true);
   };
 
-  const saveRule = (rule: WebflowRule) => {
-    const existingIndex = rules.findIndex(r => r.id === rule.id);
-    if (existingIndex >= 0) {
-      const updated = [...rules];
-      updated[existingIndex] = rule;
-      setRules(updated);
-    } else {
-      setRules([...rules, rule]);
+  const saveRule = async (rule: WebflowRule) => {
+    try {
+      const isNew = !rule.id || rule.id === '';
+      
+      if (isNew) {
+        const { error } = await supabase
+          .from('webflow_rules')
+          .insert({
+            rule_name: rule.rule_name,
+            rule_type: rule.rule_type,
+            conditions: JSON.parse(JSON.stringify(rule.conditions)),
+            actions: JSON.parse(JSON.stringify(rule.actions)),
+            priority: rule.priority,
+            is_active: rule.is_active
+          });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('webflow_rules')
+          .update({
+            rule_name: rule.rule_name,
+            rule_type: rule.rule_type,
+            conditions: JSON.parse(JSON.stringify(rule.conditions)),
+            actions: JSON.parse(JSON.stringify(rule.actions)),
+            priority: rule.priority,
+            is_active: rule.is_active
+          })
+          .eq('id', rule.id);
+        if (error) throw error;
+      }
+      
+      await fetchRules();
+      setIsDialogOpen(false);
+      toast({ title: 'Saved', description: 'Rule saved successfully' });
+    } catch (error) {
+      console.error('Error saving rule:', error);
+      toast({ title: 'Error', description: 'Failed to save rule', variant: 'destructive' });
     }
-    setIsDialogOpen(false);
-    toast({ title: 'Saved', description: 'Rule saved successfully' });
   };
 
-  const deleteRule = (id: string) => {
-    setRules(rules.filter(r => r.id !== id));
-    toast({ title: 'Deleted', description: 'Rule removed' });
+  const deleteRule = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('webflow_rules')
+        .delete()
+        .eq('id', id);
+      
+      if (error) throw error;
+      
+      await fetchRules();
+      toast({ title: 'Deleted', description: 'Rule removed' });
+    } catch (error) {
+      console.error('Error deleting rule:', error);
+      toast({ title: 'Error', description: 'Failed to delete rule', variant: 'destructive' });
+    }
   };
+
+  const toggleRule = async (id: string) => {
+    const rule = rules.find(r => r.id === id);
+    if (!rule) return;
+    
+    try {
+      const { error } = await supabase
+        .from('webflow_rules')
+        .update({ is_active: !rule.is_active })
+        .eq('id', id);
+      
+      if (error) throw error;
+      await fetchRules();
+    } catch (error) {
+      console.error('Error toggling rule:', error);
+      toast({ title: 'Error', description: 'Failed to toggle rule', variant: 'destructive' });
+    }
+  };
+
+  if (loading) {
+    return (
+      <Card>
+        <CardContent className="py-12 text-center text-muted-foreground">
+          Loading rules...
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card>
@@ -278,9 +410,7 @@ export default function RulesTab() {
               rules={rules} 
               onEdit={(rule) => { setSelectedRule(rule); setIsDialogOpen(true); }}
               onDelete={deleteRule}
-              onToggle={(id) => {
-                setRules(rules.map(r => r.id === id ? { ...r, is_active: !r.is_active } : r));
-              }}
+              onToggle={toggleRule}
             />
           </TabsContent>
 
