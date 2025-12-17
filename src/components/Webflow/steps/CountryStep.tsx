@@ -4,36 +4,34 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Globe, AlertTriangle, Info, HelpCircle } from 'lucide-react';
-
-const countries = [
-  { code: 'AE', name: 'United Arab Emirates', eligible: true },
-  { code: 'SA', name: 'Saudi Arabia', eligible: true },
-  { code: 'IN', name: 'India', eligible: true },
-  { code: 'PK', name: 'Pakistan', eligible: true },
-  { code: 'GB', name: 'United Kingdom', eligible: true },
-  { code: 'US', name: 'United States', eligible: true },
-  { code: 'DE', name: 'Germany', eligible: true },
-  { code: 'FR', name: 'France', eligible: true },
-  { code: 'CN', name: 'China', eligible: true },
-  { code: 'RU', name: 'Russia', eligible: true, restricted: true },
-  { code: 'IR', name: 'Iran', eligible: false },
-  { code: 'KP', name: 'North Korea', eligible: false },
-  { code: 'SY', name: 'Syria', eligible: false },
-];
+import { Globe, AlertTriangle, Info, HelpCircle, Loader2 } from 'lucide-react';
+import { useWebflowData, isCountryEligible, countryRequiresEDD } from '@/hooks/useWebflowData';
 
 export const CountryStep: React.FC = () => {
   const { state, updateState } = useWebflow();
+  const { countries, loading } = useWebflowData();
 
-  const selectedCountry = countries.find(c => c.code === state.nationality);
+  const selectedCountry = countries.find(c => c.country_code === state.nationality);
+  const eligible = isCountryEligible(selectedCountry);
+  const requiresEDD = countryRequiresEDD(selectedCountry);
 
   const handleCountryChange = (code: string) => {
-    const country = countries.find(c => c.code === code);
+    const country = countries.find(c => c.country_code === code);
     updateState({
       nationality: code,
-      isEligible: country?.eligible ?? false,
+      isEligible: isCountryEligible(country),
     });
   };
+
+  if (loading) {
+    return (
+      <Card className="border-0 shadow-lg">
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="border-0 shadow-lg">
@@ -67,37 +65,38 @@ export const CountryStep: React.FC = () => {
             </SelectTrigger>
             <SelectContent>
               {countries.map(country => (
-                <SelectItem key={country.code} value={country.code}>
-                  {country.name}
+                <SelectItem key={country.country_code} value={country.country_code}>
+                  {country.country_name}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         </div>
 
-        {selectedCountry && !selectedCountry.eligible && (
+        {selectedCountry && !eligible && (
           <Alert variant="destructive">
             <AlertTriangle className="h-4 w-4" />
             <AlertDescription>
-              Unfortunately, citizens of {selectedCountry.name} are currently not eligible for company formation in the UAE due to regulatory restrictions.
+              {selectedCountry.block_reason || 
+                `Unfortunately, citizens of ${selectedCountry.country_name} are currently not eligible for company formation in the UAE due to regulatory restrictions.`}
             </AlertDescription>
           </Alert>
         )}
 
-        {selectedCountry?.restricted && (
+        {selectedCountry && eligible && requiresEDD && (
           <Alert>
             <Info className="h-4 w-4" />
             <AlertDescription>
-              Citizens of {selectedCountry.name} may face additional requirements. Our team will guide you through the process.
+              Citizens of {selectedCountry.country_name} may face additional requirements (Enhanced Due Diligence). Our team will guide you through the process.
             </AlertDescription>
           </Alert>
         )}
 
-        {selectedCountry?.eligible && !selectedCountry.restricted && (
+        {selectedCountry && eligible && !requiresEDD && (
           <Alert className="border-green-200 bg-green-50 text-green-800">
             <Info className="h-4 w-4" />
             <AlertDescription>
-              Great! Citizens of {selectedCountry.name} are eligible for UAE company formation.
+              Great! Citizens of {selectedCountry.country_name} are eligible for UAE company formation.
             </AlertDescription>
           </Alert>
         )}
