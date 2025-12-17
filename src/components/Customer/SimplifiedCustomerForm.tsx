@@ -431,7 +431,7 @@ const SimplifiedCustomerForm: React.FC<SimplifiedCustomerFormProps> = ({
   // Notify parent about rule engine context changes for Step 3
   const formValues = form.watch();
   useEffect(() => {
-    if (currentStep === 3 && onRuleEngineContextChange) {
+    if (currentStep >= 2 && onRuleEngineContextChange) {
       // Extract rule engine context from form data
       const context: Record<string, any> = {};
       

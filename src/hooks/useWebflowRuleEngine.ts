@@ -4,12 +4,14 @@ import { supabase } from '@/integrations/supabase/client';
 interface RuleCondition {
   field: string;
   operator: 'equals' | 'not_equals' | 'contains' | 'in' | 'not_in';
-  value: string | string[];
+  value: string | string[] | boolean | number;
 }
 
 interface RuleAction {
   type: 'multiply_price' | 'add_fee' | 'set_price' | 'set_flag' | 'require_document' | 'block' | 'show_warning' | 'set_processing_time' | 'recommend_bank';
   value?: number | string | boolean;
+  // Some rules store document id as `target` instead of `value`
+  target?: string;
   message?: string;
   processingDays?: number;
   banks?: string[];
@@ -59,9 +61,16 @@ export function useWebflowRuleEngine(context: RuleContext) {
         .from('webflow_configurations')
         .select('config_data')
         .eq('is_active', true)
-        .order('version', { ascending: false })
+        .order('version_number', { ascending: false })
         .limit(1)
         .single();
+
+      if (error) {
+        console.error('[useWebflowRuleEngine] Failed to load rules:', error);
+        setRules([]);
+        setLoading(false);
+        return;
+      }
 
       if (data?.config_data) {
         const configData = data.config_data as { rules?: any[] };
@@ -76,6 +85,8 @@ export function useWebflowRuleEngine(context: RuleContext) {
         }));
         // Sort by priority (lower number = higher priority)
         setRules(fetchedRules.sort((a, b) => (a.priority || 0) - (b.priority || 0)));
+      } else {
+        setRules([]);
       }
       setLoading(false);
     };
@@ -172,11 +183,13 @@ export function useWebflowRuleEngine(context: RuleContext) {
                 engineResult.flags[action.message] = action.value as boolean;
               }
               break;
-            case 'require_document':
-              if (action.value) {
-                engineResult.requiredDocuments.push(action.value as string);
+            case 'require_document': {
+              const doc = action.target || (typeof action.value === 'string' ? action.value : undefined);
+              if (doc) {
+                engineResult.requiredDocuments.push(doc);
               }
               break;
+            }
             case 'show_warning':
               if (action.message) {
                 engineResult.warnings.push(action.message);
