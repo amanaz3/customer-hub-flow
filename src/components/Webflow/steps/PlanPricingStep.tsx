@@ -1,74 +1,121 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useWebflow } from '@/contexts/WebflowContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Check, Sparkles, HelpCircle } from 'lucide-react';
+import { Check, Sparkles, HelpCircle, Loader2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { supabase } from '@/integrations/supabase/client';
 
-const plans = [
+interface PricingPlan {
+  id: string;
+  plan_code: string;
+  plan_name: string;
+  description: string | null;
+  base_price: number;
+  features: string[];
+  included_services: string[];
+  is_popular: boolean;
+  is_active: boolean;
+  sort_order: number;
+}
+
+// Fallback plans if database is empty
+const fallbackPlans: PricingPlan[] = [
   {
     id: 'starter',
-    name: 'Starter',
-    price: 5500,
+    plan_code: 'starter',
+    plan_name: 'Starter',
+    base_price: 5500,
     description: 'Company formation essentials',
-    features: [
-      'Trade License',
-      'Immigration Card',
-      'Establishment Card',
-      '1 Visa Quota',
-      'Basic Support',
-    ],
-    banking: false,
-    bookkeeping: false,
-    vat: false,
+    features: ['Trade License', 'Immigration Card', 'Establishment Card', '1 Visa Quota', 'Basic Support'],
+    included_services: [],
+    is_popular: false,
+    is_active: true,
+    sort_order: 1,
   },
   {
     id: 'business',
-    name: 'Business',
-    price: 8500,
+    plan_code: 'business',
+    plan_name: 'Business',
+    base_price: 8500,
     description: 'Formation + Banking assistance',
-    popular: true,
-    features: [
-      'Everything in Starter',
-      '3 Visa Quota',
-      'Bank Account Assistance',
-      'PRO Services',
-      'Priority Support',
-    ],
-    banking: true,
-    bookkeeping: false,
-    vat: false,
+    features: ['Everything in Starter', '3 Visa Quota', 'Bank Account Assistance', 'PRO Services', 'Priority Support'],
+    included_services: ['banking'],
+    is_popular: true,
+    is_active: true,
+    sort_order: 2,
   },
   {
     id: 'complete',
-    name: 'Complete',
-    price: 14500,
+    plan_code: 'complete',
+    plan_name: 'Complete',
+    base_price: 14500,
     description: 'Full service package',
-    features: [
-      'Everything in Business',
-      '5 Visa Quota',
-      'Bookkeeping (Monthly)',
-      'VAT Registration & Filing',
-      'Dedicated Account Manager',
-    ],
-    banking: true,
-    bookkeeping: true,
-    vat: true,
+    features: ['Everything in Business', '5 Visa Quota', 'Bookkeeping (Monthly)', 'VAT Registration & Filing', 'Dedicated Account Manager'],
+    included_services: ['banking', 'bookkeeping', 'vat'],
+    is_popular: false,
+    is_active: true,
+    sort_order: 3,
   },
 ];
 
 export const PlanPricingStep: React.FC = () => {
   const { state, updateState } = useWebflow();
+  const [plans, setPlans] = useState<PricingPlan[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  const handleSelectPlan = (plan: typeof plans[0]) => {
+  useEffect(() => {
+    const fetchPlans = async () => {
+      setLoading(true);
+      const { data, error } = await supabase
+        .from('webflow_pricing')
+        .select('*')
+        .eq('is_active', true)
+        .order('sort_order');
+
+      if (error || !data || data.length === 0) {
+        // Use fallback plans if no data
+        setPlans(fallbackPlans);
+      } else {
+        setPlans(data.map(p => ({
+          id: p.id,
+          plan_code: p.plan_code,
+          plan_name: p.plan_name,
+          description: p.description,
+          base_price: p.base_price,
+          features: Array.isArray(p.features) ? (p.features as string[]) : [],
+          included_services: Array.isArray(p.included_services) ? (p.included_services as string[]) : [],
+          is_popular: p.is_popular,
+          is_active: p.is_active,
+          sort_order: p.sort_order,
+        })));
+      }
+      setLoading(false);
+    };
+
+    fetchPlans();
+  }, []);
+
+  const handleSelectPlan = (plan: PricingPlan) => {
+    const services = plan.included_services || [];
     updateState({
-      selectedPlan: plan.id,
-      includesBanking: plan.banking,
-      includesBookkeeping: plan.bookkeeping,
-      includesVat: plan.vat,
+      selectedPlan: plan.plan_code,
+      includesBanking: services.includes('banking'),
+      includesBookkeeping: services.includes('bookkeeping'),
+      includesVat: services.includes('vat'),
     });
   };
+
+  if (loading) {
+    return (
+      <Card className="border-0 shadow-lg">
+        <CardContent className="flex items-center justify-center py-12">
+          <Loader2 className="w-8 h-8 animate-spin text-muted-foreground" />
+        </CardContent>
+      </Card>
+    );
+  }
 
   return (
     <Card className="border-0 shadow-lg">
@@ -98,12 +145,12 @@ export const PlanPricingStep: React.FC = () => {
               onClick={() => handleSelectPlan(plan)}
               className={cn(
                 "relative p-6 rounded-xl border-2 text-left transition-all",
-                state.selectedPlan === plan.id
+                state.selectedPlan === plan.plan_code
                   ? "border-primary bg-primary/5"
                   : "border-border hover:border-primary/50"
               )}
             >
-              {plan.popular && (
+              {plan.is_popular && (
                 <Badge className="absolute -top-2.5 left-1/2 -translate-x-1/2">
                   <Sparkles className="w-3 h-3 mr-1" />
                   Most Popular
@@ -112,12 +159,12 @@ export const PlanPricingStep: React.FC = () => {
               
               <div className="space-y-4">
                 <div>
-                  <h3 className="text-lg font-semibold">{plan.name}</h3>
+                  <h3 className="text-lg font-semibold">{plan.plan_name}</h3>
                   <p className="text-sm text-muted-foreground">{plan.description}</p>
                 </div>
 
                 <div>
-                  <span className="text-3xl font-bold">AED {plan.price.toLocaleString()}</span>
+                  <span className="text-3xl font-bold">AED {plan.base_price.toLocaleString()}</span>
                   <span className="text-muted-foreground text-sm"> /year</span>
                 </div>
 
@@ -133,11 +180,11 @@ export const PlanPricingStep: React.FC = () => {
                 <div className="pt-4 border-t">
                   <div className={cn(
                     "w-full py-2 rounded-lg text-center font-medium transition-all",
-                    state.selectedPlan === plan.id
+                    state.selectedPlan === plan.plan_code
                       ? "bg-primary text-primary-foreground"
                       : "bg-muted text-muted-foreground"
                   )}>
-                    {state.selectedPlan === plan.id ? 'Selected' : 'Select Plan'}
+                    {state.selectedPlan === plan.plan_code ? 'Selected' : 'Select Plan'}
                   </div>
                 </div>
               </div>
