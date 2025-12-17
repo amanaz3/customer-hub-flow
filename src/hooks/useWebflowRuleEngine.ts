@@ -8,9 +8,10 @@ interface RuleCondition {
 }
 
 interface RuleAction {
-  type: 'multiply_price' | 'add_fee' | 'set_flag' | 'require_document' | 'block' | 'show_warning';
+  type: 'multiply_price' | 'add_fee' | 'set_flag' | 'require_document' | 'block' | 'show_warning' | 'set_processing_time';
   value?: number | string | boolean;
   message?: string;
+  processingDays?: number;
 }
 
 interface WebflowRule {
@@ -42,6 +43,7 @@ interface RuleEngineResult {
   blocked: boolean;
   blockMessage?: string;
   appliedRules: string[];
+  processingTimeDays: number | null;
 }
 
 export function useWebflowRuleEngine(context: RuleContext) {
@@ -117,6 +119,7 @@ export function useWebflowRuleEngine(context: RuleContext) {
       warnings: [],
       blocked: false,
       appliedRules: [],
+      processingTimeDays: null,
     };
 
     if (loading) return engineResult;
@@ -159,6 +162,15 @@ export function useWebflowRuleEngine(context: RuleContext) {
             case 'block':
               engineResult.blocked = true;
               engineResult.blockMessage = action.message || 'Selection not allowed';
+              break;
+            case 'set_processing_time':
+              const days = action.processingDays ?? (action.value as number);
+              if (days !== undefined && days !== null) {
+                // Use the longest processing time if multiple rules set it
+                engineResult.processingTimeDays = engineResult.processingTimeDays 
+                  ? Math.max(engineResult.processingTimeDays, days)
+                  : days;
+              }
               break;
           }
         }
