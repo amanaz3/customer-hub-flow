@@ -745,7 +745,7 @@ function RuleEditorDialog({
                 <SelectTrigger>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-background z-50">
+                <SelectContent className="bg-background z-[9999]" position="popper" sideOffset={4}>
                   <SelectItem value="eligibility">Eligibility</SelectItem>
                   <SelectItem value="pricing">Pricing</SelectItem>
                   <SelectItem value="document">Document</SelectItem>
@@ -780,7 +780,7 @@ function RuleEditorDialog({
                       <SelectTrigger className="w-20">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-background z-50">
+                      <SelectContent className="bg-background z-[9999]" position="popper" sideOffset={4}>
                         <SelectItem value="AND">AND</SelectItem>
                         <SelectItem value="OR">OR</SelectItem>
                       </SelectContent>
@@ -793,7 +793,7 @@ function RuleEditorDialog({
                     <SelectTrigger className="flex-1">
                       <SelectValue placeholder="Select field" />
                     </SelectTrigger>
-                    <SelectContent className="bg-background z-50">
+                    <SelectContent className="bg-background z-[9999]" position="popper" sideOffset={4}>
                       {FIELD_OPTIONS.map(opt => (
                         <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                       ))}
@@ -806,7 +806,7 @@ function RuleEditorDialog({
                     <SelectTrigger className="w-32">
                       <SelectValue />
                     </SelectTrigger>
-                    <SelectContent className="bg-background z-50">
+                    <SelectContent className="bg-background z-[9999]" position="popper" sideOffset={4}>
                       {OPERATOR_OPTIONS.map(opt => (
                         <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                       ))}
@@ -851,7 +851,7 @@ function RuleEditorDialog({
                       <SelectTrigger className="w-40">
                         <SelectValue />
                       </SelectTrigger>
-                      <SelectContent className="bg-background z-50">
+                      <SelectContent className="bg-background z-[9999]" position="popper" sideOffset={4}>
                         {ACTION_OPTIONS.map(opt => (
                           <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
                         ))}
@@ -976,7 +976,7 @@ function DocumentRequirementsEditor({
                 <SelectTrigger className="w-28 h-8">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent className="bg-background z-50">
+                <SelectContent className="bg-background z-[9999]" position="popper" sideOffset={4}>
                   <SelectItem value="mandatory">
                     <span className="flex items-center gap-1">
                       <span className="w-2 h-2 rounded-full bg-red-500" />
@@ -1153,7 +1153,7 @@ function RuleTester({ rules }: { rules: WebflowRule[] }) {
             <SelectTrigger>
               <SelectValue placeholder="Select emirate" />
             </SelectTrigger>
-            <SelectContent className="bg-background z-50">
+            <SelectContent className="bg-background z-[9999]" position="popper" sideOffset={4}>
               <SelectItem value="dubai">Dubai</SelectItem>
               <SelectItem value="abu_dhabi">Abu Dhabi</SelectItem>
               <SelectItem value="sharjah">Sharjah</SelectItem>
@@ -1171,7 +1171,7 @@ function RuleTester({ rules }: { rules: WebflowRule[] }) {
             <SelectTrigger>
               <SelectValue placeholder="Select type" />
             </SelectTrigger>
-            <SelectContent className="bg-background z-50">
+            <SelectContent className="bg-background z-[9999]" position="popper" sideOffset={4}>
               <SelectItem value="mainland">Mainland</SelectItem>
               <SelectItem value="freezone">Freezone</SelectItem>
               <SelectItem value="offshore">Offshore</SelectItem>
@@ -1185,7 +1185,7 @@ function RuleTester({ rules }: { rules: WebflowRule[] }) {
             <SelectTrigger>
               <SelectValue placeholder="Select risk" />
             </SelectTrigger>
-            <SelectContent className="bg-background z-50">
+            <SelectContent className="bg-background z-[9999]" position="popper" sideOffset={4}>
               <SelectItem value="low">Low</SelectItem>
               <SelectItem value="medium">Medium</SelectItem>
               <SelectItem value="high">High</SelectItem>
@@ -1199,7 +1199,7 @@ function RuleTester({ rules }: { rules: WebflowRule[] }) {
             <SelectTrigger>
               <SelectValue placeholder="Select plan" />
             </SelectTrigger>
-            <SelectContent className="bg-background z-50">
+            <SelectContent className="bg-background z-[9999]" position="popper" sideOffset={4}>
               <SelectItem value="starter">Starter</SelectItem>
               <SelectItem value="business">Business</SelectItem>
               <SelectItem value="complete">Complete</SelectItem>
