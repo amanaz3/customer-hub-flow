@@ -58,6 +58,15 @@ interface RuleAction {
   target?: string;
   value?: any;
   message?: string;
+  // Advanced document requirements
+  documents?: DocumentRequirement[];
+}
+
+interface DocumentRequirement {
+  id: string;
+  name: string;
+  category: 'mandatory' | 'edd' | 'optional';
+  description?: string;
 }
 
 interface RulesTabProps {
@@ -389,6 +398,29 @@ function VisualRuleBuilder({
                   <div className="flex flex-wrap items-center gap-2 text-sm">
                     <span className="text-muted-foreground">THEN</span>
                     {rule.actions.map((action) => {
+                      // Handle advanced document requirements
+                      if (action.type === 'require_document' && action.documents && action.documents.length > 0) {
+                        return (
+                          <div key={action.id} className="flex flex-wrap gap-1">
+                            {action.documents.map((doc, idx) => (
+                              <Badge 
+                                key={idx} 
+                                variant="outline" 
+                                className={cn(
+                                  "text-xs",
+                                  doc.category === 'mandatory' && "border-red-500 text-red-700 dark:text-red-400",
+                                  doc.category === 'edd' && "border-amber-500 text-amber-700 dark:text-amber-400",
+                                  doc.category === 'optional' && "border-blue-500 text-blue-700 dark:text-blue-400"
+                                )}
+                              >
+                                📄 {doc.name || 'Unnamed'} ({doc.category})
+                              </Badge>
+                            ))}
+                          </div>
+                        );
+                      }
+                      
+                      // Legacy single document or other actions
                       let actionDetail = '';
                       if (action.type === 'require_document') {
                         actionDetail = action.target || action.value || '(no document specified)';
@@ -805,29 +837,43 @@ function RuleEditorDialog({
               </p>
             ) : (
               formData.actions.map((action, index) => (
-                <div key={action.id} className="flex items-center gap-2 p-3 border rounded-lg bg-muted/30">
-                  <Select
-                    value={action.type}
-                    onValueChange={(v) => updateAction(index, { type: v as any })}
-                  >
-                    <SelectTrigger className="w-40">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="bg-background z-50">
-                      {ACTION_OPTIONS.map(opt => (
-                        <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Input
-                    value={action.message || ''}
-                    onChange={(e) => updateAction(index, { message: e.target.value })}
-                    placeholder="Message or value"
-                    className="flex-1"
-                  />
-                  <Button variant="ghost" size="sm" onClick={() => removeAction(index)}>
-                    <Trash2 className="h-4 w-4 text-destructive" />
-                  </Button>
+                <div key={action.id} className="p-3 border rounded-lg bg-muted/30 space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Select
+                      value={action.type}
+                      onValueChange={(v) => updateAction(index, { type: v as any })}
+                    >
+                      <SelectTrigger className="w-40">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent className="bg-background z-50">
+                        {ACTION_OPTIONS.map(opt => (
+                          <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    {action.type !== 'require_document' && (
+                      <Input
+                        value={action.message || action.target || ''}
+                        onChange={(e) => updateAction(index, { message: e.target.value })}
+                        placeholder={action.type === 'set_price' ? 'Price value' : 'Message or value'}
+                        className="flex-1"
+                      />
+                    )}
+                    
+                    <Button variant="ghost" size="sm" onClick={() => removeAction(index)}>
+                      <Trash2 className="h-4 w-4 text-destructive" />
+                    </Button>
+                  </div>
+                  
+                  {/* Advanced Document Requirements UI */}
+                  {action.type === 'require_document' && (
+                    <DocumentRequirementsEditor
+                      documents={action.documents || []}
+                      onChange={(docs) => updateAction(index, { documents: docs })}
+                    />
+                  )}
                 </div>
               ))
             )}
@@ -843,6 +889,121 @@ function RuleEditorDialog({
         </DialogFooter>
       </DialogContent>
     </Dialog>
+  );
+}
+
+// Document Requirements Editor Component
+function DocumentRequirementsEditor({
+  documents,
+  onChange
+}: {
+  documents: DocumentRequirement[];
+  onChange: (docs: DocumentRequirement[]) => void;
+}) {
+  const addDocument = () => {
+    onChange([
+      ...documents,
+      { id: `doc-${Date.now()}`, name: '', category: 'mandatory' }
+    ]);
+  };
+
+  const updateDocument = (index: number, updates: Partial<DocumentRequirement>) => {
+    const newDocs = [...documents];
+    newDocs[index] = { ...newDocs[index], ...updates };
+    onChange(newDocs);
+  };
+
+  const removeDocument = (index: number) => {
+    onChange(documents.filter((_, i) => i !== index));
+  };
+
+  const getCategoryColor = (category: string) => {
+    switch (category) {
+      case 'mandatory': return 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-300';
+      case 'edd': return 'bg-amber-100 text-amber-800 dark:bg-amber-900 dark:text-amber-300';
+      case 'optional': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
+      default: return 'bg-muted text-muted-foreground';
+    }
+  };
+
+  return (
+    <div className="space-y-2 pl-4 border-l-2 border-primary/30">
+      <div className="flex items-center justify-between">
+        <span className="text-sm font-medium text-muted-foreground">Required Documents</span>
+        <Button variant="outline" size="sm" onClick={addDocument}>
+          <Plus className="h-3 w-3 mr-1" />
+          Add Document
+        </Button>
+      </div>
+      
+      {documents.length === 0 ? (
+        <p className="text-xs text-muted-foreground italic py-2">
+          No documents specified. Click "Add Document" to require specific documents.
+        </p>
+      ) : (
+        <div className="space-y-2">
+          {documents.map((doc, index) => (
+            <div key={doc.id} className="flex items-center gap-2 p-2 bg-background rounded border">
+              <Input
+                value={doc.name}
+                onChange={(e) => updateDocument(index, { name: e.target.value })}
+                placeholder="Document name (e.g., Passport Copy)"
+                className="flex-1 h-8 text-sm"
+              />
+              <Select
+                value={doc.category}
+                onValueChange={(v) => updateDocument(index, { category: v as any })}
+              >
+                <SelectTrigger className="w-28 h-8">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-50">
+                  <SelectItem value="mandatory">
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-red-500" />
+                      Mandatory
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="edd">
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-amber-500" />
+                      EDD
+                    </span>
+                  </SelectItem>
+                  <SelectItem value="optional">
+                    <span className="flex items-center gap-1">
+                      <span className="w-2 h-2 rounded-full bg-blue-500" />
+                      Optional
+                    </span>
+                  </SelectItem>
+                </SelectContent>
+              </Select>
+              <Input
+                value={doc.description || ''}
+                onChange={(e) => updateDocument(index, { description: e.target.value })}
+                placeholder="Description (optional)"
+                className="flex-1 h-8 text-sm"
+              />
+              <Button variant="ghost" size="sm" className="h-8 w-8 p-0" onClick={() => removeDocument(index)}>
+                <Trash2 className="h-3 w-3 text-destructive" />
+              </Button>
+            </div>
+          ))}
+        </div>
+      )}
+      
+      <div className="flex gap-2 pt-1">
+        <Badge className={getCategoryColor('mandatory')} variant="outline">
+          Mandatory = Required
+        </Badge>
+        <Badge className={getCategoryColor('edd')} variant="outline">
+          EDD = Enhanced Due Diligence
+        </Badge>
+        <Badge className={getCategoryColor('optional')} variant="outline">
+          Optional = If Available
+        </Badge>
+      </div>
+    </div>
   );
 }
 
@@ -863,7 +1024,7 @@ function RuleTester({ rules }: { rules: WebflowRule[] }) {
       warnings: [] as string[],
       blocked: false,
       blockMessage: '',
-      requiredDocuments: [] as string[],
+      requiredDocuments: [] as { name: string; category: string }[],
     };
 
     const evaluateCondition = (condition: RuleCondition): boolean => {
@@ -928,7 +1089,15 @@ function RuleTester({ rules }: { rules: WebflowRule[] }) {
               results.blockMessage = action.message || 'Blocked';
               break;
             case 'require_document':
-              if (action.target) results.requiredDocuments.push(action.target);
+              // Handle advanced document requirements
+              if (action.documents && action.documents.length > 0) {
+                action.documents.forEach(doc => {
+                  results.requiredDocuments.push({ name: doc.name, category: doc.category });
+                });
+              } else if (action.target) {
+                // Legacy single document
+                results.requiredDocuments.push({ name: action.target, category: 'mandatory' });
+              }
               break;
           }
         }
@@ -1087,11 +1256,22 @@ function RuleTester({ rules }: { rules: WebflowRule[] }) {
             {testResults.requiredDocuments.length > 0 && (
               <div>
                 <Label className="text-muted-foreground">Required Documents</Label>
-                <ul className="list-disc list-inside mt-1 text-sm">
+                <div className="mt-2 space-y-1">
                   {testResults.requiredDocuments.map((doc, i) => (
-                    <li key={i}>{doc}</li>
+                    <div key={i} className="flex items-center gap-2 text-sm">
+                      <span className={cn(
+                        "w-2 h-2 rounded-full",
+                        doc.category === 'mandatory' && "bg-red-500",
+                        doc.category === 'edd' && "bg-amber-500",
+                        doc.category === 'optional' && "bg-blue-500"
+                      )} />
+                      <span>{doc.name}</span>
+                      <Badge variant="outline" className="text-xs">
+                        {doc.category}
+                      </Badge>
+                    </div>
                   ))}
-                </ul>
+                </div>
               </div>
             )}
           </div>
