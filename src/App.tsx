@@ -81,6 +81,7 @@ import AccessManagement from '@/pages/AccessManagement';
 import LeadDiscoveryAnalysis from '@/pages/LeadDiscoveryAnalysis';
 import Webflow from '@/pages/Webflow';
 import WebflowSimple from '@/pages/WebflowSimple';
+import WebflowConfig from '@/pages/WebflowConfig';
 import Web from '@/pages/Web';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
@@ -678,6 +679,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Configure">
                           <Configure />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/webflow-config" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Webflow Config">
+                          <WebflowConfig />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
