@@ -54,12 +54,14 @@ interface RuleCondition {
 
 interface RuleAction {
   id: string;
-  type: 'block' | 'allow' | 'require_document' | 'set_price' | 'show_warning' | 'set_field';
+  type: 'block' | 'allow' | 'require_document' | 'set_price' | 'show_warning' | 'set_field' | 'set_processing_time';
   target?: string;
   value?: any;
   message?: string;
   // Advanced document requirements
   documents?: DocumentRequirement[];
+  // Processing time in days
+  processingDays?: number;
 }
 
 interface DocumentRequirement {
@@ -103,6 +105,7 @@ const ACTION_OPTIONS = [
   { value: 'set_price', label: 'Set Price' },
   { value: 'show_warning', label: 'Show Warning' },
   { value: 'set_field', label: 'Set Field Value' },
+  { value: 'set_processing_time', label: 'Set Processing Time' },
 ];
 
 export default function RulesTab({ rules: propRules, onUpdate }: RulesTabProps) {
@@ -426,6 +429,8 @@ function VisualRuleBuilder({
                         actionDetail = action.target || action.value || '(no document specified)';
                       } else if (action.type === 'set_price' || action.type === 'set_field') {
                         actionDetail = action.target ? `${action.target}: ${action.value}` : String(action.value || '');
+                      } else if (action.type === 'set_processing_time') {
+                        actionDetail = `${action.processingDays || action.value || '?'} days`;
                       } else if (action.message) {
                         actionDetail = action.message.length > 30 ? `${action.message.substring(0, 30)}...` : action.message;
                       }
@@ -853,13 +858,27 @@ function RuleEditorDialog({
                       </SelectContent>
                     </Select>
                     
-                    {action.type !== 'require_document' && (
+                    {action.type !== 'require_document' && action.type !== 'set_processing_time' && (
                       <Input
                         value={action.message || action.target || ''}
                         onChange={(e) => updateAction(index, { message: e.target.value })}
                         placeholder={action.type === 'set_price' ? 'Price value' : 'Message or value'}
                         className="flex-1"
                       />
+                    )}
+                    
+                    {action.type === 'set_processing_time' && (
+                      <div className="flex items-center gap-2 flex-1">
+                        <Input
+                          type="number"
+                          min={1}
+                          value={action.processingDays || ''}
+                          onChange={(e) => updateAction(index, { processingDays: parseInt(e.target.value) || undefined })}
+                          placeholder="Days"
+                          className="w-24"
+                        />
+                        <span className="text-sm text-muted-foreground">business days</span>
+                      </div>
                     )}
                     
                     <Button variant="ghost" size="sm" onClick={() => removeAction(index)}>
@@ -1025,6 +1044,7 @@ function RuleTester({ rules }: { rules: WebflowRule[] }) {
       blocked: false,
       blockMessage: '',
       requiredDocuments: [] as { name: string; category: string }[],
+      processingTimeDays: null as number | null,
     };
 
     const evaluateCondition = (condition: RuleCondition): boolean => {
@@ -1097,6 +1117,14 @@ function RuleTester({ rules }: { rules: WebflowRule[] }) {
               } else if (action.target) {
                 // Legacy single document
                 results.requiredDocuments.push({ name: action.target, category: 'mandatory' });
+              }
+              break;
+            case 'set_processing_time':
+              const days = action.processingDays ?? (typeof action.value === 'number' ? action.value : null);
+              if (days !== null) {
+                results.processingTimeDays = results.processingTimeDays 
+                  ? Math.max(results.processingTimeDays, days)
+                  : days;
               }
               break;
           }
@@ -1206,7 +1234,7 @@ function RuleTester({ rules }: { rules: WebflowRule[] }) {
             </div>
 
             {/* Price Adjustments */}
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
                 <Label className="text-muted-foreground">Price Multiplier</Label>
                 <p className={cn(
@@ -1223,6 +1251,15 @@ function RuleTester({ rules }: { rules: WebflowRule[] }) {
                   testResults.additionalFees > 0 && "text-amber-600"
                 )}>
                   {testResults.additionalFees === 0 ? 'AED 0' : `+AED ${testResults.additionalFees.toLocaleString()}`}
+                </p>
+              </div>
+              <div>
+                <Label className="text-muted-foreground">Processing Time</Label>
+                <p className={cn(
+                  "text-lg font-bold",
+                  testResults.processingTimeDays && "text-blue-600"
+                )}>
+                  {testResults.processingTimeDays ? `${testResults.processingTimeDays} days` : 'Default'}
                 </p>
               </div>
             </div>
