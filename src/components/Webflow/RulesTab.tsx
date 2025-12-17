@@ -388,12 +388,23 @@ function VisualRuleBuilder({
                   {/* Actions preview */}
                   <div className="flex flex-wrap items-center gap-2 text-sm">
                     <span className="text-muted-foreground">THEN</span>
-                    {rule.actions.map((action) => (
-                      <Badge key={action.id} variant="outline" className="text-xs">
-                        {action.type}
-                        {action.message && `: "${action.message.substring(0, 30)}..."`}
-                      </Badge>
-                    ))}
+                    {rule.actions.map((action) => {
+                      let actionDetail = '';
+                      if (action.type === 'require_document') {
+                        actionDetail = action.target || action.value || '(no document specified)';
+                      } else if (action.type === 'set_price' || action.type === 'set_field') {
+                        actionDetail = action.target ? `${action.target}: ${action.value}` : String(action.value || '');
+                      } else if (action.message) {
+                        actionDetail = action.message.length > 30 ? `${action.message.substring(0, 30)}...` : action.message;
+                      }
+                      
+                      return (
+                        <Badge key={action.id} variant="outline" className="text-xs">
+                          {action.type}
+                          {actionDetail && `: "${actionDetail}"`}
+                        </Badge>
+                      );
+                    })}
                     {rule.actions.length === 0 && (
                       <span className="text-muted-foreground italic">No actions</span>
                     )}
