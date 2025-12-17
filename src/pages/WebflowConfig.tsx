@@ -24,8 +24,10 @@ import {
   CheckCircle,
   XCircle,
   Search,
-  Filter
+  Filter,
+  Workflow
 } from 'lucide-react';
+import RulesTab from '@/components/Webflow/RulesTab';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
@@ -136,7 +138,7 @@ export default function WebflowConfig() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="countries" className="flex items-center gap-2">
             <Globe className="h-4 w-4" />
             Countries
@@ -156,6 +158,10 @@ export default function WebflowConfig() {
           <TabsTrigger value="documents" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
             Documents
+          </TabsTrigger>
+          <TabsTrigger value="rules" className="flex items-center gap-2">
+            <Workflow className="h-4 w-4" />
+            Rules
           </TabsTrigger>
         </TabsList>
 
@@ -177,6 +183,10 @@ export default function WebflowConfig() {
         
         <TabsContent value="documents">
           <DocumentsTab searchQuery={searchQuery} />
+        </TabsContent>
+
+        <TabsContent value="rules">
+          <RulesTab />
         </TabsContent>
       </Tabs>
     </div>
