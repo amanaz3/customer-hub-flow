@@ -25,7 +25,8 @@ import {
   Download,
   Upload,
   PlayCircle,
-  Calculator
+  Calculator,
+  Building
 } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -54,7 +55,7 @@ interface RuleCondition {
 
 interface RuleAction {
   id: string;
-  type: 'block' | 'allow' | 'require_document' | 'set_price' | 'show_warning' | 'set_field' | 'set_processing_time';
+  type: 'block' | 'allow' | 'require_document' | 'set_price' | 'show_warning' | 'set_field' | 'set_processing_time' | 'recommend_bank';
   target?: string;
   value?: any;
   message?: string;
@@ -62,6 +63,8 @@ interface RuleAction {
   documents?: DocumentRequirement[];
   // Processing time in days
   processingDays?: number;
+  // Recommended banks
+  banks?: string[];
 }
 
 interface DocumentRequirement {
@@ -106,6 +109,7 @@ const ACTION_OPTIONS = [
   { value: 'show_warning', label: 'Show Warning' },
   { value: 'set_field', label: 'Set Field Value' },
   { value: 'set_processing_time', label: 'Set Processing Time' },
+  { value: 'recommend_bank', label: 'Recommend Banks' },
 ];
 
 export default function RulesTab({ rules: propRules, onUpdate }: RulesTabProps) {
@@ -893,6 +897,14 @@ function RuleEditorDialog({
                       onChange={(docs) => updateAction(index, { documents: docs })}
                     />
                   )}
+                  
+                  {/* Bank Recommendations UI */}
+                  {action.type === 'recommend_bank' && (
+                    <BankRecommendationsEditor
+                      banks={action.banks || []}
+                      onChange={(banks) => updateAction(index, { banks })}
+                    />
+                  )}
                 </div>
               ))
             )}
@@ -1026,6 +1038,93 @@ function DocumentRequirementsEditor({
   );
 }
 
+// Bank Recommendations Editor Component
+function BankRecommendationsEditor({
+  banks,
+  onChange
+}: {
+  banks: string[];
+  onChange: (banks: string[]) => void;
+}) {
+  const [newBank, setNewBank] = useState('');
+
+  // Common UAE banks
+  const COMMON_BANKS = [
+    'Emirates NBD',
+    'ADCB',
+    'FAB (First Abu Dhabi Bank)',
+    'Mashreq Bank',
+    'RAK Bank',
+    'Dubai Islamic Bank',
+    'Abu Dhabi Islamic Bank',
+    'Commercial Bank of Dubai',
+    'HSBC UAE',
+    'Standard Chartered UAE',
+    'Citibank UAE',
+    'National Bank of Fujairah',
+    'Sharjah Islamic Bank',
+    'United Arab Bank',
+    'Wio Bank',
+    'Liv Bank',
+  ];
+
+  const addBank = (bank: string) => {
+    if (bank && !banks.includes(bank)) {
+      onChange([...banks, bank]);
+      setNewBank('');
+    }
+  };
+
+  const removeBank = (index: number) => {
+    onChange(banks.filter((_, i) => i !== index));
+  };
+
+  return (
+    <div className="space-y-2 pl-4 border-l-2 border-blue-300">
+      <div className="flex items-center gap-2">
+        <Building className="h-4 w-4 text-blue-600" />
+        <Label className="text-sm font-medium">Recommended Banks</Label>
+      </div>
+      
+      {banks.length > 0 && (
+        <div className="flex flex-wrap gap-2">
+          {banks.map((bank, index) => (
+            <Badge key={index} variant="secondary" className="flex items-center gap-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+              <Building className="h-3 w-3" />
+              {bank}
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-4 w-4 p-0 hover:bg-blue-200 dark:hover:bg-blue-800"
+                onClick={() => removeBank(index)}
+              >
+                <XCircle className="h-3 w-3" />
+              </Button>
+            </Badge>
+          ))}
+        </div>
+      )}
+      
+      <div className="flex gap-2">
+        <Select value={newBank} onValueChange={(v) => addBank(v)}>
+          <SelectTrigger className="flex-1">
+            <SelectValue placeholder="Select or add a bank..." />
+          </SelectTrigger>
+          <SelectContent className="bg-background z-[9999]" position="popper" sideOffset={4}>
+            {COMMON_BANKS.filter(b => !banks.includes(b)).map(bank => (
+              <SelectItem key={bank} value={bank}>{bank}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+      
+      <p className="text-xs text-muted-foreground">
+        Banks suitable for this activity risk level will be suggested to customers.
+      </p>
+    </div>
+  );
+}
+
 // Rule Tester Component
 function RuleTester({ rules }: { rules: WebflowRule[] }) {
   const [testContext, setTestContext] = useState({
@@ -1045,6 +1144,7 @@ function RuleTester({ rules }: { rules: WebflowRule[] }) {
       blockMessage: '',
       requiredDocuments: [] as { name: string; category: string }[],
       processingTimeDays: null as number | null,
+      recommendedBanks: [] as string[],
     };
 
     const evaluateCondition = (condition: RuleCondition): boolean => {
@@ -1125,6 +1225,15 @@ function RuleTester({ rules }: { rules: WebflowRule[] }) {
                 results.processingTimeDays = results.processingTimeDays 
                   ? Math.max(results.processingTimeDays, days)
                   : days;
+              }
+              break;
+            case 'recommend_bank':
+              if (action.banks && action.banks.length > 0) {
+                action.banks.forEach(bank => {
+                  if (!results.recommendedBanks.includes(bank)) {
+                    results.recommendedBanks.push(bank);
+                  }
+                });
               }
               break;
           }
@@ -1307,6 +1416,21 @@ function RuleTester({ rules }: { rules: WebflowRule[] }) {
                         {doc.category}
                       </Badge>
                     </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Recommended Banks */}
+            {testResults.recommendedBanks.length > 0 && (
+              <div>
+                <Label className="text-muted-foreground">Recommended Banks</Label>
+                <div className="mt-2 flex flex-wrap gap-2">
+                  {testResults.recommendedBanks.map((bank, i) => (
+                    <Badge key={i} variant="secondary" className="flex items-center gap-1 bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300">
+                      <Building className="h-3 w-3" />
+                      {bank}
+                    </Badge>
                   ))}
                 </div>
               </div>
