@@ -231,7 +231,7 @@ const BankReadiness = () => {
         </TabsContent>
 
         <TabsContent value="history" className="mt-6">
-          <CasesHistoryTab />
+          <CasesHistoryTab showDemo={showDemo} />
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-6">
