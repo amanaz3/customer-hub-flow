@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { Plus, Edit, Trash2, ChevronDown, ChevronUp, Code, Workflow, Save, AlertTriangle, Download, Upload } from 'lucide-react';
+import { Plus, Edit, Trash2, ChevronDown, ChevronUp, Code, Workflow, Save, AlertTriangle, Download, Upload, Sparkles } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useBankReadinessConfig, BankReadinessRule } from '@/hooks/useBankReadinessConfig';
 
@@ -52,10 +52,14 @@ const OPERATOR_OPTIONS = [
 const ACTION_TYPE_OPTIONS = [
   { value: 'add_score', label: 'Add Risk Score' },
   { value: 'add_flag', label: 'Add Warning Flag' },
+  { value: 'exclude_bank', label: 'Exclude Bank' },
+  { value: 'boost_bank_score', label: 'Boost Bank Score' },
+  { value: 'reduce_bank_score', label: 'Reduce Bank Score' },
+  { value: 'require_document', label: 'Require Document' },
 ];
 
 export function BankReadinessRulesTab() {
-  const { rules, loading, updateRules, versionNumber } = useBankReadinessConfig();
+  const { rules, loading, updateRules, versionNumber, addMissingRules, getMissingRulesCount } = useBankReadinessConfig();
   const [activeView, setActiveView] = useState<'visual' | 'json'>('visual');
   const [localRules, setLocalRules] = useState<BankReadinessRule[]>([]);
   const [editingRule, setEditingRule] = useState<BankReadinessRule | null>(null);
@@ -63,6 +67,7 @@ export function BankReadinessRulesTab() {
   const [expandedRules, setExpandedRules] = useState<Set<string>>(new Set());
   const [jsonContent, setJsonContent] = useState('');
   const [jsonError, setJsonError] = useState<string | null>(null);
+  const missingRulesCount = getMissingRulesCount();
 
   // Form state
   const [formData, setFormData] = useState({
@@ -288,6 +293,12 @@ export function BankReadinessRulesTab() {
           </p>
         </div>
         <div className="flex gap-2">
+          {missingRulesCount > 0 && (
+            <Button variant="outline" size="sm" onClick={addMissingRules} className="text-amber-600 border-amber-300 hover:bg-amber-50">
+              <Sparkles className="h-4 w-4 mr-1" />
+              Add {missingRulesCount} Rules
+            </Button>
+          )}
           <Button variant="outline" size="sm" onClick={exportRules}>
             <Download className="h-4 w-4 mr-1" />
             Export

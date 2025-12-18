@@ -53,6 +53,7 @@ export interface RiskAssessmentResult {
   flags: string[];
   recommendedBanks: BankRecommendation[];
   banksToAvoid: BankAvoidance[];
+  requiredDocuments?: string[];
 }
 
 export interface BankReadinessCaseInput {
