@@ -1,11 +1,13 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Shield, BookOpen, UserCog, Building2, Flag, DollarSign, Settings2, Box, Target, CalendarClock, ListChecks, KeyRound, Layers, Globe, Briefcase, FileText } from "lucide-react";
+import { Users, MessageSquare, Shield, BookOpen, UserCog, Building2, Flag, DollarSign, Settings2, Box, Target, CalendarClock, ListChecks, KeyRound, Layers, Globe, Briefcase, FileText, Landmark } from "lucide-react";
 import { LeadSettingsDialog } from "@/components/Lead/LeadSettingsDialog";
 import { FollowupSequenceConfig } from "@/components/Lead/FollowupSequenceConfig";
 import { LeadReminderScheduleDialog } from "@/components/Lead/LeadReminderScheduleDialog";
 import LeadWorkflowSettingsDialog from "@/components/Lead/LeadWorkflowSettingsDialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { BankReadinessRulesTab } from "@/components/BankReadiness/BankReadinessRulesTab";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -13,6 +15,7 @@ const Manage = () => {
   const [showFollowupConfig, setShowFollowupConfig] = useState(false);
   const [showReminderSchedule, setShowReminderSchedule] = useState(false);
   const [showBulkSettings, setShowBulkSettings] = useState(false);
+  const [showBankReadinessRules, setShowBankReadinessRules] = useState(false);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -202,6 +205,43 @@ const Manage = () => {
           </CardContent>
         </Card>
 
+        {/* Bank Readiness Rules Card */}
+        <Card className="border-2">
+          <CardHeader className="pb-4">
+            <div className="flex items-center gap-3">
+              <div className="p-3 bg-primary/10 rounded-lg">
+                <Landmark className="h-6 w-6 text-primary" />
+              </div>
+              <div>
+                <CardTitle>Bank Readiness</CardTitle>
+                <CardDescription>Bank assessment rules configuration</CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => setShowBankReadinessRules(true)}
+            >
+              <Settings2 className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">Rules Engine</p>
+                <p className="text-xs text-muted-foreground">Configure risk scoring and bank matching rules</p>
+              </div>
+            </div>
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => navigate('/bank-readiness')}
+            >
+              <Landmark className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">Assessment Tool</p>
+                <p className="text-xs text-muted-foreground">Run bank readiness assessments</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+
         {/* Webflow Decision Engine Card */}
         <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
           <CardHeader className="pb-4">
@@ -270,6 +310,17 @@ const Manage = () => {
         open={showBulkSettings} 
         onOpenChange={setShowBulkSettings} 
       />
+      <Dialog open={showBankReadinessRules} onOpenChange={setShowBankReadinessRules}>
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Bank Readiness Rules Engine</DialogTitle>
+            <DialogDescription>
+              Configure risk scoring rules based on your experience with bank rejections
+            </DialogDescription>
+          </DialogHeader>
+          <BankReadinessRulesTab />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
