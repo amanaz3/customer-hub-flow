@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -18,7 +19,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { CheckCircle, XCircle, Clock, LogOut } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, LogOut, ThumbsUp, ThumbsDown, Minus, Calendar, MessageSquare } from 'lucide-react';
 import { BankReadinessCaseRecord } from '@/hooks/useBankReadinessCases';
 
 interface OutcomeRecordDialogProps {
@@ -35,6 +36,8 @@ interface OutcomeRecordDialogProps {
   ) => Promise<boolean>;
 }
 
+type RecommendationFeedback = 'helpful' | 'not_helpful' | 'neutral';
+
 const OutcomeRecordDialog: React.FC<OutcomeRecordDialogProps> = ({
   open,
   onOpenChange,
@@ -47,6 +50,12 @@ const OutcomeRecordDialog: React.FC<OutcomeRecordDialogProps> = ({
   const [outcomeNotes, setOutcomeNotes] = useState('');
   const [rejectionReason, setRejectionReason] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  
+  // Enhanced fields
+  const [recommendationFeedback, setRecommendationFeedback] = useState<RecommendationFeedback>('neutral');
+  const [processingDays, setProcessingDays] = useState<string>('');
+  const [interviewRequired, setInterviewRequired] = useState<'yes' | 'no' | 'unknown'>('unknown');
+  const [additionalDocsRequested, setAdditionalDocsRequested] = useState<string>('');
 
   if (!caseData) return null;
 
@@ -59,8 +68,16 @@ const OutcomeRecordDialog: React.FC<OutcomeRecordDialogProps> = ({
     { name: 'Other', type: 'other' }
   ];
 
+  // Check if selected bank was recommended or avoided
+  const selectedBankType = allBanks.find(b => b.name === bankAppliedTo)?.type;
+  const wasRecommended = selectedBankType === 'recommended';
+  const wasAvoided = selectedBankType === 'avoided';
+
   const handleSubmit = async () => {
     if (!bankAppliedTo) return;
+    
+    // Build enhanced notes with all feedback
+    const enhancedNotes = buildEnhancedNotes();
     
     setIsSubmitting(true);
     const success = await onSubmit(
@@ -68,28 +85,61 @@ const OutcomeRecordDialog: React.FC<OutcomeRecordDialogProps> = ({
       bankAppliedTo,
       outcome,
       outcomeDate,
-      outcomeNotes,
+      enhancedNotes,
       rejectionReason
     );
     setIsSubmitting(false);
     
     if (success) {
       onOpenChange(false);
-      // Reset form
-      setBankAppliedTo('');
-      setOutcome('pending');
-      setOutcomeNotes('');
-      setRejectionReason('');
+      resetForm();
     }
+  };
+
+  const buildEnhancedNotes = (): string => {
+    const parts: string[] = [];
+    
+    if (outcomeNotes) {
+      parts.push(outcomeNotes);
+    }
+    
+    if (recommendationFeedback !== 'neutral') {
+      parts.push(`[Recommendation Feedback: ${recommendationFeedback === 'helpful' ? 'Helpful' : 'Not Helpful'}]`);
+    }
+    
+    if (processingDays) {
+      parts.push(`[Processing Time: ${processingDays} days]`);
+    }
+    
+    if (interviewRequired !== 'unknown') {
+      parts.push(`[Interview Required: ${interviewRequired === 'yes' ? 'Yes' : 'No'}]`);
+    }
+    
+    if (additionalDocsRequested) {
+      parts.push(`[Additional Docs Requested: ${additionalDocsRequested}]`);
+    }
+    
+    return parts.join(' | ');
+  };
+
+  const resetForm = () => {
+    setBankAppliedTo('');
+    setOutcome('pending');
+    setOutcomeNotes('');
+    setRejectionReason('');
+    setRecommendationFeedback('neutral');
+    setProcessingDays('');
+    setInterviewRequired('unknown');
+    setAdditionalDocsRequested('');
   };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-[550px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Record Bank Application Outcome</DialogTitle>
           <DialogDescription>
-            Track what happened when the customer applied to a bank. This helps validate and improve the rule engine.
+            Track what happened and provide feedback to improve future recommendations.
           </DialogDescription>
         </DialogHeader>
 
@@ -98,7 +148,7 @@ const OutcomeRecordDialog: React.FC<OutcomeRecordDialogProps> = ({
           <div className="p-3 bg-muted/50 rounded-lg text-sm">
             <p><strong>Activity:</strong> {caseData.license_activity}</p>
             <p><strong>Risk:</strong> {caseData.risk_category} ({caseData.risk_score} points)</p>
-            <p><strong>Recommended:</strong> {recommendedBanks.slice(0, 2).map(b => b.bank_name).join(', ')}</p>
+            <p><strong>Recommended:</strong> {recommendedBanks.slice(0, 2).map(b => b.bank_name).join(', ') || 'None'}</p>
           </div>
 
           {/* Bank Applied To */}
@@ -118,6 +168,20 @@ const OutcomeRecordDialog: React.FC<OutcomeRecordDialogProps> = ({
                 ))}
               </SelectContent>
             </Select>
+            {bankAppliedTo && (
+              <div className="flex gap-2">
+                {wasRecommended && (
+                  <Badge variant="secondary" className="bg-green-100 text-green-800">
+                    Was Recommended
+                  </Badge>
+                )}
+                {wasAvoided && (
+                  <Badge variant="secondary" className="bg-red-100 text-red-800">
+                    Was on Avoid List
+                  </Badge>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Outcome */}
@@ -163,21 +227,37 @@ const OutcomeRecordDialog: React.FC<OutcomeRecordDialogProps> = ({
             </div>
           </div>
 
-          {/* Outcome Date */}
-          <div className="space-y-2">
-            <Label htmlFor="outcomeDate">Outcome Date</Label>
-            <Input
-              id="outcomeDate"
-              type="date"
-              value={outcomeDate}
-              onChange={(e) => setOutcomeDate(e.target.value)}
-            />
+          {/* Outcome Date & Processing Time */}
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="outcomeDate" className="flex items-center gap-1">
+                <Calendar className="h-3 w-3" />
+                Outcome Date
+              </Label>
+              <Input
+                id="outcomeDate"
+                type="date"
+                value={outcomeDate}
+                onChange={(e) => setOutcomeDate(e.target.value)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="processingDays">Processing Days</Label>
+              <Input
+                id="processingDays"
+                type="number"
+                min="0"
+                placeholder="e.g., 14"
+                value={processingDays}
+                onChange={(e) => setProcessingDays(e.target.value)}
+              />
+            </div>
           </div>
 
           {/* Rejection Reason (if rejected) */}
           {outcome === 'rejected' && (
             <div className="space-y-2">
-              <Label htmlFor="rejectionReason">Rejection Reason</Label>
+              <Label htmlFor="rejectionReason">Rejection Reason Category</Label>
               <Select value={rejectionReason} onValueChange={setRejectionReason}>
                 <SelectTrigger>
                   <SelectValue placeholder="Select reason" />
@@ -190,11 +270,99 @@ const OutcomeRecordDialog: React.FC<OutcomeRecordDialogProps> = ({
                   <SelectItem value="previous_rejection">Previous Rejection History</SelectItem>
                   <SelectItem value="turnover_too_low">Turnover Too Low</SelectItem>
                   <SelectItem value="compliance_concerns">Compliance Concerns</SelectItem>
+                  <SelectItem value="business_model">Business Model Issues</SelectItem>
+                  <SelectItem value="jurisdiction_issues">Jurisdiction Issues</SelectItem>
+                  <SelectItem value="incomplete_application">Incomplete Application</SelectItem>
                   <SelectItem value="other">Other</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           )}
+
+          {/* Interview Required */}
+          <div className="space-y-2">
+            <Label>Was Interview Required?</Label>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant={interviewRequired === 'yes' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setInterviewRequired('yes')}
+              >
+                Yes
+              </Button>
+              <Button
+                type="button"
+                variant={interviewRequired === 'no' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setInterviewRequired('no')}
+              >
+                No
+              </Button>
+              <Button
+                type="button"
+                variant={interviewRequired === 'unknown' ? 'secondary' : 'outline'}
+                size="sm"
+                onClick={() => setInterviewRequired('unknown')}
+              >
+                Unknown
+              </Button>
+            </div>
+          </div>
+
+          {/* Additional Documents Requested */}
+          <div className="space-y-2">
+            <Label htmlFor="additionalDocs">Additional Documents Requested (if any)</Label>
+            <Input
+              id="additionalDocs"
+              placeholder="e.g., Audited financials, supplier contracts..."
+              value={additionalDocsRequested}
+              onChange={(e) => setAdditionalDocsRequested(e.target.value)}
+            />
+          </div>
+
+          {/* Recommendation Feedback */}
+          <div className="space-y-2 p-3 border rounded-lg bg-blue-50/50 dark:bg-blue-950/20">
+            <Label className="flex items-center gap-2">
+              <MessageSquare className="h-4 w-4" />
+              Was our recommendation helpful?
+            </Label>
+            <p className="text-xs text-muted-foreground mb-2">
+              This feedback helps us improve the rule engine
+            </p>
+            <div className="flex gap-2">
+              <Button
+                type="button"
+                variant={recommendationFeedback === 'helpful' ? 'default' : 'outline'}
+                size="sm"
+                className="gap-1"
+                onClick={() => setRecommendationFeedback('helpful')}
+              >
+                <ThumbsUp className="h-4 w-4" />
+                Helpful
+              </Button>
+              <Button
+                type="button"
+                variant={recommendationFeedback === 'not_helpful' ? 'default' : 'outline'}
+                size="sm"
+                className="gap-1"
+                onClick={() => setRecommendationFeedback('not_helpful')}
+              >
+                <ThumbsDown className="h-4 w-4" />
+                Not Helpful
+              </Button>
+              <Button
+                type="button"
+                variant={recommendationFeedback === 'neutral' ? 'secondary' : 'outline'}
+                size="sm"
+                className="gap-1"
+                onClick={() => setRecommendationFeedback('neutral')}
+              >
+                <Minus className="h-4 w-4" />
+                Neutral
+              </Button>
+            </div>
+          </div>
 
           {/* Notes */}
           <div className="space-y-2">
@@ -203,7 +371,7 @@ const OutcomeRecordDialog: React.FC<OutcomeRecordDialogProps> = ({
               id="notes"
               value={outcomeNotes}
               onChange={(e) => setOutcomeNotes(e.target.value)}
-              placeholder="Any additional details about the outcome..."
+              placeholder="Any additional details about the outcome, bank feedback, or suggestions..."
               rows={3}
             />
           </div>
