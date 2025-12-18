@@ -83,6 +83,22 @@ export interface WebflowRuleConfig {
   description: string | null;
 }
 
+export interface WebflowPromoCodeConfig {
+  id: string;
+  code: string;
+  discount_type: 'percentage' | 'fixed';
+  discount_value: number;
+  min_order_value: number | null;
+  max_uses: number | null;
+  current_uses: number;
+  valid_from: string | null;
+  valid_until: string | null;
+  applies_to_plans: string[];
+  applies_to_jurisdictions: string[];
+  is_active: boolean;
+  description: string | null;
+}
+
 export interface WebflowConfigData {
   countries: WebflowCountryConfig[];
   jurisdictions: WebflowJurisdictionConfig[];
@@ -90,6 +106,7 @@ export interface WebflowConfigData {
   documents: WebflowDocumentConfig[];
   pricing: WebflowPricingConfig[];
   rules: WebflowRuleConfig[];
+  promoCodes: WebflowPromoCodeConfig[];
 }
 
 export interface WebflowConfiguration {
@@ -120,7 +137,8 @@ const DEFAULT_CONFIG: WebflowConfigData = {
   activities: [],
   documents: [],
   pricing: [],
-  rules: []
+  rules: [],
+  promoCodes: []
 };
 
 export const useWebflowConfig = () => {
@@ -177,7 +195,8 @@ export const useWebflowConfig = () => {
             activities: configData?.activities || [],
             documents: configData?.documents || [],
             pricing: configData?.pricing || [],
-            rules: configData?.rules || []
+            rules: configData?.rules || [],
+            promoCodes: configData?.promoCodes || []
           }
         } as WebflowConfiguration);
       }
@@ -307,7 +326,8 @@ export const useWebflowConfig = () => {
         activities: importedData.activities || [],
         documents: importedData.documents || [],
         pricing: importedData.pricing || [],
-        rules: importedData.rules || []
+        rules: importedData.rules || [],
+        promoCodes: importedData.promoCodes || []
       };
 
       const success = await saveConfig(newConfigData, `Imported from file: ${file.name}`);
@@ -353,6 +373,11 @@ export const useWebflowConfig = () => {
     return saveConfig({ ...config.config_data, rules });
   }, [config, saveConfig]);
 
+  const updatePromoCodes = useCallback(async (promoCodes: WebflowPromoCodeConfig[]) => {
+    if (!config) return false;
+    return saveConfig({ ...config.config_data, promoCodes });
+  }, [config, saveConfig]);
+
   // Initial fetch
   useEffect(() => {
     fetchConfig();
@@ -383,6 +408,7 @@ export const useWebflowConfig = () => {
     updateActivities,
     updateDocuments,
     updatePricing,
-    updateRules
+    updateRules,
+    updatePromoCodes
   };
 };

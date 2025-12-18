@@ -13,9 +13,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { 
   Globe, Building2, Briefcase, CreditCard, FileText, Plus, Pencil, Trash2, Settings,
   AlertTriangle, CheckCircle, XCircle, Search, Filter, Workflow, Download, Upload, 
-  History, RotateCcw, Loader2
+  History, RotateCcw, Loader2, Tag
 } from 'lucide-react';
 import RulesTab from '@/components/Webflow/RulesTab';
+import PromoCodesTab from '@/components/Webflow/PromoCodesTab';
 import { toast } from '@/hooks/use-toast';
 import { 
   useWebflowConfig, 
@@ -60,7 +61,8 @@ export default function WebflowConfig() {
     updateActivities,
     updateDocuments,
     updatePricing,
-    updateRules
+    updateRules,
+    updatePromoCodes
   } = useWebflowConfig();
 
   const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -136,7 +138,7 @@ export default function WebflowConfig() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-6">
+        <TabsList className="grid w-full grid-cols-7">
           <TabsTrigger value="countries" className="flex items-center gap-2">
             <Globe className="h-4 w-4" />
             Countries
@@ -152,6 +154,10 @@ export default function WebflowConfig() {
           <TabsTrigger value="pricing" className="flex items-center gap-2">
             <CreditCard className="h-4 w-4" />
             Pricing
+          </TabsTrigger>
+          <TabsTrigger value="promos" className="flex items-center gap-2">
+            <Tag className="h-4 w-4" />
+            Promos
           </TabsTrigger>
           <TabsTrigger value="documents" className="flex items-center gap-2">
             <FileText className="h-4 w-4" />
@@ -200,6 +206,16 @@ export default function WebflowConfig() {
             searchQuery={searchQuery}
             documents={configData.documents}
             onUpdate={updateDocuments}
+          />
+        </TabsContent>
+
+        <TabsContent value="promos">
+          <PromoCodesTab 
+            promoCodes={configData.promoCodes || []}
+            pricing={configData.pricing}
+            jurisdictions={configData.jurisdictions}
+            onUpdate={updatePromoCodes}
+            searchQuery={searchQuery}
           />
         </TabsContent>
 
