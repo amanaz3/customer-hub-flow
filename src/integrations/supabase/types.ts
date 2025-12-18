@@ -633,6 +633,116 @@ export type Database = {
           },
         ]
       }
+      bank_profiles: {
+        Row: {
+          accepts_high_risk_nationalities: boolean | null
+          accepts_non_residents: boolean | null
+          avoid_activities: string[] | null
+          bank_code: string
+          bank_name: string
+          created_at: string
+          id: string
+          is_active: boolean
+          min_monthly_turnover: string | null
+          notes: string | null
+          preferred_activities: string[] | null
+          preferred_business_models: string[] | null
+          preferred_jurisdictions: string[] | null
+          processing_time_days: number | null
+          risk_tolerance: string | null
+          special_requirements: string[] | null
+          updated_at: string
+        }
+        Insert: {
+          accepts_high_risk_nationalities?: boolean | null
+          accepts_non_residents?: boolean | null
+          avoid_activities?: string[] | null
+          bank_code: string
+          bank_name: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          min_monthly_turnover?: string | null
+          notes?: string | null
+          preferred_activities?: string[] | null
+          preferred_business_models?: string[] | null
+          preferred_jurisdictions?: string[] | null
+          processing_time_days?: number | null
+          risk_tolerance?: string | null
+          special_requirements?: string[] | null
+          updated_at?: string
+        }
+        Update: {
+          accepts_high_risk_nationalities?: boolean | null
+          accepts_non_residents?: boolean | null
+          avoid_activities?: string[] | null
+          bank_code?: string
+          bank_name?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          min_monthly_turnover?: string | null
+          notes?: string | null
+          preferred_activities?: string[] | null
+          preferred_business_models?: string[] | null
+          preferred_jurisdictions?: string[] | null
+          processing_time_days?: number | null
+          risk_tolerance?: string | null
+          special_requirements?: string[] | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      bank_readiness_rules: {
+        Row: {
+          actions: Json
+          conditions: Json
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          priority: number
+          rule_name: string
+          rule_type: string
+          updated_at: string
+        }
+        Insert: {
+          actions?: Json
+          conditions?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          priority?: number
+          rule_name: string
+          rule_type?: string
+          updated_at?: string
+        }
+        Update: {
+          actions?: Json
+          conditions?: Json
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          priority?: number
+          rule_name?: string
+          rule_type?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_readiness_rules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       banks: {
         Row: {
           code: string
