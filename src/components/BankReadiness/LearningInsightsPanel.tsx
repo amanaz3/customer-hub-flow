@@ -7,11 +7,13 @@ import { Lightbulb, TrendingUp, AlertTriangle, RefreshCw, CheckCircle } from 'lu
 interface LearningInsightsPanelProps {
   insights: string[];
   onRefresh?: () => void;
+  isDemo?: boolean;
 }
 
 const LearningInsightsPanel: React.FC<LearningInsightsPanelProps> = ({
   insights,
   onRefresh,
+  isDemo = false,
 }) => {
   if (insights.length === 0) {
     return (
@@ -34,6 +36,9 @@ const LearningInsightsPanel: React.FC<LearningInsightsPanelProps> = ({
           <CardTitle className="flex items-center gap-2">
             <Lightbulb className="h-5 w-5 text-amber-500" />
             Learning Insights
+            {isDemo && (
+              <Badge variant="outline" className="ml-2 text-xs bg-blue-50 text-blue-700">Demo</Badge>
+            )}
           </CardTitle>
           <CardDescription>
             Patterns from outcomes that may suggest rule improvements

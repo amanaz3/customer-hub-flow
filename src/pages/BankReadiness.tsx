@@ -71,6 +71,13 @@ const DEMO_INTERVIEW_GUIDANCE = [
   'Mention any existing banking relationships',
 ];
 
+// Demo learning insights
+const DEMO_LEARNING_INSIGHTS = [
+  'RAK Bank has rejected 3 recommended cases with trading activities. Consider adjusting matching criteria.',
+  'Emirates NBD approved 5 cases despite being flagged to avoid for high-risk nationalities. May be more flexible.',
+  'Pakistani nationality has 65% rejection rate across 8 cases. Consider higher risk weighting.',
+];
+
 const BankReadiness = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [currentCase, setCurrentCase] = useState<BankReadinessCaseInput | null>(null);
@@ -228,13 +235,14 @@ const BankReadiness = () => {
         </TabsContent>
 
         <TabsContent value="analytics" className="mt-6">
-          <OutcomeAnalyticsTab />
+          <OutcomeAnalyticsTab showDemo={showDemo} />
         </TabsContent>
 
         <TabsContent value="insights" className="mt-6">
           <LearningInsightsPanel 
-            insights={getLearningInsights} 
-            onRefresh={refetch}
+            insights={showDemo ? DEMO_LEARNING_INSIGHTS : getLearningInsights} 
+            onRefresh={showDemo ? undefined : refetch}
+            isDemo={showDemo}
           />
         </TabsContent>
       </Tabs>
