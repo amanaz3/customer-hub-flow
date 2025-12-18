@@ -56,7 +56,7 @@ interface RuleCondition {
 
 interface RuleAction {
   id: string;
-  type: 'block' | 'allow' | 'require_document' | 'set_price' | 'show_warning' | 'set_field' | 'set_processing_time' | 'recommend_bank' | 'assign_agent';
+  type: 'block' | 'allow' | 'require_document' | 'set_price' | 'show_warning' | 'set_field' | 'set_processing_time' | 'recommend_bank' | 'assign_agent' | 'add_risk_score' | 'auto_approve' | 'require_manual_review';
   target?: string;
   value?: any;
   message?: string;
@@ -69,6 +69,8 @@ interface RuleAction {
   // Agent assignment
   agentId?: string;
   agentName?: string;
+  // Risk score adjustment
+  riskPoints?: number;
 }
 
 interface DocumentRequirement {
@@ -115,6 +117,9 @@ const ACTION_OPTIONS = [
   { value: 'set_processing_time', label: 'Set Processing Time' },
   { value: 'recommend_bank', label: 'Recommend Banks' },
   { value: 'assign_agent', label: 'Assign to Agent' },
+  { value: 'add_risk_score', label: 'Add Risk Score' },
+  { value: 'auto_approve', label: 'Auto-Approve' },
+  { value: 'require_manual_review', label: 'Require Manual Review' },
 ];
 
 export default function RulesTab({ rules: propRules, onUpdate }: RulesTabProps) {
@@ -434,19 +439,29 @@ function VisualRuleBuilder({
                       
                       // Legacy single document or other actions
                       let actionDetail = '';
+                      let actionClass = 'text-xs';
                       if (action.type === 'require_document') {
                         actionDetail = action.target || action.value || '(no document specified)';
                       } else if (action.type === 'set_price' || action.type === 'set_field') {
                         actionDetail = action.target ? `${action.target}: ${action.value}` : String(action.value || '');
                       } else if (action.type === 'set_processing_time') {
                         actionDetail = `${action.processingDays || action.value || '?'} days`;
+                      } else if (action.type === 'add_risk_score') {
+                        actionDetail = `+${action.riskPoints || action.value || 0} points`;
+                        actionClass = 'text-xs border-amber-500 text-amber-700 dark:text-amber-400';
+                      } else if (action.type === 'auto_approve') {
+                        actionDetail = action.message || 'Low risk';
+                        actionClass = 'text-xs border-green-500 text-green-700 dark:text-green-400';
+                      } else if (action.type === 'require_manual_review') {
+                        actionDetail = action.message || 'Needs review';
+                        actionClass = 'text-xs border-orange-500 text-orange-700 dark:text-orange-400';
                       } else if (action.message) {
                         actionDetail = action.message.length > 30 ? `${action.message.substring(0, 30)}...` : action.message;
                       }
                       
                       return (
-                        <Badge key={action.id} variant="outline" className="text-xs">
-                          {action.type}
+                        <Badge key={action.id} variant="outline" className={actionClass}>
+                          {action.type.replace(/_/g, ' ')}
                           {actionDetail && `: "${actionDetail}"`}
                         </Badge>
                       );
@@ -867,11 +882,11 @@ function RuleEditorDialog({
                       </SelectContent>
                     </Select>
                     
-                    {action.type !== 'require_document' && action.type !== 'set_processing_time' && (
+                    {action.type !== 'require_document' && action.type !== 'set_processing_time' && action.type !== 'recommend_bank' && action.type !== 'assign_agent' && action.type !== 'add_risk_score' && (
                       <Input
                         value={action.message || action.target || ''}
                         onChange={(e) => updateAction(index, { message: e.target.value })}
-                        placeholder={action.type === 'set_price' ? 'Price value' : 'Message or value'}
+                        placeholder={action.type === 'set_price' ? 'Price value' : 'Message or reason'}
                         className="flex-1"
                       />
                     )}
@@ -887,6 +902,19 @@ function RuleEditorDialog({
                           className="w-24"
                         />
                         <span className="text-sm text-muted-foreground">business days</span>
+                      </div>
+                    )}
+                    
+                    {action.type === 'add_risk_score' && (
+                      <div className="flex items-center gap-2 flex-1">
+                        <Input
+                          type="number"
+                          value={action.riskPoints || ''}
+                          onChange={(e) => updateAction(index, { riskPoints: parseInt(e.target.value) || 0 })}
+                          placeholder="Points"
+                          className="w-24"
+                        />
+                        <span className="text-sm text-muted-foreground">risk points (thresholds: &lt;30 auto-approve, 30-70 review, &gt;70 block)</span>
                       </div>
                     )}
                     

@@ -8,7 +8,7 @@ interface RuleCondition {
 }
 
 interface RuleAction {
-  type: 'multiply_price' | 'add_fee' | 'set_price' | 'set_flag' | 'require_document' | 'block' | 'show_warning' | 'set_processing_time' | 'recommend_bank' | 'skip_step' | 'show_step' | 'set_next_step' | 'apply_discount' | 'assign_agent';
+  type: 'multiply_price' | 'add_fee' | 'set_price' | 'set_flag' | 'require_document' | 'block' | 'show_warning' | 'set_processing_time' | 'recommend_bank' | 'skip_step' | 'show_step' | 'set_next_step' | 'apply_discount' | 'assign_agent' | 'add_risk_score' | 'auto_approve' | 'require_manual_review';
   value?: number | string | boolean;
   // Some rules store document id as `target` instead of `value`
   target?: string;
@@ -22,6 +22,8 @@ interface RuleAction {
   // Agent assignment
   agentId?: string;
   agentName?: string;
+  // Risk score adjustment
+  riskPoints?: number;
 }
 
 interface WebflowRule {
@@ -67,6 +69,10 @@ export interface RuleEngineResult {
   // Auto-assignment
   assignedAgentId: string | null;
   assignedAgentName: string | null;
+  // Approval thresholds
+  riskScore: number;
+  approvalStatus: 'auto_approved' | 'manual_review' | 'blocked' | 'pending';
+  approvalReason?: string;
 }
 
 export function useWebflowRuleEngine(context: RuleContext) {
@@ -183,7 +189,13 @@ export function useWebflowRuleEngine(context: RuleContext) {
       appliedPromoCode: null,
       assignedAgentId: null,
       assignedAgentName: null,
+      riskScore: 0,
+      approvalStatus: 'pending',
+      approvalReason: undefined,
     };
+    
+    let forceAutoApprove = false;
+    let forceManualReview = false;
 
     if (loading) return engineResult;
 
@@ -276,9 +288,40 @@ export function useWebflowRuleEngine(context: RuleContext) {
                 engineResult.assignedAgentName = action.agentName || null;
               }
               break;
+            case 'add_risk_score':
+              const points = action.riskPoints ?? (action.value as number) ?? 0;
+              engineResult.riskScore += points;
+              break;
+            case 'auto_approve':
+              forceAutoApprove = true;
+              engineResult.approvalReason = action.message || 'Low-risk application';
+              break;
+            case 'require_manual_review':
+              forceManualReview = true;
+              engineResult.approvalReason = action.message || 'Requires manual review';
+              break;
           }
         }
       }
+    }
+
+    // Determine approval status based on risk score and explicit actions
+    // Default thresholds: auto-approve < 30, manual review 30-70, block > 70
+    if (engineResult.blocked) {
+      engineResult.approvalStatus = 'blocked';
+    } else if (forceManualReview) {
+      engineResult.approvalStatus = 'manual_review';
+    } else if (forceAutoApprove) {
+      engineResult.approvalStatus = 'auto_approved';
+    } else if (engineResult.riskScore >= 70) {
+      engineResult.approvalStatus = 'blocked';
+      engineResult.approvalReason = `High risk score: ${engineResult.riskScore}`;
+    } else if (engineResult.riskScore >= 30) {
+      engineResult.approvalStatus = 'manual_review';
+      engineResult.approvalReason = `Medium risk score: ${engineResult.riskScore}`;
+    } else {
+      engineResult.approvalStatus = 'auto_approved';
+      engineResult.approvalReason = `Low risk score: ${engineResult.riskScore}`;
     }
 
     return engineResult;
