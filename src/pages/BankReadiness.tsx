@@ -2,7 +2,9 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Building2, Plus, Clock, CheckCircle, AlertTriangle, FileText } from 'lucide-react';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
+import { Building2, Plus, Clock, CheckCircle, AlertTriangle, FileText, Eye } from 'lucide-react';
 import BankReadinessCaseForm from '@/components/BankReadiness/BankReadinessCaseForm';
 import BankReadinessResults from '@/components/BankReadiness/BankReadinessResults';
 import { BankReadinessCaseInput, RiskAssessmentResult } from '@/types/bankReadiness';
@@ -10,15 +12,69 @@ import { useBankReadinessRules } from '@/hooks/useBankReadinessRules';
 
 type ViewMode = 'list' | 'form' | 'results';
 
+// Demo data for showcasing the tool
+const DEMO_CASE: BankReadinessCaseInput = {
+  applicant_nationality: 'UAE',
+  uae_residency: true,
+  company_jurisdiction: 'mainland',
+  license_activity: 'General Trading - Import/Export of Electronics',
+  business_model: 'trading',
+  expected_monthly_inflow: 'AED 500,000 - 1,000,000',
+  source_of_funds: 'Business Revenue',
+  source_of_funds_notes: 'Revenue from electronics import/export',
+  incoming_payment_countries: ['China', 'Germany', 'USA'],
+  previous_rejection: false,
+};
+
+const DEMO_RESULT: RiskAssessmentResult = {
+  score: 35,
+  category: 'low',
+  flags: ['Standard trading activity', 'Clean banking history'],
+  recommendedBanks: [
+    { bank_name: 'Emirates NBD', fit_score: 92, reason_tags: ['Preferred for trading', 'Fast processing', 'Good for mainland'] },
+    { bank_name: 'Mashreq Bank', fit_score: 88, reason_tags: ['SME friendly', 'Digital banking', 'Trade finance options'] },
+    { bank_name: 'ADCB', fit_score: 85, reason_tags: ['Corporate accounts', 'Multi-currency', 'Good rates'] },
+  ],
+  banksToAvoid: [
+    { bank_name: 'Standard Chartered', reason_tags: ['Strict onboarding for trading', 'Long processing time'] },
+  ],
+};
+
+const DEMO_REQUIRED_DOCS = [
+  'Trade License (original + copy)',
+  'MOA / AOA (Memorandum & Articles of Association)',
+  'Passport copies of all shareholders',
+  'Emirates ID copies (if resident)',
+  'Proof of address (utility bill < 3 months)',
+  'Bank reference letter (if available)',
+];
+
+const DEMO_HELPFUL_DOCS = [
+  'Previous audited financials',
+  'Existing supplier contracts',
+  'Business plan summary',
+  'Trade history documentation',
+];
+
+const DEMO_INTERVIEW_GUIDANCE = [
+  'Be prepared to explain your import/export flow clearly',
+  'Have details ready about your main suppliers in China',
+  'Explain your customer base and payment collection methods',
+  'Discuss your expected transaction volumes and frequency',
+  'Mention any existing banking relationships',
+];
+
 const BankReadiness = () => {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [currentCase, setCurrentCase] = useState<BankReadinessCaseInput | null>(null);
   const [assessmentResult, setAssessmentResult] = useState<RiskAssessmentResult | null>(null);
+  const [showDemo, setShowDemo] = useState(false);
   const { assessRisk, getRequiredDocuments, getHelpfulDocuments, getInterviewGuidance } = useBankReadinessRules();
 
   const handleCreateNew = () => {
     setCurrentCase(null);
     setAssessmentResult(null);
+    setShowDemo(false);
     setViewMode('form');
   };
 
@@ -33,10 +89,24 @@ const BankReadiness = () => {
     setViewMode('list');
     setCurrentCase(null);
     setAssessmentResult(null);
+    setShowDemo(false);
   };
 
   const handleBackToForm = () => {
     setViewMode('form');
+  };
+
+  const handleToggleDemo = (checked: boolean) => {
+    setShowDemo(checked);
+    if (checked) {
+      setCurrentCase(DEMO_CASE);
+      setAssessmentResult(DEMO_RESULT);
+      setViewMode('results');
+    } else {
+      setCurrentCase(null);
+      setAssessmentResult(null);
+      setViewMode('list');
+    }
   };
 
   return (
@@ -52,29 +122,59 @@ const BankReadiness = () => {
             Assess UAE business bank account readiness and get routing recommendations
           </p>
         </div>
-        {viewMode === 'list' && (
-          <Button onClick={handleCreateNew} className="gap-2">
-            <Plus className="h-4 w-4" />
-            Create New Case
-          </Button>
-        )}
+        <div className="flex items-center gap-4">
+          {/* Demo Toggle */}
+          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 border">
+            <Eye className="h-4 w-4 text-muted-foreground" />
+            <Label htmlFor="demo-mode" className="text-sm cursor-pointer">Demo Mode</Label>
+            <Switch
+              id="demo-mode"
+              checked={showDemo}
+              onCheckedChange={handleToggleDemo}
+            />
+          </div>
+          {viewMode === 'list' && !showDemo && (
+            <Button onClick={handleCreateNew} className="gap-2">
+              <Plus className="h-4 w-4" />
+              Create New Case
+            </Button>
+          )}
+        </div>
       </div>
 
-      {/* Disclaimer */}
-      <Card className="border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800">
-        <CardContent className="pt-4">
-          <div className="flex items-start gap-3">
-            <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
-            <div className="text-sm text-amber-800 dark:text-amber-200">
-              <strong>Disclaimer:</strong> This tool provides guidance only. Final decision rests with the bank.
-              Recommendations are based on general criteria and may not reflect individual bank policies.
+      {/* Demo Banner */}
+      {showDemo && (
+        <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-950/20 dark:border-blue-800">
+          <CardContent className="pt-4">
+            <div className="flex items-start gap-3">
+              <Eye className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-blue-800 dark:text-blue-200">
+                <strong>Demo Mode Active:</strong> You're viewing example results for a UAE national trading company.
+                This shows how the tool assesses risk, recommends banks, and provides actionable guidance.
+                <span className="block mt-1 text-blue-600 dark:text-blue-400">Toggle off to start a real assessment.</span>
+              </div>
             </div>
-          </div>
-        </CardContent>
-      </Card>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Disclaimer */}
+      {!showDemo && (
+        <Card className="border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800">
+          <CardContent className="pt-4">
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+              <div className="text-sm text-amber-800 dark:text-amber-200">
+                <strong>Disclaimer:</strong> This tool provides guidance only. Final decision rests with the bank.
+                Recommendations are based on general criteria and may not reflect individual bank policies.
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Main Content */}
-      {viewMode === 'list' && (
+      {viewMode === 'list' && !showDemo && (
         <div className="grid gap-6 md:grid-cols-3">
           {/* Stats Cards */}
           <Card>
@@ -115,7 +215,7 @@ const BankReadiness = () => {
         </div>
       )}
 
-      {viewMode === 'list' && (
+      {viewMode === 'list' && !showDemo && (
         <Card>
           <CardHeader>
             <CardTitle>How It Works</CardTitle>
@@ -164,7 +264,11 @@ const BankReadiness = () => {
               </div>
             </div>
 
-            <div className="mt-8 flex justify-center">
+            <div className="mt-8 flex justify-center gap-4">
+              <Button variant="outline" onClick={() => handleToggleDemo(true)} className="gap-2">
+                <Eye className="h-5 w-5" />
+                View Demo Results
+              </Button>
               <Button size="lg" onClick={handleCreateNew} className="gap-2">
                 <Plus className="h-5 w-5" />
                 Start New Assessment
@@ -186,10 +290,10 @@ const BankReadiness = () => {
         <BankReadinessResults
           input={currentCase}
           result={assessmentResult}
-          requiredDocuments={getRequiredDocuments(currentCase, assessmentResult.category)}
-          helpfulDocuments={getHelpfulDocuments(currentCase, assessmentResult.category)}
-          interviewGuidance={getInterviewGuidance(currentCase, assessmentResult.category)}
-          onBack={handleBackToForm}
+          requiredDocuments={showDemo ? DEMO_REQUIRED_DOCS : getRequiredDocuments(currentCase, assessmentResult.category)}
+          helpfulDocuments={showDemo ? DEMO_HELPFUL_DOCS : getHelpfulDocuments(currentCase, assessmentResult.category)}
+          interviewGuidance={showDemo ? DEMO_INTERVIEW_GUIDANCE : getInterviewGuidance(currentCase, assessmentResult.category)}
+          onBack={showDemo ? handleBackToList : handleBackToForm}
           onStartNew={handleCreateNew}
         />
       )}
