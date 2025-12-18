@@ -243,6 +243,7 @@ const CustomerSegments = () => {
           name,
           company,
           amount,
+          annual_turnover,
           status,
           created_at,
           product_id,
@@ -273,8 +274,11 @@ const CustomerSegments = () => {
       // Global industry tracking with company names
       const globalIndustryMap = new Map<string, { count: number; revenue: number; companies: Array<{ name: string; revenue: number }> }>();
       
-      // SME classification tracking
-      const smeMap = new Map<BusinessSize, { count: number; revenue: number; companies: Array<{ name: string; revenue: number; industry: string }> }>();
+      // SME classification tracking - by Annual Turnover (actual business size)
+      const smeByTurnoverMap = new Map<BusinessSize, { count: number; revenue: number; companies: Array<{ name: string; revenue: number; industry: string; turnover: number }> }>();
+      
+      // SME classification tracking - by Deal Value (transaction size)
+      const smeByDealMap = new Map<BusinessSize, { count: number; revenue: number; companies: Array<{ name: string; revenue: number; industry: string }> }>();
 
       customers?.forEach(customer => {
         const existing = customerMap.get(customer.id) || {
@@ -322,18 +326,34 @@ const CustomerSegments = () => {
               companies: indData.companies
             });
             
-            // Track SME classification
-            const smeClass = classifyBusinessSize(existing.totalRevenue);
-            const smeData = smeMap.get(smeClass.size) || { count: 0, revenue: 0, companies: [] };
-            smeData.companies.push({ 
+            // Track SME classification by Annual Turnover
+            const turnoverValue = Number(customer?.annual_turnover) || 0;
+            const smeByTurnover = classifyBusinessSize(turnoverValue);
+            const turnoverData = smeByTurnoverMap.get(smeByTurnover.size) || { count: 0, revenue: 0, companies: [] };
+            turnoverData.companies.push({ 
+              name: customer?.company || customer?.name || 'Unknown', 
+              revenue: existing.totalRevenue,
+              industry: existing.industry,
+              turnover: turnoverValue
+            });
+            smeByTurnoverMap.set(smeByTurnover.size, {
+              count: turnoverData.count + 1,
+              revenue: turnoverData.revenue + existing.totalRevenue,
+              companies: turnoverData.companies
+            });
+            
+            // Track SME classification by Deal Value
+            const smeByDeal = classifyBusinessSize(existing.totalRevenue);
+            const dealData = smeByDealMap.get(smeByDeal.size) || { count: 0, revenue: 0, companies: [] };
+            dealData.companies.push({ 
               name: customer?.company || customer?.name || 'Unknown', 
               revenue: existing.totalRevenue,
               industry: existing.industry
             });
-            smeMap.set(smeClass.size, {
-              count: smeData.count + 1,
-              revenue: smeData.revenue + existing.totalRevenue,
-              companies: smeData.companies
+            smeByDealMap.set(smeByDeal.size, {
+              count: dealData.count + 1,
+              revenue: dealData.revenue + existing.totalRevenue,
+              companies: dealData.companies
             });
           }
           
@@ -455,13 +475,15 @@ const CustomerSegments = () => {
         .sort((a, b) => b.revenue - a.revenue)
         .slice(0, 15);
 
-      // Convert SME map to array for charts
+      // Convert SME maps to arrays for charts
       const smeOrder: BusinessSize[] = ['Micro', 'Small', 'Medium', 'Large', 'Unknown'];
-      const totalSmeCount = Array.from(smeMap.values()).reduce((a, b) => a + b.count, 0);
-      const smeData = smeOrder
-        .filter(size => smeMap.has(size))
+      
+      // SME by Annual Turnover
+      const totalSmeTurnoverCount = Array.from(smeByTurnoverMap.values()).reduce((a, b) => a + b.count, 0);
+      const smeByTurnoverData = smeOrder
+        .filter(size => smeByTurnoverMap.has(size))
         .map(size => {
-          const data = smeMap.get(size)!;
+          const data = smeByTurnoverMap.get(size)!;
           const classification = classifyBusinessSize(size === 'Micro' ? 1000 : size === 'Small' ? 10000000 : size === 'Medium' ? 100000000 : size === 'Large' ? 300000000 : 0);
           return {
             size,
@@ -470,7 +492,26 @@ const CustomerSegments = () => {
             color: classification.color,
             count: data.count,
             revenue: data.revenue,
-            percentage: totalSmeCount > 0 ? Math.round((data.count / totalSmeCount) * 100) : 0,
+            percentage: totalSmeTurnoverCount > 0 ? Math.round((data.count / totalSmeTurnoverCount) * 100) : 0,
+            companies: data.companies.sort((a, b) => b.turnover - a.turnover).slice(0, 10)
+          };
+        });
+      
+      // SME by Deal Value
+      const totalSmeDealCount = Array.from(smeByDealMap.values()).reduce((a, b) => a + b.count, 0);
+      const smeByDealData = smeOrder
+        .filter(size => smeByDealMap.has(size))
+        .map(size => {
+          const data = smeByDealMap.get(size)!;
+          const classification = classifyBusinessSize(size === 'Micro' ? 1000 : size === 'Small' ? 10000000 : size === 'Medium' ? 100000000 : size === 'Large' ? 300000000 : 0);
+          return {
+            size,
+            label: classification.label,
+            description: classification.description,
+            color: classification.color,
+            count: data.count,
+            revenue: data.revenue,
+            percentage: totalSmeDealCount > 0 ? Math.round((data.count / totalSmeDealCount) * 100) : 0,
             companies: data.companies.sort((a, b) => b.revenue - a.revenue).slice(0, 10)
           };
         });
@@ -478,7 +519,8 @@ const CustomerSegments = () => {
       return {
         segments,
         industryData,
-        smeData,
+        smeByTurnoverData,
+        smeByDealData,
         totalCustomers: customerMap.size,
         totalRevenue: Array.from(customerMap.values()).reduce((sum, c) => sum + c.totalRevenue, 0)
       };
@@ -1169,7 +1211,8 @@ const CustomerSegments = () => {
 
         {/* SME Classification Tab */}
         <TabsContent value="sme" className="space-y-6 mt-6">
-          {!segmentData?.smeData || segmentData.smeData.length === 0 ? (
+          {(!segmentData?.smeByTurnoverData || segmentData.smeByTurnoverData.length === 0) && 
+           (!segmentData?.smeByDealData || segmentData.smeByDealData.length === 0) ? (
             <Card>
               <CardContent className="pt-6">
                 <p className="text-center text-muted-foreground">
@@ -1179,120 +1222,256 @@ const CustomerSegments = () => {
             </Card>
           ) : (
             <>
-              {/* SME Summary Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
-                {segmentData.smeData.map((sme) => (
-                  <Card key={sme.size} className="border-l-4" style={{ borderLeftColor: sme.color }}>
-                    <CardContent className="pt-4">
-                      <div className="flex items-center gap-2 mb-2">
-                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: sme.color }} />
-                        <span className="font-semibold text-sm">{sme.label}</span>
-                      </div>
-                      <p className="text-2xl font-bold">{sme.count}</p>
-                      <p className="text-xs text-muted-foreground">{sme.percentage}% of customers</p>
-                      <p className="text-sm font-medium text-muted-foreground mt-1">
-                        AED {sme.revenue.toLocaleString()}
+              {/* By Annual Turnover Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="bg-emerald-500/10 text-emerald-700 border-emerald-500/30">
+                    <TrendingUp className="h-3 w-3 mr-1" />
+                    By Annual Turnover
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">Based on actual annual revenue reported</span>
+                </div>
+                
+                {segmentData?.smeByTurnoverData && segmentData.smeByTurnoverData.length > 0 ? (
+                  <>
+                    {/* Turnover Summary Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                      {segmentData.smeByTurnoverData.map((sme) => (
+                        <Card key={sme.size} className="border-l-4" style={{ borderLeftColor: sme.color }}>
+                          <CardContent className="pt-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: sme.color }} />
+                              <span className="font-semibold text-sm">{sme.label}</span>
+                            </div>
+                            <p className="text-2xl font-bold">{sme.count}</p>
+                            <p className="text-xs text-muted-foreground">{sme.percentage}% of customers</p>
+                            <p className="text-sm font-medium text-muted-foreground mt-1">
+                              AED {sme.revenue.toLocaleString()} (deals)
+                            </p>
+                            <p className="text-[10px] text-muted-foreground mt-2">{sme.description}</p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+
+                    {/* Turnover Charts */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-base">Distribution by Annual Turnover</CardTitle>
+                          <CardDescription>Customer count by reported annual revenue</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="h-[250px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <PieChart>
+                                <Pie
+                                  data={segmentData.smeByTurnoverData.map(s => ({ name: s.label, value: s.count, color: s.color }))}
+                                  cx="50%"
+                                  cy="50%"
+                                  innerRadius={50}
+                                  outerRadius={80}
+                                  dataKey="value"
+                                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                >
+                                  {segmentData.smeByTurnoverData.map((entry, index) => (
+                                    <Cell key={`cell-turnover-${index}`} fill={entry.color} />
+                                  ))}
+                                </Pie>
+                                <Tooltip />
+                              </PieChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-base">Top Companies by Annual Turnover</CardTitle>
+                          <CardDescription>Businesses with highest reported annual revenue</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="space-y-2 max-h-[250px] overflow-y-auto">
+                            {segmentData.smeByTurnoverData
+                              .filter(s => s.size !== 'Unknown')
+                              .flatMap(s => s.companies.map(c => ({ ...c, size: s.label, color: s.color })))
+                              .filter(c => 'turnover' in c && (c as any).turnover > 0)
+                              .sort((a, b) => ((b as any).turnover || 0) - ((a as any).turnover || 0))
+                              .slice(0, 10)
+                              .map((company, idx) => (
+                                <div key={idx} className="flex items-center justify-between text-sm py-1 border-b border-border/50 last:border-0">
+                                  <div className="flex items-center gap-2">
+                                    <div className="w-2 h-2 rounded-full" style={{ backgroundColor: company.color }} />
+                                    <span className="truncate max-w-[150px]">{company.name}</span>
+                                  </div>
+                                  <span className="text-muted-foreground font-medium">
+                                    AED {((company as any).turnover || 0).toLocaleString()}
+                                  </span>
+                                </div>
+                              ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+                  </>
+                ) : (
+                  <Card>
+                    <CardContent className="pt-6">
+                      <p className="text-center text-muted-foreground text-sm">
+                        No annual turnover data available. Update customer records with annual_turnover field.
                       </p>
-                      <p className="text-[10px] text-muted-foreground mt-2">{sme.description}</p>
                     </CardContent>
                   </Card>
-                ))}
+                )}
               </div>
 
-              {/* SME Charts */}
-              <div className="grid md:grid-cols-2 gap-6">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Business Size Distribution</CardTitle>
-                    <CardDescription>Customer count by business size (SME classification)</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-[300px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <PieChart>
-                          <Pie
-                            data={segmentData.smeData.map(s => ({ name: s.label, value: s.count, color: s.color }))}
-                            cx="50%"
-                            cy="50%"
-                            innerRadius={60}
-                            outerRadius={100}
-                            dataKey="value"
-                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
-                          >
-                            {segmentData.smeData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Pie>
-                          <Tooltip />
-                        </PieChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Revenue by Business Size</CardTitle>
-                    <CardDescription>Total revenue contribution per SME category</CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="h-[300px]">
-                      <ResponsiveContainer width="100%" height="100%">
-                        <BarChart 
-                          data={segmentData.smeData.map(s => ({ name: s.size, revenue: s.revenue, color: s.color }))} 
-                          layout="vertical" 
-                          margin={{ left: 60 }}
-                        >
-                          <CartesianGrid strokeDasharray="3 3" />
-                          <XAxis type="number" tickFormatter={(v) => `${(v/1000).toFixed(0)}K`} />
-                          <YAxis type="category" dataKey="name" width={55} />
-                          <Tooltip formatter={(value: number) => [`AED ${value.toLocaleString()}`, 'Revenue']} />
-                          <Bar dataKey="revenue" radius={[0, 4, 4, 0]}>
-                            {segmentData.smeData.map((entry, index) => (
-                              <Cell key={`cell-${index}`} fill={entry.color} />
-                            ))}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
-                    </div>
-                  </CardContent>
-                </Card>
+              {/* Separator */}
+              <div className="relative py-4">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">Alternative Classification</span>
+                </div>
               </div>
 
-              {/* SME Details */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Business Size Breakdown</CardTitle>
-                  <CardDescription>Top companies by business size category</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    {segmentData.smeData.filter(s => s.size !== 'Unknown').map((sme) => (
-                      <div key={sme.size} className="p-4 rounded-lg border" style={{ borderColor: sme.color + '40' }}>
-                        <div className="flex items-center gap-2 mb-3">
-                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: sme.color }} />
-                          <span className="font-semibold">{sme.label}</span>
-                        </div>
-                        <div className="space-y-2">
-                          {sme.companies.slice(0, 5).map((company, idx) => (
-                            <div key={idx} className="flex items-center justify-between text-sm">
-                              <span className="truncate max-w-[60%]">{company.name}</span>
-                              <span className="text-muted-foreground text-xs">
-                                AED {company.revenue.toLocaleString()}
-                              </span>
+              {/* By Deal Value Section */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-2">
+                  <Badge variant="outline" className="bg-blue-500/10 text-blue-700 border-blue-500/30">
+                    <DollarSign className="h-3 w-3 mr-1" />
+                    By Deal Value
+                  </Badge>
+                  <span className="text-xs text-muted-foreground">Based on transaction/deal amounts in the system</span>
+                </div>
+
+                {segmentData?.smeByDealData && segmentData.smeByDealData.length > 0 ? (
+                  <>
+                    {/* Deal Value Summary Cards */}
+                    <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                      {segmentData.smeByDealData.map((sme) => (
+                        <Card key={sme.size} className="border-l-4" style={{ borderLeftColor: sme.color }}>
+                          <CardContent className="pt-4">
+                            <div className="flex items-center gap-2 mb-2">
+                              <div className="w-3 h-3 rounded-full" style={{ backgroundColor: sme.color }} />
+                              <span className="font-semibold text-sm">{sme.label}</span>
+                            </div>
+                            <p className="text-2xl font-bold">{sme.count}</p>
+                            <p className="text-xs text-muted-foreground">{sme.percentage}% of customers</p>
+                            <p className="text-sm font-medium text-muted-foreground mt-1">
+                              AED {sme.revenue.toLocaleString()} (deals)
+                            </p>
+                            <p className="text-[10px] text-muted-foreground mt-2">{sme.description}</p>
+                          </CardContent>
+                        </Card>
+                      ))}
+                    </div>
+
+                    {/* Deal Value Charts */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-base">Distribution by Deal Value</CardTitle>
+                          <CardDescription>Customer count by total deal amount</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="h-[250px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <PieChart>
+                                <Pie
+                                  data={segmentData.smeByDealData.map(s => ({ name: s.label, value: s.count, color: s.color }))}
+                                  cx="50%"
+                                  cy="50%"
+                                  innerRadius={50}
+                                  outerRadius={80}
+                                  dataKey="value"
+                                  label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                                >
+                                  {segmentData.smeByDealData.map((entry, index) => (
+                                    <Cell key={`cell-deal-${index}`} fill={entry.color} />
+                                  ))}
+                                </Pie>
+                                <Tooltip />
+                              </PieChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </CardContent>
+                      </Card>
+
+                      <Card>
+                        <CardHeader>
+                          <CardTitle className="text-base">Revenue by Deal Value Tier</CardTitle>
+                          <CardDescription>Total deal revenue per classification tier</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                          <div className="h-[250px]">
+                            <ResponsiveContainer width="100%" height="100%">
+                              <BarChart 
+                                data={segmentData.smeByDealData.map(s => ({ name: s.size, revenue: s.revenue, color: s.color }))} 
+                                layout="vertical" 
+                                margin={{ left: 60 }}
+                              >
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis type="number" tickFormatter={(v) => `${(v/1000).toFixed(0)}K`} />
+                                <YAxis type="category" dataKey="name" width={55} />
+                                <Tooltip formatter={(value: number) => [`AED ${value.toLocaleString()}`, 'Revenue']} />
+                                <Bar dataKey="revenue" radius={[0, 4, 4, 0]}>
+                                  {segmentData.smeByDealData.map((entry, index) => (
+                                    <Cell key={`cell-bar-${index}`} fill={entry.color} />
+                                  ))}
+                                </Bar>
+                              </BarChart>
+                            </ResponsiveContainer>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Deal Value Details */}
+                    <Card>
+                      <CardHeader>
+                        <CardTitle>Business Breakdown by Deal Value</CardTitle>
+                        <CardDescription>Top companies by deal value classification</CardDescription>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                          {segmentData.smeByDealData.filter(s => s.size !== 'Unknown').map((sme) => (
+                            <div key={sme.size} className="p-4 rounded-lg border" style={{ borderColor: sme.color + '40' }}>
+                              <div className="flex items-center gap-2 mb-3">
+                                <div className="w-3 h-3 rounded-full" style={{ backgroundColor: sme.color }} />
+                                <span className="font-semibold">{sme.label}</span>
+                              </div>
+                              <div className="space-y-2">
+                                {sme.companies.slice(0, 5).map((company, idx) => (
+                                  <div key={idx} className="flex items-center justify-between text-sm">
+                                    <span className="truncate max-w-[60%]">{company.name}</span>
+                                    <span className="text-muted-foreground text-xs">
+                                      AED {company.revenue.toLocaleString()}
+                                    </span>
+                                  </div>
+                                ))}
+                                {sme.companies.length > 5 && (
+                                  <p className="text-xs text-muted-foreground text-center pt-1">
+                                    +{sme.companies.length - 5} more
+                                  </p>
+                                )}
+                              </div>
                             </div>
                           ))}
-                          {sme.companies.length > 5 && (
-                            <p className="text-xs text-muted-foreground text-center pt-1">
-                              +{sme.companies.length - 5} more
-                            </p>
-                          )}
                         </div>
-                      </div>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
+                      </CardContent>
+                    </Card>
+                  </>
+                ) : (
+                  <Card>
+                    <CardContent className="pt-6">
+                      <p className="text-center text-muted-foreground text-sm">
+                        No deal value data available.
+                      </p>
+                    </CardContent>
+                  </Card>
+                )}
+              </div>
             </>
           )}
         </TabsContent>
