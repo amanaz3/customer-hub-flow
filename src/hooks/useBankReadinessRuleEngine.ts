@@ -1,4 +1,4 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { BankReadinessCaseInput, RiskAssessmentResult, BankRecommendation, BankAvoidance } from '@/types/bankReadiness';
 
@@ -43,6 +43,11 @@ interface BankProfile {
   is_active: boolean;
 }
 
+interface BankReadinessConfigData {
+  rules: BankReadinessRule[];
+  bankProfiles: BankProfile[];
+}
+
 // High-risk nationalities for bank fit scoring
 const HIGH_RISK_NATIONALITIES = [
   'Iran', 'Syria', 'North Korea', 'Russia', 'Belarus', 'Myanmar', 'Cuba', 'Venezuela'
@@ -57,39 +62,53 @@ export function useBankReadinessRuleEngine() {
     const fetchData = async () => {
       setLoading(true);
       
-      // Fetch rules and bank profiles in parallel
-      const [rulesResult, banksResult] = await Promise.all([
-        supabase
-          .from('bank_readiness_rules')
-          .select('*')
-          .eq('is_active', true)
-          .order('priority', { ascending: true }),
-        supabase
-          .from('bank_profiles')
-          .select('*')
-          .eq('is_active', true)
-      ]);
+      // Fetch from unified config table
+      const { data, error } = await supabase
+        .from('bank_readiness_configurations')
+        .select('config_data')
+        .eq('is_active', true)
+        .eq('name', 'default')
+        .single();
 
-      if (rulesResult.error) {
-        console.error('[BankReadinessRuleEngine] Failed to load rules:', rulesResult.error);
-      } else {
-        const parsedRules = (rulesResult.data || []).map(r => ({
-          id: r.id,
-          rule_name: r.rule_name,
-          rule_type: r.rule_type,
-          description: r.description,
-          conditions: (Array.isArray(r.conditions) ? r.conditions : []) as unknown as RuleCondition[],
-          actions: (Array.isArray(r.actions) ? r.actions : []) as unknown as RuleAction[],
-          priority: r.priority,
-          is_active: r.is_active
-        }));
-        setRules(parsedRules);
-      }
+      if (error) {
+        console.error('[BankReadinessRuleEngine] Failed to load config:', error);
+        // Fallback to legacy tables
+        const [rulesResult, banksResult] = await Promise.all([
+          supabase
+            .from('bank_readiness_rules')
+            .select('*')
+            .eq('is_active', true)
+            .order('priority', { ascending: true }),
+          supabase
+            .from('bank_profiles')
+            .select('*')
+            .eq('is_active', true)
+        ]);
 
-      if (banksResult.error) {
-        console.error('[BankReadinessRuleEngine] Failed to load bank profiles:', banksResult.error);
-      } else {
-        setBankProfiles(banksResult.data || []);
+        if (rulesResult.data) {
+          const parsedRules = rulesResult.data.map(r => ({
+            id: r.id,
+            rule_name: r.rule_name,
+            rule_type: r.rule_type,
+            description: r.description,
+            conditions: (Array.isArray(r.conditions) ? r.conditions : []) as unknown as RuleCondition[],
+            actions: (Array.isArray(r.actions) ? r.actions : []) as unknown as RuleAction[],
+            priority: r.priority,
+            is_active: r.is_active
+          }));
+          setRules(parsedRules);
+        }
+        if (banksResult.data) {
+          setBankProfiles(banksResult.data as BankProfile[]);
+        }
+      } else if (data?.config_data) {
+        const configData = data.config_data as unknown as BankReadinessConfigData;
+        // Filter only active rules
+        const activeRules = (configData.rules || [])
+          .filter(r => r.is_active)
+          .sort((a, b) => a.priority - b.priority);
+        setRules(activeRules);
+        setBankProfiles(configData.bankProfiles || []);
       }
 
       setLoading(false);
