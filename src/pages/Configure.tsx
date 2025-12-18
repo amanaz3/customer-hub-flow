@@ -145,6 +145,16 @@ const Manage = () => {
                 <p className="text-xs text-muted-foreground">Enable or disable workflow features</p>
               </div>
             </div>
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => setShowBankReadinessRules(true)}
+            >
+              <Landmark className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">Bank Readiness Rules</p>
+                <p className="text-xs text-muted-foreground">Configure risk scoring and bank matching</p>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
@@ -205,42 +215,6 @@ const Manage = () => {
           </CardContent>
         </Card>
 
-        {/* Bank Readiness Rules Card */}
-        <Card className="border-2">
-          <CardHeader className="pb-4">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-primary/10 rounded-lg">
-                <Landmark className="h-6 w-6 text-primary" />
-              </div>
-              <div>
-                <CardTitle>Bank Readiness</CardTitle>
-                <CardDescription>Bank assessment rules configuration</CardDescription>
-              </div>
-            </div>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <div 
-              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
-              onClick={() => setShowBankReadinessRules(true)}
-            >
-              <Settings2 className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium text-sm">Rules Engine</p>
-                <p className="text-xs text-muted-foreground">Configure risk scoring and bank matching rules</p>
-              </div>
-            </div>
-            <div 
-              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
-              onClick={() => navigate('/bank-readiness')}
-            >
-              <Landmark className="h-5 w-5 text-muted-foreground" />
-              <div>
-                <p className="font-medium text-sm">Assessment Tool</p>
-                <p className="text-xs text-muted-foreground">Run bank readiness assessments</p>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
 
         {/* Webflow Decision Engine Card */}
         <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-transparent">
