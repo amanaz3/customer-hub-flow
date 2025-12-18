@@ -133,7 +133,15 @@ const CustomerClassification = () => {
   const [totalCustomers, setTotalCustomers] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [revenueVsDealData, setRevenueVsDealData] = useState<Array<{ name: string; turnover: number; dealValue: number }>>([]);
-  const [dealSizeDistribution, setDealSizeDistribution] = useState<Array<{ range: string; count: number; revenue: number; percentage: number }>>([]);
+  const [dealSizeDistribution, setDealSizeDistribution] = useState<Array<{ 
+    range: string; 
+    count: number; 
+    revenue: number; 
+    percentage: number;
+    industries: Array<{ name: string; count: number; revenue: number }>;
+    businessTypes: Array<{ name: string; count: number; revenue: number }>;
+  }>>([]);
+  const [expandedBuckets, setExpandedBuckets] = useState<Record<string, boolean>>({});
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -304,11 +312,38 @@ const CustomerClassification = () => {
           return amt >= bucket.min && amt < bucket.max;
         }) || [];
         const bucketRevenue = dealsInBucket.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
+        
+        // Calculate industry breakdown for this bucket
+        const industryBreakdown = new Map<string, { count: number; revenue: number }>();
+        const businessTypeBreakdown = new Map<string, { count: number; revenue: number }>();
+        
+        dealsInBucket.forEach(c => {
+          const amt = Number(c.amount) || 0;
+          
+          // Get industry from application data
+          const app = applications?.find(a => a.customer_id === c.id);
+          const industry = app?.application_data ? extractIndustry(app.application_data as Record<string, any>, c.company) : 'Other';
+          const indData = industryBreakdown.get(industry) || { count: 0, revenue: 0 };
+          industryBreakdown.set(industry, { count: indData.count + 1, revenue: indData.revenue + amt });
+          
+          // Get business type from license_type
+          const businessType = c.license_type || 'Unknown';
+          const btData = businessTypeBreakdown.get(businessType) || { count: 0, revenue: 0 };
+          businessTypeBreakdown.set(businessType, { count: btData.count + 1, revenue: btData.revenue + amt });
+        });
+        
         return {
           range: bucket.label,
           count: dealsInBucket.length,
           revenue: bucketRevenue,
           percentage: revenue > 0 ? Math.round((bucketRevenue / revenue) * 100) : 0,
+          industries: Array.from(industryBreakdown.entries())
+            .map(([name, data]) => ({ name, ...data }))
+            .sort((a, b) => b.revenue - a.revenue)
+            .slice(0, 5),
+          businessTypes: Array.from(businessTypeBreakdown.entries())
+            .map(([name, data]) => ({ name, ...data }))
+            .sort((a, b) => b.revenue - a.revenue),
         };
       }).filter(d => d.count > 0);
       
@@ -632,23 +667,73 @@ const CustomerClassification = () => {
                   <div className="space-y-3">
                     <p className="text-sm font-medium text-muted-foreground">Revenue Contribution by Deal Size</p>
                     {dealSizeDistribution.map((bucket, idx) => (
-                      <div key={bucket.range} className="space-y-1">
-                        <div className="flex items-center justify-between text-sm">
-                          <span className="font-medium">{bucket.range}</span>
-                          <span className="text-muted-foreground">
-                            {bucket.count} deals • {formatCurrency(bucket.revenue)} ({bucket.percentage}%)
-                          </span>
+                      <Collapsible 
+                        key={bucket.range} 
+                        open={expandedBuckets[bucket.range]}
+                        onOpenChange={(open) => setExpandedBuckets(prev => ({ ...prev, [bucket.range]: open }))}
+                      >
+                        <div className="space-y-1">
+                          <CollapsibleTrigger className="w-full">
+                            <div className="flex items-center justify-between text-sm hover:bg-muted/50 rounded p-1 -m-1 cursor-pointer">
+                              <div className="flex items-center gap-2">
+                                {expandedBuckets[bucket.range] ? (
+                                  <ChevronUp className="h-3 w-3 text-muted-foreground" />
+                                ) : (
+                                  <ChevronDown className="h-3 w-3 text-muted-foreground" />
+                                )}
+                                <span className="font-medium">{bucket.range}</span>
+                              </div>
+                              <span className="text-muted-foreground">
+                                {bucket.count} deals • {formatCurrency(bucket.revenue)} ({bucket.percentage}%)
+                              </span>
+                            </div>
+                          </CollapsibleTrigger>
+                          <div className="h-2 bg-muted rounded-full overflow-hidden">
+                            <div 
+                              className="h-full rounded-full transition-all"
+                              style={{ 
+                                width: `${bucket.percentage}%`,
+                                backgroundColor: COLORS[idx % COLORS.length]
+                              }}
+                            />
+                          </div>
                         </div>
-                        <div className="h-2 bg-muted rounded-full overflow-hidden">
-                          <div 
-                            className="h-full rounded-full transition-all"
-                            style={{ 
-                              width: `${bucket.percentage}%`,
-                              backgroundColor: COLORS[idx % COLORS.length]
-                            }}
-                          />
-                        </div>
-                      </div>
+                        <CollapsibleContent className="pt-2 pl-5 space-y-3">
+                          {/* Industry Breakdown */}
+                          {bucket.industries.length > 0 && (
+                            <div className="space-y-1.5">
+                              <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                                <Building2 className="h-3 w-3" /> By Industry
+                              </p>
+                              <div className="grid grid-cols-1 gap-1">
+                                {bucket.industries.map((ind, i) => (
+                                  <div key={ind.name} className="flex items-center justify-between text-xs bg-muted/30 rounded px-2 py-1">
+                                    <span className="truncate max-w-[120px]">{ind.name}</span>
+                                    <span className="text-muted-foreground whitespace-nowrap">
+                                      {ind.count} • {formatCurrency(ind.revenue)}
+                                    </span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                          {/* Business Type Breakdown */}
+                          {bucket.businessTypes.length > 0 && (
+                            <div className="space-y-1.5">
+                              <p className="text-xs font-medium text-muted-foreground flex items-center gap-1">
+                                <Briefcase className="h-3 w-3" /> By Business Type
+                              </p>
+                              <div className="flex flex-wrap gap-1">
+                                {bucket.businessTypes.map((bt) => (
+                                  <Badge key={bt.name} variant="outline" className="text-xs font-normal">
+                                    {bt.name}: {bt.count} ({formatCurrency(bt.revenue)})
+                                  </Badge>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+                        </CollapsibleContent>
+                      </Collapsible>
                     ))}
                   </div>
                 </div>
