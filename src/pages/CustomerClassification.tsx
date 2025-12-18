@@ -131,6 +131,7 @@ const CustomerClassification = () => {
   const [analyzingAI, setAnalyzingAI] = useState(false);
   const [totalCustomers, setTotalCustomers] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
+  const [revenueVsDealData, setRevenueVsDealData] = useState<Array<{ name: string; turnover: number; dealValue: number }>>([]);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -186,7 +187,7 @@ const CustomerClassification = () => {
     try {
       const { data: customers, error: custError } = await supabase
         .from('customers')
-        .select('id, lead_source, license_type, jurisdiction, amount, company');
+        .select('id, lead_source, license_type, jurisdiction, amount, annual_turnover, company');
 
       const { data: applications, error: appError } = await supabase
         .from('account_applications')
@@ -264,6 +265,25 @@ const CustomerClassification = () => {
         jurisdiction: toArray(jurisdictionMap),
       });
 
+      // Revenue vs Deal Value comparison by industry
+      const revenueVsDeal = Array.from(industryMap.entries())
+        .map(([name]) => {
+          const customersInIndustry = customers?.filter(c => {
+            const app = applications?.find(a => a.customer_id === c.id);
+            const data = app?.application_data as Record<string, any> | null;
+            return data ? extractIndustry(data, c.company) === name : false;
+          }) || [];
+          
+          const totalTurnover = customersInIndustry.reduce((sum, c) => sum + (Number(c.annual_turnover) || 0), 0);
+          const totalDealValue = customersInIndustry.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
+          
+          return { name, turnover: totalTurnover, dealValue: totalDealValue };
+        })
+        .filter(d => d.turnover > 0 || d.dealValue > 0)
+        .sort((a, b) => (b.turnover + b.dealValue) - (a.turnover + a.dealValue))
+        .slice(0, 10);
+
+      setRevenueVsDealData(revenueVsDeal);
       setTotalCustomers(total);
       setTotalRevenue(revenue);
     } catch (error) {
@@ -499,6 +519,36 @@ const CustomerClassification = () => {
         </TabsList>
 
         <TabsContent value="overview" className="space-y-4">
+          {/* Revenue vs Deal Value Distribution */}
+          {revenueVsDealData.length > 0 && (
+            <Card className="border-border/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <DollarSign className="h-5 w-5" />
+                  Annual Turnover vs Deal Value by Industry
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  Comparing reported annual turnover with transaction deal values
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="h-80">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <BarChart data={revenueVsDealData} layout="vertical" margin={{ left: 100 }}>
+                      <CartesianGrid strokeDasharray="3 3" />
+                      <XAxis type="number" tickFormatter={(v) => `${(v/1000000).toFixed(1)}M`} />
+                      <YAxis type="category" dataKey="name" width={95} tick={{ fontSize: 11 }} />
+                      <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                      <Legend />
+                      <Bar dataKey="turnover" name="Annual Turnover" fill="hsl(var(--chart-2))" radius={[0, 4, 4, 0]} />
+                      <Bar dataKey="dealValue" name="Deal Value" fill="hsl(var(--chart-4))" radius={[0, 4, 4, 0]} />
+                    </BarChart>
+                  </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {renderClassificationCard('By Industry', classifications.industry, <Building2 className="h-4 w-4" />, 0)}
             {renderClassificationCard('By Nationality', classifications.nationality, <Globe className="h-4 w-4" />, 2)}
