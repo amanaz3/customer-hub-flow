@@ -13,7 +13,8 @@ import {
   CheckCircle2,
   DollarSign,
   SkipForward,
-  ArrowRight
+  ArrowRight,
+  UserCheck
 } from 'lucide-react';
 
 interface RuleEngineAssistPanelProps {
@@ -30,6 +31,8 @@ interface RuleEngineAssistPanelProps {
     skippedSteps?: string[];
     visibleSteps?: string[];
     nextStep?: string;
+    assignedAgentId?: string | null;
+    assignedAgentName?: string | null;
   } | null;
   loading?: boolean;
   isActive?: boolean;
@@ -78,7 +81,8 @@ export const RuleEngineAssistPanel: React.FC<RuleEngineAssistPanelProps> = ({
                   ruleResult.processingTimeDays !== null ||
                   ruleResult.appliedRules.length > 0 ||
                   (ruleResult.skippedSteps && ruleResult.skippedSteps.length > 0) ||
-                  ruleResult.nextStep;
+                  ruleResult.nextStep ||
+                  ruleResult.assignedAgentId;
 
   if (!hasData) {
     return (
@@ -125,7 +129,28 @@ export const RuleEngineAssistPanel: React.FC<RuleEngineAssistPanelProps> = ({
         </Card>
       )}
 
-      {/* Recommended Banks */}
+      {/* Auto-Assignment */}
+      {ruleResult.assignedAgentId && (
+        <Card className="border-green-500/30 bg-green-500/5">
+          <CardHeader className="pb-2 px-3">
+            <CardTitle className="text-sm font-medium flex items-center gap-2 text-green-600">
+              <UserCheck className="h-4 w-4" />
+              Auto-Assignment
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="px-3 pb-3">
+            <div className="flex items-center gap-2">
+              <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+                {ruleResult.assignedAgentName || 'Assigned Agent'}
+              </Badge>
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-1">
+              This application will be assigned based on rule conditions
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
       {ruleResult.recommendedBanks.length > 0 && (
         <Card>
           <CardHeader className="pb-2 px-3">
