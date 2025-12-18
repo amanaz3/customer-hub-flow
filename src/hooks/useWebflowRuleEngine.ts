@@ -8,7 +8,7 @@ interface RuleCondition {
 }
 
 interface RuleAction {
-  type: 'multiply_price' | 'add_fee' | 'set_price' | 'set_flag' | 'require_document' | 'block' | 'show_warning' | 'set_processing_time' | 'recommend_bank' | 'skip_step' | 'show_step' | 'set_next_step';
+  type: 'multiply_price' | 'add_fee' | 'set_price' | 'set_flag' | 'require_document' | 'block' | 'show_warning' | 'set_processing_time' | 'recommend_bank' | 'skip_step' | 'show_step' | 'set_next_step' | 'apply_discount';
   value?: number | string | boolean;
   // Some rules store document id as `target` instead of `value`
   target?: string;
@@ -16,6 +16,9 @@ interface RuleAction {
   processingDays?: number;
   banks?: string[];
   stepKey?: string;
+  // Discount-specific
+  discountType?: 'percentage' | 'fixed';
+  discountValue?: number;
 }
 
 interface WebflowRule {
@@ -36,6 +39,7 @@ interface RuleContext {
   activityRiskLevel?: string;
   planCode?: string;
   jurisdictionType?: string;
+  promoCode?: string;
 }
 
 export interface RuleEngineResult {
@@ -53,6 +57,10 @@ export interface RuleEngineResult {
   skippedSteps: string[];
   visibleSteps: string[];
   nextStep?: string;
+  // Promo code discount
+  promoDiscount: number;
+  promoDiscountType: 'percentage' | 'fixed' | null;
+  appliedPromoCode: string | null;
 }
 
 export function useWebflowRuleEngine(context: RuleContext) {
@@ -143,6 +151,9 @@ export function useWebflowRuleEngine(context: RuleContext) {
       // Plan
       'plan': ctx.planCode,
       'plan_code': ctx.planCode,
+      // Promo Code
+      'promo_code': ctx.promoCode,
+      'promoCode': ctx.promoCode,
     };
     return fieldMap[field];
   };
@@ -161,6 +172,9 @@ export function useWebflowRuleEngine(context: RuleContext) {
       skippedSteps: [],
       visibleSteps: [],
       nextStep: undefined,
+      promoDiscount: 0,
+      promoDiscountType: null,
+      appliedPromoCode: null,
     };
 
     if (loading) return engineResult;
@@ -239,6 +253,13 @@ export function useWebflowRuleEngine(context: RuleContext) {
             case 'set_next_step':
               if (action.stepKey) {
                 engineResult.nextStep = action.stepKey;
+              }
+              break;
+            case 'apply_discount':
+              if (action.discountValue && action.discountType) {
+                engineResult.promoDiscount = action.discountValue;
+                engineResult.promoDiscountType = action.discountType;
+                engineResult.appliedPromoCode = context.promoCode || null;
               }
               break;
           }
