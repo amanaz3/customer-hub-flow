@@ -46,7 +46,58 @@ interface AnalyticsData {
   monthlyTrend: { month: string; approved: number; rejected: number }[];
 }
 
-const OutcomeAnalyticsTab: React.FC = () => {
+interface OutcomeAnalyticsTabProps {
+  showDemo?: boolean;
+}
+
+// Demo analytics data
+const DEMO_ANALYTICS: AnalyticsData = {
+  bankApprovalRates: [
+    { bank: 'Emirates NBD', approved: 12, rejected: 3, rate: 80 },
+    { bank: 'Mashreq Bank', approved: 8, rejected: 2, rate: 80 },
+    { bank: 'ADCB', approved: 6, rejected: 2, rate: 75 },
+    { bank: 'RAK Bank', approved: 4, rejected: 4, rate: 50 },
+    { bank: 'CBD', approved: 3, rejected: 3, rate: 50 },
+  ],
+  nationalityRates: [
+    { nationality: 'UAE', approved: 15, rejected: 2, rate: 88 },
+    { nationality: 'UK', approved: 8, rejected: 2, rate: 80 },
+    { nationality: 'India', approved: 10, rejected: 4, rate: 71 },
+    { nationality: 'Pakistan', approved: 5, rejected: 5, rate: 50 },
+    { nationality: 'Iran', approved: 2, rejected: 6, rate: 25 },
+  ],
+  activityRates: [
+    { activity: 'General Trading', approved: 12, rejected: 4, rate: 75 },
+    { activity: 'IT Services', approved: 8, rejected: 1, rate: 89 },
+    { activity: 'Management Consulting', approved: 6, rejected: 1, rate: 86 },
+    { activity: 'Money Exchange', approved: 1, rejected: 5, rate: 17 },
+  ],
+  riskCategoryOutcomes: [
+    { category: 'low', approved: 25, rejected: 3 },
+    { category: 'medium', approved: 12, rejected: 8 },
+    { category: 'high', approved: 3, rejected: 9 },
+  ],
+  rejectionReasons: [
+    { reason: 'High Risk Activity', count: 8 },
+    { reason: 'Nationality', count: 5 },
+    { reason: 'Source of Funds', count: 4 },
+    { reason: 'Documents', count: 3 },
+  ],
+  predictionAccuracy: {
+    recommendedAndApproved: 35,
+    recommendedAndRejected: 5,
+    avoidedAndApproved: 3,
+    avoidedAndRejected: 12,
+  },
+  monthlyTrend: [
+    { month: 'Sep 24', approved: 8, rejected: 3 },
+    { month: 'Oct 24', approved: 10, rejected: 4 },
+    { month: 'Nov 24', approved: 12, rejected: 5 },
+    { month: 'Dec 24', approved: 10, rejected: 3 },
+  ],
+};
+
+const OutcomeAnalyticsTab: React.FC<OutcomeAnalyticsTabProps> = ({ showDemo = false }) => {
   const { cases, loading } = useBankReadinessCases();
 
   const analytics = useMemo<AnalyticsData>(() => {
@@ -182,15 +233,18 @@ const OutcomeAnalyticsTab: React.FC = () => {
     };
   }, [cases]);
 
-  const totalWithOutcome = cases.filter(c => c.outcome && c.outcome !== 'pending').length;
+  // Use demo data if showDemo is true
+  const displayAnalytics = showDemo ? DEMO_ANALYTICS : analytics;
+  const totalWithOutcome = showDemo ? 55 : cases.filter(c => c.outcome && c.outcome !== 'pending').length;
+  
   const overallAccuracy = useMemo(() => {
-    const { recommendedAndApproved, avoidedAndRejected, recommendedAndRejected, avoidedAndApproved } = analytics.predictionAccuracy;
+    const { recommendedAndApproved, avoidedAndRejected, recommendedAndRejected, avoidedAndApproved } = displayAnalytics.predictionAccuracy;
     const correct = recommendedAndApproved + avoidedAndRejected;
     const total = correct + recommendedAndRejected + avoidedAndApproved;
     return total > 0 ? Math.round((correct / total) * 100) : 0;
-  }, [analytics]);
+  }, [displayAnalytics]);
 
-  if (loading) {
+  if (loading && !showDemo) {
     return (
       <Card>
         <CardContent className="py-8 text-center text-muted-foreground">
@@ -200,7 +254,7 @@ const OutcomeAnalyticsTab: React.FC = () => {
     );
   }
 
-  if (totalWithOutcome < 3) {
+  if (totalWithOutcome < 3 && !showDemo) {
     return (
       <Card>
         <CardContent className="py-12 text-center">
@@ -216,6 +270,18 @@ const OutcomeAnalyticsTab: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Demo Banner */}
+      {showDemo && (
+        <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-950/20">
+          <CardContent className="pt-4">
+            <div className="flex items-center gap-2 text-sm text-blue-800 dark:text-blue-200">
+              <Target className="h-4 w-4" />
+              <strong>Demo Mode:</strong> Showing sample analytics data to demonstrate the Outcome Memory system.
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Summary Cards */}
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
@@ -242,7 +308,7 @@ const OutcomeAnalyticsTab: React.FC = () => {
             <CheckCircle className="h-4 w-4 text-green-500" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-green-600">{analytics.predictionAccuracy.recommendedAndApproved}</p>
+            <p className="text-2xl font-bold text-green-600">{displayAnalytics.predictionAccuracy.recommendedAndApproved}</p>
             <p className="text-xs text-muted-foreground">Correct recommendations</p>
           </CardContent>
         </Card>
@@ -253,7 +319,7 @@ const OutcomeAnalyticsTab: React.FC = () => {
             <XCircle className="h-4 w-4 text-red-500" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-red-600">{analytics.predictionAccuracy.recommendedAndRejected}</p>
+            <p className="text-2xl font-bold text-red-600">{displayAnalytics.predictionAccuracy.recommendedAndRejected}</p>
             <p className="text-xs text-muted-foreground">Wrong recommendations</p>
           </CardContent>
         </Card>
@@ -264,7 +330,7 @@ const OutcomeAnalyticsTab: React.FC = () => {
             <AlertTriangle className="h-4 w-4 text-amber-500" />
           </CardHeader>
           <CardContent>
-            <p className="text-2xl font-bold text-amber-600">{analytics.predictionAccuracy.avoidedAndApproved}</p>
+            <p className="text-2xl font-bold text-amber-600">{displayAnalytics.predictionAccuracy.avoidedAndApproved}</p>
             <p className="text-xs text-muted-foreground">Missed opportunities</p>
           </CardContent>
         </Card>
@@ -282,9 +348,9 @@ const OutcomeAnalyticsTab: React.FC = () => {
             <CardDescription>Historical approval rates by bank</CardDescription>
           </CardHeader>
           <CardContent>
-            {analytics.bankApprovalRates.length > 0 ? (
+            {displayAnalytics.bankApprovalRates.length > 0 ? (
               <ResponsiveContainer width="100%" height={250}>
-                <BarChart data={analytics.bankApprovalRates} layout="vertical">
+                <BarChart data={displayAnalytics.bankApprovalRates} layout="vertical">
                   <CartesianGrid strokeDasharray="3 3" />
                   <XAxis type="number" domain={[0, 100]} />
                   <YAxis type="category" dataKey="bank" width={100} tick={{ fontSize: 12 }} />
@@ -308,11 +374,11 @@ const OutcomeAnalyticsTab: React.FC = () => {
             <CardDescription>Most common reasons for rejection</CardDescription>
           </CardHeader>
           <CardContent>
-            {analytics.rejectionReasons.length > 0 ? (
+            {displayAnalytics.rejectionReasons.length > 0 ? (
               <ResponsiveContainer width="100%" height={250}>
                 <PieChart>
                   <Pie
-                    data={analytics.rejectionReasons}
+                    data={displayAnalytics.rejectionReasons}
                     dataKey="count"
                     nameKey="reason"
                     cx="50%"
@@ -320,7 +386,7 @@ const OutcomeAnalyticsTab: React.FC = () => {
                     outerRadius={80}
                     label={({ reason, count }) => `${reason}: ${count}`}
                   >
-                    {analytics.rejectionReasons.map((_, index) => (
+                    {displayAnalytics.rejectionReasons.map((_, index) => (
                       <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
                     ))}
                   </Pie>
@@ -344,9 +410,9 @@ const OutcomeAnalyticsTab: React.FC = () => {
           <CardDescription>How different nationalities perform in bank applications</CardDescription>
         </CardHeader>
         <CardContent>
-          {analytics.nationalityRates.length > 0 ? (
+          {displayAnalytics.nationalityRates.length > 0 ? (
             <div className="space-y-3">
-              {analytics.nationalityRates.map((item) => (
+              {displayAnalytics.nationalityRates.map((item) => (
                 <div key={item.nationality} className="flex items-center gap-4">
                   <span className="w-24 text-sm font-medium truncate">{item.nationality}</span>
                   <div className="flex-1">
@@ -378,7 +444,7 @@ const OutcomeAnalyticsTab: React.FC = () => {
         </CardHeader>
         <CardContent>
           <div className="grid gap-4 md:grid-cols-3">
-            {analytics.riskCategoryOutcomes.map((item) => {
+            {displayAnalytics.riskCategoryOutcomes.map((item) => {
               const total = item.approved + item.rejected;
               const rate = total > 0 ? Math.round((item.approved / total) * 100) : 0;
               return (
@@ -413,7 +479,7 @@ const OutcomeAnalyticsTab: React.FC = () => {
       </Card>
 
       {/* Insights */}
-      {(analytics.predictionAccuracy.recommendedAndRejected > 0 || analytics.predictionAccuracy.avoidedAndApproved > 0) && (
+      {(displayAnalytics.predictionAccuracy.recommendedAndRejected > 0 || displayAnalytics.predictionAccuracy.avoidedAndApproved > 0) && (
         <Card className="border-amber-200 bg-amber-50/50 dark:bg-amber-950/20">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
@@ -423,20 +489,20 @@ const OutcomeAnalyticsTab: React.FC = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-2 text-sm">
-              {analytics.predictionAccuracy.recommendedAndRejected > 0 && (
+              {displayAnalytics.predictionAccuracy.recommendedAndRejected > 0 && (
                 <p className="flex items-start gap-2">
                   <AlertTriangle className="h-4 w-4 text-amber-600 mt-0.5" />
                   <span>
-                    <strong>{analytics.predictionAccuracy.recommendedAndRejected}</strong> recommended bank(s) rejected the application. 
+                    <strong>{displayAnalytics.predictionAccuracy.recommendedAndRejected}</strong> recommended bank(s) rejected the application. 
                     Consider reviewing bank matching criteria.
                   </span>
                 </p>
               )}
-              {analytics.predictionAccuracy.avoidedAndApproved > 0 && (
+              {displayAnalytics.predictionAccuracy.avoidedAndApproved > 0 && (
                 <p className="flex items-start gap-2">
                   <CheckCircle className="h-4 w-4 text-green-600 mt-0.5" />
                   <span>
-                    <strong>{analytics.predictionAccuracy.avoidedAndApproved}</strong> "avoid" bank(s) actually approved. 
+                    <strong>{displayAnalytics.predictionAccuracy.avoidedAndApproved}</strong> "avoid" bank(s) actually approved. 
                     These banks may be more flexible than expected.
                   </span>
                 </p>
