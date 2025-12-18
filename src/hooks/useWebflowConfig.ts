@@ -99,6 +99,25 @@ export interface WebflowPromoCodeConfig {
   description: string | null;
 }
 
+export interface WebflowEmailTemplateConfig {
+  id: string;
+  template_code: string;
+  template_name: string;
+  trigger_event: 'application_submitted' | 'documents_requested' | 'status_approved' | 'status_rejected' | 'manual_review' | 'reminder_incomplete' | 'payment_received' | 'welcome';
+  subject: string;
+  body_html: string;
+  body_text: string;
+  sender_name: string;
+  reply_to: string | null;
+  is_active: boolean;
+  delay_minutes: number;
+  conditions: {
+    jurisdictions?: string[];
+    nationalities?: string[];
+    plans?: string[];
+  };
+}
+
 export interface WebflowConfigData {
   countries: WebflowCountryConfig[];
   jurisdictions: WebflowJurisdictionConfig[];
@@ -107,6 +126,7 @@ export interface WebflowConfigData {
   pricing: WebflowPricingConfig[];
   rules: WebflowRuleConfig[];
   promoCodes: WebflowPromoCodeConfig[];
+  emailTemplates: WebflowEmailTemplateConfig[];
 }
 
 export interface WebflowConfiguration {
@@ -138,7 +158,8 @@ const DEFAULT_CONFIG: WebflowConfigData = {
   documents: [],
   pricing: [],
   rules: [],
-  promoCodes: []
+  promoCodes: [],
+  emailTemplates: []
 };
 
 export const useWebflowConfig = () => {
@@ -327,7 +348,8 @@ export const useWebflowConfig = () => {
         documents: importedData.documents || [],
         pricing: importedData.pricing || [],
         rules: importedData.rules || [],
-        promoCodes: importedData.promoCodes || []
+        promoCodes: importedData.promoCodes || [],
+        emailTemplates: importedData.emailTemplates || []
       };
 
       const success = await saveConfig(newConfigData, `Imported from file: ${file.name}`);
@@ -378,6 +400,11 @@ export const useWebflowConfig = () => {
     return saveConfig({ ...config.config_data, promoCodes });
   }, [config, saveConfig]);
 
+  const updateEmailTemplates = useCallback(async (emailTemplates: WebflowEmailTemplateConfig[]) => {
+    if (!config) return false;
+    return saveConfig({ ...config.config_data, emailTemplates });
+  }, [config, saveConfig]);
+
   // Initial fetch
   useEffect(() => {
     fetchConfig();
@@ -409,6 +436,7 @@ export const useWebflowConfig = () => {
     updateDocuments,
     updatePricing,
     updateRules,
-    updatePromoCodes
+    updatePromoCodes,
+    updateEmailTemplates
   };
 };
