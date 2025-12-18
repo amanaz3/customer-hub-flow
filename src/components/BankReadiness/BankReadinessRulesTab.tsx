@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -7,12 +6,14 @@ import { Textarea } from '@/components/ui/textarea';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { Plus, Edit, Trash2, ChevronDown, ChevronUp, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Plus, Edit, Trash2, ChevronDown, ChevronUp, Code, Workflow, Save, AlertTriangle, Download, Upload } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import type { Json } from '@/integrations/supabase/types';
+import { useBankReadinessConfig, BankReadinessRule } from '@/hooks/useBankReadinessConfig';
 
 interface RuleCondition {
   field: string;
@@ -24,18 +25,6 @@ interface RuleAction {
   type: string;
   value?: number | string;
   message?: string;
-}
-
-interface BankReadinessRule {
-  id: string;
-  rule_name: string;
-  rule_type: string;
-  description: string | null;
-  conditions: RuleCondition[];
-  actions: RuleAction[];
-  priority: number;
-  is_active: boolean;
-  created_at: string;
 }
 
 const FIELD_OPTIONS = [
@@ -66,11 +55,14 @@ const ACTION_TYPE_OPTIONS = [
 ];
 
 export function BankReadinessRulesTab() {
-  const [rules, setRules] = useState<BankReadinessRule[]>([]);
-  const [loading, setLoading] = useState(true);
+  const { rules, loading, updateRules, versionNumber } = useBankReadinessConfig();
+  const [activeView, setActiveView] = useState<'visual' | 'json'>('visual');
+  const [localRules, setLocalRules] = useState<BankReadinessRule[]>([]);
   const [editingRule, setEditingRule] = useState<BankReadinessRule | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [expandedRules, setExpandedRules] = useState<Set<string>>(new Set());
+  const [jsonContent, setJsonContent] = useState('');
+  const [jsonError, setJsonError] = useState<string | null>(null);
 
   // Form state
   const [formData, setFormData] = useState({
@@ -83,35 +75,62 @@ export function BankReadinessRulesTab() {
     actions: [{ type: 'add_score', value: 0, message: '' }] as RuleAction[],
   });
 
+  // Sync with config rules
   useEffect(() => {
-    fetchRules();
-  }, []);
+    setLocalRules(rules);
+    setJsonContent(JSON.stringify(rules, null, 2));
+  }, [rules]);
 
-  const fetchRules = async () => {
-    setLoading(true);
-    const { data, error } = await supabase
-      .from('bank_readiness_rules')
-      .select('*')
-      .order('priority', { ascending: true });
-
-    if (error) {
-      toast.error('Failed to fetch rules');
-      console.error(error);
-    } else {
-      const parsedRules = (data || []).map(r => ({
-        id: r.id,
-        rule_name: r.rule_name,
-        rule_type: r.rule_type,
-        description: r.description,
-        conditions: (Array.isArray(r.conditions) ? r.conditions : []) as unknown as RuleCondition[],
-        actions: (Array.isArray(r.actions) ? r.actions : []) as unknown as RuleAction[],
-        priority: r.priority,
-        is_active: r.is_active,
-        created_at: r.created_at
-      }));
-      setRules(parsedRules);
+  const handleJsonChange = (value: string) => {
+    setJsonContent(value);
+    try {
+      JSON.parse(value);
+      setJsonError(null);
+    } catch (e) {
+      setJsonError('Invalid JSON syntax');
     }
-    setLoading(false);
+  };
+
+  const applyJsonChanges = async () => {
+    if (jsonError) {
+      toast.error('Please fix JSON errors first');
+      return;
+    }
+    try {
+      const parsed = JSON.parse(jsonContent);
+      await updateRules(parsed);
+      setLocalRules(parsed);
+    } catch (e) {
+      toast.error('Failed to apply JSON changes');
+    }
+  };
+
+  const exportRules = () => {
+    const blob = new Blob([JSON.stringify(localRules, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'bank-readiness-rules.json';
+    a.click();
+    URL.revokeObjectURL(url);
+    toast.success('Rules exported');
+  };
+
+  const importRules = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const imported = JSON.parse(event.target?.result as string);
+          await updateRules(imported);
+          toast.success('Rules imported successfully');
+        } catch (err) {
+          toast.error('Failed to import rules');
+        }
+      };
+      reader.readAsText(file);
+    }
   };
 
   const handleSaveRule = async () => {
@@ -130,36 +149,30 @@ export function BankReadinessRulesTab() {
         return c;
       });
 
-      const ruleData = {
+      const newRule: BankReadinessRule = {
+        id: editingRule?.id || `rule-${Date.now()}`,
         rule_name: formData.rule_name,
         rule_type: formData.rule_type,
         description: formData.description || null,
         priority: formData.priority,
         is_active: formData.is_active,
-        conditions: processedConditions as unknown as Json,
-        actions: formData.actions.filter(a => a.type) as unknown as Json,
+        conditions: processedConditions,
+        actions: formData.actions.filter(a => a.type),
       };
 
+      let updatedRules: BankReadinessRule[];
       if (editingRule) {
-        const { error } = await supabase
-          .from('bank_readiness_rules')
-          .update(ruleData)
-          .eq('id', editingRule.id);
-
-        if (error) throw error;
-        toast.success('Rule updated successfully');
+        updatedRules = localRules.map(r => r.id === editingRule.id ? newRule : r);
       } else {
-        const { error } = await supabase
-          .from('bank_readiness_rules')
-          .insert(ruleData);
-
-        if (error) throw error;
-        toast.success('Rule created successfully');
+        updatedRules = [...localRules, newRule];
       }
 
+      // Sort by priority
+      updatedRules.sort((a, b) => a.priority - b.priority);
+      
+      await updateRules(updatedRules);
       setIsDialogOpen(false);
       resetForm();
-      fetchRules();
     } catch (error) {
       console.error(error);
       toast.error('Failed to save rule');
@@ -168,31 +181,15 @@ export function BankReadinessRulesTab() {
 
   const handleDeleteRule = async (id: string) => {
     if (!confirm('Are you sure you want to delete this rule?')) return;
-
-    const { error } = await supabase
-      .from('bank_readiness_rules')
-      .delete()
-      .eq('id', id);
-
-    if (error) {
-      toast.error('Failed to delete rule');
-    } else {
-      toast.success('Rule deleted');
-      fetchRules();
-    }
+    const updatedRules = localRules.filter(r => r.id !== id);
+    await updateRules(updatedRules);
   };
 
   const handleToggleActive = async (rule: BankReadinessRule) => {
-    const { error } = await supabase
-      .from('bank_readiness_rules')
-      .update({ is_active: !rule.is_active })
-      .eq('id', rule.id);
-
-    if (error) {
-      toast.error('Failed to update rule');
-    } else {
-      fetchRules();
-    }
+    const updatedRules = localRules.map(r => 
+      r.id === rule.id ? { ...r, is_active: !r.is_active } : r
+    );
+    await updateRules(updatedRules);
   };
 
   const resetForm = () => {
@@ -287,250 +284,319 @@ export function BankReadinessRulesTab() {
         <div>
           <h3 className="text-lg font-semibold">Bank Readiness Rules</h3>
           <p className="text-sm text-muted-foreground">
-            {rules.length} rules configured • {rules.filter(r => r.is_active).length} active
+            {localRules.length} rules • {localRules.filter(r => r.is_active).length} active • v{versionNumber}
           </p>
         </div>
-        <Dialog open={isDialogOpen} onOpenChange={(open) => {
-          setIsDialogOpen(open);
-          if (!open) resetForm();
-        }}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              Add Rule
+        <div className="flex gap-2">
+          <Button variant="outline" size="sm" onClick={exportRules}>
+            <Download className="h-4 w-4 mr-1" />
+            Export
+          </Button>
+          <label>
+            <Button variant="outline" size="sm" asChild>
+              <span>
+                <Upload className="h-4 w-4 mr-1" />
+                Import
+              </span>
             </Button>
-          </DialogTrigger>
-          <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{editingRule ? 'Edit Rule' : 'Create New Rule'}</DialogTitle>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label>Rule Name</Label>
-                  <Input
-                    value={formData.rule_name}
-                    onChange={(e) => setFormData(prev => ({ ...prev, rule_name: e.target.value }))}
-                    placeholder="e.g., High-Risk Nationality"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label>Priority</Label>
-                  <Input
-                    type="number"
-                    value={formData.priority}
-                    onChange={(e) => setFormData(prev => ({ ...prev, priority: parseInt(e.target.value) || 100 }))}
-                    placeholder="Lower = higher priority"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label>Description</Label>
-                <Textarea
-                  value={formData.description}
-                  onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                  placeholder="Describe what this rule does..."
-                />
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  checked={formData.is_active}
-                  onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
-                />
-                <Label>Rule is active</Label>
-              </div>
-
-              {/* Conditions */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label className="text-base font-semibold">Conditions (ALL must match)</Label>
-                  <Button variant="outline" size="sm" onClick={addCondition}>
-                    <Plus className="h-3 w-3 mr-1" /> Add
-                  </Button>
-                </div>
-                {formData.conditions.map((condition, index) => (
-                  <div key={index} className="flex gap-2 items-start p-2 border rounded">
-                    <Select
-                      value={condition.field}
-                      onValueChange={(value) => updateCondition(index, { field: value })}
-                    >
-                      <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Field" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {FIELD_OPTIONS.map(opt => (
-                          <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select
-                      value={condition.operator}
-                      onValueChange={(value) => updateCondition(index, { operator: value })}
-                    >
-                      <SelectTrigger className="w-32">
-                        <SelectValue placeholder="Operator" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {OPERATOR_OPTIONS.map(opt => (
-                          <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
+            <input type="file" accept=".json" onChange={importRules} className="hidden" />
+          </label>
+          <Dialog open={isDialogOpen} onOpenChange={(open) => {
+            setIsDialogOpen(open);
+            if (!open) resetForm();
+          }}>
+            <DialogTrigger asChild>
+              <Button>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Rule
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{editingRule ? 'Edit Rule' : 'Create New Rule'}</DialogTitle>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Rule Name</Label>
                     <Input
-                      value={String(condition.value)}
-                      onChange={(e) => updateCondition(index, { value: e.target.value })}
-                      placeholder="Value (comma-separated for lists)"
-                      className="flex-1"
+                      value={formData.rule_name}
+                      onChange={(e) => setFormData(prev => ({ ...prev, rule_name: e.target.value }))}
+                      placeholder="e.g., High-Risk Nationality"
                     />
-                    {formData.conditions.length > 1 && (
-                      <Button variant="ghost" size="icon" onClick={() => removeCondition(index)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    )}
                   </div>
-                ))}
-              </div>
-
-              {/* Actions */}
-              <div className="space-y-2">
-                <div className="flex justify-between items-center">
-                  <Label className="text-base font-semibold">Actions</Label>
-                  <Button variant="outline" size="sm" onClick={addAction}>
-                    <Plus className="h-3 w-3 mr-1" /> Add
-                  </Button>
+                  <div className="space-y-2">
+                    <Label>Priority</Label>
+                    <Input
+                      type="number"
+                      value={formData.priority}
+                      onChange={(e) => setFormData(prev => ({ ...prev, priority: parseInt(e.target.value) || 100 }))}
+                      placeholder="Lower = higher priority"
+                    />
+                  </div>
                 </div>
-                {formData.actions.map((action, index) => (
-                  <div key={index} className="flex gap-2 items-start p-2 border rounded">
-                    <Select
-                      value={action.type}
-                      onValueChange={(value) => updateAction(index, { type: value })}
-                    >
-                      <SelectTrigger className="w-40">
-                        <SelectValue placeholder="Action Type" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {ACTION_TYPE_OPTIONS.map(opt => (
-                          <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    {action.type === 'add_score' && (
+
+                <div className="space-y-2">
+                  <Label>Description</Label>
+                  <Textarea
+                    value={formData.description}
+                    onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                    placeholder="Describe what this rule does..."
+                  />
+                </div>
+
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={formData.is_active}
+                    onCheckedChange={(checked) => setFormData(prev => ({ ...prev, is_active: checked }))}
+                  />
+                  <Label>Rule is active</Label>
+                </div>
+
+                {/* Conditions */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label className="text-base font-semibold">Conditions (ALL must match)</Label>
+                    <Button variant="outline" size="sm" onClick={addCondition}>
+                      <Plus className="h-3 w-3 mr-1" /> Add
+                    </Button>
+                  </div>
+                  {formData.conditions.map((condition, index) => (
+                    <div key={index} className="flex gap-2 items-start p-2 border rounded">
+                      <Select
+                        value={condition.field}
+                        onValueChange={(value) => updateCondition(index, { field: value })}
+                      >
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Field" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {FIELD_OPTIONS.map(opt => (
+                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <Select
+                        value={condition.operator}
+                        onValueChange={(value) => updateCondition(index, { operator: value })}
+                      >
+                        <SelectTrigger className="w-32">
+                          <SelectValue placeholder="Operator" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {OPERATOR_OPTIONS.map(opt => (
+                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                       <Input
-                        type="number"
-                        value={action.value || 0}
-                        onChange={(e) => updateAction(index, { value: parseInt(e.target.value) || 0 })}
-                        placeholder="Score points"
-                        className="w-24"
-                      />
-                    )}
-                    {action.type === 'add_flag' && (
-                      <Input
-                        value={action.message || ''}
-                        onChange={(e) => updateAction(index, { message: e.target.value })}
-                        placeholder="Warning message"
+                        value={String(condition.value)}
+                        onChange={(e) => updateCondition(index, { value: e.target.value })}
+                        placeholder="Value (comma-separated for lists)"
                         className="flex-1"
                       />
-                    )}
-                    {formData.actions.length > 1 && (
-                      <Button variant="ghost" size="icon" onClick={() => removeAction(index)}>
-                        <Trash2 className="h-4 w-4 text-destructive" />
-                      </Button>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
-                <Button onClick={handleSaveRule}>
-                  {editingRule ? 'Update Rule' : 'Create Rule'}
-                </Button>
-              </div>
-            </div>
-          </DialogContent>
-        </Dialog>
-      </div>
-
-      {/* Rules List */}
-      <div className="space-y-2">
-        {rules.map((rule) => (
-          <Collapsible key={rule.id} open={expandedRules.has(rule.id)}>
-            <Card className={!rule.is_active ? 'opacity-60' : ''}>
-              <CardHeader className="py-3">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <CollapsibleTrigger asChild>
-                      <Button variant="ghost" size="icon" onClick={() => toggleExpanded(rule.id)}>
-                        {expandedRules.has(rule.id) ? (
-                          <ChevronUp className="h-4 w-4" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4" />
-                        )}
-                      </Button>
-                    </CollapsibleTrigger>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <CardTitle className="text-sm font-medium">{rule.rule_name}</CardTitle>
-                        <Badge variant={rule.is_active ? 'default' : 'secondary'}>
-                          {rule.is_active ? 'Active' : 'Inactive'}
-                        </Badge>
-                        <Badge variant="outline">Priority: {rule.priority}</Badge>
-                      </div>
-                      {rule.description && (
-                        <p className="text-xs text-muted-foreground mt-1">{rule.description}</p>
+                      {formData.conditions.length > 1 && (
+                        <Button variant="ghost" size="icon" onClick={() => removeCondition(index)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
                       )}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <Switch
-                      checked={rule.is_active}
-                      onCheckedChange={() => handleToggleActive(rule)}
-                    />
-                    <Button variant="ghost" size="icon" onClick={() => openEditDialog(rule)}>
-                      <Edit className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDeleteRule(rule.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </div>
+                  ))}
                 </div>
-              </CardHeader>
-              <CollapsibleContent>
-                <CardContent className="pt-0 pb-3">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <p className="font-medium mb-2 flex items-center gap-1">
-                        <AlertTriangle className="h-3 w-3" /> Conditions
-                      </p>
-                      <ul className="space-y-1 text-muted-foreground">
-                        {(rule.conditions as RuleCondition[]).map((c, i) => (
-                          <li key={i} className="font-mono text-xs bg-muted px-2 py-1 rounded">
-                            {c.field} {c.operator} {Array.isArray(c.value) ? c.value.join(', ') : String(c.value)}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
-                    <div>
-                      <p className="font-medium mb-2 flex items-center gap-1">
-                        <CheckCircle className="h-3 w-3" /> Actions
-                      </p>
-                      <ul className="space-y-1 text-muted-foreground">
-                        {(rule.actions as RuleAction[]).map((a, i) => (
-                          <li key={i} className="font-mono text-xs bg-muted px-2 py-1 rounded">
-                            {a.type}: {a.type === 'add_score' ? `+${a.value} pts` : a.message}
-                          </li>
-                        ))}
-                      </ul>
-                    </div>
+
+                {/* Actions */}
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <Label className="text-base font-semibold">Actions</Label>
+                    <Button variant="outline" size="sm" onClick={addAction}>
+                      <Plus className="h-3 w-3 mr-1" /> Add
+                    </Button>
                   </div>
-                </CardContent>
-              </CollapsibleContent>
-            </Card>
-          </Collapsible>
-        ))}
+                  {formData.actions.map((action, index) => (
+                    <div key={index} className="flex gap-2 items-start p-2 border rounded">
+                      <Select
+                        value={action.type}
+                        onValueChange={(value) => updateAction(index, { type: value })}
+                      >
+                        <SelectTrigger className="w-40">
+                          <SelectValue placeholder="Action Type" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {ACTION_TYPE_OPTIONS.map(opt => (
+                            <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {action.type === 'add_score' && (
+                        <Input
+                          type="number"
+                          value={action.value || 0}
+                          onChange={(e) => updateAction(index, { value: parseInt(e.target.value) || 0 })}
+                          placeholder="Score points"
+                          className="w-24"
+                        />
+                      )}
+                      {action.type === 'add_flag' && (
+                        <Input
+                          value={action.message || ''}
+                          onChange={(e) => updateAction(index, { message: e.target.value })}
+                          placeholder="Warning message"
+                          className="flex-1"
+                        />
+                      )}
+                      {formData.actions.length > 1 && (
+                        <Button variant="ghost" size="icon" onClick={() => removeAction(index)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button variant="outline" onClick={() => setIsDialogOpen(false)}>Cancel</Button>
+                  <Button onClick={handleSaveRule}>
+                    {editingRule ? 'Update Rule' : 'Create Rule'}
+                  </Button>
+                </div>
+              </div>
+            </DialogContent>
+          </Dialog>
+        </div>
       </div>
+
+      {/* Visual / JSON Toggle */}
+      <Tabs value={activeView} onValueChange={(v) => setActiveView(v as any)} className="space-y-4">
+        <TabsList>
+          <TabsTrigger value="visual" className="flex items-center gap-2">
+            <Workflow className="h-4 w-4" />
+            Visual
+          </TabsTrigger>
+          <TabsTrigger value="json" className="flex items-center gap-2">
+            <Code className="h-4 w-4" />
+            JSON
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="visual" className="space-y-2">
+          {localRules.length === 0 ? (
+            <Card>
+              <CardContent className="py-12 text-center text-muted-foreground">
+                <Workflow className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No rules configured. Click "Add Rule" to create your first rule.</p>
+              </CardContent>
+            </Card>
+          ) : (
+            localRules.map((rule) => (
+              <Collapsible key={rule.id} open={expandedRules.has(rule.id)}>
+                <Card className={!rule.is_active ? 'opacity-60' : ''}>
+                  <CardHeader className="py-3">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-3">
+                        <CollapsibleTrigger asChild>
+                          <Button variant="ghost" size="icon" onClick={() => toggleExpanded(rule.id)}>
+                            {expandedRules.has(rule.id) ? (
+                              <ChevronUp className="h-4 w-4" />
+                            ) : (
+                              <ChevronDown className="h-4 w-4" />
+                            )}
+                          </Button>
+                        </CollapsibleTrigger>
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <CardTitle className="text-sm font-medium">{rule.rule_name}</CardTitle>
+                            <Badge variant={rule.is_active ? 'default' : 'secondary'}>
+                              {rule.is_active ? 'Active' : 'Inactive'}
+                            </Badge>
+                            <Badge variant="outline">Priority: {rule.priority}</Badge>
+                          </div>
+                          {rule.description && (
+                            <p className="text-xs text-muted-foreground mt-1">{rule.description}</p>
+                          )}
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <Switch
+                          checked={rule.is_active}
+                          onCheckedChange={() => handleToggleActive(rule)}
+                        />
+                        <Button variant="ghost" size="icon" onClick={() => openEditDialog(rule)}>
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteRule(rule.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </div>
+                    </div>
+                  </CardHeader>
+                  <CollapsibleContent>
+                    <CardContent className="pt-0 pb-4">
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <p className="font-medium mb-2">Conditions:</p>
+                          <ul className="space-y-1">
+                            {rule.conditions.map((c, i) => (
+                              <li key={i} className="text-muted-foreground">
+                                {FIELD_OPTIONS.find(f => f.value === c.field)?.label || c.field} {c.operator} {Array.isArray(c.value) ? c.value.join(', ') : String(c.value)}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div>
+                          <p className="font-medium mb-2">Actions:</p>
+                          <ul className="space-y-1">
+                            {rule.actions.map((a, i) => (
+                              <li key={i} className="text-muted-foreground">
+                                {a.type === 'add_score' && `Add ${a.value} to risk score`}
+                                {a.type === 'add_flag' && `Flag: ${a.message}`}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </CollapsibleContent>
+                </Card>
+              </Collapsible>
+            ))
+          )}
+        </TabsContent>
+
+        <TabsContent value="json" className="space-y-4">
+          <Card>
+            <CardContent className="pt-4">
+              <div className="space-y-4">
+                {jsonError && (
+                  <div className="flex items-center gap-2 text-destructive text-sm">
+                    <AlertTriangle className="h-4 w-4" />
+                    {jsonError}
+                  </div>
+                )}
+                <ScrollArea className="h-[400px] w-full rounded border">
+                  <Textarea
+                    value={jsonContent}
+                    onChange={(e) => handleJsonChange(e.target.value)}
+                    className="min-h-[400px] font-mono text-sm border-0 focus-visible:ring-0"
+                    placeholder="JSON rules configuration..."
+                  />
+                </ScrollArea>
+                <div className="flex justify-end gap-2">
+                  <Button
+                    variant="outline"
+                    onClick={() => setJsonContent(JSON.stringify(localRules, null, 2))}
+                  >
+                    Reset
+                  </Button>
+                  <Button onClick={applyJsonChanges} disabled={!!jsonError}>
+                    <Save className="h-4 w-4 mr-2" />
+                    Apply Changes
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
