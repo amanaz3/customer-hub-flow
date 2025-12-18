@@ -13,10 +13,11 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { 
   Globe, Building2, Briefcase, CreditCard, FileText, Plus, Pencil, Trash2, Settings,
   AlertTriangle, CheckCircle, XCircle, Search, Filter, Workflow, Download, Upload, 
-  History, RotateCcw, Loader2, Tag
+  History, RotateCcw, Loader2, Tag, Mail
 } from 'lucide-react';
 import RulesTab from '@/components/Webflow/RulesTab';
 import PromoCodesTab from '@/components/Webflow/PromoCodesTab';
+import EmailTemplatesTab from '@/components/Webflow/EmailTemplatesTab';
 import { toast } from '@/hooks/use-toast';
 import { 
   useWebflowConfig, 
@@ -62,7 +63,8 @@ export default function WebflowConfig() {
     updateDocuments,
     updatePricing,
     updateRules,
-    updatePromoCodes
+    updatePromoCodes,
+    updateEmailTemplates
   } = useWebflowConfig();
 
   const handleFileImport = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -138,7 +140,7 @@ export default function WebflowConfig() {
       </div>
 
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-        <TabsList className="grid w-full grid-cols-7">
+        <TabsList className="grid w-full grid-cols-8">
           <TabsTrigger value="countries" className="flex items-center gap-2">
             <Globe className="h-4 w-4" />
             Countries
@@ -166,6 +168,10 @@ export default function WebflowConfig() {
           <TabsTrigger value="rules" className="flex items-center gap-2">
             <Workflow className="h-4 w-4" />
             Rules
+          </TabsTrigger>
+          <TabsTrigger value="emails" className="flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            Emails
           </TabsTrigger>
         </TabsList>
 
@@ -223,6 +229,13 @@ export default function WebflowConfig() {
           <RulesTab 
             rules={config?.config_data?.rules || []} 
             onUpdate={async (rules) => { await updateRules(rules as any); }}
+          />
+        </TabsContent>
+
+        <TabsContent value="emails">
+          <EmailTemplatesTab 
+            emailTemplates={configData.emailTemplates || []}
+            onUpdate={updateEmailTemplates}
           />
         </TabsContent>
       </Tabs>

@@ -36,7 +36,8 @@ const DEFAULT_CONFIG: WebflowConfigData = {
   documents: [],
   pricing: [],
   rules: [],
-  promoCodes: []
+  promoCodes: [],
+  emailTemplates: []
 };
 
 // Helper to get unique emirates from jurisdictions
@@ -179,7 +180,8 @@ export const useWebflowData = (): WebflowData => {
             documents: (parsed.documents || []).filter((d: any) => d.is_active !== false),
             pricing: (parsed.pricing || []).filter((p: any) => p.is_active !== false),
             rules: (parsed.rules || []).filter((r: any) => r.is_active !== false),
-            promoCodes: (parsed.promoCodes || []).filter((p: any) => p.is_active !== false)
+            promoCodes: (parsed.promoCodes || []).filter((p: any) => p.is_active !== false),
+            emailTemplates: (parsed.emailTemplates || []).filter((e: any) => e.is_active !== false)
           });
         }
       } catch (err: any) {
