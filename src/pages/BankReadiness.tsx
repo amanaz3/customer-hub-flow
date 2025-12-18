@@ -1,14 +1,17 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Building2, Plus, Clock, CheckCircle, AlertTriangle, FileText, Eye } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Building2, Plus, Clock, CheckCircle, AlertTriangle, FileText, Eye, Settings } from 'lucide-react';
 import BankReadinessCaseForm from '@/components/BankReadiness/BankReadinessCaseForm';
 import BankReadinessResults from '@/components/BankReadiness/BankReadinessResults';
+import { BankReadinessRulesTab } from '@/components/BankReadiness/BankReadinessRulesTab';
 import { BankReadinessCaseInput, RiskAssessmentResult } from '@/types/bankReadiness';
+import { useBankReadinessRuleEngine } from '@/hooks/useBankReadinessRuleEngine';
 import { useBankReadinessRules } from '@/hooks/useBankReadinessRules';
+import { supabase } from '@/integrations/supabase/client';
 
 type ViewMode = 'list' | 'form' | 'results';
 
@@ -69,7 +72,29 @@ const BankReadiness = () => {
   const [currentCase, setCurrentCase] = useState<BankReadinessCaseInput | null>(null);
   const [assessmentResult, setAssessmentResult] = useState<RiskAssessmentResult | null>(null);
   const [showDemo, setShowDemo] = useState(false);
-  const { assessRisk, getRequiredDocuments, getHelpfulDocuments, getInterviewGuidance } = useBankReadinessRules();
+  const [activeTab, setActiveTab] = useState('assessment');
+  const [isAdmin, setIsAdmin] = useState(false);
+  
+  // Use the new DB-driven rule engine
+  const ruleEngine = useBankReadinessRuleEngine();
+  // Keep the old hook for document/interview guidance (these are still hard-coded)
+  const { getRequiredDocuments, getHelpfulDocuments, getInterviewGuidance } = useBankReadinessRules();
+
+  // Check if user is admin
+  React.useEffect(() => {
+    const checkAdmin = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('role')
+          .eq('id', user.id)
+          .single();
+        setIsAdmin(profile?.role === 'admin');
+      }
+    };
+    checkAdmin();
+  }, []);
 
   const handleCreateNew = () => {
     setCurrentCase(null);
@@ -80,7 +105,8 @@ const BankReadiness = () => {
 
   const handleFormSubmit = (data: BankReadinessCaseInput) => {
     setCurrentCase(data);
-    const result = assessRisk(data);
+    // Use the new rule engine for assessment
+    const result = ruleEngine.assessRisk(data);
     setAssessmentResult(result);
     setViewMode('results');
   };
@@ -124,16 +150,18 @@ const BankReadiness = () => {
         </div>
         <div className="flex items-center gap-4">
           {/* Demo Toggle */}
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 border">
-            <Eye className="h-4 w-4 text-muted-foreground" />
-            <Label htmlFor="demo-mode" className="text-sm cursor-pointer">Demo Mode</Label>
-            <Switch
-              id="demo-mode"
-              checked={showDemo}
-              onCheckedChange={handleToggleDemo}
-            />
-          </div>
-          {viewMode === 'list' && !showDemo && (
+          {activeTab === 'assessment' && (
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 border">
+              <Eye className="h-4 w-4 text-muted-foreground" />
+              <Label htmlFor="demo-mode" className="text-sm cursor-pointer">Demo Mode</Label>
+              <Switch
+                id="demo-mode"
+                checked={showDemo}
+                onCheckedChange={handleToggleDemo}
+              />
+            </div>
+          )}
+          {activeTab === 'assessment' && viewMode === 'list' && !showDemo && (
             <Button onClick={handleCreateNew} className="gap-2">
               <Plus className="h-4 w-4" />
               Create New Case
@@ -142,163 +170,216 @@ const BankReadiness = () => {
         </div>
       </div>
 
-      {/* Demo Banner */}
-      {showDemo && (
-        <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-950/20 dark:border-blue-800">
-          <CardContent className="pt-4">
-            <div className="flex items-start gap-3">
-              <Eye className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-blue-800 dark:text-blue-200">
-                <strong>Demo Mode Active:</strong> You're viewing example results for a UAE national trading company.
-                This shows how the tool assesses risk, recommends banks, and provides actionable guidance.
-                <span className="block mt-1 text-blue-600 dark:text-blue-400">Toggle off to start a real assessment.</span>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+      {/* Admin Tabs */}
+      {isAdmin ? (
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
+          <TabsList>
+            <TabsTrigger value="assessment" className="gap-2">
+              <CheckCircle className="h-4 w-4" />
+              Assessment
+            </TabsTrigger>
+            <TabsTrigger value="rules" className="gap-2">
+              <Settings className="h-4 w-4" />
+              Rules Engine
+            </TabsTrigger>
+          </TabsList>
 
-      {/* Disclaimer */}
-      {!showDemo && (
-        <Card className="border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800">
-          <CardContent className="pt-4">
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
-              <div className="text-sm text-amber-800 dark:text-amber-200">
-                <strong>Disclaimer:</strong> This tool provides guidance only. Final decision rests with the bank.
-                Recommendations are based on general criteria and may not reflect individual bank policies.
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      )}
+          <TabsContent value="assessment" className="space-y-6">
+            {renderAssessmentContent()}
+          </TabsContent>
 
-      {/* Main Content */}
-      {viewMode === 'list' && !showDemo && (
-        <div className="grid gap-6 md:grid-cols-3">
-          {/* Stats Cards */}
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Tool Purpose</CardTitle>
-              <FileText className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Decision-support tool for agents to assess bank account readiness
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Assessment Method</CardTitle>
-              <CheckCircle className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Rule-first, AI-second architecture for explainable recommendations
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Output</CardTitle>
-              <Clock className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <p className="text-sm text-muted-foreground">
-                Risk score, bank routing, documents, and interview guidance
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-      )}
-
-      {viewMode === 'list' && !showDemo && (
-        <Card>
-          <CardHeader>
-            <CardTitle>How It Works</CardTitle>
-            <CardDescription>Follow these steps to assess bank account readiness</CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="grid gap-4 md:grid-cols-4">
-              <div className="flex flex-col items-center text-center p-4 rounded-lg bg-muted/50">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                  <span className="text-primary font-bold">1</span>
-                </div>
-                <h4 className="font-medium mb-1">Input Details</h4>
-                <p className="text-sm text-muted-foreground">
-                  Enter applicant and business information
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center text-center p-4 rounded-lg bg-muted/50">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                  <span className="text-primary font-bold">2</span>
-                </div>
-                <h4 className="font-medium mb-1">Risk Assessment</h4>
-                <p className="text-sm text-muted-foreground">
-                  Rule-based scoring and risk categorization
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center text-center p-4 rounded-lg bg-muted/50">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                  <span className="text-primary font-bold">3</span>
-                </div>
-                <h4 className="font-medium mb-1">Bank Routing</h4>
-                <p className="text-sm text-muted-foreground">
-                  Get recommended and avoid-list banks
-                </p>
-              </div>
-
-              <div className="flex flex-col items-center text-center p-4 rounded-lg bg-muted/50">
-                <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
-                  <span className="text-primary font-bold">4</span>
-                </div>
-                <h4 className="font-medium mb-1">Action Summary</h4>
-                <p className="text-sm text-muted-foreground">
-                  Documents needed and interview prep
-                </p>
-              </div>
-            </div>
-
-            <div className="mt-8 flex justify-center gap-4">
-              <Button variant="outline" onClick={() => handleToggleDemo(true)} className="gap-2">
-                <Eye className="h-5 w-5" />
-                View Demo Results
-              </Button>
-              <Button size="lg" onClick={handleCreateNew} className="gap-2">
-                <Plus className="h-5 w-5" />
-                Start New Assessment
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {viewMode === 'form' && (
-        <BankReadinessCaseForm
-          initialData={currentCase}
-          onSubmit={handleFormSubmit}
-          onCancel={handleBackToList}
-        />
-      )}
-
-      {viewMode === 'results' && currentCase && assessmentResult && (
-        <BankReadinessResults
-          input={currentCase}
-          result={assessmentResult}
-          requiredDocuments={showDemo ? DEMO_REQUIRED_DOCS : getRequiredDocuments(currentCase, assessmentResult.category)}
-          helpfulDocuments={showDemo ? DEMO_HELPFUL_DOCS : getHelpfulDocuments(currentCase, assessmentResult.category)}
-          interviewGuidance={showDemo ? DEMO_INTERVIEW_GUIDANCE : getInterviewGuidance(currentCase, assessmentResult.category)}
-          onBack={showDemo ? handleBackToList : handleBackToForm}
-          onStartNew={handleCreateNew}
-        />
+          <TabsContent value="rules">
+            <Card>
+              <CardHeader>
+                <CardTitle>Bank Readiness Rules Engine</CardTitle>
+                <CardDescription>
+                  Configure risk scoring rules based on your experience with bank rejections
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <BankReadinessRulesTab />
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+      ) : (
+        renderAssessmentContent()
       )}
     </div>
   );
+
+  function renderAssessmentContent() {
+    return (
+      <>
+        {/* Demo Banner */}
+        {showDemo && (
+          <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-950/20 dark:border-blue-800">
+            <CardContent className="pt-4">
+              <div className="flex items-start gap-3">
+                <Eye className="h-5 w-5 text-blue-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-blue-800 dark:text-blue-200">
+                  <strong>Demo Mode Active:</strong> You're viewing example results for a UAE national trading company.
+                  This shows how the tool assesses risk, recommends banks, and provides actionable guidance.
+                  <span className="block mt-1 text-blue-600 dark:text-blue-400">Toggle off to start a real assessment.</span>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Disclaimer */}
+        {!showDemo && (
+          <Card className="border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800">
+            <CardContent className="pt-4">
+              <div className="flex items-start gap-3">
+                <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                <div className="text-sm text-amber-800 dark:text-amber-200">
+                  <strong>Disclaimer:</strong> This tool provides guidance only. Final decision rests with the bank.
+                  Recommendations are based on general criteria and may not reflect individual bank policies.
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Loading State */}
+        {ruleEngine.loading && viewMode === 'list' && (
+          <Card>
+            <CardContent className="py-8 text-center text-muted-foreground">
+              Loading rules engine...
+            </CardContent>
+          </Card>
+        )}
+
+        {/* Main Content */}
+        {viewMode === 'list' && !showDemo && !ruleEngine.loading && (
+          <div className="grid gap-6 md:grid-cols-3">
+            {/* Stats Cards */}
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Tool Purpose</CardTitle>
+                <FileText className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <p className="text-sm text-muted-foreground">
+                  Decision-support tool for agents to assess bank account readiness
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Active Rules</CardTitle>
+                <CheckCircle className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{ruleEngine.rules.length}</p>
+                <p className="text-xs text-muted-foreground">
+                  Database-driven rule engine
+                </p>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">Bank Profiles</CardTitle>
+                <Clock className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <p className="text-2xl font-bold">{ruleEngine.bankProfiles.length}</p>
+                <p className="text-xs text-muted-foreground">
+                  Configured for matching
+                </p>
+              </CardContent>
+            </Card>
+          </div>
+        )}
+
+        {viewMode === 'list' && !showDemo && !ruleEngine.loading && (
+          <Card>
+            <CardHeader>
+              <CardTitle>How It Works</CardTitle>
+              <CardDescription>Follow these steps to assess bank account readiness</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="grid gap-4 md:grid-cols-4">
+                <div className="flex flex-col items-center text-center p-4 rounded-lg bg-muted/50">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <span className="text-primary font-bold">1</span>
+                  </div>
+                  <h4 className="font-medium mb-1">Input Details</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Enter applicant and business information
+                  </p>
+                </div>
+
+                <div className="flex flex-col items-center text-center p-4 rounded-lg bg-muted/50">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <span className="text-primary font-bold">2</span>
+                  </div>
+                  <h4 className="font-medium mb-1">Risk Assessment</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Rule-based scoring and risk categorization
+                  </p>
+                </div>
+
+                <div className="flex flex-col items-center text-center p-4 rounded-lg bg-muted/50">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <span className="text-primary font-bold">3</span>
+                  </div>
+                  <h4 className="font-medium mb-1">Bank Routing</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Get recommended and avoid-list banks
+                  </p>
+                </div>
+
+                <div className="flex flex-col items-center text-center p-4 rounded-lg bg-muted/50">
+                  <div className="h-10 w-10 rounded-full bg-primary/10 flex items-center justify-center mb-3">
+                    <span className="text-primary font-bold">4</span>
+                  </div>
+                  <h4 className="font-medium mb-1">Action Summary</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Documents needed and interview prep
+                  </p>
+                </div>
+              </div>
+
+              <div className="mt-8 flex justify-center gap-4">
+                <Button variant="outline" onClick={() => handleToggleDemo(true)} className="gap-2">
+                  <Eye className="h-5 w-5" />
+                  View Demo Results
+                </Button>
+                <Button size="lg" onClick={handleCreateNew} className="gap-2">
+                  <Plus className="h-5 w-5" />
+                  Start New Assessment
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {viewMode === 'form' && (
+          <BankReadinessCaseForm
+            initialData={currentCase}
+            onSubmit={handleFormSubmit}
+            onCancel={handleBackToList}
+          />
+        )}
+
+        {viewMode === 'results' && currentCase && assessmentResult && (
+          <BankReadinessResults
+            input={currentCase}
+            result={assessmentResult}
+            requiredDocuments={showDemo ? DEMO_REQUIRED_DOCS : getRequiredDocuments(currentCase, assessmentResult.category)}
+            helpfulDocuments={showDemo ? DEMO_HELPFUL_DOCS : getHelpfulDocuments(currentCase, assessmentResult.category)}
+            interviewGuidance={showDemo ? DEMO_INTERVIEW_GUIDANCE : getInterviewGuidance(currentCase, assessmentResult.category)}
+            onBack={showDemo ? handleBackToList : handleBackToForm}
+            onStartNew={handleCreateNew}
+          />
+        )}
+      </>
+    );
+  }
 };
 
 export default BankReadiness;
