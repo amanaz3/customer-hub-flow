@@ -693,6 +693,133 @@ export type Database = {
         }
         Relationships: []
       }
+      bank_readiness_cases: {
+        Row: {
+          applicant_nationality: string
+          application_date: string | null
+          application_id: string | null
+          bank_applied_to: string | null
+          banks_to_avoid: Json | null
+          best_bank: string | null
+          best_bank_reason: string | null
+          business_model: string
+          company_jurisdiction: string
+          created_at: string
+          created_by: string | null
+          customer_id: string | null
+          expected_monthly_inflow: string
+          id: string
+          incoming_payment_countries: string[] | null
+          license_activity: string
+          outcome: string | null
+          outcome_date: string | null
+          outcome_notes: string | null
+          previous_rejection: boolean
+          previous_rejection_notes: string | null
+          recommended_banks: Json | null
+          rejection_reason: string | null
+          required_documents: string[] | null
+          risk_category: string | null
+          risk_flags: string[] | null
+          risk_score: number | null
+          source_of_funds: string
+          source_of_funds_notes: string | null
+          status: string
+          uae_residency: boolean
+          updated_at: string
+        }
+        Insert: {
+          applicant_nationality: string
+          application_date?: string | null
+          application_id?: string | null
+          bank_applied_to?: string | null
+          banks_to_avoid?: Json | null
+          best_bank?: string | null
+          best_bank_reason?: string | null
+          business_model?: string
+          company_jurisdiction?: string
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          expected_monthly_inflow: string
+          id?: string
+          incoming_payment_countries?: string[] | null
+          license_activity: string
+          outcome?: string | null
+          outcome_date?: string | null
+          outcome_notes?: string | null
+          previous_rejection?: boolean
+          previous_rejection_notes?: string | null
+          recommended_banks?: Json | null
+          rejection_reason?: string | null
+          required_documents?: string[] | null
+          risk_category?: string | null
+          risk_flags?: string[] | null
+          risk_score?: number | null
+          source_of_funds: string
+          source_of_funds_notes?: string | null
+          status?: string
+          uae_residency?: boolean
+          updated_at?: string
+        }
+        Update: {
+          applicant_nationality?: string
+          application_date?: string | null
+          application_id?: string | null
+          bank_applied_to?: string | null
+          banks_to_avoid?: Json | null
+          best_bank?: string | null
+          best_bank_reason?: string | null
+          business_model?: string
+          company_jurisdiction?: string
+          created_at?: string
+          created_by?: string | null
+          customer_id?: string | null
+          expected_monthly_inflow?: string
+          id?: string
+          incoming_payment_countries?: string[] | null
+          license_activity?: string
+          outcome?: string | null
+          outcome_date?: string | null
+          outcome_notes?: string | null
+          previous_rejection?: boolean
+          previous_rejection_notes?: string | null
+          recommended_banks?: Json | null
+          rejection_reason?: string | null
+          required_documents?: string[] | null
+          risk_category?: string | null
+          risk_flags?: string[] | null
+          risk_score?: number | null
+          source_of_funds?: string
+          source_of_funds_notes?: string | null
+          status?: string
+          uae_residency?: boolean
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_readiness_cases_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "account_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_readiness_cases_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bank_readiness_cases_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bank_readiness_configuration_versions: {
         Row: {
           change_notes: string | null
@@ -778,6 +905,56 @@ export type Database = {
             columns: ["created_by"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bank_readiness_outcomes: {
+        Row: {
+          bank_name: string
+          case_id: string
+          created_at: string
+          id: string
+          notes: string | null
+          outcome: string | null
+          outcome_date: string | null
+          prediction_correct: boolean | null
+          rejection_reason: string | null
+          was_avoided: boolean
+          was_recommended: boolean
+        }
+        Insert: {
+          bank_name: string
+          case_id: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          outcome?: string | null
+          outcome_date?: string | null
+          prediction_correct?: boolean | null
+          rejection_reason?: string | null
+          was_avoided?: boolean
+          was_recommended?: boolean
+        }
+        Update: {
+          bank_name?: string
+          case_id?: string
+          created_at?: string
+          id?: string
+          notes?: string | null
+          outcome?: string | null
+          outcome_date?: string | null
+          prediction_correct?: boolean | null
+          rejection_reason?: string | null
+          was_avoided?: boolean
+          was_recommended?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bank_readiness_outcomes_case_id_fkey"
+            columns: ["case_id"]
+            isOneToOne: false
+            referencedRelation: "bank_readiness_cases"
             referencedColumns: ["id"]
           },
         ]
