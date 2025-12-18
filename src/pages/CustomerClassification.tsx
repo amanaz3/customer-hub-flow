@@ -132,6 +132,7 @@ const CustomerClassification = () => {
   const [totalCustomers, setTotalCustomers] = useState(0);
   const [totalRevenue, setTotalRevenue] = useState(0);
   const [revenueVsDealData, setRevenueVsDealData] = useState<Array<{ name: string; turnover: number; dealValue: number }>>([]);
+  const [dealSizeDistribution, setDealSizeDistribution] = useState<Array<{ range: string; count: number; revenue: number; percentage: number }>>([]);
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -284,6 +285,33 @@ const CustomerClassification = () => {
         .slice(0, 10);
 
       setRevenueVsDealData(revenueVsDeal);
+      
+      // Deal size distribution buckets
+      const dealBuckets = [
+        { min: 0, max: 1000, label: '0-1K' },
+        { min: 1000, max: 5000, label: '1K-5K' },
+        { min: 5000, max: 10000, label: '5K-10K' },
+        { min: 10000, max: 25000, label: '10K-25K' },
+        { min: 25000, max: 50000, label: '25K-50K' },
+        { min: 50000, max: 100000, label: '50K-100K' },
+        { min: 100000, max: Infinity, label: '100K+' },
+      ];
+      
+      const distribution = dealBuckets.map(bucket => {
+        const dealsInBucket = customers?.filter(c => {
+          const amt = Number(c.amount) || 0;
+          return amt >= bucket.min && amt < bucket.max;
+        }) || [];
+        const bucketRevenue = dealsInBucket.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
+        return {
+          range: bucket.label,
+          count: dealsInBucket.length,
+          revenue: bucketRevenue,
+          percentage: revenue > 0 ? Math.round((bucketRevenue / revenue) * 100) : 0,
+        };
+      }).filter(d => d.count > 0);
+      
+      setDealSizeDistribution(distribution);
       setTotalCustomers(total);
       setTotalRevenue(revenue);
     } catch (error) {
@@ -544,6 +572,68 @@ const CustomerClassification = () => {
                       <Bar dataKey="dealValue" name="Deal Value" fill="hsl(var(--chart-4))" radius={[0, 4, 4, 0]} />
                     </BarChart>
                   </ResponsiveContainer>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Deal Size Distribution */}
+          {dealSizeDistribution.length > 0 && (
+            <Card className="border-border/50">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <Briefcase className="h-5 w-5" />
+                  Deal Size Distribution
+                </CardTitle>
+                <p className="text-sm text-muted-foreground">
+                  How deals of different values contribute to total revenue (AED {formatCurrency(totalRevenue)})
+                </p>
+              </CardHeader>
+              <CardContent>
+                <div className="grid md:grid-cols-2 gap-6">
+                  {/* Bar Chart - Count & Revenue by Range */}
+                  <div className="h-72">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={dealSizeDistribution}>
+                        <CartesianGrid strokeDasharray="3 3" />
+                        <XAxis dataKey="range" tick={{ fontSize: 11 }} />
+                        <YAxis yAxisId="left" orientation="left" label={{ value: 'Deals', angle: -90, position: 'insideLeft', fontSize: 11 }} />
+                        <YAxis yAxisId="right" orientation="right" tickFormatter={(v) => `${(v/1000).toFixed(0)}K`} label={{ value: 'Revenue', angle: 90, position: 'insideRight', fontSize: 11 }} />
+                        <Tooltip 
+                          formatter={(value: number, name: string) => 
+                            name === 'revenue' ? formatCurrency(value) : `${value} deals`
+                          } 
+                        />
+                        <Legend />
+                        <Bar yAxisId="left" dataKey="count" name="Deals" fill="hsl(var(--chart-1))" radius={[4, 4, 0, 0]} />
+                        <Bar yAxisId="right" dataKey="revenue" name="Revenue" fill="hsl(var(--chart-3))" radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  
+                  {/* Revenue Contribution Summary */}
+                  <div className="space-y-3">
+                    <p className="text-sm font-medium text-muted-foreground">Revenue Contribution by Deal Size</p>
+                    {dealSizeDistribution.map((bucket, idx) => (
+                      <div key={bucket.range} className="space-y-1">
+                        <div className="flex items-center justify-between text-sm">
+                          <span className="font-medium">{bucket.range}</span>
+                          <span className="text-muted-foreground">
+                            {bucket.count} deals • {formatCurrency(bucket.revenue)} ({bucket.percentage}%)
+                          </span>
+                        </div>
+                        <div className="h-2 bg-muted rounded-full overflow-hidden">
+                          <div 
+                            className="h-full rounded-full transition-all"
+                            style={{ 
+                              width: `${bucket.percentage}%`,
+                              backgroundColor: COLORS[idx % COLORS.length]
+                            }}
+                          />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </CardContent>
             </Card>
