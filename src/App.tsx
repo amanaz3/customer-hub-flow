@@ -79,6 +79,7 @@ import LeadWorkflow from '@/pages/LeadWorkflow';
 import BankPainAnalysis from '@/pages/BankPainAnalysis';
 import AccessManagement from '@/pages/AccessManagement';
 import LeadDiscoveryAnalysis from '@/pages/LeadDiscoveryAnalysis';
+import BankReadiness from '@/pages/BankReadiness';
 import Webflow from '@/pages/Webflow';
 import WebflowSimple from '@/pages/WebflowSimple';
 import WebflowConfig from '@/pages/WebflowConfig';
@@ -422,6 +423,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="Lead Discovery Analysis">
                           <LeadDiscoveryAnalysis />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/bank-readiness" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="Bank Readiness">
+                          <BankReadiness />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
