@@ -28,7 +28,8 @@ import {
   Clock,
   Loader2,
   Building2,
-  Briefcase
+  Briefcase,
+  Scale
 } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Treemap } from 'recharts';
@@ -47,25 +48,57 @@ interface IndustryData {
   companies: Array<{ name: string; revenue: number }>;
 }
 
+// Expanded industry keywords for better classification
 const INDUSTRY_KEYWORDS: Record<string, string[]> = {
-  'Real Estate': ['real estate', 'property', 'properties', 'realty', 'land', 'building', 'construction estate', 'brokerage'],
-  'Gold & Diamonds': ['gold', 'diamond', 'jewelry', 'jewellery', 'precious', 'gems', 'bullion', 'ornaments'],
-  'Trading': ['trading', 'import', 'export', 'general trading', 'wholesale', 'commodities', 'merchandise'],
-  'Technology': ['tech', 'software', 'it ', 'digital', 'computer', 'app', 'saas', 'ai', 'cyber', 'data'],
-  'Consulting': ['consult', 'advisory', 'management consult', 'business consult', 'strategy'],
-  'Construction': ['construction', 'contracting', 'building', 'civil', 'infrastructure', 'engineering'],
-  'Food & Beverage': ['food', 'restaurant', 'catering', 'beverage', 'cafe', 'hospitality', 'kitchen'],
-  'Healthcare': ['health', 'medical', 'pharma', 'clinic', 'hospital', 'dental', 'wellness'],
-  'Logistics': ['transport', 'logistics', 'shipping', 'freight', 'cargo', 'delivery', 'courier'],
-  'Financial Services': ['finance', 'investment', 'bank', 'insurance', 'capital', 'fund', 'asset'],
-  'Retail': ['retail', 'shop', 'store', 'ecommerce', 'supermarket', 'mall'],
-  'Manufacturing': ['manufactur', 'factory', 'production', 'industrial', 'assembly'],
-  'Tourism & Hospitality': ['tourism', 'travel', 'hotel', 'tour', 'airline', 'resort'],
-  'Media & Marketing': ['media', 'marketing', 'advertising', 'digital marketing', 'pr ', 'events', 'creative'],
-  'Education': ['education', 'training', 'school', 'academy', 'learning', 'institute', 'coaching'],
-  'Automotive': ['auto', 'car', 'vehicle', 'motor', 'garage', 'spare parts'],
-  'Oil & Gas': ['oil', 'gas', 'petroleum', 'energy', 'fuel'],
-  'Legal Services': ['legal', 'law', 'attorney', 'advocate', 'notary'],
+  'Real Estate': ['real estate', 'property', 'properties', 'realty', 'land', 'building', 'construction estate', 'brokerage', 'developer', 'residential', 'commercial property', 'leasing', 'lettings'],
+  'Gold & Diamonds': ['gold', 'diamond', 'jewelry', 'jewellery', 'precious', 'gems', 'bullion', 'ornaments', 'watches', 'luxury goods'],
+  'Trading': ['trading', 'import', 'export', 'general trading', 'wholesale', 'commodities', 'merchandise', 'distribution', 'supplier', 'vendor', 'dealer'],
+  'Technology': ['tech', 'software', 'it ', 'digital', 'computer', 'app', 'saas', 'ai', 'cyber', 'data', 'cloud', 'web', 'mobile', 'startup', 'fintech', 'blockchain', 'crypto'],
+  'Consulting': ['consult', 'advisory', 'management consult', 'business consult', 'strategy', 'professional services', 'corporate services'],
+  'Construction': ['construction', 'contracting', 'building', 'civil', 'infrastructure', 'engineering', 'renovation', 'fit-out', 'interior', 'architecture', 'mep'],
+  'Food & Beverage': ['food', 'restaurant', 'catering', 'beverage', 'cafe', 'hospitality', 'kitchen', 'bakery', 'grocery', 'supermarket'],
+  'Healthcare': ['health', 'medical', 'pharma', 'clinic', 'hospital', 'dental', 'wellness', 'beauty', 'spa', 'fitness', 'gym', 'cosmetic'],
+  'Logistics': ['logistics', 'shipping', 'freight', 'cargo', 'delivery', 'courier', 'transport', 'moving', 'storage', 'warehousing', 'supply chain'],
+  'Financial Services': ['finance', 'investment', 'bank', 'insurance', 'capital', 'fund', 'asset', 'accounting', 'audit', 'tax', 'bookkeeping', 'exchange'],
+  'Retail': ['retail', 'shop', 'store', 'ecommerce', 'mall', 'fashion', 'clothing', 'apparel', 'footwear', 'accessories'],
+  'Manufacturing': ['manufactur', 'factory', 'production', 'industrial', 'assembly', 'processing', 'fabrication'],
+  'Tourism & Hospitality': ['tourism', 'travel', 'hotel', 'tour', 'airline', 'resort', 'vacation', 'leisure', 'entertainment', 'events'],
+  'Media & Marketing': ['media', 'marketing', 'advertising', 'digital marketing', 'pr ', 'events', 'creative', 'design', 'agency', 'content', 'social media', 'influencer'],
+  'Education': ['education', 'training', 'school', 'academy', 'learning', 'institute', 'coaching', 'tutoring', 'nursery', 'kindergarten'],
+  'Automotive': ['auto', 'car', 'vehicle', 'motor', 'garage', 'spare parts', 'rental', 'mechanic', 'tyres'],
+  'Oil & Gas': ['oil', 'gas', 'petroleum', 'energy', 'fuel', 'solar', 'renewable'],
+  'Legal Services': ['legal', 'law', 'attorney', 'advocate', 'notary', 'litigation'],
+  'E-commerce': ['ecommerce', 'e-commerce', 'online store', 'marketplace', 'dropshipping', 'amazon', 'noon'],
+  'Cleaning & Maintenance': ['cleaning', 'maintenance', 'janitorial', 'pest control', 'laundry', 'facilities management'],
+  'Security Services': ['security', 'guard', 'surveillance', 'cctv', 'protection'],
+  'Agriculture': ['agriculture', 'farming', 'livestock', 'poultry', 'aquaculture', 'organic'],
+};
+
+// SME Classification based on UAE SME definitions
+type BusinessSize = 'Micro' | 'Small' | 'Medium' | 'Large' | 'Unknown';
+
+interface SMEClassification {
+  size: BusinessSize;
+  label: string;
+  description: string;
+  color: string;
+}
+
+const classifyBusinessSize = (revenue: number): SMEClassification => {
+  // UAE SME definitions (approximate based on annual revenue in AED)
+  if (revenue === 0) {
+    return { size: 'Unknown', label: 'Unknown', description: 'No revenue data', color: '#94a3b8' };
+  }
+  if (revenue < 3000000) { // < AED 3M
+    return { size: 'Micro', label: 'Micro Enterprise', description: '<AED 3M annual revenue', color: '#8b5cf6' };
+  }
+  if (revenue < 50000000) { // AED 3M - 50M
+    return { size: 'Small', label: 'Small Enterprise', description: 'AED 3M-50M annual revenue', color: '#3b82f6' };
+  }
+  if (revenue < 250000000) { // AED 50M - 250M
+    return { size: 'Medium', label: 'Medium Enterprise', description: 'AED 50M-250M annual revenue', color: '#10b981' };
+  }
+  return { size: 'Large', label: 'Large Enterprise', description: '>AED 250M annual revenue', color: '#f59e0b' };
 };
 
 const extractIndustry = (data: Record<string, any>, companyName?: string): string => {
@@ -79,12 +112,14 @@ const extractIndustry = (data: Record<string, any>, companyName?: string): strin
     data.business_activity,
     data.activity_type,
     data.company_activity,
+    data.trade_name,
+    data.company_name,
     companyName,
   ];
 
   const combinedText = fieldsToCheck.filter(Boolean).join(' ').toLowerCase();
   
-  if (!combinedText) return 'Other';
+  if (!combinedText) return 'Unclassified';
 
   for (const [industry, keywords] of Object.entries(INDUSTRY_KEYWORDS)) {
     if (keywords.some(keyword => combinedText.includes(keyword))) {
@@ -92,7 +127,7 @@ const extractIndustry = (data: Record<string, any>, companyName?: string): strin
     }
   }
   
-  return 'Other';
+  return 'Unclassified';
 };
 
 interface CustomerSegment {
@@ -237,6 +272,9 @@ const CustomerSegments = () => {
 
       // Global industry tracking with company names
       const globalIndustryMap = new Map<string, { count: number; revenue: number; companies: Array<{ name: string; revenue: number }> }>();
+      
+      // SME classification tracking
+      const smeMap = new Map<BusinessSize, { count: number; revenue: number; companies: Array<{ name: string; revenue: number; industry: string }> }>();
 
       customers?.forEach(customer => {
         const existing = customerMap.get(customer.id) || {
@@ -282,6 +320,20 @@ const CustomerSegments = () => {
               count: indData.count + 1, 
               revenue: indData.revenue + existing.totalRevenue,
               companies: indData.companies
+            });
+            
+            // Track SME classification
+            const smeClass = classifyBusinessSize(existing.totalRevenue);
+            const smeData = smeMap.get(smeClass.size) || { count: 0, revenue: 0, companies: [] };
+            smeData.companies.push({ 
+              name: customer?.company || customer?.name || 'Unknown', 
+              revenue: existing.totalRevenue,
+              industry: existing.industry
+            });
+            smeMap.set(smeClass.size, {
+              count: smeData.count + 1,
+              revenue: smeData.revenue + existing.totalRevenue,
+              companies: smeData.companies
             });
           }
           
@@ -403,9 +455,30 @@ const CustomerSegments = () => {
         .sort((a, b) => b.revenue - a.revenue)
         .slice(0, 15);
 
+      // Convert SME map to array for charts
+      const smeOrder: BusinessSize[] = ['Micro', 'Small', 'Medium', 'Large', 'Unknown'];
+      const totalSmeCount = Array.from(smeMap.values()).reduce((a, b) => a + b.count, 0);
+      const smeData = smeOrder
+        .filter(size => smeMap.has(size))
+        .map(size => {
+          const data = smeMap.get(size)!;
+          const classification = classifyBusinessSize(size === 'Micro' ? 1000 : size === 'Small' ? 10000000 : size === 'Medium' ? 100000000 : size === 'Large' ? 300000000 : 0);
+          return {
+            size,
+            label: classification.label,
+            description: classification.description,
+            color: classification.color,
+            count: data.count,
+            revenue: data.revenue,
+            percentage: totalSmeCount > 0 ? Math.round((data.count / totalSmeCount) * 100) : 0,
+            companies: data.companies.sort((a, b) => b.revenue - a.revenue).slice(0, 10)
+          };
+        });
+
       return {
         segments,
         industryData,
+        smeData,
         totalCustomers: customerMap.size,
         totalRevenue: Array.from(customerMap.values()).reduce((sum, c) => sum + c.totalRevenue, 0)
       };
@@ -829,18 +902,22 @@ const CustomerSegments = () => {
 
       {/* Main Tabs */}
       <Tabs defaultValue="segments" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="segments" className="gap-2">
             <Users className="h-4 w-4" />
             Segments
           </TabsTrigger>
           <TabsTrigger value="industry" className="gap-2">
             <Building2 className="h-4 w-4" />
-            Industry Classification
+            Industry
+          </TabsTrigger>
+          <TabsTrigger value="sme" className="gap-2">
+            <Scale className="h-4 w-4" />
+            Business Size
           </TabsTrigger>
           <TabsTrigger value="details" className="gap-2">
             <Briefcase className="h-4 w-4" />
-            Segment Details
+            Details
           </TabsTrigger>
         </TabsList>
 
@@ -1083,6 +1160,136 @@ const CustomerSegments = () => {
                         </Collapsible>
                       );
                     })}
+                  </div>
+                </CardContent>
+              </Card>
+            </>
+          )}
+        </TabsContent>
+
+        {/* SME Classification Tab */}
+        <TabsContent value="sme" className="space-y-6 mt-6">
+          {!segmentData?.smeData || segmentData.smeData.length === 0 ? (
+            <Card>
+              <CardContent className="pt-6">
+                <p className="text-center text-muted-foreground">
+                  No business size data available.
+                </p>
+              </CardContent>
+            </Card>
+          ) : (
+            <>
+              {/* SME Summary Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
+                {segmentData.smeData.map((sme) => (
+                  <Card key={sme.size} className="border-l-4" style={{ borderLeftColor: sme.color }}>
+                    <CardContent className="pt-4">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: sme.color }} />
+                        <span className="font-semibold text-sm">{sme.label}</span>
+                      </div>
+                      <p className="text-2xl font-bold">{sme.count}</p>
+                      <p className="text-xs text-muted-foreground">{sme.percentage}% of customers</p>
+                      <p className="text-sm font-medium text-muted-foreground mt-1">
+                        AED {sme.revenue.toLocaleString()}
+                      </p>
+                      <p className="text-[10px] text-muted-foreground mt-2">{sme.description}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+
+              {/* SME Charts */}
+              <div className="grid md:grid-cols-2 gap-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Business Size Distribution</CardTitle>
+                    <CardDescription>Customer count by business size (SME classification)</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <PieChart>
+                          <Pie
+                            data={segmentData.smeData.map(s => ({ name: s.label, value: s.count, color: s.color }))}
+                            cx="50%"
+                            cy="50%"
+                            innerRadius={60}
+                            outerRadius={100}
+                            dataKey="value"
+                            label={({ name, percent }) => `${name}: ${(percent * 100).toFixed(0)}%`}
+                          >
+                            {segmentData.smeData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Pie>
+                          <Tooltip />
+                        </PieChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Revenue by Business Size</CardTitle>
+                    <CardDescription>Total revenue contribution per SME category</CardDescription>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="h-[300px]">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <BarChart 
+                          data={segmentData.smeData.map(s => ({ name: s.size, revenue: s.revenue, color: s.color }))} 
+                          layout="vertical" 
+                          margin={{ left: 60 }}
+                        >
+                          <CartesianGrid strokeDasharray="3 3" />
+                          <XAxis type="number" tickFormatter={(v) => `${(v/1000).toFixed(0)}K`} />
+                          <YAxis type="category" dataKey="name" width={55} />
+                          <Tooltip formatter={(value: number) => [`AED ${value.toLocaleString()}`, 'Revenue']} />
+                          <Bar dataKey="revenue" radius={[0, 4, 4, 0]}>
+                            {segmentData.smeData.map((entry, index) => (
+                              <Cell key={`cell-${index}`} fill={entry.color} />
+                            ))}
+                          </Bar>
+                        </BarChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* SME Details */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Business Size Breakdown</CardTitle>
+                  <CardDescription>Top companies by business size category</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    {segmentData.smeData.filter(s => s.size !== 'Unknown').map((sme) => (
+                      <div key={sme.size} className="p-4 rounded-lg border" style={{ borderColor: sme.color + '40' }}>
+                        <div className="flex items-center gap-2 mb-3">
+                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: sme.color }} />
+                          <span className="font-semibold">{sme.label}</span>
+                        </div>
+                        <div className="space-y-2">
+                          {sme.companies.slice(0, 5).map((company, idx) => (
+                            <div key={idx} className="flex items-center justify-between text-sm">
+                              <span className="truncate max-w-[60%]">{company.name}</span>
+                              <span className="text-muted-foreground text-xs">
+                                AED {company.revenue.toLocaleString()}
+                              </span>
+                            </div>
+                          ))}
+                          {sme.companies.length > 5 && (
+                            <p className="text-xs text-muted-foreground text-center pt-1">
+                              +{sme.companies.length - 5} more
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </CardContent>
               </Card>
