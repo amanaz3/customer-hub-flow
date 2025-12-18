@@ -138,7 +138,12 @@ const CustomerClassification = () => {
     count: number; 
     revenue: number; 
     percentage: number;
-    industries: Array<{ name: string; count: number; revenue: number }>;
+    industries: Array<{ 
+      name: string; 
+      count: number; 
+      revenue: number;
+      customers?: Array<{ name: string; company: string; service: string; amount: number }>;
+    }>;
     businessTypes: Array<{ name: string; count: number; revenue: number }>;
   }>>([]);
   const [expandedBuckets, setExpandedBuckets] = useState<Record<string, boolean>>({});
@@ -197,11 +202,15 @@ const CustomerClassification = () => {
     try {
       const { data: customers, error: custError } = await supabase
         .from('customers')
-        .select('id, lead_source, license_type, jurisdiction, amount, annual_turnover, company');
+        .select('id, name, lead_source, license_type, jurisdiction, amount, annual_turnover, company, product_id');
 
       const { data: applications, error: appError } = await supabase
         .from('account_applications')
-        .select('id, customer_id, application_data');
+        .select('id, customer_id, application_data, application_type');
+
+      const { data: products } = await supabase
+        .from('products')
+        .select('id, name');
 
       if (custError || appError) throw custError || appError;
 
@@ -306,6 +315,9 @@ const CustomerClassification = () => {
         { min: 100000, max: Infinity, label: '100K+' },
       ];
       
+      // Create product lookup map
+      const productMap = new Map(products?.map(p => [p.id, p.name]) || []);
+      
       const distribution = dealBuckets.map(bucket => {
         const dealsInBucket = customers?.filter(c => {
           const amt = Number(c.amount) || 0;
@@ -314,7 +326,11 @@ const CustomerClassification = () => {
         const bucketRevenue = dealsInBucket.reduce((sum, c) => sum + (Number(c.amount) || 0), 0);
         
         // Calculate industry breakdown for this bucket
-        const industryBreakdown = new Map<string, { count: number; revenue: number }>();
+        const industryBreakdown = new Map<string, { 
+          count: number; 
+          revenue: number; 
+          customers: Array<{ name: string; company: string; service: string; amount: number }>;
+        }>();
         const businessTypeBreakdown = new Map<string, { count: number; revenue: number }>();
         
         dealsInBucket.forEach(c => {
@@ -323,8 +339,28 @@ const CustomerClassification = () => {
           // Get industry from application data
           const app = applications?.find(a => a.customer_id === c.id);
           const industry = app?.application_data ? extractIndustry(app.application_data as Record<string, any>, c.company) : 'Other';
-          const indData = industryBreakdown.get(industry) || { count: 0, revenue: 0 };
-          industryBreakdown.set(industry, { count: indData.count + 1, revenue: indData.revenue + amt });
+          const indData = industryBreakdown.get(industry) || { count: 0, revenue: 0, customers: [] };
+          
+          // Get service name from product or application type
+          const serviceName = c.product_id 
+            ? productMap.get(c.product_id) || app?.application_type || 'Unknown Service'
+            : app?.application_type || 'Unknown Service';
+          
+          // Add customer details for "Other" industry
+          if (industry === 'Other') {
+            indData.customers.push({
+              name: c.name || 'Unknown',
+              company: c.company || 'N/A',
+              service: serviceName,
+              amount: amt
+            });
+          }
+          
+          industryBreakdown.set(industry, { 
+            count: indData.count + 1, 
+            revenue: indData.revenue + amt,
+            customers: indData.customers 
+          });
           
           // Get business type from license_type
           const businessType = c.license_type || 'Unknown';
@@ -338,7 +374,12 @@ const CustomerClassification = () => {
           revenue: bucketRevenue,
           percentage: revenue > 0 ? Math.round((bucketRevenue / revenue) * 100) : 0,
           industries: Array.from(industryBreakdown.entries())
-            .map(([name, data]) => ({ name, ...data }))
+            .map(([name, data]) => ({ 
+              name, 
+              count: data.count, 
+              revenue: data.revenue,
+              customers: name === 'Other' ? data.customers : undefined 
+            }))
             .sort((a, b) => b.revenue - a.revenue)
             .slice(0, 5),
           businessTypes: Array.from(businessTypeBreakdown.entries())
@@ -706,12 +747,48 @@ const CustomerClassification = () => {
                                 <Building2 className="h-3 w-3" /> By Industry
                               </p>
                               <div className="grid grid-cols-1 gap-1">
-                                {bucket.industries.map((ind, i) => (
-                                  <div key={ind.name} className="flex items-center justify-between text-xs bg-muted/30 rounded px-2 py-1">
-                                    <span className="truncate max-w-[120px]">{ind.name}</span>
-                                    <span className="text-muted-foreground whitespace-nowrap">
-                                      {ind.count} • {formatCurrency(ind.revenue)}
-                                    </span>
+                                {bucket.industries.map((ind) => (
+                                  <div key={ind.name}>
+                                    {ind.name === 'Other' && ind.customers && ind.customers.length > 0 ? (
+                                      <Collapsible>
+                                        <CollapsibleTrigger className="w-full">
+                                          <div className="flex items-center justify-between text-xs bg-amber-500/10 border border-amber-500/20 rounded px-2 py-1 hover:bg-amber-500/20 cursor-pointer">
+                                            <div className="flex items-center gap-1">
+                                              <ChevronDown className="h-3 w-3 text-amber-600" />
+                                              <span className="text-amber-700 dark:text-amber-400 font-medium">{ind.name}</span>
+                                            </div>
+                                            <span className="text-muted-foreground whitespace-nowrap">
+                                              {ind.count} • {formatCurrency(ind.revenue)}
+                                            </span>
+                                          </div>
+                                        </CollapsibleTrigger>
+                                        <CollapsibleContent className="mt-1 ml-2 space-y-1">
+                                          <p className="text-[10px] text-muted-foreground mb-1">Customer Details:</p>
+                                          {ind.customers.map((cust, cidx) => (
+                                            <div key={cidx} className="text-[11px] bg-muted/50 rounded px-2 py-1.5 border-l-2 border-amber-500/50">
+                                              <div className="flex items-center justify-between">
+                                                <span className="font-medium truncate max-w-[100px]">{cust.name}</span>
+                                                <Badge variant="secondary" className="text-[10px] h-4">
+                                                  {formatCurrency(cust.amount)}
+                                                </Badge>
+                                              </div>
+                                              <div className="flex items-center gap-2 mt-0.5 text-muted-foreground">
+                                                <span className="truncate max-w-[80px]">{cust.company}</span>
+                                                <span>•</span>
+                                                <span className="truncate max-w-[80px]">{cust.service}</span>
+                                              </div>
+                                            </div>
+                                          ))}
+                                        </CollapsibleContent>
+                                      </Collapsible>
+                                    ) : (
+                                      <div className="flex items-center justify-between text-xs bg-muted/30 rounded px-2 py-1">
+                                        <span className="truncate max-w-[120px]">{ind.name}</span>
+                                        <span className="text-muted-foreground whitespace-nowrap">
+                                          {ind.count} • {formatCurrency(ind.revenue)}
+                                        </span>
+                                      </div>
+                                    )}
                                   </div>
                                 ))}
                               </div>
