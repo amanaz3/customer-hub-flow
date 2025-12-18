@@ -3,12 +3,16 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Building2, Plus, Clock, CheckCircle, AlertTriangle, FileText, Eye } from 'lucide-react';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Building2, Plus, Clock, CheckCircle, AlertTriangle, FileText, Eye, History, Save } from 'lucide-react';
 import BankReadinessCaseForm from '@/components/BankReadiness/BankReadinessCaseForm';
 import BankReadinessResults from '@/components/BankReadiness/BankReadinessResults';
+import CasesHistoryTab from '@/components/BankReadiness/CasesHistoryTab';
 import { BankReadinessCaseInput, RiskAssessmentResult } from '@/types/bankReadiness';
 import { useBankReadinessRuleEngine } from '@/hooks/useBankReadinessRuleEngine';
 import { useBankReadinessRules } from '@/hooks/useBankReadinessRules';
+import { useBankReadinessCases } from '@/hooks/useBankReadinessCases';
+import { toast } from 'sonner';
 
 type ViewMode = 'list' | 'form' | 'results';
 
@@ -69,16 +73,21 @@ const BankReadiness = () => {
   const [currentCase, setCurrentCase] = useState<BankReadinessCaseInput | null>(null);
   const [assessmentResult, setAssessmentResult] = useState<RiskAssessmentResult | null>(null);
   const [showDemo, setShowDemo] = useState(false);
+  const [currentCaseId, setCurrentCaseId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState('assessment');
   
   // Use the new DB-driven rule engine
   const ruleEngine = useBankReadinessRuleEngine();
   // Keep the old hook for document/interview guidance (these are still hard-coded)
   const { getRequiredDocuments, getHelpfulDocuments, getInterviewGuidance } = useBankReadinessRules();
+  // Cases hook for saving and tracking outcomes
+  const { saveCase, getAccuracyStats } = useBankReadinessCases();
 
   const handleCreateNew = () => {
     setCurrentCase(null);
     setAssessmentResult(null);
     setShowDemo(false);
+    setCurrentCaseId(null);
     setViewMode('form');
   };
 
@@ -90,11 +99,22 @@ const BankReadiness = () => {
     setViewMode('results');
   };
 
+  const handleSaveCase = async () => {
+    if (!currentCase || !assessmentResult || showDemo) return;
+    
+    const caseId = await saveCase(currentCase, assessmentResult);
+    if (caseId) {
+      setCurrentCaseId(caseId);
+      toast.success('Case saved! You can track the outcome later in the History tab.');
+    }
+  };
+
   const handleBackToList = () => {
     setViewMode('list');
     setCurrentCase(null);
     setAssessmentResult(null);
     setShowDemo(false);
+    setCurrentCaseId(null);
   };
 
   const handleBackToForm = () => {
@@ -114,6 +134,8 @@ const BankReadiness = () => {
     }
   };
 
+  const stats = getAccuracyStats();
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
@@ -125,30 +147,70 @@ const BankReadiness = () => {
           </h1>
           <p className="text-muted-foreground mt-1">
             Assess UAE business bank account readiness and get routing recommendations
+            {stats.casesWithOutcome > 0 && (
+              <span className="ml-2 text-xs bg-muted px-2 py-0.5 rounded">
+                {stats.accuracyRate}% accuracy ({stats.casesWithOutcome} outcomes tracked)
+              </span>
+            )}
           </p>
         </div>
         <div className="flex items-center gap-4">
           {/* Demo Toggle */}
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 border">
-            <Eye className="h-4 w-4 text-muted-foreground" />
-            <Label htmlFor="demo-mode" className="text-sm cursor-pointer">Demo Mode</Label>
-            <Switch
-              id="demo-mode"
-              checked={showDemo}
-              onCheckedChange={handleToggleDemo}
-            />
-          </div>
-          {viewMode === 'list' && !showDemo && (
+          {activeTab === 'assessment' && (
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 border">
+              <Eye className="h-4 w-4 text-muted-foreground" />
+              <Label htmlFor="demo-mode" className="text-sm cursor-pointer">Demo Mode</Label>
+              <Switch
+                id="demo-mode"
+                checked={showDemo}
+                onCheckedChange={handleToggleDemo}
+              />
+            </div>
+          )}
+          {activeTab === 'assessment' && viewMode === 'list' && !showDemo && (
             <Button onClick={handleCreateNew} className="gap-2">
               <Plus className="h-4 w-4" />
               Create New Case
             </Button>
           )}
+          {activeTab === 'assessment' && viewMode === 'results' && !showDemo && !currentCaseId && (
+            <Button onClick={handleSaveCase} variant="outline" className="gap-2">
+              <Save className="h-4 w-4" />
+              Save for Tracking
+            </Button>
+          )}
+          {currentCaseId && (
+            <span className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+              ✓ Saved
+            </span>
+          )}
         </div>
       </div>
 
-      {/* Assessment Content */}
-      {renderAssessmentContent()}
+      {/* Tabs */}
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList>
+          <TabsTrigger value="assessment" className="gap-2">
+            <Building2 className="h-4 w-4" />
+            Assessment
+          </TabsTrigger>
+          <TabsTrigger value="history" className="gap-2">
+            <History className="h-4 w-4" />
+            History & Outcomes
+            {stats.totalCases > 0 && (
+              <span className="ml-1 text-xs bg-muted px-1.5 rounded">{stats.totalCases}</span>
+            )}
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="assessment" className="mt-6">
+          {renderAssessmentContent()}
+        </TabsContent>
+
+        <TabsContent value="history" className="mt-6">
+          <CasesHistoryTab />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 
