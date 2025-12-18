@@ -9,7 +9,7 @@ interface RuleCondition {
 }
 
 interface RuleAction {
-  type: 'add_score' | 'add_flag' | 'set_category' | 'recommend_bank' | 'avoid_bank';
+  type: 'add_score' | 'add_flag' | 'set_category' | 'recommend_bank' | 'avoid_bank' | 'exclude_bank' | 'boost_bank_score' | 'reduce_bank_score' | 'require_document';
   value?: number | string;
   message?: string;
   bank_code?: string;
@@ -278,6 +278,9 @@ export function useBankReadinessRuleEngine() {
   const assessRisk = (input: BankReadinessCaseInput): RiskAssessmentResult => {
     let score = 0;
     const flags: string[] = [];
+    const excludedBanks: Set<string> = new Set();
+    const bankScoreModifiers: Map<string, number> = new Map();
+    const requiredDocuments: string[] = [];
 
     // Evaluate all active rules
     for (const rule of rules) {
@@ -298,6 +301,31 @@ export function useBankReadinessRuleEngine() {
                 flags.push(action.message);
               }
               break;
+            case 'exclude_bank':
+              if (action.value) {
+                excludedBanks.add(action.value as string);
+                if (action.message) flags.push(action.message);
+              }
+              break;
+            case 'boost_bank_score':
+              if (action.value) {
+                const current = bankScoreModifiers.get(action.value as string) || 0;
+                bankScoreModifiers.set(action.value as string, current + 20);
+                if (action.message) flags.push(action.message);
+              }
+              break;
+            case 'reduce_bank_score':
+              if (action.value) {
+                const current = bankScoreModifiers.get(action.value as string) || 0;
+                bankScoreModifiers.set(action.value as string, current - 15);
+                if (action.message) flags.push(action.message);
+              }
+              break;
+            case 'require_document':
+              if (action.value && !requiredDocuments.includes(action.value as string)) {
+                requiredDocuments.push(action.value as string);
+              }
+              break;
           }
         }
       }
@@ -314,10 +342,17 @@ export function useBankReadinessRuleEngine() {
     }
 
     // Calculate bank recommendations using bank profiles
-    const bankScores = bankProfiles.map(bank => ({
-      bank,
-      fitScore: calculateBankFitScore(bank, input, category)
-    }));
+    // Filter out excluded banks and apply score modifiers
+    const bankScores = bankProfiles
+      .filter(bank => !excludedBanks.has(bank.bank_code))
+      .map(bank => {
+        const baseScore = calculateBankFitScore(bank, input, category);
+        const modifier = bankScoreModifiers.get(bank.bank_code) || 0;
+        return {
+          bank,
+          fitScore: Math.max(0, Math.min(100, baseScore + modifier))
+        };
+      });
 
     // Sort by fit score descending
     bankScores.sort((a, b) => b.fitScore - a.fitScore);
@@ -373,7 +408,8 @@ export function useBankReadinessRuleEngine() {
       category,
       flags,
       recommendedBanks,
-      banksToAvoid
+      banksToAvoid,
+      requiredDocuments
     };
   };
 

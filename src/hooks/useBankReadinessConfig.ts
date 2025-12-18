@@ -58,6 +58,143 @@ interface BankReadinessConfiguration {
   updated_at: string;
 }
 
+const ADDITIONAL_RULES: BankReadinessRule[] = [
+  // Bank-specific eligibility rules
+  {
+    id: 'bank-enbd-crypto',
+    rule_name: 'ENBD - No Crypto Activities',
+    rule_type: 'bank_eligibility',
+    description: 'Emirates NBD does not accept crypto-related businesses',
+    conditions: [{ field: 'license_activity', operator: 'contains_any', value: ['crypto', 'bitcoin', 'blockchain', 'nft'] }],
+    actions: [{ type: 'exclude_bank', value: 'ENBD', message: 'ENBD does not accept crypto businesses' }],
+    priority: 200,
+    is_active: true
+  },
+  {
+    id: 'bank-fab-freezone',
+    rule_name: 'FAB - Mainland Preference',
+    rule_type: 'bank_eligibility',
+    description: 'FAB has limited freezone appetite',
+    conditions: [{ field: 'company_jurisdiction', operator: 'equals', value: 'freezone' }],
+    actions: [{ type: 'reduce_bank_score', value: 'FAB', message: 'FAB prefers mainland companies' }],
+    priority: 201,
+    is_active: true
+  },
+  {
+    id: 'bank-dib-halal',
+    rule_name: 'DIB - Islamic Banking Restrictions',
+    rule_type: 'bank_eligibility',
+    description: 'DIB cannot accept interest-based or non-halal activities',
+    conditions: [{ field: 'license_activity', operator: 'contains_any', value: ['alcohol', 'pork', 'gambling', 'interest', 'conventional finance'] }],
+    actions: [{ type: 'exclude_bank', value: 'DIB', message: 'DIB (Islamic bank) cannot accept this activity' }],
+    priority: 202,
+    is_active: true
+  },
+  {
+    id: 'bank-rakbank-sme',
+    rule_name: 'RAKBANK - SME Friendly',
+    rule_type: 'bank_eligibility',
+    description: 'RAKBANK welcomes SME and startups',
+    conditions: [{ field: 'expected_monthly_inflow', operator: 'in', value: ['Below AED 50,000', 'AED 50,000 - 100,000'] }],
+    actions: [{ type: 'boost_bank_score', value: 'RAKBANK', message: 'RAKBANK is SME-friendly' }],
+    priority: 203,
+    is_active: true
+  },
+  // Turnover-based rules
+  {
+    id: 'turnover-very-low',
+    rule_name: 'Very Low Turnover',
+    rule_type: 'risk_scoring',
+    description: 'Very low turnover limits Tier 1 bank options',
+    conditions: [{ field: 'expected_monthly_inflow', operator: 'equals', value: 'Below AED 50,000' }],
+    actions: [{ type: 'add_score', value: 8 }, { type: 'add_flag', message: 'Very low turnover - Consider Tier 2/3 banks' }],
+    priority: 80,
+    is_active: true
+  },
+  {
+    id: 'turnover-high-tier1',
+    rule_name: 'High Turnover - Tier 1 Eligible',
+    rule_type: 'risk_scoring',
+    description: 'High turnover qualifies for premium banks',
+    conditions: [{ field: 'expected_monthly_inflow', operator: 'in', value: ['AED 1,000,000 - 5,000,000', 'Above AED 5,000,000'] }],
+    actions: [{ type: 'add_score', value: -5 }, { type: 'add_flag', message: 'High turnover - Tier 1 banks recommended' }],
+    priority: 81,
+    is_active: true
+  },
+  // Document requirement rules
+  {
+    id: 'doc-trading-business',
+    rule_name: 'Trading Business Documents',
+    rule_type: 'document_requirement',
+    description: 'Trading businesses need additional documentation',
+    conditions: [{ field: 'business_model', operator: 'equals', value: 'trading' }],
+    actions: [{ type: 'require_document', value: 'supplier_contracts' }, { type: 'require_document', value: 'sample_invoices' }, { type: 'add_flag', message: 'Trading docs: supplier contracts + sample invoices required' }],
+    priority: 300,
+    is_active: true
+  },
+  {
+    id: 'doc-non-resident',
+    rule_name: 'Non-Resident Documents',
+    rule_type: 'document_requirement',
+    description: 'Non-residents need additional residence proof',
+    conditions: [{ field: 'uae_residency', operator: 'equals', value: false }],
+    actions: [{ type: 'require_document', value: 'home_country_address_proof' }, { type: 'require_document', value: 'bank_reference_letter' }, { type: 'add_flag', message: 'Non-resident: home country address proof + bank reference required' }],
+    priority: 301,
+    is_active: true
+  },
+  {
+    id: 'doc-high-turnover',
+    rule_name: 'High Turnover Documents',
+    rule_type: 'document_requirement',
+    description: 'High turnover requires financial statements',
+    conditions: [{ field: 'expected_monthly_inflow', operator: 'in', value: ['AED 1,000,000 - 5,000,000', 'Above AED 5,000,000'] }],
+    actions: [{ type: 'require_document', value: 'audited_financials' }, { type: 'require_document', value: 'business_plan' }, { type: 'add_flag', message: 'High turnover: audited financials + business plan recommended' }],
+    priority: 302,
+    is_active: true
+  },
+  // Industry-specific rules
+  {
+    id: 'industry-real-estate',
+    rule_name: 'Real Estate Industry',
+    rule_type: 'risk_scoring',
+    description: 'Real estate has additional AML scrutiny',
+    conditions: [{ field: 'license_activity', operator: 'contains_any', value: ['real estate', 'property', 'brokerage'] }],
+    actions: [{ type: 'add_score', value: 8 }, { type: 'add_flag', message: 'Real estate: Enhanced AML checks apply' }],
+    priority: 62,
+    is_active: true
+  },
+  {
+    id: 'industry-consulting',
+    rule_name: 'Consulting/Professional Services',
+    rule_type: 'risk_scoring',
+    description: 'Consulting services are low-risk',
+    conditions: [{ field: 'license_activity', operator: 'contains_any', value: ['consulting', 'advisory', 'professional services', 'management consultancy'] }],
+    actions: [{ type: 'add_score', value: -3 }, { type: 'add_flag', message: 'Professional services - Low risk profile' }],
+    priority: 63,
+    is_active: true
+  },
+  {
+    id: 'industry-tech',
+    rule_name: 'Technology/IT Services',
+    rule_type: 'risk_scoring',
+    description: 'Tech businesses are generally well-received',
+    conditions: [{ field: 'license_activity', operator: 'contains_any', value: ['technology', 'software', 'IT', 'saas', 'digital'] }],
+    actions: [{ type: 'add_score', value: -2 }, { type: 'add_flag', message: 'Technology sector - Banks have good appetite' }],
+    priority: 64,
+    is_active: true
+  },
+  {
+    id: 'industry-food',
+    rule_name: 'Food & Beverage',
+    rule_type: 'risk_scoring',
+    description: 'F&B businesses need health permits',
+    conditions: [{ field: 'license_activity', operator: 'contains_any', value: ['restaurant', 'cafe', 'food', 'catering', 'beverage'] }],
+    actions: [{ type: 'add_score', value: 2 }, { type: 'require_document', value: 'health_permit' }, { type: 'add_flag', message: 'F&B: Health permit documentation required' }],
+    priority: 65,
+    is_active: true
+  }
+];
+
 const DEFAULT_CONFIG: BankReadinessConfigData = {
   rules: [],
   bankProfiles: []
@@ -252,6 +389,33 @@ export function useBankReadinessConfig() {
     }
   };
 
+  const addMissingRules = async (): Promise<{ added: number }> => {
+    if (!config) return { added: 0 };
+
+    const existingIds = new Set(config.config_data.rules.map(r => r.id));
+    const newRules = ADDITIONAL_RULES.filter(r => !existingIds.has(r.id));
+    
+    if (newRules.length === 0) {
+      toast.info('All additional rules already exist');
+      return { added: 0 };
+    }
+
+    const updatedRules = [...config.config_data.rules, ...newRules].sort((a, b) => a.priority - b.priority);
+    const success = await updateRules(updatedRules);
+    
+    if (success) {
+      toast.success(`Added ${newRules.length} new rules`);
+      return { added: newRules.length };
+    }
+    return { added: 0 };
+  };
+
+  const getMissingRulesCount = (): number => {
+    if (!config) return ADDITIONAL_RULES.length;
+    const existingIds = new Set(config.config_data.rules.map(r => r.id));
+    return ADDITIONAL_RULES.filter(r => !existingIds.has(r.id)).length;
+  };
+
   return {
     config,
     loading,
@@ -262,6 +426,8 @@ export function useBankReadinessConfig() {
     updateRules,
     updateBankProfiles,
     updateFullConfig,
-    refetch: fetchConfig
+    refetch: fetchConfig,
+    addMissingRules,
+    getMissingRulesCount
   };
 }
