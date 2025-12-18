@@ -19,11 +19,15 @@ import {
   Target,
   Shield,
   ThumbsUp,
-  ThumbsDown
+  ThumbsDown,
+  History
 } from 'lucide-react';
 import { BankReadinessCaseInput, RiskAssessmentResult } from '@/types/bankReadiness';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useBankReadinessCases } from '@/hooks/useBankReadinessCases';
+import { useOutcomeAnalytics } from '@/hooks/useOutcomeAnalytics';
+import SmartBankInsights from './SmartBankInsights';
 
 interface BankReadinessResultsProps {
   input: BankReadinessCaseInput;
@@ -47,6 +51,15 @@ const BankReadinessResults: React.FC<BankReadinessResultsProps> = ({
   const [aiExplanation, setAiExplanation] = useState<string | null>(null);
   const [improvementSteps, setImprovementSteps] = useState<string[] | null>(null);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
+
+  // Get historical case data for smart insights
+  const { cases } = useBankReadinessCases();
+  const { getSimilarCaseStats, getBankSuccessRate } = useOutcomeAnalytics(cases, {
+    applicant_nationality: input.applicant_nationality,
+    license_activity: input.license_activity,
+    risk_category: result.category,
+    company_jurisdiction: input.company_jurisdiction,
+  });
 
   const getRiskColor = (category: 'low' | 'medium' | 'high') => {
     switch (category) {
@@ -149,12 +162,15 @@ const BankReadinessResults: React.FC<BankReadinessResultsProps> = ({
         </CardContent>
       </Card>
 
-      {/* Tabs for different sections */}
       <Tabs defaultValue="routing" className="space-y-4">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="routing" className="gap-2">
             <Building2 className="h-4 w-4" />
             Bank Routing
+          </TabsTrigger>
+          <TabsTrigger value="insights" className="gap-2">
+            <History className="h-4 w-4" />
+            Smart Insights
           </TabsTrigger>
           <TabsTrigger value="documents" className="gap-2">
             <FileText className="h-4 w-4" />
@@ -261,6 +277,27 @@ const BankReadinessResults: React.FC<BankReadinessResultsProps> = ({
           )}
         </TabsContent>
 
+        {/* Smart Insights Tab */}
+        <TabsContent value="insights" className="space-y-4">
+          <SmartBankInsights
+            similarStats={getSimilarCaseStats}
+            getBankSuccessRate={getBankSuccessRate}
+            recommendedBanks={result.recommendedBanks}
+          />
+          
+          {!getSimilarCaseStats && (
+            <Card>
+              <CardContent className="py-8 text-center">
+                <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-medium mb-2">No Similar Cases Yet</h3>
+                <p className="text-muted-foreground text-sm">
+                  As you record outcomes, this section will show historical success rates 
+                  for similar profiles to help guide bank selection.
+                </p>
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
         {/* Documents Tab */}
         <TabsContent value="documents" className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">

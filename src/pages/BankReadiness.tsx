@@ -4,14 +4,17 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, Plus, Clock, CheckCircle, AlertTriangle, FileText, Eye, History, Save } from 'lucide-react';
+import { Building2, Plus, Clock, CheckCircle, AlertTriangle, FileText, Eye, History, Save, BarChart3, Lightbulb } from 'lucide-react';
 import BankReadinessCaseForm from '@/components/BankReadiness/BankReadinessCaseForm';
 import BankReadinessResults from '@/components/BankReadiness/BankReadinessResults';
 import CasesHistoryTab from '@/components/BankReadiness/CasesHistoryTab';
+import OutcomeAnalyticsTab from '@/components/BankReadiness/OutcomeAnalyticsTab';
+import LearningInsightsPanel from '@/components/BankReadiness/LearningInsightsPanel';
 import { BankReadinessCaseInput, RiskAssessmentResult } from '@/types/bankReadiness';
 import { useBankReadinessRuleEngine } from '@/hooks/useBankReadinessRuleEngine';
 import { useBankReadinessRules } from '@/hooks/useBankReadinessRules';
 import { useBankReadinessCases } from '@/hooks/useBankReadinessCases';
+import { useOutcomeAnalytics } from '@/hooks/useOutcomeAnalytics';
 import { toast } from 'sonner';
 
 type ViewMode = 'list' | 'form' | 'results';
@@ -81,7 +84,9 @@ const BankReadiness = () => {
   // Keep the old hook for document/interview guidance (these are still hard-coded)
   const { getRequiredDocuments, getHelpfulDocuments, getInterviewGuidance } = useBankReadinessRules();
   // Cases hook for saving and tracking outcomes
-  const { saveCase, getAccuracyStats } = useBankReadinessCases();
+  const { cases, saveCase, getAccuracyStats, refetch } = useBankReadinessCases();
+  // Outcome analytics hook for smart recommendations
+  const { getLearningInsights } = useOutcomeAnalytics(cases);
 
   const handleCreateNew = () => {
     setCurrentCase(null);
@@ -201,6 +206,17 @@ const BankReadiness = () => {
               <span className="ml-1 text-xs bg-muted px-1.5 rounded">{stats.totalCases}</span>
             )}
           </TabsTrigger>
+          <TabsTrigger value="analytics" className="gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Analytics
+          </TabsTrigger>
+          <TabsTrigger value="insights" className="gap-2">
+            <Lightbulb className="h-4 w-4" />
+            Learning
+            {getLearningInsights.length > 0 && (
+              <span className="ml-1 text-xs bg-amber-100 text-amber-800 px-1.5 rounded">{getLearningInsights.length}</span>
+            )}
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="assessment" className="mt-6">
@@ -209,6 +225,17 @@ const BankReadiness = () => {
 
         <TabsContent value="history" className="mt-6">
           <CasesHistoryTab />
+        </TabsContent>
+
+        <TabsContent value="analytics" className="mt-6">
+          <OutcomeAnalyticsTab />
+        </TabsContent>
+
+        <TabsContent value="insights" className="mt-6">
+          <LearningInsightsPanel 
+            insights={getLearningInsights} 
+            onRefresh={refetch}
+          />
         </TabsContent>
       </Tabs>
     </div>
