@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Progress } from '@/components/ui/progress';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import {
   ArrowLeft,
   Plus,
@@ -20,7 +22,9 @@ import {
   Shield,
   ThumbsUp,
   ThumbsDown,
-  History
+  History,
+  TrendingUp,
+  Brain
 } from 'lucide-react';
 import { BankReadinessCaseInput, RiskAssessmentResult } from '@/types/bankReadiness';
 import { supabase } from '@/integrations/supabase/client';
@@ -68,6 +72,7 @@ const BankReadinessResults: React.FC<BankReadinessResultsProps> = ({
   const [aiExplanation, setAiExplanation] = useState<string | null>(null);
   const [improvementSteps, setImprovementSteps] = useState<string[] | null>(null);
   const [isLoadingAI, setIsLoadingAI] = useState(false);
+  const [useSmartRecommendations, setUseSmartRecommendations] = useState(false);
 
   // Get historical case data for smart insights
   const { cases } = useBankReadinessCases();
@@ -87,6 +92,45 @@ const BankReadinessResults: React.FC<BankReadinessResultsProps> = ({
       }
     : getBankSuccessRate;
 
+  // Calculate adjusted recommendations with historical data
+  const adjustedRecommendations = useMemo(() => {
+    if (!useSmartRecommendations || !similarStats) {
+      return result.recommendedBanks;
+    }
+
+    return result.recommendedBanks.map(bank => {
+      const historicalData = bankSuccessRateFn(bank.bank_name);
+      if (!historicalData || historicalData.total < 2) {
+        return bank;
+      }
+
+      // Blend rule-based score with historical success rate
+      // Weight: 70% rule-based, 30% historical
+      const blendedScore = Math.round(
+        bank.fit_score * 0.7 + historicalData.rate * 0.3
+      );
+
+      const adjustment = blendedScore - bank.fit_score;
+      const adjustmentLabel = adjustment > 0 
+        ? `+${adjustment}% from history` 
+        : adjustment < 0 
+          ? `${adjustment}% from history`
+          : null;
+
+      return {
+        ...bank,
+        fit_score: blendedScore,
+        original_score: bank.fit_score,
+        historical_rate: historicalData.rate,
+        adjustment_label: adjustmentLabel,
+        has_historical_data: true
+      };
+    }).sort((a, b) => b.fit_score - a.fit_score);
+  }, [useSmartRecommendations, similarStats, result.recommendedBanks, bankSuccessRateFn]);
+
+  const displayedBanks = useSmartRecommendations ? adjustedRecommendations : result.recommendedBanks;
+  const bestBank = displayedBanks[0];
+
   const getRiskColor = (category: 'low' | 'medium' | 'high') => {
     switch (category) {
       case 'low': return 'text-green-600 bg-green-100 dark:bg-green-900/30';
@@ -103,7 +147,7 @@ const BankReadinessResults: React.FC<BankReadinessResultsProps> = ({
     }
   };
 
-  const bestBank = result.recommendedBanks[0];
+  
 
   const requestAIExplanation = async () => {
     if (result.category === 'low' && !aiExplanation) {
@@ -214,6 +258,38 @@ const BankReadinessResults: React.FC<BankReadinessResultsProps> = ({
 
         {/* Bank Routing Tab */}
         <TabsContent value="routing" className="space-y-4">
+          {/* Smart Recommendations Toggle */}
+          {similarStats && similarStats.totalSimilar >= 2 && (
+            <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-950/20">
+              <CardContent className="py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <Brain className="h-5 w-5 text-blue-600" />
+                    <div>
+                      <Label htmlFor="smart-recs" className="font-medium cursor-pointer">
+                        Smart Recommendations
+                      </Label>
+                      <p className="text-xs text-muted-foreground">
+                        Adjust scores using historical success rates from {similarStats.totalSimilar} similar cases
+                      </p>
+                    </div>
+                  </div>
+                  <Switch
+                    id="smart-recs"
+                    checked={useSmartRecommendations}
+                    onCheckedChange={setUseSmartRecommendations}
+                  />
+                </div>
+                {useSmartRecommendations && (
+                  <div className="mt-3 pt-3 border-t text-xs text-blue-700 dark:text-blue-300">
+                    <TrendingUp className="h-3 w-3 inline mr-1" />
+                    Scores blended: 70% rule-based + 30% historical success rate
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           <div className="grid gap-4 md:grid-cols-2">
             {/* Recommended Banks */}
             <Card>
@@ -221,21 +297,45 @@ const BankReadinessResults: React.FC<BankReadinessResultsProps> = ({
                 <CardTitle className="flex items-center gap-2 text-green-600">
                   <ThumbsUp className="h-5 w-5" />
                   Recommended Banks
+                  {useSmartRecommendations && (
+                    <Badge variant="outline" className="ml-2 text-xs bg-blue-100 text-blue-700">
+                      <Brain className="h-3 w-3 mr-1" />
+                      Smart
+                    </Badge>
+                  )}
                 </CardTitle>
                 <CardDescription>Banks suitable for this profile</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
-                {result.recommendedBanks.map((bank, index) => (
+                {displayedBanks.map((bank: any, index: number) => (
                   <div
                     key={index}
                     className={`p-3 rounded-lg border ${index === 0 ? 'bg-green-50 dark:bg-green-900/20 border-green-200' : ''}`}
                   >
                     <div className="flex items-center justify-between mb-2">
                       <span className="font-medium">{bank.bank_name}</span>
-                      <Badge variant="outline">{bank.fit_score}% fit</Badge>
+                      <div className="flex items-center gap-2">
+                        {bank.has_historical_data && bank.adjustment_label && (
+                          <span className={`text-xs ${bank.fit_score > bank.original_score ? 'text-green-600' : 'text-amber-600'}`}>
+                            {bank.adjustment_label}
+                          </span>
+                        )}
+                        <Badge variant="outline">{bank.fit_score}% fit</Badge>
+                      </div>
                     </div>
+                    {bank.has_historical_data && (
+                      <div className="flex items-center gap-2 mb-2 text-xs text-muted-foreground">
+                        <History className="h-3 w-3" />
+                        Historical: {bank.historical_rate}% success
+                        {bank.original_score !== bank.fit_score && (
+                          <span className="text-muted-foreground/60">
+                            (Rule: {bank.original_score}%)
+                          </span>
+                        )}
+                      </div>
+                    )}
                     <div className="flex flex-wrap gap-1">
-                      {bank.reason_tags.map((tag, idx) => (
+                      {bank.reason_tags.map((tag: string, idx: number) => (
                         <Badge key={idx} variant="secondary" className="text-xs">
                           {tag}
                         </Badge>
