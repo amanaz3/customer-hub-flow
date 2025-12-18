@@ -5,19 +5,20 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
 import { 
-  PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, 
+  PieChart, Pie, Cell, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip as RechartsTooltip, 
   Legend, ResponsiveContainer, Treemap
 } from 'recharts';
 import { 
   Building2, Globe, TrendingUp, Users, Sparkles, Loader2, 
   DollarSign, MapPin, Briefcase, ArrowLeft, AlertTriangle, 
   CheckCircle2, Target, Lightbulb, Clock, ChevronDown, ChevronUp,
-  Zap, TrendingDown, Shield, Star
+  Zap, TrendingDown, Shield, Star, Info
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useToast } from '@/hooks/use-toast';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Progress } from '@/components/ui/progress';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
 interface ClassificationData {
   name: string;
@@ -414,7 +415,7 @@ const CustomerClassification = () => {
                   <Cell key={`cell-${index}`} fill={COLORS[(index + colorIndex) % COLORS.length]} />
                 ))}
               </Pie>
-              <Tooltip formatter={(value: number) => [value, 'Customers']} />
+              <RechartsTooltip formatter={(value: number) => [value, 'Customers']} />
             </PieChart>
           </ResponsiveContainer>
         </div>
@@ -566,7 +567,7 @@ const CustomerClassification = () => {
                       <CartesianGrid strokeDasharray="3 3" />
                       <XAxis type="number" tickFormatter={(v) => `${(v/1000000).toFixed(1)}M`} />
                       <YAxis type="category" dataKey="name" width={95} tick={{ fontSize: 11 }} />
-                      <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                      <RechartsTooltip formatter={(value: number) => formatCurrency(value)} />
                       <Legend />
                       <Bar dataKey="turnover" name="Annual Turnover" fill="hsl(var(--chart-2))" radius={[0, 4, 4, 0]} />
                       <Bar dataKey="dealValue" name="Deal Value" fill="hsl(var(--chart-4))" radius={[0, 4, 4, 0]} />
@@ -584,6 +585,22 @@ const CustomerClassification = () => {
                 <CardTitle className="flex items-center gap-2">
                   <Briefcase className="h-5 w-5" />
                   Deal Size Distribution
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger asChild>
+                        <Info className="h-4 w-4 text-muted-foreground cursor-help" />
+                      </TooltipTrigger>
+                      <TooltipContent className="max-w-xs p-3 text-sm bg-popover">
+                        <p className="font-medium mb-1">How to interpret:</p>
+                        <ul className="space-y-1 text-muted-foreground text-xs">
+                          <li>• <strong>Many small deals</strong> = stable base revenue but low growth potential</li>
+                          <li>• <strong>Few large deals</strong> = high revenue concentration risk</li>
+                          <li>• <strong>Balanced mix</strong> = healthy, diversified revenue stream</li>
+                          <li>• <strong>Revenue % vs Count %</strong> mismatch shows deal value impact</li>
+                        </ul>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
                 </CardTitle>
                 <p className="text-sm text-muted-foreground">
                   How deals of different values contribute to total revenue (AED {formatCurrency(totalRevenue)})
@@ -599,7 +616,7 @@ const CustomerClassification = () => {
                         <XAxis dataKey="range" tick={{ fontSize: 11 }} />
                         <YAxis yAxisId="left" orientation="left" label={{ value: 'Deals', angle: -90, position: 'insideLeft', fontSize: 11 }} />
                         <YAxis yAxisId="right" orientation="right" tickFormatter={(v) => `${(v/1000).toFixed(0)}K`} label={{ value: 'Revenue', angle: 90, position: 'insideRight', fontSize: 11 }} />
-                        <Tooltip 
+                        <RechartsTooltip 
                           formatter={(value: number, name: string) => 
                             name === 'revenue' ? formatCurrency(value) : `${value} deals`
                           } 
@@ -666,7 +683,7 @@ const CustomerClassification = () => {
                     stroke="hsl(var(--border))"
                     fill="hsl(var(--primary))"
                   >
-                    <Tooltip 
+                    <RechartsTooltip 
                       formatter={(value: number) => formatCurrency(value)}
                       labelFormatter={(name) => `${name}`}
                     />
@@ -691,7 +708,7 @@ const CustomerClassification = () => {
                     <CartesianGrid strokeDasharray="3 3" />
                     <XAxis type="number" tickFormatter={(v) => `AED ${(v/1000).toFixed(0)}K`} />
                     <YAxis type="category" dataKey="name" width={120} />
-                    <Tooltip formatter={(value: number) => formatCurrency(value)} />
+                    <RechartsTooltip formatter={(value: number) => formatCurrency(value)} />
                     <Legend />
                     <Bar dataKey="revenue" name="Revenue" fill="hsl(var(--primary))" radius={[0, 4, 4, 0]} />
                   </BarChart>
@@ -747,7 +764,7 @@ const CustomerClassification = () => {
                     <XAxis dataKey="name" angle={-45} textAnchor="end" height={80} />
                     <YAxis yAxisId="left" orientation="left" />
                     <YAxis yAxisId="right" orientation="right" tickFormatter={(v) => `${(v/1000).toFixed(0)}K`} />
-                    <Tooltip formatter={(value: number, name: string) => 
+                    <RechartsTooltip formatter={(value: number, name: string) => 
                       name === 'revenue' ? formatCurrency(value) : value
                     } />
                     <Legend />
