@@ -3,15 +3,12 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Building2, Plus, Clock, CheckCircle, AlertTriangle, FileText, Eye, Settings } from 'lucide-react';
+import { Building2, Plus, Clock, CheckCircle, AlertTriangle, FileText, Eye } from 'lucide-react';
 import BankReadinessCaseForm from '@/components/BankReadiness/BankReadinessCaseForm';
 import BankReadinessResults from '@/components/BankReadiness/BankReadinessResults';
-import { BankReadinessRulesTab } from '@/components/BankReadiness/BankReadinessRulesTab';
 import { BankReadinessCaseInput, RiskAssessmentResult } from '@/types/bankReadiness';
 import { useBankReadinessRuleEngine } from '@/hooks/useBankReadinessRuleEngine';
 import { useBankReadinessRules } from '@/hooks/useBankReadinessRules';
-import { supabase } from '@/integrations/supabase/client';
 
 type ViewMode = 'list' | 'form' | 'results';
 
@@ -72,29 +69,11 @@ const BankReadiness = () => {
   const [currentCase, setCurrentCase] = useState<BankReadinessCaseInput | null>(null);
   const [assessmentResult, setAssessmentResult] = useState<RiskAssessmentResult | null>(null);
   const [showDemo, setShowDemo] = useState(false);
-  const [activeTab, setActiveTab] = useState('assessment');
-  const [isAdmin, setIsAdmin] = useState(false);
   
   // Use the new DB-driven rule engine
   const ruleEngine = useBankReadinessRuleEngine();
   // Keep the old hook for document/interview guidance (these are still hard-coded)
   const { getRequiredDocuments, getHelpfulDocuments, getInterviewGuidance } = useBankReadinessRules();
-
-  // Check if user is admin
-  React.useEffect(() => {
-    const checkAdmin = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('role')
-          .eq('id', user.id)
-          .single();
-        setIsAdmin(profile?.role === 'admin');
-      }
-    };
-    checkAdmin();
-  }, []);
 
   const handleCreateNew = () => {
     setCurrentCase(null);
@@ -150,18 +129,16 @@ const BankReadiness = () => {
         </div>
         <div className="flex items-center gap-4">
           {/* Demo Toggle */}
-          {activeTab === 'assessment' && (
-            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 border">
-              <Eye className="h-4 w-4 text-muted-foreground" />
-              <Label htmlFor="demo-mode" className="text-sm cursor-pointer">Demo Mode</Label>
-              <Switch
-                id="demo-mode"
-                checked={showDemo}
-                onCheckedChange={handleToggleDemo}
-              />
-            </div>
-          )}
-          {activeTab === 'assessment' && viewMode === 'list' && !showDemo && (
+          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-muted/50 border">
+            <Eye className="h-4 w-4 text-muted-foreground" />
+            <Label htmlFor="demo-mode" className="text-sm cursor-pointer">Demo Mode</Label>
+            <Switch
+              id="demo-mode"
+              checked={showDemo}
+              onCheckedChange={handleToggleDemo}
+            />
+          </div>
+          {viewMode === 'list' && !showDemo && (
             <Button onClick={handleCreateNew} className="gap-2">
               <Plus className="h-4 w-4" />
               Create New Case
@@ -170,41 +147,8 @@ const BankReadiness = () => {
         </div>
       </div>
 
-      {/* Admin Tabs */}
-      {isAdmin ? (
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="assessment" className="gap-2">
-              <CheckCircle className="h-4 w-4" />
-              Assessment
-            </TabsTrigger>
-            <TabsTrigger value="rules" className="gap-2">
-              <Settings className="h-4 w-4" />
-              Rules Engine
-            </TabsTrigger>
-          </TabsList>
-
-          <TabsContent value="assessment" className="space-y-6">
-            {renderAssessmentContent()}
-          </TabsContent>
-
-          <TabsContent value="rules">
-            <Card>
-              <CardHeader>
-                <CardTitle>Bank Readiness Rules Engine</CardTitle>
-                <CardDescription>
-                  Configure risk scoring rules based on your experience with bank rejections
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <BankReadinessRulesTab />
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
-      ) : (
-        renderAssessmentContent()
-      )}
+      {/* Assessment Content */}
+      {renderAssessmentContent()}
     </div>
   );
 
