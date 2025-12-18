@@ -8,7 +8,7 @@ interface RuleCondition {
 }
 
 interface RuleAction {
-  type: 'multiply_price' | 'add_fee' | 'set_price' | 'set_flag' | 'require_document' | 'block' | 'show_warning' | 'set_processing_time' | 'recommend_bank' | 'skip_step' | 'show_step' | 'set_next_step' | 'apply_discount';
+  type: 'multiply_price' | 'add_fee' | 'set_price' | 'set_flag' | 'require_document' | 'block' | 'show_warning' | 'set_processing_time' | 'recommend_bank' | 'skip_step' | 'show_step' | 'set_next_step' | 'apply_discount' | 'assign_agent';
   value?: number | string | boolean;
   // Some rules store document id as `target` instead of `value`
   target?: string;
@@ -19,6 +19,9 @@ interface RuleAction {
   // Discount-specific
   discountType?: 'percentage' | 'fixed';
   discountValue?: number;
+  // Agent assignment
+  agentId?: string;
+  agentName?: string;
 }
 
 interface WebflowRule {
@@ -61,6 +64,9 @@ export interface RuleEngineResult {
   promoDiscount: number;
   promoDiscountType: 'percentage' | 'fixed' | null;
   appliedPromoCode: string | null;
+  // Auto-assignment
+  assignedAgentId: string | null;
+  assignedAgentName: string | null;
 }
 
 export function useWebflowRuleEngine(context: RuleContext) {
@@ -175,6 +181,8 @@ export function useWebflowRuleEngine(context: RuleContext) {
       promoDiscount: 0,
       promoDiscountType: null,
       appliedPromoCode: null,
+      assignedAgentId: null,
+      assignedAgentName: null,
     };
 
     if (loading) return engineResult;
@@ -260,6 +268,12 @@ export function useWebflowRuleEngine(context: RuleContext) {
                 engineResult.promoDiscount = action.discountValue;
                 engineResult.promoDiscountType = action.discountType;
                 engineResult.appliedPromoCode = context.promoCode || null;
+              }
+              break;
+            case 'assign_agent':
+              if (action.agentId) {
+                engineResult.assignedAgentId = action.agentId;
+                engineResult.assignedAgentName = action.agentName || null;
               }
               break;
           }

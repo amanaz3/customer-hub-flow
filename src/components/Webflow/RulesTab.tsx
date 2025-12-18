@@ -56,7 +56,7 @@ interface RuleCondition {
 
 interface RuleAction {
   id: string;
-  type: 'block' | 'allow' | 'require_document' | 'set_price' | 'show_warning' | 'set_field' | 'set_processing_time' | 'recommend_bank';
+  type: 'block' | 'allow' | 'require_document' | 'set_price' | 'show_warning' | 'set_field' | 'set_processing_time' | 'recommend_bank' | 'assign_agent';
   target?: string;
   value?: any;
   message?: string;
@@ -66,6 +66,9 @@ interface RuleAction {
   processingDays?: number;
   // Recommended banks
   banks?: string[];
+  // Agent assignment
+  agentId?: string;
+  agentName?: string;
 }
 
 interface DocumentRequirement {
@@ -111,6 +114,7 @@ const ACTION_OPTIONS = [
   { value: 'set_field', label: 'Set Field Value' },
   { value: 'set_processing_time', label: 'Set Processing Time' },
   { value: 'recommend_bank', label: 'Recommend Banks' },
+  { value: 'assign_agent', label: 'Assign to Agent' },
 ];
 
 export default function RulesTab({ rules: propRules, onUpdate }: RulesTabProps) {
@@ -906,6 +910,15 @@ function RuleEditorDialog({
                       onChange={(banks) => updateAction(index, { banks })}
                     />
                   )}
+                  
+                  {/* Agent Assignment UI */}
+                  {action.type === 'assign_agent' && (
+                    <AgentSelectorEditor
+                      agentId={action.agentId || ''}
+                      agentName={action.agentName || ''}
+                      onChange={(agentId, agentName) => updateAction(index, { agentId, agentName })}
+                    />
+                  )}
                 </div>
               ))
             )}
@@ -1132,6 +1145,87 @@ function BankRecommendationsEditor({
       
       <p className="text-xs text-muted-foreground">
         Banks suitable for this activity risk level will be suggested to customers.
+      </p>
+    </div>
+  );
+}
+
+// Agent Selector Editor Component
+function AgentSelectorEditor({
+  agentId,
+  agentName,
+  onChange
+}: {
+  agentId: string;
+  agentName: string;
+  onChange: (agentId: string, agentName: string) => void;
+}) {
+  const [agents, setAgents] = useState<{ id: string; name: string; email: string }[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch agents from profiles table
+  useEffect(() => {
+    const fetchAgents = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('profiles')
+          .select('id, name, email')
+          .order('name');
+        
+        if (error) throw error;
+        setAgents(data?.map(a => ({ 
+          id: a.id, 
+          name: a.name || a.email || 'Unknown',
+          email: a.email || ''
+        })) || []);
+      } catch (err) {
+        console.error('Failed to fetch agents:', err);
+        setAgents([]);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchAgents();
+  }, []);
+
+  const handleAgentChange = (selectedId: string) => {
+    const agent = agents.find(a => a.id === selectedId);
+    onChange(selectedId, agent?.name || '');
+  };
+
+  return (
+    <div className="space-y-2 pl-4 border-l-2 border-green-300">
+      <div className="flex items-center gap-2">
+        <Label className="text-sm font-medium">Assign to Agent</Label>
+      </div>
+      
+      <Select value={agentId} onValueChange={handleAgentChange}>
+        <SelectTrigger className="w-full">
+          <SelectValue placeholder="Select an agent..." />
+        </SelectTrigger>
+        <SelectContent className="bg-background z-[9999]" position="popper" sideOffset={4}>
+          {loading ? (
+            <SelectItem value="_loading" disabled>Loading agents...</SelectItem>
+          ) : agents.length === 0 ? (
+            <SelectItem value="_empty" disabled>No agents available</SelectItem>
+          ) : (
+            agents.map(agent => (
+              <SelectItem key={agent.id} value={agent.id}>
+                {agent.name} {agent.email && `(${agent.email})`}
+              </SelectItem>
+            ))
+          )}
+        </SelectContent>
+      </Select>
+      
+      {agentId && agentName && (
+        <Badge variant="secondary" className="bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-300">
+          Will assign to: {agentName}
+        </Badge>
+      )}
+      
+      <p className="text-xs text-muted-foreground">
+        Applications matching this rule will be automatically assigned to the selected agent.
       </p>
     </div>
   );
