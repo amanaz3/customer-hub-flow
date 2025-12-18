@@ -37,7 +37,23 @@ interface BankReadinessResultsProps {
   interviewGuidance: string[];
   onBack: () => void;
   onStartNew: () => void;
+  showDemo?: boolean;
 }
+
+// Demo data for Smart Insights
+const DEMO_SIMILAR_STATS = {
+  totalSimilar: 12,
+  approvedCount: 9,
+  rejectedCount: 3,
+  approvalRate: 75,
+  bankStats: [
+    { bank: 'Emirates NBD', rate: 85, approved: 6, rejected: 1 },
+    { bank: 'RAKBANK', rate: 80, approved: 4, rejected: 1 },
+    { bank: 'ADCB', rate: 67, approved: 4, rejected: 2 },
+    { bank: 'Mashreq', rate: 60, approved: 3, rejected: 2 },
+  ],
+  topRejectionReasons: ['High-risk activity', 'Missing documentation', 'Non-resident status']
+};
 
 const BankReadinessResults: React.FC<BankReadinessResultsProps> = ({
   input,
@@ -46,7 +62,8 @@ const BankReadinessResults: React.FC<BankReadinessResultsProps> = ({
   helpfulDocuments,
   interviewGuidance,
   onBack,
-  onStartNew
+  onStartNew,
+  showDemo = false
 }) => {
   const [aiExplanation, setAiExplanation] = useState<string | null>(null);
   const [improvementSteps, setImprovementSteps] = useState<string[] | null>(null);
@@ -60,6 +77,15 @@ const BankReadinessResults: React.FC<BankReadinessResultsProps> = ({
     risk_category: result.category,
     company_jurisdiction: input.company_jurisdiction,
   });
+
+  // Use demo data if in demo mode
+  const similarStats = showDemo ? DEMO_SIMILAR_STATS : getSimilarCaseStats;
+  const bankSuccessRateFn = showDemo 
+    ? (bank: string) => {
+        const found = DEMO_SIMILAR_STATS.bankStats.find(b => b.bank === bank);
+        return found ? { rate: found.rate, total: found.approved + found.rejected } : null;
+      }
+    : getBankSuccessRate;
 
   const getRiskColor = (category: 'low' | 'medium' | 'high') => {
     switch (category) {
@@ -280,12 +306,12 @@ const BankReadinessResults: React.FC<BankReadinessResultsProps> = ({
         {/* Smart Insights Tab */}
         <TabsContent value="insights" className="space-y-4">
           <SmartBankInsights
-            similarStats={getSimilarCaseStats}
-            getBankSuccessRate={getBankSuccessRate}
+            similarStats={similarStats}
+            getBankSuccessRate={bankSuccessRateFn}
             recommendedBanks={result.recommendedBanks}
           />
           
-          {!getSimilarCaseStats && (
+          {!similarStats && (
             <Card>
               <CardContent className="py-8 text-center">
                 <History className="h-12 w-12 text-muted-foreground mx-auto mb-4" />

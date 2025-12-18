@@ -416,6 +416,7 @@ const BankReadiness = () => {
             interviewGuidance={showDemo ? DEMO_INTERVIEW_GUIDANCE : getInterviewGuidance(currentCase, assessmentResult.category)}
             onBack={showDemo ? handleBackToList : handleBackToForm}
             onStartNew={handleCreateNew}
+            showDemo={showDemo}
           />
         )}
       </>
