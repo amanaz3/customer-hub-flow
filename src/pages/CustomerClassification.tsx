@@ -142,7 +142,14 @@ const CustomerClassification = () => {
       name: string; 
       count: number; 
       revenue: number;
-      customers?: Array<{ name: string; company: string; service: string; amount: number }>;
+      customers?: Array<{ 
+        name: string; 
+        company: string; 
+        service: string; 
+        amount: number;
+        businessActivity: string;
+        licenseType: string;
+      }>;
     }>;
     businessTypes: Array<{ name: string; count: number; revenue: number }>;
   }>>([]);
@@ -329,7 +336,7 @@ const CustomerClassification = () => {
         const industryBreakdown = new Map<string, { 
           count: number; 
           revenue: number; 
-          customers: Array<{ name: string; company: string; service: string; amount: number }>;
+          customers: Array<{ name: string; company: string; service: string; amount: number; businessActivity: string; licenseType: string }>;
         }>();
         const businessTypeBreakdown = new Map<string, { count: number; revenue: number }>();
         
@@ -346,13 +353,24 @@ const CustomerClassification = () => {
             ? productMap.get(c.product_id) || app?.application_type || 'Unknown Service'
             : app?.application_type || 'Unknown Service';
           
+          // Extract business activity from application data
+          const appData = app?.application_data as Record<string, any> | null;
+          const businessActivity = appData?.business_activity_details 
+            || appData?.proposed_activity 
+            || appData?.step2?.business_activity_details 
+            || appData?.step2?.proposed_activity
+            || appData?.business_activity
+            || 'Not specified';
+          
           // Add customer details for "Other" industry
           if (industry === 'Other') {
             indData.customers.push({
               name: c.name || 'Unknown',
               company: c.company || 'N/A',
               service: serviceName,
-              amount: amt
+              amount: amt,
+              businessActivity: businessActivity,
+              licenseType: c.license_type || 'Unknown'
             });
           }
           
@@ -765,18 +783,28 @@ const CustomerClassification = () => {
                                         <CollapsibleContent className="mt-1 ml-2 space-y-1">
                                           <p className="text-[10px] text-muted-foreground mb-1">Customer Details:</p>
                                           {ind.customers.map((cust, cidx) => (
-                                            <div key={cidx} className="text-[11px] bg-muted/50 rounded px-2 py-1.5 border-l-2 border-amber-500/50">
+                                            <div key={cidx} className="text-[11px] bg-muted/50 rounded px-2 py-1.5 border-l-2 border-amber-500/50 space-y-1">
                                               <div className="flex items-center justify-between">
                                                 <span className="font-medium truncate max-w-[100px]">{cust.name}</span>
                                                 <Badge variant="secondary" className="text-[10px] h-4">
                                                   {formatCurrency(cust.amount)}
                                                 </Badge>
                                               </div>
-                                              <div className="flex items-center gap-2 mt-0.5 text-muted-foreground">
+                                              <div className="flex items-center gap-1 text-muted-foreground">
                                                 <span className="truncate max-w-[80px]">{cust.company}</span>
                                                 <span>•</span>
-                                                <span className="truncate max-w-[80px]">{cust.service}</span>
+                                                <Badge variant="outline" className="text-[9px] h-3.5 px-1">{cust.licenseType}</Badge>
                                               </div>
+                                              <div className="text-muted-foreground">
+                                                <span className="text-[10px]">Service: </span>
+                                                <span className="truncate">{cust.service}</span>
+                                              </div>
+                                              {cust.businessActivity && cust.businessActivity !== 'Not specified' && (
+                                                <div className="text-muted-foreground bg-muted/70 rounded px-1 py-0.5">
+                                                  <span className="text-[10px]">Activity: </span>
+                                                  <span className="truncate text-foreground/80">{cust.businessActivity}</span>
+                                                </div>
+                                              )}
                                             </div>
                                           ))}
                                         </CollapsibleContent>
