@@ -31,6 +31,7 @@ export function DatabaseViewerSection() {
   const [isLoadingTables, setIsLoadingTables] = useState(true);
   const [rowCount, setRowCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
+  const [tableSearchTerm, setTableSearchTerm] = useState('');
   const [metadata, setMetadata] = useState<TableMetadata>({
     primaryKeys: [],
     foreignKeys: [],
@@ -206,6 +207,11 @@ export function DatabaseViewerSection() {
     });
   });
 
+  // Filter tables based on search
+  const filteredTables = availableTables.filter(table =>
+    table.toLowerCase().includes(tableSearchTerm.toLowerCase())
+  );
+
   return (
     <div className="space-y-4">
       <div className="flex items-center gap-4">
@@ -214,18 +220,35 @@ export function DatabaseViewerSection() {
             <SelectTrigger className="bg-background">
               <SelectValue placeholder="Select a table" />
             </SelectTrigger>
-            <SelectContent className="bg-background border shadow-md z-50 max-h-[300px] overflow-y-auto">
+            <SelectContent className="bg-background border shadow-md z-50">
+              <div className="p-2 border-b">
+                <div className="relative">
+                  <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    type="text"
+                    placeholder="Search tables..."
+                    value={tableSearchTerm}
+                    onChange={(e) => setTableSearchTerm(e.target.value)}
+                    className="pl-8 h-8 text-sm"
+                    onClick={(e) => e.stopPropagation()}
+                  />
+                </div>
+              </div>
               <ScrollArea className="h-[280px]">
                 {isLoadingTables ? (
                   <div className="flex items-center justify-center py-4">
                     <Loader2 className="h-4 w-4 animate-spin" />
                   </div>
-                ) : (
-                  availableTables.map((table) => (
+                ) : filteredTables.length > 0 ? (
+                  filteredTables.map((table) => (
                     <SelectItem key={table} value={table}>
                       {table}
                     </SelectItem>
                   ))
+                ) : (
+                  <div className="text-center py-4 text-sm text-muted-foreground">
+                    No tables found
+                  </div>
                 )}
               </ScrollArea>
             </SelectContent>
