@@ -12,14 +12,12 @@ import {
   FileSearch, 
   TrendingUp,
   FlaskConical,
-  History,
-  Settings
+  History
 } from 'lucide-react';
 import { BillUpload } from '@/components/Bookkeeper/BillUpload';
 import { ReconciliationView } from '@/components/Bookkeeper/ReconciliationView';
 import { AnalyticsDashboard } from '@/components/Bookkeeper/AnalyticsDashboard';
 import { TransactionHistory } from '@/components/Bookkeeper/TransactionHistory';
-import { ReconciliationRulesAdmin } from '@/components/Bookkeeper/ReconciliationRulesAdmin';
 import { useBookkeeper } from '@/hooks/useBookkeeper';
 
 export default function AIBookkeeper() {
@@ -121,7 +119,7 @@ export default function AIBookkeeper() {
 
         {/* Main Tabs */}
         <Tabs defaultValue="history" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-5 lg:w-auto lg:inline-grid">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
             <TabsTrigger value="history" className="flex items-center gap-2">
               <History className="h-4 w-4" />
               <span className="hidden sm:inline">History</span>
@@ -142,11 +140,6 @@ export default function AIBookkeeper() {
               <span className="hidden sm:inline">Analytics</span>
               <span className="sm:hidden">Stats</span>
             </TabsTrigger>
-            <TabsTrigger value="rules" className="flex items-center gap-2">
-              <Settings className="h-4 w-4" />
-              <span className="hidden sm:inline">Rules</span>
-              <span className="sm:hidden">Rules</span>
-            </TabsTrigger>
           </TabsList>
           
           <TabsContent value="history">
@@ -163,10 +156,6 @@ export default function AIBookkeeper() {
           
           <TabsContent value="analytics">
             <AnalyticsDashboard demoMode={demoMode} />
-          </TabsContent>
-
-          <TabsContent value="rules">
-            <ReconciliationRulesAdmin />
           </TabsContent>
         </Tabs>
       </div>
