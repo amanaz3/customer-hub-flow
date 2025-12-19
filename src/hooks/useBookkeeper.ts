@@ -218,8 +218,35 @@ export function useBookkeeper(demoMode: boolean = false) {
 
   const createBill = async (billData: Partial<Bill>) => {
     if (demoMode) {
-      toast({ title: 'Demo Mode', description: 'Cannot create bills in demo mode' });
-      return null;
+      // In demo mode, add to local state instead of database
+      const newBill: Bill = {
+        id: `demo-${Date.now()}`,
+        reference_number: billData.reference_number || `BILL-${Date.now()}`,
+        vendor_id: billData.vendor_id || null,
+        vendor_name: billData.vendor_name || 'Unknown Vendor',
+        bill_date: billData.bill_date || new Date().toISOString().split('T')[0],
+        due_date: billData.due_date || null,
+        amount: billData.amount || 0,
+        tax_amount: billData.tax_amount || 0,
+        total_amount: billData.total_amount || 0,
+        currency: billData.currency || 'AED',
+        status: billData.status || 'pending',
+        accounting_method: billData.accounting_method || 'accrual',
+        ocr_source: billData.ocr_source || null,
+        ocr_raw_data: billData.ocr_raw_data || null,
+        ocr_confidence: billData.ocr_confidence || null,
+        line_items: billData.line_items || null,
+        file_path: billData.file_path || null,
+        file_name: billData.file_name || null,
+        notes: billData.notes || null,
+        is_paid: billData.is_paid || false,
+        paid_amount: billData.paid_amount || 0,
+        paid_at: billData.paid_at || null,
+        created_at: new Date().toISOString()
+      };
+      setBills(prev => [newBill, ...prev]);
+      toast({ title: 'Success', description: 'Bill added (demo mode)' });
+      return newBill;
     }
     try {
       const { data, error } = await supabase
@@ -340,19 +367,25 @@ export function useBookkeeper(demoMode: boolean = false) {
     ocrProvider: 'tesseract' | 'google_vision' | 'aws_textract' = 'tesseract'
   ) => {
     if (demoMode) {
-      toast({ title: 'Demo Mode', description: 'OCR processing not available in demo mode' });
+      // In demo mode, return simulated OCR data that user can still save
+      toast({ title: 'Demo Mode', description: 'Simulating OCR extraction' });
       return {
-        vendorName: 'Demo Vendor',
-        invoiceNumber: 'DEMO-001',
-        invoiceDate: new Date().toISOString().split('T')[0],
-        dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
-        subtotal: 1000,
-        taxAmount: 50,
-        totalAmount: 1050,
-        currency: 'AED',
-        lineItems: [{ description: 'Demo Item', quantity: 1, unitPrice: 1000, amount: 1000 }],
-        rawText: 'Demo OCR text',
-        confidence: 0.95
+        data: {
+          vendorName: 'Extracted Vendor',
+          invoiceNumber: `INV-${Date.now().toString().slice(-6)}`,
+          invoiceDate: new Date().toISOString().split('T')[0],
+          dueDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+          subtotal: Math.floor(Math.random() * 5000) + 500,
+          taxAmount: Math.floor(Math.random() * 250) + 25,
+          totalAmount: Math.floor(Math.random() * 5500) + 525,
+          currency: 'AED',
+          lineItems: [
+            { description: 'Service/Product from ' + fileName, quantity: 1, unitPrice: 1000, amount: 1000 }
+          ],
+          rawText: `Simulated OCR extraction from ${fileName}`,
+          confidence: 0.85
+        },
+        apiKeyMissing: false
       };
     }
     setLoading(true);
