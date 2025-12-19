@@ -11,11 +11,13 @@ import {
   Receipt, 
   FileSearch, 
   TrendingUp,
-  FlaskConical
+  FlaskConical,
+  History
 } from 'lucide-react';
 import { BillUpload } from '@/components/Bookkeeper/BillUpload';
 import { ReconciliationView } from '@/components/Bookkeeper/ReconciliationView';
 import { AnalyticsDashboard } from '@/components/Bookkeeper/AnalyticsDashboard';
+import { TransactionHistory } from '@/components/Bookkeeper/TransactionHistory';
 import { useBookkeeper } from '@/hooks/useBookkeeper';
 
 export default function AIBookkeeper() {
@@ -116,8 +118,13 @@ export default function AIBookkeeper() {
         </div>
 
         {/* Main Tabs */}
-        <Tabs defaultValue="upload" className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3 lg:w-auto lg:inline-grid">
+        <Tabs defaultValue="history" className="space-y-4">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto lg:inline-grid">
+            <TabsTrigger value="history" className="flex items-center gap-2">
+              <History className="h-4 w-4" />
+              <span className="hidden sm:inline">History</span>
+              <span className="sm:hidden">List</span>
+            </TabsTrigger>
             <TabsTrigger value="upload" className="flex items-center gap-2">
               <Upload className="h-4 w-4" />
               <span className="hidden sm:inline">Bill Capture</span>
@@ -134,6 +141,10 @@ export default function AIBookkeeper() {
               <span className="sm:hidden">Stats</span>
             </TabsTrigger>
           </TabsList>
+          
+          <TabsContent value="history">
+            <TransactionHistory demoMode={demoMode} />
+          </TabsContent>
           
           <TabsContent value="upload">
             <BillUpload demoMode={demoMode} />
