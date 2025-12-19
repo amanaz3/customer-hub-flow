@@ -202,6 +202,7 @@ const DEFAULT_CONFIG: BankReadinessConfigData = {
 
 export function useBankReadinessConfig() {
   const [config, setConfig] = useState<BankReadinessConfiguration | null>(null);
+  const [dbBankProfiles, setDbBankProfiles] = useState<BankProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -210,6 +211,20 @@ export function useBankReadinessConfig() {
     setError(null);
 
     try {
+      // Fetch bank profiles from bank_profiles table
+      const { data: bankData, error: bankError } = await supabase
+        .from('bank_profiles')
+        .select('*')
+        .eq('is_active', true)
+        .order('bank_name');
+
+      if (bankError) {
+        console.error('[BankReadinessConfig] Bank profiles error:', bankError);
+      } else {
+        setDbBankProfiles(bankData as BankProfile[]);
+      }
+
+      // Fetch config for rules
       const { data, error: fetchError } = await supabase
         .from('bank_readiness_configurations')
         .select('*')
@@ -421,7 +436,7 @@ export function useBankReadinessConfig() {
     loading,
     error,
     rules: config?.config_data.rules || [],
-    bankProfiles: config?.config_data.bankProfiles || [],
+    bankProfiles: dbBankProfiles,
     versionNumber: config?.version_number || 1,
     updateRules,
     updateBankProfiles,
