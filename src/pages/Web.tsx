@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Globe, ChevronRight, Layers } from 'lucide-react';
+import { Globe, ChevronRight, Layers, Bot } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 
@@ -61,6 +61,29 @@ const Web = () => {
           <CardContent>
             <p className="text-sm text-muted-foreground">
               Consumer-friendly step-by-step business setup flow
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* AI Assistant Card */}
+        <Card 
+          className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
+          onClick={() => navigate('/ai-assistant')}
+        >
+          <CardHeader className="pb-3">
+            <CardTitle className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="p-2 rounded-lg bg-green-500/10">
+                  <Bot className="h-5 w-5 text-green-500" />
+                </div>
+                <span>AI Assistant</span>
+              </div>
+              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground">
+              AI-powered chatbot to guide customers through company formation
             </p>
           </CardContent>
         </Card>
