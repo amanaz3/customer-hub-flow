@@ -12,13 +12,13 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { Input } from '@/components/ui/input';
 
 const AVAILABLE_TABLES = [
+  'profiles',
   'account_applications',
   'application_status_changes',
   'completion_date_history',
   'customers',
   'documents',
   'comments',
-  'profiles',
   'notifications',
   'products',
   'deals',
@@ -37,7 +37,7 @@ interface TableMetadata {
 }
 
 export function DatabaseViewerSection() {
-  const [selectedTable, setSelectedTable] = useState<string>('account_applications');
+  const [selectedTable, setSelectedTable] = useState<string>('profiles');
   const [tableData, setTableData] = useState<any[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -193,12 +193,14 @@ export function DatabaseViewerSection() {
             <SelectTrigger className="bg-background">
               <SelectValue placeholder="Select a table" />
             </SelectTrigger>
-            <SelectContent className="bg-background border shadow-md z-50">
-              {AVAILABLE_TABLES.map((table) => (
-                <SelectItem key={table} value={table}>
-                  {table}
-                </SelectItem>
-              ))}
+            <SelectContent className="bg-background border shadow-md z-50 max-h-[300px] overflow-y-auto">
+              <ScrollArea className="h-[280px]">
+                {AVAILABLE_TABLES.map((table) => (
+                  <SelectItem key={table} value={table}>
+                    {table}
+                  </SelectItem>
+                ))}
+              </ScrollArea>
             </SelectContent>
           </Select>
         </div>
@@ -217,191 +219,150 @@ export function DatabaseViewerSection() {
       </div>
 
       {selectedTable && columns.length > 0 && (
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        <div className="space-y-4">
           {/* Table Information Panel */}
-          <div className="lg:col-span-1">
-            <Alert className="h-full">
-              <Database className="h-4 w-4" />
-              <AlertTitle>Table: {selectedTable}</AlertTitle>
-              <AlertDescription>
-                <div className="mt-2 space-y-2 text-sm">
-                  <div className="flex items-center gap-2 pb-2 border-b">
-                    <span className="text-muted-foreground">Total Rows:</span>
-                    <Badge variant="secondary">{rowCount.toLocaleString()}</Badge>
-                  </div>
-                  <div className="flex items-center gap-2 pb-2 border-b">
-                    <span className="text-muted-foreground">Columns:</span>
-                    <Badge variant="secondary">{columns.length}</Badge>
-                  </div>
-                  
-                  <div className="pt-2">
-                    <strong className="text-xs">Columns:</strong>
-                    <ScrollArea className="h-[200px] mt-2">
-                      <ul className="space-y-1">
-                        {columns.map((column) => {
-                          const isPK = isPrimaryKey(column);
-                          const fk = getForeignKey(column);
-                          const isUnique = isUniqueKey(column);
-                          const dataType = metadata.columnTypes[column] || 'unknown';
-                          
-                          return (
-                            <li key={column} className="text-xs">
-                              <div className="flex flex-col gap-1 p-1 rounded hover:bg-muted/50">
-                                <code className="font-mono text-xs">{column}</code>
-                                <div className="flex items-center gap-1 flex-wrap">
-                                  <Badge variant="outline" className={`text-xs ${getTypeColor(dataType)}`}>
-                                    {dataType}
-                                  </Badge>
-                                  {isPK && <Badge variant="outline" className="text-xs bg-yellow-500/10 text-yellow-700 dark:text-yellow-400">PK</Badge>}
-                                  {fk && (
-                                    <Badge variant="outline" className="text-xs bg-blue-500/10 text-blue-700 dark:text-blue-400" title={`References ${fk.foreignTable}.${fk.foreignColumn}`}>
-                                      FK → {fk.foreignTable}
-                                    </Badge>
-                                  )}
-                                  {isUnique && !isPK && <Badge variant="outline" className="text-xs bg-purple-500/10 text-purple-700 dark:text-purple-400">Unique</Badge>}
-                                </div>
-                              </div>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    </ScrollArea>
-                  </div>
-                  
-                  {metadata.foreignKeys.length > 0 && (
-                    <div className="pt-2 border-t">
-                      <strong className="text-xs">Relationships:</strong>
-                      <div className="mt-1 text-xs text-muted-foreground">
-                        References{' '}
-                        {metadata.foreignKeys.map((fk, idx) => (
-                          <span key={idx}>
-                            {idx > 0 && ', '}
-                            <code className="bg-muted px-1 py-0.5 rounded">{fk.foreignTable}</code>
-                          </span>
-                        ))}
-                      </div>
-                    </div>
-                  )}
+          <Alert>
+            <Database className="h-4 w-4" />
+            <AlertTitle>Table: {selectedTable}</AlertTitle>
+            <AlertDescription>
+              <div className="mt-2 flex flex-wrap gap-4 text-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Total Rows:</span>
+                  <Badge variant="secondary">{rowCount.toLocaleString()}</Badge>
                 </div>
-              </AlertDescription>
-            </Alert>
-          </div>
+                <div className="flex items-center gap-2">
+                  <span className="text-muted-foreground">Columns:</span>
+                  <Badge variant="secondary">{columns.length}</Badge>
+                </div>
+                {metadata.foreignKeys.length > 0 && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-muted-foreground">References:</span>
+                    {metadata.foreignKeys.map((fk, idx) => (
+                      <Badge key={idx} variant="outline" className="text-xs">
+                        {fk.foreignTable}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </AlertDescription>
+          </Alert>
 
-          {/* Table Data Panel */}
-          <div className="lg:col-span-2 space-y-4">
-            {tableData.length > 0 && (
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  type="text"
-                  placeholder="Search in table data..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-9"
-                />
+          {/* Search Input */}
+          {tableData.length > 0 && (
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="text"
+                placeholder="Search in table data..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-9"
+              />
+            </div>
+          )}
+
+          {/* Row Count Info */}
+          <div className="flex items-center gap-4 text-sm flex-wrap">
+            <div className="flex items-center gap-2">
+              <span className="text-muted-foreground">Showing:</span>
+              <Badge variant="secondary">{tableData.length.toLocaleString()} rows</Badge>
+            </div>
+            {searchTerm && (
+              <div className="flex items-center gap-2">
+                <span className="text-muted-foreground">Filtered:</span>
+                <Badge variant="secondary">{filteredData.length.toLocaleString()} rows</Badge>
               </div>
             )}
-
-            <div className="flex items-center gap-4 text-sm flex-wrap">
-              <div className="flex items-center gap-2">
-                <span className="text-muted-foreground">Showing:</span>
-                <Badge variant="secondary">{tableData.length.toLocaleString()} rows</Badge>
-              </div>
-              {searchTerm && (
-                <div className="flex items-center gap-2">
-                  <span className="text-muted-foreground">Filtered:</span>
-                  <Badge variant="secondary">{filteredData.length.toLocaleString()} rows</Badge>
-                </div>
-              )}
-              {rowCount > 50 && (
-                <span className="text-xs text-muted-foreground">(limited to 50 rows)</span>
-              )}
-            </div>
-
-            {isLoading ? (
-              <div className="flex items-center justify-center py-8">
-                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
-              </div>
-            ) : filteredData.length > 0 ? (
-              <ScrollArea className="h-[500px] rounded-md border">
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      {columns.map((column) => {
-                        const isPK = isPrimaryKey(column);
-                        const fk = getForeignKey(column);
-                        const isUnique = isUniqueKey(column);
-                        const dataType = metadata.columnTypes[column] || 'unknown';
-                        
-                        return (
-                          <TableHead key={column} className="font-semibold">
-                            <TooltipProvider>
-                              <div className="flex flex-col gap-1">
-                                <div className="flex items-center gap-2">
-                                  <span>{column}</span>
-                                  {isPK && (
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <Key className="h-3 w-3 text-yellow-500" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p>Primary Key</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  )}
-                                  {fk && (
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <Link2 className="h-3 w-3 text-blue-500" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p>Foreign Key → {fk.foreignTable}.{fk.foreignColumn}</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  )}
-                                  {isUnique && !isPK && (
-                                    <Tooltip>
-                                      <TooltipTrigger asChild>
-                                        <Star className="h-3 w-3 text-purple-500" />
-                                      </TooltipTrigger>
-                                      <TooltipContent>
-                                        <p>Unique Key</p>
-                                      </TooltipContent>
-                                    </Tooltip>
-                                  )}
-                                </div>
-                                <Badge 
-                                  variant="outline" 
-                                  className={`text-xs font-mono ${getTypeColor(dataType)}`}
-                                >
-                                  {dataType}
-                                </Badge>
-                              </div>
-                            </TooltipProvider>
-                          </TableHead>
-                        );
-                      })}
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {filteredData.map((row, rowIndex) => (
-                      <TableRow key={rowIndex}>
-                        {columns.map((column) => (
-                          <TableCell key={column} className="max-w-xs truncate">
-                            {formatValue(row[column])}
-                          </TableCell>
-                        ))}
-                      </TableRow>
-                    ))}
-                  </TableBody>
-                </Table>
-              </ScrollArea>
-            ) : searchTerm && tableData.length > 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
-                No results found for "{searchTerm}"
-              </div>
-            ) : null}
+            {rowCount > 50 && (
+              <span className="text-xs text-muted-foreground">(limited to 50 rows)</span>
+            )}
           </div>
+
+          {/* Table Data */}
+          {isLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+            </div>
+          ) : filteredData.length > 0 ? (
+            <ScrollArea className="h-[500px] rounded-md border">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    {columns.map((column) => {
+                      const isPK = isPrimaryKey(column);
+                      const fk = getForeignKey(column);
+                      const isUnique = isUniqueKey(column);
+                      const dataType = metadata.columnTypes[column] || 'unknown';
+                      
+                      return (
+                        <TableHead key={column} className="font-semibold">
+                          <TooltipProvider>
+                            <div className="flex flex-col gap-1">
+                              <div className="flex items-center gap-2">
+                                <span>{column}</span>
+                                {isPK && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Key className="h-3 w-3 text-yellow-500" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Primary Key</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                                {fk && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Link2 className="h-3 w-3 text-blue-500" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Foreign Key → {fk.foreignTable}.{fk.foreignColumn}</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                                {isUnique && !isPK && (
+                                  <Tooltip>
+                                    <TooltipTrigger asChild>
+                                      <Star className="h-3 w-3 text-purple-500" />
+                                    </TooltipTrigger>
+                                    <TooltipContent>
+                                      <p>Unique Key</p>
+                                    </TooltipContent>
+                                  </Tooltip>
+                                )}
+                              </div>
+                              <Badge 
+                                variant="outline" 
+                                className={`text-xs font-mono ${getTypeColor(dataType)}`}
+                              >
+                                {dataType}
+                              </Badge>
+                            </div>
+                          </TooltipProvider>
+                        </TableHead>
+                      );
+                    })}
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredData.map((row, rowIndex) => (
+                    <TableRow key={rowIndex}>
+                      {columns.map((column) => (
+                        <TableCell key={column} className="max-w-xs truncate">
+                          {formatValue(row[column])}
+                        </TableCell>
+                      ))}
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </ScrollArea>
+          ) : searchTerm && tableData.length > 0 ? (
+            <div className="text-center py-8 text-muted-foreground">
+              No results found for "{searchTerm}"
+            </div>
+          ) : null}
         </div>
       )}
 
