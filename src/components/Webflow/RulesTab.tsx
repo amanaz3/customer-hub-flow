@@ -111,7 +111,9 @@ const ACTION_OPTIONS = [
   { value: 'block', label: 'Block Application' },
   { value: 'allow', label: 'Allow Application' },
   { value: 'require_document', label: 'Require Document' },
-  { value: 'set_price', label: 'Set Price' },
+  { value: 'set_price', label: 'Set Price (Fixed Amount)' },
+  { value: 'multiply_price', label: 'Multiply Price (%)' },
+  { value: 'add_fee', label: 'Add Fee' },
   { value: 'show_warning', label: 'Show Warning' },
   { value: 'set_field', label: 'Set Field Value' },
   { value: 'set_processing_time', label: 'Set Processing Time' },
@@ -120,6 +122,9 @@ const ACTION_OPTIONS = [
   { value: 'add_risk_score', label: 'Add Risk Score' },
   { value: 'auto_approve', label: 'Auto-Approve' },
   { value: 'require_manual_review', label: 'Require Manual Review' },
+  { value: 'skip_step', label: 'Skip Step' },
+  { value: 'show_step', label: 'Show Step' },
+  { value: 'apply_discount', label: 'Apply Discount (%)' },
 ];
 
 export default function RulesTab({ rules: propRules, onUpdate }: RulesTabProps) {
