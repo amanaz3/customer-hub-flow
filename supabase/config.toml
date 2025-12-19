@@ -152,3 +152,12 @@ verify_jwt = false
 
 [functions.ai-assistant]
 verify_jwt = false
+
+[functions.bookkeeper-ocr]
+verify_jwt = true
+
+[functions.bookkeeper-analytics]
+verify_jwt = true
+
+[functions.bookkeeper-reconcile]
+verify_jwt = true
