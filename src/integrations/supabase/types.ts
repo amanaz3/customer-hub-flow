@@ -1092,6 +1092,647 @@ export type Database = {
         }
         Relationships: []
       }
+      bookkeeper_bills: {
+        Row: {
+          accounting_method:
+            | Database["public"]["Enums"]["bookkeeper_accounting_method"]
+            | null
+          amount: number
+          bill_date: string
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          due_date: string | null
+          file_name: string | null
+          file_path: string | null
+          id: string
+          is_paid: boolean | null
+          line_items: Json | null
+          notes: string | null
+          ocr_confidence: number | null
+          ocr_raw_data: Json | null
+          ocr_source: string | null
+          paid_amount: number | null
+          paid_at: string | null
+          reference_number: string
+          status: string | null
+          tax_amount: number | null
+          total_amount: number
+          updated_at: string | null
+          vendor_id: string | null
+          vendor_name: string | null
+        }
+        Insert: {
+          accounting_method?:
+            | Database["public"]["Enums"]["bookkeeper_accounting_method"]
+            | null
+          amount: number
+          bill_date: string
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          due_date?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          is_paid?: boolean | null
+          line_items?: Json | null
+          notes?: string | null
+          ocr_confidence?: number | null
+          ocr_raw_data?: Json | null
+          ocr_source?: string | null
+          paid_amount?: number | null
+          paid_at?: string | null
+          reference_number: string
+          status?: string | null
+          tax_amount?: number | null
+          total_amount: number
+          updated_at?: string | null
+          vendor_id?: string | null
+          vendor_name?: string | null
+        }
+        Update: {
+          accounting_method?:
+            | Database["public"]["Enums"]["bookkeeper_accounting_method"]
+            | null
+          amount?: number
+          bill_date?: string
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          due_date?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          is_paid?: boolean | null
+          line_items?: Json | null
+          notes?: string | null
+          ocr_confidence?: number | null
+          ocr_raw_data?: Json | null
+          ocr_source?: string | null
+          paid_amount?: number | null
+          paid_at?: string | null
+          reference_number?: string
+          status?: string | null
+          tax_amount?: number | null
+          total_amount?: number
+          updated_at?: string | null
+          vendor_id?: string | null
+          vendor_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookkeeper_bills_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookkeeper_bills_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "bookkeeper_vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookkeeper_forecasts: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          expected_inflow: number | null
+          expected_outflow: number | null
+          forecast_data: Json | null
+          forecast_date: string
+          forecast_type: string
+          id: string
+          net_cash_flow: number | null
+          overdue_payables: number | null
+          overdue_receivables: number | null
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          expected_inflow?: number | null
+          expected_outflow?: number | null
+          forecast_data?: Json | null
+          forecast_date: string
+          forecast_type: string
+          id?: string
+          net_cash_flow?: number | null
+          overdue_payables?: number | null
+          overdue_receivables?: number | null
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          expected_inflow?: number | null
+          expected_outflow?: number | null
+          forecast_data?: Json | null
+          forecast_date?: string
+          forecast_type?: string
+          id?: string
+          net_cash_flow?: number | null
+          overdue_payables?: number | null
+          overdue_receivables?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookkeeper_forecasts_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookkeeper_invoices: {
+        Row: {
+          accounting_method:
+            | Database["public"]["Enums"]["bookkeeper_accounting_method"]
+            | null
+          amount: number
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          customer_id: string | null
+          customer_name: string | null
+          due_date: string | null
+          id: string
+          invoice_date: string
+          is_paid: boolean | null
+          line_items: Json | null
+          notes: string | null
+          paid_amount: number | null
+          paid_at: string | null
+          reference_number: string
+          status: string | null
+          tax_amount: number | null
+          total_amount: number
+          updated_at: string | null
+        }
+        Insert: {
+          accounting_method?:
+            | Database["public"]["Enums"]["bookkeeper_accounting_method"]
+            | null
+          amount: number
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_date: string
+          is_paid?: boolean | null
+          line_items?: Json | null
+          notes?: string | null
+          paid_amount?: number | null
+          paid_at?: string | null
+          reference_number: string
+          status?: string | null
+          tax_amount?: number | null
+          total_amount: number
+          updated_at?: string | null
+        }
+        Update: {
+          accounting_method?:
+            | Database["public"]["Enums"]["bookkeeper_accounting_method"]
+            | null
+          amount?: number
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          customer_id?: string | null
+          customer_name?: string | null
+          due_date?: string | null
+          id?: string
+          invoice_date?: string
+          is_paid?: boolean | null
+          line_items?: Json | null
+          notes?: string | null
+          paid_amount?: number | null
+          paid_at?: string | null
+          reference_number?: string
+          status?: string | null
+          tax_amount?: number | null
+          total_amount?: number
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookkeeper_invoices_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookkeeper_invoices_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookkeeper_ocr_queue: {
+        Row: {
+          bill_id: string | null
+          confidence_score: number | null
+          created_at: string | null
+          created_by: string | null
+          error_message: string | null
+          extracted_data: Json | null
+          file_name: string
+          file_path: string
+          file_type: string | null
+          id: string
+          ocr_provider: string | null
+          processed_at: string | null
+          status: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          bill_id?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          error_message?: string | null
+          extracted_data?: Json | null
+          file_name: string
+          file_path: string
+          file_type?: string | null
+          id?: string
+          ocr_provider?: string | null
+          processed_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          bill_id?: string | null
+          confidence_score?: number | null
+          created_at?: string | null
+          created_by?: string | null
+          error_message?: string | null
+          extracted_data?: Json | null
+          file_name?: string
+          file_path?: string
+          file_type?: string | null
+          id?: string
+          ocr_provider?: string | null
+          processed_at?: string | null
+          status?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookkeeper_ocr_queue_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bookkeeper_bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookkeeper_ocr_queue_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookkeeper_payments: {
+        Row: {
+          amount: number
+          bank_reference: string | null
+          bill_id: string | null
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          customer_id: string | null
+          file_name: string | null
+          file_path: string | null
+          id: string
+          invoice_id: string | null
+          notes: string | null
+          payment_date: string
+          payment_method: string | null
+          payment_type: string
+          reference_number: string
+          updated_at: string | null
+          vendor_id: string | null
+        }
+        Insert: {
+          amount: number
+          bank_reference?: string | null
+          bill_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          customer_id?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          payment_date: string
+          payment_method?: string | null
+          payment_type: string
+          reference_number: string
+          updated_at?: string | null
+          vendor_id?: string | null
+        }
+        Update: {
+          amount?: number
+          bank_reference?: string | null
+          bill_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          customer_id?: string | null
+          file_name?: string | null
+          file_path?: string | null
+          id?: string
+          invoice_id?: string | null
+          notes?: string | null
+          payment_date?: string
+          payment_method?: string | null
+          payment_type?: string
+          reference_number?: string
+          updated_at?: string | null
+          vendor_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookkeeper_payments_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bookkeeper_bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookkeeper_payments_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookkeeper_payments_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookkeeper_payments_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "bookkeeper_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookkeeper_payments_vendor_id_fkey"
+            columns: ["vendor_id"]
+            isOneToOne: false
+            referencedRelation: "bookkeeper_vendors"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookkeeper_reconciliations: {
+        Row: {
+          bill_id: string | null
+          created_at: string | null
+          discrepancy_amount: number | null
+          discrepancy_reason: string | null
+          id: string
+          invoice_id: string | null
+          matched_amount: number | null
+          notes: string | null
+          payment_id: string | null
+          reconciled_at: string | null
+          reconciled_by: string | null
+          status:
+            | Database["public"]["Enums"]["bookkeeper_reconciliation_status"]
+            | null
+          updated_at: string | null
+        }
+        Insert: {
+          bill_id?: string | null
+          created_at?: string | null
+          discrepancy_amount?: number | null
+          discrepancy_reason?: string | null
+          id?: string
+          invoice_id?: string | null
+          matched_amount?: number | null
+          notes?: string | null
+          payment_id?: string | null
+          reconciled_at?: string | null
+          reconciled_by?: string | null
+          status?:
+            | Database["public"]["Enums"]["bookkeeper_reconciliation_status"]
+            | null
+          updated_at?: string | null
+        }
+        Update: {
+          bill_id?: string | null
+          created_at?: string | null
+          discrepancy_amount?: number | null
+          discrepancy_reason?: string | null
+          id?: string
+          invoice_id?: string | null
+          matched_amount?: number | null
+          notes?: string | null
+          payment_id?: string | null
+          reconciled_at?: string | null
+          reconciled_by?: string | null
+          status?:
+            | Database["public"]["Enums"]["bookkeeper_reconciliation_status"]
+            | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookkeeper_reconciliations_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bookkeeper_bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookkeeper_reconciliations_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "bookkeeper_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookkeeper_reconciliations_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "bookkeeper_payments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookkeeper_reconciliations_reconciled_by_fkey"
+            columns: ["reconciled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookkeeper_transactions: {
+        Row: {
+          account_type: Database["public"]["Enums"]["bookkeeper_account_type"]
+          accounting_method:
+            | Database["public"]["Enums"]["bookkeeper_accounting_method"]
+            | null
+          amount: number
+          bill_id: string | null
+          created_at: string | null
+          created_by: string | null
+          currency: string | null
+          description: string | null
+          id: string
+          invoice_id: string | null
+          is_reconciled: boolean | null
+          payment_id: string | null
+          reconciled_at: string | null
+          reference_id: string | null
+          reference_type: string | null
+          transaction_date: string
+          transaction_type: Database["public"]["Enums"]["bookkeeper_transaction_type"]
+          updated_at: string | null
+        }
+        Insert: {
+          account_type: Database["public"]["Enums"]["bookkeeper_account_type"]
+          accounting_method?:
+            | Database["public"]["Enums"]["bookkeeper_accounting_method"]
+            | null
+          amount: number
+          bill_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          invoice_id?: string | null
+          is_reconciled?: boolean | null
+          payment_id?: string | null
+          reconciled_at?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          transaction_date: string
+          transaction_type: Database["public"]["Enums"]["bookkeeper_transaction_type"]
+          updated_at?: string | null
+        }
+        Update: {
+          account_type?: Database["public"]["Enums"]["bookkeeper_account_type"]
+          accounting_method?:
+            | Database["public"]["Enums"]["bookkeeper_accounting_method"]
+            | null
+          amount?: number
+          bill_id?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          currency?: string | null
+          description?: string | null
+          id?: string
+          invoice_id?: string | null
+          is_reconciled?: boolean | null
+          payment_id?: string | null
+          reconciled_at?: string | null
+          reference_id?: string | null
+          reference_type?: string | null
+          transaction_date?: string
+          transaction_type?: Database["public"]["Enums"]["bookkeeper_transaction_type"]
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookkeeper_transactions_bill_id_fkey"
+            columns: ["bill_id"]
+            isOneToOne: false
+            referencedRelation: "bookkeeper_bills"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookkeeper_transactions_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookkeeper_transactions_invoice_id_fkey"
+            columns: ["invoice_id"]
+            isOneToOne: false
+            referencedRelation: "bookkeeper_invoices"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "bookkeeper_transactions_payment_id_fkey"
+            columns: ["payment_id"]
+            isOneToOne: false
+            referencedRelation: "bookkeeper_payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookkeeper_vendors: {
+        Row: {
+          address: string | null
+          created_at: string | null
+          created_by: string | null
+          email: string | null
+          id: string
+          name: string
+          notes: string | null
+          payment_terms: number | null
+          phone: string | null
+          tax_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          address?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          name: string
+          notes?: string | null
+          payment_terms?: number | null
+          phone?: string | null
+          tax_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          address?: string | null
+          created_at?: string | null
+          created_by?: string | null
+          email?: string | null
+          id?: string
+          name?: string
+          notes?: string | null
+          payment_terms?: number | null
+          phone?: string | null
+          tax_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookkeeper_vendors_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bundle_products: {
         Row: {
           bundle_id: string
@@ -4538,6 +5179,14 @@ export type Database = {
         | "approved"
         | "need more info"
         | "predraft"
+      bookkeeper_account_type: "payable" | "receivable"
+      bookkeeper_accounting_method: "cash" | "accrual"
+      bookkeeper_reconciliation_status:
+        | "matched"
+        | "partial"
+        | "unmatched"
+        | "disputed"
+      bookkeeper_transaction_type: "bill" | "payment" | "invoice" | "receipt"
       customer_status:
         | "Draft"
         | "Submitted"
@@ -4757,6 +5406,15 @@ export const Constants = {
         "need more info",
         "predraft",
       ],
+      bookkeeper_account_type: ["payable", "receivable"],
+      bookkeeper_accounting_method: ["cash", "accrual"],
+      bookkeeper_reconciliation_status: [
+        "matched",
+        "partial",
+        "unmatched",
+        "disputed",
+      ],
+      bookkeeper_transaction_type: ["bill", "payment", "invoice", "receipt"],
       customer_status: [
         "Draft",
         "Submitted",
