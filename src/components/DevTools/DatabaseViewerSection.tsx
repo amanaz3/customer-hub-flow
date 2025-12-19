@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -10,20 +10,6 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Input } from '@/components/ui/input';
-
-const AVAILABLE_TABLES = [
-  'profiles',
-  'account_applications',
-  'application_status_changes',
-  'completion_date_history',
-  'customers',
-  'documents',
-  'comments',
-  'notifications',
-  'products',
-  'deals',
-  'customer_services',
-];
 
 interface TableMetadata {
   primaryKeys: string[];
@@ -37,10 +23,12 @@ interface TableMetadata {
 }
 
 export function DatabaseViewerSection() {
-  const [selectedTable, setSelectedTable] = useState<string>('profiles');
+  const [availableTables, setAvailableTables] = useState<string[]>([]);
+  const [selectedTable, setSelectedTable] = useState<string>('');
   const [tableData, setTableData] = useState<any[]>([]);
   const [columns, setColumns] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingTables, setIsLoadingTables] = useState(true);
   const [rowCount, setRowCount] = useState(0);
   const [searchTerm, setSearchTerm] = useState('');
   const [metadata, setMetadata] = useState<TableMetadata>({
@@ -50,6 +38,39 @@ export function DatabaseViewerSection() {
     columnTypes: {}
   });
   const { toast } = useToast();
+
+  // Fetch all available tables on mount
+  useEffect(() => {
+    const fetchTables = async () => {
+      setIsLoadingTables(true);
+      try {
+        const { data, error } = await supabase.rpc('get_public_tables' as any);
+        
+        if (error) throw error;
+        
+        const tables = (data as any[] || []).map((t: any) => t.table_name).sort();
+        setAvailableTables(tables);
+        
+        // Default to 'profiles' if available, otherwise first table
+        const defaultTable = tables.includes('profiles') ? 'profiles' : tables[0];
+        if (defaultTable) {
+          setSelectedTable(defaultTable);
+          fetchTableMetadata(defaultTable);
+          fetchTableData(defaultTable);
+        }
+      } catch (error) {
+        console.error('Error fetching tables:', error);
+        // Fallback to basic list
+        const fallbackTables = ['profiles', 'customers', 'account_applications', 'products'];
+        setAvailableTables(fallbackTables);
+        setSelectedTable('profiles');
+      } finally {
+        setIsLoadingTables(false);
+      }
+    };
+    
+    fetchTables();
+  }, []);
 
   const fetchTableMetadata = async (tableName: string) => {
     try {
@@ -195,11 +216,17 @@ export function DatabaseViewerSection() {
             </SelectTrigger>
             <SelectContent className="bg-background border shadow-md z-50 max-h-[300px] overflow-y-auto">
               <ScrollArea className="h-[280px]">
-                {AVAILABLE_TABLES.map((table) => (
-                  <SelectItem key={table} value={table}>
-                    {table}
-                  </SelectItem>
-                ))}
+                {isLoadingTables ? (
+                  <div className="flex items-center justify-center py-4">
+                    <Loader2 className="h-4 w-4 animate-spin" />
+                  </div>
+                ) : (
+                  availableTables.map((table) => (
+                    <SelectItem key={table} value={table}>
+                      {table}
+                    </SelectItem>
+                  ))
+                )}
               </ScrollArea>
             </SelectContent>
           </Select>
