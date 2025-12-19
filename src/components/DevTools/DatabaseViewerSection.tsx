@@ -39,37 +39,37 @@ export function DatabaseViewerSection() {
   });
   const { toast } = useToast();
 
-  // Fetch all available tables on mount
+  // Complete list of all public tables
+  const allTables = [
+    'access_management_settings', 'access_permissions', 'account_applications', 'ai_assistant_config',
+    'application_assessment_history', 'application_documents', 'application_messages', 'application_owners',
+    'application_status_changes', 'application_status_preferences', 'application_step_history',
+    'application_workflow_steps', 'arr_performance', 'arr_targets', 'bank_profiles', 'bank_readiness_cases',
+    'bank_readiness_configuration_versions', 'bank_readiness_configurations', 'bank_readiness_outcomes',
+    'bank_readiness_rules', 'banks', 'bundle_products', 'call_stage_history', 'call_transcripts',
+    'comments', 'completion_date_history', 'customer_services', 'customers', 'cycles', 'deals',
+    'discovery_questions', 'documents', 'domains', 'emotional_responses', 'feature_flags',
+    'form_configuration_versions', 'form_templates', 'lead_activities', 'lead_campaigns',
+    'lead_discovery_industries', 'lead_discovery_prompt_results', 'lead_discovery_prompts',
+    'lead_discovery_sessions', 'lead_followup_sequence', 'lead_reminder_schedule', 'lead_workflow_settings',
+    'lead_workflow_steps', 'leads', 'logs', 'monthly_performance', 'monthly_targets',
+    'notification_preferences', 'notification_role_preferences', 'notification_settings',
+    'notification_user_preferences', 'notifications', 'objection_handlers', 'partner_signup_requests',
+    'playbook_stages', 'pricing_strategies', 'products', 'profiles', 'projects', 'sales_call_sessions',
+    'sales_playbooks', 'script_nodes', 'security_audit_log', 'service_bundles', 'service_category',
+    'service_fees', 'service_form_configurations', 'service_types', 'stage_scripts', 'status_changes',
+    'task_attachments', 'task_comments', 'tasks', 'user_products', 'webflow_activities',
+    'webflow_configuration_versions', 'webflow_configurations', 'webflow_countries', 'webflow_documents',
+    'webflow_jurisdictions', 'webflow_pricing', 'webflow_rules', 'weekly_activities'
+  ];
+
+  // Set available tables on mount
   useEffect(() => {
-    const fetchTables = async () => {
-      setIsLoadingTables(true);
-      try {
-        const { data, error } = await supabase.rpc('get_public_tables' as any);
-        
-        if (error) throw error;
-        
-        const tables = (data as any[] || []).map((t: any) => t.table_name).sort();
-        setAvailableTables(tables);
-        
-        // Default to 'profiles' if available, otherwise first table
-        const defaultTable = tables.includes('profiles') ? 'profiles' : tables[0];
-        if (defaultTable) {
-          setSelectedTable(defaultTable);
-          fetchTableMetadata(defaultTable);
-          fetchTableData(defaultTable);
-        }
-      } catch (error) {
-        console.error('Error fetching tables:', error);
-        // Fallback to basic list
-        const fallbackTables = ['profiles', 'customers', 'account_applications', 'products'];
-        setAvailableTables(fallbackTables);
-        setSelectedTable('profiles');
-      } finally {
-        setIsLoadingTables(false);
-      }
-    };
-    
-    fetchTables();
+    setAvailableTables(allTables);
+    setSelectedTable('profiles');
+    fetchTableMetadata('profiles');
+    fetchTableData('profiles');
+    setIsLoadingTables(false);
   }, []);
 
   const fetchTableMetadata = async (tableName: string) => {
