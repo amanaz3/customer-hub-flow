@@ -8,13 +8,14 @@ interface RuleCondition {
 }
 
 interface RuleAction {
-  type: 'multiply_price' | 'add_fee' | 'set_price' | 'set_flag' | 'require_document' | 'block' | 'show_warning' | 'set_processing_time' | 'recommend_bank' | 'skip_step' | 'show_step' | 'set_next_step' | 'apply_discount' | 'assign_agent' | 'add_risk_score' | 'auto_approve' | 'require_manual_review';
+  type: 'multiply_price' | 'add_fee' | 'set_price' | 'set_flag' | 'require_document' | 'block' | 'show_warning' | 'set_processing_time' | 'recommend_bank' | 'recommend_jurisdiction' | 'skip_step' | 'show_step' | 'set_next_step' | 'apply_discount' | 'assign_agent' | 'add_risk_score' | 'auto_approve' | 'require_manual_review';
   value?: number | string | boolean;
   // Some rules store document id as `target` instead of `value`
   target?: string;
   message?: string;
   processingDays?: number;
   banks?: string[];
+  jurisdictions?: { code: string; name: string; reason?: string }[];
   stepKey?: string;
   // Discount-specific
   discountType?: 'percentage' | 'fixed';
@@ -47,6 +48,12 @@ interface RuleContext {
   promoCode?: string;
 }
 
+export interface RecommendedJurisdiction {
+  code: string;
+  name: string;
+  reason?: string;
+}
+
 export interface RuleEngineResult {
   priceMultiplier: number;
   additionalFees: number;
@@ -58,6 +65,7 @@ export interface RuleEngineResult {
   appliedRules: string[];
   processingTimeDays: number | null;
   recommendedBanks: string[];
+  recommendedJurisdictions: RecommendedJurisdiction[];
   // Step flow control
   skippedSteps: string[];
   visibleSteps: string[];
@@ -181,6 +189,7 @@ export function useWebflowRuleEngine(context: RuleContext) {
       appliedRules: [],
       processingTimeDays: null,
       recommendedBanks: [],
+      recommendedJurisdictions: [],
       skippedSteps: [],
       visibleSteps: [],
       nextStep: undefined,
@@ -256,6 +265,15 @@ export function useWebflowRuleEngine(context: RuleContext) {
                 action.banks.forEach(bank => {
                   if (!engineResult.recommendedBanks.includes(bank)) {
                     engineResult.recommendedBanks.push(bank);
+                  }
+                });
+              }
+              break;
+            case 'recommend_jurisdiction':
+              if (action.jurisdictions && action.jurisdictions.length > 0) {
+                action.jurisdictions.forEach(jur => {
+                  if (!engineResult.recommendedJurisdictions.find(r => r.code === jur.code)) {
+                    engineResult.recommendedJurisdictions.push(jur);
                   }
                 });
               }
