@@ -86,6 +86,7 @@ import WebflowConfig from '@/pages/WebflowConfig';
 import Web from '@/pages/Web';
 import AIAssistant from '@/pages/AIAssistant';
 import AIAssistantConfig from '@/pages/AIAssistantConfig';
+import AIBookkeeper from '@/pages/AIBookkeeper';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -802,6 +803,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="AI Assistant Config">
                           <AIAssistantConfig />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/ai-bookkeeper" element={
+                    <ProtectedRoute>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="AI Bookkeeper">
+                          <AIBookkeeper />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>
