@@ -379,6 +379,15 @@ export default function RulesTab({ rules: propRules, onUpdate }: RulesTabProps) 
   );
 }
 
+// Rule type filter options
+const RULE_TYPE_FILTERS = [
+  { value: 'all', label: 'All Rules', icon: Workflow },
+  { value: 'eligibility', label: 'Eligibility', icon: CheckCircle },
+  { value: 'pricing', label: 'Pricing', icon: Calculator },
+  { value: 'document', label: 'Documents', icon: GitBranch },
+  { value: 'workflow', label: 'Workflow', icon: Building },
+];
+
 // Visual Rule Builder Component
 function VisualRuleBuilder({ 
   rules, 
@@ -391,6 +400,21 @@ function VisualRuleBuilder({
   onDelete: (id: string) => void;
   onToggle: (id: string) => void;
 }) {
+  const [activeFilter, setActiveFilter] = useState<string>('all');
+
+  const filteredRules = useMemo(() => {
+    if (activeFilter === 'all') return rules;
+    return rules.filter(rule => rule.rule_type === activeFilter);
+  }, [rules, activeFilter]);
+
+  const ruleCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: rules.length };
+    rules.forEach(rule => {
+      counts[rule.rule_type] = (counts[rule.rule_type] || 0) + 1;
+    });
+    return counts;
+  }, [rules]);
+
   const getRuleTypeColor = (type: string) => {
     switch (type) {
       case 'eligibility': return 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-300';
@@ -402,14 +426,54 @@ function VisualRuleBuilder({
   };
 
   return (
-    <div className="space-y-3">
-      {rules.length === 0 ? (
+    <div className="space-y-4">
+      {/* Rule Type Filter Subtabs */}
+      <div className="flex flex-wrap gap-2 pb-2 border-b">
+        {RULE_TYPE_FILTERS.map(filter => {
+          const Icon = filter.icon;
+          const count = ruleCounts[filter.value] || 0;
+          const isActive = activeFilter === filter.value;
+          
+          return (
+            <Button
+              key={filter.value}
+              variant={isActive ? "default" : "outline"}
+              size="sm"
+              onClick={() => setActiveFilter(filter.value)}
+              className={cn(
+                "gap-2 transition-all",
+                isActive && "shadow-md"
+              )}
+            >
+              <Icon className="h-4 w-4" />
+              {filter.label}
+              <Badge 
+                variant={isActive ? "secondary" : "outline"} 
+                className={cn(
+                  "ml-1 text-xs px-1.5 py-0",
+                  isActive && "bg-primary-foreground/20 text-primary-foreground"
+                )}
+              >
+                {count}
+              </Badge>
+            </Button>
+          );
+        })}
+      </div>
+
+      {/* Rules List */}
+      {filteredRules.length === 0 ? (
         <div className="text-center py-12 text-muted-foreground">
           <Workflow className="h-12 w-12 mx-auto mb-4 opacity-50" />
-          <p>No rules configured. Click "Add Rule" to create your first rule.</p>
+          <p>
+            {rules.length === 0 
+              ? 'No rules configured. Click "Add Rule" to create your first rule.'
+              : `No ${activeFilter} rules found.`
+            }
+          </p>
         </div>
       ) : (
-        rules.map((rule, index) => (
+        filteredRules.map((rule, index) => (
           <div 
             key={rule.id}
             className={cn(
