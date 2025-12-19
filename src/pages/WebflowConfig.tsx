@@ -13,8 +13,9 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { 
   Globe, Building2, Briefcase, CreditCard, FileText, Plus, Pencil, Trash2, Settings,
   AlertTriangle, CheckCircle, XCircle, Search, Filter, Workflow, Download, Upload, 
-  History, RotateCcw, Loader2, Tag, Mail
+  History, RotateCcw, Loader2, Tag, Mail, Package, Users, Layers
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
 import RulesTab from '@/components/Webflow/RulesTab';
 import PromoCodesTab from '@/components/Webflow/PromoCodesTab';
 import EmailTemplatesTab from '@/components/Webflow/EmailTemplatesTab';
@@ -1106,7 +1107,30 @@ function ActivityDialog({
   );
 }
 
-// Pricing Tab Component
+// Types for Services and Bundles
+interface ServiceType {
+  id: string;
+  service_name: string;
+  service_code: string;
+  frequency: string;
+  arr_value: number;
+  unit_price: number;
+  billing_period: string;
+  is_recurring: boolean;
+  is_active: boolean;
+}
+
+interface ServiceBundle {
+  id: string;
+  bundle_name: string;
+  bundle_description: string | null;
+  total_arr: number;
+  is_active: boolean;
+}
+
+type WorkflowMode = 'web' | 'agent';
+
+// Pricing Tab Component with Workflow Mode
 function PricingTab({ 
   searchQuery,
   pricing,
@@ -1116,10 +1140,67 @@ function PricingTab({
   pricing: WebflowPricingConfig[];
   onUpdate: (pricing: WebflowPricingConfig[]) => Promise<boolean>;
 }) {
+  const [workflowMode, setWorkflowMode] = useState<WorkflowMode>('web');
+  const [activeSubTab, setActiveSubTab] = useState<'plans' | 'services' | 'bundles'>('plans');
   const [editingPricing, setEditingPricing] = useState<WebflowPricingConfig | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  
+  // Services state
+  const [services, setServices] = useState<ServiceType[]>([]);
+  const [editingService, setEditingService] = useState<ServiceType | null>(null);
+  const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
+  const [loadingServices, setLoadingServices] = useState(false);
+  
+  // Bundles state
+  const [bundles, setBundles] = useState<ServiceBundle[]>([]);
+  const [editingBundle, setEditingBundle] = useState<ServiceBundle | null>(null);
+  const [isBundleDialogOpen, setIsBundleDialogOpen] = useState(false);
+  const [loadingBundles, setLoadingBundles] = useState(false);
 
-  const handleSave = async (item: Partial<WebflowPricingConfig>) => {
+  // Fetch services and bundles when agent mode is active
+  useEffect(() => {
+    if (workflowMode === 'agent') {
+      fetchServices();
+      fetchBundles();
+    }
+  }, [workflowMode]);
+
+  const fetchServices = async () => {
+    setLoadingServices(true);
+    try {
+      const { data, error } = await supabase
+        .from('service_types')
+        .select('*')
+        .order('service_name');
+      if (error) throw error;
+      setServices(data || []);
+    } catch (error) {
+      console.error('Error fetching services:', error);
+      toast({ title: 'Error', description: 'Failed to load services', variant: 'destructive' });
+    } finally {
+      setLoadingServices(false);
+    }
+  };
+
+  const fetchBundles = async () => {
+    setLoadingBundles(true);
+    try {
+      const { data, error } = await supabase
+        .from('service_bundles')
+        .select('*')
+        .order('bundle_name');
+      if (error) throw error;
+      setBundles(data || []);
+    } catch (error) {
+      console.error('Error fetching bundles:', error);
+      toast({ title: 'Error', description: 'Failed to load bundles', variant: 'destructive' });
+    } finally {
+      setLoadingBundles(false);
+    }
+  };
+
+  // Plan handlers
+  const handleSavePlan = async (item: Partial<WebflowPricingConfig>) => {
     let updated: WebflowPricingConfig[];
     
     if (editingPricing?.id) {
@@ -1146,8 +1227,110 @@ function PricingTab({
     setEditingPricing(null);
   };
 
-  const handleDelete = async (id: string) => {
+  const handleDeletePlan = async (id: string) => {
     await onUpdate(pricing.filter(p => p.id !== id));
+  };
+
+  // Service handlers
+  const handleSaveService = async (service: Partial<ServiceType>) => {
+    try {
+      if (editingService?.id) {
+        const { error } = await supabase
+          .from('service_types')
+          .update({
+            service_name: service.service_name,
+            service_code: service.service_code,
+            unit_price: service.unit_price,
+            arr_value: service.arr_value,
+            frequency: service.frequency,
+            billing_period: service.billing_period,
+            is_recurring: service.is_recurring,
+            is_active: service.is_active
+          })
+          .eq('id', editingService.id);
+        if (error) throw error;
+        toast({ title: 'Success', description: 'Service updated' });
+      } else {
+        const { error } = await supabase
+          .from('service_types')
+          .insert({
+            service_name: service.service_name || '',
+            service_code: service.service_code || '',
+            unit_price: service.unit_price || 0,
+            arr_value: service.arr_value || 0,
+            frequency: service.frequency || 'one-time',
+            billing_period: service.billing_period || 'one-time',
+            is_recurring: service.is_recurring || false,
+            is_active: service.is_active !== false
+          });
+        if (error) throw error;
+        toast({ title: 'Success', description: 'Service created' });
+      }
+      fetchServices();
+      setIsServiceDialogOpen(false);
+      setEditingService(null);
+    } catch (error) {
+      console.error('Error saving service:', error);
+      toast({ title: 'Error', description: 'Failed to save service', variant: 'destructive' });
+    }
+  };
+
+  const handleDeleteService = async (id: string) => {
+    try {
+      const { error } = await supabase.from('service_types').delete().eq('id', id);
+      if (error) throw error;
+      toast({ title: 'Success', description: 'Service deleted' });
+      fetchServices();
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to delete service', variant: 'destructive' });
+    }
+  };
+
+  // Bundle handlers
+  const handleSaveBundle = async (bundle: Partial<ServiceBundle>) => {
+    try {
+      if (editingBundle?.id) {
+        const { error } = await supabase
+          .from('service_bundles')
+          .update({
+            bundle_name: bundle.bundle_name,
+            bundle_description: bundle.bundle_description,
+            total_arr: bundle.total_arr,
+            is_active: bundle.is_active
+          })
+          .eq('id', editingBundle.id);
+        if (error) throw error;
+        toast({ title: 'Success', description: 'Bundle updated' });
+      } else {
+        const { error } = await supabase
+          .from('service_bundles')
+          .insert({
+            bundle_name: bundle.bundle_name || '',
+            bundle_description: bundle.bundle_description || '',
+            total_arr: bundle.total_arr || 0,
+            is_active: bundle.is_active !== false
+          });
+        if (error) throw error;
+        toast({ title: 'Success', description: 'Bundle created' });
+      }
+      fetchBundles();
+      setIsBundleDialogOpen(false);
+      setEditingBundle(null);
+    } catch (error) {
+      console.error('Error saving bundle:', error);
+      toast({ title: 'Error', description: 'Failed to save bundle', variant: 'destructive' });
+    }
+  };
+
+  const handleDeleteBundle = async (id: string) => {
+    try {
+      const { error } = await supabase.from('service_bundles').delete().eq('id', id);
+      if (error) throw error;
+      toast({ title: 'Success', description: 'Bundle deleted' });
+      fetchBundles();
+    } catch (error) {
+      toast({ title: 'Error', description: 'Failed to delete bundle', variant: 'destructive' });
+    }
   };
 
   const filteredPricing = pricing.filter(p => 
@@ -1155,74 +1338,497 @@ function PricingTab({
     p.plan_code.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  const filteredServices = services.filter(s => 
+    s.service_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    s.service_code.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const filteredBundles = bundles.filter(b => 
+    b.bundle_name.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
   return (
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <div>
-          <CardTitle>Pricing Plans</CardTitle>
-          <CardDescription>Manage pricing plans and packages</CardDescription>
+          <CardTitle>Pricing & Services</CardTitle>
+          <CardDescription>
+            {workflowMode === 'web' 
+              ? 'Manage pricing plans for customer webflow' 
+              : 'Manage plans, individual services, and bundles for agent workflow'}
+          </CardDescription>
         </div>
-        <Button onClick={() => { setEditingPricing(null); setIsDialogOpen(true); }}>
-          <Plus className="h-4 w-4 mr-2" />
-          Add Plan
-        </Button>
+        <div className="flex items-center gap-3">
+          {/* Workflow Mode Toggle */}
+          <div className="flex items-center gap-2 border rounded-lg p-1 bg-muted/50">
+            <Button
+              variant={workflowMode === 'web' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => { setWorkflowMode('web'); setActiveSubTab('plans'); }}
+              className="gap-2"
+            >
+              <Globe className="h-4 w-4" />
+              Web Workflow
+            </Button>
+            <Button
+              variant={workflowMode === 'agent' ? 'default' : 'ghost'}
+              size="sm"
+              onClick={() => setWorkflowMode('agent')}
+              className="gap-2"
+            >
+              <Users className="h-4 w-4" />
+              Agent Workflow
+            </Button>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent>
-        {filteredPricing.length === 0 ? (
-          <p className="text-center py-8 text-muted-foreground">No pricing plans configured</p>
-        ) : (
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead>Plan</TableHead>
-                <TableHead>Base Price</TableHead>
-                <TableHead>Features</TableHead>
-                <TableHead>Status</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {filteredPricing.map((plan) => (
-                <TableRow key={plan.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <p className="font-medium">{plan.plan_name}</p>
-                      {plan.is_popular && <Badge variant="default" className="text-xs">Popular</Badge>}
-                    </div>
-                  </TableCell>
-                  <TableCell>AED {plan.base_price?.toLocaleString()}</TableCell>
-                  <TableCell>
-                    <Badge variant="outline" className="text-xs">{(plan.features || []).length} features</Badge>
-                  </TableCell>
-                  <TableCell>
-                    {plan.is_active ? (
-                      <Badge variant="outline" className="text-green-600 border-green-600">Active</Badge>
-                    ) : (
-                      <Badge variant="secondary">Inactive</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <Button variant="ghost" size="sm" onClick={() => { setEditingPricing(plan); setIsDialogOpen(true); }}>
-                      <Pencil className="h-4 w-4" />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleDelete(plan.id)}>
-                      <Trash2 className="h-4 w-4 text-destructive" />
-                    </Button>
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+      <CardContent className="space-y-4">
+        {/* Agent Workflow Sub-tabs */}
+        {workflowMode === 'agent' && (
+          <div className="flex items-center gap-2 border-b pb-3">
+            <Button
+              variant={activeSubTab === 'plans' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setActiveSubTab('plans')}
+              className="gap-2"
+            >
+              <CreditCard className="h-4 w-4" />
+              Plans
+              <Badge variant="secondary" className="ml-1">{pricing.length}</Badge>
+            </Button>
+            <Button
+              variant={activeSubTab === 'services' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setActiveSubTab('services')}
+              className="gap-2"
+            >
+              <Layers className="h-4 w-4" />
+              Services
+              <Badge variant="secondary" className="ml-1">{services.length}</Badge>
+            </Button>
+            <Button
+              variant={activeSubTab === 'bundles' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setActiveSubTab('bundles')}
+              className="gap-2"
+            >
+              <Package className="h-4 w-4" />
+              Bundles
+              <Badge variant="secondary" className="ml-1">{bundles.length}</Badge>
+            </Button>
+          </div>
+        )}
+
+        {/* Plans Table (shown in both modes) */}
+        {(workflowMode === 'web' || activeSubTab === 'plans') && (
+          <div className="space-y-3">
+            <div className="flex justify-end">
+              <Button onClick={() => { setEditingPricing(null); setIsDialogOpen(true); }}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Plan
+              </Button>
+            </div>
+            {filteredPricing.length === 0 ? (
+              <p className="text-center py-8 text-muted-foreground">No pricing plans configured</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Plan</TableHead>
+                    <TableHead>Base Price</TableHead>
+                    <TableHead>Features</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredPricing.map((plan) => (
+                    <TableRow key={plan.id}>
+                      <TableCell>
+                        <div className="flex items-center gap-2">
+                          <p className="font-medium">{plan.plan_name}</p>
+                          {plan.is_popular && <Badge variant="default" className="text-xs">Popular</Badge>}
+                        </div>
+                      </TableCell>
+                      <TableCell>AED {plan.base_price?.toLocaleString()}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline" className="text-xs">{(plan.features || []).length} features</Badge>
+                      </TableCell>
+                      <TableCell>
+                        {plan.is_active ? (
+                          <Badge variant="outline" className="text-green-600 border-green-600">Active</Badge>
+                        ) : (
+                          <Badge variant="secondary">Inactive</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm" onClick={() => { setEditingPricing(plan); setIsDialogOpen(true); }}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleDeletePlan(plan.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
+        )}
+
+        {/* Services Table (Agent mode only) */}
+        {workflowMode === 'agent' && activeSubTab === 'services' && (
+          <div className="space-y-3">
+            <div className="flex justify-end">
+              <Button onClick={() => { setEditingService(null); setIsServiceDialogOpen(true); }}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Service
+              </Button>
+            </div>
+            {loadingServices ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : filteredServices.length === 0 ? (
+              <p className="text-center py-8 text-muted-foreground">No services configured</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Service</TableHead>
+                    <TableHead>Code</TableHead>
+                    <TableHead>Unit Price</TableHead>
+                    <TableHead>Frequency</TableHead>
+                    <TableHead>ARR Value</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredServices.map((service) => (
+                    <TableRow key={service.id}>
+                      <TableCell className="font-medium">{service.service_name}</TableCell>
+                      <TableCell>
+                        <Badge variant="outline">{service.service_code}</Badge>
+                      </TableCell>
+                      <TableCell>AED {Number(service.unit_price).toLocaleString()}</TableCell>
+                      <TableCell>
+                        <Badge variant="secondary" className="capitalize">{service.frequency}</Badge>
+                      </TableCell>
+                      <TableCell>AED {Number(service.arr_value).toLocaleString()}</TableCell>
+                      <TableCell>
+                        {service.is_active ? (
+                          <Badge variant="outline" className="text-green-600 border-green-600">Active</Badge>
+                        ) : (
+                          <Badge variant="secondary">Inactive</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm" onClick={() => { setEditingService(service); setIsServiceDialogOpen(true); }}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleDeleteService(service.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
+        )}
+
+        {/* Bundles Table (Agent mode only) */}
+        {workflowMode === 'agent' && activeSubTab === 'bundles' && (
+          <div className="space-y-3">
+            <div className="flex justify-end">
+              <Button onClick={() => { setEditingBundle(null); setIsBundleDialogOpen(true); }}>
+                <Plus className="h-4 w-4 mr-2" />
+                Add Bundle
+              </Button>
+            </div>
+            {loadingBundles ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+              </div>
+            ) : filteredBundles.length === 0 ? (
+              <p className="text-center py-8 text-muted-foreground">No bundles configured</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Bundle Name</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Total ARR</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="text-right">Actions</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {filteredBundles.map((bundle) => (
+                    <TableRow key={bundle.id}>
+                      <TableCell className="font-medium">{bundle.bundle_name}</TableCell>
+                      <TableCell className="text-muted-foreground max-w-xs truncate">
+                        {bundle.bundle_description || '-'}
+                      </TableCell>
+                      <TableCell>AED {Number(bundle.total_arr).toLocaleString()}</TableCell>
+                      <TableCell>
+                        {bundle.is_active ? (
+                          <Badge variant="outline" className="text-green-600 border-green-600">Active</Badge>
+                        ) : (
+                          <Badge variant="secondary">Inactive</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Button variant="ghost" size="sm" onClick={() => { setEditingBundle(bundle); setIsBundleDialogOpen(true); }}>
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button variant="ghost" size="sm" onClick={() => handleDeleteBundle(bundle.id)}>
+                          <Trash2 className="h-4 w-4 text-destructive" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
         )}
       </CardContent>
 
+      {/* Plan Dialog */}
       <PricingDialog 
         open={isDialogOpen} 
         onOpenChange={setIsDialogOpen}
         pricing={editingPricing}
-        onSave={handleSave}
+        onSave={handleSavePlan}
+      />
+
+      {/* Service Dialog */}
+      <ServiceDialog
+        open={isServiceDialogOpen}
+        onOpenChange={setIsServiceDialogOpen}
+        service={editingService}
+        onSave={handleSaveService}
+      />
+
+      {/* Bundle Dialog */}
+      <BundleDialog
+        open={isBundleDialogOpen}
+        onOpenChange={setIsBundleDialogOpen}
+        bundle={editingBundle}
+        onSave={handleSaveBundle}
       />
     </Card>
+  );
+}
+
+// Service Dialog Component
+function ServiceDialog({
+  open,
+  onOpenChange,
+  service,
+  onSave
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  service: ServiceType | null;
+  onSave: (service: Partial<ServiceType>) => void;
+}) {
+  const [formData, setFormData] = useState<Partial<ServiceType>>({});
+
+  useEffect(() => {
+    if (service) {
+      setFormData(service);
+    } else {
+      setFormData({
+        service_name: '',
+        service_code: '',
+        unit_price: 0,
+        arr_value: 0,
+        frequency: 'one-time',
+        billing_period: 'one-time',
+        is_recurring: false,
+        is_active: true
+      });
+    }
+  }, [service, open]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>{service ? 'Edit Service' : 'Add Service'}</DialogTitle>
+          <DialogDescription>Configure individual service details</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Service Name</Label>
+              <Input 
+                value={formData.service_name || ''} 
+                onChange={(e) => setFormData({...formData, service_name: e.target.value})} 
+                placeholder="Bookkeeping" 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>Service Code</Label>
+              <Input 
+                value={formData.service_code || ''} 
+                onChange={(e) => setFormData({...formData, service_code: e.target.value})} 
+                placeholder="BOOKKEEPING" 
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Unit Price (AED)</Label>
+              <Input 
+                type="number" 
+                value={formData.unit_price || 0} 
+                onChange={(e) => setFormData({...formData, unit_price: parseFloat(e.target.value) || 0})} 
+              />
+            </div>
+            <div className="space-y-2">
+              <Label>ARR Value (AED)</Label>
+              <Input 
+                type="number" 
+                value={formData.arr_value || 0} 
+                onChange={(e) => setFormData({...formData, arr_value: parseFloat(e.target.value) || 0})} 
+              />
+            </div>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Frequency</Label>
+              <Select 
+                value={formData.frequency || 'one-time'} 
+                onValueChange={(value) => setFormData({...formData, frequency: value})}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="one-time">One-time</SelectItem>
+                  <SelectItem value="monthly">Monthly</SelectItem>
+                  <SelectItem value="quarterly">Quarterly</SelectItem>
+                  <SelectItem value="annual">Annual</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Billing Period</Label>
+              <Select 
+                value={formData.billing_period || 'one-time'} 
+                onValueChange={(value) => setFormData({...formData, billing_period: value})}
+              >
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="one-time">One-time</SelectItem>
+                  <SelectItem value="month">Month</SelectItem>
+                  <SelectItem value="quarter">Quarter</SelectItem>
+                  <SelectItem value="year">Year</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+          <div className="flex items-center justify-between">
+            <Label>Recurring</Label>
+            <Switch 
+              checked={formData.is_recurring || false} 
+              onCheckedChange={(checked) => setFormData({...formData, is_recurring: checked})} 
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label>Active</Label>
+            <Switch 
+              checked={formData.is_active !== false} 
+              onCheckedChange={(checked) => setFormData({...formData, is_active: checked})} 
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={() => onSave(formData)}>Save</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
+// Bundle Dialog Component
+function BundleDialog({
+  open,
+  onOpenChange,
+  bundle,
+  onSave
+}: {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  bundle: ServiceBundle | null;
+  onSave: (bundle: Partial<ServiceBundle>) => void;
+}) {
+  const [formData, setFormData] = useState<Partial<ServiceBundle>>({});
+
+  useEffect(() => {
+    if (bundle) {
+      setFormData(bundle);
+    } else {
+      setFormData({
+        bundle_name: '',
+        bundle_description: '',
+        total_arr: 0,
+        is_active: true
+      });
+    }
+  }, [bundle, open]);
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>{bundle ? 'Edit Bundle' : 'Add Bundle'}</DialogTitle>
+          <DialogDescription>Configure service bundle details</DialogDescription>
+        </DialogHeader>
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label>Bundle Name</Label>
+            <Input 
+              value={formData.bundle_name || ''} 
+              onChange={(e) => setFormData({...formData, bundle_name: e.target.value})} 
+              placeholder="Full Package" 
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Description</Label>
+            <Textarea 
+              value={formData.bundle_description || ''} 
+              onChange={(e) => setFormData({...formData, bundle_description: e.target.value})} 
+              placeholder="Complete accounting solution..." 
+            />
+          </div>
+          <div className="space-y-2">
+            <Label>Total ARR (AED)</Label>
+            <Input 
+              type="number" 
+              value={formData.total_arr || 0} 
+              onChange={(e) => setFormData({...formData, total_arr: parseFloat(e.target.value) || 0})} 
+            />
+          </div>
+          <div className="flex items-center justify-between">
+            <Label>Active</Label>
+            <Switch 
+              checked={formData.is_active !== false} 
+              onCheckedChange={(checked) => setFormData({...formData, is_active: checked})} 
+            />
+          </div>
+        </div>
+        <DialogFooter>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>Cancel</Button>
+          <Button onClick={() => onSave(formData)}>Save</Button>
+        </DialogFooter>
+      </DialogContent>
+    </Dialog>
   );
 }
 
