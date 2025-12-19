@@ -1,6 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { 
@@ -10,9 +11,12 @@ import {
   Clock, 
   AlertTriangle,
   ArrowDownLeft,
-  ArrowUpRight
+  ArrowUpRight,
+  Download,
+  ExternalLink
 } from 'lucide-react';
 import { useBookkeeper, Bill, Invoice } from '@/hooks/useBookkeeper';
+import { supabase } from '@/integrations/supabase/client';
 import { format } from 'date-fns';
 
 interface TransactionHistoryProps {
@@ -46,6 +50,21 @@ export function TransactionHistory({ demoMode = false }: TransactionHistoryProps
       return format(new Date(dateStr), 'dd MMM yyyy');
     } catch {
       return dateStr;
+    }
+  };
+
+  const handleDownloadFile = async (filePath: string, fileName: string | null) => {
+    try {
+      const { data, error } = await supabase.storage
+        .from('bookkeeper-files')
+        .createSignedUrl(filePath, 3600); // 1 hour expiry
+      
+      if (error) throw error;
+      
+      // Open in new tab
+      window.open(data.signedUrl, '_blank');
+    } catch (error) {
+      console.error('Error downloading file:', error);
     }
   };
 
@@ -94,6 +113,7 @@ export function TransactionHistory({ demoMode = false }: TransactionHistoryProps
                         <TableHead className="text-right">Amount</TableHead>
                         <TableHead>Status</TableHead>
                         <TableHead>OCR</TableHead>
+                        <TableHead>File</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -118,6 +138,21 @@ export function TransactionHistory({ demoMode = false }: TransactionHistoryProps
                               <Badge variant="outline" className="text-xs">
                                 {Math.round(bill.ocr_confidence * 100)}%
                               </Badge>
+                            ) : (
+                              <span className="text-muted-foreground text-xs">-</span>
+                            )}
+                          </TableCell>
+                          <TableCell>
+                            {bill.file_path ? (
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                className="h-7 px-2"
+                                onClick={() => handleDownloadFile(bill.file_path!, bill.file_name)}
+                              >
+                                <ExternalLink className="h-3.5 w-3.5 mr-1" />
+                                View
+                              </Button>
                             ) : (
                               <span className="text-muted-foreground text-xs">-</span>
                             )}
