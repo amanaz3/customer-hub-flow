@@ -67,7 +67,7 @@ interface AnalyticsDashboardProps {
 }
 
 export function AnalyticsDashboard({ demoMode = false }: AnalyticsDashboardProps) {
-  const { getAnalytics, bills, invoices } = useBookkeeper();
+  const { getAnalytics, bills, invoices } = useBookkeeper(demoMode);
   const [analytics, setAnalytics] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [forecastDays, setForecastDays] = useState('30');

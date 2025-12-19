@@ -43,7 +43,7 @@ export function BillUpload({ demoMode = false }: BillUploadProps) {
   const [accountingMethod, setAccountingMethod] = useState<'cash' | 'accrual'>('accrual');
   const fileInputRef = useRef<HTMLInputElement>(null);
   
-  const { createBill, processOCR, vendors, createVendor } = useBookkeeper();
+  const { createBill, processOCR, vendors, createVendor } = useBookkeeper(demoMode);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
