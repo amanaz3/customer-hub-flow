@@ -1,13 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Users, MessageSquare, Shield, BookOpen, UserCog, Building2, Flag, DollarSign, Settings2, Box, Target, CalendarClock, ListChecks, KeyRound, Layers, Globe, Briefcase, FileText, Landmark } from "lucide-react";
+import { Users, MessageSquare, Shield, BookOpen, UserCog, Building2, Flag, DollarSign, Settings2, Box, Target, CalendarClock, ListChecks, KeyRound, Layers, Globe, Briefcase, FileText, Landmark, Calculator } from "lucide-react";
 import { LeadSettingsDialog } from "@/components/Lead/LeadSettingsDialog";
 import { FollowupSequenceConfig } from "@/components/Lead/FollowupSequenceConfig";
 import { LeadReminderScheduleDialog } from "@/components/Lead/LeadReminderScheduleDialog";
 import LeadWorkflowSettingsDialog from "@/components/Lead/LeadWorkflowSettingsDialog";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
 import { BankReadinessRulesTab } from "@/components/BankReadiness/BankReadinessRulesTab";
+import { ReconciliationRulesAdmin } from "@/components/Bookkeeper/ReconciliationRulesAdmin";
 
 const Manage = () => {
   const navigate = useNavigate();
@@ -16,6 +17,7 @@ const Manage = () => {
   const [showReminderSchedule, setShowReminderSchedule] = useState(false);
   const [showBulkSettings, setShowBulkSettings] = useState(false);
   const [showBankReadinessRules, setShowBankReadinessRules] = useState(false);
+  const [showBookkeeperRules, setShowBookkeeperRules] = useState(false);
 
   return (
     <div className="container mx-auto p-6 space-y-6">
@@ -153,6 +155,16 @@ const Manage = () => {
               <div>
                 <p className="font-medium text-sm">Bank Readiness Rules</p>
                 <p className="text-xs text-muted-foreground">Configure risk scoring and bank matching</p>
+              </div>
+            </div>
+            <div 
+              className="p-3 rounded-lg border hover:bg-muted/50 cursor-pointer transition-colors flex items-center gap-3"
+              onClick={() => setShowBookkeeperRules(true)}
+            >
+              <Calculator className="h-5 w-5 text-muted-foreground" />
+              <div>
+                <p className="font-medium text-sm">AI Bookkeeper Rules</p>
+                <p className="text-xs text-muted-foreground">Reconciliation rules and settings</p>
               </div>
             </div>
           </CardContent>
@@ -293,6 +305,17 @@ const Manage = () => {
             </DialogDescription>
           </DialogHeader>
           <BankReadinessRulesTab />
+        </DialogContent>
+      </Dialog>
+      <Dialog open={showBookkeeperRules} onOpenChange={setShowBookkeeperRules}>
+        <DialogContent className="max-w-4xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>AI Bookkeeper Rules</DialogTitle>
+            <DialogDescription>
+              Configure reconciliation rules and matching settings
+            </DialogDescription>
+          </DialogHeader>
+          <ReconciliationRulesAdmin />
         </DialogContent>
       </Dialog>
     </div>
