@@ -33,7 +33,8 @@ import {
   UserCheck,
   Clock,
   Code,
-  UserRoundSearch
+  UserRoundSearch,
+  Bot
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
@@ -71,6 +72,12 @@ const Sidebar: React.FC = () => {
       name: 'Dashboard',
       path: '/dashboard',
       icon: <LayoutDashboard className="h-5 w-5" />,
+      roles: ['admin', 'user'],
+    },
+    {
+      name: 'AI Assistant',
+      path: '/ai-assistant',
+      icon: <Bot className="h-5 w-5" />,
       roles: ['admin', 'user'],
     },
     {
@@ -137,7 +144,7 @@ const Sidebar: React.FC = () => {
 
   const isActiveRoute = (path: string) => {
     // Exact match for most routes
-    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/dashboard' || path === '/analytics' || path === '/targets' || path === '/team' || path === '/manage' || path === '/applications-by-stage' || path === '/applications-by-team') {
+    if (path === '/completed' || path === '/rejected' || path === '/settings' || path === '/dashboard' || path === '/analytics' || path === '/targets' || path === '/team' || path === '/manage' || path === '/applications-by-stage' || path === '/applications-by-team' || path === '/ai-assistant') {
       return location.pathname === path || location.pathname.startsWith(path + '/');
     }
     
