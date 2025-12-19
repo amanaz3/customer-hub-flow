@@ -1,13 +1,17 @@
-import React from 'react';
+import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Switch } from '@/components/ui/switch';
+import { Label } from '@/components/ui/label';
 import { 
+  Upload, 
+  Scale, 
+  BarChart3, 
   Receipt, 
   FileSearch, 
-  BarChart3, 
-  Upload,
-  Scale,
-  TrendingUp
+  TrendingUp,
+  FlaskConical
 } from 'lucide-react';
 import { BillUpload } from '@/components/Bookkeeper/BillUpload';
 import { ReconciliationView } from '@/components/Bookkeeper/ReconciliationView';
@@ -15,16 +19,37 @@ import { AnalyticsDashboard } from '@/components/Bookkeeper/AnalyticsDashboard';
 import { useBookkeeper } from '@/hooks/useBookkeeper';
 
 export default function AIBookkeeper() {
-  const { bills, invoices, loading } = useBookkeeper();
+  const [demoMode, setDemoMode] = useState(false);
+  const { bills, invoices, loading } = useBookkeeper(demoMode);
 
   return (
       <div className="space-y-6">
         {/* Header */}
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight">AI Bookkeeper</h1>
-          <p className="text-muted-foreground">
-            Automated bookkeeping with OCR bill capture, reconciliation, and cash flow forecasting
-          </p>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-3xl font-bold tracking-tight">AI Bookkeeper</h1>
+            <p className="text-muted-foreground">
+              Automated bookkeeping with OCR bill capture, reconciliation, and cash flow forecasting
+            </p>
+          </div>
+          
+          {/* Demo Mode Toggle */}
+          <div className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg border">
+            <FlaskConical className="h-4 w-4 text-primary" />
+            <Label htmlFor="demo-mode" className="text-sm font-medium cursor-pointer">
+              Demo Mode
+            </Label>
+            <Switch
+              id="demo-mode"
+              checked={demoMode}
+              onCheckedChange={setDemoMode}
+            />
+            {demoMode && (
+              <Badge variant="secondary" className="ml-1">
+                Sample Data
+              </Badge>
+            )}
+          </div>
         </div>
 
         {/* Quick Stats */}
@@ -111,15 +136,15 @@ export default function AIBookkeeper() {
           </TabsList>
           
           <TabsContent value="upload">
-            <BillUpload />
+            <BillUpload demoMode={demoMode} />
           </TabsContent>
           
           <TabsContent value="reconciliation">
-            <ReconciliationView />
+            <ReconciliationView demoMode={demoMode} />
           </TabsContent>
           
           <TabsContent value="analytics">
-            <AnalyticsDashboard />
+            <AnalyticsDashboard demoMode={demoMode} />
           </TabsContent>
         </Tabs>
       </div>
