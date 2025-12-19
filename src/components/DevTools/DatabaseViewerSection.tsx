@@ -270,33 +270,98 @@ export function DatabaseViewerSection() {
 
       {selectedTable && columns.length > 0 && (
         <div className="space-y-4">
-          {/* Table Information Panel */}
-          <Alert>
-            <Database className="h-4 w-4" />
-            <AlertTitle>Table: {selectedTable}</AlertTitle>
-            <AlertDescription>
-              <div className="mt-2 flex flex-wrap gap-4 text-sm">
-                <div className="flex items-center gap-2">
+          {/* Table Metadata Panel */}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+            {/* Summary Stats */}
+            <div className="bg-muted/50 rounded-lg p-3 border">
+              <div className="flex items-center gap-2 mb-2">
+                <Database className="h-4 w-4 text-primary" />
+                <span className="font-medium text-sm">Summary</span>
+              </div>
+              <div className="space-y-1 text-sm">
+                <div className="flex justify-between">
                   <span className="text-muted-foreground">Total Rows:</span>
-                  <Badge variant="secondary">{rowCount.toLocaleString()}</Badge>
+                  <Badge variant="secondary" className="font-mono">{rowCount.toLocaleString()}</Badge>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex justify-between">
                   <span className="text-muted-foreground">Columns:</span>
-                  <Badge variant="secondary">{columns.length}</Badge>
+                  <Badge variant="secondary" className="font-mono">{columns.length}</Badge>
                 </div>
-                {metadata.foreignKeys.length > 0 && (
-                  <div className="flex items-center gap-2">
-                    <span className="text-muted-foreground">References:</span>
-                    {metadata.foreignKeys.map((fk, idx) => (
-                      <Badge key={idx} variant="outline" className="text-xs">
-                        {fk.foreignTable}
-                      </Badge>
-                    ))}
-                  </div>
+              </div>
+            </div>
+
+            {/* Primary Keys */}
+            <div className="bg-muted/50 rounded-lg p-3 border">
+              <div className="flex items-center gap-2 mb-2">
+                <Key className="h-4 w-4 text-yellow-500" />
+                <span className="font-medium text-sm">Primary Keys</span>
+                <Badge variant="outline" className="ml-auto text-xs">{metadata.primaryKeys.length}</Badge>
+              </div>
+              <div className="space-y-1">
+                {metadata.primaryKeys.length > 0 ? (
+                  metadata.primaryKeys.map((pk, idx) => (
+                    <Badge key={idx} variant="outline" className="mr-1 text-xs font-mono bg-yellow-500/10">
+                      {pk}
+                    </Badge>
+                  ))
+                ) : (
+                  <span className="text-xs text-muted-foreground">None</span>
                 )}
               </div>
-            </AlertDescription>
-          </Alert>
+            </div>
+
+            {/* Foreign Keys */}
+            <div className="bg-muted/50 rounded-lg p-3 border">
+              <div className="flex items-center gap-2 mb-2">
+                <Link2 className="h-4 w-4 text-blue-500" />
+                <span className="font-medium text-sm">Foreign Keys</span>
+                <Badge variant="outline" className="ml-auto text-xs">{metadata.foreignKeys.length}</Badge>
+              </div>
+              <ScrollArea className="max-h-20">
+                <div className="space-y-1">
+                  {metadata.foreignKeys.length > 0 ? (
+                    metadata.foreignKeys.map((fk, idx) => (
+                      <div key={idx} className="text-xs">
+                        <Badge variant="outline" className="font-mono bg-blue-500/10 mr-1">
+                          {fk.column}
+                        </Badge>
+                        <span className="text-muted-foreground">→</span>
+                        <span className="text-muted-foreground ml-1">{fk.foreignTable}.{fk.foreignColumn}</span>
+                      </div>
+                    ))
+                  ) : (
+                    <span className="text-xs text-muted-foreground">None</span>
+                  )}
+                </div>
+              </ScrollArea>
+            </div>
+
+            {/* Unique Indexes */}
+            <div className="bg-muted/50 rounded-lg p-3 border">
+              <div className="flex items-center gap-2 mb-2">
+                <Star className="h-4 w-4 text-purple-500" />
+                <span className="font-medium text-sm">Unique Indexes</span>
+                <Badge variant="outline" className="ml-auto text-xs">{metadata.uniqueKeys.length}</Badge>
+              </div>
+              <div className="space-y-1">
+                {metadata.uniqueKeys.length > 0 ? (
+                  metadata.uniqueKeys.map((uk, idx) => (
+                    <Badge key={idx} variant="outline" className="mr-1 text-xs font-mono bg-purple-500/10">
+                      {uk}
+                    </Badge>
+                  ))
+                ) : (
+                  <span className="text-xs text-muted-foreground">None</span>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* Table Name Header */}
+          <div className="flex items-center gap-2 text-lg font-semibold">
+            <Database className="h-5 w-5 text-primary" />
+            <span>{selectedTable}</span>
+          </div>
 
           {/* Search Input */}
           {tableData.length > 0 && (
