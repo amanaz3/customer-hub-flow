@@ -4430,6 +4430,12 @@ export type Database = {
           updated_at: string
         }[]
       }
+      get_public_tables: {
+        Args: never
+        Returns: {
+          table_name: string
+        }[]
+      }
       get_secure_document_url: {
         Args: { expires_in_seconds?: number; file_path: string }
         Returns: string
