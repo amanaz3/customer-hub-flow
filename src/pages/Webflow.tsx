@@ -10,8 +10,21 @@ import { PaymentStep } from '@/components/Webflow/steps/PaymentStep';
 import { FounderDetailsStep } from '@/components/Webflow/steps/FounderDetailsStep';
 import { BookkeepingTaxStep } from '@/components/Webflow/steps/BookkeepingTaxStep';
 import { DashboardStep } from '@/components/Webflow/steps/DashboardStep';
+import { WebflowAIAssistant } from '@/components/AIAssistant/WebflowAIAssistant';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, ArrowRight, Save } from 'lucide-react';
+
+const stepNames = [
+  'Country Selection',
+  'Business Intent',
+  'Jurisdiction',
+  'Business Activity',
+  'Plan & Pricing',
+  'Payment',
+  'Founder Details',
+  'Bookkeeping & Tax',
+  'Dashboard'
+];
 
 const WebflowContent: React.FC = () => {
   const { state, nextStep, prevStep, canProceed } = useWebflow();
@@ -33,6 +46,15 @@ const WebflowContent: React.FC = () => {
 
   const isPaymentStep = state.currentStep === 6;
   const isDashboard = state.currentStep === 9;
+
+  // Build context for AI Assistant
+  const assistantContext = {
+    currentStep: stepNames[state.currentStep - 1],
+    nationality: state.nationality || undefined,
+    companyType: state.locationType || undefined,
+    businessActivity: state.activityName || undefined,
+    jurisdiction: state.emirate || undefined,
+  };
 
   return (
     <div className="h-screen overflow-y-auto bg-gradient-to-b from-background to-muted/30">
@@ -94,6 +116,9 @@ const WebflowContent: React.FC = () => {
           </p>
         </div>
       </div>
+
+      {/* AI Assistant */}
+      <WebflowAIAssistant context={assistantContext} />
     </div>
   );
 };
