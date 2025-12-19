@@ -11,7 +11,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { toast } from 'sonner';
-import { Plus, Edit, Trash2, ChevronDown, ChevronUp, Code, Workflow, Save, AlertTriangle, Download, Upload, Sparkles } from 'lucide-react';
+import { Plus, Edit, Trash2, ChevronDown, ChevronUp, Code, Workflow, Save, AlertTriangle, Download, Upload, Sparkles, Building2 } from 'lucide-react';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { useBankReadinessConfig, BankReadinessRule } from '@/hooks/useBankReadinessConfig';
 
@@ -58,18 +58,46 @@ const ACTION_TYPE_OPTIONS = [
   { value: 'require_document', label: 'Require Document' },
 ];
 
+interface BankProfile {
+  id: string;
+  bank_code: string;
+  bank_name: string;
+  preferred_jurisdictions: string[];
+  preferred_business_models: string[];
+  preferred_activities: string[];
+  avoid_activities: string[];
+  accepts_non_residents: boolean;
+  accepts_high_risk_nationalities: boolean;
+  risk_tolerance: string;
+  min_monthly_turnover: string;
+  processing_time_days: number;
+  is_active: boolean;
+}
+
+const JURISDICTION_OPTIONS = [
+  'Dubai Mainland', 'Abu Dhabi Mainland', 'DMCC', 'DIFC', 'JAFZA', 'RAK FTZ', 'Sharjah FZ', 'Ajman FZ'
+];
+
+const ACTIVITY_OPTIONS = [
+  'Trading', 'IT Services', 'Consulting', 'Real Estate', 'Food & Beverage', 'E-commerce', 'Manufacturing', 'Crypto', 'Professional Services'
+];
+
 export function BankReadinessRulesTab() {
-  const { rules, loading, updateRules, versionNumber, addMissingRules, getMissingRulesCount } = useBankReadinessConfig();
+  const { rules, bankProfiles, loading, updateRules, updateBankProfiles, versionNumber, addMissingRules, getMissingRulesCount } = useBankReadinessConfig();
+  const [activeTab, setActiveTab] = useState<'rules' | 'banks'>('rules');
   const [activeView, setActiveView] = useState<'visual' | 'json'>('visual');
   const [localRules, setLocalRules] = useState<BankReadinessRule[]>([]);
+  const [localBanks, setLocalBanks] = useState<BankProfile[]>([]);
   const [editingRule, setEditingRule] = useState<BankReadinessRule | null>(null);
+  const [editingBank, setEditingBank] = useState<BankProfile | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isBankDialogOpen, setIsBankDialogOpen] = useState(false);
   const [expandedRules, setExpandedRules] = useState<Set<string>>(new Set());
   const [jsonContent, setJsonContent] = useState('');
   const [jsonError, setJsonError] = useState<string | null>(null);
   const missingRulesCount = getMissingRulesCount();
 
-  // Form state
+  // Form state for rules
   const [formData, setFormData] = useState({
     rule_name: '',
     rule_type: 'risk_scoring',
@@ -80,11 +108,29 @@ export function BankReadinessRulesTab() {
     actions: [{ type: 'add_score', value: 0, message: '' }] as RuleAction[],
   });
 
-  // Sync with config rules
+  // Form state for banks
+  const [bankFormData, setBankFormData] = useState<BankProfile>({
+    id: '',
+    bank_code: '',
+    bank_name: '',
+    preferred_jurisdictions: [],
+    preferred_business_models: [],
+    preferred_activities: [],
+    avoid_activities: [],
+    accepts_non_residents: false,
+    accepts_high_risk_nationalities: false,
+    risk_tolerance: 'medium',
+    min_monthly_turnover: 'AED 50,000',
+    processing_time_days: 14,
+    is_active: true,
+  });
+
+  // Sync with config rules and banks
   useEffect(() => {
     setLocalRules(rules);
+    setLocalBanks(bankProfiles);
     setJsonContent(JSON.stringify(rules, null, 2));
-  }, [rules]);
+  }, [rules, bankProfiles]);
 
   const handleJsonChange = (value: string) => {
     setJsonContent(value);
@@ -210,6 +256,71 @@ export function BankReadinessRulesTab() {
     setEditingRule(null);
   };
 
+  const resetBankForm = () => {
+    setBankFormData({
+      id: '',
+      bank_code: '',
+      bank_name: '',
+      preferred_jurisdictions: [],
+      preferred_business_models: [],
+      preferred_activities: [],
+      avoid_activities: [],
+      accepts_non_residents: false,
+      accepts_high_risk_nationalities: false,
+      risk_tolerance: 'medium',
+      min_monthly_turnover: 'AED 50,000',
+      processing_time_days: 14,
+      is_active: true,
+    });
+    setEditingBank(null);
+  };
+
+  const handleSaveBank = async () => {
+    try {
+      const newBank: BankProfile = {
+        ...bankFormData,
+        id: editingBank?.id || `bank-${Date.now()}`,
+      };
+
+      let updatedBanks: BankProfile[];
+      if (editingBank) {
+        updatedBanks = localBanks.map(b => b.id === editingBank.id ? newBank : b);
+      } else {
+        updatedBanks = [...localBanks, newBank];
+      }
+
+      await updateBankProfiles(updatedBanks);
+      setIsBankDialogOpen(false);
+      resetBankForm();
+    } catch (error) {
+      console.error(error);
+      toast.error('Failed to save bank');
+    }
+  };
+
+  const handleDeleteBank = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this bank?')) return;
+    const updatedBanks = localBanks.filter(b => b.id !== id);
+    await updateBankProfiles(updatedBanks);
+  };
+
+  const handleToggleBankActive = async (bank: BankProfile) => {
+    const updatedBanks = localBanks.map(b => 
+      b.id === bank.id ? { ...b, is_active: !b.is_active } : b
+    );
+    await updateBankProfiles(updatedBanks);
+  };
+
+  const openEditBankDialog = (bank: BankProfile) => {
+    setEditingBank(bank);
+    setBankFormData(bank);
+    setIsBankDialogOpen(true);
+  };
+
+  const toggleArrayItem = (array: string[], item: string): string[] => {
+    return array.includes(item) ? array.filter(i => i !== item) : [...array, item];
+  };
+
   const openEditDialog = (rule: BankReadinessRule) => {
     setEditingRule(rule);
     setFormData({
@@ -285,43 +396,60 @@ export function BankReadinessRulesTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-lg font-semibold">Bank Readiness Rules</h3>
-          <p className="text-sm text-muted-foreground">
-            {localRules.length} rules • {localRules.filter(r => r.is_active).length} active • v{versionNumber}
-          </p>
+      {/* Main Tabs: Rules vs Banks */}
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'rules' | 'banks')}>
+        <div className="flex justify-between items-center mb-4">
+          <TabsList>
+            <TabsTrigger value="rules" className="flex items-center gap-2">
+              <Workflow className="h-4 w-4" />
+              Rules ({localRules.length})
+            </TabsTrigger>
+            <TabsTrigger value="banks" className="flex items-center gap-2">
+              <Building2 className="h-4 w-4" />
+              Bank Profiles ({localBanks.length})
+            </TabsTrigger>
+          </TabsList>
+          <Badge variant="outline">v{versionNumber}</Badge>
         </div>
-        <div className="flex gap-2">
-          {missingRulesCount > 0 && (
-            <Button variant="outline" size="sm" onClick={addMissingRules} className="text-amber-600 border-amber-300 hover:bg-amber-50">
-              <Sparkles className="h-4 w-4 mr-1" />
-              Add {missingRulesCount} Rules
-            </Button>
-          )}
-          <Button variant="outline" size="sm" onClick={exportRules}>
-            <Download className="h-4 w-4 mr-1" />
-            Export
-          </Button>
-          <label>
-            <Button variant="outline" size="sm" asChild>
-              <span>
-                <Upload className="h-4 w-4 mr-1" />
-                Import
-              </span>
-            </Button>
-            <input type="file" accept=".json" onChange={importRules} className="hidden" />
-          </label>
-          <Dialog open={isDialogOpen} onOpenChange={(open) => {
-            setIsDialogOpen(open);
-            if (!open) resetForm();
-          }}>
-            <DialogTrigger asChild>
-              <Button>
-                <Plus className="h-4 w-4 mr-2" />
-                Add Rule
+
+        {/* RULES TAB */}
+        <TabsContent value="rules" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <div>
+              <p className="text-sm text-muted-foreground">
+                {localRules.filter(r => r.is_active).length} active rules
+              </p>
+            </div>
+            <div className="flex gap-2">
+              {missingRulesCount > 0 && (
+                <Button variant="outline" size="sm" onClick={addMissingRules} className="text-amber-600 border-amber-300 hover:bg-amber-50">
+                  <Sparkles className="h-4 w-4 mr-1" />
+                  Add {missingRulesCount} Rules
+                </Button>
+              )}
+              <Button variant="outline" size="sm" onClick={exportRules}>
+                <Download className="h-4 w-4 mr-1" />
+                Export
               </Button>
-            </DialogTrigger>
+              <label>
+                <Button variant="outline" size="sm" asChild>
+                  <span>
+                    <Upload className="h-4 w-4 mr-1" />
+                    Import
+                  </span>
+                </Button>
+                <input type="file" accept=".json" onChange={importRules} className="hidden" />
+              </label>
+              <Dialog open={isDialogOpen} onOpenChange={(open) => {
+                setIsDialogOpen(open);
+                if (!open) resetForm();
+              }}>
+                <DialogTrigger asChild>
+                  <Button>
+                    <Plus className="h-4 w-4 mr-2" />
+                    Add Rule
+                  </Button>
+                </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingRule ? 'Edit Rule' : 'Create New Rule'}</DialogTitle>
@@ -473,139 +601,390 @@ export function BankReadinessRulesTab() {
               </div>
             </DialogContent>
           </Dialog>
-        </div>
-      </div>
+            </div>
+          </div>
 
-      {/* Visual / JSON Toggle */}
-      <Tabs value={activeView} onValueChange={(v) => setActiveView(v as any)} className="space-y-4">
-        <TabsList>
-          <TabsTrigger value="visual" className="flex items-center gap-2">
-            <Workflow className="h-4 w-4" />
-            Visual
-          </TabsTrigger>
-          <TabsTrigger value="json" className="flex items-center gap-2">
-            <Code className="h-4 w-4" />
-            JSON
-          </TabsTrigger>
-        </TabsList>
+          {/* Visual / JSON Toggle for Rules */}
+          <Tabs value={activeView} onValueChange={(v) => setActiveView(v as any)} className="space-y-4">
+            <TabsList>
+              <TabsTrigger value="visual" className="flex items-center gap-2">
+                <Workflow className="h-4 w-4" />
+                Visual
+              </TabsTrigger>
+              <TabsTrigger value="json" className="flex items-center gap-2">
+                <Code className="h-4 w-4" />
+                JSON
+              </TabsTrigger>
+            </TabsList>
 
-        <TabsContent value="visual" className="space-y-2">
-          {localRules.length === 0 ? (
+            <TabsContent value="visual" className="space-y-2">
+              {localRules.length === 0 ? (
+                <Card>
+                  <CardContent className="py-12 text-center text-muted-foreground">
+                    <Workflow className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                    <p>No rules configured. Click "Add Rule" to create your first rule.</p>
+                  </CardContent>
+                </Card>
+              ) : (
+                localRules.map((rule) => (
+                  <Collapsible key={rule.id} open={expandedRules.has(rule.id)}>
+                    <Card className={!rule.is_active ? 'opacity-60' : ''}>
+                      <CardHeader className="py-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <CollapsibleTrigger asChild>
+                              <Button variant="ghost" size="icon" onClick={() => toggleExpanded(rule.id)}>
+                                {expandedRules.has(rule.id) ? (
+                                  <ChevronUp className="h-4 w-4" />
+                                ) : (
+                                  <ChevronDown className="h-4 w-4" />
+                                )}
+                              </Button>
+                            </CollapsibleTrigger>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <CardTitle className="text-sm font-medium">{rule.rule_name}</CardTitle>
+                                <Badge variant={rule.is_active ? 'default' : 'secondary'}>
+                                  {rule.is_active ? 'Active' : 'Inactive'}
+                                </Badge>
+                                <Badge variant="outline">Priority: {rule.priority}</Badge>
+                              </div>
+                              {rule.description && (
+                                <p className="text-xs text-muted-foreground mt-1">{rule.description}</p>
+                              )}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <Switch
+                              checked={rule.is_active}
+                              onCheckedChange={() => handleToggleActive(rule)}
+                            />
+                            <Button variant="ghost" size="icon" onClick={() => openEditDialog(rule)}>
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleDeleteRule(rule.id)}>
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
+                        </div>
+                      </CardHeader>
+                      <CollapsibleContent>
+                        <CardContent className="pt-0 pb-4">
+                          <div className="grid grid-cols-2 gap-4 text-sm">
+                            <div>
+                              <p className="font-medium mb-2">Conditions:</p>
+                              <ul className="space-y-1">
+                                {rule.conditions.map((c, i) => (
+                                  <li key={i} className="text-muted-foreground">
+                                    {FIELD_OPTIONS.find(f => f.value === c.field)?.label || c.field} {c.operator} {Array.isArray(c.value) ? c.value.join(', ') : String(c.value)}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                            <div>
+                              <p className="font-medium mb-2">Actions:</p>
+                              <ul className="space-y-1">
+                                {rule.actions.map((a, i) => (
+                                  <li key={i} className="text-muted-foreground">
+                                    {a.type === 'add_score' && `Add ${a.value} to risk score`}
+                                    {a.type === 'add_flag' && `Flag: ${a.message}`}
+                                    {a.type === 'exclude_bank' && `Exclude: ${a.value}`}
+                                    {a.type === 'boost_bank_score' && `Boost: ${a.value}`}
+                                    {a.type === 'reduce_bank_score' && `Reduce: ${a.value}`}
+                                    {a.type === 'require_document' && `Require: ${a.value}`}
+                                  </li>
+                                ))}
+                              </ul>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </CollapsibleContent>
+                    </Card>
+                  </Collapsible>
+                ))
+              )}
+            </TabsContent>
+
+            <TabsContent value="json" className="space-y-4">
+              <Card>
+                <CardContent className="pt-4">
+                  <div className="space-y-4">
+                    {jsonError && (
+                      <div className="flex items-center gap-2 text-destructive text-sm">
+                        <AlertTriangle className="h-4 w-4" />
+                        {jsonError}
+                      </div>
+                    )}
+                    <ScrollArea className="h-[400px] w-full rounded border">
+                      <Textarea
+                        value={jsonContent}
+                        onChange={(e) => handleJsonChange(e.target.value)}
+                        className="min-h-[400px] font-mono text-sm border-0 focus-visible:ring-0"
+                        placeholder="JSON rules configuration..."
+                      />
+                    </ScrollArea>
+                    <div className="flex justify-end gap-2">
+                      <Button
+                        variant="outline"
+                        onClick={() => setJsonContent(JSON.stringify(localRules, null, 2))}
+                      >
+                        Reset
+                      </Button>
+                      <Button onClick={applyJsonChanges} disabled={!!jsonError}>
+                        <Save className="h-4 w-4 mr-2" />
+                        Apply Changes
+                      </Button>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            </TabsContent>
+          </Tabs>
+        </TabsContent>
+
+        {/* BANKS TAB */}
+        <TabsContent value="banks" className="space-y-4">
+          <div className="flex justify-between items-center">
+            <p className="text-sm text-muted-foreground">
+              {localBanks.filter(b => b.is_active).length} active bank profiles
+            </p>
+            <Dialog open={isBankDialogOpen} onOpenChange={(open) => {
+              setIsBankDialogOpen(open);
+              if (!open) resetBankForm();
+            }}>
+              <DialogTrigger asChild>
+                <Button>
+                  <Plus className="h-4 w-4 mr-2" />
+                  Add Bank
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                  <DialogTitle>{editingBank ? 'Edit Bank Profile' : 'Add New Bank'}</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 py-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Bank Name</Label>
+                      <Input
+                        value={bankFormData.bank_name}
+                        onChange={(e) => setBankFormData(prev => ({ ...prev, bank_name: e.target.value }))}
+                        placeholder="e.g., Emirates NBD"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Bank Code</Label>
+                      <Input
+                        value={bankFormData.bank_code}
+                        onChange={(e) => setBankFormData(prev => ({ ...prev, bank_code: e.target.value.toUpperCase() }))}
+                        placeholder="e.g., ENBD"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Risk Tolerance</Label>
+                      <Select
+                        value={bankFormData.risk_tolerance}
+                        onValueChange={(value) => setBankFormData(prev => ({ ...prev, risk_tolerance: value }))}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="low">Low (Conservative)</SelectItem>
+                          <SelectItem value="medium">Medium</SelectItem>
+                          <SelectItem value="high">High (Flexible)</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Processing Time (Days)</Label>
+                      <Input
+                        type="number"
+                        value={bankFormData.processing_time_days}
+                        onChange={(e) => setBankFormData(prev => ({ ...prev, processing_time_days: parseInt(e.target.value) || 14 }))}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Min Monthly Turnover</Label>
+                    <Select
+                      value={bankFormData.min_monthly_turnover}
+                      onValueChange={(value) => setBankFormData(prev => ({ ...prev, min_monthly_turnover: value }))}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Below AED 50,000">Below AED 50,000</SelectItem>
+                        <SelectItem value="AED 50,000">AED 50,000</SelectItem>
+                        <SelectItem value="AED 100,000">AED 100,000</SelectItem>
+                        <SelectItem value="AED 500,000">AED 500,000</SelectItem>
+                        <SelectItem value="AED 1,000,000">AED 1,000,000+</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Preferred Jurisdictions</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {JURISDICTION_OPTIONS.map(j => (
+                        <Badge
+                          key={j}
+                          variant={bankFormData.preferred_jurisdictions.includes(j) ? 'default' : 'outline'}
+                          className="cursor-pointer"
+                          onClick={() => setBankFormData(prev => ({
+                            ...prev,
+                            preferred_jurisdictions: toggleArrayItem(prev.preferred_jurisdictions, j)
+                          }))}
+                        >
+                          {j}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Preferred Activities</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {ACTIVITY_OPTIONS.map(a => (
+                        <Badge
+                          key={a}
+                          variant={bankFormData.preferred_activities.includes(a) ? 'default' : 'outline'}
+                          className="cursor-pointer"
+                          onClick={() => setBankFormData(prev => ({
+                            ...prev,
+                            preferred_activities: toggleArrayItem(prev.preferred_activities, a)
+                          }))}
+                        >
+                          {a}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Avoid Activities</Label>
+                    <div className="flex flex-wrap gap-2">
+                      {ACTIVITY_OPTIONS.map(a => (
+                        <Badge
+                          key={a}
+                          variant={bankFormData.avoid_activities.includes(a) ? 'destructive' : 'outline'}
+                          className="cursor-pointer"
+                          onClick={() => setBankFormData(prev => ({
+                            ...prev,
+                            avoid_activities: toggleArrayItem(prev.avoid_activities, a)
+                          }))}
+                        >
+                          {a}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col gap-3">
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={bankFormData.accepts_non_residents}
+                        onCheckedChange={(checked) => setBankFormData(prev => ({ ...prev, accepts_non_residents: checked }))}
+                      />
+                      <Label>Accepts Non-Residents</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={bankFormData.accepts_high_risk_nationalities}
+                        onCheckedChange={(checked) => setBankFormData(prev => ({ ...prev, accepts_high_risk_nationalities: checked }))}
+                      />
+                      <Label>Accepts High-Risk Nationalities</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={bankFormData.is_active}
+                        onCheckedChange={(checked) => setBankFormData(prev => ({ ...prev, is_active: checked }))}
+                      />
+                      <Label>Bank is Active</Label>
+                    </div>
+                  </div>
+
+                  <div className="flex justify-end gap-2 pt-4">
+                    <Button variant="outline" onClick={() => setIsBankDialogOpen(false)}>Cancel</Button>
+                    <Button onClick={handleSaveBank}>
+                      {editingBank ? 'Update Bank' : 'Add Bank'}
+                    </Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
+          </div>
+
+          {/* Bank Profiles List */}
+          {localBanks.length === 0 ? (
             <Card>
               <CardContent className="py-12 text-center text-muted-foreground">
-                <Workflow className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No rules configured. Click "Add Rule" to create your first rule.</p>
+                <Building2 className="h-12 w-12 mx-auto mb-4 opacity-50" />
+                <p>No bank profiles configured. Click "Add Bank" to create your first bank profile.</p>
               </CardContent>
             </Card>
           ) : (
-            localRules.map((rule) => (
-              <Collapsible key={rule.id} open={expandedRules.has(rule.id)}>
-                <Card className={!rule.is_active ? 'opacity-60' : ''}>
-                  <CardHeader className="py-3">
+            <div className="grid gap-4 md:grid-cols-2">
+              {localBanks.map((bank) => (
+                <Card key={bank.id} className={!bank.is_active ? 'opacity-60' : ''}>
+                  <CardHeader className="pb-2">
                     <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-3">
-                        <CollapsibleTrigger asChild>
-                          <Button variant="ghost" size="icon" onClick={() => toggleExpanded(rule.id)}>
-                            {expandedRules.has(rule.id) ? (
-                              <ChevronUp className="h-4 w-4" />
-                            ) : (
-                              <ChevronDown className="h-4 w-4" />
-                            )}
-                          </Button>
-                        </CollapsibleTrigger>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <CardTitle className="text-sm font-medium">{rule.rule_name}</CardTitle>
-                            <Badge variant={rule.is_active ? 'default' : 'secondary'}>
-                              {rule.is_active ? 'Active' : 'Inactive'}
-                            </Badge>
-                            <Badge variant="outline">Priority: {rule.priority}</Badge>
-                          </div>
-                          {rule.description && (
-                            <p className="text-xs text-muted-foreground mt-1">{rule.description}</p>
-                          )}
-                        </div>
+                      <div>
+                        <CardTitle className="text-base flex items-center gap-2">
+                          <Building2 className="h-4 w-4" />
+                          {bank.bank_name}
+                          <Badge variant="outline" className="text-xs">{bank.bank_code}</Badge>
+                        </CardTitle>
                       </div>
                       <div className="flex items-center gap-2">
                         <Switch
-                          checked={rule.is_active}
-                          onCheckedChange={() => handleToggleActive(rule)}
+                          checked={bank.is_active}
+                          onCheckedChange={() => handleToggleBankActive(bank)}
                         />
-                        <Button variant="ghost" size="icon" onClick={() => openEditDialog(rule)}>
+                        <Button variant="ghost" size="icon" onClick={() => openEditBankDialog(bank)}>
                           <Edit className="h-4 w-4" />
                         </Button>
-                        <Button variant="ghost" size="icon" onClick={() => handleDeleteRule(rule.id)}>
+                        <Button variant="ghost" size="icon" onClick={() => handleDeleteBank(bank.id)}>
                           <Trash2 className="h-4 w-4 text-destructive" />
                         </Button>
                       </div>
                     </div>
                   </CardHeader>
-                  <CollapsibleContent>
-                    <CardContent className="pt-0 pb-4">
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <p className="font-medium mb-2">Conditions:</p>
-                          <ul className="space-y-1">
-                            {rule.conditions.map((c, i) => (
-                              <li key={i} className="text-muted-foreground">
-                                {FIELD_OPTIONS.find(f => f.value === c.field)?.label || c.field} {c.operator} {Array.isArray(c.value) ? c.value.join(', ') : String(c.value)}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
-                        <div>
-                          <p className="font-medium mb-2">Actions:</p>
-                          <ul className="space-y-1">
-                            {rule.actions.map((a, i) => (
-                              <li key={i} className="text-muted-foreground">
-                                {a.type === 'add_score' && `Add ${a.value} to risk score`}
-                                {a.type === 'add_flag' && `Flag: ${a.message}`}
-                              </li>
-                            ))}
-                          </ul>
-                        </div>
+                  <CardContent className="text-sm space-y-2">
+                    <div className="flex gap-4">
+                      <span className="text-muted-foreground">Risk Tolerance:</span>
+                      <Badge variant={bank.risk_tolerance === 'high' ? 'default' : bank.risk_tolerance === 'low' ? 'secondary' : 'outline'}>
+                        {bank.risk_tolerance}
+                      </Badge>
+                    </div>
+                    <div className="flex gap-4">
+                      <span className="text-muted-foreground">Min Turnover:</span>
+                      <span>{bank.min_monthly_turnover}</span>
+                    </div>
+                    <div className="flex gap-4">
+                      <span className="text-muted-foreground">Processing:</span>
+                      <span>{bank.processing_time_days} days</span>
+                    </div>
+                    {bank.preferred_jurisdictions.length > 0 && (
+                      <div>
+                        <span className="text-muted-foreground">Jurisdictions: </span>
+                        <span className="text-xs">{bank.preferred_jurisdictions.join(', ')}</span>
                       </div>
-                    </CardContent>
-                  </CollapsibleContent>
+                    )}
+                    <div className="flex gap-2 pt-1">
+                      {bank.accepts_non_residents && <Badge variant="outline" className="text-xs">Non-Residents OK</Badge>}
+                      {bank.accepts_high_risk_nationalities && <Badge variant="outline" className="text-xs">High-Risk OK</Badge>}
+                    </div>
+                  </CardContent>
                 </Card>
-              </Collapsible>
-            ))
+              ))}
+            </div>
           )}
-        </TabsContent>
-
-        <TabsContent value="json" className="space-y-4">
-          <Card>
-            <CardContent className="pt-4">
-              <div className="space-y-4">
-                {jsonError && (
-                  <div className="flex items-center gap-2 text-destructive text-sm">
-                    <AlertTriangle className="h-4 w-4" />
-                    {jsonError}
-                  </div>
-                )}
-                <ScrollArea className="h-[400px] w-full rounded border">
-                  <Textarea
-                    value={jsonContent}
-                    onChange={(e) => handleJsonChange(e.target.value)}
-                    className="min-h-[400px] font-mono text-sm border-0 focus-visible:ring-0"
-                    placeholder="JSON rules configuration..."
-                  />
-                </ScrollArea>
-                <div className="flex justify-end gap-2">
-                  <Button
-                    variant="outline"
-                    onClick={() => setJsonContent(JSON.stringify(localRules, null, 2))}
-                  >
-                    Reset
-                  </Button>
-                  <Button onClick={applyJsonChanges} disabled={!!jsonError}>
-                    <Save className="h-4 w-4 mr-2" />
-                    Apply Changes
-                  </Button>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
         </TabsContent>
       </Tabs>
     </div>
