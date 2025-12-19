@@ -85,6 +85,7 @@ import WebflowSimple from '@/pages/WebflowSimple';
 import WebflowConfig from '@/pages/WebflowConfig';
 import Web from '@/pages/Web';
 import AIAssistant from '@/pages/AIAssistant';
+import AIAssistantConfig from '@/pages/AIAssistantConfig';
 import ErrorTracker from '@/utils/errorTracking';
 import PerformanceMonitor from '@/utils/performanceMonitoring';
 import FeatureAnalytics from '@/utils/featureAnalytics';
@@ -791,6 +792,16 @@ function App() {
                       <MainLayout>
                         <PageErrorBoundary pageName="AI Assistant">
                           <AIAssistant />
+                        </PageErrorBoundary>
+                      </MainLayout>
+                    </ProtectedRoute>
+                  } />
+                  
+                  <Route path="/ai-assistant-config" element={
+                    <ProtectedRoute requireAdmin>
+                      <MainLayout>
+                        <PageErrorBoundary pageName="AI Assistant Config">
+                          <AIAssistantConfig />
                         </PageErrorBoundary>
                       </MainLayout>
                     </ProtectedRoute>

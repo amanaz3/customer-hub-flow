@@ -142,6 +142,56 @@ export type Database = {
           },
         ]
       }
+      ai_assistant_config: {
+        Row: {
+          api_mappings: Json
+          created_at: string
+          created_by: string | null
+          greeting_message: string
+          id: string
+          is_active: boolean
+          model: string
+          name: string
+          system_prompt: string
+          updated_at: string
+          workflow_rules: Json
+        }
+        Insert: {
+          api_mappings?: Json
+          created_at?: string
+          created_by?: string | null
+          greeting_message?: string
+          id?: string
+          is_active?: boolean
+          model?: string
+          name?: string
+          system_prompt: string
+          updated_at?: string
+          workflow_rules?: Json
+        }
+        Update: {
+          api_mappings?: Json
+          created_at?: string
+          created_by?: string | null
+          greeting_message?: string
+          id?: string
+          is_active?: boolean
+          model?: string
+          name?: string
+          system_prompt?: string
+          updated_at?: string
+          workflow_rules?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_assistant_config_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       application_assessment_history: {
         Row: {
           application_id: string

@@ -1,11 +1,13 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Globe, ChevronRight, Layers, Bot } from 'lucide-react';
+import { Globe, ChevronRight, Layers, Bot, Settings2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
+import { useAuth } from '@/contexts/SecureAuthContext';
 
 const Web = () => {
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
 
   return (
     <div className={cn(
@@ -87,6 +89,31 @@ const Web = () => {
             </p>
           </CardContent>
         </Card>
+
+        {/* AI Assistant Config Card - Admin Only */}
+        {isAdmin && (
+          <Card 
+            className="cursor-pointer hover:shadow-lg transition-all duration-200 hover:scale-[1.02] border-0 bg-gradient-to-br from-card to-card/50"
+            onClick={() => navigate('/ai-assistant-config')}
+          >
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 rounded-lg bg-orange-500/10">
+                    <Settings2 className="h-5 w-5 text-orange-500" />
+                  </div>
+                  <span>AI Assistant Config</span>
+                </div>
+                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <p className="text-sm text-muted-foreground">
+                Configure AI chatbot prompts, behavior, and settings
+              </p>
+            </CardContent>
+          </Card>
+        )}
       </div>
     </div>
   );
