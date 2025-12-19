@@ -1107,17 +1107,13 @@ function ActivityDialog({
   );
 }
 
-// Types for Services and Bundles
-interface ServiceType {
+// Types for Services (Products) and Bundles
+interface ProductService {
   id: string;
-  service_name: string;
-  service_code: string;
-  frequency: string;
-  arr_value: number;
-  unit_price: number;
-  billing_period: string;
-  is_recurring: boolean;
+  name: string;
+  description: string | null;
   is_active: boolean;
+  service_category_id: string | null;
 }
 
 interface ServiceBundle {
@@ -1145,9 +1141,9 @@ function PricingTab({
   const [editingPricing, setEditingPricing] = useState<WebflowPricingConfig | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   
-  // Services state
-  const [services, setServices] = useState<ServiceType[]>([]);
-  const [editingService, setEditingService] = useState<ServiceType | null>(null);
+  // Services (Products) state
+  const [services, setServices] = useState<ProductService[]>([]);
+  const [editingService, setEditingService] = useState<ProductService | null>(null);
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
   const [loadingServices, setLoadingServices] = useState(false);
   
@@ -1169,9 +1165,9 @@ function PricingTab({
     setLoadingServices(true);
     try {
       const { data, error } = await supabase
-        .from('service_types')
-        .select('*')
-        .order('service_name');
+        .from('products')
+        .select('id, name, description, is_active, service_category_id')
+        .order('name');
       if (error) throw error;
       setServices(data || []);
     } catch (error) {
@@ -1231,20 +1227,15 @@ function PricingTab({
     await onUpdate(pricing.filter(p => p.id !== id));
   };
 
-  // Service handlers
-  const handleSaveService = async (service: Partial<ServiceType>) => {
+  // Service (Product) handlers
+  const handleSaveService = async (service: Partial<ProductService>) => {
     try {
       if (editingService?.id) {
         const { error } = await supabase
-          .from('service_types')
+          .from('products')
           .update({
-            service_name: service.service_name,
-            service_code: service.service_code,
-            unit_price: service.unit_price,
-            arr_value: service.arr_value,
-            frequency: service.frequency,
-            billing_period: service.billing_period,
-            is_recurring: service.is_recurring,
+            name: service.name,
+            description: service.description,
             is_active: service.is_active
           })
           .eq('id', editingService.id);
@@ -1252,15 +1243,10 @@ function PricingTab({
         toast({ title: 'Success', description: 'Service updated' });
       } else {
         const { error } = await supabase
-          .from('service_types')
+          .from('products')
           .insert({
-            service_name: service.service_name || '',
-            service_code: service.service_code || '',
-            unit_price: service.unit_price || 0,
-            arr_value: service.arr_value || 0,
-            frequency: service.frequency || 'one-time',
-            billing_period: service.billing_period || 'one-time',
-            is_recurring: service.is_recurring || false,
+            name: service.name || '',
+            description: service.description || '',
             is_active: service.is_active !== false
           });
         if (error) throw error;
@@ -1277,7 +1263,7 @@ function PricingTab({
 
   const handleDeleteService = async (id: string) => {
     try {
-      const { error } = await supabase.from('service_types').delete().eq('id', id);
+      const { error } = await supabase.from('products').delete().eq('id', id);
       if (error) throw error;
       toast({ title: 'Success', description: 'Service deleted' });
       fetchServices();
@@ -1339,8 +1325,7 @@ function PricingTab({
   );
 
   const filteredServices = services.filter(s => 
-    s.service_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-    s.service_code.toLowerCase().includes(searchQuery.toLowerCase())
+    s.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const filteredBundles = bundles.filter(b => 
@@ -1496,11 +1481,8 @@ function PricingTab({
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Service</TableHead>
-                    <TableHead>Code</TableHead>
-                    <TableHead>Unit Price</TableHead>
-                    <TableHead>Frequency</TableHead>
-                    <TableHead>ARR Value</TableHead>
+                    <TableHead>Service Name</TableHead>
+                    <TableHead>Description</TableHead>
                     <TableHead>Status</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
@@ -1508,15 +1490,10 @@ function PricingTab({
                 <TableBody>
                   {filteredServices.map((service) => (
                     <TableRow key={service.id}>
-                      <TableCell className="font-medium">{service.service_name}</TableCell>
-                      <TableCell>
-                        <Badge variant="outline">{service.service_code}</Badge>
+                      <TableCell className="font-medium">{service.name}</TableCell>
+                      <TableCell className="text-muted-foreground max-w-xs truncate">
+                        {service.description || '-'}
                       </TableCell>
-                      <TableCell>AED {Number(service.unit_price).toLocaleString()}</TableCell>
-                      <TableCell>
-                        <Badge variant="secondary" className="capitalize">{service.frequency}</Badge>
-                      </TableCell>
-                      <TableCell>AED {Number(service.arr_value).toLocaleString()}</TableCell>
                       <TableCell>
                         {service.is_active ? (
                           <Badge variant="outline" className="text-green-600 border-green-600">Active</Badge>
@@ -1634,23 +1611,18 @@ function ServiceDialog({
 }: {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  service: ServiceType | null;
-  onSave: (service: Partial<ServiceType>) => void;
+  service: ProductService | null;
+  onSave: (service: Partial<ProductService>) => void;
 }) {
-  const [formData, setFormData] = useState<Partial<ServiceType>>({});
+  const [formData, setFormData] = useState<Partial<ProductService>>({});
 
   useEffect(() => {
     if (service) {
       setFormData(service);
     } else {
       setFormData({
-        service_name: '',
-        service_code: '',
-        unit_price: 0,
-        arr_value: 0,
-        frequency: 'one-time',
-        billing_period: 'one-time',
-        is_recurring: false,
+        name: '',
+        description: '',
         is_active: true
       });
     }
@@ -1661,82 +1633,23 @@ function ServiceDialog({
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle>{service ? 'Edit Service' : 'Add Service'}</DialogTitle>
-          <DialogDescription>Configure individual service details</DialogDescription>
+          <DialogDescription>Configure service/product details</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Service Name</Label>
-              <Input 
-                value={formData.service_name || ''} 
-                onChange={(e) => setFormData({...formData, service_name: e.target.value})} 
-                placeholder="Bookkeeping" 
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>Service Code</Label>
-              <Input 
-                value={formData.service_code || ''} 
-                onChange={(e) => setFormData({...formData, service_code: e.target.value})} 
-                placeholder="BOOKKEEPING" 
-              />
-            </div>
+          <div className="space-y-2">
+            <Label>Service Name</Label>
+            <Input 
+              value={formData.name || ''} 
+              onChange={(e) => setFormData({...formData, name: e.target.value})} 
+              placeholder="Business Bank Account" 
+            />
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Unit Price (AED)</Label>
-              <Input 
-                type="number" 
-                value={formData.unit_price || 0} 
-                onChange={(e) => setFormData({...formData, unit_price: parseFloat(e.target.value) || 0})} 
-              />
-            </div>
-            <div className="space-y-2">
-              <Label>ARR Value (AED)</Label>
-              <Input 
-                type="number" 
-                value={formData.arr_value || 0} 
-                onChange={(e) => setFormData({...formData, arr_value: parseFloat(e.target.value) || 0})} 
-              />
-            </div>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label>Frequency</Label>
-              <Select 
-                value={formData.frequency || 'one-time'} 
-                onValueChange={(value) => setFormData({...formData, frequency: value})}
-              >
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="one-time">One-time</SelectItem>
-                  <SelectItem value="monthly">Monthly</SelectItem>
-                  <SelectItem value="quarterly">Quarterly</SelectItem>
-                  <SelectItem value="annual">Annual</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="space-y-2">
-              <Label>Billing Period</Label>
-              <Select 
-                value={formData.billing_period || 'one-time'} 
-                onValueChange={(value) => setFormData({...formData, billing_period: value})}
-              >
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="one-time">One-time</SelectItem>
-                  <SelectItem value="month">Month</SelectItem>
-                  <SelectItem value="quarter">Quarter</SelectItem>
-                  <SelectItem value="year">Year</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-          <div className="flex items-center justify-between">
-            <Label>Recurring</Label>
-            <Switch 
-              checked={formData.is_recurring || false} 
-              onCheckedChange={(checked) => setFormData({...formData, is_recurring: checked})} 
+          <div className="space-y-2">
+            <Label>Description</Label>
+            <Textarea 
+              value={formData.description || ''} 
+              onChange={(e) => setFormData({...formData, description: e.target.value})} 
+              placeholder="Service description..." 
             />
           </div>
           <div className="flex items-center justify-between">
