@@ -1502,6 +1502,56 @@ export type Database = {
           },
         ]
       }
+      bookkeeper_reconciliation_rules: {
+        Row: {
+          condition_type: string
+          created_at: string
+          created_by: string | null
+          description: string | null
+          id: string
+          is_active: boolean
+          jurisdiction: string
+          params: Json
+          priority: number
+          rule_name: string
+          updated_at: string
+        }
+        Insert: {
+          condition_type: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          jurisdiction?: string
+          params?: Json
+          priority?: number
+          rule_name: string
+          updated_at?: string
+        }
+        Update: {
+          condition_type?: string
+          created_at?: string
+          created_by?: string | null
+          description?: string | null
+          id?: string
+          is_active?: boolean
+          jurisdiction?: string
+          params?: Json
+          priority?: number
+          rule_name?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookkeeper_reconciliation_rules_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookkeeper_reconciliations: {
         Row: {
           bill_id: string | null
@@ -1579,6 +1629,44 @@ export type Database = {
           {
             foreignKeyName: "bookkeeper_reconciliations_reconciled_by_fkey"
             columns: ["reconciled_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      bookkeeper_settings: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          setting_key: string
+          setting_value: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          setting_key: string
+          setting_value: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          setting_key?: string
+          setting_value?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookkeeper_settings_updated_by_fkey"
+            columns: ["updated_by"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
